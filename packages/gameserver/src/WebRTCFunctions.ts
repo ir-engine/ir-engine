@@ -154,7 +154,8 @@ export const handleConsumeDataEvent =
         world.clients.get(userId)!.dataConsumers!.set(dataProducer.id, dataConsumer)
         if (!world.clients.has(userId))
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
-        const dataProducerOut = world.clients.get(userId)!.dataProducers!!.get('instance')
+        const dataProducerOut = world.clients.get(userId)!.dataProducers!.get('instance')
+        console.log(world.clients.get(userId))
         // Data consumers are all consuming the single producer that outputs from the server's message queue
         socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
           dataProducerId: dataProducerOut.id,

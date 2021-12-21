@@ -93,7 +93,7 @@ const MediaIconsBox = (props) => {
       stopLipsyncTracking()
     } else {
       const mediaTransport = getMediaTransport()
-      if (await configureMediaTransports(mediaTransport, ['video', 'audio'], partyId)) {
+      if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
         startFaceTracking()
         startLipsyncTracking()
       }
@@ -116,13 +116,12 @@ const MediaIconsBox = (props) => {
   }
   const handleMicClick = async () => {
     const mediaTransport = getMediaTransport()
-    if (await configureMediaTransports(mediaTransport, ['audio'], 'instance', instanceChannel.id)) {
-      if (MediaStreams.instance?.camAudioProducer == null)
-        await createCamAudioProducer(mediaTransport, 'instance', instanceChannel.id)
+    if (await configureMediaTransports(mediaTransport, ['audio'])) {
+      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
-        else await resumeProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
+        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
@@ -131,13 +130,12 @@ const MediaIconsBox = (props) => {
 
   const handleCamClick = async () => {
     const mediaTransport = getMediaTransport()
-    if (await configureMediaTransports(mediaTransport, ['video'], 'instance', instanceChannel.id)) {
-      if (MediaStreams.instance?.camVideoProducer == null)
-        await createCamVideoProducer(mediaTransport, 'instance', instanceChannel.id)
+    if (await configureMediaTransports(mediaTransport, ['video'])) {
+      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
-        else await resumeProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
+        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
 

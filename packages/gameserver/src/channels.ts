@@ -18,6 +18,13 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
+type InstanceMetadata = {
+  currentUsers: number
+  locationId: string
+  channelId: string
+  ipAddress: string
+}
+
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
@@ -64,15 +71,14 @@ const loadScene = async (app: Application, scene: string) => {
   // )
 }
 
-const createNewInstance = async (app: Application, newInstance, locationId, channelId, agonesSDK) => {
+const createNewInstance = async (app: Application, newInstance: InstanceMetadata, agonesSDK) => {
   console.log('newInstance:', newInstance)
 
-  if (channelId != null) {
-    console.log('channelId: ' + channelId)
+  const { locationId, channelId } = newInstance
+
+  if (channelId) {
+    console.log('channelId: ', channelId)
     newInstance.channelId = channelId
-    //While there's no scene, this will still signal that the engine is ready
-    //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-    dispatchLocal(EngineActions.sceneLoaded(true) as any)
   } else {
     console.log('locationId: ' + locationId)
     newInstance.locationId = locationId
@@ -224,8 +230,8 @@ export default (app: Application): void => {
                   locationId: locationId,
                   channelId: channelId,
                   ipAddress: ipAddress
-                } as any
-                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+                } as InstanceMetadata
+                await createNewInstance(app, newInstance, agonesSDK)
               } else {
                 const instance = existingInstanceResult.data[0]
                 const authorizedUsers = (await app.service('instance-authorized-user').find({

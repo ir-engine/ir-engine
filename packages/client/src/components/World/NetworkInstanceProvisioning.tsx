@@ -13,7 +13,6 @@ import { useChatState } from '@xrengine/client-core/src/social/services/ChatServ
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
