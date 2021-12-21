@@ -59,7 +59,7 @@ import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, accessEngineState } from '../../ecs/classes/EngineService'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export interface SceneDataComponent extends ComponentJson {
@@ -83,7 +83,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
   let sceneProgress = 0
-  const progressCounter = 70 / Object.keys(sceneData.entities).length
+  const currentProgress = accessEngineState().loadingProgress.value
+  const progressLeft = 100 - currentProgress
+  const progressCounter = progressLeft / Object.keys(sceneData.entities).length
 
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
@@ -92,7 +94,10 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     loadComponents(entity, key, sceneEntity)
 
     dispatchLocal(
-      EngineActions.updateLoadingScreenDetails(Math.floor(30 + sceneProgress), `loading ${sceneEntity.name}...`) as any
+      EngineActions.updateLoadingScreenDetails(
+        Math.floor(currentProgress + sceneProgress),
+        `loading ${sceneEntity.name}...`
+      ) as any
     )
     sceneProgress += progressCounter
   })
