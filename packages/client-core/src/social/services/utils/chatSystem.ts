@@ -1,4 +1,4 @@
-import { Engine } from '../../ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 //updates the client list with the right username for the user
 export async function _updateUsername(userId, username) {
