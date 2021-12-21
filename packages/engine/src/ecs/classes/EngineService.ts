@@ -12,7 +12,9 @@ const state = createState({
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
 
   isPhysicsDebug: false,
-  isAvatarDebug: false
+  isAvatarDebug: false,
+
+  socketInstance: null
 })
 
 export const receptors = (): [] => {
@@ -31,6 +33,14 @@ function stateReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.AVATAR_DEBUG:
         return s.merge({
           isAvatarDebug: action.isAvatarDebug
+        })
+      case EngineEvents.EVENTS.AVATAR_DEBUG:
+        return s.merge({
+          isAvatarDebug: action.isAvatarDebug
+        })
+      case EngineEvents.EVENTS.RESET_ENGINE:
+        return s.merge({
+          socketInstance: action.instance
         })
 
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
@@ -60,13 +70,6 @@ function stateReceptor(action: EngineActionType) {
 
 function callbackReceptor(action: EngineActionType) {
   switch (action.type) {
-    case EngineEvents.EVENTS.RESET_ENGINE:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.RESET_ENGINE,
-        instance: action.instance
-      })
-      break
-
     case EngineEvents.EVENTS.INITIALIZED_ENGINE:
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
       break
