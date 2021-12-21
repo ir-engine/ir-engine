@@ -40,9 +40,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'user-wallet'
-          },
-          {
             model: 'inventory-item',
             include: [
               {
@@ -73,9 +70,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -112,9 +106,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'user-wallet'
-          },
-          {
             model: 'inventory-item',
             include: [
               {
@@ -136,7 +127,6 @@ export default {
         try {
           if (context.result?.data) {
             for (let x = 0; x < context.result.data.length; x++) {
-              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
               for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
                 context.result.data[x].inventory_items[i].metadata = JSON.parse(
                   context.result.data[x].inventory_items[i].metadata
@@ -186,7 +176,6 @@ export default {
       (context: HookContext): HookContext => {
         try {
           if (context.result) {
-            //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
             for (let i = 0; i < context.result.inventory_items?.length; i++) {
               context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
             }
