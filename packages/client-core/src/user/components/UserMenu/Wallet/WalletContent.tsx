@@ -110,11 +110,10 @@ const WalletContent = ({
   }
 
   const handleSubmit = (e) => {
-    sendamtsender(sendData.amount)
+    sendamtsender(sendData.userid, sendData.amount)
     sendamtreceiver(sendData.userid, sendData.amount)
     // sendamtwallet(sendData.amount)
   }
-
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
@@ -130,60 +129,48 @@ const WalletContent = ({
         <Typography></Typography>
       </Stack>
       <Divider />
-      {data.length !== 0 ? (
-        <Stack>
-          {data.map((val, index) => (
-            <Stack key={index} className={classes.title}>
-              <Typography className={classes.wordsize}>Address:{val.userAddress}</Typography>
-              <Typography className={classes.wordsize}>Id:{val.userId}</Typography>
-              <Typography className={classes.wordsize}>Private Key:{val.privateKey}</Typography>
-              <Typography className={classes.wordsize}>Mnemonic:{val.userMnemonic}</Typography>
-            </Stack>
-          ))}
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">User</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={sendData.userid}
-                label="user"
-                onChange={(e: any) => {
-                  handleUser(e)
-                }}
-              >
-                {user.map((datas, index) => (
-                  <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
-                    {datas.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              label="Amount"
-              variant="outlined"
-              value={sendData.amount}
+      <Stack>
+        <Stack direction="row" spacing={2}>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">User</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={sendData.userid}
+              label="user"
               onChange={(e: any) => {
-                if (amountValidation.test(e.target.value) && parseInt(e.target.value) <= coinlimit) {
-                  setState((prevState) => ({
-                    ...prevState,
-                    sendData: {
-                      ...sendData,
-                      amount: e.target.value
-                    }
-                  }))
-                }
+                handleUser(e)
               }}
-            />
-            <Button variant="outlined" onClick={handleSubmit}>
-              Send
-            </Button>
-          </Stack>
+            >
+              {user.map((datas, index) => (
+                <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
+                  {datas.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            label="Amount"
+            variant="outlined"
+            value={sendData.amount}
+            onChange={(e: any) => {
+              if (amountValidation.test(e.target.value) && parseInt(e.target.value) <= coinlimit) {
+                setState((prevState) => ({
+                  ...prevState,
+                  sendData: {
+                    ...sendData,
+                    amount: e.target.value
+                  }
+                }))
+              }
+            }}
+          />
+          <Button variant="outlined" onClick={handleSubmit}>
+            Send
+          </Button>
         </Stack>
-      ) : (
-        'No Data Found'
-      )}
+      </Stack>
     </Box>
   )
 }

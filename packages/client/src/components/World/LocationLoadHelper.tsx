@@ -81,7 +81,8 @@ const createOfflineUser = (sceneData: SceneJson) => {
 
 export const initEngine = async (initOptions: InitializeOptions) => {
   Engine.isLoading = true
-  Network.instance.transport = new SocketWebRTCClientTransport()
+  Network.instance = new Network()
+  Network.instance.transport = new SocketWebRTCClientTransport('world')
   await initializeEngine(initOptions)
 }
 

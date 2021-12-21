@@ -3,14 +3,13 @@ import { Network } from '../../src/networking/classes/Network'
 import '@xrengine/engine/src/patchEngineNode'
 
 class DummyTransport {
-  handleKick = () => {}
   initialize = () => {}
   sendData = () => {}
-  sendReliableData = () => {}
   sendActions = () => {}
   close = () => {}
 }
 
+Network.instance = new Network()
 Network.instance.transport = new DummyTransport()
 Network.instance.transport.initialize()
 

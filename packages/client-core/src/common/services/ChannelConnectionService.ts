@@ -29,7 +29,8 @@ const state = createState({
   readyToConnect: false,
   updateNeeded: false,
   instanceServerConnecting: false,
-  instanceProvisioning: false
+  instanceProvisioning: false,
+  channelDisconnected: true
 })
 
 let connectionSocket = null
@@ -60,7 +61,13 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
       case 'CHANNEL_SERVER_CONNECTING':
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
-        return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
+        return s.merge({
+          connected: true,
+          updateNeeded: false,
+          readyToConnect: false,
+          channelDisconnected: false,
+          instanceServerConnecting: false
+        })
       case 'CHANNEL_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
         return s.merge({
@@ -75,6 +82,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           readyToConnect: false,
           updateNeeded: false,
+          channelDisconnected: true,
           instanceServerConnecting: false,
           instanceProvisioning: false
         })
@@ -159,21 +167,19 @@ export const ChannelConnectionService = {
             ),
           isHarmonyPage: isHarmonyPage
         })
+        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        EngineEvents.instance.addEventListener(
+          MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+          MediaStreamService.triggerUpdateConsumers
+        )
+
+        MediaStreams.instance.channelType =
+          instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+        MediaStreams.instance.channelId = channelId
       } catch (error) {
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
         console.log(error)
       }
-
-      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
-
-      MediaStreams.instance.channelType =
-        instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-      MediaStreams.instance.channelId = channelId
-      store.dispatch(ChannelConnectionAction.channelServerConnected())
     } catch (err) {
       console.log(err)
     }
