@@ -13,8 +13,8 @@ export class DummyTransport implements NetworkTransport {
 }
 
 export class DummyTransportHandler implements NetworkTransportHandler<DummyTransport, DummyTransport> {
-  worldTransports: Map<UserId, DummyTransport>
-  mediaTransports: Map<UserId, DummyTransport>
+  worldTransports = new Map<UserId, DummyTransport>()
+  mediaTransports = new Map<UserId, DummyTransport>()
   constructor() {
     this.worldTransports.set('server' as UserId, new DummyTransport())
     this.mediaTransports.set('media' as UserId, new DummyTransport())

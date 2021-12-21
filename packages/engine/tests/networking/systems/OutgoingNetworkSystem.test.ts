@@ -12,7 +12,7 @@ import { NetworkObjectComponent } from '../../../src/networking/components/Netwo
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TestNetwork } from '../TestNetwork'
 import { WorldStateModel } from '../../../src/networking/schema/networkSchema'
-import { TestNetworkTransport } from '../TestNetworkTransport'
+import { TestNetworkTransport, TestNetworkTransportHandler } from '../TestNetworkTransport'
 
 describe('OutgoingNetworkSystem Integration Tests', async () => {
 	
@@ -21,6 +21,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
 	beforeEach(() => {
     /* hoist */
 		Network.instance = new TestNetwork()
+    Network.instance.transportHandler = new TestNetworkTransportHandler()
 		world = createWorld()
 		Engine.currentWorld = world
 	})
