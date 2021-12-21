@@ -97,24 +97,30 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket = null!
   }
 
-  public async initialize({ instance, locationId }): Promise<void> {
+  public async initialize(args: {
+    sceneId: string
+    ipAddress: string
+    port: string
+    locationId?: string
+    channelId?: string
+  }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
 
+    const { sceneId, ipAddress, port, locationId, channelId } = args
+
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
-    const locationState = accessLocationState()
-    const currentLocation = locationState.currentLocation.location
-    const sceneId = currentLocation?.sceneId?.value
-
-    const ipAddress = instance.ipAddress
-    const port = Number(instance.port)
 
     const query = {
       sceneId,
       locationId,
+      channelId,
       token
     }
+
+    if (locationId) delete query.channelId
+    if (channelId) delete query.locationId
 
     if (process.env.VITE_LOCAL_BUILD === 'true') {
       this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {

@@ -208,7 +208,7 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
 
 export async function createDataProducer(
   networkTransport: SocketWebRTCClientTransport | SocketWebRTCClientMediaTransport,
-  channel = 'default',
+  channel,
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<void> {
@@ -715,43 +715,37 @@ export async function closeConsumer(transport: SocketWebRTCClientMediaTransport,
 export async function leave(
   networkTransport: SocketWebRTCClientTransport | SocketWebRTCClientMediaTransport,
   kicked?: boolean
-): Promise<boolean> {
-  if (networkTransport != null) {
-    try {
-      networkTransport.leaving = true
-      const socket = networkTransport.socket
-      const request = networkTransport.request
-      if (kicked !== true && request && socket.connected === true) {
-        // close everything on the server-side (transports, producers, consumers)
-        const result = await Promise.race([
-          await request(MessageTypes.LeaveWorld.toString()),
-          new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error('Connect timed out')), 10000)
-          })
-        ])
-        if (result?.error) console.error(result.error)
-        dispatchLocal(EngineActions.leaveWorld() as any)
-      }
-
-      networkTransport.leaving = false
-      networkTransport.left = true
-
-      //Leaving the world should close all transports from the server side.
-      //This will also destroy all the associated producers and consumers.
-      //All we need to do on the client is null all references.
-      networkTransport.close()
-      // TODO // networkTransport.close(instance, !instance)
-
-      if (socket && socket.close) socket.close()
-
-      return true
-    } catch (err) {
-      console.log('Error with leave()')
-      console.log(err)
-      networkTransport.leaving = false
+) {
+  try {
+    networkTransport.leaving = true
+    const socket = networkTransport.socket
+    if (kicked !== true && socket.connected === true) {
+      // close everything on the server-side (transports, producers, consumers)
+      const result = await Promise.race([
+        await networkTransport.request(MessageTypes.LeaveWorld.toString()),
+        new Promise((resolve, reject) => {
+          setTimeout(() => reject(new Error('Connect timed out')), 10000)
+        })
+      ])
+      if (result?.error) console.error(result.error)
+      dispatchLocal(EngineActions.leaveWorld() as any)
     }
+
+    networkTransport.leaving = false
+    networkTransport.left = true
+
+    //Leaving the world should close all transports from the server side.
+    //This will also destroy all the associated producers and consumers.
+    //All we need to do on the client is null all references.
+    networkTransport.close()
+    // TODO // networkTransport.close(instance, !instance)
+
+    if (socket && socket.close) socket.close()
+  } catch (err) {
+    console.log('Error with leave()')
+    console.log(err)
+    networkTransport.leaving = false
   }
-  return true // should this return true or false??
 }
 
 // async startScreenshare(): Promise<boolean> {

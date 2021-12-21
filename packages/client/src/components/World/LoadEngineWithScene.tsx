@@ -83,7 +83,7 @@ export const LoadEngineWithScene = (props: Props) => {
     // }
 
     // shut down connection with existing GS
-    console.log('reseting connection for tp')
+    console.log('reseting connection for portal teleport')
     leave(getWorldTransport())
     InstanceConnectionService.resetInstanceServer()
 

@@ -107,56 +107,47 @@ export const ChannelConnectionService = {
     }
   },
   connectToChannelServer: async (channelId: string, isHarmonyPage?: boolean) => {
-    try {
-      const dispatch = useDispatch()
-      dispatch(ChannelConnectionAction.channelServerConnecting())
-      const authState = accessAuthState()
-      const user = authState.user.value
-      const chatState = accessChatState()
-      const channelState = chatState.channels
-      const channels = channelState.channels.value
-      const channelEntries = Object.entries(channels)
-      const instanceChannel = channelEntries.find(
-        (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
-      )
-      const locationState = accessLocationState()
+    const dispatch = useDispatch()
+    dispatch(ChannelConnectionAction.channelServerConnecting())
+    const authState = accessAuthState()
+    const user = authState.user.value
+    const chatState = accessChatState()
+    const channelState = chatState.channels
+    const channels = channelState.channels.value
+    const channelEntries = Object.entries(channels)
+    const instanceChannel = channelEntries.find(
+      (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
+    )
+    const { ipAddress, port } = accessChannelConnectionState().instance.value
 
-      const currentLocation = locationState.currentLocation.location
+    const locationState = accessLocationState()
+    const currentLocation = locationState.currentLocation.location
+    const sceneId = currentLocation?.sceneId?.value
 
-      const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
-      if (transport.socket) {
-        await endVideoChat(transport, { endConsumers: true })
-        await leave(transport, false)
-      }
-
-      try {
-        transport.videoEnabled =
-          currentLocation?.locationSettings?.videoEnabled?.value === true ||
-          !(
-            currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
-              null
-          )
-        transport.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-        transport.channelId = channelId
-
-        await transport.initialize(accessChannelConnectionState().value)
-        transport.left = false
-        EngineEvents.instance.addEventListener(
-          MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-          MediaStreamService.triggerUpdateConsumers
-        )
-
-        MediaStreams.instance.channelType =
-          instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-        MediaStreams.instance.channelId = channelId
-      } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', transport)
-        console.log(error)
-      }
-    } catch (err) {
-      console.log(err)
+    const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+    if (transport.socket) {
+      await endVideoChat(transport, { endConsumers: true })
+      await leave(transport, false)
     }
+
+    transport.videoEnabled =
+      currentLocation?.locationSettings?.videoEnabled?.value === true ||
+      !(
+        currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+        user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) == null
+      )
+    transport.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+    transport.channelId = channelId
+
+    await transport.initialize({ sceneId, port, ipAddress, channelId })
+    transport.left = false
+    EngineEvents.instance.addEventListener(
+      MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+      MediaStreamService.triggerUpdateConsumers
+    )
+
+    MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+    MediaStreams.instance.channelId = channelId
   },
   resetChannelServer: () => {
     const dispatch = useDispatch()

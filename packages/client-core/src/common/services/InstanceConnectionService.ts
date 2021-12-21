@@ -11,6 +11,7 @@ import { createState, DevTools, useState, none, Downgraded } from '@hookstate/co
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { accessLocationState } from '../../social/services/LocationService'
 
 //State
 const state = createState({
@@ -119,12 +120,16 @@ export const InstanceConnectionService = {
       dispatch(InstanceConnectionAction.instanceServerConnecting())
       const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
       if (transport.socket) {
-        console.log('leave instance')
-        await leave(transport, true)
+        await leave(transport, false)
       }
+      const locationState = accessLocationState()
+      const currentLocation = locationState.currentLocation.location
+      const sceneId = currentLocation?.sceneId?.value
+
+      const { ipAddress, port } = accessInstanceConnectionState().instance.value
 
       try {
-        await transport.initialize(accessInstanceConnectionState().value)
+        await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
         transport.left = false
 
         const authState = accessAuthState()
