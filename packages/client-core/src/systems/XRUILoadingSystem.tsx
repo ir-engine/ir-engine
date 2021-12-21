@@ -12,12 +12,13 @@ export const LoaderUI = new Map<Entity, ReturnType<typeof createLoaderDetailView
 export default async function XRUILoadingSystem(world: World): Promise<System> {
   return () => {
     if (Engine.activeCameraEntity) {
-      const uiEntity = LoaderUI.get(Engine.activeCameraEntity)
+      const uiEntity = LoaderUI.get(Engine.activeCameraEntity)!
       if (!uiEntity) {
         const ui = createLoaderDetailView('')
         LoaderUI.set(Engine.activeCameraEntity, ui)
       } else {
-        const xrui = getComponent(uiEntity!.entity, XRUIComponent)
+        const xrui = getComponent(uiEntity.entity, XRUIComponent)
+
         if (xrui) {
           const camera = Engine.camera as PerspectiveCamera
           const dist = 0.1

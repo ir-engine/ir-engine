@@ -46,7 +46,7 @@ const CharacterDetailView = () => {
 
   useEffect(() => {
     if (locationState.currentLocation.value && sceneState.currentScene.value) {
-      const thumbnail = sceneState.currentScene.thumbnailUrl.value
+      const thumbnail = sceneState?.currentScene?.thumbnailUrl?.value || ''
       setBgImageSrc(thumbnail)
       const img = new Image()
       img.src = thumbnail
@@ -70,10 +70,15 @@ const CharacterDetailView = () => {
       setShow(false)
     }
 
+    console.log('------------------')
+    console.log('---XRUI LOADING---')
+    console.log('------------------')
     console.log('------Loading-----', engineState.loadingProgress.value, engineState.loadingDetails.value)
+    console.log('------------------')
+    console.log('------------------')
   }, [engineState.loadingProgress.value])
 
-  return show && bgImageSrc != '' ? (
+  return show ? (
     <div
       style={{
         position: 'relative',
@@ -98,70 +103,71 @@ const CharacterDetailView = () => {
           }}
         />
       )}
-
-      <div
-        xr-layer="true"
-        xr-pixel-ratio="2"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: '2',
-          padding: '2px',
-          textAlign: 'center'
-        }}
-      >
+      {show && (
         <div
+          xr-layer="true"
+          xr-pixel-ratio="2"
           style={{
-            fontSize: '30px',
-            margin: 'auto',
-            textAlign: 'center',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: '2',
             padding: '2px',
-            color: alternativeColor
+            textAlign: 'center'
           }}
         >
-          loading
+          <div
+            style={{
+              fontSize: '30px',
+              margin: 'auto',
+              textAlign: 'center',
+              padding: '2px',
+              color: alternativeColor
+            }}
+          >
+            loading
+          </div>
+          <div
+            style={{
+              fontSize: '50px',
+              margin: 'auto',
+              textAlign: 'center',
+              padding: '2px',
+              color: color
+            }}
+          >
+            {progress}%
+          </div>
+          <div
+            style={{
+              margin: 'auto',
+              textAlign: 'center',
+              padding: '5px',
+              width: '200px'
+            }}
+          >
+            <ProgressBar
+              bgColor={alternativeColor}
+              completed={progress}
+              height="1px"
+              baseBgColor="#000000"
+              isLabelVisible={false}
+            />
+          </div>
+          <div
+            style={{
+              fontSize: '12px',
+              margin: 'auto',
+              textAlign: 'center',
+              padding: '2px',
+              color: color
+            }}
+          >
+            {loadingDetails}
+          </div>
         </div>
-        <div
-          style={{
-            fontSize: '50px',
-            margin: 'auto',
-            textAlign: 'center',
-            padding: '2px',
-            color: color
-          }}
-        >
-          {progress}%
-        </div>
-        <div
-          style={{
-            margin: 'auto',
-            textAlign: 'center',
-            padding: '5px',
-            width: '200px'
-          }}
-        >
-          <ProgressBar
-            bgColor={alternativeColor}
-            completed={progress}
-            height="1px"
-            baseBgColor="#000000"
-            isLabelVisible={false}
-          />
-        </div>
-        <div
-          style={{
-            fontSize: '12px',
-            margin: 'auto',
-            textAlign: 'center',
-            padding: '2px',
-            color: color
-          }}
-        >
-          {loadingDetails}
-        </div>
-      </div>
+      )}
     </div>
   ) : (
     <div></div>
