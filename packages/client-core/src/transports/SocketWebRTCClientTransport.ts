@@ -10,11 +10,14 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useDispatch } from '../store'
-import { InstanceConnectionAction } from '../common/services/InstanceConnectionService'
+import { accessInstanceConnectionState, InstanceConnectionAction } from '../common/services/InstanceConnectionService'
 import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { accessLocationState } from '../social/services/LocationService'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { encode, decode } from 'msgpackr'
 
 // Adds support for Promise to socket.io-client
@@ -46,7 +49,6 @@ export const getMediaTransport = () =>
 export const getWorldTransport = () =>
   Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
 
-// todo: rename to SocketWebRTCClientWorldTransport
 export class SocketWebRTCClientTransport implements NetworkTransport {
   static EVENTS = {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
@@ -59,23 +61,29 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
   }
 
-  heartbeat: any
   mediasoupDevice = new mediasoupClient.Device()
   leaving = false
   left = false
+  reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport
   socket: Socket = null!
   request: ReturnType<typeof promisedRequest>
   dataProducer: DataProducer
+  heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
   sendActions(actions: Set<Action>) {
     if (actions.size === 0) return
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
   }
 
-  sendNetworkStatUpdateMessage(message, instance = true): void {
+  sendNetworkStatUpdateMessage(message): void {
     this.socket?.emit(MessageTypes.UpdateNetworkState.toString(), message)
+  }
+  // This sends message on a data channel (data channel creation is now handled explicitly/default)
+  sendData(data: ArrayBuffer): void {
+    if (this.dataProducer && this.dataProducer.closed !== true && this.dataProducer.readyState === 'open')
+      this.dataProducer.send(data)
   }
 
   close() {
@@ -89,178 +97,81 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.socket = null!
   }
 
-  // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: ArrayBuffer, instance = true): void {
-    if (this.dataProducer && this.dataProducer.closed !== true && this.dataProducer.readyState === 'open')
-      this.dataProducer.send(data)
-  }
+  public async initialize({ instance, locationId }): Promise<void> {
+    this.reconnecting = false
+    if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
 
-  public async initialize(address, port, instance: boolean, opts?: any): Promise<void> {
-    if (instance && this.socket) return console.error('[SocketWebRTCClientWorldTransport]: already initialized')
-    let reconnecting = false
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
-    const { user, ...query } = opts
-    console.log('******* WORLD SERVER PORT IS', port)
-    query.token = token
-    dispatchLocal(EngineActions.connect(user.id) as any)
+    const locationState = accessLocationState()
+    const currentLocation = locationState.currentLocation.location
+    const sceneId = currentLocation?.sceneId?.value
 
-    if (query.locationId == null) delete query.locationId
-    if (query.sceneId == null) delete query.sceneId
+    const ipAddress = instance.ipAddress
+    const port = Number(instance.port)
+
+    const query = {
+      sceneId,
+      locationId,
+      token
+    }
+
     if (process.env.VITE_LOCAL_BUILD === 'true') {
-      this.socket = ioclient(`https://${address as string}:${port.toString()}`, {
-        query: query
+      this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
+        query
       })
     } else if (process.env.APP_ENV === 'development') {
-      this.socket = ioclient(`${address as string}:${port.toString()}`, {
-        query: query
+      this.socket = ioclient(`${ipAddress as string}:${port.toString()}`, {
+        query
       })
     } else {
       this.socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
-        path: `/socket.io/${address as string}/${port.toString()}`,
-        query: query
+        path: `/socket.io/${ipAddress as string}/${port.toString()}`,
+        query
       })
     }
-    const dispatch = useDispatch()
-
     this.request = promisedRequest(this.socket)
-    dispatch(InstanceConnectionAction.socketCreated(this.socket))
 
     this.socket.on('connect', async () => {
       console.log(`CONNECT to port ${port}`)
-      if (reconnecting) {
-        reconnecting = false
+      if (this.reconnecting) {
+        this.reconnecting = false
         return
       }
-      dispatch(InstanceConnectionAction.instanceServerConnected())
-      onConnectToInstance(this, true)
+      onConnectToInstance(this)
 
       // Send heartbeat every second
       this.heartbeat = setInterval(() => {
-        this.socket?.emit(MessageTypes.Heartbeat.toString())
+        this.socket.emit(MessageTypes.Heartbeat.toString())
       }, 1000)
     })
   }
 }
 
-export class SocketWebRTCClientMediaTransport implements NetworkTransport {
-  static EVENTS = {
-    PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
-    PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
-    INSTANCE_DISCONNECTED: 'WEBRTC_INSTANCE_DISCONNECTED',
-    INSTANCE_WEBGL_DISCONNECTED: 'WEBRTC_INSTANCE_WEBGL_DISCONNECTED',
-    INSTANCE_KICKED: 'WEBRTC_INSTANCE_KICKED',
-    INSTANCE_RECONNECTED: 'WEBRTC_INSTANCE_RECONNECTED',
-    CHANNEL_DISCONNECTED: 'WEBRTC_CHANNEL_DISCONNECTED',
-    CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
-  }
-
-  mediasoupDevice = new mediasoupClient.Device()
-  leaving = false
-  left = false
-  recvTransport: MediaSoupTransport
-  sendTransport: MediaSoupTransport
-  socket: Socket = null!
-  request: ReturnType<typeof promisedRequest>
+export class SocketWebRTCClientMediaTransport extends SocketWebRTCClientTransport {
   localScreen: any
   videoEnabled = false
-  channelType: string
+  channelType: ChannelType
   channelId: string
-  dataProducer: DataProducer
-  heartbeat: any
-
-  sendActions(actions: Set<Action>) {}
-
-  sendNetworkStatUpdateMessage(message, instance = true): void {
-    this.socket?.emit(MessageTypes.UpdateNetworkState.toString(), message)
-  }
 
   close() {
-    if (!this.socket) return console.log('[SocketWebRTCClientMediaTransport]: already initialized')
-    console.log('close')
-    this.recvTransport.close()
-    this.sendTransport.close()
-    clearInterval(this.heartbeat)
-    this.socket.close()
-    this.socket = null!
+    super.close()
 
-    if (MediaStreams) {
-      if (MediaStreams.instance.audioStream) {
-        const audioTracks = MediaStreams.instance.audioStream?.getTracks()
-        audioTracks.forEach((track) => track.stop())
-      }
-      if (MediaStreams.instance.videoStream) {
-        const videoTracks = MediaStreams.instance.videoStream?.getTracks()
-        videoTracks.forEach((track) => track.stop())
-      }
-      MediaStreams.instance.camVideoProducer = null
-      MediaStreams.instance.camAudioProducer = null
-      MediaStreams.instance.screenVideoProducer = null
-      MediaStreams.instance.screenAudioProducer = null
-      MediaStreams.instance.videoStream = null!
-      MediaStreams.instance.audioStream = null!
-      MediaStreams.instance.localScreen = null
-      MediaStreams.instance.consumers = []
+    if (MediaStreams.instance.audioStream) {
+      const audioTracks = MediaStreams.instance.audioStream?.getTracks()
+      audioTracks.forEach((track) => track.stop())
     }
-  }
-
-  // This sends message on a data channel (data channel creation is now handled explicitly/default)
-  sendData(data: ArrayBuffer, instance = true): void {
-    if (this.dataProducer && this.dataProducer.closed !== true && this.dataProducer.readyState === 'open')
-      this.dataProducer.send(data)
-  }
-
-  public async initialize(
-    address = Config.publicRuntimeConfig.gameserverHost,
-    port = parseInt(Config.publicRuntimeConfig.gameserverPort),
-    instance: boolean,
-    opts?: any
-  ): Promise<void> {
-    if (instance && this.socket) return console.error('[SocketWebRTCClientMediaTransport]: already initialized')
-    let reconnecting = false
-    const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
-    console.log('******* MEDIA SERVER PORT IS', port)
-    query.token = token
-
-    this.channelType = channelType
-    this.channelId = opts.channelId
-
-    this.videoEnabled = videoEnabled ?? false
-
-    if (query.locationId == null) delete query.locationId
-    if (query.sceneId == null) delete query.sceneId
-    if (query.channelId == null) delete query.channelId
-    if (process.env.VITE_LOCAL_BUILD === 'true') {
-      this.socket = ioclient(`https://${address as string}:${port.toString()}`, {
-        query: query
-      })
-    } else if (process.env.APP_ENV === 'development') {
-      this.socket = ioclient(`${address as string}:${port.toString()}`, {
-        query: query
-      })
-    } else {
-      this.socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
-        path: `/socket.io/${address as string}/${port.toString()}`,
-        query: query
-      })
+    if (MediaStreams.instance.videoStream) {
+      const videoTracks = MediaStreams.instance.videoStream?.getTracks()
+      videoTracks.forEach((track) => track.stop())
     }
-    const dispatch = useDispatch()
-    this.request = promisedRequest(this.socket)
-    dispatch(ChannelConnectionAction.socketCreated(this.socket))
-
-    this.socket.on('connect', async () => {
-      console.log(`CONNECT to port ${port}`)
-      if (reconnecting) {
-        reconnecting = false
-        return
-      }
-      dispatch(ChannelConnectionAction.channelServerConnected())
-      onConnectToInstance(this, false)
-
-      // Send heartbeat every second
-      this.heartbeat = setInterval(() => {
-        this.socket?.emit(MessageTypes.Heartbeat.toString())
-      }, 1000)
-    })
+    MediaStreams.instance.camVideoProducer = null
+    MediaStreams.instance.camAudioProducer = null
+    MediaStreams.instance.screenVideoProducer = null
+    MediaStreams.instance.screenAudioProducer = null
+    MediaStreams.instance.videoStream = null!
+    MediaStreams.instance.audioStream = null!
+    MediaStreams.instance.localScreen = null
+    MediaStreams.instance.consumers = []
   }
 }
