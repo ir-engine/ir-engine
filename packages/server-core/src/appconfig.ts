@@ -271,6 +271,10 @@ const scopes = {
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
 }
 
+const blockchain = {
+  blockchainUrl: process.env.BLOCKCHAIN_URL,
+  blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
+}
 /**
  * Full config
  */
@@ -287,6 +291,7 @@ const config = {
   server,
   redis,
   scopes,
+  blockchain,
   kubernetes: {
     enabled: kubernetesEnabled,
     serviceHost: process.env.KUBERNETES_SERVICE_HOST!,

@@ -32,7 +32,8 @@ const state = createState({
   readyToConnect: false,
   updateNeeded: false,
   instanceServerConnecting: false,
-  instanceProvisioning: false
+  instanceProvisioning: false,
+  channelDisconnected: true
 })
 
 let connectionSocket = null
@@ -63,7 +64,13 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
       case 'CHANNEL_SERVER_CONNECTING':
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
-        return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
+        return s.merge({
+          connected: true,
+          updateNeeded: false,
+          readyToConnect: false,
+          channelDisconnected: false,
+          instanceServerConnecting: false
+        })
       case 'CHANNEL_SERVER_DISCONNECT':
         if (connectionSocket != null) (connectionSocket as any).close()
         return s.merge({
@@ -78,6 +85,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           readyToConnect: false,
           updateNeeded: false,
+          channelDisconnected: true,
           instanceServerConnecting: false,
           instanceProvisioning: false
         })

@@ -16,7 +16,6 @@ import UserRole from './user-role/user-role.service'
 import UserSettings from './user-settings/user-settings.service'
 import UserInventory from './user-inventory/user-inventory.service'
 import UserTrade from './user-trade/user-trade.service'
-import UserWallet from './user-wallet/user-wallet.service'
 
 export default [
   UserRole,
@@ -29,7 +28,6 @@ export default [
   InventoryItem,
   UserInventory,
   UserTrade,
-  UserWallet,
   AcceptInvite,
   Auth,
   Avatar,
