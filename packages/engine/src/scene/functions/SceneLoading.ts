@@ -82,19 +82,19 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   handleRendererSettings(null!, true)
   if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
-  Object.keys(sceneData.entities).forEach((key, index) => {
+  let sceneProgress = 0
+  const progressCounter = 70 / Object.keys(sceneData.entities).length
+
+  Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const entity = createEntity()
     addComponent(entity, NameComponent, { name: sceneEntity.name })
     loadComponents(entity, key, sceneEntity)
-    const entitiesLeft = Object.keys(sceneData.entities).length - (index + 1)
-    entitiesLeft > 0 &&
-      dispatchLocal(
-        EngineActions.updateLoadingScreenDetails(
-          100 - entitiesLeft,
-          `${entitiesLeft} entities left to be loaded...`
-        ) as any
-      )
+
+    dispatchLocal(
+      EngineActions.updateLoadingScreenDetails(Math.floor(30 + sceneProgress), `loading ${sceneEntity.name}...`) as any
+    )
+    sceneProgress += progressCounter
   })
   await Promise.all(Engine.sceneLoadPromises)
 

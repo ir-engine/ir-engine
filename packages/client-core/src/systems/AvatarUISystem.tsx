@@ -45,7 +45,7 @@ export default async function AvatarUISystem(world: World): Promise<System> {
 
       const contextMenuUI = AvatarContextMenuUI.get(userEntity)!
       const contextMenuXRUI = getComponent(contextMenuUI.entity, XRUIComponent)
-      if (!xrui) return
+      if (!contextMenuXRUI) return
       contextMenuXRUI.layer.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       contextMenuXRUI.layer.position.copy(userTransform.position)
       contextMenuXRUI.layer.position.y += avatarHeight - 0.3
