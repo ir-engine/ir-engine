@@ -20,17 +20,19 @@ function createLoaderDetailState(id: string) {
 type CharacterDetailState = ReturnType<typeof createLoaderDetailState>
 
 const CharacterDetailView = () => {
+  const sceneState = useSceneState()
+  const engineState = useEngineState()
+  const locationState = useLocationState()
+
   const [show, setShow] = useState(true)
   const [backgroundColor, setBackgroundColor] = useState('black')
   const [alternativeColor, setAlternativeColor] = useState('red')
   const [color, setColor] = useState('white')
   const [width, setWidth] = useState(4096)
   const [height, setHeight] = useState(4096)
-  const [bgImageSrc, SetBgImageSrc] = useState('')
-  const sceneState = useSceneState()
-
-  const locationState = useLocationState()
-  const engineState = useEngineState()
+  const [progress, setProgress] = useState('0')
+  const [loadingDetails, setLoadingDetails] = useState('loading background assests...')
+  const [bgImageSrc, setBgImageSrc] = useState(sceneState?.currentScene?.thumbnailUrl?.value || '')
 
   useEffect(() => {
     const onResize = () => {
@@ -45,7 +47,7 @@ const CharacterDetailView = () => {
   useEffect(() => {
     if (locationState.currentLocation.value && sceneState.currentScene.value) {
       const thumbnail = sceneState.currentScene.thumbnailUrl.value
-      SetBgImageSrc(thumbnail)
+      setBgImageSrc(thumbnail)
       const img = new Image()
       img.src = thumbnail
       img.crossOrigin = 'Anonymous'
@@ -61,104 +63,107 @@ const CharacterDetailView = () => {
   }, [sceneState.currentScene.value, locationState.currentLocation.value])
 
   useEffect(() => {
-    console.log('objectsToLoad: ', engineState.loadingProgress.value)
+    setProgress(engineState.loadingProgress.value.toString())
+    setLoadingDetails(engineState.loadingDetails.value)
+
+    if (engineState.loadingProgress.value === 100) {
+      setShow(false)
+    }
+
+    console.log('------Loading-----', engineState.loadingProgress.value, engineState.loadingDetails.value)
   }, [engineState.loadingProgress.value])
 
-  return (
-    <>
-      {!show ? (
-        <div></div>
-      ) : (
-        <div
+  return show ? (
+    <div
+      style={{
+        position: 'relative',
+        width: `${width}px`,
+        height: `${height}px`,
+        top: 0,
+        left: 0,
+        fontFamily: "'Roboto', sans-serif"
+      }}
+    >
+      {bgImageSrc != '' && (
+        <img
+          src={bgImageSrc}
           style={{
-            position: 'relative',
-            width: `${width}px`,
-            height: `${height}px`,
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
             top: 0,
             left: 0,
-            fontFamily: "'Roboto', sans-serif"
+            filter: 'blur(5px)',
+            backgroundColor: backgroundColor
+          }}
+        />
+      )}
+
+      <div
+        xr-layer="true"
+        xr-pixel-ratio="2"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: '2',
+          padding: '2px',
+          textAlign: 'center'
+        }}
+      >
+        <div
+          style={{
+            fontSize: '30px',
+            margin: 'auto',
+            textAlign: 'center',
+            padding: '2px',
+            color: alternativeColor
           }}
         >
-          {bgImageSrc != '' && (
-            <img
-              src={bgImageSrc}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                top: 0,
-                left: 0,
-                filter: 'blur(5px)',
-                backgroundColor: backgroundColor
-              }}
-            />
-          )}
-
-          <div
-            xr-layer="true"
-            xr-pixel-ratio="2"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: '2',
-              padding: '2px',
-              textAlign: 'center'
-            }}
-          >
-            <div
-              style={{
-                fontSize: '30px',
-                margin: 'auto',
-                textAlign: 'center',
-                padding: '2px',
-                color: alternativeColor
-              }}
-            >
-              loading
-            </div>
-            <div
-              style={{
-                fontSize: '60px',
-                margin: 'auto',
-                textAlign: 'center',
-                padding: '2px',
-                color: color
-              }}
-            >
-              80%
-            </div>
-            <div
-              style={{
-                margin: 'auto',
-                textAlign: 'center',
-                padding: '5px',
-                width: '200px'
-              }}
-            >
-              <ProgressBar
-                completed={80}
-                bgColor={alternativeColor}
-                height="1px"
-                baseBgColor="#000000"
-                isLabelVisible={false}
-              />
-            </div>
-            <div
-              style={{
-                fontSize: '15px',
-                margin: 'auto',
-                textAlign: 'center',
-                padding: '2px',
-                color: color
-              }}
-            >
-              Loading background assets...
-            </div>
-          </div>
+          loading
         </div>
-      )}
-    </>
+        <div
+          style={{
+            fontSize: '50px',
+            margin: 'auto',
+            textAlign: 'center',
+            padding: '2px',
+            color: color
+          }}
+        >
+          {progress}%
+        </div>
+        <div
+          style={{
+            margin: 'auto',
+            textAlign: 'center',
+            padding: '5px',
+            width: '200px'
+          }}
+        >
+          <ProgressBar
+            bgColor={alternativeColor}
+            completed={progress}
+            height="1px"
+            baseBgColor="#000000"
+            isLabelVisible={false}
+          />
+        </div>
+        <div
+          style={{
+            fontSize: '12px',
+            margin: 'auto',
+            textAlign: 'center',
+            padding: '2px',
+            color: color
+          }}
+        >
+          {loadingDetails}
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div></div>
   )
 }

@@ -87,20 +87,19 @@ export const initEngine = async (initOptions: InitializeOptions) => {
 }
 
 export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
+  dispatchLocal(EngineActions.updateLoadingScreenDetails(5, 'fetching systems...') as any)
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
+  dispatchLocal(EngineActions.updateLoadingScreenDetails(10, 'loading systems into the world...') as any)
   await Engine.currentWorld.initSystems(packs)
   const dispatch = useDispatch()
 
+  dispatchLocal(EngineActions.updateLoadingScreenDetails(30, 'loading scene into the world...') as any)
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
-  const onEntityLoaded = ({ entitiesLeft }) => {
-    dispatchLocal(EngineActions.loadingProgress(entitiesLeft) as any)
-  }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
   await loadSceneFromJSON(sceneData)
-  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+  dispatchLocal(EngineActions.updateLoadingScreenDetails(100, 'Loading Complete!') as any)
 
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))

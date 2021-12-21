@@ -7,10 +7,10 @@ const state = createState({
   isInitialised: false,
   sceneLoaded: false,
   joinedWorld: false,
-  loadingProgress: -1,
+  loadingProgress: 0,
+  loadingDetails: 'loading background assests...',
   connectedWorld: false,
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
-
   isPhysicsDebug: false,
   isAvatarDebug: false
 })
@@ -39,8 +39,6 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({ sceneLoaded: action.sceneLoaded })
       case EngineEvents.EVENTS.JOINED_WORLD:
         return s.merge({ joinedWorld: action.joinedWorld })
-      case EngineEvents.EVENTS.LOADING_PROGRESS:
-        return s.merge({ loadingProgress: action.count })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.SET_TELEPORTING:
@@ -54,6 +52,10 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({
           isTeleporting: action.portalComponent
         })
+      case EngineEvents.EVENTS.UPDATE_LOADING_SCREEN_DETAILS:
+        s.loadingProgress.set(action.loadingProgress)
+        s.loadingDetails.set(action.loadingDetails)
+        return
     }
   }, action.type)
 }
@@ -198,6 +200,13 @@ function callbackReceptor(action: EngineActionType) {
         userId: action.userId
       })
       break
+    case EngineEvents.EVENTS.UPDATE_LOADING_SCREEN_DETAILS:
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.UPDATE_LOADING_SCREEN_DETAILS,
+        loadingProgress: action.loadingProgress,
+        loadingDetails: action.loadingDetails
+      })
+      break
   }
 }
 
@@ -210,14 +219,6 @@ export const EngineActions = {
       userId
     }
   },
-
-  loadingProgress: (count: number) => {
-    return {
-      type: EngineEvents.EVENTS.LOADING_PROGRESS,
-      count
-    }
-  },
-
   setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
     return {
       type: EngineEvents.EVENTS.SET_TELEPORTING,
@@ -363,6 +364,13 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.AVATAR_DEBUG,
       isAvatarDebug
+    }
+  },
+  updateLoadingScreenDetails: (loadingProgress: number, loadingDetails: string) => {
+    return {
+      type: EngineEvents.EVENTS.UPDATE_LOADING_SCREEN_DETAILS,
+      loadingProgress,
+      loadingDetails
     }
   }
 }
