@@ -73,7 +73,7 @@ const CharacterDetailView = () => {
     console.log('------Loading-----', engineState.loadingProgress.value, engineState.loadingDetails.value)
   }, [engineState.loadingProgress.value])
 
-  return show ? (
+  return show && bgImageSrc != '' ? (
     <div
       style={{
         position: 'relative',

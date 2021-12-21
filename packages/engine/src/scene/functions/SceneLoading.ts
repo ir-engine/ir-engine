@@ -59,7 +59,7 @@ import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions, accessEngineState } from '../../ecs/classes/EngineService'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 export interface SceneDataComponent extends ComponentJson {
@@ -83,7 +83,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   if (isClient) EngineRenderer.instance.postProcessingConfig = null
 
   let sceneProgress = 0
-  const currentProgress = accessEngineState().loadingProgress.value
+  const currentProgress = 30
   const progressLeft = 100 - currentProgress
   const progressCounter = progressLeft / Object.keys(sceneData.entities).length
 
