@@ -1,6 +1,3 @@
-/**
- * tests
- */
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
 import { Engine } from '../src/ecs/classes/Engine'
 import assert from 'assert'

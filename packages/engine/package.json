@@ -57,6 +57,7 @@
     "polygon-clipping": "^0.15.3",
     "postprocessing": "^6.23.2",
     "react": "17.0.2",
+    "rewire": "^6.0.0",
     "simplex-noise": "^3.0.0",
     "socket.io": "4.4.0",
     "three": "git://github.com/XRFoundation/three.js.git#5fcd5dd253ba9f6196cbe04968e5925cb5ef4c9a",
