@@ -301,6 +301,9 @@ export class MediaStreams {
   }
 }
 
+// every 5 seconds
+const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
+
 export default async function MediaStreamSystem(world: World): Promise<System> {
   let nearbyAvatarTick = 0
   let executeInProgress = false
@@ -327,7 +330,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
 
     if (isClient) {
       nearbyAvatarTick++
-      if (nearbyAvatarTick > 500) {
+      if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
         nearbyAvatarTick = 0
         if (MediaStreams.instance.channelType === 'instance') {
           MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
