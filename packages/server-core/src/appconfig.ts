@@ -119,8 +119,7 @@ const gameserver = {
   port: process.env.GAMESERVER_PORT!,
   mode: process.env.SERVER_MODE!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
-  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0,
-  isMediaServer: process.env.INSTANCE_TYPE === 'media'
+  shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
 
 /**

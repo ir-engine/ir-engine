@@ -104,7 +104,7 @@ export const createApp = (): Application => {
           },
           (io) => {
             Network.instance = new Network()
-            Network.instance.transportHandler = new ServerTransportHandler(app, config.gameserver.isMediaServer)
+            Network.instance.transportHandler = new ServerTransportHandler()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query

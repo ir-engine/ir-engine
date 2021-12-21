@@ -17,13 +17,6 @@ export class ServerTransportHandler
 {
   mediaTransports = new Map<UserId, SocketWebRTCServerTransport>()
   worldTransports = new Map<UserId, SocketWebRTCServerTransport>()
-  constructor(app: Application, isMediaServer = false) {
-    if (isMediaServer) {
-      this.mediaTransports.set('media' as UserId, new SocketWebRTCServerTransport(app))
-    } else {
-      this.worldTransports.set('server' as UserId, new SocketWebRTCServerTransport(app))
-    }
-  }
   getMediaTransport(transport?: UserId) {
     return this.mediaTransports.get('media' as UserId)!
   }

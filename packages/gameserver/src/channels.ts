@@ -17,6 +17,9 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 type InstanceMetadata = {
   currentUsers: number
@@ -257,6 +260,10 @@ export default (app: Application): void => {
 
               if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
                 if (app.isChannelInstance) {
+                  Network.instance.transportHandler.mediaTransports.set(
+                    'media' as UserId,
+                    new SocketWebRTCServerTransport(app)
+                  )
                   await initializeEngine({
                     type: EngineSystemPresets.MEDIA,
                     publicPath: config.client.url
@@ -265,6 +272,10 @@ export default (app: Application): void => {
                   dispatchLocal(EngineActions.sceneLoaded(true) as any)
                   dispatchLocal(EngineActions.joinedWorld(true) as any)
                 } else {
+                  Network.instance.transportHandler.worldTransports.set(
+                    'server' as UserId,
+                    new SocketWebRTCServerTransport(app)
+                  )
                   Engine.isLoading = true
                   await loadScene(app, sceneId)
                   Engine.isLoading = false
