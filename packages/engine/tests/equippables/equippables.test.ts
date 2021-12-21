@@ -16,7 +16,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
-import { setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
+// import { setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
 import { equippableQueryEnter, equippableQueryExit }  from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
@@ -82,11 +82,11 @@ describe('Equippables Integration Tests', () => {
         scale: new Vector3(),
     })
     
-    equipEntity(equipperEntity, equippableEntity, undefined, true)
+    equipEntity(equipperEntity, equippableEntity, undefined)
 
-    world.receptors.push(
-        (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
-    )
+    // world.receptors.push(
+    //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
+    // )
 
     mockProgressWorldForNetworkActions()
     equippableQueryEnter(equipperEntity)
@@ -101,7 +101,7 @@ describe('Equippables Integration Tests', () => {
     assert.deepEqual(collider._type, BodyType.KINEMATIC)
 
     // unequip stuff
-    unequipEntity(equipperEntity, true)
+    unequipEntity(equipperEntity)
 
     mockProgressWorldForNetworkActions()
     equippableQueryExit(equipperEntity)

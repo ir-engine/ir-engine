@@ -245,7 +245,6 @@ export async function handleDisconnect(socket): Promise<any> {
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
     dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
-
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -264,6 +263,11 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
   if (Engine.currentWorld?.clients.has(userId)) {
     Engine.currentWorld.clients.delete(userId)
+    for (const eid of Engine.currentWorld?.getOwnedNetworkObjects(userId)) {
+      const { networkId } = getComponent(eid, NetworkObjectComponent)
+      dispatchFrom(Engine.currentWorld?.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    }
+
     logger.info('Removing ' + userId + ' from client list')
   }
   if (callback !== undefined) callback({})
