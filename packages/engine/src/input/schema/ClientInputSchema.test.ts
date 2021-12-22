@@ -1,10 +1,8 @@
 import assert, { strictEqual } from 'assert'
-import { delay } from 'lodash'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
-import { InputType } from '../enums/InputType'
-import { handleKey, handleMouseButton, handleMouseMovement, handleMouseWheel, handleTouch, handleTouchDirectionalPad, handleTouchGamepadButton, handleTouchMove, normalizeMouseCoordinates, prevTouchPosition, usingThumbstick } from './ClientInputSchema'
+import { handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchDirectionalPad, handleTouchGamepadButton, handleTouchMove, normalizeMouseCoordinates, prevTouchPosition, usingThumbstick } from './ClientInputSchema'
 
 describe('clientInputSchema', () => {
     
@@ -16,7 +14,7 @@ describe('clientInputSchema', () => {
         strictEqual(usingThumbstick(), false)
     })
 
-    describe('handleTouchMove', () => {
+    it('check handleTouchMove', () => {
             const newClientX = 1
             const newClientY = 1
 
