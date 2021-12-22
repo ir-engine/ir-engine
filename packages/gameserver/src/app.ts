@@ -105,6 +105,8 @@ export const createApp = (): Application => {
           (io) => {
             Network.instance = new Network()
             Network.instance.transportHandler = new ServerTransportHandler()
+            app.transport = new SocketWebRTCServerTransport(app)
+            app.transport.initialize()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query
