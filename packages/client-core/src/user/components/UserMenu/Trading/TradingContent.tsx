@@ -408,7 +408,9 @@ const TradingContent = ({
                     >
                       <img src={value.url} height="100" width="100" alt="" />
                       <Typography>{`Name: ${value.name}`}</Typography>
-                      <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      {value.inventory_item_type && (
+                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      )}
                     </Stack>
                   </Card>
                 ))}
@@ -440,7 +442,9 @@ const TradingContent = ({
                       >
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
-                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                        {value.inventory_item_type && (
+                          <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                        )}
                       </Stack>
                     </Card>
                   ))}
