@@ -28,15 +28,16 @@ import {
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
-import { Application } from '@xrengine/server-core/declarations'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
 }
 
-export const setupSocketFunctions = (app: Application) => async (socket: Socket) => {
+export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
+  const app = transport.app
   if (!Engine.sceneLoaded && !app.isChannelInstance) {
     await new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
@@ -108,11 +109,11 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
       // console.log(data);
       // console.log(userId);
       // console.log("Avatar", avatar)
-      handleConnectToWorld(socket, data, callback, userId, user, avatar)
+      handleConnectToWorld(transport, socket, data, callback, userId, user, avatar)
     })
 
     socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
-      handleJoinWorld(socket, data, callback, userId, user)
+      handleJoinWorld(transport, socket, data, callback, userId, user)
     )
 
     socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(socket, data))
@@ -124,11 +125,11 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
     socket.on(MessageTypes.LeaveWorld.toString(), (data, callback) => handleLeaveWorld(socket, data, callback))
 
     socket.on(MessageTypes.WebRTCTransportCreate.toString(), async (data: WebRtcTransportParams, callback) =>
-      handleWebRtcTransportCreate(socket, data, callback)
+      handleWebRtcTransportCreate(transport, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCProduceData.toString(), async (data, callback) =>
-      handleWebRtcProduceData(socket, data, callback)
+      handleWebRtcProduceData(transport, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCTransportConnect.toString(), async (data, callback) =>
@@ -144,11 +145,11 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
     )
 
     socket.on(MessageTypes.WebRTCSendTrack.toString(), async (data, callback) =>
-      handleWebRtcSendTrack(socket, data, callback)
+      handleWebRtcSendTrack(transport, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCReceiveTrack.toString(), async (data, callback) =>
-      handleWebRtcReceiveTrack(socket, data, callback)
+      handleWebRtcReceiveTrack(transport, socket, data, callback)
     )
 
     socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (data, callback) =>
@@ -176,7 +177,7 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
     )
 
     socket.on(MessageTypes.WebRTCRequestNearbyUsers.toString(), async (data, callback) =>
-      handleWebRtcRequestNearbyUsers(socket, data, callback)
+      handleWebRtcRequestNearbyUsers(transport, socket, data, callback)
     )
     socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
       handleWebRtcRequestCurrentProducers(socket, data, callback)
@@ -185,7 +186,7 @@ export const setupSocketFunctions = (app: Application) => async (socket: Socket)
     socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) => handleNetworkStateUpdate(socket, data, true))
 
     socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
-      handleWebRtcInitializeRouter(socket, data, callback)
+      handleWebRtcInitializeRouter(transport, socket, data, callback)
     )
   })
 }

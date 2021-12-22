@@ -105,6 +105,7 @@ const client = {
   releaseName: process.env.RELEASE_NAME!
 }
 
+// TODO: rename to 'instanceserver'
 const gameserver = {
   clientHost: process.env.APP_HOST!,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
