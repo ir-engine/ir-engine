@@ -23,19 +23,7 @@ export const Wallet = (props: Props): any => {
     isLoadingtransfer: false,
     isSendingLoader: false
   })
-  const {
-    data,
-    user,
-    type,
-    coinlimit,
-    isLoading,
-    walletDataReceive,
-    walletData,
-    dataReceive,
-    isLoadingtransfer,
-    coinData,
-    coinDataReceive
-  } = state
+  const { data, user, type, coinlimit, isLoading, dataReceive, isLoadingtransfer, coinData, coinDataReceive } = state
 
   const authState = useAuthState()
 
@@ -62,8 +50,7 @@ export const Wallet = (props: Props): any => {
         data: [...response.inventory_items.filter((val) => val.isCoin === true)],
         coinData: [...response.inventory_items.filter((val) => val.isCoin === true)],
         isLoading: false,
-        walletData: [...response.user_wallets],
-        coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0]?.user_inventory?.quantity
+        coinlimit: response.inventory_items.filter((val) => val.isCoin === true)[0].user_inventory?.quantity
       }))
     } catch (err) {
       console.error(err, 'error')
@@ -72,13 +59,10 @@ export const Wallet = (props: Props): any => {
 
   const fetchUserList = async () => {
     try {
-      const response = await client.service('user').find({
-        query: {
-          action: 'inventory'
-        }
-      })
+      const response = await client.service('inventory-item').find()
+      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
+        const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],
@@ -96,27 +80,25 @@ export const Wallet = (props: Props): any => {
       setState((prevState) => ({
         ...prevState,
         dataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)],
-        coinDataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)],
-        walletDataReceive: [...response.user_wallets]
+        coinDataReceive: [...response.inventory_items.filter((val) => val.isCoin === true)]
       }))
     } catch (err) {
       console.error(err, 'error')
     }
   }
 
-  const sendamtsender = async (amt) => {
+  const sendamtsender = async (sendid, amt) => {
     setState((prevState) => ({
       ...prevState,
       isSendingLoader: true
     }))
     try {
       const response = await client.service('user-inventory').patch(data[0].user_inventory.userInventoryId, {
-        privateKey: walletData[0].privateKey,
-        fromUserAddress: walletData[0].userAddress,
-        toUserAddress: walletDataReceive[0].userAddress,
         quantity: Number(data[0].user_inventory.quantity) - Number(amt),
         walletAmt: Number(amt),
-        type: 'Wallet transfer'
+        type: 'transfer',
+        fromUserId: id,
+        toUserId: sendid
       })
     } catch (err) {
       console.error(err, 'error')
@@ -137,54 +119,6 @@ export const Wallet = (props: Props): any => {
       console.error(err, 'error')
     }
   }
-  /*
-  const sendamtwallet = async (amt) => {
-    try {
-      // const response = await client.service('wallet').create("send", {
-      //   privateKey: walletData[0].privateKey,
-      //   fromUserAddress: walletData[0].userAddress,
-      //   toUserAddress: walletDataReceive[0].userAddress,
-      //   amount: amt
-      // })
-      // const httpAgent = new https.Agent({
-      //   rejectUnauthorized: false
-      // })
-      console.log("1, DRC")
-      // GET RESPONSE FOR TOKEN
-      const response_token = await axios.post(
-        'http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/authorizeServer',
-        {
-          authSecretKey: 'secret',
-        },
-      )
-
-      console.log("DEVJEET:", response_token)
-      // KEEP TOKEN
-      var accessToken = response_token.data.accessToken
-
-      // CALL WALLET API WITH HEADER SETUP
-      var walletData = await axios.post(
-        'http://af2fc18b539ee488984fa4e58de37686-1454411376.us-west-1.elb.amazonaws.com/api/v1/wallet/send',
-        {
-          privateKey: walletData[0].privateKey,
-          fromUserAddress: walletData[0].userAddress,
-          toUserAddress: walletDataReceive[0].userAddress,
-          amount: amt
-        },
-        {
-          headers: {
-            Authorization: 'Bearer ' + accessToken
-            
-          }
-        }
-      )
-
-      console.log(response_token, 'sendamtwallet')
-    } catch (err) {
-      console.error(err, 'error')
-    }
-  }
-*/
 
   return (
     <div className={styles.menuPanel}>
@@ -192,14 +126,12 @@ export const Wallet = (props: Props): any => {
         'Loading...'
       ) : (
         <WalletContent
-          data={walletData}
           user={user}
           coinlimit={coinlimit}
           getreceiverid={getreceiverid}
           sendamtsender={sendamtsender}
           sendamtreceiver={sendamtreceiver}
           changeActiveMenu={props.changeActiveMenu}
-          //sendamtwallet={sendamtwallet}
         />
       )}
     </div>

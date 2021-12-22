@@ -327,8 +327,9 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
-  const sendActions = sendActionsOnTransport(Network.instance.transport)
-  const sendData = sendDataOnTransport(Network.instance.transport)
+  const worldTransport = Network.instance.transportHandler.getWorldTransport()
+  const sendActions = sendActionsOnTransport(worldTransport)
+  const sendData = sendDataOnTransport(worldTransport)
 
   initNetworkStates(world)
 

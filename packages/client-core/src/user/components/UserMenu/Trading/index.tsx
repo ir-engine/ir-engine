@@ -283,13 +283,10 @@ export const Trading = (props: Props): any => {
 
   const fetchUserList = async () => {
     try {
-      const response = await client.service('user').find({
-        query: {
-          action: 'inventory'
-        }
-      })
+      const response = await client.service('inventory-item').find()
+      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
       if (response.data && response.data.length !== 0) {
-        const activeUser = response.data.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
+        const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
         setState((prevState: any) => ({
           ...prevState,
           user: [...activeUser],

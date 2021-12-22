@@ -36,6 +36,7 @@ import {
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 import { Downgraded } from '@hookstate/core'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 interface ContainerProportions {
   width: number | string
@@ -170,11 +171,12 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
       // Engine.spatialAudio
     )
-      audioRef.current.volume = volume / 100
+      audioRef.current!.volume = volume / 100
   }, [selfUser])
 
   useEffect(() => {
-    const socket = (Network.instance?.transport as any)?.channelSocket
+    const mediaTransport = getMediaTransport()
+    const socket = mediaTransport.socket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
