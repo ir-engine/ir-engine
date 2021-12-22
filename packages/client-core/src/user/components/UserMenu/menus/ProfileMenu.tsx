@@ -22,6 +22,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Snackbar from '@mui/material/Snackbar'
 import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import appconfig from '@xrengine/server-core/src/appconfig'
 
 interface Props {
   changeActiveMenu?: any
@@ -221,6 +222,14 @@ const ProfileMenu = (props: Props): any => {
     }
   }
 
+  const goToEthNFT = () => {
+    ;(window as any).userData = selfUser.id.value
+    let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
+    if (selfUser.id.value && token)
+      window.open(`${Config.publicRuntimeConfig.ethMarketplace}?data=${selfUser.id.value}&token=${token}`, '_blank')
+    const customEvent = new CustomEvent('message', { detail: { asd: token } })
+    document.dispatchEvent(customEvent)
+  }
   const enableSocial =
     authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
 
@@ -312,6 +321,9 @@ const ProfileMenu = (props: Props): any => {
                 </button>
                 <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
                   My Wallet
+                </button>
+                <button onClick={() => goToEthNFT()} className={styles.walletBtn}>
+                  Open ETH NFT Marketplace
                 </button>
               </>
             )}
