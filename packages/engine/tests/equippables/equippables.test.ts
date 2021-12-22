@@ -95,7 +95,7 @@ describe('Equippables Integration Tests', () => {
     assert(hasComponent(equipperEntity, EquipperComponent))
     const equipperComponent = getComponent(equipperEntity, EquipperComponent)
     assert.equal(equippableEntity, equipperComponent.equippedEntity)
-    assert(hasComponent(equippableEntity, NetworkObjectOwnedTag))
+    // assert(hasComponent(equippableEntity, NetworkObjectOwnedTag))
     assert(hasComponent(equippableEntity, EquippedComponent))
     let collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.KINEMATIC)
@@ -108,7 +108,7 @@ describe('Equippables Integration Tests', () => {
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))
-    assert(!hasComponent(equippableEntity, NetworkObjectOwnedTag))
+    // assert(!hasComponent(equippableEntity, NetworkObjectOwnedTag))
     assert(!hasComponent(equippableEntity, EquippedComponent))
     collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.DYNAMIC)
