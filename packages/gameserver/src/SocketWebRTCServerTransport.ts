@@ -1,11 +1,5 @@
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import config from '@xrengine/server-core/src/appconfig'
-import { localConfig } from '@xrengine/server-core/src/config'
-import logger from '@xrengine/server-core/src/logger'
-import { cleanupOldGameservers, getFreeSubdomain } from './NetworkFunctions'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
-import AWS from 'aws-sdk'
 import * as https from 'https'
 import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
 import { startWebRTC } from './WebRTCFunctions'
@@ -15,66 +9,20 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'
 import { setupSocketFunctions } from './SocketFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { setupSubdomain } from './NetworkFunctions'
 
-const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
-
-export const setupSubdomain = async (app: Application) => {
-  let stringSubdomainNumber: string
-
-  if (config.kubernetes.enabled) {
-    await cleanupOldGameservers()
-    app.gameServer = await app.agonesSDK.getGameServer()
-    const name = app.gameServer.objectMeta.name
-
-    const gsIdentifier = gsNameRegex.exec(name)!
-    stringSubdomainNumber = await getFreeSubdomain(gsIdentifier[1], 0)
-    app.gsSubdomainNumber = stringSubdomainNumber
-
-    const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
-    const params = {
-      ChangeBatch: {
-        Changes: [
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-              ResourceRecords: [{ Value: app.gameServer.status.address }],
-              TTL: 0,
-              Type: 'A'
-            }
-          }
-        ]
-      },
-      HostedZoneId: config.aws.route53.hostedZoneId
-    }
-    if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
-  } else {
-    try {
-      // is this needed?
-      await (app.service('instance') as any).Model.update(
-        { ended: true, assigned: false, assignedAt: null },
-        { where: {} }
-      )
-    } catch (error) {
-      logger.warn(error)
-    }
+export class ServerTransportHandler
+  implements NetworkTransportHandler<SocketWebRTCServerTransport, SocketWebRTCServerTransport>
+{
+  mediaTransports = new Map<UserId, SocketWebRTCServerTransport>()
+  worldTransports = new Map<UserId, SocketWebRTCServerTransport>()
+  getMediaTransport(transport?: UserId) {
+    return this.mediaTransports.get('media' as UserId)!
   }
-
-  // Set up our gameserver according to our current environment
-  const localIp = await getLocalServerIp(app.isChannelInstance)
-  const announcedIp = config.kubernetes.enabled
-    ? config.gameserver.local === true
-      ? app.gameServer.status.address
-      : `${stringSubdomainNumber!}.${config.gameserver.domain}`
-    : localIp.ipAddress
-
-  localConfig.mediasoup.webRtcTransport.listenIps = [
-    {
-      ip: '0.0.0.0',
-      announcedIp
-    }
-  ]
+  getWorldTransport(transport?: UserId) {
+    return this.worldTransports.get('server' as UserId)!
+  }
 }
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
@@ -86,9 +34,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   dataProducers: DataProducer[] = []
   outgoingDataTransport: Transport
   outgoingDataProducer: DataProducer
+  request = () => null!
 
   constructor(app) {
     this.app = app
+    this.initialize()
   }
 
   public sendActions = (actions: Set<Required<Action>>): any => {
@@ -140,11 +90,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
   public async initialize(): Promise<void> {
     // Set up realtime channel on socket.io
     this.app.io = this.app.io
-    this.app.io.of('/').on('connect', setupSocketFunctions(this.app))
+    this.app.io.of('/').on('connect', setupSocketFunctions(this))
 
-    await setupSubdomain(this.app)
+    await setupSubdomain(this)
 
-    await startWebRTC()
+    await startWebRTC(this)
 
     this.outgoingDataTransport = await this.routers.instance[0].createDirectTransport()
     const options = {

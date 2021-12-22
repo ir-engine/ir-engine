@@ -11,8 +11,8 @@ export const gameServerSeed = {
       local: process.env.LOCAL === 'true',
       domain: process.env.GAMESERVER_DOMAIN || 'gameserver.theoverlay.io',
       releaseName: process.env.RELEASE_NAME || null,
-      port: process.env.GAMESERVER_PORT,
-      mode: process.env.SERVER_MODE,
+      port: process.env.GAMESERVER_PORT || '3031',
+      mode: process.env.GAMESERVER_MODE || 'dev',
       locationName: process.env.PRELOAD_LOCATION_NAME || null
     }
   ]

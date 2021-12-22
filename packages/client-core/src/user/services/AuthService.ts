@@ -32,6 +32,7 @@ import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInte
 import { userPatched } from '../functions/userPatched'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { SocketWebRTCClientTransport } from 'src/transports/SocketWebRTCClientTransport'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -694,14 +695,14 @@ export const AuthService = {
               avatarDetail: response
             })
           ).cache({ removePrevious: true })
-          if (Network?.instance?.transport)
-            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-              type: MessageTypes.AvatarUpdated,
-              userId: selfUser.id.value,
-              avatarId: avatarName,
-              avatarURL: response.avatarURL,
-              thumbnailURL: response.thumbnailURL
-            })
+          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+          transport?.sendNetworkStatUpdateMessage({
+            type: MessageTypes.AvatarUpdated,
+            userId: selfUser.id.value,
+            avatarId: avatarName,
+            avatarURL: response.avatarURL,
+            thumbnailURL: response.thumbnailURL
+          })
         })
     }
   },
@@ -769,14 +770,14 @@ export const AuthService = {
               }
             })
           ).cache({ removePrevious: true })
-          if (Network?.instance?.transport)
-            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-              type: MessageTypes.AvatarUpdated,
-              userId,
-              avatarId,
-              avatarURL,
-              thumbnailURL
-            })
+          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+          transport?.sendNetworkStatUpdateMessage({
+            type: MessageTypes.AvatarUpdated,
+            userId,
+            avatarId,
+            avatarURL,
+            thumbnailURL
+          })
         })
     }
   },

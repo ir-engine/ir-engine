@@ -23,7 +23,7 @@ import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 register()
 
@@ -104,8 +104,7 @@ export const createApp = (): Application => {
           },
           (io) => {
             Network.instance = new Network()
-            Network.instance.transport = new SocketWebRTCServerTransport(app)
-            Network.instance.transport.initialize()
+            Network.instance.transportHandler = new ServerTransportHandler()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query

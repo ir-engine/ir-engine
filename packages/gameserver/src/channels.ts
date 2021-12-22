@@ -17,6 +17,16 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+
+type InstanceMetadata = {
+  currentUsers: number
+  locationId: string
+  channelId: string
+  ipAddress: string
+}
 
 const loadScene = async (app: Application, scene: string) => {
   const [projectName, sceneName] = scene.split('/')
@@ -64,15 +74,14 @@ const loadScene = async (app: Application, scene: string) => {
   // )
 }
 
-const createNewInstance = async (app: Application, newInstance, locationId, channelId, agonesSDK) => {
+const createNewInstance = async (app: Application, newInstance: InstanceMetadata, agonesSDK) => {
   console.log('newInstance:', newInstance)
 
-  if (channelId != null) {
-    console.log('channelId: ' + channelId)
+  const { locationId, channelId } = newInstance
+
+  if (channelId) {
+    console.log('channelId: ', channelId)
     newInstance.channelId = channelId
-    //While there's no scene, this will still signal that the engine is ready
-    //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-    dispatchLocal(EngineActions.sceneLoaded(true) as any)
   } else {
     console.log('locationId: ' + locationId)
     newInstance.locationId = locationId
@@ -224,8 +233,8 @@ export default (app: Application): void => {
                   locationId: locationId,
                   channelId: channelId,
                   ipAddress: ipAddress
-                } as any
-                await createNewInstance(app, newInstance, locationId, channelId, agonesSDK)
+                } as InstanceMetadata
+                await createNewInstance(app, newInstance, agonesSDK)
               } else {
                 const instance = existingInstanceResult.data[0]
                 const authorizedUsers = (await app.service('instance-authorized-user').find({
@@ -251,6 +260,10 @@ export default (app: Application): void => {
 
               if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) {
                 if (app.isChannelInstance) {
+                  Network.instance.transportHandler.mediaTransports.set(
+                    'media' as UserId,
+                    new SocketWebRTCServerTransport(app)
+                  )
                   await initializeEngine({
                     type: EngineSystemPresets.MEDIA,
                     publicPath: config.client.url
@@ -259,6 +272,10 @@ export default (app: Application): void => {
                   dispatchLocal(EngineActions.sceneLoaded(true) as any)
                   dispatchLocal(EngineActions.joinedWorld(true) as any)
                 } else {
+                  Network.instance.transportHandler.worldTransports.set(
+                    'server' as UserId,
+                    new SocketWebRTCServerTransport(app)
+                  )
                   Engine.isLoading = true
                   await loadScene(app, sceneId)
                   Engine.isLoading = false
