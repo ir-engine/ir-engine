@@ -82,7 +82,7 @@ import { TransportService } from '@xrengine/client-core/src/common/services/Tran
 import { useTransportStreamState } from '@xrengine/client-core/src/common/services/TransportService'
 import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -232,6 +232,7 @@ const Harmony = (props: Props): any => {
       : false
   const isCamVideoEnabled = mediastream.isCamVideoEnabled.value
   const isCamAudioEnabled = mediastream.isCamAudioEnabled.value
+  const engineState = useEngineState()
 
   useEffect(() => {
     navigator.mediaDevices
@@ -279,8 +280,6 @@ const Harmony = (props: Props): any => {
     return () => {
       if (EngineEvents.instance != null) {
         setEngineInitialized(false)
-        EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
-
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
           if (e.instance === true) ChannelConnectionService.resetChannelServer()
         })
@@ -495,10 +494,13 @@ const Harmony = (props: Props): any => {
       dispatchLocal(EngineActions.sceneLoaded(true) as any)
     }
   }
+  useEffect(() => {
+    if (engineState.socketInstance.value) {
+      connectToWorldHandler({ instance: true })
+    }
+  }, [engineState.socketInstance.value])
 
   const createEngineListeners = (): void => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler)
-
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
       if (e.instance === true) ChannelConnectionService.resetChannelServer()
     })

@@ -157,7 +157,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const dispatch = useDispatch()
 
     if (instance === true) {
-      instance = true
       this.instanceSocket = socket
       this.instanceRequest = this.promisedRequest(socket)
       dispatch(InstanceConnectionAction.socketCreated(socket))
