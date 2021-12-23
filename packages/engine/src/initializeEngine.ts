@@ -19,7 +19,7 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, receptors } from './ecs/classes/EngineService'
+import { EngineActions, EngineActionType, receptors } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 
 // @ts-ignore
@@ -41,7 +41,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   Engine.audioListener = new AudioListener()
 
   Engine.scene = new Scene()
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')!
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
@@ -56,8 +56,18 @@ const configureClient = async (options: Required<InitializeOptions>) => {
       )
     dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
+  }
 
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.JOINED_WORLD:
+        joinedWorld()
+        const i = Engine.currentWorld.receptors.indexOf(receptor)
+        Engine.currentWorld.receptors.splice(i, 1)
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
@@ -86,12 +96,21 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
-
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     console.log('joined world')
     dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
+  }
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.JOINED_WORLD:
+        joinedWorld()
+        const i = Engine.currentWorld.receptors.indexOf(receptor)
+        Engine.currentWorld.receptors.splice(i, 1)
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
 
   if (!isMediaServer) {
     await loadDRACODecoder()

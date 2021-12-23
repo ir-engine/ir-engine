@@ -19,7 +19,7 @@ import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from './setObjectLayers'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -86,7 +86,16 @@ export const teleportToScene = async (
 
   await new Promise<void>((resolve) => {
     Engine.hasJoinedWorld = true
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
+    const receptor = (action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.JOINED_WORLD:
+          resolve()
+          const i = Engine.currentWorld.receptors.indexOf(receptor)
+          Engine.currentWorld.receptors.splice(i, 1)
+          break
+      }
+    }
+    Engine.currentWorld.receptors.push(receptor)
     dispatchLocal(EngineActions.enableScene({ physics: true }) as any)
   })
 

@@ -62,6 +62,7 @@ const MediaIconsBox = (props) => {
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   const engineState = useEngineState()
+  let callbackDone = false
 
   useEffect(() => {
     navigator.mediaDevices
@@ -76,8 +77,11 @@ const MediaIconsBox = (props) => {
   }, [])
 
   useEffect(() => {
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
-  }, [engineState.isEngineInitialized.value])
+    if (engineState.joinedWorld.value && !callbackDone) {
+      setXRSupported(Engine.xrSupported)
+      callbackDone = true
+    }
+  }, [engineState.joinedWorld.value])
 
   const handleFaceClick = async () => {
     const partyId =
