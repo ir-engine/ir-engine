@@ -74,13 +74,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
       break
 
-    case EngineEvents.EVENTS.CONNECT_TO_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        instance: action.instance
-      })
-      break
-
     case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
@@ -239,10 +232,9 @@ export const EngineActions = {
       initialised
     }
   },
-  connectToWorld: (instance: boolean, connectedWorld: boolean) => {
+  connectToWorld: (connectedWorld: boolean) => {
     return {
       type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-      instance,
       connectedWorld
     }
   },
