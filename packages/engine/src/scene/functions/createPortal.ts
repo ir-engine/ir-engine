@@ -42,7 +42,7 @@ export type PortalProps = {
 const vec3 = new Vector3()
 
 export const createPortal = async (entity: Entity, args: PortalProps) => {
-  console.log(args)
+  // console.log(args)
   const { locationName, linkedPortalId, displayText, triggerPosition, triggerRotation, triggerScale } = args
 
   const transform = getComponent(entity, TransformComponent)

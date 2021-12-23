@@ -503,11 +503,11 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    serverEnabled: {
+    enabled: {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    serverMode: {
+    mode: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -581,8 +581,8 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbServer]) => {
       const dbServerConfig = dbServer && {
         hostname: dbServer.hostname,
-        serverEnabled: dbServer.serverEnabled,
-        serverMode: dbServer.serverMode,
+        enabled: dbServer.enabled,
+        mode: dbServer.mode,
         port: dbServer.port,
         clientHost: dbServer.clientHost,
         rootDir: dbServer.rootDir,

@@ -200,7 +200,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
           Object.keys(component.data.extend).forEach((key) => {
             component.data[key] = component.data.extend[key]
           })
-          console.log(component.data)
           registerSceneLoadPromise(loadGLTFModel(entity, component))
         }
       }
@@ -211,7 +210,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       break
 
     case 'interact':
-      console.log(component.data)
       if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
       break
 
@@ -412,16 +410,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
         addComponent(entity, VisibleComponent, { value: component.data.visible })
       }
       break
-
-    /* deprecated */
-    case 'mesh-collider':
-    case 'collidable':
-    case 'floor-plan':
-      console.log("[Scene Loader] WARNING: '", name, ' is deprecated')
-      break
-
-    default:
-      console.log("[Scene Loader] WARNING: Couldn't load component'", name, "'")
   }
 }
 

@@ -1,17 +1,14 @@
 import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
-import { client } from '@xrengine/client-core/src/feathers'
 import { Config } from '@xrengine/common/src/config'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { store, useDispatch } from '@xrengine/client-core/src/store'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -82,7 +79,7 @@ const createOfflineUser = (sceneData: SceneJson) => {
 export const initEngine = async (initOptions: InitializeOptions) => {
   Engine.isLoading = true
   Network.instance = new Network()
-  Network.instance.transport = new SocketWebRTCClientTransport('world')
+  Network.instance.transportHandler = new ClientTransportHandler()
   await initializeEngine(initOptions)
 }
 

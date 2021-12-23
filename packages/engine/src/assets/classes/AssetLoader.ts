@@ -163,7 +163,7 @@ const load = async (
 
   if (isInstanced) {
     let buffer = await instanceGLTF(url)
-    console.log('instanced loading')
+    // console.log('instanced loading')
 
     loader.parse(
       buffer,
@@ -184,7 +184,7 @@ const load = async (
       onError
     )
   } else {
-    console.log('non instanced loading')
+    // console.log('non instanced loading')
     loader.load(
       url,
       (asset) => {

@@ -4,6 +4,7 @@ import type * as x from '@feathersjs/feathers'
 import '@feathersjs/transport-commons'
 import type { Request } from './src/k8s'
 import type SocketIO from 'socket.io'
+import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceTypes {
@@ -21,6 +22,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   agonesSDK: any
   sync: any
   io: SocketIO.Server
+  transport: SocketWebRTCServerTransport
   seed: () => Application // function
 
   // Gameserver
