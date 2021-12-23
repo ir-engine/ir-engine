@@ -53,8 +53,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         retriveLocationByName(authState, props.locationName, history)
       }
     }
-    action(engineState.socketInstance)
-  }, [engineState.socketInstance])
+    if (engineState.socketInstance.value) action({ instance: true })
+  }, [engineState.socketInstance.value])
 
   // 2. once we have the location, provision the instance server
   useEffect(() => {

@@ -14,7 +14,7 @@ const state = createState({
   isPhysicsDebug: false,
   isAvatarDebug: false,
 
-  socketInstance: null
+  socketInstance: false
 })
 
 export const receptors = (): [] => {
@@ -227,7 +227,7 @@ export const EngineActions = {
       portalComponent
     }
   },
-  resetEngine: (instance: any) => {
+  resetEngine: (instance: boolean) => {
     return {
       type: EngineEvents.EVENTS.RESET_ENGINE,
       instance
