@@ -39,6 +39,11 @@ it's usually leads to "Ticket not found" on getting ticket assignment even if ti
 if this happens then run `kubectl scale -n open-match statefulset open-match-redis-node --replicas=1` to limit redis pod to one.  
 
 ## Build director and matchfunction Docker images
+NOTE: If you are building and testing this locally, you can skip to the section "Build and deploy locally in one command".
+This section and the couple after it lay out in more detail what options there are for building and deploying,
+primarily for deploying to a non-local cluster. They are both still valid for local deployment to minikube if you want 
+to do things more manually, though.
+
 Navigate to packages/matchmaking and build the director and matchfunction images.
 ```bash
 cd packages/matchmaking/
@@ -49,11 +54,20 @@ eval $(minikube docker-env)
 ./build-all-pods.sh
 ```
 
-This will build the images with the registry `lagunalabs` by default. If you wish to build them to a different registry,
+This will build the images with no registry by default, e.g. the image names will just be `xrengine-matchmaking-director`
+and `xrengine-matchmaking-matchfunction`. If you wish to build them to a registry,
 set the `REGISTRY` environment variable, e.g. `REGISTRY=example-reg ./build-all-pods.sh`
 
 If you want to automatically push the images to the registry they've been built towards, add `push` as a parameter:
 `REGISTRY=example-reg ./build-all-pods.sh push` Otherwise, you'll have to manually push the images to the right repo.
+If you are building this locally on minikube, you do not need to push the images anywhere; running `eval $(minikube docker-env)`
+builds the images in minikube's Docker environment, which means it already has access to those images and does not
+need to source them from an external Docker registry.
+
+Each of the build scripts will generate a timestamp and use that as the tag for the images that are built. For example,
+an image would be generated with a full name of `xrengine-matchmaking-director:23-12-21T12-55-03`.
+You can see the tags in the build logs, where they're printed out like the following:
+`BUILDING matchfunction as xrengine-matchmaking-matchfunction:23-12-21T14-16-09`
 
 ## Install matchmaking via Helm chart
 You'll next install the matchmaking deployment using the Helm chart in packages/ops/xrengine-matchmaking. Make sure that 
@@ -61,17 +75,56 @@ the path at the end of the following command is relative to the directory you're
 you're in packages/matchmaking after just building the images, and will be different if you're in the repo root or
 some other directory.
 
-The file referenced below as path/to-matchmaking.yaml is a simple configuration file. There is a template for it in
-`packages/ops/configs/local.matchmaking.template.values.yaml`. <release> is a release name, e.g. `local` for local
-development; make sure to replace it when naming it in the `helm install` command and in the values.yaml file.
-```
-helm install -f path/to/matchmaking.yaml <release>-matchmaking ../ops/xrengine-matchmaker
-```
+The file referenced below as path/to/matchmaking.values.yaml is a simple configuration file. There is a template for it in
+`packages/ops/configs/local.matchmaking.template.values.yaml`. You should make a copy of this template and remove the 
+word 'template' from the file name. If you are going to push these images to an external registry, i.e. you're not just
+building them locally for minikube, then you'll need to add `<REGISTRY>/` to the start of both `repository`settings.
+For example, if pushing the image to the Docker Hub repo `xrengine-test`, you would make director.image.repository
+`xrengine-test/xrengine-matchmaking-director` and matchfunction.image.repository `xrengine-test/xrengine-matchmaking-matchfunction`
 
-After 30 seconds or so, the matchmaker services should be running.
+If you are installing this on minikube, you don't need to specify a registry. By running `eval $(minikube dockerenv)`, 
+you're building the images into minikube's Docker environment.
 
-when update needed from pods, navigate to `packages/matchmaking`
-and run `./build-pod.sh director` or  `./build-pod.sh matchfunction` to build corresponding pod
+When the values.yaml/Helm config file is ready, run the following command:
+```
+helm install -f path/to/matchmaking.yaml --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking
+```
+where `<TAG>` is the timestamp tag that can be found on in the builder logs.
+
+`<release>` should be `local` if running on minikube, and `dev`/`prod` if deploying this to a dev/prod production
+environment.
+
+After 30 seconds or so, the matchmaking services should be running.
+
+## Updating director or matchfunction
+When changes to the director or matchfunction services are made, you'll need to re-build them and re-deploy them.
+
+Navigate to `packages/matchmaking`. You can run `RELEASE=<RELEASE> ./build-all-pods.sh <push>` if you want to rebuild both.
+If you only want to rebuild one, run `RELEASE=<RELEASE> ./build-pod.sh <director/matchfunction> <push>`. `push` is only
+needed if you are pushing to an external registry, and not needed if you're building to minikube's Docker environment.
+
+Once the new image(s) have been built (and optionally pushed), run 
+`helm upgrade --reuse-values --set director.image.tag=<TAG>,matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking`
+This will update the matchmaking deployment with the newly timestamp-tagged images. If you only updated and rebuilt
+one of the services, and did so by just running `build-pod.sh` instead of `build-all-pods.sh`, then you must omit the
+`--set <service>.image.tag=<TAG>` for the service that didn't get rebuilt, since it will not have a new image tag.
+For example, if you just updated the matchfunction service, run
+`helm upgrade --reuse-values --set matchfunction.image.tag=<TAG> <release>-matchmaking ../ops/xrengine-matchmaking`
+
+## Build and deploy locally in one command
+The script `matchmaking/build-all-and-refresh-pods-local.sh` can build and deploy the director and matchfunction locally
+in one go. Just run
+
+`HELM_CONFIG=<path/to/matchfunction.values.yaml> ./build-all-and-refresh-pods-local.sh`
+where `<path/to/matchfunction.values.yaml>` is an absolute or relative path to the Helm config file, e.g.
+`HELM_CONFIG="/home/scott/Documents/matchmaking.values.yaml" ./build-all-and-refresh-pods-local.sh`
+This will build the two services, timestamp-tag them, then automatically run `helm upgrade --install` with the
+timestamp-tags and the config file, which will install the deployment if it's not already installed and update the tag
+if it is, forcing the deployment to download the new versions of the services.
+
+## Uninstall Open Match and xrengine-matchmaking
+To uninstall xrengine-matchmaing, run `helm uninstall <release>-matchmaking`
+To uninstall Open Match, from `helm uninstall open-match`
 
 
 

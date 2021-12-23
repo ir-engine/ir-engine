@@ -13,7 +13,7 @@ director:
 
   replicaCount: 1
   image:
-    repository: lagunalabs/xrengine-matchmaking-director
+    repository: xrengine-matchmaking-director
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -60,7 +60,7 @@ matchfunction:
 
   replicaCount: 1
   image:
-    repository: lagunalabs/xrengine-matchmaking-matchfunction
+    repository: xrengine-matchmaking-matchfunction
     tag: latest
     pullPolicy: IfNotPresent
 

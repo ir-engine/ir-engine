@@ -1,6 +1,6 @@
 director:
   image:
-    repository: <REGISTRY>/xrengine-matchmaking-director
+    repository: xrengine-matchmaking-director
     pullPolicy: IfNotPresent
 
 matchfunction:
@@ -11,7 +11,7 @@ matchfunction:
     app: xrengine-matchmaking
     component: matchfunction
   image:
-    repository: <REGISTRY>/xrengine-matchmaking-matchfunction
+    repository: xrengine-matchmaking-matchfunction
     pullPolicy: IfNotPresent
 
 release:

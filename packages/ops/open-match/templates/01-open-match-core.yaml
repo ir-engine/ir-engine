@@ -1477,7 +1477,7 @@ metadata:
     release: open-match
     heritage: Helm
 spec:
-  replicas: 2
+  replicas: 1
   serviceName: open-match-redis-headless
   selector:
     matchLabels:
