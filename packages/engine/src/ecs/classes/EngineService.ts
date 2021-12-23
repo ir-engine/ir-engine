@@ -14,7 +14,8 @@ const state = createState({
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,
-  socketInstance: false
+  socketInstance: false,
+  avatarTappedId: ''
 })
 
 export const receptors = (): [] => {
@@ -39,7 +40,10 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({
           socketInstance: action.instance
         })
-
+      case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
+        return s.merge({
+          avatarTappedId: action.userId
+        })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
         return s.merge({ isEngineInitialized: action.initialised })
       case EngineEvents.EVENTS.SCENE_LOADED:
