@@ -4,9 +4,7 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { System } from '../../ecs/classes/System'
-import { hasComponent } from 'bitecs'
 import { PortalComponent } from '../components/PortalComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 
@@ -41,7 +39,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = world.entityTree.findNodeFromUUID(args.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: args.target,
@@ -74,7 +72,7 @@ export default async function TriggerSystem(world: World): Promise<System> {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = world.entityTree.findNodeFromUUID(args.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: args.target,

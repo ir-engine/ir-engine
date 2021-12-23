@@ -1,4 +1,4 @@
-import { ColorRepresentation, Object3D, Texture } from 'three'
+import { ColorRepresentation, Texture } from 'three'
 import {
   BlendFunction,
   BloomEffect,
@@ -206,23 +206,5 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   },
   LinearTosRGBEffect: {
     isActive: false
-  }
-}
-
-export default class PostProcessing extends Object3D {
-  postProcessingOptions: any = {}
-  visible = true
-  static get defaultOptions() {
-    return defaultPostProcessingSchema
-  }
-
-  getPropertyValue = (schemaArra: []): any => {
-    if (schemaArra.length < 1) return null
-    let value = this.postProcessingOptions
-    schemaArra.forEach((element) => {
-      if (value[element] === '') return null
-      value = value[element]
-    })
-    return value
   }
 }

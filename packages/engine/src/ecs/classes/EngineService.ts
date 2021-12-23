@@ -1,5 +1,5 @@
 import { createState, useState } from '@hookstate/core'
-import { InteractionData } from '../../interaction/types/InteractionTypes'
+import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
@@ -297,7 +297,7 @@ export const EngineActions = {
       props
     }
   },
-  objectActivation: (interactionData: InteractionData) => {
+  objectActivation: (interactionData: InteractableComponentType) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData

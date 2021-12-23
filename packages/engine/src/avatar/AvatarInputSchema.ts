@@ -84,7 +84,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
 
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // TODO: Define interaction types in some enum?
-  if (interactiveComponent.data.interactionType === 'equippable') {
+  if (interactiveComponent.interactionType === 'equippable') {
     const attachmentPoint = getAttachmentPoint(parityValue)
     equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
   } else {

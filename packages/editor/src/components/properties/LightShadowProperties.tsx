@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 
 /**
  *  Array containing options for shadow resolution

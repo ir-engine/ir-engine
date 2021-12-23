@@ -301,7 +301,11 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
 
   // returning editor view for property editor for sceneNode
   return (
-    <NodeEditor {...props} description={t('editor:properties.scene.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.scene.name')}
+      description={t('editor:properties.scene.description')}
+    >
       {/* <InputGroup
         name="Background Color"
         label={t('editor:properties.scene.lbl-bgcolor')}

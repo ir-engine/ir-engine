@@ -117,7 +117,7 @@ export default class AddObjectCommand extends Command {
 
         world.entityTree.traverse((node) => {
           node.entity = createEntity()
-          loadSceneEntity(node.entity, node.uuid, data.entities[node.uuid])
+          loadSceneEntity(node, data.entities[node.uuid])
           if (node.uuid !== data.root) reparentObject3D(node, node.parentNode)
         }, object)
       }

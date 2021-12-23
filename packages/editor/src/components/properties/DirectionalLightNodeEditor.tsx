@@ -61,7 +61,11 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.directionalLight.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.directionalLight.name')}
+      description={t('editor:properties.directionalLight.description')}
+    >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
         <ColorInput value={lightComponent.color} onChange={onChangeColor} />
       </InputGroup>

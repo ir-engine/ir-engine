@@ -13,7 +13,13 @@ import { EditorComponentType } from './Util'
 export const GroupNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  return <NodeEditor {...props} description={t('editor:properties.group.description')} />
+  return (
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.group.name')}
+      description={t('editor:properties.group.description')}
+    />
+  )
 }
 
 GroupNodeEditor.iconComponent = GridViewIcon

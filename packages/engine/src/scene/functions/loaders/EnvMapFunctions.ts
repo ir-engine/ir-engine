@@ -25,7 +25,7 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'

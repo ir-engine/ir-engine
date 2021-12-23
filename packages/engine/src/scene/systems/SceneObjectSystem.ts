@@ -1,8 +1,8 @@
 import { Material, Mesh, Vector3 } from 'three'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -14,6 +14,8 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { isClient } from '../../common/functions/isClient'
+import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
+import { Entity } from '../../ecs/classes/Entity'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -37,7 +39,35 @@ export class SceneOptions {
   boxProjection = false
 }
 
+export const processObject3d = (entity: Entity) => {
+  if (!isClient) return
+
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  const shadowComponent = getComponent(entity, ShadowComponent)
+
+  object3DComponent.value.traverse((obj: Mesh) => {
+    const material = obj.material as Material
+    if (typeof material !== 'undefined') material.dithering = true
+
+    if (shadowComponent) {
+      obj.receiveShadow = shadowComponent.receiveShadow
+      obj.castShadow = shadowComponent.castShadow
+    }
+
+    if (Engine.simpleMaterials) {
+      // || Engine.isHMD) {
+      useSimpleMaterial(obj)
+    } else {
+      useStandardMaterial(obj)
+    }
+  })
+
+  // Generate BVH
+  object3DComponent.value.traverse(generateMeshBVH)
+}
+
 const sceneObjectQuery = defineQuery([Object3DComponent])
+const objectReplaceQuery = defineQuery([ReplaceObject3DComponent])
 const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
@@ -48,51 +78,45 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
   return () => {
     for (const entity of sceneObjectQuery.enter()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      const shadowComponent = getComponent(entity, ShadowComponent)
-
-      ;(object3DComponent.value as any).entity = entity
+      const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
+      obj3d.entity = entity
 
       // Add to scene
-      if (!Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.add(object3DComponent.value)
+      if (!Engine.scene.children.includes(obj3d)) {
+        Engine.scene.add(obj3d)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', object3DComponent.value)
+        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d)
       }
 
-      // Apply material stuff
-      if (isClient) {
-        object3DComponent.value.traverse((obj: Mesh) => {
-          const material = obj.material as Material
-          if (typeof material !== 'undefined') material.dithering = true
-
-          if (shadowComponent) {
-            obj.receiveShadow = shadowComponent.receiveShadow
-            obj.castShadow = shadowComponent.castShadow
-          }
-
-          if (Engine.simpleMaterials) {
-            // || Engine.isHMD) {
-            useSimpleMaterial(obj)
-          } else {
-            useStandardMaterial(obj)
-          }
-        })
-
-        // Generate BVH
-        object3DComponent.value.traverse(generateMeshBVH)
-      }
+      processObject3d(entity)
     }
 
     for (const entity of sceneObjectQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent, true)
+      const obj3d = getComponent(entity, Object3DComponent, true).value
 
-      // Remove from scene
-      if (Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.remove(object3DComponent.value)
-      } else {
-        console.warn('[Object3DComponent]: Scene object has been removed manually.')
-      }
+      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
+
+      obj3d.removeFromParent()
+    }
+
+    for (const entity of objectReplaceQuery.enter()) {
+      const obj3d = getComponent(entity, Object3DComponent)
+      const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement as Object3DWithEntity
+
+      if (!obj3d || !replacementObj) continue
+
+      replacementObj.entity = entity
+      replacementObj.parent = obj3d.value.parent
+
+      const parent = obj3d.value.parent!
+      const index = parent.children.indexOf(obj3d.value)
+      parent.children.splice(index, 1, replacementObj)
+
+      obj3d.value.parent = null
+      obj3d.value = replacementObj
+
+      processObject3d(entity)
+      removeComponent(entity, ReplaceObject3DComponent)
     }
 
     // Enable second camera layer for persistant entities for fun portal effects

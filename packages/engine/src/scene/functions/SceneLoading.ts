@@ -1,4 +1,4 @@
-import { MathUtils, Object3D, PointLight, SpotLight } from 'three'
+import { Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -25,14 +25,12 @@ import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
-import { loadGLTFModel } from '../functions/loadGLTFModel'
-import { loadModelAnimation } from '../functions/loadModelAnimation'
 import { setCameraProperties } from '../functions/setCameraProperties'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import EntityTree from '../../ecs/classes/EntityTree'
+import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
@@ -50,7 +48,7 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
   const components = world.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
-  loadSceneEntity(entity, MathUtils.generateUUID(), { name: prefabType, components })
+  loadSceneEntity(new EntityTreeNode(entity), { name: prefabType, components })
 }
 
 /**
@@ -58,7 +56,7 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  const entityMap = {} as { [key: string]: Entity }
+  const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
@@ -68,8 +66,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   registerDefaultSceneFunctions(world)
 
   Object.keys(sceneData.entities).forEach((key) => {
-    entityMap[key] = createEntity()
-    loadSceneEntity(entityMap[key], key, sceneData.entities[key])
+    entityMap[key] = new EntityTreeNode(createEntity(), key)
+    loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
   // Create Entity Tree
@@ -78,7 +76,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
-    const node = tree.addEntity(entityMap[key], sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    const node = entityMap[key]
+    tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
     reparentObject3D(node, node.parentNode)
   })
 
@@ -97,23 +96,21 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
 /**
  * Loads all the components from scene json for an entity
- * @param {string} sceneEntityId
+ * @param {EntityTreeNode} entityNode
  * @param {EntityJson} sceneEntity
  */
-export const loadSceneEntity = (entity: Entity, sceneEntityId: string, sceneEntity: EntityJson): Entity => {
-  addComponent(entity, NameComponent, { name: sceneEntity.name })
-
-  if (Engine.isEditor) addComponent(entity, EntityNodeComponent, { uuid: sceneEntityId, components: [] })
+export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJson): Entity => {
+  addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
+  if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
-    component.data = component.props
-    component.data.sceneEntityId = sceneEntityId
-    loadComponent(entity, component)
+    loadComponent(entityNode.entity, component)
   })
 
-  if (!hasComponent(entity, TransformComponent)) addComponent(entity, DisableTransformTagComponent, {})
+  if (!hasComponent(entityNode.entity, TransformComponent))
+    addComponent(entityNode.entity, DisableTransformTagComponent, {})
 
-  return entity
+  return entityNode.entity
 }
 
 export const loadComponent = (entity: Entity, component: ComponentJson): void => {
@@ -131,12 +128,12 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
   switch (name) {
     case '_metadata':
       {
-        addObject3DComponent(entity, new Object3D(), component.data)
-        addComponent(entity, InteractableComponent, { data: { action: '_metadata' } })
+        addObject3DComponent(entity, new Object3D(), component.props)
+        addComponent(entity, InteractableComponent, { action: '_metadata' })
         const transform = getComponent(entity, TransformComponent)
 
         // if (isClient && Engine.isBot) {
-        const { _data } = component.data
+        const { _data } = component.props
         const { x, y, z } = transform.position
         world.worldMetadata[_data] = x + ',' + y + ',' + z
         console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
@@ -145,87 +142,83 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       break
 
     case 'userdata':
-      addComponent(entity, UserdataComponent, { data: component.data })
+      addComponent(entity, UserdataComponent, { data: component.props })
       break
 
     case 'point-light':
-      addObject3DComponent(entity, new PointLight(), component.data)
+      addObject3DComponent(entity, new PointLight(), component.props)
       break
 
     case 'spot-light':
-      addObject3DComponent(entity, new SpotLight(), component.data)
+      addObject3DComponent(entity, new SpotLight(), component.props)
       break
 
     // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
     // case 'wooCommerce':
     // case 'shopify':
-    //   if (component.data && component.data.extend) {
-    //     if (component.data.extendType == 'video') {
+    //   if (component.props && component.props.extend) {
+    //     if (component.props.extendType == 'video') {
     //       // if livestream, server will send the video info to the client
     //       if (isClient) {
-    //         createVideo(entity, component.data.extend)
+    //         createVideo(entity, component.props.extend)
     //       } else {
-    //         createMediaServer(entity, component.data.extend)
+    //         createMediaServer(entity, component.props.extend)
     //       }
-    //     } else if (component.data.extendType == 'image') {
-    //       addObject3DComponent(entity, new Image(), component.data.extend)
-    //     } else if (component.data.extendType == 'model') {
-    //       Object.keys(component.data.extend).forEach((key) => {
-    //         component.data[key] = component.data.extend[key]
+    //     } else if (component.props.extendType == 'image') {
+    //       addObject3DComponent(entity, new Image(), component.props.extend)
+    //     } else if (component.props.extendType == 'model') {
+    //       Object.keys(component.props.extend).forEach((key) => {
+    //         component.props[key] = component.props.extend[key]
     //       })
-    //       console.log(component.data)
+    //       console.log(component.props)
     //       registerSceneLoadPromise(loadGLTFModel(entity, component))
     //     }
     //   }
     //   break
 
-    case 'loop-animation':
-      loadModelAnimation(entity, component)
-      break
-
     case 'interact':
-      console.log(component.data)
-      if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
+      console.log(component.props)
+      if (component.props.interactable) addComponent(entity, InteractableComponent, component.props)
       break
 
     case 'image':
-      addObject3DComponent(entity, new Image(), component.data)
+      addObject3DComponent(entity, new Image(), component.props)
       break
 
     case 'video':
       // if livestream, server will send the video info to the client
       if (isClient) {
-        // if(!component.data.isLivestream) {
-        createVideo(entity, component.data)
+        // if(!component.props.isLivestream) {
+        createVideo(entity, component.props)
         // }
         // addComponent(entity, LivestreamComponent)
-        // } else if(component.data.isLivestream) {
+        // } else if(component.props.isLivestream) {
         // @todo
-        // addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
+        // addComponent(entity, LivestreamProxyComponent, { src: component.props.src })
       } else {
-        createMediaServer(entity, component.data)
+        createMediaServer(entity, component.props)
       }
       break
 
     case 'map':
-      if (isClient) registerSceneLoadPromise(createMap(entity, component.data))
+      if (isClient) registerSceneLoadPromise(createMap(entity, component.props))
       break
 
     case 'audio':
-      if (isClient) createAudio(entity, component.data)
-      else createMediaServer(entity, component.data)
+      if (isClient) createAudio(entity, component.props)
+      else createMediaServer(entity, component.props)
       break
 
     case 'volumetric':
-      if (isClient) createVolumetric(entity, component.data)
-      else createMediaServer(entity, component.data)
+      if (isClient) createVolumetric(entity, component.props)
+      else createMediaServer(entity, component.props)
       break
 
     case 'collider': {
       const object3d = getComponent(entity, Object3DComponent)
       if (object3d) {
-        const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.data)
-        const body = createBody(entity, component.data, shapes)
+        const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.props)
+        const body = createBody(entity, component.props, shapes)
         addComponent(entity, ColliderComponent, { body })
         addComponent(entity, CollisionComponent, { collisions: [] })
       }
@@ -233,7 +226,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     }
 
     case 'box-collider': {
-      const boxColliderProps: BoxColliderProps = component.data
+      const boxColliderProps: BoxColliderProps = component.props
       const transform = getComponent(entity, TransformComponent)
 
       const shape = world.physics.createShape(
@@ -264,42 +257,42 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     }
 
     case 'trigger-volume':
-      createTriggerVolume(entity, component.data)
+      createTriggerVolume(entity, component.props)
       break
 
     case 'link':
-      addObject3DComponent(entity, new Object3D(), component.data)
-      addComponent(entity, InteractableComponent, { data: { action: 'link' } })
+      addObject3DComponent(entity, new Object3D(), component.props)
+      addComponent(entity, InteractableComponent, { action: 'link' })
       break
 
     case 'particle-emitter':
-      createParticleEmitterObject(entity, component.data)
+      createParticleEmitterObject(entity, component.props)
       break
 
     case 'clouds':
-      isClient && addObject3DComponent(entity, new Clouds(), component.data)
+      isClient && addObject3DComponent(entity, new Clouds(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})
       break
 
     case 'ocean':
-      isClient && addObject3DComponent(entity, new Ocean(), component.data)
+      isClient && addObject3DComponent(entity, new Ocean(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})
       break
 
     case 'water':
-      isClient && addObject3DComponent(entity, new Water(), component.data)
+      isClient && addObject3DComponent(entity, new Water(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})
       break
 
     case 'interior':
-      isClient && addObject3DComponent(entity, new Interior(), component.data)
+      isClient && addObject3DComponent(entity, new Interior(), component.props)
       break
 
     case 'cameraproperties':
       if (isClient) {
         matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
           if (spawnAction.$from === Engine.userId) {
-            setCameraProperties(useWorld().localClientEntity, component.data)
+            setCameraProperties(useWorld().localClientEntity, component.props)
             return true
           }
           return false
@@ -308,7 +301,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       break
 
     case 'portal':
-      createPortal(entity, component.data)
+      createPortal(entity, component.props)
       break
 
     default:

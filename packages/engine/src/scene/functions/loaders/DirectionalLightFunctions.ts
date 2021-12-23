@@ -1,10 +1,11 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { CameraHelper, DirectionalLight, Vector2, Color } from 'three'
+import { CameraHelper, DirectionalLight, Vector2, Color, Object3D } from 'three'
 import {
   ComponentDeserializeFunction,
+  ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -103,5 +104,17 @@ export const serializeDirectionalLight: ComponentSerializeFunction = (entity) =>
       cameraFar: component.cameraFar,
       showCameraHelper: component.showCameraHelper
     }
+  }
+}
+
+export const prepareDirectionalLightForGLTFExport: ComponentPrepareForGLTFExportFunction = (light) => {
+  if (light.userData.helper) {
+    if (light.userData.helper.parent) light.userData.helper.removeFromParent()
+    delete light.userData.helper
+  }
+
+  if (light.userData.cameraHelper) {
+    if (light.userData.cameraHelper.parent) light.userData.cameraHelper.removeFromParent()
+    delete light.userData.cameraHelper
   }
 }

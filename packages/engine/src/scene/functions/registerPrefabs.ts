@@ -17,8 +17,11 @@ import {
   SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES,
   SCENE_COMPONENT_HEMISPHERE_LIGHT
 } from './loaders/HemisphereLightFunctions'
-import { SCENE_COMPONENT_CUBEMAP_BAKE } from './loaders/IncludeInCubemapBakeFunctions'
-import { SCENE_COMPONENT_MODEL } from './loaders/ModelFunctions'
+import {
+  SCENE_COMPONENT_PREVENT_BAKE,
+  SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES
+} from './loaders/PreventBakeFunctions'
+import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
 import {
   SCENE_COMPONENT_POSTPROCESSING,
   SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES
@@ -32,6 +35,10 @@ import { SCENE_COMPONENT_SKYBOX, SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES } from '.
 import { SCENE_COMPONENT_SPAWN_POINT, SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES } from './loaders/SpawnPointFunctions'
 import { SCENE_COMPONENT_TRANSFORM, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES } from './loaders/TransformFunctions'
 import { SCENE_COMPONENT_VISIBLE, SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES } from './loaders/VisibleFunctions'
+import {
+  SCENE_COMPONENT_LOOP_ANIMATION,
+  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
+} from './loaders/LoopAnimationFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -86,7 +93,8 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.postProcessing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_POSTPROCESSING, props: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_POSTPROCESSING, props: SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_PREVENT_BAKE, props: SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.previewCamera, [
@@ -107,5 +115,9 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_SPAWN_POINT, props: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES }
   ])
 
-  // world.scenePrefabRegistry.set(ScenePrefabs.model, [...defaultSpatialComponents, SCENE_COMPONENT_MODEL, /*SCENE_COMPONENT_INTERACTABLE, SCENE_LOOP_ANIMATION*/])
+  world.scenePrefabRegistry.set(ScenePrefabs.model, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
+    { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
+  ])
 }

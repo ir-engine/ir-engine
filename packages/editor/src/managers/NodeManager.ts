@@ -32,15 +32,11 @@ import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeE
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import AmbientLightNode from '../nodes/AmbientLightNode'
 import AudioNode from '../nodes/AudioNode'
 import BoxColliderNode from '../nodes/BoxColliderNode'
 import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import GroundPlaneNode from '../nodes/GroundPlaneNode'
-import GroupNode from '../nodes/GroupNode'
-import HemisphereLightNode from '../nodes/HemisphereLightNode'
 import ImageNode from '../nodes/ImageNode'
 import InteriorNode from '../nodes/InteriorNode'
 import LinkNode from '../nodes/LinkNode'
@@ -53,11 +49,7 @@ import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PointLightNode from '../nodes/PointLightNode'
 import PortalNode from '../nodes/PortalNode'
-import PostProcessingNode from '../nodes/PostProcessingNode'
 import SceneNode from '../nodes/SceneNode'
-import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
-import SkyboxNode from '../nodes/SkyboxNode'
-import SpawnPointNode from '../nodes/SpawnPointNode'
 import SplineNode from '../nodes/SplineNode'
 import SpotLightNode from '../nodes/SpotLightNode'
 import SystemNode from '../nodes/SystemNode'
@@ -88,6 +80,8 @@ import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loa
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
 import { EditorComponentType } from '../components/properties/Util'
+import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -171,16 +165,11 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  // NodeManager.instance.registerNode(AmbientLightNode, AmbientLightNodeEditor)
   NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
-  // NodeManager.instance.registerNode(DirectionalLightNode, DirectionalLightNodeEditor)
-  NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
-  NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
-  // NodeManager.instance.registerNode(HemisphereLightNode, HemisphereLightNodeEditor)
   NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
   NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
@@ -191,12 +180,8 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
-  // NodeManager.instance.registerNode(PostProcessingNode, PostProcessingNodeEditor)
   // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
-  // NodeManager.instance.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
-  // NodeManager.instance.registerNode(SkyboxNode, SkyboxNodeEditor)
-  // NodeManager.instance.registerNode(SpawnPointNode, SpawnPointNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
@@ -224,11 +209,24 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
   [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
-  // [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
+  [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
   [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
   [SCENE_COMPONENT_SKYBOX]: SkyboxNodeEditor,
   [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor
+}
+
+export const prefabIcons = {
+  [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
+  [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
+  [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
+  [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
+  [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
+  [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
+  [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
+  [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
+  [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
+  [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent
 }

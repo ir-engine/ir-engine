@@ -1,18 +1,24 @@
-import { PropertyBinding, AnimationClip } from 'three'
+import { PropertyBinding, AnimationClip, Object3D, Mesh, SkinnedMesh, KeyframeTrack, Bone } from 'three'
+import { AnimationManager } from '../../avatar/AnimationManager'
+import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+
 // Modified version of Don McCurdy's AnimationUtils.clone
 // https://github.com/mrdoob/three.js/pull/14494
-function parallelTraverse(a, b, callback) {
+function parallelTraverse(a: Object3D, b: Object3D, callback: (a: Object3D, b: Object3D) => void): void {
   callback(a, b)
   for (let i = 0; i < a.children.length; i++) {
     parallelTraverse(a.children[i], b.children[i], callback)
   }
 }
+
 // Supports the following PropertyBinding path formats:
 // uuid.propertyName
 // uuid.propertyName[propertyIndex]
 // uuid.objectName[objectIndex].propertyName[propertyIndex]
 // Does not support property bindings that use object3D names or parent nodes
-function cloneKeyframeTrack(sourceKeyframeTrack, cloneUUIDLookup) {
+function cloneKeyframeTrack(sourceKeyframeTrack: KeyframeTrack, cloneUUIDLookup: Map<string, string>): KeyframeTrack {
   const {
     nodeName: uuid,
     objectName,
@@ -20,78 +26,95 @@ function cloneKeyframeTrack(sourceKeyframeTrack, cloneUUIDLookup) {
     propertyName,
     propertyIndex
   } = PropertyBinding.parseTrackName(sourceKeyframeTrack.name)
+
   let path = ''
-  if (uuid !== undefined) {
+  if (uuid) {
     const clonedUUID = cloneUUIDLookup.get(uuid)
+
     if (clonedUUID === undefined) {
       throw new Error(`Error cloning model. Could not find KeyframeTrack target with uuid: "${uuid}"`)
     }
+
     path += clonedUUID
   }
-  if (objectName !== undefined) {
-    path += '.' + objectName
-  }
-  if (objectIndex !== undefined) {
-    path += '[' + objectIndex + ']'
-  }
-  if (propertyName !== undefined) {
-    path += '.' + propertyName
-  }
-  if (propertyIndex !== undefined) {
-    path += '[' + propertyIndex + ']'
-  }
+
+  if (objectName) path += '.' + objectName
+  if (objectIndex) path += '[' + objectIndex + ']'
+  if (propertyName) path += '.' + propertyName
+  if (propertyIndex) path += '[' + propertyIndex + ']'
+
   const clonedKeyframeTrack = sourceKeyframeTrack.clone()
   clonedKeyframeTrack.name = path
+
   return clonedKeyframeTrack
 }
-function cloneAnimationClip(sourceAnimationClip, cloneUUIDLookup) {
+
+function cloneAnimationClip(sourceAnimationClip: AnimationClip, cloneUUIDLookup: Map<string, string>): AnimationClip {
   const clonedTracks = sourceAnimationClip.tracks.map((keyframeTrack) =>
     cloneKeyframeTrack(keyframeTrack, cloneUUIDLookup)
   )
   return new AnimationClip(sourceAnimationClip.name, sourceAnimationClip.duration, clonedTracks)
 }
-export default function cloneObject3D(source, preserveUUIDs?) {
-  const cloneLookup = new Map()
-  const cloneUUIDLookup = new Map()
-  const clone = source.clone()
+
+export default function cloneObject3D(source: Object3D, preserveUUIDs?: boolean): Object3DWithEntity {
+  const cloneLookup = new Map<Object3D, Object3D>()
+  const cloneUUIDLookup = new Map<string, string>()
+  const clone = source.clone() as Object3DWithEntity
+
   parallelTraverse(source, clone, (sourceNode, clonedNode) => {
     cloneLookup.set(sourceNode, clonedNode)
   })
-  source.traverse((sourceNode) => {
-    const clonedNode = cloneLookup.get(sourceNode)
-    if (!clonedNode) {
-      throw new Error(
-        `Couldn't find the cloned node for ${sourceNode.nodeName || sourceNode.type} "${sourceNode.name}"`
-      )
-    }
-    if (preserveUUIDs) {
-      clonedNode.uuid = sourceNode.uuid
-    }
-    cloneUUIDLookup.set(sourceNode.uuid, clonedNode.uuid)
+
+  source.traverse((node: Object3DWithEntity) => {
+    const clonedNode = cloneLookup.get(node) as Object3DWithEntity
+    if (!clonedNode) throw new Error(`Couldn't find the cloned node for ${node.type} "${node.name}"`)
+
+    if (preserveUUIDs) clonedNode.uuid = node.uuid
+    clonedNode.entity = node.entity
+    cloneUUIDLookup.set(node.uuid, clonedNode.uuid)
   })
-  source.traverse((sourceNode) => {
-    const clonedNode = cloneLookup.get(sourceNode)
-    if (!clonedNode) {
-      return
+
+  source.traverse((node) => {
+    const clonedNode = cloneLookup.get(node)
+    if (!clonedNode) return
+
+    if (node.animations) {
+      clonedNode.animations = node.animations.map((animationClip) => cloneAnimationClip(animationClip, cloneUUIDLookup))
     }
-    if (sourceNode.animations) {
-      clonedNode.animations = sourceNode.animations.map((animationClip) =>
-        cloneAnimationClip(animationClip, cloneUUIDLookup)
-      )
+
+    if ((node as Mesh).isMesh && (node as Mesh).geometry.boundsTree) {
+      ;(clonedNode as Mesh).geometry.boundsTree = (node as Mesh).geometry.boundsTree
     }
-    if (sourceNode.isMesh && sourceNode.geometry.boundsTree) {
-      clonedNode.geometry.boundsTree = sourceNode.geometry.boundsTree
+
+    if ((node as SkinnedMesh).isSkinnedMesh) {
+      const sourceBones = (node as SkinnedMesh).skeleton.bones
+      ;(clonedNode as SkinnedMesh).skeleton = (node as SkinnedMesh).skeleton.clone()
+      ;(clonedNode as SkinnedMesh).skeleton.bones = sourceBones.map((sourceBone) => {
+        if (!cloneLookup.has(sourceBone)) throw new Error('Required bones are not descendants of the given object.')
+        return cloneLookup.get(sourceBone)
+      }) as Bone[]
+      ;(clonedNode as SkinnedMesh).bind((clonedNode as SkinnedMesh).skeleton, (node as SkinnedMesh).bindMatrix)
     }
-    if (!sourceNode.isSkinnedMesh) return
-    const sourceBones = sourceNode.skeleton.bones
-    clonedNode.skeleton = sourceNode.skeleton.clone()
-    clonedNode.skeleton.bones = sourceBones.map((sourceBone) => {
-      if (!cloneLookup.has(sourceBone)) {
-        throw new Error('Required bones are not descendants of the given object.')
-      }
-      return cloneLookup.get(sourceBone)
-    })
-    clonedNode.bind(clonedNode.skeleton, sourceNode.bindMatrix)
   })
+
   return clone
+}
+
+export const getAnimationClips = (): AnimationClip[] => {
+  const loopAnimationQuery = defineQuery([LoopAnimationComponent])
+  const result = new Set<AnimationClip>()
+
+  for (let entity of loopAnimationQuery()) {
+    const comp = getComponent(entity, LoopAnimationComponent)
+    if (comp.activeClipIndex < 0) continue
+
+    if (comp.hasAvatarAnimations) {
+      result.add(AnimationManager.instance._animations[comp.activeClipIndex])
+    } else {
+      const obj3d = getComponent(entity, Object3DComponent).value
+      result.add(obj3d.animations[comp.activeClipIndex])
+    }
+  }
+
+  return Array.from(result)
 }

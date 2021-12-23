@@ -1,6 +1,10 @@
 import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
 import { LoadGLTF } from '../../../assets/functions/LoadGLTF'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
+import {
+  ComponentDeserializeFunction,
+  ComponentPrepareForGLTFExportFunction,
+  ComponentSerializeFunction
+} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -42,5 +46,17 @@ export const serializeSpawnPoint: ComponentSerializeFunction = (entity) => {
       name: SCENE_COMPONENT_SPAWN_POINT,
       props: {}
     }
+  }
+}
+
+export const prepareSpawnPointForGLTFExport: ComponentPrepareForGLTFExportFunction = (spawnPoint) => {
+  if (spawnPoint.userData.helperModel) {
+    if (spawnPoint.userData.helperModel.parent) spawnPoint.userData.helperModel.removeFromParent()
+    delete spawnPoint.userData.helperModel
+  }
+
+  if (spawnPoint.userData.helperBox) {
+    if (spawnPoint.userData.helperBox.parent) spawnPoint.userData.helperBox.removeFromParent()
+    delete spawnPoint.userData.helperBox
   }
 }

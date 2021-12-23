@@ -1,6 +1,6 @@
 import Checkbox from '@mui/material/Checkbox'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
 import { updatePostProcessing } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
 import { ChangeEvent } from 'hoist-non-react-statics/node_modules/@types/react'
@@ -268,7 +268,11 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
   const postprocessingComponent = getComponent(props.node.entity, PostprocessingComponent)
 
   return (
-    <NodeEditor description={t('editor:properties.postprocessing.description')} {...props}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.postprocessing.name')}
+      description={t('editor:properties.postprocessing.description')}
+    >
       {renderEffects()}
     </NodeEditor>
   )

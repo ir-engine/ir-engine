@@ -53,7 +53,7 @@ export interface VideoProps extends AudioProps {
 
 export function createMediaServer(entity, props: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), props)
-  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
+  if (props.interactable) addComponent(entity, InteractableComponent, props)
 }
 
 export function createAudio(entity, props: AudioProps): void {
@@ -63,7 +63,7 @@ export function createAudio(entity, props: AudioProps): void {
   const posAudio = new PositionalAudio(Engine.audioListener)
   posAudio.matrixAutoUpdate = false
   addComponent(entity, PositionalAudioComponent, { value: posAudio })
-  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
+  if (props.interactable) addComponent(entity, InteractableComponent, props)
 }
 
 export function createVideo(entity, props: VideoProps): void {
@@ -74,7 +74,7 @@ export function createVideo(entity, props: VideoProps): void {
   }
   addObject3DComponent(entity, video, props)
   video.load()
-  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
+  if (props.interactable) addComponent(entity, InteractableComponent, props)
 }
 
 interface VolumetricProps {
@@ -134,5 +134,5 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
   }
 
   addObject3DComponent(entity, container, props)
-  if (props.interactable) addComponent(entity, InteractableComponent, { data: props })
+  if (props.interactable) addComponent(entity, InteractableComponent, props)
 }

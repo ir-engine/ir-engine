@@ -11,10 +11,12 @@ import {
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { defaultPostProcessingSchema } from '../../classes/PostProcessing'
+import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 
 export const SCENE_COMPONENT_POSTPROCESSING = 'postprocessing'
 export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = defaultPostProcessingSchema
@@ -26,12 +28,13 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   if (!isClient) return
 
   addComponent(entity, PostprocessingComponent, json.props)
+  addComponent(entity, DisableTransformTagComponent, {})
+  addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
 }
 
 export const updatePostProcessing: ComponentUpdateFunction = (_: Entity) => {
-  console.log('\n\nupdatePostProcessing\n\n')
   configureEffectComposer()
 }
 

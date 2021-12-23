@@ -12,10 +12,9 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
 import { EditorComponentType } from './Util'
 
 /**
- * HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode.
+ * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.
  *
  * @author Robert Long
- * @type {class Compoment}
  */
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -47,11 +46,14 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
     })
   }
 
-  //renders view to customize HemisphereLightNode
   const lightComponent = getComponent(props.node.entity, HemisphereLightComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.hemisphere.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.hemisphere.name')}
+      description={t('editor:properties.hemisphere.description')}
+    >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
         <ColorInput value={lightComponent.skyColor} onChange={onChangeSkyColor} />
       </InputGroup>

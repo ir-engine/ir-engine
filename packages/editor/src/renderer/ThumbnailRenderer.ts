@@ -1,4 +1,4 @@
-import { Scene, AmbientLight, DirectionalLight, PerspectiveCamera, Box3, Vector3 } from 'three'
+import { Scene, AmbientLight, DirectionalLight, PerspectiveCamera, Box3, Vector3, MeshStandardMaterial } from 'three'
 import { environmentMap } from '../components/EnvironmentMap'
 import { traverseMaterials } from '../functions/materials'
 import { getCanvasBlob } from '../functions/thumbnails'
@@ -18,8 +18,8 @@ export default class ThumbnailRenderer {
     scene.add(light2)
     const camera = new PerspectiveCamera()
     scene.add(camera)
-    traverseMaterials(object, (material) => {
-      if (material.isMeshStandardMaterial || material.isGLTFSpecularGlossinessMaterial) {
+    traverseMaterials(object, (material: MeshStandardMaterial) => {
+      if (material.isMeshStandardMaterial || (material as any).isGLTFSpecularGlossinessMaterial) {
         material.envMap = environmentMap
         material.needsUpdate = true
       }

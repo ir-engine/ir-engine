@@ -4,7 +4,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 type PropertyType = {

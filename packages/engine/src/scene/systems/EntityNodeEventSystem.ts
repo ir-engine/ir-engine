@@ -23,6 +23,7 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
   const fogQuery = defineQuery([FogComponent])
   const renderSettingQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
+  const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
 
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
@@ -73,6 +74,11 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
 
     for (const _ of postProcessingQuery.exit()) {
       configureEffectComposer(true)
+    }
+
+    for (const _ of scenePreviewCameraQuery.exit()) {
+      const obj3d = Engine.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
+      if (obj3d) Engine.scene.remove(obj3d)
     }
   }
 }

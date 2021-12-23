@@ -4,17 +4,17 @@ import {
   Vector2,
   Vector3,
   AudioListener,
-  PropertyBinding,
   WebGLInfo,
   WebGLRenderer,
   MeshBasicMaterial,
   MeshNormalMaterial,
   Intersection,
   Object3D,
-  PerspectiveCamera
+  PerspectiveCamera,
+  Scene,
+  Group
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import SceneNode from '../nodes/SceneNode'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { generateImageFileThumbnail, generateVideoFileThumbnail, getCanvasBlob } from '../functions/thumbnails'
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
@@ -22,14 +22,12 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from './CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
-import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import isEmptyObject from '../functions/isEmptyObject'
 import { ControlManager } from './ControlManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import PostProcessingNode from '../nodes/PostProcessingNode'
 import { NodeManager } from './NodeManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
@@ -38,7 +36,7 @@ import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createGizmoEntity } from '../functions/createGizmoEntity'
 import { createCameraEntity } from '../functions/createCameraEntity'
@@ -53,6 +51,10 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
+import MeshCombinationGroup from '../classes/MeshCombinationGroup'
+import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
+import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -79,7 +81,6 @@ export class SceneManager {
   gizmoEntity: Entity
   cameraEntity: Entity
   editorEntity: Entity
-  postProcessingNode: PostProcessingNode
   onUpdateStats: (info: WebGLInfo) => void
   screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
@@ -98,13 +99,6 @@ export class SceneManager {
     // Empty existing scene
     if (Engine.scene) {
       Engine.scene.traverse((child: any) => {
-        if (child.isNode) {
-          child.onRemove()
-          if (!NodeManager.instance.remove(child)) {
-            throw new Error(i18n.t('editor:errors.removeObject'))
-          }
-        }
-
         if (child.geometry) {
           child.geometry.dispose()
         }
@@ -123,9 +117,7 @@ export class SceneManager {
       Engine.scene = null!
     }
 
-    // TODO: - Nayan - initialize as new Scene()
-    Engine.scene = new SceneNode() as any
-
+    Engine.scene = new Scene()
     NodeManager.instance.nodes = [Engine.scene]
 
     // getting scene data
@@ -395,6 +387,48 @@ export class SceneManager {
     return target
   }
 
+  removeUnusedObjects = (object3d: Object3D) => {
+    computeAndSetStaticModes(object3d)
+
+    function hasExtrasOrExtensions(object) {
+      const userData = object.userData
+      for (const key in userData) {
+        if (Object.prototype.hasOwnProperty.call(userData, key)) {
+          return true
+        }
+      }
+      return false
+    }
+
+    function _removeUnusedObjects(object) {
+      let canBeRemoved = !!object.parent
+      const children = object.children?.slice(0)
+
+      if (children) {
+        for (const child of children) {
+          if (!_removeUnusedObjects(child)) {
+            canBeRemoved = false
+          }
+        }
+      }
+
+      if (
+        canBeRemoved &&
+        object.children.length === 0 &&
+        (object.constructor === Object3D || object.constructor === Scene || object.constructor === Group) &&
+        isStatic(object) &&
+        !hasExtrasOrExtensions(object)
+      ) {
+        object.parent?.remove(object)
+        return true
+      }
+
+      return false
+    }
+
+    _removeUnusedObjects(this)
+  }
+
   /**
    * Function exportScene used to export scene.
    *
@@ -408,46 +442,20 @@ export class SceneManager {
 
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
 
-    const scene = Engine.scene
-
-    const clonedScene = cloneObject3D(scene, true)
-    const animations = clonedScene.getAnimationClips()
-
-    for (const clip of animations) {
-      for (const track of clip.tracks) {
-        const { nodeName: uuid } = PropertyBinding.parseTrackName(track.name)
-
-        const object = clonedScene.getObjectByProperty('uuid', uuid)
-
-        if (!object) {
-          const originalSceneObject = scene.getObjectByProperty('uuid', uuid)
-
-          if (originalSceneObject) {
-            console.log(`Couldn't find object with uuid: "${uuid}" in cloned scene but was found in original scene!`)
-          } else {
-            console.log(`Couldn't find object with uuid: "${uuid}" in cloned or original scene!`)
-          }
-        }
-      }
+    if ((Engine.scene as any).entity == undefined) {
+      ;(Engine.scene as any).entity = useWorld().entityTree.rootNode.entity
     }
 
-    const exportContext = { animations }
+    const clonedScene = serializeForGLTFExport(Engine.scene)
 
-    clonedScene.prepareForExport(exportContext)
-
-    if (combineMeshes) {
-      await clonedScene.combineMeshes()
-    }
-
-    if (removeUnusedObjects) {
-      clonedScene.removeUnusedObjects()
-    }
+    if (combineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
+    if (removeUnusedObjects) this.removeUnusedObjects(clonedScene)
 
     const exporter = new GLTFExporter({
       mode: 'glb',
       onlyVisible: false,
       includeCustomExtensions: true,
-      animations
+      animations: getAnimationClips()
     })
 
     let chunks
@@ -480,7 +488,6 @@ export class SceneManager {
 
     try {
       const glbBlob = await exporter.exportGLBBlob(chunks)
-
       return { glbBlob, chunks }
     } catch (error) {
       throw new RethrownError('Error creating glb blob', error)
@@ -511,6 +518,7 @@ export class SceneManager {
     if (this.cameraEntity) removeEntity(this.cameraEntity)
     if (this.gizmoEntity) removeEntity(this.gizmoEntity)
     if (this.editorEntity) removeEntity(this.editorEntity)
+
     Engine.renderer?.dispose()
     this.screenshotRenderer?.dispose()
     Engine.effectComposer?.dispose()

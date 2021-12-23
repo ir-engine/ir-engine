@@ -223,46 +223,38 @@ export class CommandManager extends EventEmitter {
   }
 
   onCopy = (event) => {
-    if (isInputSelected()) {
-      return
-    }
-
+    if (isInputSelected()) return
     event.preventDefault()
 
     // TODO: Prevent copying objects with a disabled transform
     if (this.selected.length > 0) {
       event.clipboardData.setData(
         'application/vnd.editor.nodes',
-        JSON.stringify({ nodeUUIDs: this.selected.map((node) => node.uuid) })
+        JSON.stringify({ entities: this.selected.map((node) => node.entity) })
       )
     }
   }
 
   onPaste = (event) => {
-    if (isInputSelected()) {
-      return
-    }
-
+    if (isInputSelected()) return
     event.preventDefault()
 
     let data
 
     if ((data = event.clipboardData.getData('application/vnd.editor.nodes')) !== '') {
-      const { nodeUUIDs } = JSON.parse(data)
+      const { entities } = JSON.parse(data)
 
-      if (!Array.isArray(nodeUUIDs)) {
-        return
+      if (!Array.isArray(entities)) return
+      const nodes = entities
+        .map((entity) => useWorld().entityTree.findNodeFromEid(entity))
+        .filter((entity) => entity) as EntityTreeNode[]
+
+      if (nodes) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
       }
-
-      const nodes = nodeUUIDs
-        .map((uuid) => (Engine.scene as any as SceneNode).getObjectByUUID(uuid))
-        .filter((uuid) => uuid !== undefined)
-
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-
         this.addMedia({ url: url.href }).catch((error) => this.emitEvent(EditorEvents.ERROR, error))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')

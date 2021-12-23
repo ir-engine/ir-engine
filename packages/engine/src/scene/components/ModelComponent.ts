@@ -7,6 +7,8 @@ export type ModelComponentType = {
   matrixAutoUpdate: boolean
   isUsingGPUInstancing: boolean
   isDynamicObject: boolean
+  curScr?: string
+  error?: string
 }
 
 export const ModelComponent = createMappedComponent<ModelComponentType>('ModelComponent')

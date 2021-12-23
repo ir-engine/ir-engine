@@ -8,8 +8,6 @@ import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWo
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
@@ -69,11 +67,7 @@ export default class RemoveObjectsCommand extends Command {
       const object = removedObjectsRoots[i]
       if (!object.parentNode) continue
 
-      world.entityTree.traverse((node) => {
-        const entityNode = getComponent(node.entity, EntityNodeComponent)
-        node.uuid = entityNode.uuid
-        removeEntity(node.entity)
-      }, object)
+      world.entityTree.traverse((node) => removeEntity(node.entity), object)
       object.removeFromParent()
     }
 

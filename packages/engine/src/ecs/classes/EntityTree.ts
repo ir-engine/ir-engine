@@ -1,3 +1,4 @@
+import { MathUtils } from 'three'
 import { Entity } from './Entity'
 
 // export enum WalkStrategy {
@@ -12,30 +13,6 @@ export default class EntityTree {
     this.rootNode = new EntityTreeNode(-1 as Entity)
   }
 
-  addEntity(entity: Entity, parentEid?: Entity, index?: number): EntityTreeNode {
-    if (parentEid == null) {
-      this.rootNode.entity = entity
-      return this.rootNode
-    }
-
-    let node = this.findNodeFromEid(entity)
-    if (node) return node
-
-    node = new EntityTreeNode(entity)
-    let parent = this.findNodeFromEid(parentEid)
-
-    if (!parent) {
-      parent = new EntityTreeNode(parentEid)
-      this.rootNode.addChild(parent)
-      parent.parentNode = this.rootNode
-    }
-
-    parent.addChild(node, index)
-    node.parentNode = parent
-
-    return node
-  }
-
   addEntityNode(
     entityNode: EntityTreeNode,
     parentNode?: EntityTreeNode,
@@ -45,6 +22,7 @@ export default class EntityTree {
     if (parentNode == null) {
       if (!skipRootUpdate) {
         this.rootNode = entityNode
+        this.rootNode.uuid = entityNode.uuid
       }
 
       return this.rootNode
@@ -81,6 +59,18 @@ export default class EntityTree {
     }
   }
 
+  findNodeFromUUID(uuid: string, node: EntityTreeNode = this.rootNode): EntityTreeNode | undefined {
+    if (node.uuid === uuid) return node
+
+    if (!node.children) return
+
+    for (let i = 0; i < node.children.length; i++) {
+      let result = this.findNodeFromUUID(uuid, node.children[i])
+
+      if (result) return result
+    }
+  }
+
   traverse(cb: (node: EntityTreeNode, index: number) => void, node: EntityTreeNode = this.rootNode, index = 0): void {
     cb(node, index)
 
@@ -98,8 +88,9 @@ export class EntityTreeNode {
   parentNode: EntityTreeNode
   children?: EntityTreeNode[]
 
-  constructor(entity: Entity) {
+  constructor(entity: Entity, uuid?: string) {
     this.entity = entity
+    this.uuid = uuid || MathUtils.generateUUID()
   }
 
   addChild(child: EntityTreeNode, index: number = -1): void {

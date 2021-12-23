@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { NodeManager } from '../../managers/NodeManager'
+import { NodeManager, prefabIcons } from '../../managers/NodeManager'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -28,7 +28,7 @@ const getPrefabs = () => {
     if (shouldPrefabDeserialize(prefabType)) {
       arr.push({
         id: prefabType,
-        iconComponent: null,
+        iconComponent: prefabIcons[prefabType] || null,
         label: prefabType, // todo
         description: '', // todo
         type: ItemTypes.Element,

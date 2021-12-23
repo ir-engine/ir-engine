@@ -25,7 +25,7 @@ import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { SceneLoaderType } from '../../common/constants/ComponentNames'
+import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type SystemInstanceType = {

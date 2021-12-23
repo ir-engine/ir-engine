@@ -11,7 +11,7 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
   const sceneJson = { version: 4, entities: {} } as SceneJson
 
   world.entityTree.traverse((node, index) => {
-    node.uuid = generateNewUUID ? MathUtils.generateUUID() : getComponent(node.entity, EntityNodeComponent).uuid
+    if (generateNewUUID) node.uuid = MathUtils.generateUUID()
     const entityJson = (sceneJson.entities[node.uuid] = { components: [] as ComponentJson[] } as EntityJson)
 
     if (node.parentNode) {

@@ -13,6 +13,7 @@ import {
 } from './loaders/AudioSettingFunctions'
 import {
   deserializeDirectionalLight,
+  prepareDirectionalLightForGLTFExport,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   serializeDirectionalLight,
   updateDirectionalLight
@@ -24,7 +25,8 @@ import {
   deserializeGround,
   serializeGroundPlane,
   updateGroundPlane,
-  shouldDeserializeGroundPlane
+  shouldDeserializeGroundPlane,
+  prepareGroundPlaneForGLTFExport
 } from './loaders/GroundPlaneFunctions'
 import { deserializeGroup, SCENE_COMPONENT_GROUP, serializeGroup } from './loaders/GroupFunctions'
 import {
@@ -35,10 +37,10 @@ import {
   shouldDeserializeHemisphereLight
 } from './loaders/HemisphereLightFunctions'
 import {
-  SCENE_COMPONENT_CUBEMAP_BAKE,
-  deserializeIncludeInCubeMapBake,
-  serializeIncludeInCubeMapBake
-} from './loaders/IncludeInCubemapBakeFunctions'
+  SCENE_COMPONENT_PREVENT_BAKE,
+  deserializePreventBake,
+  serializePreventBake
+} from './loaders/PreventBakeFunctions'
 import {
   SCENE_COMPONENT_METADATA,
   deserializeMetaData,
@@ -80,9 +82,20 @@ import {
   updateSkybox,
   shouldDeserializeSkybox
 } from './loaders/SkyboxFunctions'
-import { SCENE_COMPONENT_SPAWN_POINT, deserializeSpawnPoint, serializeSpawnPoint } from './loaders/SpawnPointFunctions'
+import {
+  SCENE_COMPONENT_SPAWN_POINT,
+  deserializeSpawnPoint,
+  serializeSpawnPoint,
+  prepareSpawnPointForGLTFExport
+} from './loaders/SpawnPointFunctions'
 import { SCENE_COMPONENT_TRANSFORM, deserializeTransform, serializeTransform } from './loaders/TransformFunctions'
 import { SCENE_COMPONENT_VISIBLE, deserializeVisible, serializeVisible } from './loaders/VisibleFunctions'
+import {
+  deserializeLoopAnimation,
+  SCENE_COMPONENT_LOOP_ANIMATION,
+  serializeLoopAnimation,
+  updateLoopAnimation
+} from './loaders/LoopAnimationFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -110,9 +123,9 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateShadow
   })
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
-    deserialize: deserializeIncludeInCubeMapBake,
-    serialize: serializeIncludeInCubeMapBake
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREVENT_BAKE, {
+    deserialize: deserializePreventBake,
+    serialize: serializePreventBake
   })
 
   /** SCENE NODE INTERNALS */
@@ -150,14 +163,16 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     deserialize: deserializeDirectionalLight,
     serialize: serializeDirectionalLight,
-    update: updateDirectionalLight
+    update: updateDirectionalLight,
+    prepareForGLTFExport: prepareDirectionalLightForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     deserialize: deserializeGround,
     serialize: serializeGroundPlane,
     update: updateGroundPlane,
-    shouldDeserialize: shouldDeserializeGroundPlane
+    shouldDeserialize: shouldDeserializeGroundPlane,
+    prepareForGLTFExport: prepareGroundPlaneForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
@@ -203,7 +218,8 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
     deserialize: deserializeSpawnPoint,
-    serialize: serializeSpawnPoint
+    serialize: serializeSpawnPoint,
+    prepareForGLTFExport: prepareSpawnPointForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
@@ -215,5 +231,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
     deserialize: deserializeGroup,
     serialize: serializeGroup
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
+    deserialize: deserializeLoopAnimation,
+    serialize: serializeLoopAnimation,
+    update: updateLoopAnimation
   })
 }

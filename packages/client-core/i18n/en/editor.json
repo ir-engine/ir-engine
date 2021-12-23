@@ -116,10 +116,12 @@
     "properties": {
         "title": "Properties",
         "lbl-visible": "Visible",
+        "lbl-preventBake": "Prevent Bake",
         "lbl-persist": "Persist",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
         "noNodeSelected": "No node selected",
         "ambientLight": {
+            "name": "Ambient Light",
             "description": "A light which illuminates all objects in your scene.",
             "lbl-intensity": "Intensity",
             "lbl-color": "Color"
@@ -158,6 +160,7 @@
             "lbl-isTrigger": "Trigger"
         },
         "directionalLight": {
+            "name": "Directional Light",
             "description": "A light which illuminates the entire scene, but emits along a single direction.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
@@ -174,6 +177,7 @@
             "lbl-showCameraHelper": "Show Camera Helper"
         },
         "groundPlane": {
+            "name": "Ground Plane",
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
@@ -190,10 +194,13 @@
             "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
             "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
             "lbl-modelurl": "Model Url",
+            "lbl-envmapUrl": "Environment Map Url",
             "lbl-textureOverride": "Override Texture",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
+            "lbl-isGPUInstancing": "Is Using GPU Instancing",
+            "lbl-isDynamic": "Is Dynamic",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
@@ -263,9 +270,11 @@
             "lbl-interactionType": "Interaction Type"
         },
         "group": {
+            "name": "Group",
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
         "hemisphere": {
+            "name": "Hemisphere Light",
             "description": "A light which illuminates the scene from directly overhead.",
             "lbl-skyColor": "Sky Color",
             "lbl-groundColor": "Ground Color",
@@ -363,6 +372,7 @@
             "lbl-range": "Range"
         },
         "scene": {
+            "name": "Scene",
             "description": "The root object of the scene.",
             "lbl-bgcolor": "Background Color",
             "lbl-fogType": "Fog Type",
@@ -411,10 +421,12 @@
             "info-shadowMapType": "Type of shadow map"
         },
         "sceneCamera": {
+            "name": "Scene Preview Camera",
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
             "lbl-setFromViewPort": "Set From Viewport"
         },
         "skybox": {
+            "name": "Skybox",
             "description": "",
             "lbl-timeOfDay": "Time of Day",
             "lbl-color": "Color",
@@ -428,6 +440,7 @@
             "lbl-skyType": "Sky Type"
         },
         "spawnPoint": {
+            "name": "Spawn Point",
             "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
         },
         "spotLight": {
@@ -495,6 +508,7 @@
             "lbl-triggerScale": "Trigger Scale"
         },
         "postprocessing": {
+            "name": "Post Processing",
             "description": "For applying Post Processing effects to you scene."
         }
     },

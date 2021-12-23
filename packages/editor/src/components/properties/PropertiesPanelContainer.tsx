@@ -10,9 +10,8 @@ import { CommandManager } from '../../managers/CommandManager'
 import { getNodeEditorsForEntity } from '../../managers/NodeManager'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
-import { IncludeInCubemapBakeComponent } from '@xrengine/engine/src/scene/components/IncludeInCubemapBakeComponent'
+import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import EditorCommands from '../../constants/EditorCommands'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
@@ -161,7 +160,7 @@ export const PropertiesPanelContainer = () => {
   const onChangeBakeStatic = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
-        component: IncludeInCubemapBakeComponent,
+        component: PreventBakeTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
       }
     })
@@ -192,8 +191,6 @@ export const PropertiesPanelContainer = () => {
       hasComponent(node.entity, TransformComponent) &&
       !selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
 
-    const haveStaticTags = selected.some((node) => node.haveStaticTags)
-
     content = (
       <StyledNodeEditor>
         <PropertiesHeader>
@@ -204,14 +201,12 @@ export const PropertiesPanelContainer = () => {
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(node.entity, VisibleComponent)} onChange={onChangeVisible} />
                 </VisibleInputGroup>
-                {haveStaticTags && (
-                  <VisibleInputGroup name="Bake Static" label="Bake Static">
-                    <BooleanInput
-                      value={hasComponent(node.entity, IncludeInCubemapBakeComponent)}
-                      onChange={onChangeBakeStatic}
-                    />
-                  </VisibleInputGroup>
-                )}
+                <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
+                  <BooleanInput
+                    value={hasComponent(node.entity, PreventBakeTagComponent)}
+                    onChange={onChangeBakeStatic}
+                  />
+                </VisibleInputGroup>
               </>
             )}
           </NameInputGroupContainer>

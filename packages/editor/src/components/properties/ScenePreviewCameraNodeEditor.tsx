@@ -20,7 +20,11 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   }
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.sceneCamera.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.sceneCamera.name')}
+      description={t('editor:properties.sceneCamera.description')}
+    >
       <PropertiesPanelButton onClick={onSetFromViewport}>
         {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
       </PropertiesPanelButton>

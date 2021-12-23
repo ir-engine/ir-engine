@@ -2,7 +2,7 @@ import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMater
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/ComponentNames'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'

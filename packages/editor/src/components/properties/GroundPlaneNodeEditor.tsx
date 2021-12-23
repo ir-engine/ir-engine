@@ -8,16 +8,10 @@ import SquareIcon from '@mui/icons-material/Square'
 import { CommandManager } from '../../managers/CommandManager'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
 import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import { EditorComponentType } from './Util'
+import ShadowProperties from './ShadowProperties'
 
-/**
- * IconComponent is used to render GroundPlaneNode
- *
- * @author Robert Long
- * @type {class component}
- */
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -38,29 +32,21 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
     })
   }
 
-  //function handles the changes for receiveShadow property
-  const onChangeReceiveShadow = (receiveShadow) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateGroundPlane,
-      component: ShadowComponent,
-      properties: { receiveShadow }
-    })
-  }
-
   const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)
-  const shadowComponent = getComponent(props.node.entity, ShadowComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.groundPlane.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.groundPlane.name')}
+      description={t('editor:properties.groundPlane.description')}
+    >
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
         <ColorInput value={groundPlaneComponent.color} onChange={onChangeColor} />
-      </InputGroup>
-      <InputGroup name="Receive Shadow" label={t('editor:properties.groundPlane.lbl-receiveShadow')}>
-        <BooleanInput value={shadowComponent.receiveShadow} onChange={onChangeReceiveShadow} />
       </InputGroup>
       <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
         <BooleanInput value={groundPlaneComponent.generateNavmesh} onChange={onChangeGenerateNavmesh} />
       </InputGroup>
+      <ShadowProperties node={props.node} />
     </NodeEditor>
   )
 }

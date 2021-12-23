@@ -43,7 +43,11 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const lightComponent = getComponent(props.node.entity, AmbientLightComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.ambientLight.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.ambientLight.name')}
+      description={t('editor:properties.ambientLight.description')}
+    >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
         <ColorInput value={lightComponent.color} onChange={onChangeColor} />
       </InputGroup>

@@ -5,7 +5,7 @@ import {
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'

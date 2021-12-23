@@ -1,5 +1,5 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { EffectPropsSchema } from '../classes/PostProcessing'
+import { EffectPropsSchema } from '../constants/PostProcessing'
 
 export type PostprocessingComponentType = {
   options: EffectPropsSchema

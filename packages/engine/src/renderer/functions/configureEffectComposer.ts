@@ -10,7 +10,7 @@ import {
 import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
-import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
+import { EffectMap, Effects } from '../../scene/constants/PostProcessing'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
 
 export const configureEffectComposer = (remove?: boolean): void => {

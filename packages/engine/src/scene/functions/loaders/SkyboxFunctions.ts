@@ -5,7 +5,7 @@ import {
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -34,6 +34,7 @@ import {
 } from '../../constants/Util'
 import { Vector3 } from 'three'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
 export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
@@ -57,6 +58,7 @@ export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, 
     json.props.backgroundColor = new Color(json.props.backgroundColor)
     addComponent(entity, SkyboxComponent, json.props)
     addComponent(entity, DisableTransformTagComponent, {})
+    addComponent(entity, IgnoreRaycastTagComponent, {})
     if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)
   }

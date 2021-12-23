@@ -6,7 +6,7 @@ import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
-} from '../../../common/constants/ComponentNames'
+} from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 

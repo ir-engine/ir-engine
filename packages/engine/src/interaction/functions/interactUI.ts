@@ -33,9 +33,9 @@ export const createInteractUI = (entity: Entity) => {
   if (getInteractUI(entity) || !interactiveComponent || !interactiveComponent.data) return
 
   //create interactive view
-  interactiveComponent.data.interactionUserData = {}
-  interactiveComponent.data.interactionUserData.entity = entity
-  const ui = createInteractiveModalView(interactiveComponent.data as any)
+  interactiveComponent.interactionUserData = {}
+  interactiveComponent.interactionUserData.entity = entity
+  const ui = createInteractiveModalView(interactiveComponent)
   InteractiveUI.set(entity, ui)
 
   //set transform
@@ -47,7 +47,7 @@ export const createInteractUI = (entity: Entity) => {
   })
 
   // callback from modal view state
-  interactiveComponent.data.callback = (data) => {
+  interactiveComponent.callback = (data) => {
     setTimeout(() => {
       const mediaIndex = data.mediaIndex
       const mediaData = data.mediaData
@@ -130,7 +130,7 @@ export const setUserDataInteractUI = (xrEntity: Entity) => {
   //create text
   const parentEntity = getParentInteractUI(xrEntity)
   const interactiveComponent = getComponent(parentEntity, InteractableComponent)
-  const interactTextEntity = createInteractText(interactiveComponent.data.interactionText)
+  const interactTextEntity = createInteractText(interactiveComponent.interactionText)
   const object3D = getComponent(xrEntity, Object3DComponent)
   if (object3D) {
     object3D.value.userData = {

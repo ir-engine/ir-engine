@@ -272,11 +272,14 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  // rendering editor view for SkyboxNode
   const skyComponent = getComponent(props.node.entity, SkyboxComponent)
 
   return (
-    <NodeEditor description={t('editor:properties.skybox.description')} {...props}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.skybox.name')}
+      description={t('editor:properties.skybox.description')}
+    >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput options={SkyOption} value={skyComponent.backgroundType} onChange={onChangeSkyOption} />
       </InputGroup>
