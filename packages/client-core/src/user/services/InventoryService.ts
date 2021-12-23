@@ -80,8 +80,13 @@ export const InventoryService = {
   fetchUserList: async (id) => {
     const dispatch = useDispatch()
     try {
-      const response = await client.service('inventory-item').find()
-      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
+      const response = await client.service('inventory-item').find({
+        query: {
+          isCoin: true
+        }
+      })
+      const resp = response?.data[0]
+      const prevData = [...resp?.users]
       if (response.data && response.data.length !== 0) {
         const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== id)
 
