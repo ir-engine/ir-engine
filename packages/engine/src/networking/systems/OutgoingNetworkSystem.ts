@@ -273,11 +273,15 @@ export const resetNetworkState = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   // copy previous state
+  previousNetworkState.tick = outgoingNetworkState.tick
+  previousNetworkState.time = outgoingNetworkState.time
   previousNetworkState.pose = outgoingNetworkState.pose
   previousNetworkState.controllerPose = outgoingNetworkState.controllerPose
   previousNetworkState.handsPose = outgoingNetworkState.handsPose
 
   // reset current state
+  outgoingNetworkState.tick = world.fixedTick
+  outgoingNetworkState.time = Date.now()
   outgoingNetworkState.pose = []
   outgoingNetworkState.controllerPose = []
   outgoingNetworkState.handsPose = []
