@@ -65,7 +65,7 @@ The file referenced below as path/to-matchmaking.yaml is a simple configuration 
 `packages/ops/configs/local.matchmaking.template.values.yaml`. <release> is a release name, e.g. `local` for local
 development; make sure to replace it when naming it in the `helm install` command and in the values.yaml file.
 ```
-helm install -f path/to/matchmaking.yaml <release>-matchmaking ../ops/xrengine-matchmaking
+helm install -f path/to/matchmaking.yaml <release>-matchmaking ../ops/xrengine-matchmaker
 ```
 
 After 30 seconds or so, the matchmaker services should be running.
