@@ -64,7 +64,8 @@ const loadScene = async (app: Application, scene: string) => {
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
   dispatchLocal(EngineActions.joinedWorld(true) as any)
-  const portals = getAllComponentsOfType(PortalComponent)
+
+  // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
   //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
   //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
@@ -262,16 +263,6 @@ export default (app: Application): void => {
             app.instance == null ||
             app.instance.locationId !== locationId ||
             app.instance.channelId !== channelId)
-
-        /**
-         * When using local dev, to properly test multiple worlds for portals we
-         * need to programatically shut down and restart the gameserver process.
-         */
-        console.log(app.instance?.locationId, locationId)
-        if (!config.kubernetes.enabled && app.instance && app.instance.locationId != locationId) {
-          app.restart()
-          return
-        }
 
         if (isReady || isNeedingNewServer) {
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)

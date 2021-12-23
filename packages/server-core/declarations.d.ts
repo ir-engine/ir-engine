@@ -31,7 +31,6 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   isChannelInstance: boolean
   gameServer: any
   isSetup: Promise<boolean>
-  restart: Function
 
   // API Server
 }

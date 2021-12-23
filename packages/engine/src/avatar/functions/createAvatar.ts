@@ -127,7 +127,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     world.physics.physics.createMaterial(0, 0, 0),
     {
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     }
   )
   const body = world.physics.addBody({
