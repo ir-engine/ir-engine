@@ -4,7 +4,7 @@ import { PortalComponent, PortalComponentType } from '../../scene/components/Por
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
-  isInitialised: false,
+  isEngineInitialized: false,
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: -1,
@@ -44,7 +44,7 @@ function stateReceptor(action: EngineActionType) {
         })
 
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
-        return s.merge({ isInitialised: action.initialised })
+        return s.merge({ isEngineInitialized: action.initialised })
       case EngineEvents.EVENTS.SCENE_LOADED:
         return s.merge({ sceneLoaded: action.sceneLoaded })
       case EngineEvents.EVENTS.JOINED_WORLD:
@@ -70,10 +70,6 @@ function stateReceptor(action: EngineActionType) {
 
 function callbackReceptor(action: EngineActionType) {
   switch (action.type) {
-    case EngineEvents.EVENTS.INITIALIZED_ENGINE:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
-      break
-
     case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,

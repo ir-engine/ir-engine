@@ -77,7 +77,7 @@ const MediaIconsBox = (props) => {
 
   useEffect(() => {
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
-  }, [engineState.isInitialised.value])
+  }, [engineState.isEngineInitialized.value])
 
   const handleFaceClick = async () => {
     const partyId =

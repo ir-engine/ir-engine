@@ -91,14 +91,14 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
   useEffect(() => {
     if (
-      engineState.isInitialised.value &&
+      engineState.isEngineInitialized.value &&
       !instanceConnectionState.connected.value &&
       instanceConnectionState.instanceProvisioned.value &&
       !instanceConnectionState.instanceServerConnecting.value
     )
       InstanceConnectionService.connectToInstanceServer('instance')
   }, [
-    engineState.isInitialised.value,
+    engineState.isEngineInitialized.value,
     instanceConnectionState.connected.value,
     instanceConnectionState.instanceServerConnecting.value,
     instanceConnectionState.instanceProvisioned.value

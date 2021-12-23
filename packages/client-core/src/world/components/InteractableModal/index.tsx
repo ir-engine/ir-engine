@@ -67,7 +67,7 @@ export const InteractableModal: FunctionComponent = () => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_AVATAR_TAPPED, onUserAvatarTapped)
-  }, [engineState.isInitialised.value])
+  }, [engineState.isEngineInitialized.value])
 
   const handleLinkClick = (url) => {
     window.open(url, '_blank')

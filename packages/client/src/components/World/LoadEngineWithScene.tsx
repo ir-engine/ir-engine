@@ -61,10 +61,10 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
+    if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
       loadLocation(locationState.currentLocation.location.sceneId.value)
     }
-  }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
+  }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     dispatchLocal(EngineActions.setTeleporting(portalComponent))
