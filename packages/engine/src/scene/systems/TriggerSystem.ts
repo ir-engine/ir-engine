@@ -23,7 +23,6 @@ export default async function TriggerSystem(world: World): Promise<System> {
       const { triggerEntity } = getComponent(entity, TriggerDetectedComponent)
 
       if (getComponent(triggerEntity, PortalComponent)) {
-        console.log('\n\nPORTAL\n\n')
         const portalComponent = getComponent(triggerEntity, PortalComponent)
         if (Engine.currentWorld.isInPortal) continue
         dispatchLocal(EngineActions.portalRedirectEvent(portalComponent) as any)

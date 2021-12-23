@@ -264,6 +264,16 @@ export default (app: Application): void => {
             app.instance.locationId !== locationId ||
             app.instance.channelId !== channelId)
 
+        /**
+         * When using local dev, to properly test multiple worlds for portals we
+         * need to programatically shut down and restart the gameserver process.
+         */
+        console.log(app.instance?.locationId, locationId)
+        if (!config.kubernetes.enabled && app.instance && app.instance.locationId != locationId) {
+          app.restart()
+          return
+        }
+
         if (isReady || isNeedingNewServer) {
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)
           if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) await loadEngine(app, sceneId)

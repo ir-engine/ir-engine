@@ -24,6 +24,7 @@ import sequelize from '@xrengine/server-core/src/sequelize'
 import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 register()
 
@@ -190,6 +191,20 @@ export const createApp = (): Application => {
   }
 
   app.use(errorHandler({ logger } as any))
+
+  /**
+   * When using local dev, to properly test multiple worlds for portals we
+   * need to programatically shut down and restart the gameserver process.
+   */
+  if (isDev && !config.kubernetes.enabled) {
+    app.restart = () => {
+      require('child_process').spawn('npm', ['run', 'dev'], {
+        cwd: process.cwd(),
+        stdio: 'inherit'
+      })
+      process.exit(0)
+    }
+  }
 
   return app
 }
