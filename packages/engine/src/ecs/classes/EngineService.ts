@@ -13,7 +13,7 @@ const state = createState({
 
   isPhysicsDebug: false,
   isAvatarDebug: false,
-
+  leaveWorld: false,
   socketInstance: false
 })
 
@@ -74,12 +74,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
         instance: action.instance
-      })
-      break
-
-    case EngineEvents.EVENTS.JOINED_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.JOINED_WORLD
       })
       break
 

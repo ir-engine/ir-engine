@@ -283,11 +283,6 @@ const Harmony = (props: Props): any => {
         EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
           if (e.instance === true) ChannelConnectionService.resetChannelServer()
         })
-
-        EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-          ChannelConnectionService.resetChannelServer()
-          if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
-        })
       }
 
       window.removeEventListener('resize', handleWindowResize)
@@ -500,20 +495,21 @@ const Harmony = (props: Props): any => {
     }
   }, [engineState.socketInstance.value])
 
+  useEffect(() => {
+    if (!engineState.leaveWorld.value) return
+    ChannelConnectionService.resetChannelServer()
+    setLastConnectToWorldId('')
+    MediaStreams.instance.channelId = null!
+    MediaStreams.instance.channelType = null!
+    if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
+    TransportService.updateChannelTypeState()
+    MediaStreamService.updateCamVideoState()
+    MediaStreamService.updateCamAudioState()
+  }, [engineState.leaveWorld.value])
+
   const createEngineListeners = (): void => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
       if (e.instance === true) ChannelConnectionService.resetChannelServer()
-    })
-
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
-      ChannelConnectionService.resetChannelServer()
-      setLastConnectToWorldId('')
-      MediaStreams.instance.channelId = null!
-      MediaStreams.instance.channelType = null!
-      if (channelAwaitingProvisionRef.current.id.length === 0) _setActiveAVChannelId('')
-      TransportService.updateChannelTypeState()
-      MediaStreamService.updateCamVideoState()
-      MediaStreamService.updateCamAudioState()
     })
   }
 
