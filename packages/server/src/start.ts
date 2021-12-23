@@ -71,5 +71,5 @@ export const start = async (): Promise<void> => {
     logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
   )
 
-  if (process.env.APP_ENV === 'development') StartCorsServer(useSSL, certOptions)
+  if (process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) StartCorsServer(useSSL, certOptions)
 }

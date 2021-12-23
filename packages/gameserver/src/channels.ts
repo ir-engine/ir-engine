@@ -64,7 +64,8 @@ const loadScene = async (app: Application, scene: string) => {
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
   dispatchLocal(EngineActions.joinedWorld(true) as any)
-  const portals = getAllComponentsOfType(PortalComponent)
+
+  // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
   //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
   //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
