@@ -76,7 +76,7 @@
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.1.1",
     "@rollup/plugin-replace": "3.0.0",
-    "@types/node": "16.11.15",
+    "@types/node": "16.11.17",
     "@types/react": "17.0.36",
     "@types/three": "0.135.0",
     "create-ts-index": "1.14.0",
