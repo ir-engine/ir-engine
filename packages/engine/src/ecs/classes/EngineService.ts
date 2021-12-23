@@ -15,7 +15,7 @@ const state = createState({
   isAvatarDebug: false,
   leaveWorld: false,
   socketInstance: false,
-  avatarTappedId: ''
+  avatarTappedId: null! as string
 })
 
 export const receptors = (): [] => {
@@ -164,12 +164,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
         msg: action.msg
-      })
-      break
-    case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
-        userId: action.userId
       })
       break
   }

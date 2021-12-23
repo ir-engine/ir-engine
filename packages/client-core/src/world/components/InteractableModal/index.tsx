@@ -70,7 +70,7 @@ export const InteractableModal: FunctionComponent = () => {
 
   useEffect(() => {
     const id = engineState.avatarTappedId.value
-    if (id !== '') onUserAvatarTapped(id)
+    if (id !== null) onUserAvatarTapped(id)
   }, [engineState.avatarTappedId.value])
 
   const handleLinkClick = (url) => {
