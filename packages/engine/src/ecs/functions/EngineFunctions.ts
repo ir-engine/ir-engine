@@ -63,8 +63,6 @@ export async function reset(): Promise<void> {
     Engine.renderer = null!
   }
 
-  Network.instance.dispose()
-
   AssetLoader.Cache.clear()
 
   Engine.isInitialized = false

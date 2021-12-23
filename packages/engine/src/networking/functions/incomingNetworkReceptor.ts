@@ -82,28 +82,28 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
 }
 
-export function setEquippedObjectReceptor(a: any) {
-  const world = useWorld()
-  let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-  if (entity) {
-    if (a.$from === Engine.userId) {
-      if (a.equip) {
-        if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-          addComponent(entity, NetworkObjectOwnedTag, {})
-        }
-      } else {
-        removeComponent(entity, NetworkObjectOwnedTag)
-      }
-    } else {
-      removeComponent(entity, NetworkObjectOwnedTag)
-    }
+// export function setEquippedObjectReceptor(a: any) {
+// const world = useWorld()
+// let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+// if (entity) {
+//   if (a.$from === Engine.userId) {
+//     if (a.equip) {
+//       if (!hasComponent(entity, NetworkObjectOwnedTag)) {
+//         addComponent(entity, NetworkObjectOwnedTag, {})
+//       }
+//     } else {
+//       removeComponent(entity, NetworkObjectOwnedTag)
+//     }
+//   } else {
+//     removeComponent(entity, NetworkObjectOwnedTag)
+//   }
 
-    // Give ownership back to server, so that item shows up where it was last dropped
-    if (Engine.userId === world.hostId && !a.equip) {
-      addComponent(entity, NetworkObjectOwnedTag, {})
-    }
-  }
-}
+//   // Give ownership back to server, so that item shows up where it was last dropped
+//   if (Engine.userId === world.hostId && !a.equip) {
+//     addComponent(entity, NetworkObjectOwnedTag, {})
+//   }
+// }
+// }

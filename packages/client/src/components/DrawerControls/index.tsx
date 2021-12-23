@@ -2,7 +2,6 @@ import React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Fab from '@mui/material/Fab'
 import { Forum, People, PersonAdd } from '@mui/icons-material'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
 import styles from './DrawerControls.module.scss'
@@ -17,11 +16,7 @@ interface Props {
 
 export const DrawerControls = (props: Props): JSX.Element => {
   const { disableBottom, setLeftDrawerOpen, setBottomDrawerOpen, setRightDrawerOpen, setTopDrawerOpen } = props
-  const dispatch = useDispatch()
   const selfUser = useAuthState().user
-  //const currentLocation = locationState.get('currentLocation').get('location')
-  //const enablePartyVideoChat = selfUser && selfUser.instanceId?.value != null && selfUser.partyId != null &&party?.id != null &&(Network?.instance?.transport as any)?.socket?.connected === true
-  //const enableInstanceVideoChat = selfUser && selfUser.instanceId != null && currentLocation?.locationSettings?.instanceMediaChatEnabled === true && (Network?.instance?.transport as any)?.socket?.connected === true
   const openChat = (): void => {
     setLeftDrawerOpen(false)
     setTopDrawerOpen(false)

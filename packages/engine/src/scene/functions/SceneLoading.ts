@@ -170,14 +170,12 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     //       Object.keys(component.props.extend).forEach((key) => {
     //         component.props[key] = component.props.extend[key]
     //       })
-    //       console.log(component.props)
     //       registerSceneLoadPromise(loadGLTFModel(entity, component))
     //     }
     //   }
     //   break
 
     case 'interact':
-      console.log(component.props)
       if (component.props.interactable) addComponent(entity, InteractableComponent, component.props)
       break
 
@@ -303,9 +301,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'portal':
       createPortal(entity, component.props)
       break
-
-    default:
-      console.log(`[Scene Loader] WARNING: Couldn't load component ${name}`)
   }
 }
 

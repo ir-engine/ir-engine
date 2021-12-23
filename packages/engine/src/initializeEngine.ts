@@ -313,7 +313,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
   } else if (options.type === EngineSystemPresets.MEDIA) {
-    Engine.userId = 'mediaserver' as UserId
+    Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true

@@ -70,7 +70,7 @@ export default (app: Application): void => {
         }
 
         promiseResolve()
-        if (forceRefresh) process.exit(0)
+        if (forceRefresh && process.env.APP_ENV === 'development') process.exit(0)
       } catch (err) {
         console.log('Sequelize setup error')
         console.log(err)

@@ -42,7 +42,7 @@ function stateReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.LOADING_PROGRESS:
         return s.merge({ loadingProgress: action.count })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
-        return s.merge({ connectedWorld: action.connectedWorld })
+        return s.merge({ connectedWorld: true })
       case EngineEvents.EVENTS.SET_TELEPORTING:
         if (action.portalComponent) {
           s.merge({
@@ -73,15 +73,13 @@ function callbackReceptor(action: EngineActionType) {
 
     case EngineEvents.EVENTS.CONNECT_TO_WORLD:
       EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        instance: action.instance
+        type: EngineEvents.EVENTS.CONNECT_TO_WORLD
       })
       break
 
     case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
       EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
-        instance: action.instance
+        type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT
       })
       break
 
@@ -236,17 +234,14 @@ export const EngineActions = {
       initialised
     }
   },
-  connectToWorld: (instance: boolean, connectedWorld: boolean) => {
+  connectToWorld: () => {
     return {
-      type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
-      instance,
-      connectedWorld
+      type: EngineEvents.EVENTS.CONNECT_TO_WORLD
     }
   },
-  connectToWorldTimeout: (instance: boolean) => {
+  connectToWorldTimeout: () => {
     return {
-      type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
-      instance
+      type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT
     }
   },
   joinedWorld: (joinedWorld: boolean) => {
