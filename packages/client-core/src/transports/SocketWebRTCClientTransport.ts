@@ -157,7 +157,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const dispatch = useDispatch()
 
     if (instance === true) {
-      ;(socket as any).instance = true
+      instance = true
       this.instanceSocket = socket
       this.instanceRequest = this.promisedRequest(socket)
       dispatch(InstanceConnectionAction.socketCreated(socket))
@@ -178,7 +178,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       } else {
         dispatch(ChannelConnectionAction.channelServerConnected())
       }
-      const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest
+      const request = instance === true ? this.instanceRequest : this.channelRequest
       const payload = { userId: Engine.userId, accessToken: token }
 
       const { success } = await new Promise<any>((resolve) => {
@@ -205,7 +205,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         return
       }
       const { routerRtpCapabilities } = ConnectToWorldResponse as any
-      dispatchLocal(EngineActions.connectToWorld(instance, (socket as any).instance) as any)
+      dispatchLocal(EngineActions.connectToWorld(instance, instance) as any)
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
         socket.emit(MessageTypes.Heartbeat.toString())
@@ -231,22 +231,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       socket.on('disconnect', async () => {
         console.log(`DISCONNECT from port ${port}`)
-        if ((socket as any).instance === true)
+        if (instance === true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
-        if ((socket as any).instance !== true)
+        if (instance !== true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED })
-        if ((socket as any).instance !== true && isHarmonyPage !== true) {
+        if (instance !== true && isHarmonyPage !== true) {
           self.channelType = 'instance'
           self.channelId = ''
         }
-        // if ((socket as any).instance === true) await endVideoChat({ endConsumers: true })
+        // if (instance === true) await endVideoChat({ endConsumers: true })
       })
 
       socket.on(MessageTypes.Kick.toString(), async (message) => {
         // console.log("TODO: SNACKBAR HERE");
         clearInterval(heartbeat)
         await endVideoChat({ endConsumers: true })
-        await leave((socket as any).instance === true, true)
+        await leave(instance === true, true)
         EngineEvents.instance.dispatchEvent({
           type: SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED,
           message: message
@@ -323,7 +323,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       })
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
-      if ((socket as any).instance === true) {
+      if (instance === true) {
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')])
         await createDataProducer('instance')
       } else {
@@ -344,13 +344,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       }
 
       ;(socket.io as any).on('reconnect', async () => {
-        if ((socket as any).instance === true)
+        if (instance === true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
-        if ((socket as any).instance !== true)
+        if (instance !== true)
           EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
         reconnecting = true
         console.log('reconnect')
-        dispatchLocal(EngineActions.resetEngine((socket as any).instance) as any)
+        dispatchLocal(EngineActions.resetEngine(instance) as any)
       })
 
       if (instance === true) {
