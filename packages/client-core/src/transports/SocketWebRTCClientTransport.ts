@@ -100,7 +100,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
-
+    console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
+    console.log(process.env)
     const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
