@@ -253,7 +253,6 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     if (EngineEvents.instance != null) {
       setEngineInitialized(true)
-      createEngineListeners()
     }
     window.addEventListener('resize', handleWindowResize)
 
@@ -280,14 +279,16 @@ const Harmony = (props: Props): any => {
     return () => {
       if (EngineEvents.instance != null) {
         setEngineInitialized(false)
-        EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-          if (e.instance === true) ChannelConnectionService.resetChannelServer()
-        })
       }
-
       window.removeEventListener('resize', handleWindowResize)
     }
   }, [])
+
+  useEffect(() => {
+    if (engineState.connectionTimeoutInstance.value) {
+      ChannelConnectionService.resetChannelServer()
+    }
+  }, [engineState.connectionTimeoutInstance.value])
 
   useEffect(() => {
     if (
@@ -506,12 +507,6 @@ const Harmony = (props: Props): any => {
     MediaStreamService.updateCamVideoState()
     MediaStreamService.updateCamAudioState()
   }, [engineState.leaveWorld.value])
-
-  const createEngineListeners = (): void => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
-      if (e.instance === true) ChannelConnectionService.resetChannelServer()
-    })
-  }
 
   const onMessageScroll = (e): void => {
     if (
@@ -756,9 +751,7 @@ const Harmony = (props: Props): any => {
         disabled: true
       }
     }
-
     await initializeEngine(initializationOptions)
-    if (engineInitialized === false) createEngineListeners()
   }
 
   function getChannelName(): string {

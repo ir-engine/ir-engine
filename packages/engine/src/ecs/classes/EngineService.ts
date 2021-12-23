@@ -15,6 +15,7 @@ const state = createState({
   isAvatarDebug: false,
   leaveWorld: false,
   socketInstance: false,
+  connectionTimeoutInstance: false,
   avatarTappedId: null! as string
 })
 
@@ -54,6 +55,8 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({ loadingProgress: action.count })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
         return s.merge({ connectedWorld: action.connectedWorld })
+      case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
+        return s.merge({ connectionTimeoutInstance: action.instance })
       case EngineEvents.EVENTS.SET_TELEPORTING:
         if (action.portalComponent) {
           s.merge({
@@ -71,12 +74,6 @@ function stateReceptor(action: EngineActionType) {
 
 function callbackReceptor(action: EngineActionType) {
   switch (action.type) {
-    case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
-        instance: action.instance
-      })
-      break
     case EngineEvents.EVENTS.SCENE_LOADED:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.SCENE_LOADED
