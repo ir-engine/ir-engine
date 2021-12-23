@@ -21,11 +21,11 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "react": "17.0.2"
   },
   "dependencies": {
@@ -61,7 +61,7 @@
   },
   "devDependencies": {
     "@types/node": "16.11.17",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "@types/react-router-dom": "5.3.2",
     "config": "3.3.6",
     "cross-env": "7.0.3",
