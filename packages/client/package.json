@@ -24,11 +24,11 @@
     "buildenv": "cross-env APP_ENV=production ts-node --transpile-only scripts/create-env-production.ts"
   },
   "resolutions": {
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "react": "17.0.2"
   },
   "dependencies": {
@@ -40,7 +40,7 @@
     "@mui/styled-engine-sc": "5.1.0",
     "@mui/styles": "5.2.3",
     "@rollup/plugin-inject": "4.0.3",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "@xrengine/client-core": "^0.4.13",
     "@xrengine/common": "^0.4.13",
     "@xrengine/editor": "^0.4.13",
@@ -70,7 +70,7 @@
   },
   "devDependencies": {
     "@types/node": "16.11.17",
-    "@types/react": "17.0.36",
+    "@types/react": "17.0.38",
     "@types/react-dom": "17.0.11",
     "@types/yuka": "0.7.1",
     "app-root-path": "3.0.0",
