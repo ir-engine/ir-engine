@@ -1,6 +1,6 @@
 import assert, { strictEqual } from 'assert'
 import { Engine } from '../../../src/ecs/classes/Engine'
-import { queueEntityTransform, queueUnchangedPosesClient, queueUnchangedPosesServer } from '../../../src/networking/systems/OutgoingNetworkSystem'
+import { queueEntityTransform, queueUnchangedPosesClient, queueUnchangedPosesServer, resetNetworkState } from '../../../src/networking/systems/OutgoingNetworkSystem'
 import { createWorld } from '../../../src/ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
@@ -10,6 +10,10 @@ import { Quaternion, Vector3 } from 'three'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { NetworkObjectOwnedTag } from '../../../src/networking/components/NetworkObjectOwnedTag'
+import { worldToModel } from '../../ikrig/functions/IKFunctions'
+import { WorldStateModel } from '../schema/networkSchema'
+import { Network } from '../classes/Network'
+import { deepEqual } from '../../common/functions/deepEqual'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
   
@@ -181,4 +185,79 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
     })
   })
+})
+
+describe('outgoingNetworkState', () => {
+
+
+  it('should resetNetworkState', () => {
+      
+    /* mock */
+    const world = createWorld()
+    Engine.currentWorld = world
+
+    strictEqual(world.fixedTick >= 0, true)
+    world.fixedTick = 42
+
+    const state = world.outgoingNetworkState = {
+      tick: 0,
+      time: Date.now(),
+      pose: [{
+        ownerId: 'id' as UserId,
+        networkId: 100 as NetworkId,
+        position: [1,2,3],
+        rotation: [1,2,3,4],
+        linearVelocity: [0],
+        angularVelocity: [0]
+      }],
+      controllerPose: [{} as any],
+      handsPose: [{} as any]
+    }
+
+    resetNetworkState(world)
+
+    strictEqual(state.tick, 42)
+    strictEqual(state.pose.length, 0)
+    strictEqual(state.controllerPose.length, 0)
+    strictEqual(state.handsPose.length, 0)
+    
+  })
+
+  it('should serialize and deserialize correctly', () => {
+      
+    /* mock */
+    const world = createWorld()
+    Engine.currentWorld = world
+
+    const now = Date.now()
+    world.outgoingNetworkState = {
+      tick: 42,
+      time: now,
+      pose: [{
+        ownerId: 'id' as UserId,
+        networkId: 100 as NetworkId,
+        position: [1,2,3],
+        rotation: [1,2,3,4],
+        linearVelocity: [0],
+        angularVelocity: [0]
+      }],
+      controllerPose: [{} as any],
+      handsPose: [{} as any]
+    }
+    
+    const buffer = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    const state = WorldStateModel.fromBuffer(buffer)
+
+    strictEqual(state.tick, 42)
+    strictEqual(state.time, now)
+    strictEqual(state.pose[0].ownerId, 'id')
+    strictEqual(state.pose[0].networkId, 100)
+    deepEqual(state.pose[0].position, [1,2,3])
+    deepEqual(state.pose[0].rotation, [1,2,3,4])
+    strictEqual(state.pose[0].networkId, 100)
+    strictEqual(world.outgoingNetworkState.pose.length, 0)
+    
+  })
+
+
 })
