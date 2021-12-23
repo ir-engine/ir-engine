@@ -56,7 +56,7 @@ export class World {
   elapsedTime = NaN
   fixedDelta = NaN
   fixedElapsedTime = 0
-  fixedTick = -1
+  fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
 
