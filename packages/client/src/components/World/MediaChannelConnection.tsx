@@ -58,7 +58,7 @@ const MediaChannelConnection = () => {
       channelConnectionState.instanceServerConnecting.value === false &&
       channelConnectionState.connected.value === false
     ) {
-      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value, true)
+      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value)
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
     }

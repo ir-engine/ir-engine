@@ -36,8 +36,6 @@ interface Props {
   hideVideo?: boolean
   hideFullscreen?: boolean
   theme?: any
-  harmonyOpen?: any
-  setHarmonyOpen?: any
 }
 
 const Layout = (props: Props): any => {
@@ -117,7 +115,7 @@ const Layout = (props: Props): any => {
               </Helmet>
               <header>
                 {path === '/login' && <NavMenu login={login} />}
-                {!props.hideVideo && props.harmonyOpen !== true && (
+                {!props.hideVideo && (
                   <>
                     <section className={styles.locationUserMenu}>
                       {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
@@ -130,7 +128,7 @@ const Layout = (props: Props): any => {
 
               {!iOS() && (
                 <>
-                  {props.hideFullscreen ? null : fullScreenActive && props.harmonyOpen !== true ? (
+                  {props.hideFullscreen ? null : fullScreenActive ? (
                     <button type="button" className={styles.fullScreen} onClick={handle.exit}>
                       <FullscreenExit />
                     </button>

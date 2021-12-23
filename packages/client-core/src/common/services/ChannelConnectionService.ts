@@ -114,7 +114,7 @@ export const ChannelConnectionService = {
       })
     }
   },
-  connectToChannelServer: async (channelId: string, isHarmonyPage?: boolean) => {
+  connectToChannelServer: async (channelId: string) => {
     const dispatch = useDispatch()
     dispatch(ChannelConnectionAction.channelServerConnecting())
     const authState = accessAuthState()
