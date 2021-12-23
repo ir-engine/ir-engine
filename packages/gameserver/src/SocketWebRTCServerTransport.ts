@@ -38,7 +38,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
   constructor(app) {
     this.app = app
-    this.initialize()
   }
 
   public sendActions = (actions: Set<Required<Action>>): any => {
