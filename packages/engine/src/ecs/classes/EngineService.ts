@@ -76,12 +76,6 @@ function callbackReceptor(action: EngineActionType) {
         instance: action.instance
       })
       break
-
-    case EngineEvents.EVENTS.LEAVE_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.LEAVE_WORLD
-      })
-      break
     case EngineEvents.EVENTS.SCENE_LOADED:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.SCENE_LOADED
