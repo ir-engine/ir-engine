@@ -34,6 +34,7 @@ import { World } from '../../ecs/classes/World'
 import { isStaticBody } from '../../physics/classes/Physics'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { IKObj } from '../../ikrig/components/IKObj'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -59,7 +60,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
   let physicsDebugEnabled = false
   let avatarDebugEnabled = false
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.AVATAR_DEBUG, ({ enabled }) => {
+  const avatarDebugToggle = ({ enabled }) => {
     avatarDebugEnabled = typeof enabled === 'undefined' ? !avatarDebugEnabled : enabled
     helpersByEntity.viewVector.forEach((obj: Object3D) => {
       obj.visible = enabled
@@ -70,9 +71,9 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
       entry.forEach((obj) => (obj.visible = enabled))
     })
-  })
+  }
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PHYSICS_DEBUG, ({ enabled }) => {
+  const physicsDebugToggle = ({ enabled }) => {
     physicsDebugEnabled = typeof enabled === 'undefined' ? !physicsDebugEnabled : enabled
     helpersByEntity.helperArrow.forEach((obj: Object3D) => {
       obj.visible = enabled
@@ -80,7 +81,18 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
     helpersByEntity.box.forEach((entry: Object3D[]) => {
       entry.forEach((obj) => (obj.visible = enabled))
     })
-  })
+  }
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.PHYSICS_DEBUG:
+        physicsDebugToggle({ enabled: action.isPhysicsDebug })
+        break
+      case EngineEvents.EVENTS.AVATAR_DEBUG:
+        avatarDebugToggle({ enabled: action.isAvatarDebug })
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const ikDebugQuery = defineQuery([IKObj])

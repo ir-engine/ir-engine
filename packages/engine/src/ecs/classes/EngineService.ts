@@ -34,10 +34,7 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({
           isAvatarDebug: action.isAvatarDebug
         })
-      case EngineEvents.EVENTS.AVATAR_DEBUG:
-        return s.merge({
-          isAvatarDebug: action.isAvatarDebug
-        })
+
       case EngineEvents.EVENTS.RESET_ENGINE:
         return s.merge({
           socketInstance: action.instance
@@ -164,13 +161,6 @@ function callbackReceptor(action: EngineActionType) {
         type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
         msg: action.msg
       })
-      break
-    case EngineEvents.EVENTS.PHYSICS_DEBUG:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: action.isPhysicsDebug })
-      break
-
-    case EngineEvents.EVENTS.AVATAR_DEBUG:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: action.isAvatarDebug })
       break
     case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
       EngineEvents.instance.dispatchEvent({
