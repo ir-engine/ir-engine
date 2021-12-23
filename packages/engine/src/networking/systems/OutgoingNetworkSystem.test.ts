@@ -248,12 +248,12 @@ describe('outgoingNetworkState', () => {
         headPoseRotation: [4,5,6,7],
         leftRayPosition: [1,2,3],
         leftRayRotation: [4,5,6,7],
-        rightRayPosition: [1,2,3],
-        rightRayRotation: [4,5,6,7],
+        rightRayPosition: [10,20,30],
+        rightRayRotation: [40,50,60,70],
         leftGripPosition: [1,2,3],
         leftGripRotation: [4,5,6,7],
-        rightGripPosition: [1,2,3],
-        rightGripRotation: [4,5,6,7],
+        rightGripPosition: [11,21,31],
+        rightGripRotation: [41,51,61,71],
       }],
       handsPose: [{
         ownerId: 'id' as UserId,
@@ -280,7 +280,6 @@ describe('outgoingNetworkState', () => {
     strictEqual(state.pose[0].networkId, 100)
     deepEqual(state.pose[0].position, [1,2,3])
     deepEqual(state.pose[0].rotation, [1,2,3,4])
-    strictEqual(state.pose[0].networkId, 100)
 
     strictEqual(state.controllerPose[0].ownerId, 'id')
     strictEqual(state.controllerPose[0].networkId, 101)
@@ -288,12 +287,12 @@ describe('outgoingNetworkState', () => {
     deepEqual(state.controllerPose[0].headPoseRotation, [4,5,6,7])
     deepEqual(state.controllerPose[0].leftRayPosition, [1,2,3])
     deepEqual(state.controllerPose[0].leftRayRotation, [4,5,6,7])
-    deepEqual(state.controllerPose[0].rightRayPosition, [1,2,3])
-    deepEqual(state.controllerPose[0].rightRayRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].rightRayPosition, [10,20,30])
+    deepEqual(state.controllerPose[0].rightRayRotation, [40,50,60,70])
     deepEqual(state.controllerPose[0].leftGripPosition, [1,2,3])
     deepEqual(state.controllerPose[0].leftGripRotation, [4,5,6,7])
-    deepEqual(state.controllerPose[0].rightGripPosition, [1,2,3])
-    deepEqual(state.controllerPose[0].rightGripRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].rightGripPosition, [11,21,31])
+    deepEqual(state.controllerPose[0].rightGripRotation, [41,51,61,71])
 
     strictEqual(state.handsPose[0].ownerId, 'id')
     strictEqual(state.handsPose[0].networkId, 102)
