@@ -241,8 +241,33 @@ describe('outgoingNetworkState', () => {
         linearVelocity: [0],
         angularVelocity: [0]
       }],
-      controllerPose: [{} as any],
-      handsPose: [{} as any]
+      controllerPose: [{
+        ownerId: 'id' as UserId,
+        networkId: 101 as NetworkId,
+        headPosePosition: [1,2,3],
+        headPoseRotation: [4,5,6,7],
+        leftRayPosition: [1,2,3],
+        leftRayRotation: [4,5,6,7],
+        rightRayPosition: [1,2,3],
+        rightRayRotation: [4,5,6,7],
+        leftGripPosition: [1,2,3],
+        leftGripRotation: [4,5,6,7],
+        rightGripPosition: [1,2,3],
+        rightGripRotation: [4,5,6,7],
+      }],
+      handsPose: [{
+        ownerId: 'id' as UserId,
+        networkId: 102 as NetworkId, 
+        hands: [{
+          joints: [
+            {
+              key: 'string',
+              position: [1,2,3],
+              rotation: [4,5,6,7],
+            }
+          ]
+        }]
+      }],
     }
     
     const buffer = WorldStateModel.toBuffer(world.outgoingNetworkState)
@@ -250,12 +275,31 @@ describe('outgoingNetworkState', () => {
 
     strictEqual(state.tick, 42)
     strictEqual(state.time, now)
+
     strictEqual(state.pose[0].ownerId, 'id')
     strictEqual(state.pose[0].networkId, 100)
     deepEqual(state.pose[0].position, [1,2,3])
     deepEqual(state.pose[0].rotation, [1,2,3,4])
     strictEqual(state.pose[0].networkId, 100)
-    strictEqual(world.outgoingNetworkState.pose.length, 0)
+
+    strictEqual(state.controllerPose[0].ownerId, 'id')
+    strictEqual(state.controllerPose[0].networkId, 101)
+    deepEqual(state.controllerPose[0].headPosePosition, [1,2,3])
+    deepEqual(state.controllerPose[0].headPoseRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].leftRayPosition, [1,2,3])
+    deepEqual(state.controllerPose[0].leftRayRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].rightRayPosition, [1,2,3])
+    deepEqual(state.controllerPose[0].rightRayRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].leftGripPosition, [1,2,3])
+    deepEqual(state.controllerPose[0].leftGripRotation, [4,5,6,7])
+    deepEqual(state.controllerPose[0].rightGripPosition, [1,2,3])
+    deepEqual(state.controllerPose[0].rightGripRotation, [4,5,6,7])
+
+    strictEqual(state.handsPose[0].ownerId, 'id')
+    strictEqual(state.handsPose[0].networkId, 102)
+    deepEqual(state.handsPose[0].hands[0].joints[0].key, 'string')
+    deepEqual(state.handsPose[0].hands[0].joints[0].position, [1,2,3])
+    deepEqual(state.handsPose[0].hands[0].joints[0].rotation, [4,5,6,7])
     
   })
 
