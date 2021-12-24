@@ -5,6 +5,7 @@ mariadb:
     user: <username>
   enabled: false
   externalHost: <RDS hostname>
+  externalPort: 3306
 builder:
   extraEnv:
     RELEASE_NAME: <RELEASE_NAME>
