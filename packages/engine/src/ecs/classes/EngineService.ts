@@ -89,13 +89,6 @@ function callbackReceptor(action: EngineActionType) {
         entitiesLeft: action.entitiesLeft
       })
       break
-    case EngineEvents.EVENTS.ENABLE_SCENE:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ENABLE_SCENE,
-        renderer: action.env.renderer,
-        physics: action.env.physics
-      })
-      break
 
     case EngineEvents.EVENTS.OBJECT_HOVER:
       EngineEvents.instance.dispatchEvent({
@@ -116,10 +109,6 @@ function callbackReceptor(action: EngineActionType) {
       })
       break
     case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        msg: action.msg
-      })
       break
   }
 }
