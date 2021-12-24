@@ -16,7 +16,8 @@ const state = createState({
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: null! as string
+  avatarTappedId: null! as string,
+  interactionData: null! as InteractionData
 })
 
 export const receptors = (): [] => {
@@ -57,6 +58,8 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
         return s.merge({ connectionTimeoutInstance: action.instance })
+      case EngineEvents.EVENTS.OBJECT_ACTIVATION:
+        return s.merge({ interactionData: action.interactionData })
       case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
         return s.merge({
           isTeleporting: action.portalComponent
@@ -94,12 +97,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.OBJECT_HOVER,
         ...action.props
-      })
-      break
-    case EngineEvents.EVENTS.OBJECT_ACTIVATION:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
-        interaction: action.interactionData
       })
       break
     case EngineEvents.EVENTS.CONNECT:
