@@ -5,9 +5,10 @@ import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 
 export const sceneRelativePathIdentifier = '__$project$__'
-export const corsPath = isDev
-  ? `https://${config.server.hostname}:${config.server.corsServerPort}`
-  : `https://${config.server.hostname}/cors-proxy`
+export const corsPath =
+  isDev || process.env.VITE_LOCAL_BUILD
+    ? `https://${config.server.hostname}:${config.server.corsServerPort}`
+    : `https://${config.server.hostname}/cors-proxy`
 
 export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
   for (const [key, val] of Object.entries(sceneData)) {

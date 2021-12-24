@@ -22,7 +22,7 @@ const AuthMagicLink = (props: Props): any => {
 
   useEffect(() => {
     if (type === 'login') {
-      AuthService.loginUserByJwt(token, '/harmony', '/')
+      AuthService.loginUserByJwt(token, '/', '/')
     } else if (type === 'connection') {
       const user = useAuthState().user
       if (user !== null) {
