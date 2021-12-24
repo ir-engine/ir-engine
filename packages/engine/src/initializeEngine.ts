@@ -318,9 +318,16 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Engine.userId = id
-    })
+    const receptor = (action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.CONNECT:
+          Engine.userId = action.id
+          const id = Engine.currentWorld.receptors.indexOf(receptor)
+          Engine.currentWorld.receptors.splice(id, 1)
+          break
+      }
+    }
+    Engine.currentWorld.receptors.push(receptor)
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)

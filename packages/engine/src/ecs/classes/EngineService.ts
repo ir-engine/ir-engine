@@ -88,12 +88,6 @@ function callbackReceptor(action: EngineActionType) {
         type: EngineEvents.EVENTS.SCENE_LOADED
       })
       break
-    case EngineEvents.EVENTS.CONNECT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT,
-        id: action.id
-      })
-      break
   }
 }
 
