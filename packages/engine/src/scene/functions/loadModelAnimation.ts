@@ -3,7 +3,9 @@ import { AnimationManager } from '../../avatar/AnimationManager'
 import { AnimationState } from '../../avatar/animations/AnimationState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -11,7 +13,18 @@ import { SceneDataComponent } from './SceneLoading'
 
 export const loadModelAnimation = (entity: Entity, component: SceneDataComponent) => {
   if (isClient) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    const receptor = (action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.SCENE_LOADED:
+          onSceneLoaded()
+          const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+          Engine.currentWorld.receptors.splice(receptorIndex, 1)
+          break
+      }
+    }
+    Engine.currentWorld.receptors.push(receptor)
+
+    const onSceneLoaded = () => {
       // We only have to update the mixer time for this animations on each frame
       const object3d = getComponent(entity, Object3DComponent)
       if (!object3d) {
@@ -46,6 +59,6 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
         ] as any
         currentState.animations[0].action.play()
       }
-    })
+    }
   }
 }

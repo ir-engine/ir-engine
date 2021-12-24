@@ -15,6 +15,7 @@ import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { SceneOptions } from '../systems/SceneObjectSystem'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {
@@ -87,22 +88,28 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
       SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
 
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
-        switch (options.bakeType) {
-          case CubemapBakeTypes.Baked:
-            new TextureLoader().load(options.envMapOrigin, (texture) => {
-              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
-              texture.dispose()
-            })
-
-            break
-          case CubemapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
-            // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-            // Engine.scene.environment = EnvMap
+      const receptor = (action: EngineActionType) => {
+        switch (action.type) {
+          case EngineEvents.EVENTS.SCENE_LOADED:
+            switch (options.bakeType) {
+              case CubemapBakeTypes.Baked:
+                new TextureLoader().load(options.envMapOrigin, (texture) => {
+                  Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
+                  texture.dispose()
+                })
+                break
+              case CubemapBakeTypes.Realtime:
+                // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
+                // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
+                // Engine.scene.environment = EnvMap
+                break
+            }
+            const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+            Engine.currentWorld.receptors.splice(receptorIndex, 1)
             break
         }
-      })
+      }
+      Engine.currentWorld.receptors.push(receptor)
       const offset = args.envMapCubemapBake?.bakePositionOffset!
       const position = new Vector3(offset.x, offset.y, offset.z)
       SceneOptions.instance.boxProjection = args.envMapCubemapBake?.boxProjection!

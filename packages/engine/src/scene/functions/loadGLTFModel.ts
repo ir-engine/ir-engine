@@ -20,6 +20,7 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   const components: { [key: string]: any } = {}
@@ -165,7 +166,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     // we should push this to ECS, something like a SceneObjectLoadComponent,
     // or add engine events for specific objects being added to the scene,
     // the scene load event + delay 1 second delay works for now.
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    const onSceneLoaded = async () => {
       await delay(1000)
       const objToCopy = Engine.scene.children.find((obj: any) => {
         return obj.sceneEntityId === component.data.textureOverride
@@ -180,7 +181,18 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
             })
           }
         })
-    })
+    }
+
+    const receptor = (action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.SCENE_LOADED:
+          onSceneLoaded()
+          const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+          Engine.currentWorld.receptors.splice(receptorIndex, 1)
+          break
+      }
+    }
+    Engine.currentWorld.receptors.push(receptor)
   }
 
   if (
