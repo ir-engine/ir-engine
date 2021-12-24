@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 //State
