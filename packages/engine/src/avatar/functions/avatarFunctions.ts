@@ -10,6 +10,7 @@ import {
   PlaneGeometry,
   RGBAFormat,
   Skeleton,
+  SkeletonHelper,
   SkinnedMesh,
   sRGBEncoding
 } from 'three'
@@ -33,7 +34,11 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
+  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/Geoff.glb'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
@@ -64,14 +69,79 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   model.traverse((o) => {
     // TODO: Remove me when we add retargeting
+    // TODO: For mixamorig
     if (o.name?.includes('mixamorig')) {
       o.name = o.name.replace('mixamorig', '')
+    }
+    // TODO: For VRM
+    else if (o.name?.includes('J_Bip_')) {
+      o.name = o.name
+        .replace('J_Bip_C_Hips', 'Hips')
+        .replace('J_Bip_C_Spine', 'Spine')
+        .replace('J_Bip_C_Chest', 'Spine1')
+        .replace('J_Bip_C_Neck', 'Neck')
+        .replace('J_Bip_C_Head', 'Head')
+
+        .replace('J_Adj_L_FaceEye', 'LeftEye')
+        .replace('J_Adj_R_FaceEye', 'RightEye')
+
+        .replace('J_Bip_L_Shoulder', 'LeftShoulder')
+        .replace('J_Bip_L_UpperArm', 'LeftArm')
+        .replace('J_Bip_L_LowerArm', 'LeftForeArm')
+        .replace('J_Bip_L_Hand', 'LeftHand')
+
+        .replace('J_Bip_R_Shoulder', 'RightShoulder')
+        .replace('J_Bip_R_UpperArm', 'RightArm')
+        .replace('J_Bip_R_LowerArm', 'RightForeArm')
+        .replace('J_Bip_R_Hand', 'RightHand')
+
+        .replace('J_Bip_L_UpperLeg', 'LeftUpLeg')
+        .replace('J_Bip_L_LowerLeg', 'LeftLeg')
+        .replace('J_Bip_L_Foot', 'LeftFoot')
+
+        .replace('J_Bip_R_UpperLeg', 'RightUpLeg')
+        .replace('J_Bip_R_LowerLeg', 'RightLeg')
+        .replace('J_Bip_R_Foot', 'RightFoot')
+    } else {
+      o.name = o.name
+        .replace('root', 'Hips')
+        .replace('pelvis', 'Spine')
+        .replace('spine_01', 'Spine1')
+        .replace('spine_02', 'Spine2')
+
+        .replace('neck_01', 'Neck')
+        .replace('head', 'Head')
+        .replace('CC_Base_R_Eye', 'LeftEye')
+        .replace('CC_Base_L_Eye', 'RightEye')
+
+        .replace('clavicle_l', 'LeftShoulder')
+        .replace('upperarm_l', 'LeftArm')
+        .replace('lowerarm_l', 'LeftForeArm')
+        .replace('hand_l', 'LeftHand')
+
+        .replace('clavicle_r', 'RightShoulder')
+        .replace('upperarm_r', 'RightArm')
+        .replace('lowerarm_r', 'RightForeArm')
+        .replace('hand_r', 'RightHand')
+
+        .replace('thigh_l', 'LeftUpLeg')
+        .replace('calf_l', 'LeftLeg')
+        .replace('foot_l', 'LeftFoot')
+        .replace('ball_l', 'LeftToeBase')
+
+        .replace('thigh_r', 'RightUpLeg')
+        .replace('calf_r', 'RightLeg')
+        .replace('foot_r', 'RightFoot')
+        .replace('ball_r', 'RightToeBase')
     }
     if (o.name?.toLowerCase().includes('hips')) hips = o
   })
 
   const loadedAvatarBoneNames: string[] = []
   hips.traverse((child) => loadedAvatarBoneNames.push(child.name))
+
+  console.log(loadedAvatarBoneNames)
+  debugger
 
   animationComponent.mixer.stopAllAction()
   avatar.modelContainer.children.forEach((child) => child.removeFromParent())
@@ -133,6 +203,9 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(world.delta)
 
+  const helper = new SkeletonHelper(sourceSkeletonRoot)
+  const newEntity = createEntity()
+  addComponent(newEntity, Object3DComponent, { value: helper })
   loadGrowingEffectObject(entity, materialList)
 }
 
