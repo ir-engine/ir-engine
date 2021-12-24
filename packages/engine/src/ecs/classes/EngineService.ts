@@ -92,9 +92,6 @@ function callbackReceptor(action: EngineActionType) {
         physics: action.env.physics
       })
       break
-    case EngineEvents.EVENTS.WINDOW_FOCUS:
-      document.visibilityState === 'visible'
-      break
     case EngineEvents.EVENTS.ENTITY_DEBUG_DATA:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
@@ -122,11 +119,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT,
         id: action.id
-      })
-      break
-    case EngineEvents.EVENTS.CONNECTION_LOST:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECTION_LOST
       })
       break
     case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
@@ -226,12 +218,7 @@ export const EngineActions = {
     }
   },
 
-  /////////////
-  windowFocus: () => {
-    return {
-      type: EngineEvents.EVENTS.WINDOW_FOCUS
-    }
-  },
+  ////////////
   entityDebugData: () => {
     return {
       type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
@@ -275,11 +262,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.CONNECT,
       id
-    }
-  },
-  connectionLost: () => {
-    return {
-      type: EngineEvents.EVENTS.CONNECTION_LOST
     }
   },
   startSuspendedContexts: () => {

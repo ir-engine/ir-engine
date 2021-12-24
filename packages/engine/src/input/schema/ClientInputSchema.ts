@@ -553,7 +553,6 @@ export const handleVisibilityChange = (event: Event) => {
       }
     })
   }
-  dispatchLocal(EngineActions.windowFocus() as any)
 }
 
 /**
