@@ -121,21 +121,6 @@ function callbackReceptor(action: EngineActionType) {
         portalComponent: action.portalComponent
       })
       break
-    case EngineEvents.EVENTS.XR_START:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_START
-      })
-      break
-    case EngineEvents.EVENTS.XR_SESSION:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_SESSION
-      })
-      break
-    case EngineEvents.EVENTS.XR_END:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_END
-      })
-      break
     case EngineEvents.EVENTS.CONNECT:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT,
