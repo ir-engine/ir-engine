@@ -93,10 +93,7 @@ function callbackReceptor(action: EngineActionType) {
       })
       break
     case EngineEvents.EVENTS.WINDOW_FOCUS:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.WINDOW_FOCUS,
-        focused: document.visibilityState === 'visible'
-      })
+      document.visibilityState === 'visible'
       break
     case EngineEvents.EVENTS.ENTITY_DEBUG_DATA:
       EngineEvents.instance.dispatchEvent({
