@@ -121,16 +121,6 @@ function callbackReceptor(action: EngineActionType) {
         id: action.id
       })
       break
-    case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
-      })
-      break
-    case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO
-      })
-      break
     case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
