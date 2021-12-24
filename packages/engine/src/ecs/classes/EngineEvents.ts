@@ -21,7 +21,6 @@ const EVENTS = {
   ENABLE_SCENE: 'CORE_ENABLE_SCENE' as const, // { renderer: boolean, physics: boolean }
 
   // MISC
-  ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA' as const, // TODO: to pipe offscreen entity data to UI
 
   USER_AVATAR_TAPPED: 'USER_AVATAR_TAPPED' as const,
 

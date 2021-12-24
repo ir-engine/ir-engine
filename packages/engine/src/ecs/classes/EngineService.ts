@@ -96,11 +96,7 @@ function callbackReceptor(action: EngineActionType) {
         physics: action.env.physics
       })
       break
-    case EngineEvents.EVENTS.ENTITY_DEBUG_DATA:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
-      })
-      break
+
     case EngineEvents.EVENTS.OBJECT_HOVER:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.OBJECT_HOVER,
@@ -207,11 +203,6 @@ export const EngineActions = {
   },
 
   ////////////
-  entityDebugData: () => {
-    return {
-      type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
-    }
-  },
   objectHover: (props: {}) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_HOVER,
