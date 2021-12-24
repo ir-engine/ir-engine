@@ -88,13 +88,6 @@ function callbackReceptor(action: EngineActionType) {
         type: EngineEvents.EVENTS.SCENE_LOADED
       })
       break
-    case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-        entitiesLeft: action.entitiesLeft
-      })
-      break
-
     case EngineEvents.EVENTS.OBJECT_HOVER:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.OBJECT_HOVER,
