@@ -41,7 +41,7 @@
     "@mui/icons-material": "5.2.5",
     "@mui/material": "5.2.5",
     "@mui/styles": "5.2.3",
-    "@types/react-redux": "7.1.20",
+    "@types/react-redux": "7.1.21",
     "@xrengine/client-core": "^0.4.13",
     "@xrengine/common": "^0.4.13",
     "@xrengine/editor": "^0.4.13",
