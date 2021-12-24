@@ -99,7 +99,7 @@
     "@types/node": "16.11.17",
     "@types/node-fetch": "2.5.12",
     "@types/nodemailer-smtp-transport": "2.7.5",
-    "@types/pug": "2.0.5",
+    "@types/pug": "2.0.6",
     "app-root-path": "3.0.0",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
