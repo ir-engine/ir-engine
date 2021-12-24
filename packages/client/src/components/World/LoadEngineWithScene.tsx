@@ -54,7 +54,6 @@ export const LoadEngineWithScene = (props: Props) => {
   useEffect(() => {
     const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
     if (!Engine.isInitialized) initEngine(engineInitializeOptions)
-    addUIEvents()
   }, [])
 
   /**
@@ -66,34 +65,18 @@ export const LoadEngineWithScene = (props: Props) => {
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    dispatchLocal(EngineActions.setTeleporting(portalComponent))
+  useEffect(() => {
+    if (engineState.isTeleporting.value === null) return
     dispatch(LocationAction.fetchingCurrentSocialLocation())
-
-    // TODO: this needs to be implemented on the server too
-    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-    //   teleportPlayer(
-    //     useWorld().localClientEntity,
-    //     portalComponent.remoteSpawnPosition,
-    //     portalComponent.remoteSpawnRotation
-    //   )
-    //   return
-    // }
-
-    // shut down connection with existing GS
     console.log('reseting connection for tp')
     Network.instance.transport.close(true, false)
     InstanceConnectionService.resetInstanceServer()
-
-    await teleportToScene(portalComponent, async () => {
+    const portalComponent = engineState.isTeleporting.value
+    teleportToScene(portalComponent, async () => {
       history.push('/location/' + portalComponent.location)
       LocationService.getLocationByName(portalComponent.location)
     })
-  }
-
-  const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-  }
+  }, [engineState.isTeleporting.value])
 
   return canvas
 }

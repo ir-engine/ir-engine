@@ -57,6 +57,10 @@ function stateReceptor(action: EngineActionType) {
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
         return s.merge({ connectionTimeoutInstance: action.instance })
+      case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
+        return s.merge({
+          isTeleporting: action.portalComponent
+        })
       case EngineEvents.EVENTS.SET_TELEPORTING:
         if (action.portalComponent) {
           s.merge({
@@ -107,12 +111,6 @@ function callbackReceptor(action: EngineActionType) {
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
         interaction: action.interactionData
-      })
-      break
-    case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-        portalComponent: action.portalComponent
       })
       break
     case EngineEvents.EVENTS.CONNECT:
