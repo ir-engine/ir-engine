@@ -29,6 +29,8 @@ export const receptors = (): [] => {
 function stateReceptor(action: EngineActionType) {
   state.batch((s) => {
     switch (action.type) {
+      case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
+        break
       case EngineEvents.EVENTS.PHYSICS_DEBUG:
         return s.merge({
           isPhysicsDebug: action.isPhysicsDebug
@@ -104,8 +106,6 @@ function callbackReceptor(action: EngineActionType) {
         type: EngineEvents.EVENTS.CONNECT,
         id: action.id
       })
-      break
-    case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
       break
   }
 }
