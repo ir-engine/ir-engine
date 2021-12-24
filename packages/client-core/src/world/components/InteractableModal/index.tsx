@@ -64,10 +64,6 @@ export const InteractableModal: FunctionComponent = () => {
   }
 
   useEffect(() => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
-  }, [engineState.isEngineInitialized.value])
-
-  useEffect(() => {
     if (engineState.interactionData.value === null) return
     onObjectActivation(engineState.interactionData.value)
   }, [engineState.interactionData.value])

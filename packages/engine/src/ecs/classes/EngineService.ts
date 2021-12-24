@@ -88,12 +88,6 @@ function callbackReceptor(action: EngineActionType) {
         type: EngineEvents.EVENTS.SCENE_LOADED
       })
       break
-    case EngineEvents.EVENTS.OBJECT_HOVER:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.OBJECT_HOVER,
-        ...action.props
-      })
-      break
     case EngineEvents.EVENTS.CONNECT:
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT,
@@ -181,13 +175,6 @@ export const EngineActions = {
     }
   },
 
-  ////////////
-  objectHover: (props: {}) => {
-    return {
-      type: EngineEvents.EVENTS.OBJECT_HOVER,
-      props
-    }
-  },
   objectActivation: (interactionData: InteractionData) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
