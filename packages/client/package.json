@@ -78,7 +78,7 @@
     "vite": "2.7.6",
     "vite-plugin-html": "2.1.1",
     "vite-plugin-optimize-persist": "0.1.2",
-    "vite-plugin-package-config": "0.0.3"
+    "vite-plugin-package-config": "0.1.1"
   },
   "license": "ISC"
 }
