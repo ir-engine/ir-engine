@@ -31,6 +31,7 @@ import {
 import { Application } from '@xrengine/server-core/declarations'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
@@ -39,7 +40,9 @@ function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefine
 export const setupSocketFunctions = (app: Application) => async (socket: Socket) => {
   if (!Engine.sceneLoaded && !app.isChannelInstance) {
     await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
+      socket.on(MessageTypes.SceneLoaded.toString(), () => {
+        resolve()
+      })
     })
   }
 

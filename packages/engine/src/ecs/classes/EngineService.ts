@@ -83,11 +83,6 @@ function stateReceptor(action: EngineActionType) {
 
 function callbackReceptor(action: EngineActionType) {
   switch (action.type) {
-    case EngineEvents.EVENTS.SCENE_LOADED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SCENE_LOADED
-      })
-      break
   }
 }
 
