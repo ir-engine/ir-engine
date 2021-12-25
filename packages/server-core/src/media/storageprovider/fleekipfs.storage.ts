@@ -65,7 +65,6 @@ export class FleekIPFSProvider implements IPFSStorageProviderInterface {
       fleekStorage
         .deleteFile({ ...this.provider, key })
         .then((result: any) => {
-          console.log('fleekStorage-upload deleteResource: ', result)
           resolve({
             result
           })
