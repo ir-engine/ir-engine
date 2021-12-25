@@ -56,17 +56,6 @@ export const Debug = () => {
     dispatchLocal(EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
   }
 
-  const reset = async () => {
-    const transport = Network.instance.transport as SocketWebRTCClientTransport
-    if (transport.instanceSocket && typeof transport.instanceSocket.disconnect === 'function')
-      await transport.instanceSocket.disconnect()
-    if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function')
-      await transport.channelSocket.disconnect()
-    dispatchLocal(EngineActions.setAvatarDebug(false) as any)
-    dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
-    shutdownEngine()
-  }
-
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
@@ -107,9 +96,6 @@ export const Debug = () => {
         </button>
         <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>
           Avatar Debug
-        </button>
-        <button type="button" onClick={reset}>
-          Reset
         </button>
         {Network.instance !== null && (
           <div>

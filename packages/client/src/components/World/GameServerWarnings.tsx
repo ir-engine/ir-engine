@@ -68,6 +68,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [invalidLocationState.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
+    const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
     switch (type) {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
@@ -92,7 +93,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
         if (!Engine.userId) return
-        if ((Network.instance.transport as SocketWebRTCClientTransport).left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
           open: true,
@@ -105,7 +106,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED:
-        if ((Network.instance.transport as SocketWebRTCClientTransport).left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
           open: true,

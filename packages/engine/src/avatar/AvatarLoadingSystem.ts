@@ -22,6 +22,8 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -167,6 +169,9 @@ export default async function AvatarLoadingSystem(world: World): Promise<System>
             }
           })
         })
+
+        // TODO refacotr this
+        updateNearbyAvatars()
 
         addComponent(entity, TweenComponent, {
           tween: new Tween<any>(plateComponent)

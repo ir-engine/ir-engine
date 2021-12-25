@@ -146,6 +146,7 @@ api:
     MAIL_FROM: info@login.<domain>
     SERVER_ENABLED: "true"
     SERVER_HOST: "api.<domain>"
+    SERVER_MODE: "api"
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
@@ -319,6 +320,7 @@ gameserver:
     RTC_END_PORT: "40099"
     RTC_PORT_BLOCK_SIZE: "100"
     GAMESERVER_DOMAIN: gameserver.<domain>
+    GAMESERVER_MODE: "realtime"
     GAMESERVER_PORT: "3031"
     STORAGE_PROVIDER: aws
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
@@ -366,68 +368,3 @@ gameserver:
                 operator: In
                 values:
                   - ng-gameservers-1
-
-editor:
-  enabled: false
-  extraEnv:
-    BASE_ASSETS_PATH: https://api.<domain>/
-    CORS_PROXY_SERVER: ""
-    GA_TRACKING_ID: ""
-    HUBS_SERVER: api.<domain>
-    IS_MOZ: "false"
-    NON_CORS_PROXY_DOMAINS: ""
-    RETICULUM_SERVER: api.<domain>
-    SENTRY_DSN: ""
-    THUMBNAIL_SERVER: ""
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
-                operator: In
-                values:
-                  - ng-1
-  ingress:
-    hosts:
-      - host: <domain>
-        paths:
-          - /create
-redis:
-  enabled: false
-
-analytics:
-  enabled: false
-  name: xrengine-analytics
-  replicaCount: 1
-  image:
-    repository: <repository_name>
-    pullPolicy: IfNotPresent
-  extraEnv:
-    ANALYTICS_ENABLED: "true"
-    ANALYTICS_PORT: "3030"
-    ANALYTICS_PROCESS_INTERVAL: "10000"
-    AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
-    STORAGE_S3_REGION: us-east-1
-    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
-    STORAGE_S3_AVATAR_DIRECTORY: avatars
-
-
-  service:
-    type: ClusterIP
-    port: 3030
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name:
-
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: eks.amazonaws.com/nodegroup
-                operator: In
-                values:
-                  - ng-1

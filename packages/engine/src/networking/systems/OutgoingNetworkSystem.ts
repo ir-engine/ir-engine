@@ -273,11 +273,15 @@ export const resetNetworkState = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   // copy previous state
+  previousNetworkState.tick = outgoingNetworkState.tick
+  previousNetworkState.time = outgoingNetworkState.time
   previousNetworkState.pose = outgoingNetworkState.pose
   previousNetworkState.controllerPose = outgoingNetworkState.controllerPose
   previousNetworkState.handsPose = outgoingNetworkState.handsPose
 
   // reset current state
+  outgoingNetworkState.tick = world.fixedTick
+  outgoingNetworkState.time = Date.now()
   outgoingNetworkState.pose = []
   outgoingNetworkState.controllerPose = []
   outgoingNetworkState.handsPose = []
@@ -327,8 +331,9 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
-  const sendActions = sendActionsOnTransport(Network.instance.transport)
-  const sendData = sendDataOnTransport(Network.instance.transport)
+  const worldTransport = Network.instance.transportHandler.getWorldTransport()
+  const sendActions = sendActionsOnTransport(worldTransport)
+  const sendData = sendDataOnTransport(worldTransport)
 
   initNetworkStates(world)
 

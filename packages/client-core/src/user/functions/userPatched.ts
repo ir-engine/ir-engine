@@ -1,11 +1,11 @@
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
 import { useDispatch } from '../../store'
 import { UserAction } from '../services/UserService'
-import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { hasComponent, addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
 import { accessAuthState, AuthAction } from '../services/AuthService'
+import { _updateUsername } from '../../social/services/utils/chatSystem'
 // import { loadAvatarForUpdatedUser } from './userAvatarFunctions'
 
 export const userPatched = (params) => {

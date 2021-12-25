@@ -8,6 +8,7 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchFrom, dispatchLocal } from './dispatchFrom'
+import { Action, ResolvedActionShape } from '../interfaces/Action'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -82,25 +83,28 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-      let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-      if (entity) {
-        if (a.$from === Engine.userId) {
-          if (a.equip) {
-            if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-              addComponent(entity, NetworkObjectOwnedTag, {})
-            }
-          } else {
-            removeComponent(entity, NetworkObjectOwnedTag)
-          }
-        } else {
-          removeComponent(entity, NetworkObjectOwnedTag)
-        }
-
-        // Give ownership back to server, so that item shows up where it was last dropped
-        if (Engine.userId === world.hostId && !a.equip) {
-          addComponent(entity, NetworkObjectOwnedTag, {})
-        }
-      }
-    })
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
 }
+
+// export function setEquippedObjectReceptor(a: any) {
+// const world = useWorld()
+// let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+// if (entity) {
+//   if (a.$from === Engine.userId) {
+//     if (a.equip) {
+//       if (!hasComponent(entity, NetworkObjectOwnedTag)) {
+//         addComponent(entity, NetworkObjectOwnedTag, {})
+//       }
+//     } else {
+//       removeComponent(entity, NetworkObjectOwnedTag)
+//     }
+//   } else {
+//     removeComponent(entity, NetworkObjectOwnedTag)
+//   }
+
+//   // Give ownership back to server, so that item shows up where it was last dropped
+//   if (Engine.userId === world.hostId && !a.equip) {
+//     addComponent(entity, NetworkObjectOwnedTag, {})
+//   }
+// }
+// }

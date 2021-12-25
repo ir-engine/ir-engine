@@ -105,6 +105,7 @@ const client = {
   releaseName: process.env.RELEASE_NAME!
 }
 
+// TODO: rename to 'instanceserver'
 const gameserver = {
   clientHost: process.env.APP_HOST!,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
@@ -116,7 +117,7 @@ const gameserver = {
   domain: process.env.GAMESERVER_DOMAIN || 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME!,
   port: process.env.GAMESERVER_PORT!,
-  mode: process.env.SERVER_MODE!,
+  mode: process.env.GAMESERVER_MODE!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
@@ -269,6 +270,10 @@ const scopes = {
   user: process.env.DEFAULT_USER_SCOPES?.split(',') || []
 }
 
+const blockchain = {
+  blockchainUrl: process.env.BLOCKCHAIN_URL,
+  blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
+}
 /**
  * Full config
  */
@@ -285,6 +290,7 @@ const config = {
   server,
   redis,
   scopes,
+  blockchain,
   kubernetes: {
     enabled: kubernetesEnabled,
     serviceHost: process.env.KUBERNETES_SERVICE_HOST!,
