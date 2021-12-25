@@ -1,5 +1,3 @@
-import XRPose from '../webxr-polyfill/api/XRPose';
-
 export const PRIVATE = Symbol('@@webxr-polyfill/XRTransientInputHitTestResult');
 
 export default class XRTransientInputHitTestResult {

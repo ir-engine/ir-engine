@@ -1,12 +1,4 @@
-import {
-  DirectionalLight,
-  LinearToneMapping,
-  PCFSoftShadowMap,
-  PerspectiveCamera,
-  ShadowMapType,
-  ToneMapping,
-  Vector3
-} from 'three'
+import { LinearToneMapping, PCFSoftShadowMap, PerspectiveCamera, ShadowMapType, ToneMapping, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'

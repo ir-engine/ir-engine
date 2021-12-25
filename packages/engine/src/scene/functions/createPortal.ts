@@ -1,28 +1,9 @@
-import {
-  BoxBufferGeometry,
-  BufferGeometry,
-  Color,
-  Euler,
-  ExtrudeGeometry,
-  Mesh,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
-  PlaneBufferGeometry,
-  Quaternion,
-  Vector3
-} from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
+import { BoxBufferGeometry, Color, Euler, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FontManager } from '../../xrui/classes/FontManager'
-import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { BodyType } from '../../physics/types/PhysicsTypes'

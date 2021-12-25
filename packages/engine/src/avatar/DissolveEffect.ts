@@ -1,4 +1,4 @@
-import { Material, ShaderMaterial, BufferAttribute, RepeatWrapping, DoubleSide, Object3D, Mesh } from 'three'
+import { ShaderMaterial, Object3D, Mesh } from 'three'
 
 export class DissolveEffect {
   time = 0
