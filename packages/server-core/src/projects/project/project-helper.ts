@@ -1,7 +1,6 @@
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import fs from 'fs'
 import path from 'path'
 import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
 import appRootPath from 'app-root-path'
