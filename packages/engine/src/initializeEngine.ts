@@ -19,7 +19,7 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, EngineActionType, receptors } from './ecs/classes/EngineService'
+import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 
 // @ts-ignore
@@ -270,7 +270,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
-  Engine.currentWorld.receptors.push(...receptors())
+  Engine.currentWorld.receptors.push(EngineEventReceptor)
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()

@@ -20,13 +20,7 @@ const state = createState({
   interactionData: null! as InteractionData
 })
 
-export const receptors = (): [] => {
-  const ret: any = []
-  ret.push(stateReceptor)
-  ret.push(callbackReceptor)
-  return ret
-}
-function stateReceptor(action: EngineActionType) {
+export function EngineEventReceptor(action: EngineActionType) {
   state.batch((s) => {
     switch (action.type) {
       case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
@@ -79,11 +73,6 @@ function stateReceptor(action: EngineActionType) {
         })
     }
   }, action.type)
-}
-
-function callbackReceptor(action: EngineActionType) {
-  switch (action.type) {
-  }
 }
 
 export const useEngineState = () => useState(state) as any as typeof state
