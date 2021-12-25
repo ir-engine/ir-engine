@@ -25,6 +25,9 @@ export default {
         },
         metadata: {
           type: 'string'
+        },
+        storageProvider: {
+          type: 'string'
         }
       }
     },

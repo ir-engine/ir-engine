@@ -7,6 +7,12 @@ export type AvatarUploadType = {
   }
 }
 
+export type IPFSUploadType = {
+  type: 'ipfs-file-upload'
+  files: (Blob | Buffer)[]
+  args: Array<AdminAssetUploadArgumentsType>
+}
+
 export type AdminAssetUploadArgumentsType = {
   key: string
   contentType: string
@@ -21,4 +27,4 @@ export type AdminAssetUploadType = {
   args: Array<AdminAssetUploadArgumentsType>
 }
 
-export type AssetUploadType = AvatarUploadType | AdminAssetUploadType
+export type AssetUploadType = AvatarUploadType | AdminAssetUploadType | IPFSUploadType

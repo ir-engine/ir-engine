@@ -71,6 +71,7 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
+  ipfsStorageProvider: process.env.IPFS_STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
@@ -225,6 +226,19 @@ const authentication = {
 }
 
 /**
+ * IPFS
+ */
+
+const ipfs = {
+  fleekKeys: {
+    apiKey: process.env.IPFS_FLEEK_API_KEY!,
+    apiSecret: process.env.IPFS_FLEEK_API_SECRET_KEY!,
+    bucket: process.env.IPFS_FLEEK_BUCKET!,
+    storageDomain: process.env.IPFS_FLEEK_DOMAIN!
+  }
+}
+
+/**
  * AWS
  */
 const aws = {
@@ -291,6 +305,7 @@ const config = {
   analytics,
   authentication,
   aws,
+  ipfs,
   chargebee,
   client,
   db,
