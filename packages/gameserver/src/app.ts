@@ -25,6 +25,7 @@ import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+
 register()
 
 export const createApp = (): Application => {

@@ -25,124 +25,6 @@
         &:hover { cursor: pointer; }
     }
 
-    &.harmony {
-        margin: 0;
-        flex: 1 1 auto;
-        height: 100%;
-        width: 100%;
-
-        &:hover {
-            @media (min-width: 769px) {
-                .user-controls {
-                    display: flex !important;
-                    padding: 10px;
-                    z-index: 20;
-                }
-            }
-        }
-
-        .video-wrapper {
-            height: 100% !important;
-            width: 100% !important;
-            border: 0;
-            border-radius: 0;
-
-            video{
-                height: 100%;
-                width: 100%;
-                margin: 0 auto;
-                object-fit: contain;
-                display: block;
-            }
-
-            @media (min-width: 769px) {
-                &:hover {
-                    border: 0;
-                    cursor: initial;
-                }
-            }
-        }
-
-        &:not(.no-video):not(.video-paused) {
-            .video-wrapper {
-                background-image: none !important;
-            }
-        }
-
-        &:focus,&:focus-within {
-            @media (max-width: 768px) {
-                margin: 0;
-                flex: 1 1 auto;
-                height: 100% !important;
-                width: 100% !important;
-
-                &:not(.video-paused):not(.no-video) {
-                    .video-wrapper {
-                        height: 100% !important;
-                        width: 100% !important;
-                        border: 0;
-                        border-radius: 0;
-
-                        video {
-                            object-fit: contain;
-                            display: block;
-                        }
-                    }
-                }
-                .user-controls {
-                    display: flex;
-                    position: absolute;
-                    bottom: 0;
-                    left: 50%;
-                    padding: 10px;
-                    background-color: black;
-                    z-index: 100;
-                    width: 150px;
-                    margin-left: -75px;
-
-                    @media (min-width: 769px) {
-                        display: none;
-                    }
-
-                    .controls {
-                        display: flex !important;
-                    }
-
-                    .username {
-                        text-align: center;
-                    }
-                }
-            }
-        }
-
-        .user-controls {
-            display: none;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            padding: 10px;
-            background-color: black;
-            z-index: 100;
-            width: 150px;
-            margin-left: -75px;
-
-            .controls {
-                display: flex !important;
-            }
-
-            .username {
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .user-controls {
-                display: none;
-                width: 50%;
-            }
-        }
-    }
-
     &.video-paused,
     &.no-video {
         .video-wrapper{
@@ -170,7 +52,7 @@
         max-width: 130px;
     }
 
-    &:not(.self-user):not(.harmony) {
+    &:not(.self-user) {
         @media (max-width: 768px) {
             .video-wrapper {
                 video {

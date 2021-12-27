@@ -23,10 +23,6 @@ export const routeSeedData = {
     },
     {
       project: 'default-project',
-      route: '/harmony'
-    },
-    {
-      project: 'default-project',
       route: '/location'
     },
     {
