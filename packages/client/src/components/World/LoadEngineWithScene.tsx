@@ -3,7 +3,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -86,29 +86,37 @@ export const LoadEngineWithScene = (props: Props) => {
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
 
+  const canTeleport = useRef(true)
   useEffect(() => {
-    if (engineState.isTeleporting.value === null) return
-    dispatch(LocationAction.fetchingCurrentSocialLocation())
+    if (engineState.isTeleporting.value === null) {
+      canTeleport.current = true
+      return
+    } else {
+      if (!canTeleport.current) return
+      dispatch(LocationAction.fetchingCurrentSocialLocation())
 
-    // TODO: this needs to be implemented on the server too
-    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-    //   teleportPlayer(
-    //     useWorld().localClientEntity,
-    //     portalComponent.remoteSpawnPosition,
-    //     portalComponent.remoteSpawnRotation
-    //   )
-    //   return
-    // }
+      // TODO: this needs to be implemented on the server too
+      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+      //   teleportPlayer(
+      //     useWorld().localClientEntity,
+      //     portalComponent.remoteSpawnPosition,
+      //     portalComponent.remoteSpawnRotation
+      //   )
+      //   return
+      // }
 
-    // shut down connection with existing GS
-    console.log('reseting connection for portal teleport')
-    leave(getWorldTransport())
-    InstanceConnectionService.resetInstanceServer()
-    const portalComponent = engineState.isTeleporting.value
-    teleportToScene(portalComponent, async () => {
-      history.push('/location/' + portalComponent.location)
-      LocationService.getLocationByName(portalComponent.location)
-    })
+      // shut down connection with existing GS
+      console.log('reseting connection for portal teleport')
+      leave(getWorldTransport())
+      InstanceConnectionService.resetInstanceServer()
+      const portalComponent = engineState.isTeleporting.value
+      teleportToScene(portalComponent, async () => {
+        history.push('/location/' + portalComponent.location)
+        LocationService.getLocationByName(portalComponent.location)
+        //canTeleport.current=true
+      })
+      canTeleport.current = false
+    }
   }, [engineState.isTeleporting.value])
 
   return canvas
