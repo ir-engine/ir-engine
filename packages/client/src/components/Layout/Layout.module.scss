@@ -20,29 +20,6 @@
     }
 }
 
-.harmony-toggle {
-    position: absolute !important;
-    right: 0;
-    top: 6px !important;
-    display: flex;
-    align-items: center;
-    z-index: 20;
-    background-color: $MediumBlue;
-    height: 36px;
-    width: 36px;
-    color: white;
-    margin-right: 8px;
-    border-radius: 50%;
-
-    svg {
-        margin: 6px;
-    }
-
-    &:hover {
-        cursor: pointer;
-        background-color: lighten($MediumBlue, 10%);
-    }
-}
 .fullScreen {
     display: flex;
     justify-content: center;

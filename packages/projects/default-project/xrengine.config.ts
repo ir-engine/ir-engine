@@ -13,9 +13,6 @@ const config: ProjectConfigInterface = {
     '/login': {
       component: () => import('@xrengine/client/src/pages/login')
     },
-    '/harmony': {
-      component: () => import('@xrengine/client/src/pages/harmony/index')
-    },
     '/admin': {
       component: () => import('@xrengine/client-core/src/admin/adminRoutes')
     },

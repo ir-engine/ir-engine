@@ -11,7 +11,10 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import {
+  ClientTransportHandler,
+  SocketWebRTCClientTransport
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Vector3, Quaternion } from 'three'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -92,12 +95,12 @@ const createOfflineUser = (sceneData: SceneJson) => {
 export const initEngine = async (initOptions: InitializeOptions) => {
   Engine.isLoading = true
   Network.instance = new Network()
-  Network.instance.transport = new SocketWebRTCClientTransport('world')
+  Network.instance.transportHandler = new ClientTransportHandler()
   await initializeEngine(initOptions)
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
-  console.log('loading location: ' + sceneName)
+  // console.log('loading location: ' + sceneName)
   const [project, scene] = sceneName.split('/')
 
   // 1. Get scene data
