@@ -1,9 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { BadRequest } from '@feathersjs/errors'
-import logger from '../../logger'
+import { NullableId, Params } from '@feathersjs/feathers'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletSend from '../../util/blockchainUserWalletSend'
 

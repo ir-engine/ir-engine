@@ -8,7 +8,6 @@ import { AuthenticationService } from '@feathersjs/authentication'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
-import axios from 'axios'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 

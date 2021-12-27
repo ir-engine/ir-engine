@@ -1,5 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import assert, { strictEqual } from 'assert'
+import { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -9,11 +9,11 @@ import { createViewCursor, } from '../ViewCursor'
 import { createDataReader, readProps } from './DataReader'
 
 describe('SoA DataReader', () => {
-  
+
   it('should readProps', () => {
     const writeView = createViewCursor()
 
-    const entities = Array(5).fill(0).map((_,i) => i as Entity)
+    const entities = Array(5).fill(0).map((_, i) => i as Entity)
 
     const netIdMap = new Map<NetworkId, Entity>()
 
@@ -82,7 +82,7 @@ describe('SoA DataReader', () => {
     const read = createDataReader(props)
     const write = createDataWriter(props)
 
-    const entities = Array(100).fill(0).map((_,i) => i as Entity)
+    const entities = Array(100).fill(0).map((_, i) => i as Entity)
 
     const netIdMap = new Map<NetworkId, Entity>()
 

@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent, InputGroupInfo } from './InputGroup'
+import React from 'react'
+import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent } from './InputGroup'
 import StringInput from './StringInput'
 import FileBrowserInput from './FileBrowserInput'
 

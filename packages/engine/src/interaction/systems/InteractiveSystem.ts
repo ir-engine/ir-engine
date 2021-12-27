@@ -1,4 +1,3 @@
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
   defineQuery,
@@ -14,8 +13,6 @@ import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'

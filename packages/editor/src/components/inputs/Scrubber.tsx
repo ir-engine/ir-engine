@@ -1,4 +1,4 @@
-import React, { useRef, ReactNode, useCallback } from 'react'
+import React, { useRef, ReactNode } from 'react'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'

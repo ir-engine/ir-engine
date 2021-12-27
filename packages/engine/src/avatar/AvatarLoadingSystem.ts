@@ -1,13 +1,7 @@
-import { Object3D, sRGBEncoding, Box3, Vector3 } from 'three'
+import { Object3D, Box3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
 
-import {
-  getComponent,
-  hasComponent,
-  addComponent,
-  removeComponent,
-  defineQuery
-} from '../ecs/functions/ComponentFunctions'
+import { getComponent, addComponent, removeComponent, defineQuery } from '../ecs/functions/ComponentFunctions'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 
@@ -18,11 +12,8 @@ import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 
 const lightScale = (y, r) => {

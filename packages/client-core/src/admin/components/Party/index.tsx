@@ -1,6 +1,5 @@
 import React from 'react'
 import Grid from '@mui/material/Grid'
-import styles from '../Admin.module.scss'
 import Button from '@mui/material/Button'
 import Search from './SearchParty'
 import { Theme } from '@mui/material/styles'
