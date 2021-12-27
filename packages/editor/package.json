@@ -32,7 +32,7 @@
   "dependencies": {
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.5",
-    "@mui/material": "5.2.5",
+    "@mui/material": "5.2.6",
     "@mui/styles": "5.2.3",
     "@styled-icons/boxicons-regular": "10.38.0",
     "@styled-icons/boxicons-solid": "^10.38.0",
