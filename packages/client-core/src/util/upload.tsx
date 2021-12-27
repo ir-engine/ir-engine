@@ -141,7 +141,7 @@ export const uploadStaticResource = (
     })
 
     request.setRequestHeader('Authorization', `Bearer ${token}`)
-    request.timeout = 60000 // 1 minute timeout
+    request.timeout = 120000 // 2 minute timeout
 
     request.send(formData)
   })
