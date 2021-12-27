@@ -187,7 +187,7 @@ export const ModelNodeEditor = (props: ModelNodeEditorProps) => {
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput value={node._matrixAutoUpdate} onChange={onChangeUpdateDataMatrix} />
       </InputGroup>
-      <InputGroup name="isUsingGPUInstancing" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
+      <InputGroup name="isUsingGPUInstancing" label={t('editor:properties.model.lbl-isUsingGPUInstancing')}>
         <BooleanInput value={node.isUsingGPUInstancing} onChange={onChangeGPUInstancingFlag} />
       </InputGroup>
       {node.interactable && <InteractableGroup node={node} t={t}></InteractableGroup>}
