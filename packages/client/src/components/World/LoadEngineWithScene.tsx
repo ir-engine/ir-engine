@@ -6,7 +6,7 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
-import {  useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
@@ -75,7 +75,6 @@ export const LoadEngineWithScene = (props: Props) => {
             })
         })
       })
-
   }, [])
 
   /**
