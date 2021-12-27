@@ -52,11 +52,11 @@ export async function onConnectToInstance(
     ])
   } catch (err) {
     console.log(err)
-    dispatchLocal(EngineActions.connectToWorldTimeout() as any)
+    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
     return
   }
   const { routerRtpCapabilities } = ConnectToWorldResponse as any
-  dispatchLocal(EngineActions.connectToWorld() as any)
+  dispatchLocal(EngineActions.connectToWorld(true) as any)
 
   if (networkTransport.mediasoupDevice.loaded !== true)
     await networkTransport.mediasoupDevice.load({ routerRtpCapabilities })

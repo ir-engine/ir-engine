@@ -99,9 +99,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   ])
   useEffect(() => {
     if (engineState.sceneLoaded.value)
-      (Network.instance.transport as SocketWebRTCClientTransport).instanceSocket.emit(
-        MessageTypes.SceneLoaded.toString()
-      )
+      Network.instance.transportHandler.getWorldTransport().request(MessageTypes.SceneLoaded.toString())
   }, [engineState.sceneLoaded.value])
 
   useEffect(() => {
