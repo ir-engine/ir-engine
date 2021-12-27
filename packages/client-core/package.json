@@ -34,7 +34,7 @@
     "@google/model-viewer": "1.9.2",
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.5",
-    "@mui/material": "5.2.5",
+    "@mui/material": "5.2.6",
     "@mui/styled-engine-sc": "5.1.0",
     "@mui/styles": "5.2.3",
     "@styled-icons/bootstrap": "10.34.0",
