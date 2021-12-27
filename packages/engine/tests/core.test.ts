@@ -3,8 +3,9 @@
  */
 import { initializeEngine, shutdownEngine } from '../src/initializeEngine'
 import { Engine } from '../src/ecs/classes/Engine'
-import { engineTestSetup } from './util/setupEngine'
+import { DummyTransportHandler, engineTestSetup } from './util/setupEngine'
 import assert from 'assert'
+import { Network } from '../src/networking/classes/Network'
 
 /**
  * tests
@@ -16,6 +17,8 @@ describe('Core', () => {
 
   describe('Initialise Engine', () => {
     it('Can initialise engine', async () => {
+      Network.instance = new Network()
+      Network.instance.transportHandler = new DummyTransportHandler()
       await initializeEngine(engineTestSetup)
       assert.equal(Engine.isInitialized, true)
     })

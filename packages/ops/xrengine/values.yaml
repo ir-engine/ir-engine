@@ -55,6 +55,8 @@ client:
     SITE_DESC: Connected Worlds for Everyone
     APP_ENV: production
 
+release:
+  name: dev
 
 api:
   enabled: true

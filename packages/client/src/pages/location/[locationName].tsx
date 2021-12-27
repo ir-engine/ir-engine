@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Layout from '../../components/Layout/Layout'
 import DefaultLayoutView from '../../components/World/DefaultLayoutView'
 import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
@@ -13,7 +13,6 @@ interface Props {
 
 const LocationPage = (props: Props) => {
   const { t } = useTranslation()
-  const [harmonyOpen, setHarmonyOpen] = useState(false)
   const params = props?.match?.params!
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
@@ -23,11 +22,7 @@ const LocationPage = (props: Props) => {
       <MediaChannelConnection />
       <LoadLocationScene locationName={props.match.params.locationName} />
       <LoadEngineWithScene />
-      <Layout
-        pageTitle={t('location.locationName.pageTitle')}
-        harmonyOpen={harmonyOpen}
-        setHarmonyOpen={setHarmonyOpen}
-      >
+      <Layout pageTitle={t('location.locationName.pageTitle')}>
         <DefaultLayoutView allowDebug={true} locationName={locationName} />
       </Layout>
     </>

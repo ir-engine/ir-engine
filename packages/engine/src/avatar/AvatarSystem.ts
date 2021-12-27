@@ -29,6 +29,7 @@ import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { isClient } from '../common/functions/isClient'
 import { loadAvatarForEntity } from './functions/avatarFunctions'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
@@ -157,6 +158,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
+      detectUserInCollisions(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {

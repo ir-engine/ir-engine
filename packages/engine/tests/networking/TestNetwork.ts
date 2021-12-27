@@ -1,9 +1,8 @@
 import { RingBuffer } from '../../src/common/classes/RingBuffer'
 import { Network } from '../../src/networking/classes/Network'
-import { TestNetworkTransport } from './TestNetworkTransport'
+import { DummyTransportHandler } from '../util/setupEngine'
 
 export class TestNetwork implements Network {
-  transport: TestNetworkTransport = new TestNetworkTransport()
   transports: any[]
   dataProducers: Map<string, any>
   dataConsumers: Map<string, any>
@@ -15,5 +14,6 @@ export class TestNetwork implements Network {
     this.incomingMessageQueueUnreliable = new RingBuffer<any>(100)
     this.mediasoupOperationQueue = new RingBuffer<string>(100)
   }
+  transportHandler = new DummyTransportHandler()
   dispose(): void {}
 }
