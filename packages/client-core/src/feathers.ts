@@ -3,8 +3,12 @@ import feathers from '@feathersjs/client'
 // import type { Application } from '../../server-core/declarations'
 
 const feathersClient = feathers() // as Application
+const serverHost =
+  process.env.APP_ENV === 'development'
+    ? `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
+    : `https://${process.env.VITE_SERVER_HOST}`
 
-const socket = io(`https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`, {
+const socket = io(serverHost, {
   withCredentials: true
 })
 feathersClient.configure(feathers.socketio(socket, { timeout: 10000 }))
