@@ -25,6 +25,7 @@ import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+
 register()
 
 export const createApp = (): Application => {
@@ -105,6 +106,8 @@ export const createApp = (): Application => {
           (io) => {
             Network.instance = new Network()
             Network.instance.transportHandler = new ServerTransportHandler()
+            app.transport = new SocketWebRTCServerTransport(app)
+            app.transport.initialize()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query
