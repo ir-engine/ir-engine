@@ -3,19 +3,11 @@ import {
   Scene,
   WebGLRenderer,
   Color,
-  Mesh,
-  BoxBufferGeometry,
-  MeshStandardMaterial,
   DirectionalLight,
-  LineBasicMaterial,
-  Vector3,
   AnimationMixer,
   AnimationClip,
   PerspectiveCamera,
-  HemisphereLight,
-  BufferGeometry,
-  Line,
-  Group
+  HemisphereLight
 } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { getLoader } from '@xrengine/engine/src/assets/functions/LoadGLTF'

@@ -1,6 +1,6 @@
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
 
 //State

@@ -1,4 +1,4 @@
-import { BufferGeometry, Vector3, Quaternion, Matrix4, Mesh } from 'three'
+import { BufferGeometry, Vector3, Quaternion, Mesh } from 'three'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 
 /**

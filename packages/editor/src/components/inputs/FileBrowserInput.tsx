@@ -1,6 +1,6 @@
 import React from 'react'
 import { ControlledStringInput } from './StringInput'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
+import { useDrop } from 'react-dnd'
 import useUpload from '../assets/useUpload'
 import { ItemTypes } from '../../constants/AssetTypes'
 

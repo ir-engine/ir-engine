@@ -3,22 +3,16 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Config } from '@xrengine/common/src/config'
 import { io as ioclient, Socket } from 'socket.io-client'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useDispatch } from '../store'
-import { accessInstanceConnectionState, InstanceConnectionAction } from '../common/services/InstanceConnectionService'
-import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-import { accessLocationState } from '../social/services/LocationService'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { encode, decode } from 'msgpackr'
+
+const gameserverAddress = `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -106,7 +100,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
-
+    console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
+    console.log(process.env)
     const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
@@ -131,7 +126,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         query
       })
     } else {
-      this.socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
+      this.socket = ioclient(gameserverAddress, {
         path: `/socket.io/${ipAddress as string}/${port.toString()}`,
         query
       })

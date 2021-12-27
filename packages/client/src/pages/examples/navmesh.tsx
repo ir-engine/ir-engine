@@ -1,4 +1,3 @@
-import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,

@@ -1,6 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 
 //State
 const state = createState({

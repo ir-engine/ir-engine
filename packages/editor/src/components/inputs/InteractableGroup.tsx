@@ -1,5 +1,4 @@
-import React, { Component, Fragment } from 'react'
-import { withTranslation } from 'react-i18next'
+import React, { Fragment } from 'react'
 import InputGroup from './InputGroup'
 import SelectInput from './SelectInput'
 import StringInput from './StringInput'

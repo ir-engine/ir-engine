@@ -14,7 +14,7 @@ import {
 import { accessLocationState } from '../../social/services/LocationService'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { accessInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
@@ -114,7 +114,7 @@ export const ChannelConnectionService = {
       })
     }
   },
-  connectToChannelServer: async (channelId: string, isHarmonyPage?: boolean) => {
+  connectToChannelServer: async (channelId: string) => {
     const dispatch = useDispatch()
     dispatch(ChannelConnectionAction.channelServerConnecting())
     const authState = accessAuthState()
