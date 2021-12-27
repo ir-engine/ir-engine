@@ -35,6 +35,7 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
         data[i + 2] = Math.floor(col.b * 255)
       }
       const texture = new DataTexture(data, resolution, resolution, RGBFormat)
+      texture.needsUpdate = true
       texture.encoding = sRGBEncoding
       Engine.scene.environment = pmremGenerator.fromEquirectangular(texture).texture
       break
