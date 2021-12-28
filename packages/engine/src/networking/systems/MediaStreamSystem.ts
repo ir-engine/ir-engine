@@ -6,6 +6,7 @@ import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { Engine } from '../../ecs/classes/Engine'
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 
 /** System class for media streaming. */
 export class MediaStreams {
@@ -50,7 +51,7 @@ export class MediaStreams {
   /** Whether the component is initialized or not. */
   public initialized = false
   /** Current channel type */
-  public channelType: 'channel' | 'user' | 'group' | 'instance' = null!
+  public channelType: ChannelType = null!
   /** Current channel ID */
   public channelId: string = null!
 
@@ -300,13 +301,25 @@ export class MediaStreams {
   }
 }
 
+export const updateNearbyAvatars = () => {
+  MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+  const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
+  EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
+  MediaStreams.instance.consumers.forEach((consumer) => {
+    if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+      EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.CLOSE_CONSUMER, consumer })
+    }
+  })
+}
+
+// every 5 seconds
+const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
+
 export default async function MediaStreamSystem(world: World): Promise<System> {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
   return () => {
-    nearbyAvatarTick++
-
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {
       executeInProgress = true
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any
@@ -326,17 +339,11 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
       }
     }
 
-    if (nearbyAvatarTick > 500) {
-      nearbyAvatarTick = 0
-      if (isClient && MediaStreams.instance.channelType === 'instance') {
-        MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
-        const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
-        EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
-        MediaStreams.instance.consumers.forEach((consumer) => {
-          if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-            EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.CLOSE_CONSUMER, consumer })
-          }
-        })
+    if (isClient) {
+      nearbyAvatarTick++
+      if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
+        nearbyAvatarTick = 0
+        if (MediaStreams.instance.channelType === 'instance') updateNearbyAvatars()
       }
     }
   }

@@ -5,8 +5,7 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent,
-  MappedComponent
+  hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
@@ -56,7 +55,7 @@ export class World {
   elapsedTime = NaN
   fixedDelta = NaN
   fixedElapsedTime = 0
-  fixedTick = -1
+  fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
 

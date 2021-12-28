@@ -1,15 +1,12 @@
-import { AmbientLight, BoxBufferGeometry, Color, DirectionalLight, Euler, Fog, Group, HemisphereLight, Layers, MathUtils, Mesh, MeshNormalMaterial, Object3D, PointLight, Quaternion, Scene, SphereBufferGeometry, SpotLight, Vector3 } from 'three'
-import { addComponent, createMappedComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { AmbientLight, BoxBufferGeometry, Color, DirectionalLight, Euler, Fog, HemisphereLight, MathUtils, Mesh, MeshNormalMaterial, Object3D, PointLight, Quaternion, Scene, SphereBufferGeometry, SpotLight, Vector3 } from 'three'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { parseGLTFModel } from './loadGLTFModel'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getGeometryScale, getGeometryType, isTriggerShape, Physics } from "../../physics/classes/Physics"
+import { getGeometryScale } from "../../physics/classes/Physics"
 import assert from 'assert'
 import { createWorld } from "../../ecs/classes/World"
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { loadComponent, SceneDataComponent } from './SceneLoading'
@@ -22,9 +19,9 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PortalComponent } from '../components/PortalComponent'
-import { loadPhysX } from '../../physics/physx/loadPhysX'
-import { BodyType, PhysXConfig } from '../../physics/types/PhysicsTypes'
-import { BodyOptions, createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
+import { BodyType } from '../../physics/types/PhysicsTypes'
+import { BodyOptions } from '../../physics/functions/createCollider'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 
 const EPSILON = 10e-9
 
@@ -684,8 +681,8 @@ describe('SceneLoading.test', () => {
       const entity = createEntity(world)
       const type = 'box'
 
-      const scale = new Vector3(2, 2, 2)
-      let geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
+      const scale = new Vector3(2, 3, 4)
+      const geom = new BoxBufferGeometry(scale.x, scale.y, scale.z)
 
       const mesh = new Mesh(geom, new MeshNormalMaterial())
       const bodyOptions = {
@@ -722,6 +719,8 @@ describe('SceneLoading.test', () => {
         assert.equal(shapeScale.x, scale.x)
         assert.equal(shapeScale.y, scale.y)
         assert.equal(shapeScale.z, scale.z)
+        assert.equal(shape._collisionLayer, DefaultCollisionMask)
+        assert.equal(shape._collisionMask, CollisionGroups.Default)
       }
       assert(hasComponent(entity, CollisionComponent))
 

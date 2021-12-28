@@ -14,7 +14,6 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { random } from 'lodash'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { applyCameraLook } from '../functions/IKSolvers'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -56,7 +55,7 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal(NetworkWorldAction.createClient({ $from: useWorld().hostId, userId, name: 'user' }))
+    dispatchLocal(NetworkWorldAction.createClient({ $from: userId, name: 'user' }))
     dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ parameters }), networkId })
     dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
   }

@@ -93,14 +93,6 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xrengine.editor.fullname" -}}
-{{- if .Values.editor.fullnameOverride -}}
-{{- .Values.editor.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.editor.name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-
 {{- define "xrengine.client.host" -}}
 {{- printf "%s.%s.%s" "dashboard" .Release.Name .Values.domain -}}
 {{- end -}}
@@ -226,27 +218,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: gameserver
 {{- end -}}
 
-{{/*
-Common labels
-*/}}
-{{- define "xrengine.editor.labels" -}}
-helm.sh/chart: {{ include "xrengine.chart" . }}
-{{ include "xrengine.editor.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-
-{{/*
-Selector labels
-*/}}
-{{- define "xrengine.editor.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrengine.editor.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: editor
-{{- end -}}
-
 
 {{/*
 Create the name of the service account to use
@@ -302,18 +273,6 @@ Create the name of the service account to use
     {{ default (include "xrengine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.gameserver.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "xrengine.editor.serviceAccountName" -}}
-{{- if .Values.editor.serviceAccount.create -}}
-    {{ default (include "xrengine.editor.fullname" .) .Values.editor.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.editor.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

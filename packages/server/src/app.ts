@@ -6,7 +6,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import swagger from 'feathers-swagger'
 import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
+import express, { json, urlencoded, static as _static, rest, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 import logger from '@xrengine/server-core/src/logger'
 import channels from './channels'
@@ -132,7 +132,7 @@ if (config.server.enabled) {
     // Set up event channels (see channels.js)
     app.configure(channels)
 
-    if (config.server.mode === 'api' || config.server.mode === 'realtime') {
+    if (config.server.mode !== 'local') {
       app.k8AgonesClient = api({
         endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',

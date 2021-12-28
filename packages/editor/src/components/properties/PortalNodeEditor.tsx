@@ -54,14 +54,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
     CommandManager.instance.setPropertyOnSelection('linkedPortalId', linkedPortalId)
   }
 
-  const onChangeModelUrl = (modelUrl) => {
-    CommandManager.instance.setPropertyOnSelection('modelUrl', modelUrl)
-  }
-
-  const onChangeDisplayText = (displayText) => {
-    CommandManager.instance.setPropertyOnSelection('displayText', displayText)
-  }
-
   const onChangeSpawnPosition = (spawnPosition) => {
     CommandManager.instance.setPropertyOnSelection('spawnPosition', spawnPosition)
   }
@@ -133,12 +125,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
           }}
           getOptionLabel={(data) => data.name}
         />
-      </InputGroup>
-      <InputGroup name="Model Url" label={t('editor:properties.portal.lbl-modelUrl')}>
-        <ControlledStringInput value={node.modelUrl} onChange={onChangeModelUrl} />
-      </InputGroup>
-      <InputGroup name="Display Text" label={t('editor:properties.portal.lbl-displayText')}>
-        <ControlledStringInput value={node.displayText} onChange={onChangeDisplayText} />
       </InputGroup>
       <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput

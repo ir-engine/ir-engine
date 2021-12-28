@@ -16,11 +16,11 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      serverEnabled: {
+      enabled: {
         type: DataTypes.BOOLEAN,
         allowNull: true
       },
-      serverMode: {
+      mode: {
         type: DataTypes.STRING,
         allowNull: true
       },
@@ -74,6 +74,10 @@ export default (app: Application) => {
       },
       keyPath: {
         type: DataTypes.STRING,
+        allowNull: true
+      },
+      gitPem: {
+        type: DataTypes.STRING(2048),
         allowNull: true
       },
       local: {

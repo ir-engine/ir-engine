@@ -1,7 +1,7 @@
 import * as feathersAuthentication from '@feathersjs/authentication'
 import { hooks } from '@feathersjs/authentication-local'
 import accountService from '../auth-management/auth-management.notifier'
-import { HookContext, Hook } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { NotFound } from '@feathersjs/errors'
 

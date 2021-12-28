@@ -15,9 +15,7 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { dispatchFrom } from '../networking/functions/dispatchFrom'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -79,25 +77,21 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
     })
   })
 
-  if (isClient) {
-    return () => {}
-  } else {
-    const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
-    return () => {
-      // Keep a list of spawn points so we can send our user to one
-      for (const entity of spawnPointQuery.enter(world)) {
-        if (!hasComponent(entity, TransformComponent)) {
-          console.warn("Can't add spawn point, no transform component on entity")
-          continue
-        }
-        SpawnPoints.instance.spawnPoints.push(entity)
+  const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
+  return () => {
+    // Keep a list of spawn points so we can send our user to one
+    for (const entity of spawnPointQuery.enter(world)) {
+      if (!hasComponent(entity, TransformComponent)) {
+        console.warn("Can't add spawn point, no transform component on entity")
+        continue
       }
-      for (const entity of spawnPointQuery.exit(world)) {
-        const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
+      SpawnPoints.instance.spawnPoints.push(entity)
+    }
+    for (const entity of spawnPointQuery.exit(world)) {
+      const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
 
-        if (index > -1) {
-          SpawnPoints.instance.spawnPoints.splice(index)
-        }
+      if (index > -1) {
+        SpawnPoints.instance.spawnPoints.splice(index)
       }
     }
   }

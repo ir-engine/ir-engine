@@ -1,4 +1,3 @@
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import {
   addComponent,
   defineQuery,
@@ -14,8 +13,6 @@ import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
@@ -35,6 +32,8 @@ import {
 } from '../functions/interactUI'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { Not } from 'bitecs'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -122,10 +121,7 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
-          ...interactiveComponent.data
-        })
+        dispatchLocal(EngineActions.objectActivation(interactiveComponent.data) as any)
       }
       removeComponent(entity, InteractedComponent)
     }

@@ -19,7 +19,6 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '@xrengine/engine/src/input/functions/WebcamInput'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -32,7 +31,9 @@ import {
 } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -61,6 +62,7 @@ const MediaIconsBox = (props) => {
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   const engineState = useEngineState()
+  let callbackDone = false
 
   useEffect(() => {
     navigator.mediaDevices
@@ -75,8 +77,11 @@ const MediaIconsBox = (props) => {
   }, [])
 
   useEffect(() => {
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
-  }, [engineState.isInitialised.value])
+    if (engineState.joinedWorld.value && !callbackDone) {
+      setXRSupported(Engine.xrSupported)
+      callbackDone = true
+    }
+  }, [engineState.joinedWorld.value])
 
   const handleFaceClick = async () => {
     const partyId =
@@ -87,7 +92,8 @@ const MediaIconsBox = (props) => {
       stopFaceTracking()
       stopLipsyncTracking()
     } else {
-      if (await configureMediaTransports(['video', 'audio'], partyId)) {
+      const mediaTransport = getMediaTransport()
+      if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
         startFaceTracking()
         startLipsyncTracking()
       }
@@ -95,25 +101,27 @@ const MediaIconsBox = (props) => {
   }
 
   const checkEndVideoChat = async () => {
+    const mediaTransport = getMediaTransport()
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
       (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
-      (Network.instance.transport as any).channelType !== 'instance'
+      mediaTransport.channelType !== 'instance'
     ) {
-      await endVideoChat({})
-      if ((Network.instance.transport as any).channelSocket?.connected === true) {
-        await leave(false)
+      await endVideoChat(mediaTransport, {})
+      if (mediaTransport.socket?.connected === true) {
+        await leave(mediaTransport, false)
         await ChannelConnectionService.provisionChannelServer(instanceChannel.id)
       }
     }
   }
   const handleMicClick = async () => {
-    if (await configureMediaTransports(['audio'], 'instance', instanceChannel.id)) {
-      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer('instance', instanceChannel.id)
+    const mediaTransport = getMediaTransport()
+    if (await configureMediaTransports(mediaTransport, ['audio'])) {
+      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
-        else await resumeProducer(MediaStreams.instance?.camAudioProducer)
+        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
@@ -121,12 +129,13 @@ const MediaIconsBox = (props) => {
   }
 
   const handleCamClick = async () => {
-    if (await configureMediaTransports(['video'], 'instance', instanceChannel.id)) {
-      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer('instance', instanceChannel.id)
+    const mediaTransport = getMediaTransport()
+    if (await configureMediaTransports(mediaTransport, ['video'])) {
+      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
-        else await resumeProducer(MediaStreams.instance?.camVideoProducer)
+        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
 
@@ -134,7 +143,7 @@ const MediaIconsBox = (props) => {
     }
   }
 
-  const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
+  const handleVRClick = () => dispatchLocal(EngineActions.xrStart() as any)
 
   const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff

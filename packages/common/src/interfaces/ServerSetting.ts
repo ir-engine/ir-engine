@@ -1,8 +1,8 @@
 export interface ServerSetting {
   id: string
   hostname?: string
-  serverEnabled: boolean
-  serverMode?: string
+  enabled: boolean
+  mode?: string
   port?: string
   clientHost?: string
   rootDir?: string
@@ -17,6 +17,7 @@ export interface ServerSetting {
   url?: string
   certPath?: string
   keyPath?: string
+  gitPem?: string
   local?: boolean
   releaseName?: string
 }

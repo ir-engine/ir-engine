@@ -8,8 +8,8 @@ import NodeEditor from './NodeEditor'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation, withTranslation } from 'react-i18next'
+import React, { Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
@@ -17,7 +17,6 @@ import { ControlledStringInput } from '../inputs/StringInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../../nodes/SceneNode'
 
 /**
  * Declaring properties for ModalNodeEditor component.

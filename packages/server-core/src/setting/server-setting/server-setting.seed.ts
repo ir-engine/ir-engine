@@ -27,6 +27,7 @@ const server = {
   url: '' || (null! as string),
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
+  gitPem: null,
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || null!
 }

@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -7,7 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
+import { dispatchLocal } from './dispatchFrom'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -17,25 +17,23 @@ export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ $from, userId, name }) => {
+    .when(NetworkWorldAction.createClient.matches, ({ $from, name }) => {
       if (!isClient) return
-      if ($from !== world.hostId) return
-      world.clients.set(userId, {
-        userId,
+      world.clients.set($from, {
+        userId: $from,
         name,
         subscribedChatUpdates: []
       })
     })
 
-    .when(NetworkWorldAction.destroyClient.matches, ({ $from, userId }) => {
+    .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => {
       if (!isClient) return
-      if ($from !== world.hostId) return
-      for (const eid of world.getOwnedNetworkObjects(userId)) {
+      for (const eid of world.getOwnedNetworkObjects($from)) {
         const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+        dispatchLocal(NetworkWorldAction.destroyObject({ $from, networkId }))
       }
-      if (!isClient || userId === Engine.userId) return
-      world.clients.delete(userId)
+      if (!isClient || $from === Engine.userId) return
+      world.clients.delete($from)
     })
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
@@ -84,25 +82,28 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, (a) => {
-      let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-      if (entity) {
-        if (a.$from === Engine.userId) {
-          if (a.equip) {
-            if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-              addComponent(entity, NetworkObjectOwnedTag, {})
-            }
-          } else {
-            removeComponent(entity, NetworkObjectOwnedTag)
-          }
-        } else {
-          removeComponent(entity, NetworkObjectOwnedTag)
-        }
-
-        // Give ownership back to server, so that item shows up where it was last dropped
-        if (Engine.userId === world.hostId && !a.equip) {
-          addComponent(entity, NetworkObjectOwnedTag, {})
-        }
-      }
-    })
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
 }
+
+// export function setEquippedObjectReceptor(a: any) {
+// const world = useWorld()
+// let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+// if (entity) {
+//   if (a.$from === Engine.userId) {
+//     if (a.equip) {
+//       if (!hasComponent(entity, NetworkObjectOwnedTag)) {
+//         addComponent(entity, NetworkObjectOwnedTag, {})
+//       }
+//     } else {
+//       removeComponent(entity, NetworkObjectOwnedTag)
+//     }
+//   } else {
+//     removeComponent(entity, NetworkObjectOwnedTag)
+//   }
+
+//   // Give ownership back to server, so that item shows up where it was last dropped
+//   if (Engine.userId === world.hostId && !a.equip) {
+//     addComponent(entity, NetworkObjectOwnedTag, {})
+//   }
+// }
+// }

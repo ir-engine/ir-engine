@@ -1,10 +1,10 @@
-import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Quaternion, Scene, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
@@ -20,6 +20,8 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   const components: { [key: string]: any } = {}
@@ -102,7 +104,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
 }
 
 export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
-  console.log('parseGLTFModel', entity, component, scene)
+  // console.log('parseGLTFModel', entity, component, scene)
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -165,7 +167,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     // we should push this to ECS, something like a SceneObjectLoadComponent,
     // or add engine events for specific objects being added to the scene,
     // the scene load event + delay 1 second delay works for now.
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    const onSceneLoaded = async () => {
       await delay(1000)
       const objToCopy = Engine.scene.children.find((obj: any) => {
         return obj.sceneEntityId === component.data.textureOverride
@@ -180,7 +182,8 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
             })
           }
         })
-    })
+    }
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded)
   }
 
   if (

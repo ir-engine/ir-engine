@@ -6,7 +6,6 @@ import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '../../../store'
 
 interface Props {
   auth: any
@@ -17,7 +16,6 @@ interface Props {
 export const VerifyEmail = (props: Props): any => {
   const { token } = props
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   useEffect(() => {
     AuthService.verifyEmail(token)

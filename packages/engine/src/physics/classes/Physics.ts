@@ -4,7 +4,6 @@ import {
   BodyType,
   RigidBody,
   ShapeOptions,
-  SceneQuery,
   CollisionEvents,
   ControllerEvents,
   SceneQueryType,
@@ -447,6 +446,7 @@ export class Physics {
 
   removeController(controller: PhysX.PxController) {
     const id = (controller as any)._id
+    console.log('controller id: ' + id)
     const actor = controller.getActor()
     const shapes = actor.getShapes() as PhysX.PxShape
     this.controllerIDByPointer.delete(controller.$$.ptr)
@@ -486,8 +486,9 @@ export class Physics {
   }
 
   getRigidbodyShapes(body: PhysX.PxRigidActor) {
-    const shapes = body.getShapes()
-    return ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
+    const shapesResult = body.getShapes()
+    const shapes = ((shapesResult as PhysX.PxShape[]).length ? shapesResult : [shapesResult]) as PhysX.PxShape[]
+    return shapes.map((shape) => this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr)!)!) // get original ref
   }
 
   doRaycast(raycastQuery: ComponentType<typeof RaycastComponent>) {

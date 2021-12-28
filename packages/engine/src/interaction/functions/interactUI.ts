@@ -1,11 +1,10 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { MathUtils, Quaternion, Vector3, Object3D } from 'three'
-import { addComponent, getComponent, hasComponent, defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
-import { RenderedComponent } from '../../scene/components/RenderedComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
 import { Engine } from '../../ecs/classes/Engine'

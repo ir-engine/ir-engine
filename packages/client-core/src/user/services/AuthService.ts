@@ -13,9 +13,7 @@ import { store, useDispatch } from '../../store'
 import { v1 } from 'uuid'
 import { client } from '../../feathers'
 import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
-import { _updateUsername } from '@xrengine/engine/src/networking/utils/chatSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { AlertService } from '../../common/services/AlertService'
@@ -30,10 +28,11 @@ import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityPr
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
-import { AssetUploadArguments } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { userPatched } from '../functions/userPatched'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { SocketWebRTCClientTransport } from 'src/transports/SocketWebRTCClientTransport'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -673,11 +672,12 @@ export const AuthService = {
     }
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: AssetUploadArguments = {
+    const uploadArguments: AssetUploadType = {
+      type: 'user-avatar-upload',
       files: [avatar, thumbnail],
       args: {
         avatarName,
-        isPublicAvatar
+        isPublicAvatar: !!isPublicAvatar
       }
     }
     const response = await client.service('upload-asset').create(uploadArguments)
@@ -695,14 +695,14 @@ export const AuthService = {
               avatarDetail: response
             })
           ).cache({ removePrevious: true })
-          if (Network?.instance?.transport)
-            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-              type: MessageTypes.AvatarUpdated,
-              userId: selfUser.id.value,
-              avatarId: avatarName,
-              avatarURL: response.avatarURL,
-              thumbnailURL: response.thumbnailURL
-            })
+          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+          transport?.sendNetworkStatUpdateMessage({
+            type: MessageTypes.AvatarUpdated,
+            userId: selfUser.id.value,
+            avatarId: avatarName,
+            avatarURL: response.avatarURL,
+            thumbnailURL: response.thumbnailURL
+          })
         })
     }
   },
@@ -770,14 +770,14 @@ export const AuthService = {
               }
             })
           ).cache({ removePrevious: true })
-          if (Network?.instance?.transport)
-            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-              type: MessageTypes.AvatarUpdated,
-              userId,
-              avatarId,
-              avatarURL,
-              thumbnailURL
-            })
+          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+          transport?.sendNetworkStatUpdateMessage({
+            type: MessageTypes.AvatarUpdated,
+            userId,
+            avatarId,
+            avatarURL,
+            thumbnailURL
+          })
         })
     }
   },

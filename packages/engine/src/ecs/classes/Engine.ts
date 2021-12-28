@@ -6,11 +6,9 @@
  */
 
 import { DirectionalLight, Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineEvents } from './EngineEvents'
-import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
@@ -100,11 +98,4 @@ export class Engine {
   static keyboardInputEnabled = true
 
   static xrFrame: XRFrame
-}
-
-export const awaitEngineLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (Engine.isInitialized) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
-  })
 }

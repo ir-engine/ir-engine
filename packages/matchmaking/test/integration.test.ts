@@ -40,6 +40,15 @@ describe.skip('open-match frontend service', () => {
     assert(!ticket?.id)
   })
 
+  it('throws 404 on reading assignment of not existing ticket', async function () {
+    try {
+      const a = await getTicketsAssignment('not-a-ticket' + Math.random())
+      assert(!a)
+    } catch (e) {
+      assert(e && e.message.match(/^Ticket id: .* not found$/))
+    }
+  })
+
   it('sets assignment', async function () {
     // @ts-ignore
     this.timeout(6000)

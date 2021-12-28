@@ -17,7 +17,6 @@ import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -127,7 +126,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     world.physics.physics.createMaterial(0, 0, 0),
     {
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     }
   )
   const body = world.physics.addBody({
@@ -155,10 +154,12 @@ export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map()
-  })
+  if (!hasComponent(entity, InputComponent)) {
+    addComponent(entity, InputComponent, {
+      schema: AvatarInputSchema,
+      data: new Map()
+    })
+  }
   const world = useWorld()
   const controller = world.physics.createController({
     isCapsule: true,
@@ -184,26 +185,30 @@ export const createAvatarController = (entity: Entity) => {
   frustumCamera.rotateY(Math.PI)
 
   value.add(frustumCamera)
-  addComponent(entity, InteractorComponent, {
-    focusedInteractive: null!,
-    frustumCamera,
-    subFocusedArray: []
-  })
+  if (!hasComponent(entity, InteractorComponent)) {
+    addComponent(entity, InteractorComponent, {
+      focusedInteractive: null!,
+      frustumCamera,
+      subFocusedArray: []
+    })
+  }
 
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
-  addComponent(entity, AvatarControllerComponent, {
-    controller,
-    filterData: new PhysX.PxFilterData(
-      CollisionGroups.Avatars,
-      CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
-      0,
-      0
-    ),
-    collisions: [false, false, false],
-    movementEnabled: true,
-    isJumping: false,
-    isWalking: false,
-    localMovementDirection: new Vector3(),
-    velocitySimulator
-  })
+  if (!hasComponent(entity, AvatarControllerComponent)) {
+    addComponent(entity, AvatarControllerComponent, {
+      controller,
+      filterData: new PhysX.PxFilterData(
+        CollisionGroups.Avatars,
+        CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
+        0,
+        0
+      ),
+      collisions: [false, false, false],
+      movementEnabled: true,
+      isJumping: false,
+      isWalking: false,
+      localMovementDirection: new Vector3(),
+      velocitySimulator
+    })
+  }
 }

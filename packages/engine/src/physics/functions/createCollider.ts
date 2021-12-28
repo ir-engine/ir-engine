@@ -1,8 +1,6 @@
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, Object3D } from 'three'
-import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
+import { Vector3, Quaternion, Mesh, Object3D } from 'three'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
-import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -14,7 +12,6 @@ import { getTransform } from './parseModelColliders'
 import { getGeometryType } from '../classes/Physics'
 import { vectorToArray } from './physxHelpers'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author Josh Field <github.com/HexaField>
