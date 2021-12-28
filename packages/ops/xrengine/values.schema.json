@@ -210,6 +210,9 @@
                 "externalHost": {
                     "type": "string"
                 },
+                "externalPort": {
+                    "type": "integer"
+                },
                 "nameOverride": {
                     "type": "string"
                 },
