@@ -38,7 +38,7 @@
     "@mui/material": "5.2.6",
     "@mui/styled-engine-sc": "5.1.0",
     "@mui/styles": "5.2.3",
-    "@rollup/plugin-inject": "4.0.3",
+    "@rollup/plugin-inject": "4.0.4",
     "@types/react": "17.0.38",
     "@xrengine/client-core": "^0.4.13",
     "@xrengine/common": "^0.4.13",
