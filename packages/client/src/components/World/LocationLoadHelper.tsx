@@ -16,7 +16,8 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -55,7 +56,7 @@ const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: ''
-  } as any
+  }
 
   const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
 
@@ -71,9 +72,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ name: 'user' }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
-  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
+  dispatchLocal(NetworkWorldAction.createClient({ name: 'user' }))
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }))
+  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {
@@ -84,20 +85,30 @@ export const initEngine = async (initOptions: InitializeOptions) => {
 }
 
 export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
-  dispatchLocal(EngineActions.updateLoadingScreenDetails(5, 'fetching systems...') as any)
+  dispatchLocal(EngineActions.loadingStateChanged(5, 'fetching systems...'))
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  dispatchLocal(EngineActions.updateLoadingScreenDetails(10, 'loading systems into the world...') as any)
+  dispatchLocal(EngineActions.loadingStateChanged(10, 'loading systems into the world...'))
   await Engine.currentWorld.initSystems(packs)
   const dispatch = useDispatch()
 
-  dispatchLocal(EngineActions.updateLoadingScreenDetails(30, 'loading scene into the world...') as any)
+  dispatchLocal(EngineActions.loadingStateChanged(30, 'loading scene into the world...'))
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
+        dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
-  dispatchLocal(EngineActions.updateLoadingScreenDetails(100, 'Loading Complete!') as any)
-
+  ///remove receptor
+  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+  Engine.currentWorld.receptors.splice(receptorIndex, 1)
+  //
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Engine.isLoading = false

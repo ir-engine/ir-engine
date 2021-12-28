@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { getStepSize, toPrecision } from '../../functions/utils'

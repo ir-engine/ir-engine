@@ -2,13 +2,8 @@ import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
-import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
-import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
-import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State

@@ -7,7 +7,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 import _ from 'lodash'
 
 //State

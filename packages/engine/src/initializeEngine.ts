@@ -19,8 +19,9 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, receptors } from './ecs/classes/EngineService'
+import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
+import { receiveActionOnce } from './networking/functions/matchActionOnce'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -41,7 +42,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   Engine.audioListener = new AudioListener()
 
   Engine.scene = new Scene()
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')!
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
@@ -56,8 +57,8 @@ const configureClient = async (options: Required<InitializeOptions>) => {
       )
     dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
-
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
@@ -86,12 +87,12 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
-
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     console.log('joined world')
     dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   if (!isMediaServer) {
     await loadDRACODecoder()
@@ -251,7 +252,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
-  Engine.currentWorld.receptors.push(...receptors())
+  Engine.currentWorld.receptors.push(EngineEventReceptor)
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
@@ -299,8 +300,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Engine.userId = id
+    receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+      Engine.userId = action.id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId

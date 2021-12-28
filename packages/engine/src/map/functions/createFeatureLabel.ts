@@ -1,11 +1,10 @@
 import { MapFeatureLabel, Text3D } from '../types'
 import { Text } from 'troika-three-text'
-import { Feature, LineString, MultiLineString, Position } from 'geojson'
+import { Feature, LineString, Position } from 'geojson'
 import * as turf from '@turf/turf'
 import { Engine } from '../../ecs/classes/Engine'
 import { Vector3 } from 'three'
 import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
-import { multiplyArray } from '../util'
 
 const MINIMUM_FONT_SIZE = 6
 const MAXIMUM_FONT_SIZE = 10

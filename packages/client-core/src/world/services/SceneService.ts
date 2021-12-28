@@ -1,7 +1,20 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
+//State
+export interface PublicScenesState {
+  scenes: PublicScene[]
+  currentScene: PublicScene
+  error: string
+}
+
+export interface PublicScene {
+  url: string
+  name: string
+  thumbnailUrl?: string
+}
 
 const state = createState({
   currentScene: null! as SceneDetailInterface

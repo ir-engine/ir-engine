@@ -3,7 +3,7 @@ import { Scene, WebGLRenderer, Color, DirectionalLight, Camera, PerspectiveCamer
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import MapNode from '@xrengine/editor/src/nodes/MapNode'
 import MapNodeEditor from '@xrengine/editor/src/components/properties/MapNodeEditor'
-import { createState, DevTools, useState } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 
 const scene = new Scene()
 
