@@ -1,4 +1,4 @@
-import { NodeIO, PlatformIO, WebIO } from '@gltf-transform/core'
+import { Document, NodeIO, PlatformIO, WebIO } from '@gltf-transform/core'
 import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
 import { getLoader } from './LoadGLTF'
@@ -15,7 +15,7 @@ export async function instanceGLTF(url) {
     io = new WebIO()
   } else {
     io = new NodeIO()
-    ;(io as NodeIO).allowFetch = true
+    ;(io as NodeIO).useFetch = true
   }
   io.registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
   io.registerDependencies({
@@ -25,7 +25,7 @@ export async function instanceGLTF(url) {
 
   // TODO: this currently doesnt work - we need to be able to pass URLs into io.read in order for the URL to be passed
 
-  const doc = await io.read(url)
+  const doc = (await io.read(url)) as Document
   await doc.transform(instance())
 
   // Remove draco mesh compression after transformation, as the output file is not going to be writtren to file
@@ -37,5 +37,7 @@ export async function instanceGLTF(url) {
     }
   }
 
-  return JSON.stringify(await io.writeJSON(doc))
+  const { json } = await io.writeJSON(doc)
+  console.log(json)
+  return JSON.stringify(json)
 }
