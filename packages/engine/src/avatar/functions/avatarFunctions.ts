@@ -14,9 +14,7 @@ import {
   sRGBEncoding
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationManager } from '../AnimationManager'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
@@ -28,33 +26,23 @@ import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectCo
 import { DissolveEffect } from '../DissolveEffect'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { bonesData2 } from '../DefaultSkeletonBones'
-import { IKObj } from '../../ikrig/components/IKObj'
 import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { ArmatureType } from '../../ikrig/enums/ArmatureType'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { AvatarProps } from '../../networking/interfaces/WorldState'
 
-export const setAvatar = (entity, avatarURL) => {
-  const avatar = getComponent(entity, AvatarComponent)
-  if (!avatar) return
-  avatar.avatarURL = avatarURL
-  loadAvatarForEntity(entity)
-}
-
-export const loadAvatarForEntity = (entity: Entity) => {
-  if (!isClient) return
-  const avatarURL = getComponent(entity, AvatarComponent)?.avatarURL
-  if (!avatarURL) return
+export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
     {
-      url: avatarURL,
+      url: avatarDetail.avatarURL,
       castShadow: true,
       receiveShadow: true
     },
     (gltf: any) => {
       console.log(gltf.scene)
-      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarURL)
+      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarDetail.avatarURL)
     }
   )
 }
@@ -65,6 +53,8 @@ export const setAvatarLayer = (obj: Object3D) => {
 
 const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const world = useWorld()
+
+  if (!entity) return
 
   const avatar = getComponent(entity, AvatarComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
@@ -109,10 +99,12 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   // TODO: find skinned mesh in avatar.modelContainer
   const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
   const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent!.type !== 'Bone')
-  addComponent(entity, IKObj, { ref: avatarSkinnedMesh })
+
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
+
+  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
   addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
 
   // animation will be applied to this skeleton instead of avatar
@@ -179,10 +171,12 @@ const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<Ma
   texturePlate.encoding = sRGBEncoding
   texturePlate.needsUpdate = true
 
+  if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
   addComponent(entity, AvatarPendingComponent, {
     light: lightMesh,
     plate: plateMesh
   })
+  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
   addComponent(entity, AvatarEffectComponent, {
     opacityMultiplier: 0,
     originMaterials: originalMatList

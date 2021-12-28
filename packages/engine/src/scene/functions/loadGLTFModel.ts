@@ -1,10 +1,10 @@
-import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Quaternion, Scene, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
@@ -20,8 +20,50 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
-export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
+export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
+  const components: { [key: string]: any } = {}
+  const prefabs: { [key: string]: any } = {}
+  const data = Object.entries(mesh.userData)
+
+  for (const [key, value] of data) {
+    const parts = key.split('.')
+    if (parts.length > 1) {
+      // TODO: deprecate xrengine
+      if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
+        const componentExists = ComponentMap.has(parts[1])
+        const _toLoad = componentExists ? components : prefabs
+        if (typeof _toLoad[parts[1]] === 'undefined') {
+          _toLoad[parts[1]] = {}
+        }
+        if (parts.length > 2) {
+          _toLoad[parts[1]][parts[2]] = value
+        }
+        delete mesh.userData[key]
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(components)) {
+    const component = ComponentMap.get(key)
+    if (typeof component === 'undefined') {
+      console.warn(`Could not load component '${key}'`)
+    } else {
+      addComponent(e, component, value)
+    }
+  }
+  for (const [key, value] of Object.entries(prefabs)) {
+    const prefab = {
+      name: key,
+      data: value,
+      sceneEntityId: mesh.uuid
+    } as any as SceneDataComponent
+    loadComponent(e, prefab)
+  }
+}
+
+export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -30,66 +72,39 @@ export const parseObjectComponents = (entity: Entity, res: Mesh | Scene) => {
     }
   })
 
-  for (const mesh of meshesToProcess) {
-    const sceneEntityId = MathUtils.generateUUID()
-    const e = createEntity()
-    addComponent(e, NameComponent, { name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] })
-    delete mesh.userData['xrengine.entity']
-    delete mesh.userData['realitypack.entity']
-    delete mesh.userData.name
-
-    // apply root mesh's world transform to this mesh locally
-    // applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
-      position: mesh.getWorldPosition(new Vector3()),
-      rotation: mesh.getWorldQuaternion(new Quaternion()),
-      scale: mesh.getWorldScale(new Vector3())
-    })
-    mesh.removeFromParent()
-    addComponent(e, Object3DComponent, { value: mesh })
-
-    const components: { [key: string]: any } = {}
-    const prefabs: { [key: string]: any } = {}
-    const data = Object.entries(mesh.userData)
-
-    for (const [key, value] of data) {
-      const parts = key.split('.')
-      if (parts.length > 1) {
-        // TODO: deprecate xrengine
-        if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
-          const componentExists = ComponentMap.has(parts[1])
-          const _toLoad = componentExists ? components : prefabs
-          if (typeof _toLoad[parts[1]] === 'undefined') {
-            _toLoad[parts[1]] = {}
-          }
-          if (parts.length > 2) {
-            _toLoad[parts[1]][parts[2]] = value
-          }
-          delete mesh.userData[key]
-        }
-      }
-    }
-    for (const [key, value] of Object.entries(components)) {
-      const component = ComponentMap.get(key)
-      if (typeof component === 'undefined') {
-        console.warn(`Could not load component '${key}'`)
+  if (meshesToProcess.length === 0) {
+    createObjectEntityFromGLTF(entity, res as Mesh)
+  } else {
+    for (const mesh of meshesToProcess) {
+      if (mesh === res) {
+        createObjectEntityFromGLTF(entity, mesh)
       } else {
-        addComponent(e, component, value)
+        const e = createEntity()
+        addComponent(e, NameComponent, {
+          name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
+        })
+        delete mesh.userData['xrengine.entity']
+        delete mesh.userData['realitypack.entity']
+        delete mesh.userData.name
+
+        // apply root mesh's world transform to this mesh locally
+        // applyTransformToMeshWorld(entity, mesh)
+        addComponent(e, TransformComponent, {
+          position: mesh.getWorldPosition(new Vector3()),
+          rotation: mesh.getWorldQuaternion(new Quaternion()),
+          scale: mesh.getWorldScale(new Vector3())
+        })
+        mesh.removeFromParent()
+        addComponent(e, Object3DComponent, { value: mesh })
+
+        createObjectEntityFromGLTF(e, mesh)
       }
-    }
-    for (const [key, value] of Object.entries(prefabs)) {
-      const prefab = {
-        name: key,
-        data: value,
-        sceneEntityId
-      } as any as SceneDataComponent
-      loadComponent(e, prefab)
     }
   }
 }
 
 export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
-  // console.log(sceneLoader, entity, component, sceneProperty, scene)
+  // console.log('parseGLTFModel', entity, component, scene)
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -152,7 +167,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     // we should push this to ECS, something like a SceneObjectLoadComponent,
     // or add engine events for specific objects being added to the scene,
     // the scene load event + delay 1 second delay works for now.
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    const onSceneLoaded = async () => {
       await delay(1000)
       const objToCopy = Engine.scene.children.find((obj: any) => {
         return obj.sceneEntityId === component.data.textureOverride
@@ -167,7 +182,8 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
             })
           }
         })
-    })
+    }
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded)
   }
 
   if (
@@ -185,16 +201,15 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     ;(scene as any).sceneEntityId = component.data.sceneEntityId
     dispatchFrom(world.hostId, () =>
       NetworkWorldAction.spawnObject({
-        userId: world.hostId,
         prefab: '',
         parameters: {
           sceneEntityId: component.data.sceneEntityId
         }
       })
-    )
+    ).cache()
   }
 
-  parseObjectComponents(entity, scene)
+  parseObjectComponentsFromGLTF(entity, scene)
 }
 
 export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => {

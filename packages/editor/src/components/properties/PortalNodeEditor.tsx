@@ -1,4 +1,3 @@
-import { DoorOpen } from '@styled-icons/fa-solid'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
@@ -12,6 +11,7 @@ import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
 import { client } from '@xrengine/client-core/src/feathers'
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
@@ -52,14 +52,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
 
   const onChangeLinkedPortalId = (linkedPortalId) => {
     CommandManager.instance.setPropertyOnSelection('linkedPortalId', linkedPortalId)
-  }
-
-  const onChangeModelUrl = (modelUrl) => {
-    CommandManager.instance.setPropertyOnSelection('modelUrl', modelUrl)
-  }
-
-  const onChangeDisplayText = (displayText) => {
-    CommandManager.instance.setPropertyOnSelection('displayText', displayText)
   }
 
   const onChangeSpawnPosition = (spawnPosition) => {
@@ -134,12 +126,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
           getOptionLabel={(data) => data.name}
         />
       </InputGroup>
-      <InputGroup name="Model Url" label={t('editor:properties.portal.lbl-modelUrl')}>
-        <ControlledStringInput value={node.modelUrl} onChange={onChangeModelUrl} />
-      </InputGroup>
-      <InputGroup name="Display Text" label={t('editor:properties.portal.lbl-displayText')}>
-        <ControlledStringInput value={node.displayText} onChange={onChangeDisplayText} />
-      </InputGroup>
       <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
         <SelectInput
           options={Engine.scene.children
@@ -175,6 +161,6 @@ export const PortalNodeEditor = (props: PortalNodeEditorProps) => {
   )
 }
 
-PortalNodeEditor.iconComponent = DoorOpen
+PortalNodeEditor.iconComponent = MeetingRoomIcon
 
 export default PortalNodeEditor

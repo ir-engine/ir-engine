@@ -1,4 +1,3 @@
-import { AnyMxRecord } from 'dns'
 import React from 'react'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'

@@ -1,16 +1,12 @@
 import SettingConsole from '../components/Setting'
 import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
-import { useDispatch } from '../../store'
 
 interface Props {
   //doLoginAuto?: any
 }
 
 const Setting = (props: Props) => {
-  const {} = props
-
-  const dispatch = useDispatch()
   useEffect(() => {
     AuthService.doLoginAuto(true)
   }, [])

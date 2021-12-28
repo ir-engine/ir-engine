@@ -11,7 +11,6 @@
  */
 import {
   BufferAttribute,
-  BufferGeometry,
   ClampToEdgeWrapping,
   DoubleSide,
   InterpolateDiscrete,
@@ -28,8 +27,6 @@ import {
   RGBAFormat,
   RepeatWrapping,
   Scene,
-  TriangleFanDrawMode,
-  TriangleStripDrawMode,
   Vector3,
   Material,
   Texture,

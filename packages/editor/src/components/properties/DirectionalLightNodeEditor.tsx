@@ -1,11 +1,11 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
-import { Bolt } from '@styled-icons/fa-solid/Bolt'
 import { useTranslation } from 'react-i18next'
+import BoltIcon from '@mui/icons-material/Bolt'
 import BooleanInput from '../inputs/BooleanInput'
 import { CommandManager } from '../../managers/CommandManager'
 
@@ -84,6 +84,6 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
   )
 }
 
-DirectionalLightNodeEditor.iconComponent = Bolt
+DirectionalLightNodeEditor.iconComponent = BoltIcon
 
 export default DirectionalLightNodeEditor

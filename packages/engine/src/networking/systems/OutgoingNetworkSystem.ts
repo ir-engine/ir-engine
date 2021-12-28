@@ -12,8 +12,7 @@ import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
-import { Action } from '../interfaces/Action'
-import { IWorld, pipe } from 'bitecs'
+import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
@@ -24,7 +23,7 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
  * QUERIES *
  **********/
 
-const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
+export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
 
 const ikTransformsQuery = isClient
@@ -39,19 +38,19 @@ const xrHandsQuery = isClient
  * UTILITIES *
  ************/
 
-function velocityIsTheSame(previousNetworkState, netId, vel): boolean {
+function velocityIsTheSame(previousNetworkState, ownerId, netId, vel): boolean {
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
-    if (previousNetworkState.pose[i].networkId === netId) {
+    if (previousNetworkState.pose[i].networkId === netId && previousNetworkState.pose[i].ownerId === ownerId) {
       return arraysAreEqual(previousNetworkState.pose[i].angularVelocity, vel)
     }
   }
 
   return false
 }
-function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean {
+function transformIsTheSame(previousNetworkState, ownerId, netId, pos, rot, vel): boolean {
   if (vel === undefined) vel = [0]
   for (let i = 0; i < previousNetworkState.pose.length; i++) {
-    if (previousNetworkState.pose[i].networkId === netId) {
+    if (previousNetworkState.pose[i].networkId === netId && previousNetworkState.pose[i].ownerId === ownerId) {
       return (
         arraysAreEqual(previousNetworkState.pose[i].position, pos) &&
         arraysAreEqual(previousNetworkState.pose[i].rotation, rot) &&
@@ -62,9 +61,12 @@ function transformIsTheSame(previousNetworkState, netId, pos, rot, vel): boolean
 
   return false
 }
-function isControllerPoseTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp, rr): boolean {
+function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, lp, lr, rp, rr): boolean {
   for (let i = 0; i < previousNetworkState.controllerPose.length; i++) {
-    if (previousNetworkState.controllerPose[i].networkId === netId) {
+    if (
+      previousNetworkState.controllerPose[i].networkId === netId &&
+      previousNetworkState.controllerPose[i].ownerId === ownerId
+    ) {
       return (
         arraysAreEqual(previousNetworkState.controllerPose[i].headPosePosition, hp) &&
         arraysAreEqual(previousNetworkState.controllerPose[i].headPoseRotation, hr) &&
@@ -78,59 +80,6 @@ function isControllerPoseTheSame(previousNetworkState, netId, hp, hr, lp, lr, rp
 
   return false
 }
-
-/************************
- * ACTION PREPROCESSING *
- ***********************/
-
-export const forwardIncomingActionsFromOthersIfHost = (world: World) => {
-  const { incomingActions, outgoingActions } = world
-
-  if (world.isHosting) {
-    for (const incoming of incomingActions) {
-      // if incoming action is not from this client
-      if (incoming.$from !== Engine.userId) {
-        // forward it out
-        outgoingActions.add(incoming)
-      }
-    }
-  }
-
-  incomingActions.clear()
-
-  return world
-}
-
-export const rerouteOutgoingActionsBoundForSelf = (world: World) => {
-  const { incomingActions, outgoingActions } = world
-
-  for (const out of outgoingActions) {
-    // if it's a forwarded action, use existing $from id
-    // if not, use this client's userId
-    out.$from = out.$from ?? Engine.userId
-    // if action is from this client and going to this client
-    if (out.$from === Engine.userId && out.$to === 'local') {
-      // add action to incoming action and remove from outgoing actions
-      // this prevents the action from leaving this client and applying itself to other connected clients' state
-      incomingActions.add(out as Required<Action>)
-      outgoingActions.delete(out)
-    }
-    // if client is hosting and action is from this client
-    if (world.isHosting && out.$from === Engine.userId) {
-      // add outgoing action to incoming action, but do not remove from outgoing actions
-      // this applies the action to both this host and other connected clients' state
-      incomingActions.add(out as Required<Action>)
-    }
-  }
-
-  return world
-}
-
-// prettier-ignore
-export const rerouteActions = pipe(
-  forwardIncomingActionsFromOthersIfHost,
-  rerouteOutgoingActionsBoundForSelf,
-)
 
 /***************
  * DATA QUEING *
@@ -148,7 +97,10 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
   let angVel = undefined
   if (hasComponent(entity, VelocityComponent)) {
     const velC = getComponent(entity, VelocityComponent)
-    if (isZero(velC.velocity) || velocityIsTheSame(previousNetworkState, networkObject.networkId, velC.velocity))
+    if (
+      isZero(velC.velocity) ||
+      velocityIsTheSame(previousNetworkState, networkObject.ownerId, networkObject.networkId, velC.velocity)
+    )
       vel = [0]
     else vel = velC.velocity.toArray()
   }
@@ -159,6 +111,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
     // or if the transform is not the same as last frame
     !transformIsTheSame(
       previousNetworkState,
+      networkObject.ownerId,
       networkObject.networkId,
       transformComponent.position.toArray(),
       transformComponent.rotation.toArray(),
@@ -166,6 +119,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
     )
   ) {
     outgoingNetworkState.pose.push({
+      ownerId: networkObject.ownerId,
       networkId: networkObject.networkId,
       position: transformComponent.position.toArray(),
       rotation: transformComponent.rotation.toArray(),
@@ -198,7 +152,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
   const { outgoingNetworkState, previousNetworkState } = world
 
   for (const entity of ikTransformsQuery(world)) {
-    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const { ownerId, networkId } = getComponent(entity, NetworkObjectComponent)
 
     const xrInputs = getComponent(entity, XRInputSourceComponent)
 
@@ -225,6 +179,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
       // or if the transform is not the same as last frame
       !isControllerPoseTheSame(
         previousNetworkState,
+        ownerId,
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -235,6 +190,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
       )
     ) {
       outgoingNetworkState.controllerPose.push({
+        ownerId,
         networkId,
         headPosePosition,
         headPoseRotation,
@@ -256,7 +212,7 @@ export const queueXRHandPoses = (world: World) => {
   const { outgoingNetworkState } = world
 
   for (const entity of xrHandsQuery(world)) {
-    const { networkId } = getComponent(entity, NetworkObjectComponent)
+    const { ownerId, networkId } = getComponent(entity, NetworkObjectComponent)
     const xrHands = getComponent(entity, XRHandsInputComponent)
     const hands: any = [
       {
@@ -286,6 +242,7 @@ export const queueXRHandPoses = (world: World) => {
     }
 
     outgoingNetworkState.handsPose.push({
+      ownerId,
       networkId,
       hands
     })
@@ -294,8 +251,14 @@ export const queueXRHandPoses = (world: World) => {
   return world
 }
 
-export const resetNetworkState = (world: World) => {
-  world.previousNetworkState = world.outgoingNetworkState
+const initNetworkStates = (world: World) => {
+  world.previousNetworkState = {
+    tick: world.fixedTick,
+    time: Date.now(),
+    pose: [],
+    controllerPose: [],
+    handsPose: []
+  }
   world.outgoingNetworkState = {
     tick: world.fixedTick,
     time: Date.now(),
@@ -303,6 +266,26 @@ export const resetNetworkState = (world: World) => {
     controllerPose: [],
     handsPose: []
   }
+  return world
+}
+
+export const resetNetworkState = (world: World) => {
+  const { outgoingNetworkState, previousNetworkState } = world
+
+  // copy previous state
+  previousNetworkState.tick = outgoingNetworkState.tick
+  previousNetworkState.time = outgoingNetworkState.time
+  previousNetworkState.pose = outgoingNetworkState.pose
+  previousNetworkState.controllerPose = outgoingNetworkState.controllerPose
+  previousNetworkState.handsPose = outgoingNetworkState.handsPose
+
+  // reset current state
+  outgoingNetworkState.tick = world.fixedTick
+  outgoingNetworkState.time = Date.now()
+  outgoingNetworkState.pose = []
+  outgoingNetworkState.controllerPose = []
+  outgoingNetworkState.handsPose = []
+
   return world
 }
 
@@ -326,7 +309,13 @@ export const queueAllOutgoingPoses = pipe(
 const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
   const { outgoingActions } = world
 
-  transport.sendActions(outgoingActions)
+  for (const o of outgoingActions) console.log('OUTGOING', o)
+
+  try {
+    transport.sendActions(outgoingActions)
+  } catch (e) {
+    console.error(e)
+  }
 
   outgoingActions.clear()
 
@@ -334,31 +323,30 @@ const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) =
 }
 
 const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
-  transport.sendData(data)
+  try {
+    transport.sendData(data)
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 export default async function OutgoingNetworkSystem(world: World): Promise<System> {
-  const sendActions = sendActionsOnTransport(Network.instance.transport)
-  const sendData = sendDataOnTransport(Network.instance.transport)
+  const worldTransport = Network.instance.transportHandler.getWorldTransport()
+  const sendActions = sendActionsOnTransport(worldTransport)
+  const sendData = sendDataOnTransport(worldTransport)
+
+  initNetworkStates(world)
 
   return () => {
-    rerouteActions(world)
+    if (!Engine.isInitialized) return
 
     // side effect - network IO
-    try {
-      sendActions(world)
-    } catch (e) {
-      console.error(e)
-    }
+    sendActions(world)
 
     queueAllOutgoingPoses(world)
 
     // side effect - network IO
-    try {
-      const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-      sendData(data)
-    } catch (e) {
-      console.error(e)
-    }
+    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    sendData(data)
   }
 }

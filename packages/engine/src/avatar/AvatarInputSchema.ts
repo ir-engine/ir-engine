@@ -26,7 +26,8 @@ import { InputAlias } from '../input/types/InputAlias'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { equipEntity, getAttachmentPoint } from '../interaction/functions/equippableFunctions'
+import { equipEntity, getAttachmentPoint, unequipEntity } from '../interaction/functions/equippableFunctions'
+import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -92,6 +93,21 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
 }
 
 /**
+ *
+ * @param entity the that holds the equipped object
+ * @param args
+ * @param delta
+ */
+
+const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+  console.log('dropping')
+  const equipper = getComponent(entity, EquipperComponent)
+  if (!equipper?.equippedEntity) return
+
+  unequipEntity(entity)
+}
+
+/**
  * Switch Camera mode from first person to third person and wise versa.
  * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
  */
@@ -121,7 +137,7 @@ const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: Input
  * Fix camera behind the avatar to follow the avatar.
  * @param entity Entity on which camera will be fixed.
  */
-const fixedCameraBehindAvatar: InputBehaviorType = (
+export const fixedCameraBehindAvatar: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -134,7 +150,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
   }
 }
 
-const switchShoulderSide: InputBehaviorType = (
+export const switchShoulderSide: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -147,7 +163,7 @@ const switchShoulderSide: InputBehaviorType = (
   }
 }
 
-const setTargetCameraRotation = (entity: Entity, phi: number, theta: number) => {
+export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number) => {
   const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
@@ -169,7 +185,7 @@ let lastScrollValue = 0
  * Change camera distance.
  * @param entity Entity holding camera and input component.
  */
-const changeCameraDistanceByDelta: InputBehaviorType = (
+export const changeCameraDistanceByDelta: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -224,7 +240,7 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const setCameraRotation: InputBehaviorType = (
+export const setCameraRotation: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -315,7 +331,7 @@ const moveByInputAxis: InputBehaviorType = (
     controller.localMovementDirection.x = inputValue.value[0]
   }
 }
-const setWalking: InputBehaviorType = (
+export const setWalking: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -507,6 +523,7 @@ export const createAvatarInput = () => {
   map.set('ArrowDown', BaseInput.BACKWARD)
   map.set('KeyD', BaseInput.RIGHT)
   map.set('KeyE', BaseInput.INTERACT)
+  map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
   map.set('ShiftLeft', BaseInput.WALK)
   map.set('KeyP', BaseInput.POINTER_LOCK)
@@ -534,6 +551,7 @@ export const createBehaviorMap = () => {
   const map = new Map<InputAlias, InputBehaviorType>()
 
   map.set(BaseInput.INTERACT, interact)
+  map.set(BaseInput.DROP_OBJECT, drop)
   map.set(BaseInput.GRAB_LEFT, interact)
   map.set(BaseInput.GRAB_RIGHT, interact)
 

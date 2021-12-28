@@ -5,14 +5,18 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import { accessAuthState } from '../../user/services/AuthService'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
-import { store } from '../../store'
+import { store, useDispatch } from '../../store'
 import { accessChatState } from '../../social/services/ChatService'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import {
+  SocketWebRTCClientMediaTransport,
+  SocketWebRTCClientTransport
+} from '../../transports/SocketWebRTCClientTransport'
 import { accessLocationState } from '../../social/services/LocationService'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { accessInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 //State
 const state = createState({
@@ -28,10 +32,9 @@ const state = createState({
   readyToConnect: false,
   updateNeeded: false,
   instanceServerConnecting: false,
-  instanceProvisioning: false
+  instanceProvisioning: false,
+  channelDisconnected: true
 })
-
-let connectionSocket = null
 
 store.receptors.push((action: ChannelConnectionActionType): any => {
   state.batch((s) => {
@@ -59,14 +62,30 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
       case 'CHANNEL_SERVER_CONNECTING':
         return s.instanceServerConnecting.set(true)
       case 'CHANNEL_SERVER_CONNECTED':
-        return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
-      case 'CHANNEL_SERVER_DISCONNECTED':
-        if (connectionSocket != null) (connectionSocket as any).close()
-        return s.merge({ connected: false, instanceProvisioned: false })
-      case 'SOCKET_CREATED':
-        if (connectionSocket != null) (connectionSocket as any).close()
-        connectionSocket = action.socket
-        return
+        return s.merge({
+          connected: true,
+          updateNeeded: false,
+          readyToConnect: false,
+          channelDisconnected: false,
+          instanceServerConnecting: false
+        })
+      case 'CHANNEL_SERVER_DISCONNECT':
+        return s.merge({
+          instance: {
+            ipAddress: '',
+            port: ''
+          },
+          locationId: '',
+          sceneId: '',
+          channelId: '',
+          instanceProvisioned: false,
+          connected: false,
+          readyToConnect: false,
+          updateNeeded: false,
+          channelDisconnected: true,
+          instanceServerConnecting: false,
+          instanceProvisioning: false
+        })
     }
   }, action.type)
 })
@@ -78,7 +97,8 @@ export const useChannelConnectionState = () => useState(state) as any as typeof 
 //Service
 export const ChannelConnectionService = {
   provisionChannelServer: async (channelId?: string) => {
-    store.dispatch(ChannelConnectionAction.channelServerProvisioning())
+    const dispatch = useDispatch()
+    dispatch(ChannelConnectionAction.channelServerProvisioning())
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await client.service('instance-provision').find({
       query: {
@@ -86,92 +106,69 @@ export const ChannelConnectionService = {
         token: token
       }
     })
-    if (provisionResult.ipAddress != null && provisionResult.port != null) {
-      store.dispatch(ChannelConnectionAction.channelServerProvisioned(provisionResult, channelId))
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatch(ChannelConnectionAction.channelServerProvisioned(provisionResult, channelId))
     } else {
       EngineEvents.instance.dispatchEvent({
         type: SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
       })
     }
   },
-  connectToChannelServer: async (channelId: string, isHarmonyPage?: boolean) => {
-    try {
-      store.dispatch(ChannelConnectionAction.channelServerConnecting())
-      const authState = accessAuthState()
-      const user = authState.user.value
-      const token = authState.authUser.accessToken.value
-      const chatState = accessChatState()
-      const channelState = chatState.channels
-      const channels = channelState.channels.value
-      const channelEntries = Object.entries(channels)
-      const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
-      const channelConnectionState = accessChannelConnectionState().value
-      const instance = channelConnectionState.instance
-      const locationId = channelConnectionState.locationId
-      const locationState = accessLocationState()
+  connectToChannelServer: async (channelId: string) => {
+    const dispatch = useDispatch()
+    dispatch(ChannelConnectionAction.channelServerConnecting())
+    const authState = accessAuthState()
+    const user = authState.user.value
+    const chatState = accessChatState()
+    const channelState = chatState.channels
+    const channels = channelState.channels.value
+    const channelEntries = Object.entries(channels)
+    const instanceChannel = channelEntries.find(
+      (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
+    )
+    const { ipAddress, port } = accessChannelConnectionState().instance.value
 
-      const currentLocation = locationState.currentLocation.location
-      const sceneId = currentLocation?.sceneId?.value
-      const videoActive =
-        MediaStreams !== null &&
-        MediaStreams !== undefined &&
-        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
-      // TODO: Disconnected
-      if (Network.instance !== undefined && Network.instance !== null) {
-        await endVideoChat({ endConsumers: true })
-        await leave(false)
-      }
+    const locationState = accessLocationState()
+    const currentLocation = locationState.currentLocation.location
+    const sceneId = currentLocation?.sceneId?.value
 
-      try {
-        const ipAddress = instance.ipAddress
-        const port = Number(instance.port)
-        await Network.instance.transport.initialize(ipAddress, port, false, {
-          locationId: locationId,
-          token: token,
-          user: user,
-          sceneId: sceneId,
-          startVideo: videoActive,
-          channelType: instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel',
-          channelId: channelId,
-          videoEnabled:
-            currentLocation?.locationSettings?.videoEnabled?.value === true ||
-            !(
-              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
-              user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
-                null
-            ),
-          isHarmonyPage: isHarmonyPage
-        })
-      } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
-        console.log(error)
-      }
-
-      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
-      EngineEvents.instance.addEventListener(
-        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-        MediaStreamService.triggerUpdateConsumers
-      )
-
-      MediaStreams.instance.channelType =
-        instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-      MediaStreams.instance.channelId = channelId
-      store.dispatch(ChannelConnectionAction.channelServerConnected())
-    } catch (err) {
-      console.log(err)
+    const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+    if (transport.socket) {
+      await endVideoChat(transport, { endConsumers: true })
+      await leave(transport, false)
     }
+
+    transport.videoEnabled =
+      currentLocation?.locationSettings?.videoEnabled?.value === true ||
+      !(
+        currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+        user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) == null
+      )
+    transport.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+    transport.channelId = channelId
+
+    await transport.initialize({ sceneId, port, ipAddress, channelId })
+    transport.left = false
+    EngineEvents.instance.addEventListener(
+      MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+      MediaStreamService.triggerUpdateConsumers
+    )
+
+    MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
+    MediaStreams.instance.channelId = channelId
   },
   resetChannelServer: () => {
-    const channelRequest = (Network.instance?.transport as any)?.channelRequest
-    if (channelRequest != null) (Network.instance.transport as any).channelRequest = null
-    store.dispatch(ChannelConnectionAction.channelServerDisconnected())
+    const dispatch = useDispatch()
+    dispatch(ChannelConnectionAction.disconnect())
   }
 }
 
 if (!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance-provision').on('created', (params) => {
-    if (params.channelId != null)
-      store.dispatch(ChannelConnectionAction.channelServerProvisioned(params, params.channelId))
+    if (params.channelId != null) {
+      const dispatch = useDispatch()
+      dispatch(ChannelConnectionAction.channelServerProvisioned(params, params.channelId))
+    }
   })
 }
 
@@ -185,6 +182,7 @@ export const ChannelConnectionAction = {
   channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId?: string | null) => {
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
+      id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
       channelId: channelId
@@ -200,15 +198,9 @@ export const ChannelConnectionAction = {
       type: 'CHANNEL_SERVER_CONNECTED' as const
     }
   },
-  channelServerDisconnected: () => {
+  disconnect: () => {
     return {
-      type: 'CHANNEL_SERVER_DISCONNECTED' as const
-    }
-  },
-  socketCreated: (socket: any) => {
-    return {
-      type: 'SOCKET_CREATED' as const,
-      socket: socket
+      type: 'CHANNEL_SERVER_DISCONNECT' as const
     }
   }
 }

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { showMenu } from '../layout/ContextMenu'
 import { MenuButton } from '../inputs/Button'
 import StylableContextMenuTrigger from './StylableContextMenuTrigger'
-import { EllipsisV } from '@styled-icons/fa-solid/EllipsisV'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 
 /**
  *
@@ -139,15 +139,10 @@ export const ProjectGridItem = (props: Props) => {
     })
   }
 
-  // since we have the same link and it gets cached so we add random get param to avoid it
-  const randomNumber = Math.floor(Math.random() * 100)
-
   const content = (
     <>
       <ThumbnailContainer>
-        {(project.thumbnailUrl || project.thumbnail) && (
-          <Thumbnail src={project.thumbnailUrl + `?${randomNumber}` ?? project.thumbnail} />
-        )}
+        {(project.thumbnailUrl || project.thumbnail) && <Thumbnail src={project.thumbnailUrl ?? project.thumbnail} />}
       </ThumbnailContainer>
       <TitleContainer>
         <Col>
@@ -155,7 +150,7 @@ export const ProjectGridItem = (props: Props) => {
         </Col>
         {contextMenuId && (
           <MenuButton onClick={onShowMenu}>
-            <EllipsisV />
+            <MoreVertIcon />
           </MenuButton>
         )}
       </TitleContainer>

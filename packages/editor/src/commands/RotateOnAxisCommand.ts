@@ -5,7 +5,7 @@ import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 export interface RotateOnAxisCommandParams extends CommandParams {
   axis?: any

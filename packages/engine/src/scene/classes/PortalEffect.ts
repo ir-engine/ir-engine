@@ -11,7 +11,6 @@ import {
   Object3D,
   Texture,
   TubeGeometry,
-  Vector2,
   Vector3
 } from 'three'
 
@@ -111,6 +110,7 @@ export class PortalEffect extends Object3D {
   }
 
   fadeOut(delta: number): Promise<void> {
+    console.log('fading out')
     this.fadingOut = true
 
     return new Promise<void>((resolve) => {

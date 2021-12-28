@@ -6,12 +6,13 @@ import { isClient } from '../../common/functions/isClient'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent } from './SceneLoading'
 
 export const loadModelAnimation = (entity: Entity, component: SceneDataComponent) => {
   if (isClient) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
       // We only have to update the mixer time for this animations on each frame
       const object3d = getComponent(entity, Object3DComponent)
       if (!object3d) {

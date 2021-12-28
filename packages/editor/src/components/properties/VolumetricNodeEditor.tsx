@@ -1,13 +1,17 @@
 // @ts-nocheck
-import { Video } from '@styled-icons/fa-solid/Video'
+import VideocamIcon from '@mui/icons-material/Videocam'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'
+import { Button } from '../inputs/Button'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
-import useSetPropertySelected from './useSetPropertySelected'
 import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
-import FolderInput from '../inputs/FolderInput'
+import { CommandManager } from '../../managers/CommandManager'
+import SelectInput from '../inputs/SelectInput'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import { ItemTypes } from '../../constants/AssetTypes'
+import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -23,13 +27,42 @@ export function VolumetricNodeEditor(props) {
   VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
 
   //function to handle the change in src property
-  const onChangeSrc = useSetPropertySelected('srcUrl')
+
+  const onChangePlayMode = (id) => {
+    CommandManager.instance.setPropertyOnSelection('playMode', id)
+  }
+
+  const onChangePaths = (paths) => {
+    CommandManager.instance.setPropertyOnSelection('paths', paths)
+  }
 
   //returning editor view
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
-      <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
-        <FolderInput value={node.srcUrl} onChange={onChangeSrc} />
+      <ArrayInputGroup
+        name="UVOL Paths"
+        prefix="uvol"
+        values={node.paths}
+        onChange={onChangePaths}
+        label={t('editor:properties.volumetric.uvolPaths')}
+        acceptFileTypes={VolumetricFileTypes}
+        itemType={ItemTypes.Volumetrics}
+      ></ArrayInputGroup>
+      <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
+        <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
+        {node.paths && node.paths.length > 0 && node.paths[0] && (
+          <Button
+            style={{ marginLeft: '5px', width: '60px' }}
+            type="submit"
+            onClick={() => {
+              node.onPlay()
+            }}
+          >
+            {node.isUVOLPlay
+              ? t('editor:properties.volumetric.pausetitle')
+              : t('editor:properties.volumetric.playtitle')}
+          </Button>
+        )}
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
@@ -37,7 +70,7 @@ export function VolumetricNodeEditor(props) {
 }
 
 //setting iconComponent with icon name
-VolumetricNodeEditor.iconComponent = Video
+VolumetricNodeEditor.iconComponent = VideocamIcon
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')

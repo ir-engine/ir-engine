@@ -1,14 +1,14 @@
-import React, { useRef, ReactNode, useCallback } from 'react'
+import React, { useRef, ReactNode } from 'react'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'
-import { ArrowsAltH } from '@styled-icons/fa-solid/ArrowsAltH'
 import Overlay from '../layout/Overlay'
 import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 import {} from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import { useHookstate } from '@hookstate/core'
+import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 
 /**
  *
@@ -23,7 +23,7 @@ const ScrubberContainer = (styled as any).div`
  *
  * @author Robert Long
  */
-const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
+const Cursor = (styled as any)(MultipleStopIcon).attrs(({ x, y }) => ({
   style: {
     transform: `translate(${x}px,${y}px)`
   }

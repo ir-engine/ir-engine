@@ -1,4 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { float32, Schema, string, uint32, uint64 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 
@@ -8,6 +9,7 @@ import { Model } from '../../assets/superbuffer/model'
  */
 
 const poseSchema = new Schema({
+  ownerId: string,
   networkId: uint32,
   position: [float32],
   rotation: [float32],
@@ -26,11 +28,13 @@ const handPoseSchema = new Schema({
 })
 
 const handsPoseSchema = new Schema({
+  ownerId: string,
   networkId: uint32,
   hands: [handPoseSchema]
 })
 
 const controllerPoseSchema = new Schema({
+  ownerId: string,
   networkId: uint32,
   headPosePosition: [float32],
   headPoseRotation: [float32],
@@ -60,6 +64,7 @@ export interface WorldStateInterface {
   time: number
   /** transform of world. */
   pose: {
+    ownerId: UserId
     networkId: NetworkId
     position: number[]
     rotation: number[]
@@ -68,6 +73,7 @@ export interface WorldStateInterface {
   }[]
   /** transform of ik avatars. */
   controllerPose: {
+    ownerId: UserId
     networkId: NetworkId
     headPosePosition: number[]
     headPoseRotation: number[]
@@ -81,6 +87,7 @@ export interface WorldStateInterface {
     rightGripRotation: number[]
   }[]
   handsPose: {
+    ownerId: UserId
     networkId: NetworkId
     hands: {
       joints: [

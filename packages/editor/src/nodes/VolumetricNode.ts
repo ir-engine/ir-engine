@@ -1,17 +1,19 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
-import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
-import { ControlManager } from '../managers/ControlManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ItemTypes } from '../constants/AssetTypes'
+import { getFileExtension } from '@xrengine/common/src/utils/getFileExtension'
+
+import DracosisPlayer from 'volumetric/player'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'
   static nodeName = 'Volumetric'
   static initialElementProps = {
-    src: '',
-    srcUrl: ''
+    playMode: 3
   }
   // static initialElementProps = {
   //   src: new URL(editorLandingVolumetric, location as any).href
@@ -20,7 +22,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static async deserialize(json, loadAsync) {
     const node = (await super.deserialize(json)) as any
     const {
-      src,
+      paths,
+      playMode,
       controls,
       autoPlay,
       loop,
@@ -37,7 +40,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     } = json.components.find((c) => c.name === 'volumetric').props
     loadAsync(
       (async () => {
-        node.srcUrl = src
+        if (paths) node.paths = paths
+        if (playMode != undefined) node.playMode = playMode
         node.controls = controls || false
         node.autoPlay = autoPlay
         node.loop = loop
@@ -55,7 +59,6 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     )
     return node
   }
-  _canonicalUrl: string
   _autoPlay: boolean
   volume: number
   controls: boolean
@@ -74,20 +77,19 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   coneOuterAngle: any
   coneOuterGain: any
   projection: any
-  uuid: any
+
+  UVOLPlayer: any
+  UVOLWorker: any
+  isUVOLPlay: boolean
+
   constructor() {
     super(SceneManager.instance.audioListener)
-    this._canonicalUrl = ''
     this._autoPlay = true
     this.volume = 0.5
     this.controls = true
-  }
-
-  get srcUrl(): string {
-    return this._canonicalUrl
-  }
-  set srcUrl(value) {
-    this.load(value).catch(console.error)
+    this.playMode = 3
+    this._paths = []
+    this.isUVOLPlay = false
   }
 
   get autoPlay(): any {
@@ -96,69 +98,75 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   set autoPlay(value) {
     this._autoPlay = value
   }
-  async load(src, onError?) {
-    const nextSrc = src || ''
-    if (nextSrc === this._canonicalUrl && nextSrc !== '') {
-      return
+  get paths(): any {
+    return this._paths
+  }
+  set paths(value) {
+    if (value.filter((url) => url != '' && !ItemTypes.Volumetrics.includes(getFileExtension(url))).length > 0) return
+    this._paths = [...value]
+    if (value && value.length > 0 && value[0] != '' && ItemTypes.Volumetrics.includes(getFileExtension(value[0]))) {
+      this.load(value)
     }
-    this._canonicalUrl = src || ''
-    this.issues = []
-    this._mesh.visible = false
-    this.hideErrorIcon()
-    if (ControlManager.instance.isInPlayMode) {
-      ;(this.el as any).pause()
+  }
+  load(paths) {
+    this.isUVOLPlay = false
+    if (this.UVOLPlayer) {
+      this.remove(this.UVOLPlayer.mesh)
+      this.UVOLPlayer.dispose()
     }
-    try {
-    } catch (error) {
-      this.showErrorIcon()
-      const videoError = new RethrownError(`Error loading volumetric ${this._canonicalUrl}`, error)
-      if (onError) {
-        onError(this, videoError)
-      }
-      console.error(videoError)
-      this.issues.push({ severity: 'error', message: 'Error loading volumetric.' })
-    }
-    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
-    CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
 
-    // this.hideLoadingCube();
-    return this
+    this.UVOLPlayer = new DracosisPlayer({
+      scene: this as any,
+      renderer: Engine.renderer,
+      paths: paths,
+      playMode: this.playMode,
+      autoplay: this.autoPlay,
+      onMeshBuffering: (progress) => {},
+      onFrameShow: () => {}
+    })
   }
-  onPlay(): void {
-    if (this.autoPlay) {
-      ;(this.el as any).play()
+
+  onPlay() {
+    if (this.UVOLPlayer) {
+      if (this.isUVOLPlay) {
+        this.UVOLPlayer.stopOnNextFrame = true
+      } else {
+        this.UVOLPlayer.stopOnNextFrame = false
+        this.UVOLPlayer.play()
+      }
+      this.isUVOLPlay = !this.isUVOLPlay
+      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [this])
     }
   }
-  onUserEnter(): void {
-    ;(this.el as any).play()
-  }
-  onUserStays(): void {
-    ;(this.el as any).play()
-  }
-  onUserExit(): void {
-    ;(this.el as any).stop()
-    ;(this.el as any).currentTime = 0
-  }
-  onPause(): void {
-    ;(this.el as any).pause()
-    ;(this.el as any).currentTime = 0
-  }
-  onChange(): void {
-    this.onResize && this.onResize()
-  }
+
   clone(recursive): VolumetricNode {
     return new (this as any).constructor(this.audioListener).copy(this, recursive)
   }
+
   copy(source, recursive = true): any {
     super.copy(source, recursive)
     this.controls = source.controls
-    this._canonicalUrl = source._canonicalUrl
     return this
   }
+
+  onUpdate(delta: number, time: number): void {
+    if (this.UVOLPlayer && this.UVOLPlayer.hasPlayed) {
+      this.UVOLPlayer?.handleRender(() => {})
+    }
+  }
+
+  onRemove() {
+    if (this.UVOLPlayer) {
+      this.remove(this.UVOLPlayer.mesh)
+      this.UVOLPlayer.dispose()
+    }
+  }
+
   async serialize(projectID) {
     return await super.serialize(projectID, {
       volumetric: {
-        src: this._canonicalUrl,
+        paths: this.paths,
+        playMode: this.playMode,
         controls: this.controls,
         autoPlay: this.autoPlay,
         loop: this.loop,
@@ -178,7 +186,8 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   prepareForExport(): void {
     super.prepareForExport()
     this.addGLTFComponent('volumetric', {
-      src: this._canonicalUrl,
+      paths: this.paths,
+      playMode: this.playMode,
       controls: this.controls,
       autoPlay: this.autoPlay,
       loop: this.loop,

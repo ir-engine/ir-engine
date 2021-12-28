@@ -12,11 +12,12 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { XRReferenceSpaceType } from '../../input/types/WebXR'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 /**
  * System for XR session and input handling
@@ -47,13 +48,13 @@ export default async function XRSystem(world: World): Promise<System> {
       Engine.xrSession = session
       Engine.xrManager.setSession(session)
       Engine.xrManager.setFoveation(1)
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
+      dispatchLocal(EngineActions.xrSession() as any)
 
       Engine.xrManager.getCamera().layers.enableAll()
 
       Engine.xrManager.addEventListener('sessionend', async () => {
         endXR()
-        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
+        dispatchLocal(EngineActions.xrEnd() as any)
       })
 
       startWebXR()

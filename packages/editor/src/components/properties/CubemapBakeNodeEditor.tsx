@@ -2,11 +2,9 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { BowlingBall } from '@styled-icons/fa-solid'
 import React from 'react'
-import { Vector3 } from 'three'
-import { MediumButton } from '../inputs/Button'
 import { CubemapBakeProperties } from './CubemapBakeProperties'
+import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
 export const enum BakePropertyTypes {
   'Boolean',
@@ -98,6 +96,6 @@ export const CubemapBakeNodeEditor = (props: CubemapBakeNodeEditorProps) => {
   )
 }
 
-CubemapBakeNodeEditor.iconComponent = BowlingBall
+CubemapBakeNodeEditor.iconComponent = SportsGolfIcon
 CubemapBakeNodeEditor.description = 'For Adding Cubemap bake in your scene'
 export default CubemapBakeNodeEditor

@@ -6,7 +6,6 @@ import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import { useAuthState } from '../../../services/AuthService'
 import { AuthService } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '../../../../store'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
@@ -20,7 +19,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import Tooltip from '@mui/material/Tooltip'
 import Grid from '@mui/material/Grid'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar'
+import Snackbar from '@mui/material/Snackbar'
 import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 
@@ -47,7 +46,6 @@ const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
 
-  const dispatch = useDispatch()
   const selfUser = useAuthState().user
 
   const [username, setUsername] = useState(selfUser?.name.value)
@@ -113,6 +111,7 @@ const ProfileMenu = (props: Props): any => {
     const name = username.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
+      // @ts-ignore
       AuthService.updateUsername(selfUser.id.value, name)
     }
   }
@@ -292,7 +291,7 @@ const ProfileMenu = (props: Props): any => {
             </Grid>
 
             <h4>
-              {(selfUser.userRole.value === 'user' || selfUser.userRole.value === 'admin') && (
+              {selfUser.userRole.value !== 'guest' && (
                 <div className={styles.logout} onClick={handleLogout}>
                   {t('user:usermenu.profile.logout')}
                 </div>
@@ -302,6 +301,19 @@ const ProfileMenu = (props: Props): any => {
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
+            )}
+            {selfUser?.userRole.value !== 'guest' && (
+              <>
+                <button onClick={() => changeActiveMenu(Views.Inventory)} className={styles.walletBtn}>
+                  My Inventory
+                </button>
+                <button onClick={() => changeActiveMenu(Views.Trading)} className={styles.walletBtn}>
+                  My Trading
+                </button>
+                <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
+                  My Wallet
+                </button>
+              </>
             )}
           </div>
         </section>

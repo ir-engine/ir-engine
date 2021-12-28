@@ -4,7 +4,6 @@ import { Application } from '../../../declarations'
 import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
 import config from '@xrengine/server-core/src/appconfig'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
 interface Data {}
@@ -13,6 +12,7 @@ interface ServiceOptions {}
 
 interface TicketParams {
   gamemode: string
+  attributes?: Record<string, string>
 }
 
 function isValidTicketParams(data: unknown): data is TicketParams {
@@ -75,7 +75,7 @@ export class MatchTicket implements ServiceMethods<Data> {
       return emulate_createTicket(data.gamemode)
     }
 
-    return await createTicket(data.gamemode)
+    return await createTicket(data.gamemode, data.attributes)
   }
 
   async update(id: NullableId, data: Data, params: Params): Promise<Data> {

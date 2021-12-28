@@ -6,7 +6,7 @@ import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -153,13 +153,14 @@ export const InviteService = {
         const params = {
           inviteType: data.type,
           token: data.token,
-          inviteCode: data.inviteCode,
           targetObjectId: data.targetObjectId,
           identityProviderType: data.identityProviderType,
           inviteeId: data.invitee
         }
 
-        const existingInviteResult = await client.service('invite').find(params)
+        const existingInviteResult = await client.service('invite').find({
+          query: params
+        })
 
         let inviteResult
         if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
@@ -338,7 +339,7 @@ export const InviteAction = {
       type: 'DECLINED_INVITE' as const
     }
   },
-  setInviteTarget: (targetObjectType: string, targetObjectId: string) => {
+  setInviteTarget: (targetObjectType?: string, targetObjectId?: string) => {
     return {
       type: 'INVITE_TARGET_SET' as const,
       targetObjectId: targetObjectId,

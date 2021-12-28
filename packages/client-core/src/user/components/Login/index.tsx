@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '../../../store'
 import CardMedia from '@mui/material/CardMedia'
-import { Google } from '@styled-icons/bootstrap/Google'
-import { Facebook } from '@styled-icons/bootstrap/Facebook'
+import GoogleIcon from '@mui/icons-material/Google'
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
 import Fab from '@mui/material/Fab'
 import styles from './Login.module.scss'
-import { Config } from '@xrengine/common/src/config'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
@@ -177,12 +175,12 @@ const FlatSignIn = (props: Props) => {
         <section className={styles.socialIcons}>
           {enableGoogleSocial && (
             <Fab>
-              <Google size="24" onClick={(e) => handleGoogleLogin(e)} />
+              <GoogleIcon onClick={(e) => handleGoogleLogin(e)} />
             </Fab>
           )}
           {enableFacebookSocial && (
             <Fab>
-              <Facebook size="24" onClick={(e) => handleFacebookLogin(e)} />
+              <FacebookOutlinedIcon onClick={(e) => handleFacebookLogin(e)} />
             </Fab>
           )}
         </section>

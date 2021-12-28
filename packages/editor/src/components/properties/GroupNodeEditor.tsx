@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
-import { Cubes } from '@styled-icons/fa-solid/Cubes'
+import GridViewIcon from '@mui/icons-material/GridView'
 import { useTranslation } from 'react-i18next'
 
 type GroupNodeEditorProps = {
@@ -19,6 +19,6 @@ export const GroupNodeEditor = (props: GroupNodeEditorProps) => {
   return <NodeEditor {...props} description={t('editor:properties.group.description')} />
 }
 
-GroupNodeEditor.iconComponent = Cubes
+GroupNodeEditor.iconComponent = GridViewIcon
 
 export default GroupNodeEditor
