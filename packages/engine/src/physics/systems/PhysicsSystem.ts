@@ -35,10 +35,7 @@ function physicsActionReceptor(action: unknown) {
  * @author Josh Field <github.com/HexaField>
  */
 
-export default async function PhysicsSystem(
-  world: World,
-  attributes: { simulationEnabled?: boolean }
-): Promise<System> {
+export default async function PhysicsSystem(world: World): Promise<System> {
   const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])

@@ -17,6 +17,7 @@ describe('clientInputSystem', () => {
   beforeEach(async () => {
     world = createWorld()
     Engine.currentWorld = world
+    Engine.inputState = new Map()
     clientInputSystem = await ClientInputSystem(world)
   })
 
@@ -45,6 +46,11 @@ describe('clientInputSystem', () => {
       value: stickPosition,
       lifecycleState: LifecycleValue.Ended
     })
+    Engine.inputState.set(GAMEPAD_STICK, {
+      type: InputType.TWODIM,
+      value: stickPosition,
+      lifecycleState: LifecycleValue.Started
+    })
 
     strictEqual(Engine.inputState.size, 2)
     strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Started)
@@ -52,6 +58,17 @@ describe('clientInputSystem', () => {
   })
 
   it('run the input cycle', async () => {
+    Engine.inputState.set(GAMEPAD_STICKR, {
+      type: InputType.TWODIM,
+      value: stickPosition,
+      lifecycleState: LifecycleValue.Ended
+    })
+    Engine.inputState.set(GAMEPAD_STICK, {
+      type: InputType.TWODIM,
+      value: stickPosition,
+      lifecycleState: LifecycleValue.Started
+    })
+
     clientInputSystem()
     strictEqual(Engine.inputState.get(GAMEPAD_STICK)?.lifecycleState, LifecycleValue.Unchanged)
     strictEqual(Engine.inputState.size, 2)
