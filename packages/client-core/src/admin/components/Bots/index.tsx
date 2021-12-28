@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import DisplayBots from './displayBots'
-import { Face, List } from '@mui/icons-material'
+import { List } from '@mui/icons-material'
 import { useStylesForBots as useStyles } from './styles'
 import CreateBot from './CreateBot'
 

@@ -1,5 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import assert, { strictEqual } from 'assert'
+import { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
@@ -8,11 +8,11 @@ import { createDataWriter, writeProps } from "../SoA/DataWriter"
 import { createViewCursor, readFloat32, readUint8, readUint32 } from '../ViewCursor'
 
 describe('SoA DataWriter', () => {
-  
+
   it('should writeProps', () => {
     const writeView = createViewCursor()
 
-    const entities = Array(10).fill(0).map((_,i) => i as Entity)
+    const entities = Array(10).fill(0).map((_, i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 
@@ -56,7 +56,7 @@ describe('SoA DataWriter', () => {
 
     const write = createDataWriter(props)
 
-    const entities = Array(10).fill(0).map((_,i) => i as Entity)
+    const entities = Array(10).fill(0).map((_, i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 

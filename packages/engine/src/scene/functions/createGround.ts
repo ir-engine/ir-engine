@@ -5,9 +5,7 @@ import { createCollider } from '../../physics/functions/createCollider'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { MapAction, mapReducer } from '../../map/MapReceptor'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { getPhases, startPhases } from '../../map/functions/PhaseFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 
 type GroundProps = {

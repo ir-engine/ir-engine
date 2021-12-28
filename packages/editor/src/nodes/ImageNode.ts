@@ -5,7 +5,6 @@ import { resolveMedia } from '../functions/resolveMedia'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { CacheManager } from '../managers/CacheManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'

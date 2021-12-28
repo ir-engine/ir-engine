@@ -32,7 +32,7 @@ describe('Check User Inventory', () => {
   it('should change owner in user inventory', async () => {
     const item = await app.service('user-inventory').patch(tobeRemoved, {
       "userId": receiverID,
-    });
+    }, null!);
     assert.ok(item.userInventoryId, "Should return a unique Id");
   })
 
