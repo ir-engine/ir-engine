@@ -137,6 +137,8 @@ Run the following command: `helm install -f </path/to/local.values.yaml> local x
 This will use a Helm config file titled 'local.values.yaml' to configure the deployment. There is
 a [template](../packages/ops/configs/local.template.values.yaml) for this file in packages/ops/configs
 
+Optionally: If you want to initialize the database as well then run following command instead of above `helm install -f </path/to/local.values.yaml> local xrengine/xrengine --set-string api.extraEnv.FORCE_DB_REFRESH=true`
+
 After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
 servers, and one client server in the Running state.
 

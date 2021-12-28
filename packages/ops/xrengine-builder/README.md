@@ -89,6 +89,7 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | mariadb.db.user | string | `"xrengine"` | Username created/used to connect to database |
 | mariadb.enabled | bool | `true` | Install internal mariadb, 'false' to use external db |
 | mariadb.externalHost | string | `nil` | hostname of external MariaDB instance, ignored if `mariadb.enabled` is `true` |
+| mariadb.externalPort | int | host port of MariaDB instance |
 | mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
 | server.enabled | bool | `true` | Install the xrsocial service |
