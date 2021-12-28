@@ -197,6 +197,14 @@ describe('outgoingNetworkState', () => {
     strictEqual(world.fixedTick >= 0, true)
     world.fixedTick = 42
 
+    world.previousNetworkState = {
+      tick: world.fixedTick,
+      time: Date.now(),
+      pose: [],
+      controllerPose: [],
+      handsPose: []
+    }
+
     const state = world.outgoingNetworkState = {
       tick: 0,
       time: Date.now(),
