@@ -1,14 +1,12 @@
-import { Vector3, Matrix4, Quaternion, Plane, PerspectiveCamera, OrthographicCamera } from 'three'
+import { Vector3, Matrix4, Quaternion, PerspectiveCamera, OrthographicCamera } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarControllerComponent, AvatarControllerComponentType } from '../components/AvatarControllerComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
-import { Engine } from '../../ecs/classes/Engine'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { World } from '../../ecs/classes/World'
 
 /**
@@ -150,6 +148,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   }
 
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
+
   const collisionFlags = controller.controller.move(
     displacement,
     0.001,

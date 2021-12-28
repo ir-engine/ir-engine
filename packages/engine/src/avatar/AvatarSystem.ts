@@ -1,4 +1,4 @@
-import { Camera, Group, Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import {
   addComponent,
   defineQuery,
@@ -13,12 +13,10 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { World } from '../ecs/classes/World'
 import { System } from '../ecs/classes/System'
 import matches from 'ts-matches'
 import { useWorld } from '../ecs/functions/SystemHooks'
-import { teleportRigidbody } from '../physics/functions/teleportRigidbody'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { Engine } from '../ecs/classes/Engine'
@@ -27,14 +25,28 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { isClient } from '../common/functions/isClient'
+import { loadAvatarForEntity } from './functions/avatarFunctions'
+import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 function avatarActionReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.setXRMode.matchesFromAny, (a) => {
-      if (a.$from !== world.hostId && a.$from !== a.userId) return
-      const entity = world.getUserAvatarEntity(a.userId)
+    .when(NetworkWorldAction.avatarDetails.matches, ({ $from, avatarDetail }) => {
+      const client = world.clients.get($from)!
+      if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
+      if (isClient) {
+        const entity = world.getUserAvatarEntity($from)
+        // if(entity)
+        loadAvatarForEntity(entity, avatarDetail)
+        // else
+        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + $from)
+      }
+    })
+
+    .when(NetworkWorldAction.setXRMode.matches, (a) => {
+      const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
       if (a.enabled) {
@@ -55,9 +67,9 @@ function avatarActionReceptor(action) {
       }
     })
 
-    .when(NetworkWorldAction.xrHandsConnected.matchesFromAny, (a) => {
-      if (a.userId === Engine.userId) return
-      const entity = world.getUserAvatarEntity(a.userId)
+    .when(NetworkWorldAction.xrHandsConnected.matches, (a) => {
+      if (a.$from === Engine.userId) return
+      const entity = world.getUserAvatarEntity(a.$from)
       if (!entity) return
 
       if (!hasComponent(entity, XRHandsInputComponent)) {
@@ -73,17 +85,9 @@ function avatarActionReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.teleportObject.matchesFromAny, (a) => {
+    .when(NetworkWorldAction.teleportObject.matches, (a) => {
       const [x, y, z, qX, qY, qZ, qW] = a.pose
-
-      const entity = world.getNetworkObject(a.networkId)
-
-      const colliderComponent = getComponent(entity, ColliderComponent)
-      if (colliderComponent) {
-        teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-        return
-      }
-
+      const entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
       const controllerComponent = getComponent(entity, AvatarControllerComponent)
       if (controllerComponent) {
         const velocity = getComponent(entity, VelocityComponent)
@@ -152,6 +156,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
       avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
+      detectUserInCollisions(entity)
     }
 
     for (const entity of xrLGripQuery.enter()) {

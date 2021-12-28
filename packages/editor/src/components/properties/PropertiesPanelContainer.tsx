@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { NodeManager } from '../../managers/NodeManager'
-import NodeEditor from './NodeEditor'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 import Dialog, { DialogContent } from './Dialog'
 import styled from 'styled-components'

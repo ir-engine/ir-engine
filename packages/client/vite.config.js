@@ -88,7 +88,8 @@ export default defineConfig((command) => {
 
   const returned = {
     optimizeDeps: {
-      include: getDependenciesToOptimize()
+      include: getDependenciesToOptimize(),
+      exclude: ['volumetric']
     },
     plugins: [
       PkgConfig(),
@@ -125,6 +126,7 @@ export default defineConfig((command) => {
         warnOnError: true,
       },
       rollupOptions: {
+        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es',

@@ -15,7 +15,6 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 
 const randomPositionCentered = (area: Vector3) => {
@@ -60,7 +59,7 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
          * When changing location via a portal, the local client entity will be
          * defined when the new world dispatches this action, so ignore it
          */
-        if (Engine.userId === spawnAction.userId && hasComponent(world.localClientEntity, AvatarComponent)) {
+        if (Engine.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
           return
         }
       }
@@ -69,7 +68,7 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
         addComponent(entity, AudioTagComponent, {})
         addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
-        if (spawnAction.userId === Engine.userId) {
+        if (spawnAction.$from === Engine.userId) {
           addComponent(entity, LocalInputTagComponent, {})
           addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
           addComponent(entity, PersistTagComponent, {})
@@ -78,25 +77,21 @@ export default async function AvatarSpawnSystem(world: World): Promise<System> {
     })
   })
 
-  if (isClient) {
-    return () => {}
-  } else {
-    const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
-    return () => {
-      // Keep a list of spawn points so we can send our user to one
-      for (const entity of spawnPointQuery.enter(world)) {
-        if (!hasComponent(entity, TransformComponent)) {
-          console.warn("Can't add spawn point, no transform component on entity")
-          continue
-        }
-        SpawnPoints.instance.spawnPoints.push(entity)
+  const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
+  return () => {
+    // Keep a list of spawn points so we can send our user to one
+    for (const entity of spawnPointQuery.enter(world)) {
+      if (!hasComponent(entity, TransformComponent)) {
+        console.warn("Can't add spawn point, no transform component on entity")
+        continue
       }
-      for (const entity of spawnPointQuery.exit(world)) {
-        const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
+      SpawnPoints.instance.spawnPoints.push(entity)
+    }
+    for (const entity of spawnPointQuery.exit(world)) {
+      const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
 
-        if (index > -1) {
-          SpawnPoints.instance.spawnPoints.splice(index)
-        }
+      if (index > -1) {
+        SpawnPoints.instance.spawnPoints.splice(index)
       }
     }
   }

@@ -1,8 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
-import { UnauthorizedException, NotFoundException, UnauthenticatedException } from '../util/exceptions/exception'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {

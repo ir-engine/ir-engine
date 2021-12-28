@@ -10,17 +10,13 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { Network } from '../../networking/classes/Network'
-import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { isClient } from '../../common/functions/isClient'
-import { AfkCheckComponent } from '../../navigation/component/AfkCheckComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -28,11 +24,6 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { ShadowComponent } from '../../scene/components/ShadowComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
@@ -43,19 +34,8 @@ export const avatarHalfHeight = avatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
-  const userId = spawnAction.userId
-  const entity = world.getNetworkObject(spawnAction.networkId)
-
-  if (isClient) {
-    if (!hasComponent(entity, AfkCheckComponent))
-      addComponent(entity, AfkCheckComponent, {
-        isAfk: false,
-        prevPosition: new Vector3(0, 0, 0),
-        cStep: 0,
-        cStep2: 0,
-        timer: 0
-      })
-  }
+  const userId = spawnAction.$from
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
 
   const position = createVector3Proxy(TransformComponent.position, entity)
 
@@ -140,19 +120,13 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
       rotation: new Quaternion().copy(spawnAction.parameters.rotation)
     })
     createAvatarController(entity)
-
-    addComponent(entity, AudioTagComponent, {})
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-    addComponent(world.localClientEntity, LocalInputTagComponent, {})
-    addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-    addComponent(world.localClientEntity, PersistTagComponent, {})
   }
   const shape = world.physics.createShape(
     new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
     world.physics.physics.createMaterial(0, 0, 0),
     {
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     }
   )
   const body = world.physics.addBody({
@@ -180,10 +154,12 @@ export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
 
-  addComponent(entity, InputComponent, {
-    schema: AvatarInputSchema,
-    data: new Map()
-  })
+  if (!hasComponent(entity, InputComponent)) {
+    addComponent(entity, InputComponent, {
+      schema: AvatarInputSchema,
+      data: new Map()
+    })
+  }
   const world = useWorld()
   const controller = world.physics.createController({
     isCapsule: true,
@@ -209,26 +185,30 @@ export const createAvatarController = (entity: Entity) => {
   frustumCamera.rotateY(Math.PI)
 
   value.add(frustumCamera)
-  addComponent(entity, InteractorComponent, {
-    focusedInteractive: null!,
-    frustumCamera,
-    subFocusedArray: []
-  })
+  if (!hasComponent(entity, InteractorComponent)) {
+    addComponent(entity, InteractorComponent, {
+      focusedInteractive: null!,
+      frustumCamera,
+      subFocusedArray: []
+    })
+  }
 
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
-  addComponent(entity, AvatarControllerComponent, {
-    controller,
-    filterData: new PhysX.PxFilterData(
-      CollisionGroups.Avatars,
-      CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
-      0,
-      0
-    ),
-    collisions: [false, false, false],
-    movementEnabled: true,
-    isJumping: false,
-    isWalking: false,
-    localMovementDirection: new Vector3(),
-    velocitySimulator
-  })
+  if (!hasComponent(entity, AvatarControllerComponent)) {
+    addComponent(entity, AvatarControllerComponent, {
+      controller,
+      filterData: new PhysX.PxFilterData(
+        CollisionGroups.Avatars,
+        CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
+        0,
+        0
+      ),
+      collisions: [false, false, false],
+      movementEnabled: true,
+      isJumping: false,
+      isWalking: false,
+      localMovementDirection: new Vector3(),
+      velocitySimulator
+    })
+  }
 }

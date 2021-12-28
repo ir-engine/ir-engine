@@ -23,7 +23,6 @@ import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/
 import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
 import ModelNode from '../nodes/ModelNode'
-import ShopifyNode from '../nodes/ShopifyNode'
 import VideoNode from '../nodes/VideoNode'
 import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'

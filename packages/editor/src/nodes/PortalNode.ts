@@ -15,11 +15,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   static legacyComponentName = 'portal'
   static nodeName = 'Portal'
 
-  mesh: Mesh
   linkedPortalId: string
   locationName: string
-  modelUrl: string
-  displayText: string
   spawnPosition: Vector3 = new Vector3()
   spawnRotation: Euler = new Euler()
   spawnCylinder: Mesh
@@ -35,9 +32,6 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     console.log(json)
     if (portalComponent) {
       node.linkedPortalId = portalComponent.props.linkedPortalId
-      node.modelUrl = portalComponent.props.modelUrl
-      node.loadModel()
-      node.displayText = portalComponent.props.displayText
       node.locationName = portalComponent.props.locationName
       node.cubemapBakeId = portalComponent.props.cubemapBakeId
 
@@ -109,24 +103,13 @@ export default class PortalNode extends EditorNodeMixin(Model) {
 
     this.spawnCylinder.visible = false
   }
-  async loadModel() {
-    if (!this.modelUrl || this.modelUrl === '') return
-    const model = await this.loadGLTF(this.modelUrl)
-    if (this.mesh) {
-      this.remove(this.mesh)
-    }
-    this.mesh = model
-    this.add(this.mesh)
-  }
   copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this.mesh)
       this.remove(this.triggerHelper)
       this.remove(this.spawnCylinder)
     }
     super.copy(source, recursive)
     this.location = source.location
-    this.displayText = source.displayText
     return this
   }
   async serialize(projectID) {
@@ -142,8 +125,6 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       portal: {
         locationName: this.locationName,
         linkedPortalId: this.linkedPortalId,
-        modelUrl: this.modelUrl,
-        displayText: this.displayText,
         cubemapBakeId: this.cubemapBakeId,
         spawnPosition: pos,
         spawnRotation: rotation,
@@ -169,8 +150,6 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.addGLTFComponent('portal', {
       locationName: this.locationName,
       linkedPortalId: this.linkedPortalId,
-      modelUrl: this.modelUrl,
-      displayText: this.displayText,
       cubemapBakeId: this.cubemapBakeId,
       spawnPosition: pos,
       spawnRotation: rotation,
@@ -209,8 +188,6 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       this.updateSpawnPositionOnScene()
     } else if (prop === 'spawnRotation') {
       this.updateSpawnRotationOnScene()
-    } else if (prop === 'modelUrl') {
-      this.loadModel()
     }
     this.spawnCylinder.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
   }

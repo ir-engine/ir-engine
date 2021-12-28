@@ -4,7 +4,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
@@ -18,13 +18,16 @@ import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from './setObjectLayers'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
-  handleNewScene: () => void
+  handleNewScene: () => Promise<void>
 ) => {
   Engine.currentWorld!.isInPortal = true
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+  dispatchLocal(EngineActions.enableScene({ physics: false }) as any)
   Engine.hasJoinedWorld = false
 
   const world = useWorld()
@@ -32,7 +35,8 @@ export const teleportToScene = async (
   switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+  // world.physics.removeController(getComponent(world.localClientEntity, AvatarControllerComponent).controller)
+
   removeComponent(world.localClientEntity, AvatarControllerComponent)
   removeComponent(world.localClientEntity, InteractorComponent)
   removeComponent(world.localClientEntity, LocalInputTagComponent)
@@ -81,10 +85,10 @@ export const teleportToScene = async (
   await unloadScene()
   await handleNewScene()
 
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     Engine.hasJoinedWorld = true
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+    receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, resolve)
+    dispatchLocal(EngineActions.enableScene({ physics: true }) as any)
   })
 
   await delay(100)

@@ -14,6 +14,7 @@ import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import MapNodeEditor from '../components/properties/MapNodeEditor'
 import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
+import WooCommerceNodeEditor from '../components/properties/WooCommerceNodeEditor'
 import ShopifyNodeEditor from '../components/properties/ShopifyNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
@@ -47,6 +48,7 @@ import LinkNode from '../nodes/LinkNode'
 import MapNode from '../nodes/MapNode'
 import MetadataNode from '../nodes/MetadataNode'
 import ModelNode from '../nodes/ModelNode'
+import WooCommerceNode from '../nodes/WooCommerceNode'
 import ShopifyNode from '../nodes/ShopifyNode'
 import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
@@ -148,6 +150,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(GroupNode, GroupNodeEditor)
   NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
+  NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   NodeManager.instance.registerNode(GroundPlaneNode, GroundPlaneNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)

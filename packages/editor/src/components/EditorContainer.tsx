@@ -36,7 +36,6 @@ import { DialogContext } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
@@ -472,14 +471,11 @@ const EditorContainer = (props) => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
-      if (isDev && projectName === 'default-project')
-        setDialogComponent(<ErrorDialog title={t('editor:warnDefault')} message={t('editor:warnDefaultMsg')} />)
       await saveScene(projectName, sceneName, blob, abortController.signal)
       await saveProject(projectName)
       SceneManager.instance.sceneModified = false
       updateModifiedState()
-
-      if (!(isDev && projectName === 'default-project')) setDialogComponent(null)
+      setDialogComponent(null)
     } catch (error) {
       console.error(error)
 

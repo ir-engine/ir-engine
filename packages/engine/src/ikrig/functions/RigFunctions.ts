@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Object3D, SkinnedMesh } from 'three'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'
 import { IKObj } from '../components/IKObj'
 import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
@@ -47,6 +47,8 @@ function _addRig(
     child.rotation._onChange(noop)
   })
 
+  if (hasComponent(entity, componentClass)) removeComponent(entity, componentClass)
+  if (hasComponent(entity, IKObj)) removeComponent(entity, IKObj)
   addComponent(entity, IKObj, { ref: skinnedMesh })
   const rig = addComponent(entity, componentClass, {
     rootParent: rootObject,

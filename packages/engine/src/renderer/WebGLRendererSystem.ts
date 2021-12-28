@@ -23,6 +23,8 @@ import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -137,10 +139,11 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     if (!context) {
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-      })
+      dispatchLocal(
+        EngineActions.browserNotSupported(
+          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+        ) as any
+      )
     }
 
     this.renderContext = context!
@@ -192,9 +195,11 @@ export class EngineRenderer {
     EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
       this.setUseAutomatic(ev.payload)
     })
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      if (typeof ev.renderer !== 'undefined') {
-        this.rendereringEnabled = ev.renderer
+    Engine.currentWorld.receptors.push((action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.ENABLE_SCENE:
+          if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer
+          break
       }
     })
   }

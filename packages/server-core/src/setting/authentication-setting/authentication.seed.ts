@@ -2,12 +2,11 @@ import config from '../../appconfig'
 
 export const authenticationSeed = {
   path: 'authentication-setting',
-  randomize: false,
   templates: [
     {
       service: 'identity-provider',
       entity: 'identity-provider',
-      secret: 'test',
+      secret: process.env.AUTH_SECRET || 'test',
       authStrategies: JSON.stringify([
         { jwt: true },
         { smsMagicLink: true },
@@ -49,6 +48,7 @@ export const authenticationSeed = {
           secret: process.env.FACEBOOK_CLIENT_SECRET
         }),
         github: JSON.stringify({
+          appid: process.env.GITHUB_APP_ID,
           key: process.env.GITHUB_CLIENT_ID,
           secret: process.env.GITHUB_CLIENT_SECRET
         }),

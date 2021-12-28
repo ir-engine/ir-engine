@@ -65,7 +65,7 @@ client:
     USE_DIRECT_UPLOAD_API: "true"
     USE_HTTPS: "true"
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
     pullPolicy: IfNotPresent
   affinity:
     nodeAffinity:
@@ -146,6 +146,7 @@ api:
     MAIL_FROM: info@login.<domain>
     SERVER_ENABLED: "true"
     SERVER_HOST: "api-dev.<domain>"
+    SERVER_MODE: "api"
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
@@ -174,7 +175,7 @@ api:
     STORAGE_S3_DEV_MODE: dev
     PRESIGNED_URL_EXPIRATION_DURATION: "3600"
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
   service:
     type: NodePort
   affinity:
@@ -278,7 +279,7 @@ media:
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -304,7 +305,7 @@ media:
 
 gameserver:
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
     pullPolicy: IfNotPresent
   extraEnv:
     APP_ENV: production
@@ -320,6 +321,7 @@ gameserver:
     RTC_PORT_BLOCK_SIZE: "100"
     GAMESERVER_DOMAIN: gameserver-dev.<domain>
     GAMESERVER_PORT: "3031"
+    GAMESERVER_MODE: "realtime"
     STORAGE_PROVIDER: aws
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
     STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
@@ -401,7 +403,7 @@ analytics:
   name: xrengine-analytics
   replicaCount: 1
   image:
-    repository: lagunalabs/xrengine
+    repository: <repository_name>
     pullPolicy: IfNotPresent
   extraEnv:
     ANALYTICS_ENABLED: "true"

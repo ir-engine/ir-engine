@@ -1,6 +1,5 @@
 export const routeSeedData = {
   path: 'route',
-  randomize: false,
   templates: [
     {
       project: 'default-project',
@@ -21,10 +20,6 @@ export const routeSeedData = {
     {
       project: 'default-project',
       route: '/wallet'
-    },
-    {
-      project: 'default-project',
-      route: '/harmony'
     },
     {
       project: 'default-project',
