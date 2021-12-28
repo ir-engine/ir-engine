@@ -92,7 +92,7 @@
     "@rollup/plugin-commonjs": "21.0.1",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.1.1",
-    "@rollup/plugin-replace": "3.0.0",
+    "@rollup/plugin-replace": "3.0.1",
     "@types/dotenv-flow": "3.2.0",
     "@types/mime-types": "2.1.1",
     "@types/multer": "1.4.7",
