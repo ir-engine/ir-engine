@@ -15,7 +15,7 @@ const EVENTS = {
   JOINED_WORLD: 'CORE_JOINED_WORLD' as const, // { }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD' as const, // { }
   SCENE_ENTITY_LOADED: 'CORE_SCENE_ENTITY_LOADED' as const, // { }
-  LOADING_STATE_CHANGED: 'LOADING_STATE_ChANGED' as const,
+  LOADING_STATE_CHANGED: 'LOADING_STATE_CHANGED' as const,
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE' as const, // { renderer: boolean, physics: boolean }
