@@ -83,7 +83,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     loadComponents(entity, key, sceneEntity)
 
     dispatchLocal(
-      EngineActions.updateLoadingScreenDetails(
+      EngineActions.loadingStateChanged(
         Math.floor(currentProgress + sceneProgress),
         `loading ${sceneEntity.name}...`
       ) as any
