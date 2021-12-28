@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'

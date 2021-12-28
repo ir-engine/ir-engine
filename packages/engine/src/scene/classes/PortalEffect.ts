@@ -11,7 +11,6 @@ import {
   Object3D,
   Texture,
   TubeGeometry,
-  Vector2,
   Vector3
 } from 'three'
 

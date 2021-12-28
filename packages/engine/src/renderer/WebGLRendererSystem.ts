@@ -24,7 +24,7 @@ import { World } from '../ecs/classes/World'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { dispatchLocal } from '../networking/functions/dispatchFrom'
-import { EngineActions } from '../ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -195,9 +195,11 @@ export class EngineRenderer {
     EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
       this.setUseAutomatic(ev.payload)
     })
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      if (typeof ev.renderer !== 'undefined') {
-        this.rendereringEnabled = ev.renderer
+    Engine.currentWorld.receptors.push((action: EngineActionType) => {
+      switch (action.type) {
+        case EngineEvents.EVENTS.ENABLE_SCENE:
+          if (typeof action.env.renderer !== 'undefined') this.rendereringEnabled = action.env.renderer
+          break
       }
     })
   }

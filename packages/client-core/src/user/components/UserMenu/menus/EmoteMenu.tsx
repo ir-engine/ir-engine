@@ -4,8 +4,6 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'

@@ -8,8 +8,6 @@ import {
   GroupAdd,
   NearMe,
   PersonAdd,
-  PhotoAlbum,
-  PhotoLibrary,
   Settings,
   SupervisorAccount,
   Toys,

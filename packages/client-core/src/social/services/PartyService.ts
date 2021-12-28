@@ -12,7 +12,7 @@ import { accessInstanceConnectionState } from '../../common/services/InstanceCon
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import _ from 'lodash'
 
 //State

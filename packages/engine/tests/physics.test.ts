@@ -1,21 +1,16 @@
-import { initializeEngine } from '../src/initializeEngine'
-import { engineTestSetup } from './util/setupEngine'
 import { useWorld } from "../src/ecs/functions/SystemHooks"
 import { putIntoPhysXHeap, vectorToArray } from "../src/physics/functions/physxHelpers"
 import assert from 'assert'
-import { BodyOptions, createCollider, createShape } from '../src/physics/functions/createCollider'
+import { BodyOptions, createCollider } from '../src/physics/functions/createCollider'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { BodyType } from '../src/physics/types/PhysicsTypes'
 import { CollisionGroups } from '../src/physics/enums/CollisionGroups'
 import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
-import { delay } from '../src/common/functions/delay'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
 import { Engine } from '../src/ecs/classes/Engine'
 import { createWorld } from '../src/ecs/classes/World'
-import { loadPhysX } from '../src/physics/physx/loadPhysX'
 import PhysicsSystem from '../src/physics/systems/PhysicsSystem'
-import { SystemUpdateType } from '../src/ecs/functions/SystemUpdateType'
 import { Object3DComponent } from '../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../src/transform/components/TransformComponent'
 import { ColliderComponent } from '../src/physics/components/ColliderComponent'
@@ -25,20 +20,16 @@ import { getGeometryType } from '../src/physics/classes/Physics'
 const avatarRadius = 0.25
 const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
-const avatarHalfHeight = avatarHeight / 2
 const mockDelta = 1/60
-let mockElapsedTime = 0
 
-describe('Physics', () => {
+describe('Physics Interation Tests', () => {
 
   beforeEach(async () => {
     Engine.currentWorld = createWorld()
-    Engine.currentWorld = Engine.currentWorld
     await Engine.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
-    Engine.currentWorld = null!
     Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
@@ -124,7 +115,7 @@ describe('Physics', () => {
    */
   it('Can detect dynamic and trigger collision', async () => {
     const world = useWorld()
-    const runPhysics = await PhysicsSystem(world, null!)
+    const runPhysics = await PhysicsSystem(world)
 
     const execute = () => {
       world.fixedTick += 1
