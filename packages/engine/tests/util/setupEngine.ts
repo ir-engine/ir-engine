@@ -1,18 +1,31 @@
 import { EngineSystemPresets, InitializeOptions } from '../../src/initializationOptions'
-import { Network } from '../../src/networking/classes/Network'
+import { Network, NetworkTransportHandler } from '../../src/networking/classes/Network'
 import '@xrengine/engine/src/patchEngineNode'
+import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-class DummyTransport {
-  handleKick = () => {}
-  initialize = () => {}
-  sendData = () => {}
-  sendReliableData = () => {}
-  sendActions = () => {}
-  close = () => {}
+export class DummyTransport implements NetworkTransport {
+  request = (message: string, data?: any) => null!
+  initialize = () => null!
+  sendData = () => null!
+  sendActions = () => null!
+  close = () => null!
 }
 
-Network.instance.transport = new DummyTransport()
-Network.instance.transport.initialize()
+export class DummyTransportHandler implements NetworkTransportHandler<DummyTransport, DummyTransport> {
+  worldTransports = new Map<UserId, DummyTransport>()
+  mediaTransports = new Map<UserId, DummyTransport>()
+  constructor() {
+    this.worldTransports.set('server' as UserId, new DummyTransport())
+    this.mediaTransports.set('media' as UserId, new DummyTransport())
+  }
+  getWorldTransport() {
+    return this.worldTransports.get('server' as UserId)!
+  }
+  getMediaTransport() {
+    return this.mediaTransports.get('media' as UserId)!
+  }
+}
 
 export const engineTestSetup: InitializeOptions = {
   type: EngineSystemPresets.SERVER,

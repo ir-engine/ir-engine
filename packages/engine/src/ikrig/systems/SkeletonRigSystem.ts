@@ -46,7 +46,7 @@ const mockAvatars = () => {
       thumbnailURL: `/projects/default-project/avatars/Cyberbot${cyberbot}.png`,
       avatarURL: `/projects/default-project/avatars/Cyberbot${cyberbot}.glb`,
       avatarId: `Cyberbot${cyberbot}`
-    } as any
+    }
     const userId = ('user' + i) as UserId
     const parameters = {
       position: new Vector3(0, 0, 0).random().setY(0).multiplyScalar(10),
@@ -55,8 +55,9 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal(NetworkWorldAction.createClient({ userId, name: 'user', avatarDetail }) as any)
-    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ userId, parameters }), networkId } as any)
+    dispatchLocal(NetworkWorldAction.createClient({ $from: userId, name: 'user' }))
+    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ parameters }), networkId })
+    dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
   }
 }
 

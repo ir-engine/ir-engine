@@ -1,11 +1,10 @@
-import app from './app'
 import config from '@xrengine/server-core/src/appconfig'
 
 const DEFAULT_INTERVAL_SECONDS = 1800
 const configInterval = parseInt(config.analytics.processInterval)
 const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 
-export default (): void => {
+export default (app): void => {
   setInterval(async () => {
     console.log('Collecting analytics at ', new Date().toString())
     const activeLocations = []
@@ -53,8 +52,10 @@ export default (): void => {
       isInternal: true
     })
     activeInstances.data.forEach((instance) => {
-      if (activeLocations.indexOf(instance.location.id) < 0) activeLocations.push(instance.location.id)
-      if (activeScenes.indexOf(instance.location.sceneId) < 0) activeScenes.push(instance.location.sceneId)
+      if (instance.location) {
+        if (activeLocations.indexOf(instance.location.id) < 0) activeLocations.push(instance.location.id)
+        if (activeScenes.indexOf(instance.location.sceneId) < 0) activeScenes.push(instance.location.sceneId)
+      }
     })
     await Promise.all([
       app.service('analytics').create({

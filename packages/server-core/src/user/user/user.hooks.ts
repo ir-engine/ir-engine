@@ -40,9 +40,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'user-wallet'
-          },
-          {
             model: 'inventory-item',
             include: [
               {
@@ -73,9 +70,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'user-wallet'
           },
           {
             model: 'inventory-item',
@@ -112,9 +106,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'user-wallet'
-          },
-          {
             model: 'inventory-item',
             include: [
               {
@@ -134,20 +125,17 @@ export default {
     find: [
       (context: HookContext): HookContext => {
         try {
-          if (context.result?.data[0]) {
+          if (context.result?.data) {
             for (let x = 0; x < context.result.data.length; x++) {
-              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
-              for (let i = 0; i < context.result.data[x].inventory_items.length; i++) {
+              for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
                 context.result.data[x].inventory_items[i].metadata = JSON.parse(
                   context.result.data[x].inventory_items[i].metadata
                 )
               }
             }
-          } else {
-            context.result.data = []
           }
-        } catch {
-          context.result.data = []
+        } catch (err) {
+          console.log('inventory item parsing error on user.FIND', err)
         }
         return context
       }
@@ -187,20 +175,13 @@ export default {
     get: [
       (context: HookContext): HookContext => {
         try {
-          if (context.result?.data[0]) {
-            for (let x = 0; x < context.result.data.length; x++) {
-              //context.result.data[x].inventory_items.metadata = JSON.parse(context.result.data[x].inventory_items.metadata)
-              for (let i = 0; i < context.result.data[x].inventory_items.length; i++) {
-                context.result.data[x].inventory_items[i].metadata = JSON.parse(
-                  context.result.data[x].inventory_items[i].metadata
-                )
-              }
+          if (context.result) {
+            for (let i = 0; i < context.result.inventory_items?.length; i++) {
+              context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
             }
-          } else {
-            context.result.data = []
           }
-        } catch {
-          context.result.data = []
+        } catch (err) {
+          console.log('inventory item parsing error on user.GET', err)
         }
         return context
       }

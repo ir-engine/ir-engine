@@ -2,6 +2,7 @@ import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
@@ -45,15 +46,18 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     }
     lastTime = time
   }
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
-    stop()
-  })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.xrManager.setAnimationLoop(xrAnimationLoop)
-  })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
-    start()
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.XR_START:
+        stop()
+        break
+      case EngineEvents.EVENTS.XR_SESSION:
+        Engine.xrManager.setAnimationLoop(xrAnimationLoop)
+        break
+      case EngineEvents.EVENTS.XR_END:
+        start()
+        break
+    }
   })
 
   function onFrame(time) {
@@ -187,9 +191,6 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
   function clear() {
     stop()
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
   }
 
   return {

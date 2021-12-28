@@ -1,0 +1,49 @@
+mariadb:
+  db:
+    name: <db_name>
+    password: <password>
+    user: <username>
+  enabled: false
+  externalHost: <RDS hostname>
+builder:
+  extraEnv:
+    RELEASE_NAME: <RELEASE_NAME>
+    AWS_ACCESS_KEY: <AWS_ACCESS_KEY>
+    AWS_SECRET: <AWS_SECRET>
+    AWS_REGION: <AWS_REGION
+    CLUSTER_NAME: <CLUSTER_NAME>
+    ECR_URL: <ECR_URL>
+    REPO_NAME: <REPO_NAME>
+    DOCKER_LABEL: <DOCKER_LABEL>
+    PRIVATE_ECR: "false"
+    STORAGE_PROVIDER: aws
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
+    STORAGE_CLOUDFRONT_DOMAIN: <CLOUDFRONT_DOMAIN>
+    STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <CLOUDFRONT_DISTRIBUTION_ID>
+    STORAGE_S3_REGION: <S3_REGION>
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
+    STORAGE_S3_AVATAR_DIRECTORY: avatars
+    VITE_APP_HOST: dev.<domain>
+    VITE_APP_PORT: "3000"
+    VITE_SERVER_HOST: api-dev.<domain>
+    VITE_SERVER_PORT: "3030"
+    VITE_GAMESERVER_HOST: gameserver-dev.<domain>
+    VITE_GAMESERVER_PORT: "3031"
+  image:
+    repository: <ECR_URL>/xrengine-dev-builder
+  service:
+    type: NodePort
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                  - ng-<RELEASE_NAME>-builder-1
+  replicaCount: 1
+
+release:
+  name: <RELEASE_NAME>

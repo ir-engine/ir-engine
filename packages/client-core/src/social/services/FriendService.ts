@@ -7,7 +7,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 import _ from 'lodash'
 
 //State
@@ -42,7 +42,7 @@ store.receptors.push((action: FriendActionType): any => {
       case 'CREATED_FRIEND':
         newValues = action
         const createdUserRelationship = newValues.userRelationship
-        s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+        return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
       case 'PATCHED_FRIEND':
         newValues = action
         const patchedUserRelationship = newValues.userRelationship
@@ -107,7 +107,7 @@ export const FriendService = {
   //   }
   // }
 
-  getFriends: async (search: string, skip?: number, limit?: number) => {
+  getFriends: async (skip: number = 0, limit: number = 10) => {
     const dispatch = useDispatch()
     {
       dispatch(FriendAction.fetchingFriends())
@@ -117,8 +117,7 @@ export const FriendService = {
           query: {
             action: 'friends',
             $limit: limit != null ? limit : friendState.friends.limit.value,
-            $skip: skip != null ? skip : friendState.friends.skip.value,
-            search
+            $skip: skip != null ? skip : friendState.friends.skip.value
           }
         })
         dispatch(FriendAction.loadedFriends(friendResult))

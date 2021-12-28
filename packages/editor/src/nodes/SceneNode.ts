@@ -339,6 +339,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     }
     const pmren = new PMREMGenerator(Engine.renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
+    texture.needsUpdate = true
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture
     pmren.dispose()

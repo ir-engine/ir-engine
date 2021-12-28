@@ -5,13 +5,11 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import InteractableGroup from '../inputs/InteractableGroup'
 import NodeEditor from './NodeEditor'
-import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
-import React, { Fragment, useEffect, useState } from 'react'
-import { useTranslation, withTranslation } from 'react-i18next'
+import React, { Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
 import AudioSourceProperties from './AudioSourceProperties'
@@ -19,7 +17,6 @@ import { ControlledStringInput } from '../inputs/StringInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../../nodes/SceneNode'
 
 /**
  * Declaring properties for ModalNodeEditor component.
@@ -45,19 +42,7 @@ type ShopifyNodeEditorState = {
  */
 
 export const ShopifyNodeEditor = (props: ShopifyNodeEditorProps) => {
-  let [options, setOptions] = useState([])
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const options = []
-    const sceneNode = Engine.scene as any as SceneNode
-    sceneNode.traverse((o) => {
-      if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
-      }
-    })
-    setOptions(options)
-  }, [])
 
   //Shopify UI Controls
   const onChangeShopifyDomain = (domain) => {

@@ -9,7 +9,7 @@ import waitForClientAuthenticated from '../../util/wait-for-client-authenticated
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 import _ from 'lodash'
 
 //State
@@ -78,7 +78,8 @@ store.receptors.push((action: GroupActionType): any => {
         updateGroup = newValues.group
 
         groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === groupUser.groupId
+          // return groupItem != null && groupItem.id === groupUser.groupId
+          return groupItem != null && groupItem.id === updateGroup.id
         })
         if (groupIndex !== -1) {
           return s.groups.groups[groupIndex].set(updateGroup)
@@ -114,6 +115,7 @@ store.receptors.push((action: GroupActionType): any => {
           }
         }
 
+        return s.merge({ updateNeeded: true })
       case 'PATCHED_GROUP_USER':
         newValues = action
         groupUser = newValues.groupUser
@@ -162,8 +164,9 @@ store.receptors.push((action: GroupActionType): any => {
             })
           }
         }
-
-        return self === true ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true }) : s
+        return self === true
+          ? s.merge({ closeDetails: groupUser.groupId, updateNeeded: true })
+          : s.merge({ updateNeeded: true })
 
       case 'REMOVE_CLOSE_GROUP_DETAIL':
         return s.closeDetails.set('')
@@ -199,10 +202,11 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        await client.service('group').create({
+        const result = await client.service('group').create({
           name: values.name,
           description: values.description
         })
+        dispatch(GroupAction.createdGroup(result))
       } catch (err) {
         AlertService.dispatchAlertError(err)
       }
@@ -219,7 +223,9 @@ export const GroupService = {
         ;(patch as any).description = values.description
       }
       try {
-        await client.service('group').patch(values.id, patch)
+        const data = await client.service('group').patch(values.id, patch)
+        // ;(patch as any).id = values.id
+        dispatch(GroupAction.patchedGroup(data))
       } catch (err) {
         AlertService.dispatchAlertError(err)
       }
@@ -231,6 +237,7 @@ export const GroupService = {
       try {
         const channelResult = (await client.service('channel').find({
           query: {
+            channelType: 'group',
             groupId: groupId
           }
         })) as any
@@ -248,6 +255,7 @@ export const GroupService = {
     {
       try {
         await client.service('group-user').remove(groupUserId)
+        dispatch(GroupAction.leftGroup())
       } catch (err) {
         AlertService.dispatchAlertError(err)
       }

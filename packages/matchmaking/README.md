@@ -12,6 +12,10 @@ kubectl apply --namespace open-match \
 -f https://open-match.dev/install/v1.3.0-rc.1/yaml/07-open-match-default-evaluator.yaml
 ```
 
+* note: sometimes on localhost redis synchronisation is not working correctly,
+it's usually leads to "Ticket not found" on getting ticket assignment even if ticket was just created. 
+if this happens then run `kubectl scale -n open-match statefulset open-match-redis-node --replicas=1` to limit redis pod to one.  
+
 then build custom pods
 ```bash
 cd packages/matchmaking/

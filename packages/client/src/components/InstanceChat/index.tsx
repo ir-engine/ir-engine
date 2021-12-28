@@ -17,7 +17,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/engine/src/networking/utils/chatSystem'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
@@ -59,7 +59,7 @@ const InstanceChat = (props: Props): any => {
     if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value === true &&
-      channelState.fetchingInstanceChannel.value !== true
+      channelState.instanceChannelFetching.value !== true
     ) {
       ChatService.getInstanceChannel()
     }
@@ -67,7 +67,7 @@ const InstanceChat = (props: Props): any => {
     user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
-    channelState.fetchingInstanceChannel.value
+    channelState.instanceChannelFetching.value
   ])
 
   const handleComposingMessageChange = (event: any): void => {

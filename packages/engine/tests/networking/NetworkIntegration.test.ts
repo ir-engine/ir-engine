@@ -1,36 +1,21 @@
 
- import { initializeEngine, shutdownEngine } from '../../src/initializeEngine'
- import { Engine } from '../../src/ecs/classes/Engine'
- import assert from 'assert'
-
+import { initializeEngine } from '../../src/initializeEngine'
 import { Network } from '../../src/networking/classes/Network'
 import { TestNetwork } from './TestNetwork'
-import { EngineSystemPresets, InitializeOptions } from '../../src/initializationOptions'
-import { DefaultNetworkSchema } from '../../src/networking/templates/DefaultNetworkSchema'
+import { EngineSystemPresets } from '../../src/initializationOptions'
 
 describe('Network Integration Tests', async () => {
-  
+
   before(async () => {
     /* hoist */
     Network.instance = new TestNetwork()
     await initializeEngine({
       type: EngineSystemPresets.SERVER,
-      networking: {
-        schema: DefaultNetworkSchema,
-        transport: Network.instance.transport
-      },
-      systems: [
-      ],
+      systems: [],
     })
   })
-  
-  // force close until we can reset the engine properly
-  after(async () => {
-    await shutdownEngine()
-    setTimeout(() => process.exit(0), 1000)
-  })
 
-  it('should forward incoming actions', () => {
+  it('should', () => {
 
   })
 

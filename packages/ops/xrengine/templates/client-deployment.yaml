@@ -59,7 +59,7 @@ spec:
                   name: {{ template "xrengine.mariadb.fullname" . }}
                   {{- end }}
                   key: mariadb-password
-            {{- end }}
+              {{- end }}
             - name: MYSQL_HOST
               value: {{ template "xrengine.mariadb.host" . }}
             - name: RELEASE_NAME

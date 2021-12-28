@@ -1,4 +1,4 @@
-import { Bone, Quaternion, Vector3 } from 'three'
+import { Bone, Vector3 } from 'three'
 import Pose, { PoseBoneLocalState } from './Pose'
 import { FORWARD, UP } from '../constants/Vector3Constants'
 import { IKSolverFunction } from '../functions/IKSolvers'

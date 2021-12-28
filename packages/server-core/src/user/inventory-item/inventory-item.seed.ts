@@ -1,6 +1,5 @@
 export const inventoryItemSeed = {
   path: 'inventory-item',
-  randomize: false,
   templates: [
     {
       sid: 'j9o2NLiD',

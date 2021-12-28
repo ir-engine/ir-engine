@@ -250,6 +250,13 @@
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
     "remove": "Remove avatar"
-}
-
+  },
+  "personMenu":{
+    "inviteToParty":"Invite To Party",
+    "addAsFriend":"Add As Friend",
+    "trade":"Trade",
+    "pay":"Pay",
+    "mute":"Mute",
+    "block":"Block"
+  }
 }

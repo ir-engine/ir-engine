@@ -19,6 +19,9 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
+import { dispatchLocal } from './networking/functions/dispatchFrom'
+import { receiveActionOnce } from './networking/functions/matchActionOnce'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -39,7 +42,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   Engine.audioListener = new AudioListener()
 
   Engine.scene = new Scene()
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')!
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
@@ -47,18 +50,15 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
     if (!enableRenderer)
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-      })
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.ENABLE_SCENE,
-      renderer: enableRenderer,
-      physics: true
-    })
+      dispatchLocal(
+        EngineActions.browserNotSupported(
+          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+        ) as any
+      )
+    dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
-
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
@@ -87,16 +87,12 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
-
-  // Had to add this to make mocha tests pass
-  Network.instance ||= new Network()
-  Network.instance.isInitialized = true
-
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     console.log('joined world')
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
+    dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   if (!isMediaServer) {
     await loadDRACODecoder()
@@ -141,10 +137,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
   // Maps
   registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
-
-  // Navigation
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/FollowSystem'))
-  registerSystem(SystemUpdateType.FIXED, import('./navigation/systems/AfkCheckSystem'))
 
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
@@ -235,6 +227,7 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./interaction/systems/EquippableSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
 
   // Scene Systems
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/NamedEntitiesSystem'))
@@ -259,6 +252,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
+  Engine.currentWorld.receptors.push(EngineEventReceptor)
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
@@ -303,39 +297,24 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
-  if (options.type === EngineSystemPresets.CLIENT) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-      Engine.engineTimer.start()
-    })
-    const onUserEngage = () => {
-      Engine.hasEngaged = true
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE })
-      ;['click', 'touchstart', 'touchend', 'pointerdown'].forEach((type) => {
-        window.addEventListener(type, onUserEngage)
-      })
-    }
-    ;['click', 'touchstart', 'touchend', 'pointerdown'].forEach((type) => {
-      window.addEventListener(type, onUserEngage)
-    })
+  Engine.engineTimer.start()
 
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Network.instance.isInitialized = true
-      Engine.userId = id
+  if (options.type === EngineSystemPresets.CLIENT) {
+    receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+      Engine.userId = action.id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
-    Engine.engineTimer.start()
+    Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
   } else if (options.type === EngineSystemPresets.MEDIA) {
-    Engine.userId = 'mediaserver' as UserId
-    Engine.engineTimer.start()
+    Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
-    Engine.engineTimer.start()
   }
 
   // Mark engine initialized
   Engine.isInitialized = true
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+  dispatchLocal(EngineActions.initializeEngine(true) as any)
 }
 
 export const shutdownEngine = async () => {

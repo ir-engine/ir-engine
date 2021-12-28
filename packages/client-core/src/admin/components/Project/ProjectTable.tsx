@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
 import Cross from '@mui/icons-material/Cancel'
 import Cached from '@mui/icons-material/Cached'
 import Table from '@mui/material/Table'
@@ -12,10 +11,10 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
-import TablePagination from '@mui/material/TablePagination'
 import { useAuthState } from '../../../user/services/AuthService'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
 import { ProjectService } from '../../services/ProjectService'
+import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -30,6 +29,8 @@ const Projects = () => {
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
+  const githubAppState = useGithubAppState()
+  const githubAppRepos = githubAppState.repos
 
   const headCell = [
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
@@ -164,6 +165,11 @@ const Projects = () => {
     }
   }
 
+  const onOpenUploadModal = () => {
+    GithubAppService.fetchGithubAppRepos()
+    setUploadProjectsModalOpen(true)
+  }
+
   // useEffect(() => {
   //   fetchTick()
   // }, [])
@@ -199,7 +205,7 @@ const Projects = () => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={() => setUploadProjectsModalOpen(true)}
+              onClick={onOpenUploadModal}
             >
               {'Add Project'}
             </Button>
@@ -285,7 +291,11 @@ const Projects = () => {
             className={styles.tablePagination}
           />
         </div> */}
-        <UploadProjectModal open={uploadProjectsModalOpen} handleClose={() => setUploadProjectsModalOpen(false)} />
+        <UploadProjectModal
+          repos={githubAppRepos}
+          open={uploadProjectsModalOpen}
+          handleClose={() => setUploadProjectsModalOpen(false)}
+        />
       </Paper>
     </div>
   )

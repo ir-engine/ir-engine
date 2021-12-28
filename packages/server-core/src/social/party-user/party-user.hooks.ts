@@ -100,7 +100,7 @@ export default {
     patch: [unsetSelfPartyOwner()],
     remove: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, params } = context
+        const { app, params, result } = context
         if (params.partyUsersRemoved !== true) {
           const party = await app.service('party').get(params.query!.partyId)
           const partyUserCount = await app.service('party-user').find({
@@ -111,6 +111,18 @@ export default {
           })
           if (partyUserCount.total < 1 && party.locationId == null) {
             await app.service('party').remove(params.query!.partyId, params)
+          }
+          if (partyUserCount.total >= 1 && (result.isOwner === true || result.isOwner === 1)) {
+            const partyUserResult = await app.service('party-user').find({
+              query: {
+                partyId: params.query!.partyId
+              }
+            })
+            const partyUsers = partyUserResult.data
+            const newOwner = partyUsers[Math.floor(Math.random() * partyUsers.length)]
+            await app.service('party-user').patch(newOwner.id, {
+              isOwner: true
+            })
           }
         }
         return context
