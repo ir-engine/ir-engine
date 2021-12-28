@@ -14,6 +14,7 @@ import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioComponent } from '../components/AudioComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -38,15 +39,17 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
   let audioContextSuspended = true
   let startSuspendedContexts = false
   let suspendPositionalAudio = false
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS, () => {
-    startSuspendedContexts = true
-    audioContextSuspended = false
-    console.log('starting suspended audio nodes')
-  })
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO, () => {
-    suspendPositionalAudio = true
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
+        startSuspendedContexts = true
+        audioContextSuspended = false
+        console.log('starting suspended audio nodes')
+        break
+      case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
+        suspendPositionalAudio = true
+        break
+    }
   })
 
   let positionalAudioSettings: ReturnType<typeof PositionalAudioSettingsComponent.get>

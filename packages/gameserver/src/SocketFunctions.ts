@@ -28,8 +28,6 @@ import {
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
@@ -38,11 +36,6 @@ function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefine
 
 export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => async (socket: Socket) => {
   const app = transport.app
-  if (!Engine.sceneLoaded && !app.isChannelInstance) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-    })
-  }
 
   // Authorize user and make sure everything is valid before allowing them to join the world
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {

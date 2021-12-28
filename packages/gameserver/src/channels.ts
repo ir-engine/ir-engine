@@ -11,7 +11,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getSystemsFromSceneData } from '@xrengine/projects/loader'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -49,13 +49,19 @@ const loadScene = async (app: Application, scene: string) => {
     }
   }, 1000)
 
-  const onEntityLoaded = (left) => {
-    entitiesLeft = left.entitiesLeft
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
+        entitiesLeft = action.entitiesLeft
+        break
+    }
   }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
-
+  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
-  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+
+  ///remove receptor
+  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+  Engine.currentWorld.receptors.splice(receptorIndex, 1)
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
