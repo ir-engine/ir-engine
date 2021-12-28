@@ -37,17 +37,19 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 1. Ensure api server connection in and set up reset listener
   useEffect(() => {
     AuthService.doLoginAuto(true)
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
-      if (!ev.instance) return
+  }, [])
 
+  useEffect(() => {
+    const action = async (ev: any) => {
+      if (!ev.instance) return
       await shutdownEngine()
       InstanceConnectionService.resetInstanceServer()
-
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
       }
-    })
-  }, [])
+    }
+    if (engineState.socketInstance.value) action({ instance: true })
+  }, [engineState.socketInstance.value])
 
   // 2. once we have the location, provision the instance server
   useEffect(() => {
@@ -83,14 +85,14 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
   useEffect(() => {
     if (
-      engineState.isInitialised.value &&
+      engineState.isEngineInitialized.value &&
       !instanceConnectionState.connected.value &&
       instanceConnectionState.instanceProvisioned.value &&
       !instanceConnectionState.instanceServerConnecting.value
     )
       InstanceConnectionService.connectToInstanceServer()
   }, [
-    engineState.isInitialised.value,
+    engineState.isEngineInitialized.value,
     instanceConnectionState.connected.value,
     instanceConnectionState.instanceServerConnecting.value,
     instanceConnectionState.instanceProvisioned.value

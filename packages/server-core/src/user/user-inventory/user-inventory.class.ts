@@ -18,7 +18,7 @@ export class UserInventory extends Service {
     super(options)
     this.app = app
   }
-  async patch(id: NullableId, data: any, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: any, params: Params) {
     if (data.type === 'transfer') {
       let { fromUserId, toUserId, quantity, walletAmt } = data
       let response: any = await blockchainTokenGenerator()

@@ -17,6 +17,7 @@ import { teleportRigidbody } from '../functions/teleportRigidbody'
 import { CollisionComponent } from '../components/CollisionComponent'
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 function physicsActionReceptor(action: unknown) {
   const world = useWorld()
@@ -45,12 +46,15 @@ export default async function PhysicsSystem(
 
   let simulationEnabled = true
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-    if (typeof ev.physics !== 'undefined') {
-      simulationEnabled = ev.physics
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.ENABLE_SCENE:
+        if (typeof action.env.physics !== 'undefined') {
+          simulationEnabled = action.env.physics
+        }
+        break
     }
   })
-
   world.receptors.push(physicsActionReceptor)
 
   return () => {

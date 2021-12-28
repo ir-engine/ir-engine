@@ -15,6 +15,8 @@ import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { SceneOptions } from '../systems/SceneObjectSystem'
+import { EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {
@@ -87,15 +89,13 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
       if (!options) return
       SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
-
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+      receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
             new TextureLoader().load(options.envMapOrigin, (texture) => {
               Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
               texture.dispose()
             })
-
             break
           case CubemapBakeTypes.Realtime:
             // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)

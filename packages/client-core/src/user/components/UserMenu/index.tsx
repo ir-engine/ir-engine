@@ -92,7 +92,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   useEffect(() => {
     setEngineLoaded(true)
-  }, [engineState.isInitialised.value])
+  }, [engineState.isEngineInitialized.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
