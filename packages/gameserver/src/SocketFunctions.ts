@@ -30,6 +30,8 @@ import {
 } from './WebRTCFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null
@@ -39,9 +41,7 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => 
   const app = transport.app
   if (!Engine.sceneLoaded && !app.isChannelInstance) {
     await new Promise<void>((resolve) => {
-      socket.on(MessageTypes.SceneLoaded.toString(), () => {
-        resolve()
-      })
+      receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, resolve)
     })
   }
 

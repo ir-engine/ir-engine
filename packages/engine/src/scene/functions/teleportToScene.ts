@@ -20,6 +20,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from './setObjectLayers'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -84,18 +85,9 @@ export const teleportToScene = async (
   await unloadScene()
   await handleNewScene()
 
-  await new Promise<void>((resolve) => {
+  await new Promise((resolve) => {
     Engine.hasJoinedWorld = true
-    const receptor = (action: EngineActionType) => {
-      switch (action.type) {
-        case EngineEvents.EVENTS.JOINED_WORLD:
-          resolve()
-          const i = Engine.currentWorld.receptors.indexOf(receptor)
-          Engine.currentWorld.receptors.splice(i, 1)
-          break
-      }
-    }
-    Engine.currentWorld.receptors.push(receptor)
+    receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, resolve)
     dispatchLocal(EngineActions.enableScene({ physics: true }) as any)
   })
 

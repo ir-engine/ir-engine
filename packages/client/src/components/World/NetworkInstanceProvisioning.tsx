@@ -97,10 +97,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     instanceConnectionState.instanceServerConnecting.value,
     instanceConnectionState.instanceProvisioned.value
   ])
-  useEffect(() => {
-    if (engineState.sceneLoaded.value)
-      Network.instance.transportHandler.getWorldTransport().request(MessageTypes.SceneLoaded.toString())
-  }, [engineState.sceneLoaded.value])
 
   useEffect(() => {
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {

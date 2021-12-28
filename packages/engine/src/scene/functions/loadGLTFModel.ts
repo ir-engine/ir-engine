@@ -21,6 +21,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EngineActionType } from '../../ecs/classes/EngineService'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   const components: { [key: string]: any } = {}
@@ -182,17 +183,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
           }
         })
     }
-
-    const receptor = (action: EngineActionType) => {
-      switch (action.type) {
-        case EngineEvents.EVENTS.SCENE_LOADED:
-          onSceneLoaded()
-          const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
-          Engine.currentWorld.receptors.splice(receptorIndex, 1)
-          break
-      }
-    }
-    Engine.currentWorld.receptors.push(receptor)
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded)
   }
 
   if (

@@ -21,6 +21,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
+import { receiveActionOnce } from './networking/functions/matchActionOnce'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -57,17 +58,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
   }
-
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.JOINED_WORLD:
-        joinedWorld()
-        const i = Engine.currentWorld.receptors.indexOf(receptor)
-        Engine.currentWorld.receptors.splice(i, 1)
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
@@ -101,16 +92,7 @@ const configureServer = async (options: Required<InitializeOptions>, isMediaServ
     dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
   }
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.JOINED_WORLD:
-        joinedWorld()
-        const i = Engine.currentWorld.receptors.indexOf(receptor)
-        Engine.currentWorld.receptors.splice(i, 1)
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   if (!isMediaServer) {
     await loadDRACODecoder()
@@ -318,16 +300,9 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
-    const receptor = (action: EngineActionType) => {
-      switch (action.type) {
-        case EngineEvents.EVENTS.CONNECT:
-          Engine.userId = action.id
-          const id = Engine.currentWorld.receptors.indexOf(receptor)
-          Engine.currentWorld.receptors.splice(id, 1)
-          break
-      }
-    }
-    Engine.currentWorld.receptors.push(receptor)
+    receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+      Engine.userId = action.id
+    })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
