@@ -21,7 +21,7 @@
     "local": "npm run localbuild && npm run localstart",
     "localbuild": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run build",
     "localstart": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run start",
-    "buildenv": "cross-env APP_ENV=production ts-node --transpile-only scripts/create-env-production.ts"
+    "buildenv": "node scripts/create-env-production.js"
   },
   "resolutions": {
     "@types/react": "17.0.36",
