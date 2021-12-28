@@ -68,7 +68,6 @@ import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/s
 import { ComponentMap, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import EditorNodeMixin from '../nodes/EditorNodeMixin'
-import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
@@ -91,13 +90,10 @@ export class NodeManager {
   nodeTypes: Set<ReturnType<typeof EditorNodeMixin>>
 
   nodeEditors: Map<any, any>
-  entityEditors: Map<any, any>
 
   constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
-    this.entityEditors = new Map()
-
     this.nodes = []
   }
 
@@ -108,19 +104,9 @@ export class NodeManager {
    * @param  {any} nodeConstructor contains constructor properties
    * @param  {any} nodeEditor      contains editor properties
    */
-  registerNode(nodeConstructor: ReturnType<typeof EditorNodeMixin>, nodeEditor, entityConstructor?) {
+  registerNode(nodeConstructor: ReturnType<typeof EditorNodeMixin>, nodeEditor) {
     this.nodeTypes.add(nodeConstructor)
     this.nodeEditors.set(nodeConstructor, nodeEditor)
-  }
-
-  /**
-   * Function getEditorFromNode used to get properties of currently provided node.
-   *
-   * @author Robert Long
-   * @param  {any} node contains properties of node
-   */
-  getEditorFromNode(node) {
-    return this.nodeEditors.get(node.constructor) ?? this.entityEditors.get(node.constructor)
   }
 
   /**
@@ -130,37 +116,11 @@ export class NodeManager {
    * @param  {any} nodeClass contains properties of node
    */
   getEditorFromClass(nodeClass) {
-    return this.nodeEditors.get(nodeClass) ?? this.entityEditors.get(nodeClass)
-  }
-
-  getCopy(): any[] {
-    return this.nodes.slice(0)
+    return this.nodeEditors.get(nodeClass)
   }
 
   add(node: any): void {
     this.nodes.push(node)
-  }
-
-  remove(node: any): boolean {
-    const index = this.nodes.indexOf(node)
-
-    if (index === -1) return false
-
-    this.nodes.splice(index, 1)
-
-    return true
-  }
-
-  empty(): void {
-    this.nodes = []
-  }
-
-  fill(nodes: any[]): void {
-    this.empty()
-
-    for (let i = 0; i < nodes.length; i++) {
-      this.nodes.push(nodes[i])
-    }
   }
 }
 
@@ -194,6 +154,8 @@ export const registerPredefinedNodes = () => {
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType | null => {
   const entityNode = getComponent(entity, EntityNodeComponent)
+  if (!entityNode) return null
+
   let editor = null
 
   for (let i = 0; i < entityNode.components.length; i++) {

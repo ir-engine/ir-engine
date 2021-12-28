@@ -165,17 +165,13 @@ export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   })
 }
 
-export const getAllEntitiesWithComponent = <T, S extends bitECS.ISchema>(
-  component: MappedComponent<T, S>,
-  world = useWorld()
-): Entity[] => {
-  const query = defineQuery([component])
-  return query(world)
-}
-
 export const removeAllComponents = (entity: Entity, world = useWorld()) => {
-  for (const component of bitECS.getEntityComponents(world, entity)) {
-    removeComponent(entity, component as MappedComponent<any, any>, world)
+  try {
+    for (const component of bitECS.getEntityComponents(world, entity)) {
+      removeComponent(entity, component as MappedComponent<any, any>, world)
+    }
+  } catch (_) {
+    console.warn('Components of entity already removed')
   }
 }
 

@@ -3,10 +3,7 @@ import {
   BoxBufferGeometry,
   CubeCamera,
   CubeTexture,
-  DepthModes,
-  MathUtils,
   Mesh,
-  NeverDepth,
   Object3D,
   RGBAFormat,
   Scene,
@@ -18,7 +15,6 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderer
 } from 'three'
-import { PMREMGenerator } from 'three'
 
 /**
  * @author zz85 / https://github.com/zz85
@@ -174,45 +170,42 @@ void main() {
   #include <fog_fragment>
 }
 `
-export class Sky extends Object3D {
-  static shader = {
-    uniforms: UniformsUtils.merge([
-      UniformsLib.fog,
-      {
-        luminance: { value: 1 },
-        turbidity: { value: 10 },
-        rayleigh: { value: 2 },
-        mieCoefficient: { value: 0.005 },
-        mieDirectionalG: { value: 0.8 },
-        sunPosition: { value: new Vector3() },
-        scale: { value: 1000 }
-      }
-    ]),
-    vertexShader,
-    fragmentShader
-  }
-
-  static geometry = new BoxBufferGeometry(1, 1, 1)
-  static material: ShaderMaterial
+export class Sky {
+  static vertexShader = vertexShader
+  static fragmentShader = fragmentShader
+  static uniforms = UniformsUtils.merge([
+    UniformsLib.fog,
+    {
+      luminance: { value: 1 },
+      turbidity: { value: 10 },
+      rayleigh: { value: 2 },
+      mieCoefficient: { value: 0.005 },
+      mieDirectionalG: { value: 0.8 },
+      sunPosition: { value: new Vector3() },
+      scale: { value: 1000 }
+    }
+  ])
 
   skyScene: Scene
   cubeCamera: CubeCamera
   sky: Mesh
+
   _inclination: number
   _azimuth: number
   _distance: number
 
   constructor() {
-    super()
-
-    Sky.material = new ShaderMaterial({
-      fragmentShader: Sky.shader.fragmentShader,
-      vertexShader: Sky.shader.vertexShader,
-      uniforms: UniformsUtils.clone(Sky.shader.uniforms),
-      side: BackSide,
-      fog: true,
-      depthWrite: false
-    })
+    this.sky = new Mesh(
+      new BoxBufferGeometry(1, 1, 1),
+      new ShaderMaterial({
+        fragmentShader: Sky.fragmentShader,
+        vertexShader: Sky.vertexShader,
+        uniforms: UniformsUtils.clone(Sky.uniforms),
+        side: BackSide,
+        fog: true,
+        depthWrite: false
+      })
+    )
 
     this.skyScene = new Scene()
     this.cubeCamera = new CubeCamera(
@@ -220,10 +213,11 @@ export class Sky extends Object3D {
       100000,
       new WebGLCubeRenderTarget(512, { format: RGBAFormat, type: UnsignedByteType })
     )
+
     this.skyScene.add(this.cubeCamera)
-    this.sky = new Mesh(Sky.geometry, Sky.material)
+    this.skyScene.add(this.sky)
     this.sky.name = 'Sky'
-    this.add(this.sky)
+
     this._inclination = 0
     this._azimuth = 0.15
     this.distance = 1000
@@ -233,36 +227,45 @@ export class Sky extends Object3D {
     return this.sky.material as ShaderMaterial
   }
 
+  get sunPosition(): Vector3 {
+    return this._material.uniforms.sunPosition.value
+  }
+
   get turbidity() {
     return this._material.uniforms.turbidity.value
   }
   set turbidity(value) {
     this._material.uniforms.turbidity.value = value
   }
+
   get rayleigh() {
     return this._material.uniforms.rayleigh.value
   }
   set rayleigh(value) {
     this._material.uniforms.rayleigh.value = value
   }
+
   get luminance() {
     return this._material.uniforms.luminance.value
   }
   set luminance(value) {
     this._material.uniforms.luminance.value = value
   }
+
   get mieCoefficient() {
     return this._material.uniforms.mieCoefficient.value
   }
   set mieCoefficient(value) {
     this._material.uniforms.mieCoefficient.value = value
   }
+
   get mieDirectionalG() {
     return this._material.uniforms.mieDirectionalG.value
   }
   set mieDirectionalG(value) {
     this._material.uniforms.mieDirectionalG.value = value
   }
+
   get inclination() {
     return this._inclination
   }
@@ -270,6 +273,7 @@ export class Sky extends Object3D {
     this._inclination = value
     this.updateSunPosition()
   }
+
   get azimuth() {
     return this._azimuth
   }
@@ -277,6 +281,7 @@ export class Sky extends Object3D {
     this._azimuth = value
     this.updateSunPosition()
   }
+
   get distance() {
     return this._distance
   }
@@ -285,40 +290,20 @@ export class Sky extends Object3D {
     this._material.uniforms.scale.value = value
     this.updateSunPosition()
   }
+
   updateSunPosition() {
-    const distance = this._distance
     const theta = Math.PI * (this._inclination - 0.5)
     const phi = 2 * Math.PI * (this._azimuth - 0.5)
-    const x = Math.cos(phi)
-    const y = Math.sin(phi) * Math.sin(theta)
-    const z = Math.sin(phi) * Math.cos(theta)
-    this._material.uniforms.sunPosition.value.set(x, y, z)
-    this.sky.scale.setScalar(distance)
+    this.sunPosition.set(Math.cos(phi), Math.sin(phi) * Math.sin(theta), Math.sin(phi) * Math.cos(theta))
+    this.sky.scale.setScalar(this._distance)
   }
 
-  generateSkybox(renderer: WebGLRenderer) {
-    this.skyScene.add(this.sky)
+  generateSkyboxTextureCube(renderer: WebGLRenderer): CubeTexture {
     this.cubeCamera.update(renderer, this.skyScene)
-    this.add(this.sky)
-
-    const pmremGenerator = new PMREMGenerator(renderer)
-    const pmremRT = pmremGenerator.fromCubemap(this.cubeCamera.renderTarget.texture)
-    pmremGenerator.dispose()
-
-    return pmremRT.texture
+    return this.cubeCamera.renderTarget.texture
   }
 
-  copy(source, recursive = true) {
-    if (recursive) {
-      ;(this as any).remove(this.sky)
-    }
-    super.copy(source, recursive)
-    if (recursive) {
-      const skyIndex = source.children.indexOf(source.sky)
-      if (skyIndex !== -1) {
-        ;(this.sky as any) = (this as any).children[skyIndex]
-      }
-    }
+  copy(source) {
     this.turbidity = source.turbidity
     this.rayleigh = source.rayleigh
     this.luminance = source.luminance
@@ -327,6 +312,7 @@ export class Sky extends Object3D {
     this.inclination = source.inclination
     this.azimuth = source.azimuth
     this.distance = source.distance
+
     return this
   }
 }

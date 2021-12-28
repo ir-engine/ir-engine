@@ -1,5 +1,6 @@
 import { Color } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
 
 export type SkyBoxShaderProps = {
@@ -18,6 +19,7 @@ export type SkyboxComponentType = {
   cubemapPath: string
   backgroundType: SkyTypeEnum
   skyboxProps: SkyBoxShaderProps
+  sky?: Sky
 }
 
 export const SkyboxComponent = createMappedComponent<SkyboxComponentType>('SkyboxComponent')

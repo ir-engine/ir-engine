@@ -116,7 +116,7 @@ export class EngineRenderer {
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean
-  rendereringEnabled = true
+  rendereringEnabled = false
   canvas: HTMLCanvasElement
 
   averageFrameTime = 1000 / 60

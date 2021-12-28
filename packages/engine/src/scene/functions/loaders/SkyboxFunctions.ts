@@ -1,5 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Color, sRGBEncoding } from 'three'
+import { Color, Object3D, sRGBEncoding } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -9,13 +9,7 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  hasComponent,
-  removeComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -56,6 +50,7 @@ export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (isClient) {
     json.props.backgroundColor = new Color(json.props.backgroundColor)
+    addComponent(entity, Object3DComponent, { value: new Object3D() })
     addComponent(entity, SkyboxComponent, json.props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
@@ -66,7 +61,6 @@ export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, 
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, SkyboxComponent)
-  const hasSkyObject = hasComponent(entity, Object3DComponent)
 
   switch (component.backgroundType) {
     case SkyTypeEnum.color:
@@ -95,29 +89,30 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
       break
 
     case SkyTypeEnum.skybox:
-      const sky = hasSkyObject
-        ? (getComponent(entity, Object3DComponent).value as Sky)
-        : (addComponent(entity, Object3DComponent, { value: new Sky() }).value as Sky)
+      if (!component.sky) component.sky = new Sky()
 
-      sky.azimuth = component.skyboxProps.azimuth
-      sky.inclination = component.skyboxProps.inclination
+      component.sky.azimuth = component.skyboxProps.azimuth
+      component.sky.inclination = component.skyboxProps.inclination
 
-      const uniforms = Sky.material.uniforms
-      uniforms.mieCoefficient.value = component.skyboxProps.mieCoefficient
-      uniforms.mieDirectionalG.value = component.skyboxProps.mieDirectionalG
-      uniforms.rayleigh.value = component.skyboxProps.rayleigh
-      uniforms.turbidity.value = component.skyboxProps.turbidity
-      uniforms.luminance.value = component.skyboxProps.luminance
-      setSkyDirection(uniforms.sunPosition.value)
-      Engine.scene.background = sky.generateSkybox(Engine.renderer)
+      component.sky.mieCoefficient = component.skyboxProps.mieCoefficient
+      component.sky.mieDirectionalG = component.skyboxProps.mieDirectionalG
+      component.sky.rayleigh = component.skyboxProps.rayleigh
+      component.sky.turbidity = component.skyboxProps.turbidity
+      component.sky.luminance = component.skyboxProps.luminance
+
+      setSkyDirection(component.sky.sunPosition)
+      Engine.scene.background = getPmremGenerator().fromCubemap(
+        component.sky.generateSkyboxTextureCube(Engine.renderer)
+      ).texture
+
       break
 
     default:
       break
   }
 
-  if (hasSkyObject && component.backgroundType !== SkyTypeEnum.skybox) {
-    removeComponent(entity, Object3DComponent)
+  if (component.backgroundType !== SkyTypeEnum.skybox && component.sky) {
+    component.sky = undefined
   }
 }
 
@@ -137,7 +132,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
   }
 }
 
-export const setSkyDirection = (direction: Vector3) => {
+const setSkyDirection = (direction: Vector3): void => {
   Engine.csm?.lightDirection.copy(direction).multiplyScalar(-1)
 }
 

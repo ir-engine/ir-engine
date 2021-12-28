@@ -23,9 +23,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { SceneManager } from '../../managers/SceneManager'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -647,6 +647,8 @@ function TreeNode({
 
   const nameComponent = getComponent(object.entity, NameComponent)
 
+  if (!nameComponent) return null
+
   const editor = getNodeEditorsForEntity(object.entity)
   const iconComponent = editor ? editor.iconComponent : null
 
@@ -945,7 +947,7 @@ export default function HierarchyPanel() {
    */
   const onClick = useCallback((e, node) => {
     if (e.detail === 2) {
-      const cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
+      const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.object]
       cameraComponent.dirty = true
     }

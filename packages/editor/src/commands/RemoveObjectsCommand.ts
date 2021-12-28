@@ -6,7 +6,6 @@ import EditorEvents from '../constants/EditorEvents'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 
 export interface RemoveObjectCommandParams extends CommandParams {
@@ -60,14 +59,13 @@ export default class RemoveObjectsCommand extends Command {
   execute() {
     this.emitBeforeExecuteEvent()
 
-    const world = useWorld()
     const removedObjectsRoots = CommandManager.instance.getRootObjects(this.affectedObjects)
 
     for (let i = 0; i < removedObjectsRoots.length; i++) {
       const object = removedObjectsRoots[i]
       if (!object.parentNode) continue
 
-      world.entityTree.traverse((node) => removeEntity(node.entity), object)
+      object.traverse((node) => removeEntity(node.entity))
       object.removeFromParent()
     }
 

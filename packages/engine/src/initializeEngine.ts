@@ -317,8 +317,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true
-    // Engine timer should not start for eidtor since we load scene after selecting.
-    Engine.engineTimer.stop()
   }
 
   // Mark engine initialized

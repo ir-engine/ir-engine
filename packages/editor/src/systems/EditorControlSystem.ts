@@ -390,7 +390,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
       editorControlComponent.transformPivotChanged = false
       editorControlComponent.transformSpaceChanged = false
 
-      cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
+      cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       const shift = getInput(EditorActionSet.shift)
 
       if (selectEnd) {

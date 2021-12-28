@@ -28,7 +28,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { NodeManager } from './NodeManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import makeRenderer from '../renderer/makeRenderer'
@@ -42,7 +41,7 @@ import { createGizmoEntity } from '../functions/createGizmoEntity'
 import { createCameraEntity } from '../functions/createCameraEntity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEditorEntity } from '../functions/createEditorEntity'
-import { getAllEntitiesWithComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -55,6 +54,8 @@ import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLT
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -69,6 +70,7 @@ export class SceneManager {
     removeUnusedObjects: true
   }
 
+  isInitialized: boolean = false
   sceneModified: boolean
   audioListener: AudioListener
   grid: EditorInfiniteGridHelper
@@ -79,15 +81,15 @@ export class SceneManager {
   disableUpdate: boolean
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
-  cameraEntity: Entity
   editorEntity: Entity
   onUpdateStats: (info: WebGLInfo) => void
   screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
-    this.dispose()
+    if (this.isInitialized) this.dispose()
 
+    this.isInitialized = false
     this.raycaster = new Raycaster()
 
     this.audioListener = new AudioListener()
@@ -96,32 +98,10 @@ export class SceneManager {
     this.centerScreenSpace = new Vector2()
     this.disableUpdate = true
 
-    // Empty existing scene
-    if (Engine.scene) {
-      Engine.scene.traverse((child: any) => {
-        if (child.geometry) {
-          child.geometry.dispose()
-        }
-
-        if (child.material) {
-          if (child.material.length) {
-            for (let i = 0; i < child.material.length; ++i) {
-              child.material[i].dispose()
-            }
-          } else {
-            child.material.dispose()
-          }
-        }
-      })
-
-      Engine.scene = null!
-    }
-
-    Engine.scene = new Scene()
-    NodeManager.instance.nodes = [Engine.scene]
+    if (!Engine.scene) Engine.scene = new Scene()
 
     // getting scene data
-    loadSceneFromJSON(projectFile)
+    await loadSceneFromJSON(projectFile)
 
     Engine.camera.position.set(0, 5, 10)
     Engine.camera.lookAt(new Vector3())
@@ -130,7 +110,7 @@ export class SceneManager {
     this.transformGizmo = new TransformGizmo()
 
     this.gizmoEntity = createGizmoEntity(this.transformGizmo)
-    this.cameraEntity = createCameraEntity()
+    Engine.activeCameraEntity = createCameraEntity()
     this.editorEntity = createEditorEntity()
 
     Engine.scene.add(Engine.camera)
@@ -138,6 +118,7 @@ export class SceneManager {
     Engine.scene.add(this.transformGizmo)
 
     this.sceneModified = false
+    this.isInitialized = true
 
     return []
   }
@@ -161,8 +142,14 @@ export class SceneManager {
     try {
       this.disableUpdate = false
 
-      Engine.engineTimer.start()
       ControlManager.instance.initControls()
+      applyAndArchiveIncomingAction(
+        useWorld(),
+        EngineActions.enableScene({
+          renderer: true,
+          physics: true
+        }) as any
+      )
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
@@ -186,28 +173,25 @@ export class SceneManager {
    * @return {Promise}        [generated screenshot according to height and width]
    */
   async takeScreenshot(width: number, height: number) {
-    const originalRenderer = Engine.renderer
-    Engine.renderer = this.screenshotRenderer
     this.disableUpdate = true
 
-    const entities = getAllEntitiesWithComponent(ScenePreviewCameraTagComponent)
-    if (!entities.length) return
+    let scenePreviewCamera: PerspectiveCamera = null!
+    const query = defineQuery([ScenePreviewCameraTagComponent])
 
-    let cameraEntity = entities[0]
-    let scenePreviewCamera: PerspectiveCamera
+    for (const entity of query()) {
+      scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
+    }
 
-    if (!cameraEntity) {
-      cameraEntity = createEntity()
-      deserializeScenePreviewCamera(cameraEntity, null!)
+    if (!scenePreviewCamera) {
+      const entity = createEntity()
+      deserializeScenePreviewCamera(entity, null!)
 
-      scenePreviewCamera = getComponent(cameraEntity, Object3DComponent).value as PerspectiveCamera
+      scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera
       Engine.camera.matrix.decompose(
         scenePreviewCamera.position,
         scenePreviewCamera.quaternion,
         scenePreviewCamera.scale
       )
-    } else {
-      scenePreviewCamera = getComponent(cameraEntity, Object3DComponent).value as PerspectiveCamera
     }
 
     const prevAspect = scenePreviewCamera.aspect
@@ -215,13 +199,12 @@ export class SceneManager {
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.disable(ObjectLayers.Scene)
     this.screenshotRenderer.setSize(width, height, true)
-    this.screenshotRenderer.render(Engine.scene as any, scenePreviewCamera)
+    this.screenshotRenderer.render(Engine.scene, scenePreviewCamera)
     const blob = await getCanvasBlob(this.screenshotRenderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(ObjectLayers.Scene)
     this.disableUpdate = false
-    Engine.renderer = originalRenderer
     return blob
   }
 
@@ -515,14 +498,16 @@ export class SceneManager {
   }
 
   dispose() {
-    if (this.cameraEntity) removeEntity(this.cameraEntity)
-    if (this.gizmoEntity) removeEntity(this.gizmoEntity)
-    if (this.editorEntity) removeEntity(this.editorEntity)
+    if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
+    if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)
+    if (this.editorEntity) removeEntity(this.editorEntity, true)
+    if (this.grid) Engine.scene?.remove(this.grid)
 
     Engine.renderer?.dispose()
     this.screenshotRenderer?.dispose()
     Engine.effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
+    this.isInitialized = false
   }
 }
 
@@ -537,6 +522,6 @@ export default async function EditorRendererSystem(world: World, _: EngineRender
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return () => {
-    if (!SceneManager.instance.disableUpdate) EngineRenderer.instance.execute(world.delta)
+    if (!SceneManager.instance.disableUpdate && EngineRenderer.instance) EngineRenderer.instance.execute(world.delta)
   }
 }

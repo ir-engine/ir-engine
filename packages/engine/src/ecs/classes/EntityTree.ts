@@ -1,10 +1,6 @@
 import { MathUtils } from 'three'
 import { Entity } from './Entity'
 
-// export enum WalkStrategy {
-//   BFS
-// }
-
 // Data structure to hold parent child relationship between entities
 export default class EntityTree {
   rootNode: EntityTreeNode
@@ -71,14 +67,19 @@ export default class EntityTree {
     }
   }
 
-  traverse(cb: (node: EntityTreeNode, index: number) => void, node: EntityTreeNode = this.rootNode, index = 0): void {
-    cb(node, index)
+  traverse(cb: (node: EntityTreeNode, index: number) => void, index = 0): void {
+    this.rootNode.traverse(cb, index)
+  }
 
-    if (!node.children) return
+  empty(): void {
+    const arr = [] as EntityTreeNode[]
+    this.traverse((node) => arr.push(node))
 
-    for (let i = 0; i < node.children.length; i++) {
-      this.traverse(cb, node.children[i], i)
+    for (let i = arr.length - 1; i >= 0; i--) {
+      delete arr[i]
     }
+
+    this.rootNode = new EntityTreeNode(-1 as Entity)
   }
 }
 
@@ -137,5 +138,22 @@ export class EntityTreeNode {
     if (this.children) node.children = this.children.map((child) => child.clone())
 
     return node
+  }
+
+  traverse(cb: (node: EntityTreeNode, index: number) => void, index = 0): void {
+    cb(this, index)
+
+    if (!this.children) return
+
+    for (let i = 0; i < this.children.length; i++) {
+      this.children[i].traverse(cb, i)
+    }
+  }
+
+  traverseParent(cb: (parent: EntityTreeNode) => void): void {
+    if (this.parentNode) {
+      cb(this.parentNode)
+      this.parentNode.traverseParent(cb)
+    }
   }
 }

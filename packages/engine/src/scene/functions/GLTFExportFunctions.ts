@@ -10,11 +10,9 @@ export const serializeForGLTFExport = (object3d: Object3D) => {
   const clonnedObject = cloneObject3D(object3d, true)
 
   prepareObjectForGLTFExport(clonnedObject)
-  console.debug(clonnedObject)
   clonnedObject.traverse((node: Object3DWithEntity) => {
     if (node.entity) {
       prepareObjectForGLTFExport(node)
-      console.debug(node)
     }
   })
 

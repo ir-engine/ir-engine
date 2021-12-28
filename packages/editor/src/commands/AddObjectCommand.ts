@@ -115,11 +115,11 @@ export default class AddObjectCommand extends Command {
       } else if (sceneData) {
         const data = sceneData[i] ?? sceneData[0]
 
-        world.entityTree.traverse((node) => {
+        object.traverse((node) => {
           node.entity = createEntity()
           loadSceneEntity(node, data.entities[node.uuid])
           if (node.uuid !== data.root) reparentObject3D(node, node.parentNode)
-        }, object)
+        })
       }
 
       let parent = parents ? parents[i] ?? parents[0] : world.entityTree.rootNode
@@ -130,7 +130,7 @@ export default class AddObjectCommand extends Command {
 
       reparentObject3D(object, parent, before)
 
-      if (this.useUniqueName) world.entityTree.traverse((node) => makeUniqueName(node, world), object)
+      if (this.useUniqueName) object.traverse((node) => makeUniqueName(node, world))
     }
 
     if (this.isSelected) {
