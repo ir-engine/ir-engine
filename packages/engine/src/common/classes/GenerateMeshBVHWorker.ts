@@ -61,10 +61,7 @@ export class GenerateMeshBVHWorker {
         }
       }
 
-      if (
-        (geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute ||
-        (geometry.index && (geometry.index as any as InterleavedBufferAttribute).isInterleavedBufferAttribute)
-      ) {
+      if ((geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
         throw new Error(
           'GenerateMeshBVHWorker: InterleavedBufferAttribute are not supported for the geometry attributes.'
         )
