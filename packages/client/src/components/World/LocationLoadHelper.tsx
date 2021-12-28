@@ -19,7 +19,7 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -111,13 +111,19 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
-  const onEntityLoaded = ({ entitiesLeft }) => {
-    dispatchLocal(EngineActions.loadingProgress(entitiesLeft) as any)
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
+        dispatchLocal(EngineActions.loadingProgress(action.entitiesLeft) as any)
+        break
+    }
   }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
-  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
-
+  ///remove receptor
+  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+  Engine.currentWorld.receptors.splice(receptorIndex, 1)
+  //
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Engine.isLoading = false

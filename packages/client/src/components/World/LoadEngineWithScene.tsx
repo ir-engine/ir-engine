@@ -3,15 +3,14 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -75,47 +74,49 @@ export const LoadEngineWithScene = (props: Props) => {
             })
         })
       })
-
-    addUIEvents()
   }, [])
 
   /**
    * Once we have the scene ID, initialise the engine
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
+    if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
       loadLocation(locationState.currentLocation.location.sceneId.value)
     }
-  }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
+  }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    dispatchLocal(EngineActions.setTeleporting(portalComponent))
-    dispatch(LocationAction.fetchingCurrentSocialLocation())
+  const canTeleport = useRef(true)
+  useEffect(() => {
+    if (engineState.isTeleporting.value === null) {
+      canTeleport.current = true
+      return
+    } else {
+      if (!canTeleport.current) return
+      dispatch(LocationAction.fetchingCurrentSocialLocation())
 
-    // TODO: this needs to be implemented on the server too
-    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-    //   teleportPlayer(
-    //     useWorld().localClientEntity,
-    //     portalComponent.remoteSpawnPosition,
-    //     portalComponent.remoteSpawnRotation
-    //   )
-    //   return
-    // }
+      // TODO: this needs to be implemented on the server too
+      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+      //   teleportPlayer(
+      //     useWorld().localClientEntity,
+      //     portalComponent.remoteSpawnPosition,
+      //     portalComponent.remoteSpawnRotation
+      //   )
+      //   return
+      // }
 
-    // shut down connection with existing GS
-    console.log('reseting connection for portal teleport')
-    leave(getWorldTransport())
-    InstanceConnectionService.resetInstanceServer()
-
-    await teleportToScene(portalComponent, async () => {
-      history.push('/location/' + portalComponent.location)
-      LocationService.getLocationByName(portalComponent.location)
-    })
-  }
-
-  const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-  }
+      // shut down connection with existing GS
+      console.log('reseting connection for portal teleport')
+      leave(getWorldTransport())
+      InstanceConnectionService.resetInstanceServer()
+      const portalComponent = engineState.isTeleporting.value
+      teleportToScene(portalComponent, async () => {
+        history.push('/location/' + portalComponent.location)
+        LocationService.getLocationByName(portalComponent.location)
+        //canTeleport.current=true
+      })
+      canTeleport.current = false
+    }
+  }, [engineState.isTeleporting.value])
 
   return canvas
 }

@@ -99,10 +99,3 @@ export class Engine {
 
   static xrFrame: XRFrame
 }
-
-export const awaitEngineLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (Engine.isInitialized) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
-  })
-}
