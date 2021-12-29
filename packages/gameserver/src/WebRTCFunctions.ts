@@ -351,9 +351,12 @@ export async function handleWebRtcTransportCreate(
     const thisGs = serverResult.items.find(
       (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
-    iceCandidates.forEach((candidate) => {
-      candidate.port = thisGs.spec?.ports?.find((portMapping) => portMapping.containerPort === candidate.port).hostPort
-    })
+
+    for (let [index, candidate] of iceCandidates.entries()) {
+      iceCandidates[index].port = thisGs.spec?.ports?.find(
+        (portMapping) => portMapping.containerPort === candidate.port
+      ).hostPort
+    }
   }
   const clientTransportOptions = {
     id,
