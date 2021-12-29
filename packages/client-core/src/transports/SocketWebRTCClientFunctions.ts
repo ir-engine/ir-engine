@@ -439,11 +439,6 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
 
     const transport = networkTransport.sendTransport
     try {
-      // MediaStreams.instance.camVideoProducer = await transport.produce({
-      //   track: MediaStreams.instance.videoStream.getVideoTracks()[0],
-      //   encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-      //   appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
-      // })
       await new Promise((resolve) => {
         const waitForProducer = setInterval(async () => {
           if (!MediaStreams.instance.camVideoProducer) {
@@ -500,13 +495,24 @@ export async function createCamAudioProducer(networkTransport: SocketWebRTCClien
     const transport = networkTransport.sendTransport
     try {
       // Create a new transport for audio and start producing
-      MediaStreams.instance.camAudioProducer = await transport.produce({
-        track: MediaStreams.instance.audioStream.getAudioTracks()[0],
-        appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+      await new Promise((resolve) => {
+        const waitForProducer = setInterval(async () => {
+          if (!MediaStreams.instance.camAudioProducer) {
+            MediaStreams.instance.camAudioProducer = await transport.produce({
+              track: MediaStreams.instance.audioStream.getAudioTracks()[0],
+              appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+            })
+          } else {
+            clearInterval(waitForProducer)
+            resolve(true)
+          }
+        }, 100)
       })
 
       if (MediaStreams.instance.audioPaused) MediaStreams.instance?.camAudioProducer.pause()
-      else await resumeProducer(networkTransport, MediaStreams.instance.camAudioProducer)
+      else
+        (await MediaStreams.instance.camAudioProducer) &&
+          resumeProducer(networkTransport, MediaStreams.instance.camAudioProducer)
     } catch (err) {
       console.log('error producing audio', err)
     }
