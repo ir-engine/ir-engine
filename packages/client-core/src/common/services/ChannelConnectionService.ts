@@ -44,6 +44,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           instanceProvisioned: false,
           readyToConnect: false,
+          channelDisconnected: true,
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
@@ -57,6 +58,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           instanceProvisioned: true,
           readyToConnect: true,
           updateNeeded: true,
+          channelDisconnected: true,
           connected: false
         })
       case 'CHANNEL_SERVER_CONNECTING':
