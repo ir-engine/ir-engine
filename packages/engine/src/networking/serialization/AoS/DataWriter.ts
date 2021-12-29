@@ -1,4 +1,3 @@
-import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
@@ -9,7 +8,6 @@ import {
   spaceUint16,
   spaceUint32,
   spaceUint8,
-  writeProp,
   sliceViewCursor,
   writePropIfChanged
 } from './../ViewCursor'

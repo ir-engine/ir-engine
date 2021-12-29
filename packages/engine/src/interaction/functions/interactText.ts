@@ -10,7 +10,6 @@ import {
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'

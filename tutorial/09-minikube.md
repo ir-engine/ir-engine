@@ -103,6 +103,18 @@ and `helm install local-redis redis/redis` to install redis.
 You can run `kubectl get pods -A` to list all of the pods running in minikube. After a minute or so,
 all of these pods should be in the Running state.
 
+## Build .env.production file locally
+vite, the package that is used to build the front-end client, can only pass environment variables in the form
+`VITE_*` to the files it builds, and in a production build, these variables must be passed into the build process.
+In an actual deployment, the builder service will generate the file `.env.production` from the environment variables
+that are set on its context. When building for minikube, the builder service is not run, so you need to build
+`.env.production` manually.
+
+In a separate terminal tab, go to `packages/client` and run 
+`VITE_SERVER_HOST=api-local.theoverlay.io VITE_GAMESERVER_HOST=gameserver-local.theoverlay.io npm run buildenv`.
+This will write those two environment variables to `.env.production` at the repo root. If you need to set other
+variables, just define them alongside the existing variables when calling `npm run buildenv`.
+
 ## Point Docker to minikube environment and build Docker file
 When minikube is running, run the following command
 `eval $(minikube docker-env)`
@@ -124,6 +136,8 @@ though later builds should take less time as things are cached.
 Run the following command: `helm install -f </path/to/local.values.yaml> local xrengine/xrengine`.
 This will use a Helm config file titled 'local.values.yaml' to configure the deployment. There is
 a [template](../packages/ops/configs/local.template.values.yaml) for this file in packages/ops/configs
+
+Optionally: If you want to initialize the database as well then run following command instead of above `helm install -f </path/to/local.values.yaml> local xrengine/xrengine --set-string api.extraEnv.FORCE_DB_REFRESH=true`
 
 After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
 servers, and one client server in the Running state.

@@ -17,6 +17,7 @@ import { ModelComponent } from '../components/ModelComponent'
 import { VIDEO_MESH_NAME } from '../classes/Video'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 
 export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -158,7 +159,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 
     return
   } else {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
       overrideTexture(entity, object3d, world)
     })
   }

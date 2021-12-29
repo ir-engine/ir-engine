@@ -11,8 +11,13 @@ import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 // import { encode, decode } from 'msgpackr'
-
-const gameserverAddress = `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`
+const gameserverAddress =
+  process.env.APP_ENV === 'development'
+    ? `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}:${
+        (globalThis as any).process.env['VITE_GAMESERVER_PORT']
+      }`
+    : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
+console.log('gameserverAddress', gameserverAddress)
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {

@@ -15,9 +15,7 @@ import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { dispatchFrom } from '../networking/functions/dispatchFrom'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)

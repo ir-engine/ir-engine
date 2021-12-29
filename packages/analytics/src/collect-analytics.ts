@@ -1,4 +1,3 @@
-import { createApp } from './app'
 import config from '@xrengine/server-core/src/appconfig'
 
 const DEFAULT_INTERVAL_SECONDS = 1800

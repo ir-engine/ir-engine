@@ -4,7 +4,6 @@ import {
   CubeCamera,
   CubeTexture,
   Mesh,
-  Object3D,
   RGBAFormat,
   Scene,
   ShaderMaterial,

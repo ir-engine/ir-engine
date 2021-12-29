@@ -9,7 +9,6 @@ import TwitterIcon from '@mui/icons-material/Twitter'
 import styles from './Auth.module.scss'
 import { AuthService } from '../../services/AuthService'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from '../../../store'
 
 interface Props {
   auth?: any
@@ -24,7 +23,6 @@ const SocialLogin = (props: Props): any => {
   const { enableFacebookSocial, enableGithubSocial, enableGoogleSocial, enableLinkedInSocial, enableTwitterSocial } =
     props
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
     AuthService.loginUserByOAuth('github')

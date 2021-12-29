@@ -14,6 +14,7 @@ import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -38,7 +39,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (entity: E
   if (accessEngineState().sceneLoaded) {
     updateLoopAnimation(entity)
   } else {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
       updateLoopAnimation(entity)
     })
   }

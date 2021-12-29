@@ -3,8 +3,6 @@
  */
 
 import React from 'react'
-import { Vector3 } from 'three'
-import { MediumButton } from '../inputs/Button'
 import { CubemapBakeProperties } from './CubemapBakeProperties'
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 

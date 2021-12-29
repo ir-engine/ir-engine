@@ -20,7 +20,6 @@ import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/U
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'

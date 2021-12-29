@@ -1,7 +1,4 @@
-import { AnimationMixer, Object3D } from 'three'
-import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import { AnimationManager } from '../../avatar/AnimationManager'
-import cloneObject3D from '../../scene/functions/cloneObject3D'
+import { Object3D } from 'three'
 export default class Shopify extends Object3D {
   extendType: string
   shopifyProducts: any

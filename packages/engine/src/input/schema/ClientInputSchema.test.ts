@@ -3,6 +3,8 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
 import { handleKey, handleMouseButton, handleMouseMovement, handleTouch, handleTouchDirectionalPad, handleTouchGamepadButton, handleTouchMove, normalizeMouseCoordinates, prevTouchPosition, usingThumbstick } from './ClientInputSchema'
+import '../../patchEngineNode'
+import '../../../tests/util/patchBrowserForNode'
 
 describe('clientInputSchema', () => {
     

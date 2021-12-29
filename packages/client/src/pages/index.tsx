@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet'
-import React, { useEffect } from 'react'
+import React from 'react'
 import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
 import { useHistory, Redirect } from 'react-router-dom'
 // import { Capacitor } from '@capacitor/core'

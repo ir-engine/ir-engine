@@ -3,7 +3,6 @@ import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import logger from '../../logger'
 
 interface Data {}
 interface MediaType {

@@ -1,5 +1,4 @@
 import { Object3D, Audio, PositionalAudio } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
 
 export const AudioType = {
   Stereo: 'stereo',

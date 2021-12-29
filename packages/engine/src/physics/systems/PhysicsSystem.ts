@@ -7,11 +7,9 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
-import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
 import { isClient } from '../../common/functions/isClient'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
@@ -19,6 +17,7 @@ import { teleportRigidbody } from '../functions/teleportRigidbody'
 import { CollisionComponent } from '../components/CollisionComponent'
 import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 function physicsActionReceptor(action: unknown) {
   const world = useWorld()
@@ -36,10 +35,7 @@ function physicsActionReceptor(action: unknown) {
  * @author Josh Field <github.com/HexaField>
  */
 
-export default async function PhysicsSystem(
-  world: World,
-  attributes: { simulationEnabled?: boolean }
-): Promise<System> {
+export default async function PhysicsSystem(world: World): Promise<System> {
   const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])
@@ -47,12 +43,15 @@ export default async function PhysicsSystem(
 
   let simulationEnabled = true
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-    if (typeof ev.physics !== 'undefined') {
-      simulationEnabled = ev.physics
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.ENABLE_SCENE:
+        if (typeof action.env.physics !== 'undefined') {
+          simulationEnabled = action.env.physics
+        }
+        break
     }
   })
-
   world.receptors.push(physicsActionReceptor)
 
   return () => {
