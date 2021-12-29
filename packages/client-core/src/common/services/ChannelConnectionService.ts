@@ -32,8 +32,7 @@ const state = createState({
   readyToConnect: false,
   updateNeeded: false,
   instanceServerConnecting: false,
-  instanceProvisioning: false,
-  channelDisconnected: true
+  instanceProvisioning: false
 })
 
 store.receptors.push((action: ChannelConnectionActionType): any => {
@@ -44,7 +43,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           instanceProvisioned: false,
           readyToConnect: false,
-          channelDisconnected: true,
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
@@ -58,7 +56,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           instanceProvisioned: true,
           readyToConnect: true,
           updateNeeded: true,
-          channelDisconnected: true,
           connected: false
         })
       case 'CHANNEL_SERVER_CONNECTING':
@@ -68,7 +65,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: true,
           updateNeeded: false,
           readyToConnect: false,
-          channelDisconnected: false,
           instanceServerConnecting: false
         })
       case 'CHANNEL_SERVER_DISCONNECT':
@@ -84,7 +80,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           readyToConnect: false,
           updateNeeded: false,
-          channelDisconnected: true,
           instanceServerConnecting: false,
           instanceProvisioning: false
         })
