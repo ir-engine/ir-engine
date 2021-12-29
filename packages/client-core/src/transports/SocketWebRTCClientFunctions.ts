@@ -439,14 +439,29 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
 
     const transport = networkTransport.sendTransport
     try {
-      MediaStreams.instance.camVideoProducer = await transport.produce({
-        track: MediaStreams.instance.videoStream.getVideoTracks()[0],
-        encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-        appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+      // MediaStreams.instance.camVideoProducer = await transport.produce({
+      //   track: MediaStreams.instance.videoStream.getVideoTracks()[0],
+      //   encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+      //   appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+      // })
+      await new Promise((resolve) => {
+        const waitForProducer = setInterval(async () => {
+          if (!MediaStreams.instance.camVideoProducer) {
+            MediaStreams.instance.camVideoProducer = await transport.produce({
+              track: MediaStreams.instance.videoStream.getVideoTracks()[0],
+              encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+              appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+            })
+          } else {
+            clearInterval(waitForProducer)
+            resolve(true)
+          }
+        }, 100)
       })
-
       if (MediaStreams.instance.videoPaused) await MediaStreams.instance?.camVideoProducer.pause()
-      else await resumeProducer(networkTransport, MediaStreams.instance.camVideoProducer)
+      else
+        (await MediaStreams.instance.camVideoProducer) &&
+          resumeProducer(networkTransport, MediaStreams.instance.camVideoProducer)
     } catch (err) {
       console.log('error producing video', err)
     }

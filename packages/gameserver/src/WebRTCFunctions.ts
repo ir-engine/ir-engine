@@ -72,21 +72,22 @@ export const sendNewProducer =
     if (selfClient?.socketId != null) {
       for (const [, client] of world.clients) {
         console.info(`Sending media for ${userId}`)
-        Object.entries(client.media!).map(([subName, subValue]) => {
-          if (
-            channelType === 'instance'
-              ? 'instance' === (subValue as any).channelType
-              : (subValue as any).channelType === channelType && (subValue as any).channelId === channelId
-          )
-            selfClient.socket!.emit(
-              MessageTypes.WebRTCCreateProducer.toString(),
-              client.userId,
-              subName,
-              producer.id,
-              channelType,
-              channelId
+        client?.media &&
+          Object.entries(client.media!).map(([subName, subValue]) => {
+            if (
+              channelType === 'instance'
+                ? 'instance' === (subValue as any).channelType
+                : (subValue as any).channelType === channelType && (subValue as any).channelId === channelId
             )
-        })
+              selfClient.socket!.emit(
+                MessageTypes.WebRTCCreateProducer.toString(),
+                client.userId,
+                subName,
+                producer.id,
+                channelType,
+                channelId
+              )
+          })
       }
     }
   }
@@ -259,7 +260,7 @@ export async function createWebRtcTransport(
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
   const selectedrouter = routerList.find((item) => item.id === sortedDumps[0].id)!
 
-  const newTransport = await selectedrouter.createWebRtcTransport({
+  const newTransport = await selectedrouter?.createWebRtcTransport({
     listenIps: listenIps,
     enableUdp: true,
     enableTcp: false,
