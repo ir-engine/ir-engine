@@ -96,6 +96,13 @@ import {
   serializeLoopAnimation,
   updateLoopAnimation
 } from './loaders/LoopAnimationFunctions'
+import {
+  deserializePointLight,
+  preparePointLightForGLTFExport,
+  SCENE_COMPONENT_POINT_LIGHT,
+  serializePointLight,
+  updatePointLight
+} from './loaders/PointLightFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -187,6 +194,13 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializeAmbientLight,
     update: updateAmbientLight,
     shouldDeserialize: shouldDeserializeAmbientLight
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
+    deserialize: deserializePointLight,
+    serialize: serializePointLight,
+    update: updatePointLight,
+    prepareForGLTFExport: preparePointLightForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_METADATA, {

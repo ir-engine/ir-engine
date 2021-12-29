@@ -47,7 +47,6 @@ import WooCommerceNode from '../nodes/WooCommerceNode'
 import ShopifyNode from '../nodes/ShopifyNode'
 import OceanNode from '../nodes/OceanNode'
 import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
-import PointLightNode from '../nodes/PointLightNode'
 import PortalNode from '../nodes/PortalNode'
 import SceneNode from '../nodes/SceneNode'
 import SplineNode from '../nodes/SplineNode'
@@ -57,21 +56,15 @@ import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
-import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
-import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
-import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
-import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
-import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
-import { ComponentMap, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import EditorNodeMixin from '../nodes/EditorNodeMixin'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_AMBIENT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
 import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import { SCENE_COMPONENT_POSTPROCESSING } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
@@ -138,7 +131,6 @@ export const registerPredefinedNodes = () => {
   // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
   NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
-  NodeManager.instance.registerNode(PointLightNode, PointLightNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
@@ -170,6 +162,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
   [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
   [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,
+  [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
@@ -182,6 +175,7 @@ export const EntityNodeEditor = {
 
 export const prefabIcons = {
   [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
+  [ScenePrefabs.pointLight]: PointLightNodeEditor.iconComponent,
   [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
   [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,

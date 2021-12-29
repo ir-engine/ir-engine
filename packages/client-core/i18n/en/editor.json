@@ -369,7 +369,8 @@
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
-            "lbl-range": "Range"
+            "lbl-range": "Range",
+            "lbl-decay": "Decay"
         },
         "scene": {
             "name": "Scene",

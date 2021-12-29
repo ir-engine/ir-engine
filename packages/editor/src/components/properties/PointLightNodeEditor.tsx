@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
@@ -9,42 +7,55 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
+import { EditorComponentType } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
+import { updatePointLight } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
 
-//Declaring properties for PointLightNodeEditor
-type PointLightNodeEditorProps = {
-  node?: object
-}
-
-/**
- * PointLightNodeEditor is used render editor view to customize component properties.
- *
- * @author Robert Long
- * @type {class component}
- */
-export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
+export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   //function to handle changes in color property
   const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelection('color', color)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updatePointLight,
+      component: PointLightComponent,
+      properties: { color }
+    })
   }
 
   //function to handle changes in intensity
   const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updatePointLight,
+      component: PointLightComponent,
+      properties: { intensity }
+    })
   }
 
   //function to handle changes on range property
   const onChangeRange = (range) => {
-    CommandManager.instance.setPropertyOnSelection('range', range)
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updatePointLight,
+      component: PointLightComponent,
+      properties: { range }
+    })
   }
 
-  //rendering editor view
-  const { node } = props
+  const onChangeDecay = (decay) => {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      updateFunction: updatePointLight,
+      component: PointLightComponent,
+      properties: { decay }
+    })
+  }
+
+  const lightComponent = getComponent(props.node.entity, PointLightComponent)
+
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        <ColorInput value={node.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={onChangeColor} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -53,7 +64,7 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={node.intensity}
+        value={lightComponent.intensity}
         onChange={onChangeIntensity}
         unit="cd"
       />
@@ -64,11 +75,21 @@ export const PointLightNodeEditor = (props: PointLightNodeEditorProps) => {
         smallStep={0.1}
         mediumStep={1}
         largeStep={10}
-        value={node.range}
+        value={lightComponent.range}
         onChange={onChangeRange}
         unit="m"
       />
-      <LightShadowProperties node={node} />
+      <NumericInputGroup
+        name="Decay"
+        label={t('editor:properties.pointLight.lbl-decay')}
+        min={0}
+        smallStep={0.1}
+        mediumStep={1}
+        largeStep={10}
+        value={lightComponent.decay}
+        onChange={onChangeDecay}
+      />
+      <LightShadowProperties node={props.node} comp={PointLightComponent} updateFunction={updatePointLight} />
     </NodeEditor>
   )
 }
