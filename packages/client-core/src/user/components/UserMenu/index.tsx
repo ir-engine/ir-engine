@@ -79,16 +79,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const [activeLocation, setActiveLocation] = useState(null)
 
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting.value)
-  const [graphics, setGraphicsSetting] = useState({})
   const engineState = useEngineState()
-
-  useEffect(() => {
-    EngineEvents.instance?.addEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
-
-    return () => {
-      EngineEvents.instance?.removeEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
-    }
-  }, [])
 
   useEffect(() => {
     setEngineLoaded(true)
@@ -119,11 +110,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const handleRemoveAvatar = (keys: [string]): any => {
     return AuthService.removeAvatar(keys)
-  }
-
-  const updateGraphicsSettings = (newSetting: any): void => {
-    const setting = { ...graphics, ...newSetting }
-    setGraphicsSetting(setting)
   }
 
   const setActiveMenu = (e): void => {
@@ -194,9 +180,7 @@ const UserMenu = (props: UserMenuProps): any => {
       case Views.Settings:
         args = {
           setting: userSetting,
-          setUserSettings: setUserSettings,
-          graphics: graphics,
-          setGraphicsSettings: updateGraphicsSettings
+          setUserSettings: setUserSettings
         }
         break
       case Views.Share:
