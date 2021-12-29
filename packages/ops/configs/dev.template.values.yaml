@@ -95,6 +95,7 @@ mariadb:
     user: <username>
   enabled: false
   externalHost: <RDS hostname>
+  externalPort: 3306
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"

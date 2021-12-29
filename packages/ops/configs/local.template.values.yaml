@@ -83,6 +83,7 @@ mariadb:
     user: server
   enabled: false
   externalHost: 10.0.2.2
+  externalPort: 3304
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"
