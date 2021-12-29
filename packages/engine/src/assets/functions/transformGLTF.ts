@@ -1,4 +1,4 @@
-import { Document, NodeIO, PlatformIO, WebIO } from '@gltf-transform/core'
+import { Document, NodeIO, WebIO } from '@gltf-transform/core'
 import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
 import { getLoader } from './LoadGLTF'
@@ -9,21 +9,18 @@ export async function instanceGLTF(url) {
 
   console.log('instanceGLTF', url)
 
-  let io: PlatformIO
+  let io: WebIO | NodeIO
 
   if (isClient) {
     io = new WebIO()
   } else {
-    io = new NodeIO()
-    ;(io as NodeIO).useFetch = true
+    io = new NodeIO((await import('node-fetch')).default)
   }
   io.registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
   io.registerDependencies({
     'draco3d.decoder': (await dracoLoader.getDecoderModule()).decoder,
     'draco3d.encoder': (await dracoLoader.getEncoderModule()).encoder
   })
-
-  // TODO: this currently doesnt work - we need to be able to pass URLs into io.read in order for the URL to be passed
 
   const doc = (await io.read(url)) as Document
   await doc.transform(instance())
