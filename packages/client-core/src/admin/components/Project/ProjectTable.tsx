@@ -14,6 +14,7 @@ import Paper from '@mui/material/Paper'
 import { useAuthState } from '../../../user/services/AuthService'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
 import { ProjectService } from '../../services/ProjectService'
+import { TestBotService } from '../../services/TestBotService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
@@ -199,7 +200,7 @@ const Projects = () => {
     <div>
       <Paper className={styles.adminRoot}>
         <Grid container spacing={3} className={styles.marginBottom}>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Button
               className={styles['open-modal']}
               type="button"
@@ -210,7 +211,7 @@ const Projects = () => {
               {'Add Project'}
             </Button>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Button
               className={styles['open-modal']}
               type="button"
@@ -219,6 +220,17 @@ const Projects = () => {
               onClick={ProjectService.triggerReload}
             >
               {'Rebuild'}
+            </Button>
+          </Grid>
+          <Grid item xs={4}>
+            <Button
+              className={styles['open-modal']}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={TestBotService.createTestBot}
+            >
+              {'Spawn Bots'}
             </Button>
           </Grid>
         </Grid>
