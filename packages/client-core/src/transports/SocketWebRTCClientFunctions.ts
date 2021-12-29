@@ -174,14 +174,14 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
     if (MediaStreams.instance) {
       const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
-      consumer.pause()
+      consumer?.pause()
     }
   })
 
   networkTransport.socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (consumerId) => {
     if (MediaStreams.instance) {
       const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
-      consumer.resume()
+      consumer?.resume()
     }
   })
 
@@ -707,7 +707,7 @@ export async function closeConsumer(transport: SocketWebRTCClientMediaTransport,
   await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.close()
+  await consumer?.close()
 
   MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter(
     (c: any) => !(c.id === consumer.id)
