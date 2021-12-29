@@ -1,4 +1,4 @@
-import { createCollider, BodyOptions } from '../functions/createCollider'
+import { BodyOptions } from '../functions/createCollider'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'

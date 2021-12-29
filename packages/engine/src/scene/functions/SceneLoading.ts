@@ -1,17 +1,6 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  Euler,
-  HemisphereLight,
-  Object3D,
-  PointLight,
-  Quaternion,
-  SpotLight,
-  Vector3
-} from 'three'
+import { AmbientLight, Euler, HemisphereLight, Object3D, PointLight, Quaternion, SpotLight, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -187,7 +176,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
           Object.keys(component.data.extend).forEach((key) => {
             component.data[key] = component.data.extend[key]
           })
-          console.log(component.data)
           registerSceneLoadPromise(loadGLTFModel(entity, component))
         }
       }
@@ -198,7 +186,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
       break
 
     case 'interact':
-      console.log(component.data)
       if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
       break
 
@@ -399,16 +386,6 @@ export const loadComponent = (entity: Entity, component: SceneDataComponent): vo
         addComponent(entity, VisibleComponent, { value: component.data.visible })
       }
       break
-
-    /* deprecated */
-    case 'mesh-collider':
-    case 'collidable':
-    case 'floor-plan':
-      console.log("[Scene Loader] WARNING: '", name, ' is deprecated')
-      break
-
-    default:
-      console.log("[Scene Loader] WARNING: Couldn't load component'", name, "'")
   }
 }
 

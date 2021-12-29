@@ -4,9 +4,7 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { System } from '../../ecs/classes/System'
-import { hasComponent } from 'bitecs'
 import { PortalComponent } from '../components/PortalComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 

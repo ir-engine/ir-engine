@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -7,8 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
-import { Action, ResolvedActionShape } from '../interfaces/Action'
+import { dispatchLocal } from './dispatchFrom'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -83,28 +82,28 @@ export function incomingNetworkReceptor(action) {
       if (entity) removeEntity(entity)
     })
 
-    .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
+  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
 }
 
-export function setEquippedObjectReceptor(a: any) {
-  const world = useWorld()
-  let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-  if (entity) {
-    if (a.$from === Engine.userId) {
-      if (a.equip) {
-        if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-          addComponent(entity, NetworkObjectOwnedTag, {})
-        }
-      } else {
-        removeComponent(entity, NetworkObjectOwnedTag)
-      }
-    } else {
-      removeComponent(entity, NetworkObjectOwnedTag)
-    }
+// export function setEquippedObjectReceptor(a: any) {
+// const world = useWorld()
+// let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
+// if (entity) {
+//   if (a.$from === Engine.userId) {
+//     if (a.equip) {
+//       if (!hasComponent(entity, NetworkObjectOwnedTag)) {
+//         addComponent(entity, NetworkObjectOwnedTag, {})
+//       }
+//     } else {
+//       removeComponent(entity, NetworkObjectOwnedTag)
+//     }
+//   } else {
+//     removeComponent(entity, NetworkObjectOwnedTag)
+//   }
 
-    // Give ownership back to server, so that item shows up where it was last dropped
-    if (Engine.userId === world.hostId && !a.equip) {
-      addComponent(entity, NetworkObjectOwnedTag, {})
-    }
-  }
-}
+//   // Give ownership back to server, so that item shows up where it was last dropped
+//   if (Engine.userId === world.hostId && !a.equip) {
+//     addComponent(entity, NetworkObjectOwnedTag, {})
+//   }
+// }
+// }

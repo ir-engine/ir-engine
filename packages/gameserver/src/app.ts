@@ -7,7 +7,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import swagger from 'feathers-swagger'
 import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
+import express, { json, urlencoded, static as _static, rest, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 import AgonesSDK from '@google-cloud/agones-sdk'
 import { Application } from '@xrengine/server-core/declarations'
@@ -23,8 +23,9 @@ import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { register } from 'trace-unhandled'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+
 register()
 
 export const createApp = (): Application => {
@@ -104,8 +105,9 @@ export const createApp = (): Application => {
           },
           (io) => {
             Network.instance = new Network()
-            Network.instance.transport = new SocketWebRTCServerTransport(app)
-            Network.instance.transport.initialize()
+            Network.instance.transportHandler = new ServerTransportHandler()
+            app.transport = new SocketWebRTCServerTransport(app)
+            app.transport.initialize()
             io.use((socket, next) => {
               console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
               ;(socket as any).feathers.socketQuery = socket.handshake.query

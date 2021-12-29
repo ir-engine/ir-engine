@@ -4,7 +4,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { createState, useState } from '@hookstate/core'
 import { store } from '../../store'
 import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
-import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 
 //State
 export const BOTS_PAGE_LIMIT = 100

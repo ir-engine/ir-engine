@@ -3,12 +3,10 @@ import React, { useState, useEffect } from 'react'
 import { AuthService } from '../../services/AuthService'
 import Container from '@mui/material/Container'
 import { useAuthState } from '../../services/AuthService'
-import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 
 const GoogleCallbackComponent = (props): any => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)
   const search = new URLSearchParams(useLocation().search)

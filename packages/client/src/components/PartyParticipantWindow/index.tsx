@@ -20,7 +20,6 @@ import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/U
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
@@ -36,6 +35,7 @@ import {
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 import { Downgraded } from '@hookstate/core'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 interface ContainerProportions {
   width: number | string
@@ -43,7 +43,6 @@ interface ContainerProportions {
 }
 
 interface Props {
-  harmony?: boolean
   containerProportions?: ContainerProportions
   peerId?: string
 }
@@ -60,7 +59,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState([])
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId } = props
+  const { peerId } = props
   const userState = useUserState()
   const videoRef = React.useRef<HTMLVideoElement>()
   const audioRef = React.useRef<HTMLAudioElement>()
@@ -163,18 +162,15 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [userHasInteracted.value])
 
   useEffect(() => {
-    if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null)
-      audioRef.current.volume = 0
-    else if (
-      harmony === true
-      // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-      // Engine.spatialAudio
-    )
-      audioRef.current.volume = volume / 100
+    if (selfUser?.user_setting?.spatialAudioEnabled === true && audioRef.current != null) audioRef.current.volume = 0
+    // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
+    // Engine.spatialAudio
+    else audioRef.current!.volume = volume / 100
   }, [selfUser])
 
   useEffect(() => {
-    const socket = (Network.instance?.transport as any)?.channelSocket
+    const mediaTransport = getMediaTransport()
+    const socket = mediaTransport.socket
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener)
@@ -210,12 +206,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         setAudioProducerPaused(audioStream.paused)
       }
       // TODO: handle 3d audio switch on/off
-      if (harmony !== true && selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
-      if (
-        harmony === true
-        // selfUser?.user_setting?.spatialAudioEnabled === false ||
-        // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
-      ) {
+      if (selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
+      // selfUser?.user_setting?.spatialAudioEnabled === false ||
+      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
+      {
         audioRef.current.volume = volume / 100
         // PositionalAudioSystem.instance?.suspend()
       }
@@ -413,7 +407,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         id={peerId + '_container'}
         className={classNames({
           [styles['party-chat-user']]: true,
-          [styles['harmony']]: harmony === true,
           [styles['self-user']]: isSelfUser,
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: videoStream && (videoProducerPaused === true || videoStreamPaused === true),
@@ -482,19 +475,19 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                   </IconButton>
                 </Tooltip>
               ) : null}
-              {harmony !== true && (
+              {
                 <Tooltip title="Open Picture in Picture">
                   <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={togglePiP}>
                     <Launch className={styles.pipBtn} />
                   </IconButton>
                 </Tooltip>
-              )}
+              }
             </div>
             {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
             {audioStream &&
               audioProducerPaused === false &&
               audioProducerGlobalMute === false &&
-              (harmony === true || selfUser?.user_setting?.spatialAudioEnabled === false) && (
+              selfUser?.user_setting?.spatialAudioEnabled === false && (
                 <div className={styles['audio-slider']}>
                   {volume > 0 && <VolumeDown />}
                   {volume === 0 && <VolumeMute />}

@@ -83,6 +83,7 @@ mariadb:
     user: server
   enabled: false
   externalHost: 10.0.2.2
+  externalPort: 3304
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"
@@ -127,11 +128,12 @@ api:
     GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
     GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
-    LOCAL: "false"
+    LOCAL: "true"
     MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
     MAIL_FROM: info@login.theoverlay.io
     SEVER_ENABLED: "true"
     SERVER_HOST: "api-local.theoverlay.io"
+    SERVER_MODE: "api"
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.theoverlay.io
     SMTP_FROM_NAME: noreply
@@ -228,7 +230,7 @@ media:
     GOOGLE_CALLBACK_URL: https://local.theoverlay.io/auth/oauth/google
     GOOGLE_CLIENT_ID: "<GOOGLE_CLIENT_ID>"
     GOOGLE_CLIENT_SECRET: "<GOOGLE_CLIENT_SECRET"
-    LOCAL: "false"
+    LOCAL: "true"
     MAGICLINK_EMAIL_SUBJECT: Login to XR3ngine
     MAIL_FROM: info@login.theoverlay.io
     SEVER_ENABLED: "true"
@@ -288,8 +290,9 @@ gameserver:
     RTC_START_PORT: "40000"
     RTC_END_PORT: "40099"
     RTC_PORT_BLOCK_SIZE: "100"
-    LOCAL: "false"
+    LOCAL: "true"
     GAMESERVER_DOMAIN: gameserver-local.theoverlay.io
+    GAMESERVER_MODE: "realtime"
     STORAGE_PROVIDER: local
     LOCAL_STORAGE_PROVIDER: "localhost:8642"
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>

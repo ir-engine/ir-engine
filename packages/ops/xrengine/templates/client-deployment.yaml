@@ -59,9 +59,11 @@ spec:
                   name: {{ template "xrengine.mariadb.fullname" . }}
                   {{- end }}
                   key: mariadb-password
-            {{- end }}
+              {{- end }}
             - name: MYSQL_HOST
               value: {{ template "xrengine.mariadb.host" . }}
+            - name: MYSQL_PORT
+              value: {{ .Values.mariadb.externalPort | quote }}
             - name: RELEASE_NAME
               value: {{ $releaseName }}
           ports:

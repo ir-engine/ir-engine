@@ -1,12 +1,30 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
+
+// todo: replace 'instance' with 'world'
+export const TransportTypes = {
+  instance: 'instance' as const,
+  media: 'media' as const
+}
+
+export type TransportType = typeof TransportTypes[keyof typeof TransportTypes]
+
+export interface NetworkTransportHandler<W extends NetworkTransport, M extends NetworkTransport> {
+  worldTransports: Map<UserId, W>
+  getWorldTransport(transport?: UserId): W
+  mediaTransports: Map<UserId, M>
+  getMediaTransport(transport?: UserId): M
+}
 
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
   static instance: Network
   /** Object holding transport details over network. */
-  transport: NetworkTransport
+  transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
+  /** Object holding transport details over network. */
+  // transport: NetworkTransport
   /** Network transports. */
   transports = [] as any[]
   /** List of data producer nodes. */
@@ -22,12 +40,4 @@ export class Network {
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
-
-  /** Disposes the network. */
-  dispose(): void {
-    // TODO: needs tests
-    if (this.transport && typeof this.transport.close === 'function') this.transport.close()
-    this.transport = null!
-    Network.instance = null!
-  }
 }

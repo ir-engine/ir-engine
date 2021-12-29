@@ -62,7 +62,7 @@ export const refreshAppConfig = async (): Promise<void> => {
 }
 
 export const updateAppConfig = async (): Promise<void> => {
-  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development') return
+  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -503,11 +503,11 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    serverEnabled: {
+    enabled: {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    serverMode: {
+    mode: {
       type: DataTypes.STRING,
       allowNull: true
     },
@@ -581,8 +581,8 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbServer]) => {
       const dbServerConfig = dbServer && {
         hostname: dbServer.hostname,
-        serverEnabled: dbServer.serverEnabled,
-        serverMode: dbServer.serverMode,
+        enabled: dbServer.enabled,
+        mode: dbServer.mode,
         port: dbServer.port,
         clientHost: dbServer.clientHost,
         rootDir: dbServer.rootDir,

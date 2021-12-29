@@ -112,7 +112,7 @@ const Server = (props: serverProps) => {
               className={classes.input}
               disabled
               style={{ color: '#fff' }}
-              value={serverSetting?.serverMode || 'test'}
+              value={serverSetting?.mode || 'test'}
             />
           </Paper>
           <label> Host Name</label>

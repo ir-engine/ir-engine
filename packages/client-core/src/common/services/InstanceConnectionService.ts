@@ -2,17 +2,16 @@ import { client } from '../../feathers'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { accessLocationState } from '../../social/services/LocationService'
-import { Config } from '@xrengine/common/src/config'
 import { store, useDispatch } from '../../store'
-import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { leave } from '../../transports/SocketWebRTCClientFunctions'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { accessLocationState } from '../../social/services/LocationService'
 
 //State
 const state = createState({
@@ -31,8 +30,6 @@ const state = createState({
   instanceServerConnecting: false,
   instanceProvisioning: false
 })
-
-let connectionSocket = null
 
 store.receptors.push((action: InstanceConnectionActionType): any => {
   state.batch((s) => {
@@ -60,7 +57,6 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
       case 'INSTANCE_SERVER_CONNECTED':
         return s.merge({ connected: true, instanceServerConnecting: false, updateNeeded: false, readyToConnect: false })
       case 'INSTANCE_SERVER_DISCONNECT':
-        if (connectionSocket != null) (connectionSocket as any).close()
         return s.merge({
           instance: {
             id: '',
@@ -77,10 +73,6 @@ store.receptors.push((action: InstanceConnectionActionType): any => {
           instanceServerConnecting: false,
           instanceProvisioning: false
         })
-      case 'INSTANCE_SOCKET_CREATED':
-        if (connectionSocket != null) (connectionSocket as any).close()
-        connectionSocket = action.socket
-        return
     }
   }, action.type)
 })
@@ -114,66 +106,42 @@ export const InstanceConnectionService = {
         token: token
       }
     })
-    if (provisionResult.ipAddress != null && provisionResult.port != null) {
-      dispatch(InstanceConnectionAction.instanceServerProvisioned(provisionResult, locationId || null, sceneId || null))
+    if (provisionResult.ipAddress && provisionResult.port) {
+      dispatch(InstanceConnectionAction.instanceServerProvisioned(provisionResult, locationId!, sceneId!))
     } else {
       EngineEvents.instance.dispatchEvent({
         type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
       })
     }
   },
-  connectToInstanceServer: async (channelType: string, channelId?: string) => {
+  connectToInstanceServer: async () => {
     const dispatch = useDispatch()
     try {
       dispatch(InstanceConnectionAction.instanceServerConnecting())
-
-      const authState = accessAuthState()
-      const user = authState.user
-      const token = authState.authUser.accessToken.value
-      const instanceConnectionState = accessInstanceConnectionState().value
-      const instance = instanceConnectionState.instance
-      const locationId = instanceConnectionState.locationId
+      const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+      if (transport.socket) {
+        await leave(transport, false)
+      }
       const locationState = accessLocationState()
       const currentLocation = locationState.currentLocation.location
       const sceneId = currentLocation?.sceneId?.value
-      const isTeleporting = accessEngineState().isTeleporting.value
-      const videoActive =
-        MediaStreams !== null &&
-        MediaStreams !== undefined &&
-        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
-      // TODO: Disconnected
-      if (Network.instance && !isTeleporting) {
-        await endVideoChat({ endConsumers: true })
-        await leave(true)
-      }
-      console.log('connectToInstanceServer', locationId, sceneId, currentLocation, isTeleporting)
+
+      const { ipAddress, port } = accessInstanceConnectionState().instance.value
+
       try {
-        const ipAddress = instance.ipAddress
-        const port = Number(instance.port)
-        await Network.instance.transport.initialize(ipAddress, port, channelType === 'instance', {
-          locationId: locationId,
-          token: token,
-          user: user.value,
-          sceneId: sceneId,
-          startVideo: videoActive,
-          channelType: channelType,
-          channelId: channelId,
-          videoEnabled:
-            currentLocation?.locationSettings?.videoEnabled?.value === true ||
-            !(
-              currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
-              user.locationAdmins?.value?.find(
-                (locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value
-              ) == null
-            )
-        })
-        ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+        await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
+        transport.left = false
+
+        const authState = accessAuthState()
+        const user = authState.user.value
+        dispatchLocal(EngineActions.connect(user.id) as any)
+
         EngineEvents.instance.addEventListener(
           MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
           MediaStreamService.triggerUpdateConsumers
         )
       } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+        console.error('Network transport could not initialize, transport is: ', transport)
       }
     } catch (err) {
       console.log(err)
@@ -185,12 +153,10 @@ export const InstanceConnectionService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
-  client.service('instance-provision').on('created', (params) => {
-    if (params.locationId != null)
-      store.dispatch(InstanceConnectionAction.instanceServerProvisioned(params, params.locationId, params.sceneId))
-  })
-}
+client.service('instance-provision').on('created', (params) => {
+  if (params.locationId != null)
+    store.dispatch(InstanceConnectionAction.instanceServerProvisioned(params, params.locationId, params.sceneId))
+})
 
 //Action
 
@@ -227,12 +193,6 @@ export const InstanceConnectionAction = {
   disconnect: () => {
     return {
       type: 'INSTANCE_SERVER_DISCONNECT' as const
-    }
-  },
-  socketCreated: (socket: any) => {
-    return {
-      type: 'INSTANCE_SOCKET_CREATED' as const,
-      socket: socket
     }
   }
 }

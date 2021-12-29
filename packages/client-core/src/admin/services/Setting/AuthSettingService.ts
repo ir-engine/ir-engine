@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
 //State

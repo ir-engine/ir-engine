@@ -55,6 +55,8 @@ client:
     SITE_DESC: Connected Worlds for Everyone
     APP_ENV: production
 
+release:
+  name: dev
 
 api:
   enabled: true
@@ -330,6 +332,7 @@ mariadb:
   replication:
     enabled: false
   externalHost: ""  # use to override - must set mariadb.enabled to false
+  externalPort: 3306
 
 agones:
   enabled: false

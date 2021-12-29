@@ -95,6 +95,7 @@ mariadb:
     user: <username>
   enabled: false
   externalHost: <RDS hostname>
+  externalPort: 3306
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"
@@ -146,6 +147,7 @@ api:
     MAIL_FROM: info@login.<domain>
     SERVER_ENABLED: "true"
     SERVER_HOST: "api-dev.<domain>"
+    SERVER_MODE: "api"
     SERVER_PORT: "3030"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
@@ -320,6 +322,7 @@ gameserver:
     RTC_PORT_BLOCK_SIZE: "100"
     GAMESERVER_DOMAIN: gameserver-dev.<domain>
     GAMESERVER_PORT: "3031"
+    GAMESERVER_MODE: "realtime"
     STORAGE_PROVIDER: aws
     STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
     STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>

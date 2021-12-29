@@ -6,7 +6,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import ErrorIcon from '@mui/icons-material/Error'
 import { useStyle, useStyles } from './styles'
 
 const FormDialog = () => {

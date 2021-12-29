@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import GridViewIcon from '@mui/icons-material/GridView'
 import { useTranslation } from 'react-i18next'

@@ -14,7 +14,6 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { random } from 'lodash'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { applyCameraLook } from '../functions/IKSolvers'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {

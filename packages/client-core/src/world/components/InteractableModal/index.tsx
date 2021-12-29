@@ -1,5 +1,4 @@
 import React, { useEffect, useState, FunctionComponent, Suspense } from 'react'
-import { CommonInteractiveData } from '@xrengine/engine/src/interaction/interfaces/CommonInteractiveData'
 import styles from './style.module.scss'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -12,9 +11,9 @@ import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { UserAction, useUserState } from '../../../user/services/UserService'
 import { useDispatch } from '../../../store'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const ModelView = React.lazy(() => import('./modelView'))
 
@@ -57,17 +56,21 @@ export const InteractableModal: FunctionComponent = () => {
     setObjectActivated(true)
   }
 
-  const onUserAvatarTapped = (event): void => {
-    if (event.userId != userState.selectedLayerUser.value) {
-      dispatch(UserAction.selectedLayerUser(event.userId || ''))
+  const onUserAvatarTapped = (userId: string): void => {
+    if (userId != userState.selectedLayerUser.value) {
+      dispatch(UserAction.selectedLayerUser(userId || ''))
     }
   }
 
   useEffect(() => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_AVATAR_TAPPED, onUserAvatarTapped)
-  }, [engineState.isInitialised.value])
+    if (engineState.interactionData.value === null) return
+    onObjectActivation(engineState.interactionData.value)
+  }, [engineState.interactionData.value])
+
+  useEffect(() => {
+    const id = engineState.avatarTappedId.value
+    if (id !== null) onUserAvatarTapped(id)
+  }, [engineState.avatarTappedId.value])
 
   const handleLinkClick = (url) => {
     window.open(url, '_blank')

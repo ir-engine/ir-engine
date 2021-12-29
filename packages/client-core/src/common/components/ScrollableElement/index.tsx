@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, JSXElementConstructor } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './ScrollableElement.module.scss'
 
 type ScrollableElementPropsType = {

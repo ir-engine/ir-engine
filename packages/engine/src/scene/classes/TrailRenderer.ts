@@ -14,8 +14,7 @@ import {
   OneMinusSrcAlphaFactor,
   AddEquation,
   DoubleSide,
-  ShaderMaterial,
-  Scene
+  ShaderMaterial
 } from 'three'
 
 /**

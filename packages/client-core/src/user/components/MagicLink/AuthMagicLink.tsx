@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useLocation, withRouter } from 'react-router-dom'
 import { AuthService } from '../../services/AuthService'
-import { useDispatch } from '../../../store'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
@@ -18,11 +17,10 @@ interface Props {
 const AuthMagicLink = (props: Props): any => {
   const { auth, token, type } = props
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   useEffect(() => {
     if (type === 'login') {
-      AuthService.loginUserByJwt(token, '/harmony', '/')
+      AuthService.loginUserByJwt(token, '/', '/')
     } else if (type === 'connection') {
       const user = useAuthState().user
       if (user !== null) {

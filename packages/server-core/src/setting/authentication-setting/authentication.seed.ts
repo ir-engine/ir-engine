@@ -6,7 +6,7 @@ export const authenticationSeed = {
     {
       service: 'identity-provider',
       entity: 'identity-provider',
-      secret: 'test',
+      secret: process.env.AUTH_SECRET || 'test',
       authStrategies: JSON.stringify([
         { jwt: true },
         { smsMagicLink: true },
