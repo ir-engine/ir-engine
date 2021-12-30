@@ -242,7 +242,7 @@ export class EngineRenderer {
 
     if (averageDelta > this.maxRenderDelta && qualityLevel > 1) {
       qualityLevel--
-    } else if (averageDelta < this.minRenderDelta && qualityLevel !== this.maxQualityLevel) {
+    } else if (averageDelta < this.minRenderDelta && qualityLevel < this.maxQualityLevel) {
       qualityLevel++
     }
 
