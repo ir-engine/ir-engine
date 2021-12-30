@@ -11,7 +11,7 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { MathUtils, PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
+import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
@@ -21,11 +21,10 @@ import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
-import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
-import { accessEngineRendererState, EngineRendererAction } from './EngineRendererState'
+import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 
@@ -83,7 +82,7 @@ export class EngineRenderer {
   /** point at which we downgrade quality level (large delta) */
   maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
   /** point at which we upgrade quality level (small delta) */
-  minRenderDelta = 1000 / 65 // 65 fps = 15 ms
+  minRenderDelta = 1000 / 55 // 55 fps = 18 ms
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
@@ -186,10 +185,11 @@ export class EngineRenderer {
       Engine.csm?.update()
       Engine.renderer.render(Engine.scene, Engine.camera)
     } else {
-      if (accessEngineState().joinedWorld.value) this.changeQualityLevel()
+      const state = accessEngineRendererState()
+      const engineState = accessEngineState()
+      if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
 
       if (this.rendereringEnabled) {
-        const state = accessEngineRendererState()
         if (this.needsResize) {
           const curPixelRatio = Engine.renderer.getPixelRatio()
           const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor
@@ -235,31 +235,26 @@ export class EngineRenderer {
     lastRenderTime = time
 
     const state = accessEngineRendererState()
-    if (!state.automatic.value) return
-
     let qualityLevel = state.qualityLevel.value
 
     this.movingAverage.update(Math.min(delta, 50))
     const averageDelta = this.movingAverage.mean
 
     if (averageDelta > this.maxRenderDelta && qualityLevel > 1) {
-      console.log('\n\ndecreasing quality level\n\n')
       qualityLevel--
     } else if (averageDelta < this.minRenderDelta && qualityLevel !== this.maxQualityLevel) {
-      console.log('\n\nincreasing quality level\n\n')
       qualityLevel++
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
       dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel))
-      this.doAutomaticRenderQuality()
     }
   }
 
   doAutomaticRenderQuality() {
     const state = accessEngineRendererState()
     dispatchLocal(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchLocal(EngineRendererAction.setQualityLevel(state.qualityLevel.value / this.maxQualityLevel))
+    dispatchLocal(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
     dispatchLocal(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 
@@ -283,6 +278,7 @@ export default async function WebGLRendererSystem(world: World, props: EngineRen
   new EngineRenderer(props)
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  world.receptors.push(EngineRendererReceptor)
 
   return () => {
     if (props.enabled) EngineRenderer.instance.execute(world.delta)

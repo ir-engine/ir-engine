@@ -1,7 +1,6 @@
 import { createState, State, useState } from '@hookstate/core'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
 import { EngineRenderer } from './WebGLRendererSystem'
 
@@ -19,25 +18,20 @@ export const useEngineRendererState = () => useState(state) as any as typeof sta
 export const accessEngineRendererState = () => state
 
 function setUseAutomatic(s: StateType, automatic: boolean) {
-  if (automatic) {
-    EngineRenderer.instance.doAutomaticRenderQuality()
-  }
   ClientStorage.set(databasePrefix + RENDERER_SETTINGS.AUTOMATIC, automatic)
-  dispatchLocal(EngineRendererAction.setAutomatic(automatic))
   s.merge({ automatic })
 }
 
-function setResolution(s: StateType, resolution) {
-  EngineRenderer.instance.scaleFactor = resolution
+function setQualityLevel(s: StateType, qualityLevel) {
+  EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
   Engine.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
   EngineRenderer.instance.needsResize = true
   ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, EngineRenderer.instance.scaleFactor)
-  s.merge({ qualityLevel: resolution })
+  s.merge({ qualityLevel })
 }
 
 function setUseShadows(s: StateType, useShadows) {
   if (state.useShadows.value === useShadows) return
-
   Engine.renderer.shadowMap.enabled = useShadows
   ClientStorage.set(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS, useShadows)
   s.merge({ useShadows })
@@ -45,7 +39,6 @@ function setUseShadows(s: StateType, useShadows) {
 
 function setUsePostProcessing(s: StateType, usePostProcessing) {
   if (state.usePostProcessing.value === usePostProcessing) return
-
   usePostProcessing = EngineRenderer.instance.supportWebGL2 && usePostProcessing
   ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, usePostProcessing)
   s.merge({ usePostProcessing })
@@ -55,7 +48,7 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
   state.batch((s) => {
     switch (action.type) {
       case 'WEBGL_RENDERER_QUALITY_LEVEL':
-        return setResolution(s, action.qualityLevel)
+        return setQualityLevel(s, action.qualityLevel)
       case 'WEBGL_RENDERER_AUTO':
         return setUseAutomatic(s, action.automatic)
       // case 'WEBGL_RENDERER_PBR': return s.merge({ usePBR: action.usePBR })

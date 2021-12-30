@@ -9,6 +9,7 @@ import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/s
 import { useTranslation } from 'react-i18next'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
 type Props = {
   setting: UserSetting
@@ -18,7 +19,6 @@ type Props = {
 const SettingMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
-  console.log('SettingMenu-', rendererState.value)
   return (
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
@@ -73,14 +73,13 @@ const SettingMenu = (props: Props): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                console.log('slider', rendererState.qualityLevel.value, value)
                 dispatchLocal(EngineRendererAction.setQualityLevel(value))
                 dispatchLocal(EngineRendererAction.setAutomatic(false))
               }}
               className={styles.slider}
-              min={0.25}
-              max={1}
-              step={0.125}
+              min={1}
+              max={5}
+              step={1}
             />
           </div>
           <div className={`${styles.row} ${styles.FlexWrap}`}>
