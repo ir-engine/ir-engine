@@ -36,14 +36,14 @@ async function createUIRootLayer<S extends State<any> | null>(
   return new Ethereal.WebLayer3D(containerElement, options)
 }
 
-export function createXRUI<S extends State<any> | null>(
-  UIFunc: React.FC,
-  state = null as S,
-  options: import('ethereal').WebLayer3DOptions = {}
-): XRUI<S> {
+export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   const entity = createEntity()
 
-  createUIRootLayer(UIFunc, state, options).then((uiRoot) => {
+  createUIRootLayer(UIFunc, state, {
+    onLayerPaint: (layer) => {
+      layer.contentMesh.material.toneMapped = false
+    }
+  }).then((uiRoot) => {
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
