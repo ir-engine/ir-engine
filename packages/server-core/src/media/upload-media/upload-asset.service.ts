@@ -25,7 +25,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
   args: AdminAssetUploadArgumentsType,
-  isIPFSProvider?: false
+  isIPFSProvider?: boolean
 ) => {
   const provider = isIPFSProvider ? useIPFSStorageProvider() : useStorageProvider()
   // make userId optional and safe for feathers create
@@ -124,10 +124,7 @@ export default (app: Application): void => {
           const argsData = JSON.parse(data.args)
           return Promise.all(
             params?.files.map((file, i) =>
-              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, {
-                ...argsData[i],
-                isIPFSProvider: true
-              })
+              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] }, true)
             )
           )
         }
