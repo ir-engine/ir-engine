@@ -1,0 +1,30 @@
+# syntax = docker/dockerfile:1.2
+# not slim because we need github depedencies
+FROM node:16-buster
+
+RUN apt update
+# Create app directory
+WORKDIR /app
+
+RUN apt-get -y install python3-pip
+
+COPY package.json .
+COPY packages/client/package.json ./packages/client/
+COPY packages/client-core/package.json ./packages/client-core/
+COPY packages/common/package.json ./packages/common/
+COPY packages/editor/package.json ./packages/editor/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/projects/package.json ./packages/projects/
+COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
+
+RUN npm install --production=false --loglevel notice --legacy-peer-deps
+
+# copy then compile the code
+COPY . .
+
+RUN npm run build-client
+
+ENV APP_ENV=production
+
+CMD ["scripts/start-server.sh"]

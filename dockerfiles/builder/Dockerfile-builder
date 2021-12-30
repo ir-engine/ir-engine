@@ -12,6 +12,7 @@ RUN npm install -g lerna cross-env rimraf --loglevel notice
 COPY package.json .
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
+COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/

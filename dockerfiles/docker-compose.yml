@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  analytics:
+    image: ${LABEL}-analytics
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/analytics/Dockerfile-analytics
+  api:
+    image: ${LABEL}-api
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/api/Dockerfile-api
+  client:
+    image: ${LABEL}-client
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/client/Dockerfile-client
+  gameserver:
+    image: ${LABEL}-gameserver
+    build:
+      context: ..
+      dockerfile: ./dockerfiles/gameserver/Dockerfile-gameserver

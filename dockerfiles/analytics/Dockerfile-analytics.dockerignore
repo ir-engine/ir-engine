@@ -15,6 +15,14 @@ vendor/
 packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
+packages/bot
+packages/client
+packages/client-core
+packages/editor
+packages/gameserver
+packages/ops
+packages/server
+packages/test
 
 
 kubernetes/**
