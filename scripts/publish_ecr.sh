@@ -11,10 +11,16 @@ REGION=$5
 if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME --region $REGION --public false
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-analytics --region $REGION --public false
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-api --region $REGION --public false
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-client --region $REGION --public false
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-gameserver --region $REGION --public false
 else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME --region us-east-1 --public true
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-analytics --region us-east-1 --public true
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-api --region us-east-1 --public true
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-client --region us-east-1 --public true
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-gameserver --region us-east-1 --public true
 fi
 
 docker tag $LABEL-analytics $ECR_URL/$REPO_NAME-analytics:$TAG & docker tag $LABEL-analytics $ECR_URL/$REPO_NAME-analytics:latest_$STAGE & \
