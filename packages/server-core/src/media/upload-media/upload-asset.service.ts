@@ -10,10 +10,8 @@ import {
   AssetUploadType,
   IPFSUploadType
 } from '@xrengine/common/src/interfaces/UploadAssetInterface'
-import { useStorageProvider } from '../storageprovider/storageprovider'
-import { useIPFSStorageProvider } from '../storageprovider/ipfsstorageprovider'
+import { useStorageProvider, useIPFSStorageProvider } from '../storageprovider/storageprovider'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
-import { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
@@ -26,9 +24,10 @@ declare module '../../../declarations' {
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
-  args: AdminAssetUploadArgumentsType
+  args: AdminAssetUploadArgumentsType,
+  isIPFSProvider?: false
 ) => {
-  const provider = useStorageProvider()
+  const provider = isIPFSProvider ? useIPFSStorageProvider() : useStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
 
@@ -90,90 +89,11 @@ export const addGenericAssetToS3AndStaticResources = async (
   return assetURL
 }
 
-export const addGenericAssetToIPFSAndStaticResources = async (
-  app: Application,
-  file: Buffer,
-  args: AdminAssetUploadArgumentsType
-) => {
-  const provider = useIPFSStorageProvider()
-  // make userId optional and safe for feathers create
-  const userIdQuery = args.userId ? { userId: args.userId } : {}
-
-  const existingAsset = await app.service('static-resource').find({
-    query: {
-      staticResourceType: args.staticResourceType,
-      // safely spread conditional params so we can query by name if it is given, otherwise fall back to key
-      ...(args.name ? { name: args.name } : { key: args.key }),
-      ...userIdQuery
-    }
-  })
-
-  const promises: Promise<any>[] = []
-
-  // upload asset to storage provider
-  promises.push(
-    new Promise<void>(async (resolve) => {
-      await provider.putObject({
-        Key: args.key,
-        Body: file,
-        ContentType: args.contentType
-      })
-      resolve()
-    })
-  )
-
-  // add asset to static resources
-  const assetURL = getCachedAsset(args.key, provider.cacheDomain)
-
-  /* if (existingAsset.data.length) {
-    promises.push(provider.deleteResources([existingAsset.data[0].id]))
-    promises.push(
-      app.service('static-resource').patch(
-        existingAsset.data[0].id,
-        {
-          url: assetURL,
-          key: args.key
-        },
-        { isInternal: true }
-      )
-    )
-  } else { */
-  promises.push(
-    app.service('static-resource').create(
-      {
-        name: args.name ?? null,
-        mimeType: args.contentType,
-        url: assetURL,
-        key: args.key,
-        staticResourceType: args.staticResourceType,
-        ...userIdQuery
-      },
-      { isInternal: true }
-    )
-  )
-  //}
-
-  await Promise.all(promises)
-  return assetURL
-}
-
-export const getIPFSAndStaticResource = async (key: string) => {
-  const provider = useIPFSStorageProvider()
-
-  return await provider.getObject(key)
-}
-
-export const deleteIPFSAndStaticResource = async (key: string) => {
-  const provider = useIPFSStorageProvider()
-
-  return await provider.deleteResource(key)
-}
-
 export default (app: Application): void => {
   app.use(
     'upload-asset',
     //multipartMiddleware.single('files'),
-    multipartMiddleware.fields([{ name: 'media' }, { name: 'thumbnail' }]),
+    multipartMiddleware.fields([{ name: 'media' }]),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
         req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
@@ -204,7 +124,10 @@ export default (app: Application): void => {
           const argsData = JSON.parse(data.args)
           return Promise.all(
             params?.files.map((file, i) =>
-              addGenericAssetToIPFSAndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
+              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, {
+                ...argsData[i],
+                isIPFSProvider: true
+              })
             )
           )
         }

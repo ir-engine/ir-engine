@@ -7,12 +7,14 @@ import { StartTestFileServer } from '../../src/createFileServer'
 export const providerBeforeTest = (provider, testFolderName: string, folderKeyTemp: string, folderKeyTemp2: string) => {
   if (provider.constructor.name === 'LocalStorage')
     return localStorageBeforeTest(testFolderName, folderKeyTemp, folderKeyTemp2)
-  if (provider.constructor.name === 'S3Provider') return s3StorageBeforeTest(provider)
+  if (provider.constructor.name === 'S3Provider' || provider.constructor.name === 'S3IPFSProvider')
+    return s3StorageBeforeTest(provider)
 }
 
 export const providerAfterTest = (provider, testFolderName: string) => {
   if (provider.constructor.name === 'LocalStorage') return localStorageAfterTest(provider, testFolderName)
-  if (provider.constructor.name === 'S3Provider') return s3StorageAfterTest(provider, testFolderName)
+  if (provider.constructor.name === 'S3Provider' || provider.constructor.name === 'S3IPFSProvider')
+    return s3StorageAfterTest(provider, testFolderName)
 }
 
 const localStorageBeforeTest = (
@@ -54,7 +56,12 @@ const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promis
   })
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
-  provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+  if (provider.constructor.name === 'S3Provider') {
+    provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+  } else if (provider.constructor.name === 'S3IPFSProvider') {
+    provider.bucket = process.env.IPFS_FLEEK_TEST_RESOURCE_BUCKET!
+  }
+
   let bucketExists
   try {
     bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()
