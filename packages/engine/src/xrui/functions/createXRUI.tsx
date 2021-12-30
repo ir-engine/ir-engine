@@ -1,5 +1,5 @@
 import React from 'react'
-import { State } from '@hookstate/core'
+import { createState, State } from '@hookstate/core'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { XRUIComponent } from '../components/XRUIComponent'
@@ -9,10 +9,11 @@ import { XRUIStateContext } from '../XRUIStateContext'
 import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { sRGBEncoding } from 'three'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
-async function createUIRootLayer<S extends State<any>>(
+async function createUIRootLayer<S extends State<any> | null>(
   UI: React.FC,
   state: S,
   options: import('ethereal').WebLayer3DOptions
@@ -31,12 +32,13 @@ async function createUIRootLayer<S extends State<any>>(
   )
 
   options.autoRefresh = options.autoRefresh ?? true
+  options.textureEncoding = options.textureEncoding ?? sRGBEncoding
   return new Ethereal.WebLayer3D(containerElement, options)
 }
 
-export function createXRUI<S extends State<any>>(
+export function createXRUI<S extends State<any> | null>(
   UIFunc: React.FC,
-  state: S,
+  state = null as S,
   options: import('ethereal').WebLayer3DOptions = {}
 ): XRUI<S> {
   const entity = createEntity()
