@@ -78,6 +78,7 @@ export const addGenericAssetToS3AndStaticResources = async (
           url: assetURL,
           key: args.key,
           staticResourceType: args.staticResourceType,
+          storageProvider: provider.constructor.name,
           ...userIdQuery
         },
         { isInternal: true }
