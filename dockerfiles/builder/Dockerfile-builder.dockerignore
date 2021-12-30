@@ -16,7 +16,6 @@ packages/**/node_modules
 package-lock.json
 packages/**/package-lock.json
 packages/bot
-packages/social
 packages/ops
 packages/test
 
