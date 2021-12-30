@@ -103,6 +103,13 @@ import {
   serializePointLight,
   updatePointLight
 } from './loaders/PointLightFunctions'
+import {
+  deserializeSpotLight,
+  prepareSpotLightForGLTFExport,
+  SCENE_COMPONENT_SPOT_LIGHT,
+  serializeSpotLight,
+  updateSpotLight
+} from './loaders/StopLightFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -201,6 +208,13 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializePointLight,
     update: updatePointLight,
     prepareForGLTFExport: preparePointLightForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
+    deserialize: deserializeSpotLight,
+    serialize: serializeSpotLight,
+    update: updateSpotLight,
+    prepareForGLTFExport: prepareSpotLightForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_METADATA, {

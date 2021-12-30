@@ -50,7 +50,6 @@ import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PortalNode from '../nodes/PortalNode'
 import SceneNode from '../nodes/SceneNode'
 import SplineNode from '../nodes/SplineNode'
-import SpotLightNode from '../nodes/SpotLightNode'
 import SystemNode from '../nodes/SystemNode'
 import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
 import VideoNode from '../nodes/VideoNode'
@@ -60,6 +59,8 @@ import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import EditorNodeMixin from '../nodes/EditorNodeMixin'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { EditorComponentType } from '../components/properties/Util'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
@@ -71,9 +72,8 @@ import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene
 import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
-import { EditorComponentType } from '../components/properties/Util'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -135,7 +135,6 @@ export const registerPredefinedNodes = () => {
   // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
-  NodeManager.instance.registerNode(SpotLightNode, SpotLightNodeEditor)
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
   NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
@@ -163,6 +162,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
   [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,
   [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
+  [SCENE_COMPONENT_SPOT_LIGHT]: SpotLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
@@ -176,6 +176,7 @@ export const EntityNodeEditor = {
 export const prefabIcons = {
   [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
   [ScenePrefabs.pointLight]: PointLightNodeEditor.iconComponent,
+  [ScenePrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
   [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
   [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,

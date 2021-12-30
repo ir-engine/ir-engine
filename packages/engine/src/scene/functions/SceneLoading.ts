@@ -144,15 +144,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'userdata':
       addComponent(entity, UserdataComponent, { data: component.props })
       break
-
-    case 'point-light':
-      addObject3DComponent(entity, new PointLight(), component.props)
-      break
-
-    case 'spot-light':
-      addObject3DComponent(entity, new SpotLight(), component.props)
-      break
-
     // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
     // case 'wooCommerce':
     // case 'shopify':

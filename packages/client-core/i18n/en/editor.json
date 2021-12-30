@@ -448,9 +448,10 @@
             "description": "A light which emits along a direction, illuminating objects within a cone.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
-            "lbl-innerConeAngle": "Inner Cone Angle",
-            "lbl-outerConeAngle": "Outer Cone Angle",
-            "lbl-range": "Range"
+            "lbl-penumbra": "Penumbra",
+            "lbl-angle": "Angle",
+            "lbl-range": "Range",
+            "lbl-decay": "Decay"
         },
         "transform": {
             "title": "Transform",
