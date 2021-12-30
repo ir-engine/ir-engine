@@ -1,175 +1,155 @@
-import React, { useState, useEffect } from 'react'
-import { createState } from '@hookstate/core'
+import React, { useEffect } from 'react'
+import { useHookstate } from '@hookstate/core'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import ProgressBar from './SimpleProgressBar'
-import { useLocationState } from '../../social/services/LocationService'
 import { useSceneState } from '../../world/services/SceneService'
 import getImagePalette from 'image-palette-core'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export function createLoaderDetailView(id: string) {
-  return createXRUI(CharacterDetailView, createLoaderDetailState(id))
+  return createXRUI(LoadingDetailView)
 }
 
-function createLoaderDetailState(id: string) {
-  return createState({
-    id
-  })
+function setDefaultPalette(colors) {
+  colors.main.set('black')
+  colors.background.set('white')
+  colors.alternate.set('black')
 }
 
-type CharacterDetailState = ReturnType<typeof createLoaderDetailState>
-
-const CharacterDetailView = () => {
+const LoadingDetailView = () => {
   const sceneState = useSceneState()
   const engineState = useEngineState()
-  const locationState = useLocationState()
+  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
 
-  const [show, setShow] = useState(true)
-  const [backgroundColor, setBackgroundColor] = useState('black')
-  const [alternativeColor, setAlternativeColor] = useState('red')
-  const [color, setColor] = useState('white')
-  const [width, setWidth] = useState(4096)
-  const [height, setHeight] = useState(4096)
-  const [progress, setProgress] = useState('0')
-  const [loadingDetails, setLoadingDetails] = useState('loading background assests...')
-  const [bgImageSrc, setBgImageSrc] = useState(sceneState?.currentScene?.thumbnailUrl?.value || '')
+  const colors = useHookstate({
+    main: '',
+    background: '',
+    alternate: ''
+  })
 
   useEffect(() => {
-    const onResize = () => {
-      const width = window.innerWidth
-      const height = window.innerHeight
-      setWidth(width)
-      setHeight(height)
-    }
-    window.addEventListener('resize', onResize, false)
-  }, [])
+    const thumbnail = sceneState?.currentScene?.thumbnailUrl?.value
+    const img = new Image()
 
-  useEffect(() => {
-    if (locationState.currentLocation.value && sceneState.currentScene.value) {
-      const thumbnail = sceneState?.currentScene?.thumbnailUrl?.value || ''
-      setBgImageSrc(thumbnail)
-      const img = new Image()
-      img.src = thumbnail
+    if (thumbnail) {
+      colors.main.set('')
+      colors.background.set('')
+      colors.alternate.set('')
       img.crossOrigin = 'Anonymous'
       img.onload = function () {
         const palette = getImagePalette(img)
         if (palette) {
-          setBackgroundColor(palette.backgroundColor)
-          setColor(palette.color)
-          setAlternativeColor(palette.alternativeColor)
+          colors.main.set(palette.color)
+          colors.background.set(palette.backgroundColor)
+          colors.alternate.set(palette.alternativeColor)
+        } else {
+          setDefaultPalette(colors)
         }
       }
-    }
-  }, [sceneState.currentScene.value, locationState.currentLocation.value])
-
-  useEffect(() => {
-    setProgress(engineState.loadingProgress.value.toString())
-    setLoadingDetails(engineState.loadingDetails.value)
-
-    if (engineState.loadingProgress.value === 100) {
-      setShow(false)
+      img.src = thumbnail
+    } else {
+      setDefaultPalette(colors)
     }
 
-    console.log('------------------')
-    console.log('---XRUI LOADING---')
-    console.log('------------------')
-    console.log('------Loading-----', engineState.loadingProgress.value, engineState.loadingDetails.value)
-    console.log('------------------')
-    console.log('------------------')
-  }, [engineState.loadingProgress.value])
+    return () => {
+      img.onload = null
+    }
+  }, [sceneState?.currentScene?.thumbnailUrl?.value])
 
-  return show ? (
-    <div
-      style={{
-        position: 'relative',
-        width: `${width}px`,
-        height: `${height}px`,
-        top: 0,
-        left: 0,
-        fontFamily: "'Roboto', sans-serif"
-      }}
-    >
-      {bgImageSrc != '' && (
-        <img
-          src={bgImageSrc}
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0,
-            filter: 'blur(5px)',
-            backgroundColor: backgroundColor
-          }}
-        />
-      )}
-      {show && (
-        <div
-          xr-layer="true"
-          xr-pixel-ratio="2"
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: '2',
-            padding: '2px',
-            textAlign: 'center'
-          }}
-        >
-          <div
-            style={{
-              fontSize: '30px',
-              margin: 'auto',
-              textAlign: 'center',
-              padding: '2px',
-              color: alternativeColor
-            }}
-          >
-            loading
+  console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
+
+  return (
+    <>
+      <style>{`
+      #loading-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        font-family: 'Roboto', sans-serif;
+      }
+
+      #loading-container img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        filter: blur(5px);
+        ${colors.background.value ? 'backgroundColor: ' + colors.background.value : ''};
+      }
+
+      #loading-ui {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        padding: 2px;
+        text-align: center;
+      }
+
+      #loading-text {
+        font-size: 30px;
+        margin: auto;
+        text-align: center;
+        padding: 2px;
+        color: ${colors.alternate.value};
+      }
+      
+      #progress-text {
+        font-size: 50px;
+        margin: auto;
+        textAlign: center;
+        padding: 2px;
+        color: ${colors.main.value};
+      }
+
+      #progress-container {
+        margin: auto;
+        textAlign: center;
+        padding: 5px;
+        width: 200px;
+      }
+      
+      #loading-details {
+        fontSize: 12px;
+        margin: auto;
+        textAlign: center;
+        padding: 2px;
+        color: ${colors.main.value};
+      }
+      
+    `}</style>
+      <div id="loading-container" xr-layer="true">
+        {thumbnailUrl != '' && (
+          <div id="thumbnail">
+            <img xr-layer="true" xr-pixel-ratio="0.5" src={thumbnailUrl} />
           </div>
-          <div
-            style={{
-              fontSize: '50px',
-              margin: 'auto',
-              textAlign: 'center',
-              padding: '2px',
-              color: color
-            }}
-          >
-            {progress}%
+        )}
+        {colors.main.value && (
+          <div id="loading-ui" xr-layer="true">
+            <div id="loading-text" xr-layer="true">
+              loading
+            </div>
+            <div id="progress-text" xr-layer="true">
+              {engineState.loadingProgress.value}%
+            </div>
+            <div id="progress-container" xr-layer="true">
+              <ProgressBar
+                bgColor={colors.alternate.value}
+                completed={engineState.loadingProgress.value}
+                height="1px"
+                baseBgColor="#000000"
+                isLabelVisible={false}
+              />
+            </div>
+            <div id="loading-details" xr-layer="true">
+              {engineState.loadingDetails.value}
+            </div>
           </div>
-          <div
-            style={{
-              margin: 'auto',
-              textAlign: 'center',
-              padding: '5px',
-              width: '200px'
-            }}
-          >
-            <ProgressBar
-              bgColor={alternativeColor}
-              completed={progress}
-              height="1px"
-              baseBgColor="#000000"
-              isLabelVisible={false}
-            />
-          </div>
-          <div
-            style={{
-              fontSize: '12px',
-              margin: 'auto',
-              textAlign: 'center',
-              padding: '2px',
-              color: color
-            }}
-          >
-            {loadingDetails}
-          </div>
-        </div>
-      )}
-    </div>
-  ) : (
-    <div></div>
+        )}
+      </div>
+    </>
   )
 }

@@ -81,13 +81,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson) => {
     const entity = createEntity()
     addComponent(entity, NameComponent, { name: sceneEntity.name })
     loadComponents(entity, key, sceneEntity)
-
-    dispatchLocal(
-      EngineActions.loadingStateChanged(
-        Math.floor(currentProgress + sceneProgress),
-        `loading ${sceneEntity.name}...`
-      ) as any
-    )
     sceneProgress += progressCounter
   })
   await Promise.all(Engine.sceneLoadPromises)

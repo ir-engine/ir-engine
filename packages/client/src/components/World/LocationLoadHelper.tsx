@@ -96,19 +96,9 @@ export const loadLocation = async (project: string, sceneData: SceneJson): Promi
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
-  ///remove receptor
-  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
-  Engine.currentWorld.receptors.splice(receptorIndex, 1)
-  //
+  dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
+
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   Engine.isLoading = false
