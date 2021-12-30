@@ -65,6 +65,7 @@
     "feathers-hooks-common": "^5.0.3",
     "feathers-mailer": "^3.0.1",
     "feathers-sequelize": "6.3.2",
+    "feathers-sync": "2.4.0",
     "fs-blob-store": "6.0.0",
     "internal-ip": "^6.1.0",
     "lodash": "4.17.21",
