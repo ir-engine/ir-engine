@@ -72,12 +72,4 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
   */
     navTarget: navigationRaycastTarget
   })
-
-  // Force higest resolution. There is a heavy CPU/GPU load while the map is being generated which,
-  // when using the automatic setting, causes the lowest resolution to be selected.
-  EngineEvents.instance.dispatchEvent({ type: EngineRenderer.EVENTS.SET_RESOLUTION, payload: 1 })
-  EngineEvents.instance.dispatchEvent({
-    type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
-    payload: false
-  })
 }

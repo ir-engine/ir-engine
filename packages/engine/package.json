@@ -33,8 +33,8 @@
   "version": "0.4.13",
   "dependencies": {
     "@gltf-transform/core": "1.2.1",
-    "@gltf-transform/functions": "1.2.1",
-    "@gltf-transform/extensions": "1.2.1",
+    "@gltf-transform/extensions": "1.0.0",
+    "@gltf-transform/functions": "1.1.1",
     "@hookstate/core": "3.0.13",
     "@mapbox/vector-tile": "^1.3.1",
     "@turf/turf": "^6.5.0",

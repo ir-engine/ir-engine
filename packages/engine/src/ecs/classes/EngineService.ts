@@ -10,7 +10,6 @@ const state = createState({
   loadingProgress: -1,
   connectedWorld: false,
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
-
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,
