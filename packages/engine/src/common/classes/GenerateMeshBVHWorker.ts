@@ -61,12 +61,6 @@ export class GenerateMeshBVHWorker {
         }
       }
 
-      if ((geometry.attributes.position as InterleavedBufferAttribute).isInterleavedBufferAttribute) {
-        throw new Error(
-          'GenerateMeshBVHWorker: InterleavedBufferAttribute are not supported for the geometry attributes.'
-        )
-      }
-
       const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
       const position = Float32Array.from(geometry.attributes.position.array)
 
