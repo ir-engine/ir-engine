@@ -259,7 +259,6 @@ export const ChatService = {
     }
   },
   createMessage: async (values: any) => {
-    const dispatch = useDispatch()
     {
       try {
         await waitForClientAuthenticated()
@@ -321,7 +320,6 @@ export const ChatService = {
     }
   },
   removeMessage: async (messageId: string) => {
-    const dispatch = useDispatch()
     {
       try {
         await client.service('message').remove(messageId)
@@ -331,7 +329,6 @@ export const ChatService = {
     }
   },
   patchMessage: async (messageId: string, text: string) => {
-    const dispatch = useDispatch()
     {
       try {
         await client.service('message').patch(messageId, {
