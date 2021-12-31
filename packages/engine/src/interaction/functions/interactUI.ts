@@ -170,7 +170,7 @@ export const showInteractUI = (entity: Entity) => {
   const ui = getInteractUI(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent || !xrComponent.layer) return
   const object3D = getComponent(ui.entity, Object3DComponent) as any
   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 
