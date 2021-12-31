@@ -3,7 +3,6 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { useDispatch } from '../../../store'
 import Grid from '@mui/material/Grid'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
@@ -46,7 +45,6 @@ const termsOfService = Config.publicRuntimeConfig.staticPages?.termsOfService ??
 const MagicLinkEmail = (props: Props): any => {
   const { type, isAddConnection } = props
 
-  const dispatch = useDispatch()
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()

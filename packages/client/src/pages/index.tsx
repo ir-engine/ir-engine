@@ -6,7 +6,7 @@ import { useHistory, Redirect } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { Config } from '@xrengine/common/src/config'
 
-const ROOT_REDIRECT: any = Config.publicRuntimeConfig.rootRedirect
+const ROOT_REDIRECT: any = `https://${globalThis.process.env['VITE_ROOT_REDIRECT']}`
 
 export const HomePage = (): any => {
   console.log('homepage')

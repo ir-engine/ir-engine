@@ -1,9 +1,9 @@
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Network, TransportTypes, TransportType } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { SocketWebRTCClientMediaTransport, SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -174,14 +174,14 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
     if (MediaStreams.instance) {
       const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
-      consumer.pause()
+      consumer?.pause()
     }
   })
 
   networkTransport.socket.on(MessageTypes.WebRTCResumeConsumer.toString(), async (consumerId) => {
     if (MediaStreams.instance) {
       const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
-      consumer.resume()
+      consumer?.resume()
     }
   })
 
@@ -439,14 +439,24 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
 
     const transport = networkTransport.sendTransport
     try {
-      MediaStreams.instance.camVideoProducer = await transport.produce({
-        track: MediaStreams.instance.videoStream.getVideoTracks()[0],
-        encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-        appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+      await new Promise((resolve) => {
+        const waitForProducer = setInterval(async () => {
+          if (!MediaStreams.instance.camVideoProducer) {
+            MediaStreams.instance.camVideoProducer = await transport.produce({
+              track: MediaStreams.instance.videoStream.getVideoTracks()[0],
+              encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+              appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
+            })
+          } else {
+            clearInterval(waitForProducer)
+            resolve(true)
+          }
+        }, 100)
       })
-
       if (MediaStreams.instance.videoPaused) await MediaStreams.instance?.camVideoProducer.pause()
-      else await resumeProducer(networkTransport, MediaStreams.instance.camVideoProducer)
+      else
+        (await MediaStreams.instance.camVideoProducer) &&
+          resumeProducer(networkTransport, MediaStreams.instance.camVideoProducer)
     } catch (err) {
       console.log('error producing video', err)
     }
@@ -485,13 +495,24 @@ export async function createCamAudioProducer(networkTransport: SocketWebRTCClien
     const transport = networkTransport.sendTransport
     try {
       // Create a new transport for audio and start producing
-      MediaStreams.instance.camAudioProducer = await transport.produce({
-        track: MediaStreams.instance.audioStream.getAudioTracks()[0],
-        appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+      await new Promise((resolve) => {
+        const waitForProducer = setInterval(async () => {
+          if (!MediaStreams.instance.camAudioProducer) {
+            MediaStreams.instance.camAudioProducer = await transport.produce({
+              track: MediaStreams.instance.audioStream.getAudioTracks()[0],
+              appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
+            })
+          } else {
+            clearInterval(waitForProducer)
+            resolve(true)
+          }
+        }, 100)
       })
 
       if (MediaStreams.instance.audioPaused) MediaStreams.instance?.camAudioProducer.pause()
-      else await resumeProducer(networkTransport, MediaStreams.instance.camAudioProducer)
+      else
+        (await MediaStreams.instance.camAudioProducer) &&
+          resumeProducer(networkTransport, MediaStreams.instance.camAudioProducer)
     } catch (err) {
       console.log('error producing audio', err)
     }
@@ -707,7 +728,7 @@ export async function closeConsumer(transport: SocketWebRTCClientMediaTransport,
   await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.close()
+  await consumer?.close()
 
   MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter(
     (c: any) => !(c.id === consumer.id)
