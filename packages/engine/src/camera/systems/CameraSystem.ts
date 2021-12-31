@@ -39,7 +39,7 @@ const cameraRayCount = 6
 const cameraRays: Vector3[] = []
 const rayConeAngle = Math.PI / 6
 const coneDebugHelpers: ArrowHelper[] = []
-const debugRays = true
+const debugRays = false
 const camRayCastClock = new Clock()
 const camRayCastCache = {
   maxDistance: -1,
