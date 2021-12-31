@@ -9,6 +9,8 @@ type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
+const MAX_DELTA = 1 / 30
+
 export function Timer(update: TimerUpdateCallback): { start: Function; stop: Function; clear: Function } {
   let lastTime = null
   let elapsedTime = 0
@@ -45,7 +47,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
     Engine.xrFrame = xrFrame
     if (lastTime !== null) {
-      delta = (time - lastTime) / 1000
+      delta = Math.min((time - lastTime) / 1000, MAX_DELTA)
 
       elapsedTime += delta
 
