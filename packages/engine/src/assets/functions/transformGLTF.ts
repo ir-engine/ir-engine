@@ -14,7 +14,8 @@ export async function instanceGLTF(url) {
   if (isClient) {
     io = new WebIO()
   } else {
-    io = new NodeIO((await import('node-fetch')).default)
+    const { default: fetch } = await import('node-fetch')
+    io = new NodeIO(fetch)
   }
   io.registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
   io.registerDependencies({
