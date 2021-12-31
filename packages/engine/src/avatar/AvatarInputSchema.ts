@@ -432,8 +432,8 @@ const lookByInputAxis: InputBehaviorType = (
   if (target)
     setTargetCameraRotation(
       entity,
-      target.phi - inputValue.value[1] * 30000 * delta,
-      target.theta - inputValue.value[0] * 30000 * delta,
+      target.phi - inputValue.value[1] * 20000 * delta,
+      target.theta - inputValue.value[0] * 20000 * delta,
       0.1
     )
 }
