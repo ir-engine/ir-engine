@@ -333,8 +333,8 @@ export const AuthService = {
       } as any
       if (queryString.instanceId && queryString.instanceId.length > 0)
         redirectObject.instanceId = queryString.instanceId
-      let redirectUrl = `${
-        Config.publicRuntimeConfig.apiServer
+      let redirectUrl = `https://${
+        globalThis.process.env['VITE_SERVER_HOST']
       }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
 
       window.location.href = redirectUrl
@@ -624,7 +624,10 @@ export const AuthService = {
   addConnectionByOauth: async (oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter', userId: string) => {
     const dispatch = useDispatch()
     {
-      window.open(`${Config.publicRuntimeConfig.apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
+      window.open(
+        `https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`,
+        '_blank'
+      )
     }
   },
   removeConnection: async (identityProviderId: number, userId: string) => {
@@ -657,7 +660,7 @@ export const AuthService = {
     {
       const token = accessAuthState().authUser.accessToken.value
       const selfUser = accessAuthState().user
-      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/upload`, data, {
+      const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + token
@@ -953,7 +956,6 @@ export const AuthAction = {
     }
   },
   avatarUpdated: (result: any) => {
-    debugger
     const url = result.url
     return {
       type: 'AVATAR_UPDATED' as const,

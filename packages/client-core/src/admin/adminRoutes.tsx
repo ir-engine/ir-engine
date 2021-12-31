@@ -1,6 +1,5 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Switch, Redirect } from 'react-router-dom'
-import { useDispatch } from '../store'
 import PrivateRoute from '../Private'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useAuthState } from '../user/services/AuthService'
@@ -27,7 +26,6 @@ interface Props {}
 
 const ProtectedRoutes = (props: Props) => {
   const admin = useAuthState().user
-  const dispatch = useDispatch()
 
   let allowedRoutes = {
     location: false,

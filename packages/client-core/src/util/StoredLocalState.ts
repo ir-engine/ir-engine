@@ -12,7 +12,7 @@ export const accessStoredLocalState = () => state
 export const useStoredLocalState = () => useState(state) as any as typeof state
 
 if (typeof window !== 'undefined') {
-  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey)
+  const rawState = localStorage.getItem(`https://${globalThis.process.env['VITE_LOCAL_STORAGE_KEY']}`)
   if (rawState) {
     const newState = JSON.parse(rawState)
     console.log(newState)
@@ -25,7 +25,10 @@ store.receptors.push((action: StoredLocalActionType): void => {
     switch (action.type) {
       case 'STORE_LOCAL':
         s.merge(action.newState)
-        localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(s.attach(Downgraded).value))
+        localStorage.setItem(
+          `https://${globalThis.process.env['VITE_LOCAL_STORAGE_KEY']}`,
+          JSON.stringify(s.attach(Downgraded).value)
+        )
         return
     }
   })
