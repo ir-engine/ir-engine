@@ -20,7 +20,6 @@ import { FlyControlComponent } from '../../classes/FlyControlComponent'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = useRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -48,7 +47,7 @@ export function ViewportPanelContainer() {
   }, [])
 
   useEffect(() => {
-    const initRenderer = () => SceneManager.instance.initializeRenderer(canvasRef.current)
+    const initRenderer = () => SceneManager.instance.initializeRenderer()
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
@@ -137,13 +136,10 @@ export function ViewportPanelContainer() {
     <div
       className={styles.viewportContainer}
       style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
-        backgroundColor: 'grey'
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
       }}
       ref={dropRef}
     >
-      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>
