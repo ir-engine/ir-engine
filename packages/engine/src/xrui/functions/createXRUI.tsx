@@ -47,7 +47,10 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
-    if (!Engine.currentWorld.entityQuery().includes(entity)) return
+    if (!Engine.currentWorld.entityQuery().includes(entity)) {
+      console.warn('XRUI layer initialized after entity removed from world')
+      return
+    }
     addComponent(entity, Object3DComponent, { value: uiRoot })
     setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { layer: uiRoot })
