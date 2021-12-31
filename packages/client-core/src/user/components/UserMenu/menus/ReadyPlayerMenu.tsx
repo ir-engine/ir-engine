@@ -1,6 +1,5 @@
 import CircularProgress from '@mui/material/CircularProgress'
 import { ArrowBack } from '@mui/icons-material'
-import { Config } from '@xrengine/common/src/config'
 import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
@@ -232,7 +231,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
           }}
         ></div>
         {this.state.avatarUrl === '' ? (
-          <iframe src={Config.publicRuntimeConfig.readyPlayerMeUrl} />
+          <iframe src={`https://${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`} />
         ) : (
           <div className={styles.centerProgress}>
             <CircularProgress />

@@ -45,7 +45,6 @@ const AuthMagicLinkWrapper = (props: any): any => {
   const search = new URLSearchParams(useLocation().search)
   const token = search.get('token') as string
   const type = search.get('type') as string
-  const dispatch = useDispatch()
 
   const handleResetPassword = (token: string, password: string): any => {
     AuthService.resetPassword(token, password)

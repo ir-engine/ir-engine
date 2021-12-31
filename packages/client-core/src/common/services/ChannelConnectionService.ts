@@ -32,8 +32,7 @@ const state = createState({
   readyToConnect: false,
   updateNeeded: false,
   instanceServerConnecting: false,
-  instanceProvisioning: false,
-  channelDisconnected: true
+  instanceProvisioning: false
 })
 
 store.receptors.push((action: ChannelConnectionActionType): any => {
@@ -66,7 +65,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: true,
           updateNeeded: false,
           readyToConnect: false,
-          channelDisconnected: false,
           instanceServerConnecting: false
         })
       case 'CHANNEL_SERVER_DISCONNECT':
@@ -82,7 +80,6 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           connected: false,
           readyToConnect: false,
           updateNeeded: false,
-          channelDisconnected: true,
           instanceServerConnecting: false,
           instanceProvisioning: false
         })
