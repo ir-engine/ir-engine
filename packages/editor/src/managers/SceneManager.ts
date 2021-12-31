@@ -49,6 +49,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { accessEditorState } from '../services/EditorServices'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()
@@ -65,7 +66,7 @@ export class SceneManager {
   raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
   thumbnailRenderer = new ThumbnailRenderer()
-  disableUpdate: boolean
+  disableUpdate = true
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   cameraEntity: Entity
@@ -76,7 +77,7 @@ export class SceneManager {
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
-    this.dispose()
+    // this.dispose()
 
     this.raycaster = new Raycaster()
 
@@ -84,7 +85,6 @@ export class SceneManager {
     Engine.camera.add(this.audioListener)
 
     this.centerScreenSpace = new Vector2()
-    this.disableUpdate = true
 
     // Empty existing scene
     if (Engine.scene) {
@@ -154,16 +154,9 @@ export class SceneManager {
    * @author Robert Long
    * @param  {any} canvas [ contains canvas data ]
    */
-  initializeRenderer(canvas: HTMLCanvasElement): void {
+  initializeRenderer(): void {
+    console.log('initializeRenderer')
     try {
-      this.disableUpdate = false
-
-      if (!Engine.renderer) {
-        new EngineRenderer({ canvas, enabled: true })
-        EngineRenderer.instance.automatic = false
-        Engine.engineTimer.start()
-      }
-
       ControlManager.instance.initControls()
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
@@ -193,6 +186,7 @@ export class SceneManager {
       window.addEventListener('resize', this.onResize)
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
+      this.disableUpdate = false
     } catch (error) {
       console.error(error)
     }
@@ -548,6 +542,6 @@ export default async function EditorRendererSystem(world: World, props: EngineRe
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return () => {
-    SceneManager.instance.update(world.delta, world.elapsedTime)
+    if (accessEditorState().sceneName.value) SceneManager.instance.update(world.delta, world.elapsedTime)
   }
 }
