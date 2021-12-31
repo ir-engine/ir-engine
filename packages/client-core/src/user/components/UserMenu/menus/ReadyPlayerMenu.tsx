@@ -231,7 +231,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
           }}
         ></div>
         {this.state.avatarUrl === '' ? (
-          <iframe src={`https://${globalThis.process.env['VITE_READYPLAYERME_URL']}`} />
+          <iframe src={`https://${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`} />
         ) : (
           <div className={styles.centerProgress}>
             <CircularProgress />
