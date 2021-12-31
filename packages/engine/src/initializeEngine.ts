@@ -23,6 +23,7 @@ import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
+import { EngineRenderer } from './renderer/WebGLRendererSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -301,9 +302,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
+  // temporary, will be fixed with editor engine integration
   Engine.engineTimer = Timer(executeWorlds)
-
-  // Engine type specific post configuration work
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {

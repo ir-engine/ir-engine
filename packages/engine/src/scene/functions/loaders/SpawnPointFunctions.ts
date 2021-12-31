@@ -36,6 +36,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     obj3d.userData.helperModel = spawnPointHelperModel.clone()
     obj3d.add(obj3d.userData.helperModel)
     obj3d.userData.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff)
+    obj3d.userData.helperBox.userData.isHelper = true
     obj3d.add(obj3d.userData.helperBox)
   }
 }

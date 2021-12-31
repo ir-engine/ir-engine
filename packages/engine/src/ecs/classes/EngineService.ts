@@ -4,13 +4,13 @@ import { PortalComponent, PortalComponentType } from '../../scene/components/Por
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
+  fixedTick: 0,
   isEngineInitialized: false,
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: -1,
   connectedWorld: false,
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
-
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,

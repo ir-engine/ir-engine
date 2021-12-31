@@ -17,7 +17,31 @@ import { initializeXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+
+const startXRSession = async () => {
+  Engine.renderer.outputEncoding = sRGBEncoding
+  const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
+  try {
+    const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
+
+    Engine.xrSession = session
+    Engine.xrManager.setSession(session)
+    Engine.xrManager.setFoveation(1)
+    dispatchLocal(EngineActions.xrSession() as any)
+
+    Engine.xrManager.getCamera().layers.enableAll()
+
+    Engine.xrManager.addEventListener('sessionend', async () => {
+      endXR()
+      dispatchLocal(EngineActions.xrEnd() as any)
+    })
+
+    startWebXR()
+  } catch (e) {
+    console.error('Failed to create XR Session', e)
+  }
+}
 
 /**
  * System for XR session and input handling
@@ -29,7 +53,6 @@ export default async function XRSystem(world: World): Promise<System> {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   const quat = new Quaternion()
-  const quat2 = new Quaternion()
   const vector3 = new Vector3()
 
   // TEMPORARY - precache controller model
@@ -39,27 +62,11 @@ export default async function XRSystem(world: World): Promise<System> {
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' })
   await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
 
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
-    Engine.renderer.outputEncoding = sRGBEncoding
-    const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
-    try {
-      const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
-
-      Engine.xrSession = session
-      Engine.xrManager.setSession(session)
-      Engine.xrManager.setFoveation(1)
-      dispatchLocal(EngineActions.xrSession() as any)
-
-      Engine.xrManager.getCamera().layers.enableAll()
-
-      Engine.xrManager.addEventListener('sessionend', async () => {
-        endXR()
-        dispatchLocal(EngineActions.xrEnd() as any)
-      })
-
-      startWebXR()
-    } catch (e) {
-      console.log('Failed to create XR Session', e)
+  Engine.currentWorld.receptors.push((action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.XR_START:
+        startXRSession()
+        break
     }
   })
 

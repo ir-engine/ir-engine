@@ -56,6 +56,7 @@ import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
+import { accessEditorState } from '../services/EditorServices'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -78,7 +79,7 @@ export class SceneManager {
   raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
   thumbnailRenderer = new ThumbnailRenderer()
-  disableUpdate: boolean
+  disableUpdate = true
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   editorEntity: Entity
@@ -96,7 +97,6 @@ export class SceneManager {
     Engine.camera.add(this.audioListener)
 
     this.centerScreenSpace = new Vector2()
-    this.disableUpdate = true
 
     if (!Engine.scene) Engine.scene = new Scene()
 
@@ -139,9 +139,8 @@ export class SceneManager {
    * @param  {any} canvas [ contains canvas data ]
    */
   initializeRenderer(): void {
+    console.log('initializeRenderer')
     try {
-      this.disableUpdate = false
-
       ControlManager.instance.initControls()
       applyAndArchiveIncomingAction(
         useWorld(),
@@ -159,6 +158,7 @@ export class SceneManager {
       window.addEventListener('resize', this.onResize)
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
+      this.disableUpdate = false
     } catch (error) {
       console.error(error)
     }
@@ -512,16 +512,19 @@ export class SceneManager {
 }
 
 type EngineRendererProps = {
-  canvas: HTMLCanvasElement
+  canvas: any
   enabled: boolean
 }
 
 // TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
-export default async function EditorRendererSystem(world: World, _: EngineRendererProps): Promise<System> {
+export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+  new EngineRenderer({ canvas: props.canvas.current, enabled: true })
+
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return () => {
-    if (!SceneManager.instance.disableUpdate && EngineRenderer.instance) EngineRenderer.instance.execute(world.delta)
+    if (!accessEditorState().sceneName.value || SceneManager.instance.disableUpdate || !EngineRenderer.instance) return
+    EngineRenderer.instance.execute(world.delta)
   }
 }
