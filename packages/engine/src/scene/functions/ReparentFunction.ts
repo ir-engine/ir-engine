@@ -7,7 +7,8 @@ import { Object3DComponent } from '../components/Object3DComponent'
 export const reparentObject3D = (node: EntityTreeNode, parent: EntityTreeNode, before?: EntityTreeNode): void => {
   if (!node.parentNode) return
 
-  const obj3d = getComponent(node.entity, Object3DComponent).value
+  const obj3d = getComponent(node.entity, Object3DComponent)?.value
+  if (!obj3d) return
   const parentObj3d = parent.parentNode ? getComponent(parent.entity, Object3DComponent).value : Engine.scene
 
   if (obj3d.parent && obj3d.parent !== parentObj3d) {

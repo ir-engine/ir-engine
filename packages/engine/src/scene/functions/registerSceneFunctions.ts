@@ -110,6 +110,7 @@ import {
   serializeSpotLight,
   updateSpotLight
 } from './loaders/StopLightFunctions'
+import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -265,5 +266,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeLoopAnimation,
     serialize: serializeLoopAnimation,
     update: updateLoopAnimation
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LINK, {
+    deserialize: deserializeLink,
+    serialize: serializeLink,
+    prepareForGLTFExport: prepareLinkForGLTFExport
   })
 }

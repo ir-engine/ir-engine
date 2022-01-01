@@ -14,7 +14,7 @@ type PropertyType = {
 export interface ModifyPropertyCommandParams extends CommandParams {
   properties: PropertyType
   component: ComponentConstructor<any, any>
-  updateFunction: ComponentUpdateFunction
+  updateFunction?: ComponentUpdateFunction
 }
 
 export default class ModifyPropertyCommand extends Command {
@@ -22,7 +22,7 @@ export default class ModifyPropertyCommand extends Command {
 
   component: ComponentConstructor<any, any>
 
-  updateFunction: ComponentUpdateFunction
+  updateFunction?: ComponentUpdateFunction
 
   oldProperties?: PropertyType[]
 
@@ -104,7 +104,7 @@ export default class ModifyPropertyCommand extends Command {
         }
       }
 
-      this.updateFunction(nodes[i].entity)
+      this.updateFunction && this.updateFunction(nodes[i].entity)
     }
 
     for (const propertyName in properties) {

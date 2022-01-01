@@ -41,6 +41,7 @@ import {
 } from './loaders/LoopAnimationFunctions'
 import { SCENE_COMPONENT_POINT_LIGHT, SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES } from './loaders/PointLightFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT, SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES } from './loaders/StopLightFunctions'
+import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -51,6 +52,7 @@ export const ScenePrefabs = {
   spotLight: 'Spot Light' as const,
   metadata: 'Metadata' as const,
   model: 'Model' as const,
+  link: 'Link' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
@@ -135,5 +137,10 @@ export const registerPrefabs = (world: World) => {
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.link, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_LINK, props: SCENE_COMPONENT_LINK_DEFAULT_VALUES }
   ])
 }

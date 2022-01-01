@@ -21,7 +21,6 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import SkyboxNode from './SkyboxNode'
 import { uploadProjectAsset } from '../functions/assetFunctions'
 import { accessEditorState } from '../services/EditorServices'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -154,7 +153,7 @@ export default class CubemapBakeNode extends EditorNodeMixin(Object3D) {
           //disable specular highlights
           ;(child as any).material && ((child as any).material.roughness = 1)
           if ((child as any).isNode) {
-            if (child.constructor === SkyboxNode) sceneToBake.background = (Engine.scene as any as SceneNode).background
+            // if (child.constructor === SkyboxNode) sceneToBake.background = (Engine.scene as any as SceneNode).background
           }
         })
         sceneToBake.add(o)

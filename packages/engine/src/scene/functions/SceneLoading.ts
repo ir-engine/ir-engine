@@ -78,6 +78,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    console.log(sceneEntity.name, node)
     reparentObject3D(node, node.parentNode)
   })
 
@@ -247,11 +248,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
     case 'trigger-volume':
       createTriggerVolume(entity, component.props)
-      break
-
-    case 'link':
-      addObject3DComponent(entity, new Object3D(), component.props)
-      addComponent(entity, InteractableComponent, { action: 'link' })
       break
 
     case 'particle-emitter':
