@@ -180,7 +180,6 @@ export const InviteService = {
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'received',
@@ -202,7 +201,6 @@ export const InviteService = {
       const skip = inviteState.sentInvites.skip
       const limit = inviteState.sentInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'sent',

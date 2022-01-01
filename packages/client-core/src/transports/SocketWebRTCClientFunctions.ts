@@ -13,14 +13,25 @@ import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { InstanceConnectionAction } from '../common/services/InstanceConnectionService'
 import { useDispatch } from '../store'
-import { ChannelConnectionAction } from '../common/services/ChannelConnectionService'
+import { accessChannelConnectionState, ChannelConnectionAction } from '../common/services/ChannelConnectionService'
+
+export const getChannelTypeIdFromTransport = (
+  networkTransport: SocketWebRTCClientTransport | SocketWebRTCClientMediaTransport
+) => {
+  const channelConnectionState = accessChannelConnectionState()
+  const isWorldConnection = !(networkTransport instanceof SocketWebRTCClientMediaTransport)
+  return {
+    channelType: isWorldConnection ? 'instance' : channelConnectionState.channelType.value,
+    channelId: isWorldConnection ? null : channelConnectionState.channelId.value
+  }
+}
 
 export async function onConnectToInstance(
   networkTransport: SocketWebRTCClientTransport | SocketWebRTCClientMediaTransport
 ) {
   const dispatch = useDispatch()
 
-  const isWorldConnection = !(networkTransport as SocketWebRTCClientMediaTransport).channelType
+  const isWorldConnection = !(networkTransport instanceof SocketWebRTCClientMediaTransport)
 
   if (isWorldConnection) {
     dispatch(InstanceConnectionAction.instanceServerConnected())
@@ -117,7 +128,7 @@ export async function onConnectToInstance(
     async (socketId, mediaTag, producerId, channelType, channelId) => {
       console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
       const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
-
+      const channelConnectionState = accessChannelConnectionState()
       if (
         producerId != null &&
         // channelType === self.channelType &&
@@ -126,8 +137,9 @@ export async function onConnectToInstance(
         //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
         // ) == null /*&&
         (channelType === TransportTypes.instance
-          ? (networkTransport as any).channelType === TransportTypes.instance
-          : (networkTransport as any).channelType === channelType && (networkTransport as any).channelId === channelId)
+          ? channelConnectionState.channelType.value === TransportTypes.instance
+          : channelConnectionState.channelType.value === channelType &&
+            channelConnectionState.channelId.value === channelId)
       ) {
         // that we don't already have consumers for...
         await subscribeToTrack(networkTransport as SocketWebRTCClientMediaTransport, socketId, mediaTag)
@@ -199,10 +211,11 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
   const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
 
+  const channelConnectionState = accessChannelConnectionState()
   await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
     userIds: userIds || [],
-    channelType: TransportTypes.media,
-    channelId: networkTransport.channelId
+    channelType: channelConnectionState.channelType.value,
+    channelId: channelConnectionState.channelId.value
   })
 }
 
@@ -239,9 +252,7 @@ export async function createTransport(
 ) {
   const request = networkTransport.request
   if (request === null) return null!
-
-  const channelType = (networkTransport as SocketWebRTCClientMediaTransport).channelType ?? 'instance'
-  const channelId = (networkTransport as SocketWebRTCClientMediaTransport).channelId ?? null
+  const { channelId, channelType } = getChannelTypeIdFromTransport(networkTransport)
 
   // ask the server to create a server-side transport object and send
   // us back the info we need to create a client-side transport
@@ -381,9 +392,10 @@ export async function initSendTransport(
 }
 
 export async function initRouter(networkTransport: SocketWebRTCClientMediaTransport): Promise<void> {
+  const { channelId, channelType } = getChannelTypeIdFromTransport(networkTransport)
   await networkTransport.request(MessageTypes.InitializeRouter.toString(), {
-    channelType: networkTransport.channelType,
-    channelId: networkTransport.channelId
+    channelType,
+    channelId
   })
 }
 
@@ -423,8 +435,9 @@ export async function configureMediaTransports(
 }
 
 export async function createCamVideoProducer(networkTransport: SocketWebRTCClientMediaTransport): Promise<void> {
-  const channelType = networkTransport.channelType
-  const channelId = networkTransport.channelId
+  const channelConnectionState = accessChannelConnectionState()
+  const channelType = channelConnectionState.channelType.value
+  const channelId = channelConnectionState.channelId.value
   if (MediaStreams.instance.videoStream !== null && networkTransport.videoEnabled === true) {
     if (networkTransport.sendTransport == null) {
       await new Promise((resolve) => {
@@ -464,8 +477,9 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
 }
 
 export async function createCamAudioProducer(networkTransport: SocketWebRTCClientMediaTransport): Promise<void> {
-  const channelType = networkTransport.channelType
-  const channelId = networkTransport.channelId
+  const channelConnectionState = accessChannelConnectionState()
+  const channelType = channelConnectionState.channelType.value
+  const channelId = channelConnectionState.channelId.value
   if (MediaStreams.instance.audioStream !== null) {
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
     //This Gain is saved on MediaStreamSystem so it can be accessed from the user's component and controlled.
@@ -611,9 +625,9 @@ export async function subscribeToTrack(
 ) {
   const socket = networkTransport.socket
   if (!socket?.connected) return
-
-  const channelType = networkTransport.channelType
-  const channelId = networkTransport.channelId
+  const channelConnectionState = accessChannelConnectionState()
+  const channelType = channelConnectionState.channelType.value
+  const channelId = channelConnectionState.channelId.value
   // if we do already have a consumer, we shouldn't have called this method
   let consumer = MediaStreams.instance?.consumers.find(
     (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag

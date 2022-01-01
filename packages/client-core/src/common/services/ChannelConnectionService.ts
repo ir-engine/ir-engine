@@ -6,7 +6,6 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { accessChatState } from '../../social/services/ChatService'
 import {
   SocketWebRTCClientMediaTransport,
   SocketWebRTCClientTransport
@@ -16,7 +15,7 @@ import { MediaStreamService } from '../../media/services/MediaStreamService'
 
 import { createState, useState } from '@hookstate/core'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { accessInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 
 //State
 const state = createState({
@@ -26,6 +25,7 @@ const state = createState({
   },
   locationId: '',
   sceneId: '',
+  channelType: null! as ChannelType,
   channelId: '',
   instanceProvisioned: false,
   connected: false,
@@ -46,11 +46,14 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           instanceProvisioning: true
         })
       case 'CHANNEL_SERVER_PROVISIONED':
+        MediaStreams.instance.channelType = action.channelType!
+        MediaStreams.instance.channelId = action.channelId!
         return s.merge({
           instance: {
             ipAddress: action.ipAddress,
             port: action.port
           },
+          channelType: action.channelType,
           channelId: action.channelId!,
           instanceProvisioning: false,
           instanceProvisioned: true,
@@ -68,6 +71,8 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           instanceServerConnecting: false
         })
       case 'CHANNEL_SERVER_DISCONNECT':
+        MediaStreams.instance.channelType = null!
+        MediaStreams.instance.channelId = ''
         return s.merge({
           instance: {
             ipAddress: '',
@@ -75,6 +80,7 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           },
           locationId: '',
           sceneId: '',
+          channelType: null!,
           channelId: '',
           instanceProvisioned: false,
           connected: false,
@@ -93,7 +99,7 @@ export const useChannelConnectionState = () => useState(state) as any as typeof 
 
 //Service
 export const ChannelConnectionService = {
-  provisionChannelServer: async (channelId?: string) => {
+  provisionChannelServer: async (channelId?: string, isWorldConnection = false) => {
     const dispatch = useDispatch()
     dispatch(ChannelConnectionAction.channelServerProvisioning())
     const token = accessAuthState().authUser.accessToken.value
@@ -104,7 +110,15 @@ export const ChannelConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatch(ChannelConnectionAction.channelServerProvisioned(provisionResult, channelId))
+      {
+        dispatch(
+          ChannelConnectionAction.channelServerProvisioned(
+            provisionResult,
+            channelId,
+            isWorldConnection ? 'instance' : 'channel'
+          )
+        )
+      }
     } else {
       EngineEvents.instance.dispatchEvent({
         type: SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
@@ -116,13 +130,6 @@ export const ChannelConnectionService = {
     dispatch(ChannelConnectionAction.channelServerConnecting())
     const authState = accessAuthState()
     const user = authState.user.value
-    const chatState = accessChatState()
-    const channelState = chatState.channels
-    const channels = channelState.channels.value
-    const channelEntries = Object.entries(channels)
-    const instanceChannel = channelEntries.find(
-      (entry) => entry[1].instanceId === accessInstanceConnectionState().instance.id.value
-    )
     const { ipAddress, port } = accessChannelConnectionState().instance.value
 
     const locationState = accessLocationState()
@@ -141,8 +148,6 @@ export const ChannelConnectionService = {
         currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
         user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) == null
       )
-    transport.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-    transport.channelId = channelId
 
     await transport.initialize({ sceneId, port, ipAddress, channelId })
     transport.left = false
@@ -150,9 +155,6 @@ export const ChannelConnectionService = {
       MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
       MediaStreamService.triggerUpdateConsumers
     )
-
-    MediaStreams.instance.channelType = instanceChannel && channelId === instanceChannel[1].id ? 'instance' : 'channel'
-    MediaStreams.instance.channelId = channelId
   },
   resetChannelServer: () => {
     const dispatch = useDispatch()
@@ -176,12 +178,17 @@ export const ChannelConnectionAction = {
       type: 'CHANNEL_SERVER_PROVISIONING' as const
     }
   },
-  channelServerProvisioned: (provisionResult: InstanceServerProvisionResult, channelId?: string | null) => {
+  channelServerProvisioned: (
+    provisionResult: InstanceServerProvisionResult,
+    channelId?: string,
+    channelType?: ChannelType
+  ) => {
     return {
       type: 'CHANNEL_SERVER_PROVISIONED' as const,
       id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
+      channelType: channelType,
       channelId: channelId
     }
   },

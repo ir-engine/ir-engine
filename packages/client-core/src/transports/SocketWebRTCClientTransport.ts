@@ -9,7 +9,7 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+
 // import { encode, decode } from 'msgpackr'
 const gameserverAddress =
   process.env.APP_ENV === 'development'
@@ -157,8 +157,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 export class SocketWebRTCClientMediaTransport extends SocketWebRTCClientTransport {
   localScreen: any
   videoEnabled = false
-  channelType: ChannelType
-  channelId: string
 
   close() {
     super.close()
