@@ -40,6 +40,7 @@ export const deserializeLink: ComponentDeserializeFunction = (entity: Entity, js
     const helper = new Mesh(geometry, material)
     helper.layers.set(1)
     obj3d.add(helper)
+    obj3d.userData.linkHelper = helper
   }
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LINK)
@@ -47,22 +48,17 @@ export const deserializeLink: ComponentDeserializeFunction = (entity: Entity, js
 }
 
 export const serializeLink: ComponentSerializeFunction = (entity) => {
-  if (hasComponent(entity, LinkComponent)) {
+  const linkComponent = getComponent(entity, LinkComponent)
+  if (linkComponent) {
     return {
       name: SCENE_COMPONENT_LINK,
-      props: {}
+      props: {
+        href: linkComponent.href
+      }
     }
   }
 }
 
-export const prepareLinkForGLTFExport: ComponentPrepareForGLTFExportFunction = (light) => {
-  if (light.userData.helper) {
-    if (light.userData.helper.parent) light.userData.helper.removeFromParent()
-    delete light.userData.helper
-  }
-
-  if (light.userData.cameraHelper) {
-    if (light.userData.cameraHelper.parent) light.userData.cameraHelper.removeFromParent()
-    delete light.userData.cameraHelper
-  }
+export const prepareLinkForGLTFExport: ComponentPrepareForGLTFExportFunction = (link) => {
+  if (link.userData.linkHelper) link.remove(link.userData.linkHelper)
 }
