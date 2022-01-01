@@ -24,13 +24,10 @@ import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { createPortal } from '../functions/createPortal'
 import { createTriggerVolume } from '../functions/createTriggerVolume'
-import { setCameraProperties } from '../functions/setCameraProperties'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
@@ -266,18 +263,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
     case 'interior':
       isClient && addObject3DComponent(entity, new Interior(), component.props)
-      break
-
-    case 'cameraproperties':
-      if (isClient) {
-        matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-          if (spawnAction.$from === Engine.userId) {
-            setCameraProperties(useWorld().localClientEntity, component.props)
-            return true
-          }
-          return false
-        })
-      }
       break
 
     case 'portal':

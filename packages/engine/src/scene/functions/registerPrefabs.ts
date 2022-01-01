@@ -46,6 +46,10 @@ import {
   SCENE_COMPONENT_PARTICLE_EMITTER,
   SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
 } from './loaders/ParticleEmitterFunctions'
+import {
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
+} from './loaders/CameraPropertiesFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -57,6 +61,7 @@ export const ScenePrefabs = {
   metadata: 'Metadata' as const,
   model: 'Model' as const,
   link: 'Link' as const,
+  cameraProperties: 'Camera Properties' as const,
   particleEmitter: 'Particle Emitter' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
@@ -152,5 +157,9 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_PARTICLE_EMITTER, props: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.cameraProperties, [
+    { name: SCENE_COMPONENT_CAMERA_PROPERTIES, props: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES }
   ])
 }

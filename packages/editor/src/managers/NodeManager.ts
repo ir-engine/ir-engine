@@ -76,6 +76,7 @@ import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
 import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
+import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -122,7 +123,7 @@ export class NodeManager {
 export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
-  NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
+  // NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
@@ -166,6 +167,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
   [SCENE_COMPONENT_SPOT_LIGHT]: SpotLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
+  [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_LINK]: LinkNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
@@ -186,6 +188,7 @@ export const prefabIcons = {
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
+  [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,

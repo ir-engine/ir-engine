@@ -117,6 +117,11 @@ import {
   serializeParticleEmitter,
   updateParticleEmitter
 } from './loaders/ParticleEmitterFunctions'
+import {
+  deserializeCameraProperties,
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  serializeCameraProperties
+} from './loaders/CameraPropertiesFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -284,5 +289,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeParticleEmitter,
     serialize: serializeParticleEmitter,
     update: updateParticleEmitter
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
+    deserialize: deserializeCameraProperties,
+    serialize: serializeCameraProperties
   })
 }
