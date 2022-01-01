@@ -14,6 +14,7 @@ import { MediaStreamService } from '../media/services/MediaStreamService'
 import { InstanceConnectionAction } from '../common/services/InstanceConnectionService'
 import { useDispatch } from '../store'
 import { accessChannelConnectionState, ChannelConnectionAction } from '../common/services/ChannelConnectionService'
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessChannelConnectionState()
@@ -121,7 +122,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   networkTransport.socket.on(
     MessageTypes.WebRTCCreateProducer.toString(),
-    async (socketId, mediaTag, producerId, channelType, channelId) => {
+    async (socketId, mediaTag, producerId, channelType: ChannelType, channelId) => {
       console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
       const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
       const channelConnectionState = accessChannelConnectionState()
@@ -132,8 +133,8 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
         // (MediaStreams.instance?.consumers?.find(
         //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
         // ) == null /*&&
-        (channelType === TransportTypes.world
-          ? channelConnectionState.channelType.value === TransportTypes.world
+        (channelType === 'instance'
+          ? channelConnectionState.channelType.value === 'instance'
           : channelConnectionState.channelType.value === channelType &&
             channelConnectionState.channelId.value === channelId)
       ) {
@@ -162,12 +163,12 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
     const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
     await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
       userIds: userIds || [],
-      channelType: TransportTypes.world
+      channelType: 'instance'
     })
     MediaStreamService.triggerUpdateNearbyLayerUsers()
   })
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
-  await createDataProducer(networkTransport, TransportTypes.world)
+  await createDataProducer(networkTransport, 'instance')
 }
 
 export async function onConnectToMediaInstance(networkTransport: SocketWebRTCClientTransport) {
@@ -217,7 +218,7 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
 
 export async function createDataProducer(
   networkTransport: SocketWebRTCClientTransport,
-  channel,
+  channelType: ChannelType,
   type = 'raw',
   customInitInfo: any = {}
 ): Promise<void> {
@@ -226,7 +227,7 @@ export async function createDataProducer(
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
-    label: channel,
+    label: channelType,
     maxPacketLifeTime: 3000,
     // maxRetransmits: 3,
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
