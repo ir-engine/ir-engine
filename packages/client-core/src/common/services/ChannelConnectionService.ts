@@ -6,10 +6,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import {
-  SocketWebRTCClientMediaTransport,
-  SocketWebRTCClientTransport
-} from '../../transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessLocationState } from '../../social/services/LocationService'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 
@@ -27,6 +24,7 @@ const state = createState({
   sceneId: '',
   channelType: null! as ChannelType,
   channelId: '',
+  videoEnabled: false,
   instanceProvisioned: false,
   connected: false,
   readyToConnect: false,
@@ -69,6 +67,10 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           updateNeeded: false,
           readyToConnect: false,
           instanceServerConnecting: false
+        })
+      case 'CHANNEL_SERVER_VIDEO_ENABLED':
+        return s.merge({
+          videoEnabled: action.enableVideo
         })
       case 'CHANNEL_SERVER_DISCONNECT':
         MediaStreams.instance.channelType = null!
@@ -136,18 +138,22 @@ export const ChannelConnectionService = {
     const currentLocation = locationState.currentLocation.location
     const sceneId = currentLocation?.sceneId?.value
 
-    const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+    const transport = Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientTransport
     if (transport.socket) {
       await endVideoChat(transport, { endConsumers: true })
       await leave(transport, false)
     }
 
-    transport.videoEnabled =
-      currentLocation?.locationSettings?.videoEnabled?.value === true ||
-      !(
-        currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
-        user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) == null
+    dispatch(
+      ChannelConnectionAction.enableVideo(
+        currentLocation?.locationSettings?.videoEnabled?.value === true ||
+          !(
+            currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
+            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation?.id?.value) ==
+              null
+          )
       )
+    )
 
     await transport.initialize({ sceneId, port, ipAddress, channelId })
     transport.left = false
@@ -200,6 +206,12 @@ export const ChannelConnectionAction = {
   channelServerConnected: () => {
     return {
       type: 'CHANNEL_SERVER_CONNECTED' as const
+    }
+  },
+  enableVideo: (enableVideo: boolean) => {
+    return {
+      type: 'CHANNEL_SERVER_VIDEO_ENABLED' as const,
+      enableVideo
     }
   },
   disconnect: () => {
