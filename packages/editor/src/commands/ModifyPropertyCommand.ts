@@ -104,7 +104,7 @@ export default class ModifyPropertyCommand extends Command {
         }
       }
 
-      this.updateFunction && this.updateFunction(nodes[i].entity)
+      this.updateFunction && this.updateFunction(nodes[i].entity, properties)
     }
 
     for (const propertyName in properties) {

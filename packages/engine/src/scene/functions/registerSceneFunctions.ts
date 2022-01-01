@@ -111,6 +111,12 @@ import {
   updateSpotLight
 } from './loaders/StopLightFunctions'
 import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
+import {
+  deserializeParticleEmitter,
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  serializeParticleEmitter,
+  updateParticleEmitter
+} from './loaders/ParticleEmitterFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -272,5 +278,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeLink,
     serialize: serializeLink,
     prepareForGLTFExport: prepareLinkForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
+    deserialize: deserializeParticleEmitter,
+    serialize: serializeParticleEmitter,
+    update: updateParticleEmitter
   })
 }

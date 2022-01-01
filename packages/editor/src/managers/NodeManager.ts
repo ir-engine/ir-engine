@@ -75,6 +75,7 @@ import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/function
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
 import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
+import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -131,7 +132,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
   // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
-  NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
+  // NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
@@ -167,6 +168,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_LINK]: LinkNodeEditor,
+  [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
@@ -184,6 +186,7 @@ export const prefabIcons = {
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
+  [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,

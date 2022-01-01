@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 
 export type ComponentDeserializeFunction = (entity: Entity, componentData: ComponentJson) => void
 export type ComponentSerializeFunction = (entity: Entity) => ComponentJson | undefined
-export type ComponentUpdateFunction = (entity: Entity) => void
+export type ComponentUpdateFunction = (entity: Entity, properties?: any) => void // todo: add type to properties
 export type ComponentShouldDeserializeFunction = () => boolean
 export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
 

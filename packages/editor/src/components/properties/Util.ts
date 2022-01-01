@@ -1,4 +1,4 @@
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useCallback } from 'react'

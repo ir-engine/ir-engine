@@ -42,6 +42,10 @@ import {
 import { SCENE_COMPONENT_POINT_LIGHT, SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES } from './loaders/PointLightFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT, SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES } from './loaders/StopLightFunctions'
 import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
+import {
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
+} from './loaders/ParticleEmitterFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -53,6 +57,7 @@ export const ScenePrefabs = {
   metadata: 'Metadata' as const,
   model: 'Model' as const,
   link: 'Link' as const,
+  particleEmitter: 'Particle Emitter' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
@@ -142,5 +147,10 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.link, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_LINK, props: SCENE_COMPONENT_LINK_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PARTICLE_EMITTER, props: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES }
   ])
 }

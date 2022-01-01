@@ -5,7 +5,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
@@ -248,10 +247,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
     case 'trigger-volume':
       createTriggerVolume(entity, component.props)
-      break
-
-    case 'particle-emitter':
-      createParticleEmitterObject(entity, component.props)
       break
 
     case 'clouds':

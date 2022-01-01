@@ -61,12 +61,22 @@ export class ParticleEmitterMesh extends Mesh {
   worldScale: Vector3
   inverseWorldScale: Vector3
   count: number
-  constructor(texture: Texture, configs: any) {
+  src: string = '/static/editor/dot.png'
+  constructor(args: any) {
+    createParticles()
+    // TODO: refactor this to use registerSceneLoadPromise
+    loadTexture(args.src).then((texture: Texture) => {
+      createParticles(args, texture)
+    })
+  }
+
+  createParticles(args, texture: Texture) {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
     geometry.attributes = planeGeometry.attributes
 
+    texture.flipY = false
     const material = new ShaderMaterial({
       uniforms: UniformsUtils.merge([
         {
@@ -87,8 +97,9 @@ export class ParticleEmitterMesh extends Mesh {
     material.uniforms.map.value = texture
     material.uniforms.emitterMatrix.value = new Matrix4()
 
-    super(geometry, material)
-    ;(this as any).frustumCulled = false
+    this.geometry = geometry
+    this.material = material
+    this.frustumCulled = false
     this.initialPositions = []
     this.lifetimes = []
     this.particleSizeRandomness = []
@@ -98,30 +109,8 @@ export class ParticleEmitterMesh extends Mesh {
     this.inverseWorldScale = new Vector3()
     this.worldScale = new Vector3()
 
-    if (configs) {
-      for (const key of Object.keys(configs)) {
-        this[key] = configs[key]
-      }
-    } else {
-      this.startSize = 0.25
-      this.endSize = 0.25
-      this.sizeRandomness = 0
-      this.startVelocity = new Vector3(0, 0, 0.5)
-      this.endVelocity = new Vector3(0, 0, 0.5)
-      this.angularVelocity = 0
-      this.particleCount = 100
-      this.lifetime = 5
-      this.lifetimeRandomness = 5
-      this.ageRandomness = 10
-      this.endColor = new Color()
-      this.middleColor = new Color()
-      this.startColor = new Color()
-      this.startOpacity = 1
-      this.middleOpacity = 1
-      this.endOpacity = 1
-      this.colorCurve = 'linear'
-      this.velocityCurve = 'linear'
-      this.sizeCurve = 'linear'
+    for (const key of Object.keys(args)) {
+      this[key] = args[key]
     }
 
     this.updateParticles()
@@ -304,21 +293,5 @@ export class ParticleEmitterMesh extends Mesh {
     this.angularVelocity = source.angularVelocity
 
     return this
-  }
-
-  static fromArgs(args): Promise<ParticleEmitterMesh> {
-    args.startColor = new Color(args.startColor)
-    args.middleColor = new Color(args.middleColor)
-    args.endColor = new Color(args.endColor)
-
-    args.startVelocity = new Vector3(args.startVelocity.x, args.startVelocity.y, args.startVelocity.z)
-    args.endVelocity = new Vector3(args.endVelocity.x, args.endVelocity.y, args.endVelocity.z)
-
-    return new Promise((resolve) => {
-      loadTexture(args.src).then((texture) => {
-        ;(texture as any).flipY = false
-        resolve(new ParticleEmitterMesh(texture as Texture, args))
-      })
-    })
   }
 }
