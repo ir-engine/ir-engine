@@ -31,16 +31,16 @@ export const deserializeLink: ComponentDeserializeFunction = (entity: Entity, js
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteractableComponent, { action: 'link' })
 
-  // if (Engine.isEditor) {
-  const geometry = new PlaneBufferGeometry()
-  const material = new MeshBasicMaterial()
-  material.map = AssetLoader.getFromCache('/static/editor/link-icon.png')
-  material.side = DoubleSide
-  material.transparent = true
-  const helper = new Mesh(geometry, material)
-  helper.layers.set(1)
-  obj3d.add(helper)
-  // }
+  if (Engine.isEditor) {
+    const geometry = new PlaneBufferGeometry()
+    const material = new MeshBasicMaterial()
+    material.map = AssetLoader.getFromCache('/static/editor/link-icon.png')
+    material.side = DoubleSide
+    material.transparent = true
+    const helper = new Mesh(geometry, material)
+    helper.layers.set(1)
+    obj3d.add(helper)
+  }
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LINK)
   addComponent(entity, LinkComponent, { href: json.props.href })
