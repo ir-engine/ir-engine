@@ -4,7 +4,7 @@ import { getToken } from './getToken'
 import { Config } from '@xrengine/common/src/config'
 import { client } from '../feathers'
 
-const serverURL = Config.publicRuntimeConfig.apiServer
+const serverURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
 /**
  * upload used to upload image as blob data.

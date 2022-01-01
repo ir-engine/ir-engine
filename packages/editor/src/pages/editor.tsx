@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useRef, useState } from 'react'
 import Projects from '@xrengine/editor/src/pages/projects'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import EditorContainer from '../components/EditorContainer'
@@ -9,8 +9,26 @@ import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import * as styles from '../components/viewport/Viewport.module.scss'
+import { SceneManager } from '../managers/SceneManager'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+const engineRendererCanvasId = 'engine-renderer-canvas'
+
+const canvasStyle = {
+  zIndex: -10000,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  WebkitUserSelect: 'none',
+  userSelect: 'none'
+} as React.CSSProperties
+
+const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 const EditorProtectedRoutes = () => {
+  const canvasRef = useRef<HTMLCanvasElement>()
   const [engineIsInitialized, setEngineInitialized] = useState(false)
   const authState = useAuthState()
   const authUser = authState.authUser
@@ -71,6 +89,8 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
+      new EngineRenderer({ canvas: canvasRef.current!, enabled: true })
+      Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
     })
@@ -78,6 +98,8 @@ const EditorProtectedRoutes = () => {
 
   const editorRoute = () => (
     <>
+      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      {canvas}
       {editorState.projectName.value ? (
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&

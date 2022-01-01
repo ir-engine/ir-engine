@@ -62,7 +62,7 @@ export const Debug = () => {
             key,
             Object.fromEntries(
               getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                if (C !== NameComponent) components.push([C._name, getComponent(value, C as any)])
+                if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
                 return components
               }, [] as [string, any][])
             )
@@ -97,6 +97,7 @@ export const Debug = () => {
         </button>
         {Network.instance !== null && (
           <div>
+            <div>Tick: {engineState.fixedTick.value}</div>
             <div>
               <h1>Named Entities</h1>
               <JSONTree data={renderNamedEntities()} />

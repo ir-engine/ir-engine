@@ -5,6 +5,7 @@ export type PortalComponentType = {
   location: string
   linkedPortalId: string
   isPlayerInPortal: boolean
+  displayText: string
   previewMesh: Mesh
   remoteSpawnPosition: Vector3
   remoteSpawnRotation: Quaternion

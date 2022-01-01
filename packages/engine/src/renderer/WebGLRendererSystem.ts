@@ -11,7 +11,7 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { MathUtils, PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
+import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
@@ -21,20 +21,12 @@ import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { World } from '../ecs/classes/World'
-import { useWorld } from '../ecs/functions/SystemHooks'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { dispatchLocal } from '../networking/functions/dispatchFrom'
-import { EngineActions, EngineActionType } from '../ecs/classes/EngineService'
-
-export enum RENDERER_SETTINGS {
-  AUTOMATIC = 'automatic',
-  PBR = 'usePBR',
-  POST_PROCESSING = 'usePostProcessing',
-  SHADOW_QUALITY = 'shadowQuality',
-  SCALE_FACTOR = 'scaleFactor'
-}
-
-const databasePrefix = 'graphics-settings-'
+import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
+import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
+import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
+import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 
 export interface EffectComposerWithSchema extends EffectComposer {
   // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
@@ -80,14 +72,6 @@ type EngineRendererProps = {
 }
 
 export class EngineRenderer {
-  static EVENTS = {
-    QUALITY_CHANGED: 'WEBGL_RENDERER_SYSTEM_EVENT_QUALITY_CHANGE',
-    SET_RESOLUTION: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_RESOLUTION',
-    USE_SHADOWS: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_SHADOW_QUALITY',
-    SET_POST_PROCESSING: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_POST_PROCESSING',
-    SET_USE_AUTOMATIC: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_USE_AUTOMATIC'
-  }
-
   static instance: EngineRenderer
 
   /** Is resize needed? */
@@ -95,19 +79,10 @@ export class EngineRenderer {
 
   /** Maximum Quality level of the rendered. **Default** value is 5. */
   maxQualityLevel = 5
-  /** Current quality level. */
-  qualityLevel: number = this.maxQualityLevel
-  /** Previous Quality leve. */
-  prevQualityLevel: number = this.qualityLevel
   /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
+  maxRenderDelta = 1000 / 28 // 28 fps = 35 ms  (on some devices, rAF updates at 30fps, e.g., Low Power Mode)
   /** point at which we upgrade quality level (small delta) */
-  minRenderDelta = 1000 / 60 // 60 fps = 16 ms
-
-  automatic = true
-  usePBR = true
-  usePostProcessing = true
-  useShadows = true
+  minRenderDelta = 1000 / 55 // 55 fps = 18 ms
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
@@ -123,6 +98,10 @@ export class EngineRenderer {
   averageFrameTime = 1000 / 60
   timeSamples = new Array(60 * 1).fill(1000 / 60) // 3 seconds @ 60fps
   index = 0
+
+  averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
+  /** init ExponentialMovingAverage */
+  movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
@@ -183,18 +162,6 @@ export class EngineRenderer {
 
     configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
 
-    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_POST_PROCESSING, (ev: any) => {
-      this.setUsePostProcessing(this.supportWebGL2 && ev.payload)
-    })
-    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_RESOLUTION, (ev: any) => {
-      this.setResolution(ev.payload)
-    })
-    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.USE_SHADOWS, (ev: any) => {
-      this.setShadowQuality(ev.payload)
-    })
-    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
-      this.setUseAutomatic(ev.payload)
-    })
     Engine.currentWorld.receptors.push((action: EngineActionType) => {
       switch (action.type) {
         case EngineEvents.EVENTS.ENABLE_SCENE:
@@ -218,8 +185,9 @@ export class EngineRenderer {
       Engine.csm?.update()
       Engine.renderer.render(Engine.scene, Engine.camera)
     } else {
-      this.changeQualityLevel()
-
+      const state = accessEngineRendererState()
+      const engineState = accessEngineState()
+      if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
           const curPixelRatio = Engine.renderer.getPixelRatio()
@@ -236,14 +204,14 @@ export class EngineRenderer {
             cam.updateProjectionMatrix()
           }
 
-          this.qualityLevel > 0 && Engine.csm?.updateFrustums()
+          state.qualityLevel.value > 0 && Engine.csm?.updateFrustums()
           Engine.renderer.setSize(width, height, false)
           Engine.effectComposer.setSize(width, height, false)
           this.needsResize = false
         }
 
-        this.qualityLevel > 0 && Engine.csm?.update()
-        if (this.usePostProcessing && Engine.effectComposer) {
+        state.qualityLevel.value > 0 && Engine.csm?.update()
+        if (state.usePostProcessing.value && Engine.effectComposer) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true
@@ -257,16 +225,6 @@ export class EngineRenderer {
     }
   }
 
-  calculateMovingAverage = (delta: number): number => {
-    this.averageFrameTime =
-      (this.averageFrameTime * this.timeSamples.length + delta - this.timeSamples[this.index]) / this.timeSamples.length
-
-    this.timeSamples[this.index] = delta
-    this.index = (this.index + 1) % this.timeSamples.length
-
-    return this.averageFrameTime
-  }
-
   /**
    * Change the quality of the renderer.
    */
@@ -275,83 +233,43 @@ export class EngineRenderer {
     const delta = time - lastRenderTime
     lastRenderTime = time
 
-    if (!this.automatic) return
+    const state = accessEngineRendererState()
+    let qualityLevel = state.qualityLevel.value
 
-    const averageDelta = this.calculateMovingAverage(delta)
+    this.movingAverage.update(Math.min(delta, 50))
+    const averageDelta = this.movingAverage.mean
 
-    // dont downgrade when scene is still loading in
-    if (useWorld().elapsedTime > 5) {
-      if (averageDelta > this.minRenderDelta) {
-        this.qualityLevel--
-      }
-      if (averageDelta < this.maxRenderDelta) {
-        this.qualityLevel++
-      }
+    if (averageDelta > this.maxRenderDelta && qualityLevel > 1) {
+      qualityLevel--
+    } else if (averageDelta < this.minRenderDelta && qualityLevel < this.maxQualityLevel) {
+      qualityLevel++
     }
-    this.qualityLevel = Math.round(MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel))
 
-    // set resolution scale
-    if (this.prevQualityLevel !== this.qualityLevel) {
-      this.prevQualityLevel = this.qualityLevel
-      this.doAutomaticRenderQuality()
-      this.dispatchSettingsChangeEvent()
+    if (qualityLevel !== state.qualityLevel.value) {
+      dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 
   doAutomaticRenderQuality() {
-    this.setShadowQuality(this.qualityLevel > 1)
-    this.setResolution(this.qualityLevel / this.maxQualityLevel)
-    this.setUsePostProcessing(this.qualityLevel > 2)
-  }
-
-  dispatchSettingsChangeEvent() {
-    EngineEvents.instance.dispatchEvent({
-      type: EngineRenderer.EVENTS.QUALITY_CHANGED,
-      shadows: this.useShadows,
-      resolution: this.scaleFactor,
-      postProcessing: this.usePostProcessing,
-      pbr: this.usePBR,
-      automatic: this.automatic
-    })
-  }
-
-  setUseAutomatic(automatic) {
-    this.automatic = automatic
-    if (this.automatic) {
-      this.doAutomaticRenderQuality()
-    }
-    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.AUTOMATIC, this.automatic)
-  }
-
-  setResolution(resolution) {
-    this.scaleFactor = resolution
-    Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor)
-    this.needsResize = true
-    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, this.scaleFactor)
-  }
-
-  setShadowQuality(useShadows) {
-    if (this.useShadows === useShadows) return
-
-    this.useShadows = useShadows
-    Engine.renderer.shadowMap.enabled = useShadows
-    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.useShadows)
-  }
-
-  setUsePostProcessing(usePostProcessing) {
-    if (this.usePostProcessing === usePostProcessing) return
-
-    this.usePostProcessing = this.supportWebGL2 && usePostProcessing
-    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing)
+    const state = accessEngineRendererState()
+    dispatchLocal(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
+    dispatchLocal(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
+    dispatchLocal(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 
   async loadGraphicsSettingsFromStorage() {
-    this.automatic = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC)) as boolean) ?? true
-    this.scaleFactor = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR)) as number) ?? 1
-    this.useShadows = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY)) as boolean) ?? true
-    // this.usePBR = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as boolean ?? true; // TODO: implement PBR setting
-    this.usePostProcessing =
-      ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING)) as boolean) ?? true
+    const [automatic, scaleFactor, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as Promise<boolean>,
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as Promise<number>,
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS) as Promise<boolean>,
+      // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
+    ])
+    dispatchLocal(EngineRendererAction.setAutomatic(automatic ?? true))
+    dispatchLocal(EngineRendererAction.setQualityLevel(scaleFactor ?? 1))
+    dispatchLocal(EngineRendererAction.setShadows(useShadows ?? true))
+    // dispatchLocal(EngineRendererAction.setPBR(pbr ?? true))
+    dispatchLocal(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
   }
 }
 
@@ -359,9 +277,11 @@ export default async function WebGLRendererSystem(world: World, props: EngineRen
   new EngineRenderer(props)
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
-  EngineRenderer.instance.dispatchSettingsChangeEvent()
+  world.receptors.push(EngineRendererReceptor)
 
   return () => {
     if (props.enabled) EngineRenderer.instance.execute(world.delta)
   }
 }
+
+globalThis.EngineRenderer = EngineRenderer
