@@ -303,6 +303,7 @@ export class MediaStreams {
 
 export const updateNearbyAvatars = () => {
   MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+  if (!MediaStreams.instance.nearbyLayerUsers.length) return
   const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
   EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
   MediaStreams.instance.consumers.forEach((consumer) => {
@@ -343,7 +344,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
       nearbyAvatarTick++
       if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
         nearbyAvatarTick = 0
-        if (MediaStreams.instance.channelType === 'instance') updateNearbyAvatars()
+        updateNearbyAvatars()
       }
     }
   }

@@ -14,6 +14,11 @@ export type NetworkObjectComponentType = {
   parameters: any
 }
 
-export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType>('NetworkObjectComponent', {
+const SCHEMA = {
   networkId: Types.ui32
-})
+}
+
+export const NetworkObjectComponent = createMappedComponent<NetworkObjectComponentType, typeof SCHEMA>(
+  'NetworkObjectComponent',
+  SCHEMA
+)

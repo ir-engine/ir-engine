@@ -121,21 +121,6 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
       ikobj.ref.remove(helper)
     }
     for (const entity of avatarDebugQuery.enter()) {
-      const avatar = getComponent(entity, AvatarComponent)
-
-      // view vector
-      const origin = new Vector3(0, 2, 0)
-      const length = 0.5
-      const hex = 0xffff00
-      if (!avatar || !avatar.viewVector) {
-        console.warn('avatar.viewVector is null')
-        continue
-      }
-      // const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
-      // arrowHelper.visible = avatarDebugEnabled
-      // Engine.scene.add(arrowHelper)
-      // helpersByEntity.viewVector.set(entity, arrowHelper)
-
       // velocity
       const velocityColor = 0x0000ff
       const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
