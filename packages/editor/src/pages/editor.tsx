@@ -17,18 +17,18 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const canvasStyle = {
-  zIndex: -10000,
+  zIndex: -1,
   width: '100%',
   height: '100%',
-  position: 'absolute',
+  position: 'fixed',
   WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
   userSelect: 'none'
 } as React.CSSProperties
 
 const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 const EditorProtectedRoutes = () => {
-  const canvasRef = useRef<HTMLCanvasElement>()
   const [engineIsInitialized, setEngineInitialized] = useState(false)
   const authState = useAuthState()
   const authUser = authState.authUser
@@ -89,7 +89,7 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
-      new EngineRenderer({ canvas: canvasRef.current!, enabled: true })
+      new EngineRenderer({ canvas: document.querySelector('canvas')!, enabled: true })
       Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
@@ -98,8 +98,6 @@ const EditorProtectedRoutes = () => {
 
   const editorRoute = () => (
     <>
-      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      {canvas}
       {editorState.projectName.value ? (
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&
@@ -122,6 +120,8 @@ const EditorProtectedRoutes = () => {
 
   return (
     <>
+      <img style={{ opacity: 0.2, zIndex: -2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      {canvas}
       <Suspense fallback={React.Fragment}>
         <Switch>
           <Route path="/editor/:projectName/:sceneName" component={editorRoute} />

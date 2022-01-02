@@ -38,8 +38,9 @@ const canvasStyle = {
   zIndex: 0,
   width: '100%',
   height: '100%',
-  position: 'absolute',
+  position: 'fixed',
   WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
   userSelect: 'none'
 } as React.CSSProperties
 

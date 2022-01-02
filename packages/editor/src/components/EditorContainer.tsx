@@ -667,7 +667,7 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer id="editor-container">
+    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndProvider backend={HTML5Backend}>
           <DragLayer />
@@ -678,7 +678,7 @@ const EditorContainer = (props) => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </WorkspaceContainer>
