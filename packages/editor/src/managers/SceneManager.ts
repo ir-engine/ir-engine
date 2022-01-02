@@ -503,9 +503,6 @@ export class SceneManager {
     if (this.editorEntity) removeEntity(this.editorEntity, true)
     if (this.grid) Engine.scene?.remove(this.grid)
 
-    Engine.renderer?.dispose()
-    this.screenshotRenderer?.dispose()
-    Engine.effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false
   }

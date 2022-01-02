@@ -10,28 +10,28 @@ import { Route, Switch } from 'react-router-dom'
 // import { useDispatch } from '@xrengine/client-core/src/store'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import * as styles from '../components/viewport/Viewport.module.scss'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const canvasStyle = {
-  zIndex: -10000,
+  zIndex: -1,
   width: '100%',
   height: '100%',
-  position: 'absolute',
+  position: 'fixed',
   WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
   userSelect: 'none'
 } as React.CSSProperties
 
 const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 const EditorProtectedRoutes = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [engineIsInitialized, setEngineInitialized] = useState(false)
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
-  // const dispatch = useDispatch()
-
   const editorState = useEditorState()
 
   const initializationOptions: InitializeOptions = {
@@ -86,6 +86,8 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
+      new EngineRenderer({ canvas: document.querySelector('canvas')!, enabled: true })
+      Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
     })
@@ -104,19 +106,9 @@ const EditorProtectedRoutes = () => {
     </>
   )
 
-  // const projectReroute = (props) => {
-  //   if (props?.match?.params?.projectName) dispatch(EditorAction.projectLoaded(props?.match?.params?.projectName))
-  //   if (props?.match?.params?.sceneName) dispatch(EditorAction.sceneLoaded(props?.match?.params?.sceneName))
-  //   useEffect(() => {
-  //     props.history.push('/editor')
-  //   }, [])
-  //   return <></>
-  // }
-
   return (
-    <>
-      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      <canvas id={engineRendererCanvasId} style={canvasStyle} ref={canvasRef} />
+    <div>
+      {canvas}
       <Suspense fallback={React.Fragment}>
         <Switch>
           <Route path="/editor/:projectName/:sceneName" component={editorRoute} />
@@ -124,7 +116,7 @@ const EditorProtectedRoutes = () => {
           <Route path="/editor" component={editorRoute} />
         </Switch>
       </Suspense>
-    </>
+    </div>
   )
 }
 
