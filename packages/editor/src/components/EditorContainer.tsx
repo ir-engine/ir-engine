@@ -144,10 +144,6 @@ const EditorContainer = (props) => {
   const history = useHistory()
   const dockPanelRef = useRef()
 
-  const initializeEditor = async () => {
-    await Promise.all([ProjectManager.instance.init()])
-  }
-
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
@@ -513,7 +509,7 @@ const EditorContainer = (props) => {
 
     registerPredefinedNodes()
 
-    initializeEditor().then(() => {
+    ProjectManager.instance.init().then(() => {
       setEditorReady(true)
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
@@ -667,7 +663,7 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer id="editor-container">
+    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndProvider backend={HTML5Backend}>
           <DragLayer />
@@ -678,7 +674,7 @@ const EditorContainer = (props) => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </WorkspaceContainer>

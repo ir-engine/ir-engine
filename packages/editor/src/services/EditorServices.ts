@@ -2,8 +2,8 @@ import { store } from '@xrengine/client-core/src/store'
 import { createState, useState } from '@hookstate/core'
 
 const state = createState({
-  projectName: null as string,
-  sceneName: null as string
+  projectName: null! as string,
+  sceneName: null! as string
 })
 
 store.receptors.push((action: EditorActionType): any => {
