@@ -42,7 +42,7 @@ const EditorProtectedRoutes = () => {
         systemModulePromise: import('../managers/SceneManager'),
         type: SystemUpdateType.PRE_RENDER,
         sceneSystem: true,
-        args: { enabled: true, canvas: canvasRef }
+        args: { enabled: true, canvas: document.getElementById(engineRendererCanvasId) }
       },
       {
         systemModulePromise: import('../systems/InputSystem'),
@@ -86,8 +86,6 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
-      new EngineRenderer({ canvas: document.querySelector('canvas')!, enabled: true })
-      Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
     })

@@ -515,7 +515,7 @@ type EngineRendererProps = {
 
 // TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  new EngineRenderer({ canvas: props.canvas.current, enabled: true })
+  new EngineRenderer({ canvas: props.canvas, enabled: true })
 
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
