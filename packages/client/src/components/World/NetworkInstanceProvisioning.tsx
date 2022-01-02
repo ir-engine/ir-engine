@@ -12,12 +12,16 @@ import { retriveLocationByName } from './LocationLoadHelper'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { ChannelConnectionService } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import {
+  ChannelConnectionService,
+  useChannelConnectionState
+} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 
 interface Props {
   locationName: string
@@ -31,6 +35,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const chatState = useChatState()
   const locationState = useLocationState()
   const instanceConnectionState = useInstanceConnectionState()
+  const channelConnectionState = useChannelConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
 
@@ -122,7 +127,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === instanceConnectionState.instance.id.value
       )
-      ChannelConnectionService.provisionChannelServer(instanceChannel?.id)
+      ChannelConnectionService.provisionChannelServer(instanceChannel?.id, true)
     }
   }, [chatState.instanceChannelFetched.value])
 
@@ -131,20 +136,24 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser, userState.layerUsersUpdateNeeded.value])
 
-  // ? maybe unneeded
+  // if a media connection has been provisioned and is ready, connect to it
   useEffect(() => {
     if (
-      instanceConnectionState.instanceProvisioned.value &&
-      instanceConnectionState.updateNeeded.value &&
-      !instanceConnectionState.instanceServerConnecting.value &&
-      !instanceConnectionState.connected.value
+      channelConnectionState.instanceProvisioned.value === true &&
+      channelConnectionState.updateNeeded.value === true &&
+      channelConnectionState.instanceServerConnecting.value === false &&
+      channelConnectionState.connected.value === false
     ) {
-      // TODO: fix up reinitialisation - we need to handle this more gently
-      // reinit()
+      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value)
+      MediaStreamService.updateCamVideoState()
+      MediaStreamService.updateCamAudioState()
     }
-  }, [instanceConnectionState])
+  }, [
+    channelConnectionState.connected.value,
+    channelConnectionState.updateNeeded.value,
+    channelConnectionState.instanceProvisioned.value,
+    channelConnectionState.instanceServerConnecting.value
+  ])
 
   return <></>
 }
-
-export default NetworkInstanceProvisioning

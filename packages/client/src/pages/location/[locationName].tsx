@@ -3,9 +3,8 @@ import Layout from '../../components/Layout/Layout'
 import DefaultLayoutView from '../../components/World/DefaultLayoutView'
 import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
 import { LoadLocationScene } from '../../components/World/LoadLocationScene'
-import NetworkInstanceProvisioning from '../../components/World/NetworkInstanceProvisioning'
+import { NetworkInstanceProvisioning } from '../../components/World/NetworkInstanceProvisioning'
 import { useTranslation } from 'react-i18next'
-import MediaChannelConnection from '../../components/World/MediaChannelConnection'
 
 interface Props {
   match?: any
@@ -19,7 +18,6 @@ const LocationPage = (props: Props) => {
   return (
     <>
       <NetworkInstanceProvisioning locationName={locationName} />
-      <MediaChannelConnection />
       <LoadLocationScene locationName={props.match.params.locationName} />
       <LoadEngineWithScene />
       <Layout pageTitle={t('location.locationName.pageTitle')}>

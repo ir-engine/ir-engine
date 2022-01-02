@@ -226,7 +226,6 @@ export const ChatService = {
     const dispatch = useDispatch()
     {
       try {
-        await waitForClientAuthenticated()
         const chatState = accessChatState().value
 
         const channelResult = await client.service('channel').find({
@@ -261,7 +260,6 @@ export const ChatService = {
   createMessage: async (values: any) => {
     {
       try {
-        await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
           targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
