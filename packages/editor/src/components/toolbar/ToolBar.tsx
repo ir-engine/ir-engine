@@ -21,7 +21,7 @@ export const ToolBar = (props: ToolBarProps) => {
   }
 
   return (
-    <div className={styles.toolbarContainer}>
+    <div style={{ pointerEvents: 'auto' }} className={styles.toolbarContainer}>
       <MainMenu commands={props.menu} />
       <TransformTool />
       <TransformSpaceTool />
