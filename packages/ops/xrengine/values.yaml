@@ -319,6 +319,41 @@ gameserver:
     annotations: {}
     name:
 
+
+testbot:
+  enabled: true
+  name: xrengine-test-bot
+
+  replicaCount: 0
+  image:
+    repository: lagunalabs/xrengine-test-bot
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  extraEnv:
+    API_SERVER: http://xrsocial.local
+    CLIENT_ENABLED: "true"
+    SERVER_ENABLED: "false"
+    SITE_TITLE: MyXR
+    SITE_DESC: Connected Worlds for Everyone
+    APP_ENV: production
+
 ########### Subcharts - values here will overwrite the subchart
 
 mariadb:

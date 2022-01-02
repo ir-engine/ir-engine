@@ -326,7 +326,7 @@ export class XREngineBot {
         '--use-fake-ui-for-media-stream=1',
         '--use-fake-device-for-media-stream=1',
         '--disable-web-security=1',
-        '--no-first-run',
+        //'--no-first-run',
         '--allow-file-access=1',
         '--mute-audio'
       ],
