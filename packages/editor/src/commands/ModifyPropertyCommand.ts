@@ -6,6 +6,8 @@ import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type PropertyType = {
   [key: string]: any
@@ -14,7 +16,6 @@ type PropertyType = {
 export interface ModifyPropertyCommandParams extends CommandParams {
   properties: PropertyType
   component: ComponentConstructor<any, any>
-  updateFunction?: ComponentUpdateFunction
 }
 
 export default class ModifyPropertyCommand extends Command {
@@ -22,22 +23,19 @@ export default class ModifyPropertyCommand extends Command {
 
   component: ComponentConstructor<any, any>
 
-  updateFunction?: ComponentUpdateFunction
-
   oldProperties?: PropertyType[]
 
   constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams) {
     super(objects, params)
 
     this.component = params.component
-    this.updateFunction = params.updateFunction
 
     for (const propertyName in params.properties) {
       const value = params.properties[propertyName]
       this.properties[propertyName] = value && value.clone ? value.clone() : value
     }
 
-    if (this.keepHistory) {
+    if (this.keepHistory && this.component) {
       this.oldProperties = []
       for (let i = 0; i < objects.length; i++) {
         const comp = getComponent(objects[i].entity, this.component)
@@ -61,7 +59,6 @@ export default class ModifyPropertyCommand extends Command {
   shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
     return (
       this.component === newCommand.component &&
-      this.updateFunction === newCommand.updateFunction &&
       arrayShallowEqual(Object.keys(this.properties), Object.keys(newCommand.properties)) &&
       arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
     )
@@ -88,23 +85,28 @@ export default class ModifyPropertyCommand extends Command {
 
   updateProperties(nodes: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
     for (let i = 0; i < nodes.length; i++) {
-      const comp = getComponent(nodes[i].entity, component)
+      const entity = nodes[i].entity
+      if (component) {
+        const comp = getComponent(entity, component)
+        if (comp) {
+          for (const propertyName in properties) {
+            const value = properties[propertyName]
+            const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
-      if (!comp) continue
-
-      for (const propertyName in properties) {
-        const value = properties[propertyName]
-        const { result, finalProp } = this.getNestedObject(comp, propertyName)
-
-        if (value && value.copy) {
-          if (!result[finalProp]) result[finalProp] = new value.constructor()
-          result[finalProp].copy(value)
-        } else {
-          result[finalProp] = value
+            if (value && value.copy) {
+              if (!result[finalProp]) result[finalProp] = new value.constructor()
+              result[finalProp].copy(value)
+            } else {
+              result[finalProp] = value
+            }
+          }
         }
       }
-
-      this.updateFunction && this.updateFunction(nodes[i].entity, properties)
+      const nodeComponent = getComponent(entity, EntityNodeComponent)
+      for (const component of nodeComponent.components) {
+        const update = useWorld().sceneLoadingRegistry.get(component)?.update
+        if (update) update(nodes[i].entity, properties)
+      }
     }
 
     for (const propertyName in properties) {

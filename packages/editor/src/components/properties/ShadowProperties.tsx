@@ -20,7 +20,6 @@ export const ShadowProperties: EditorComponentType = (props) => {
 
   const onChangeCastShadow = (castShadow) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateShadow,
       component: ShadowComponent,
       properties: { castShadow }
     })
@@ -28,7 +27,6 @@ export const ShadowProperties: EditorComponentType = (props) => {
 
   const onChangeReceiveShadow = (receiveShadow) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateShadow,
       component: ShadowComponent,
       properties: { receiveShadow }
     })

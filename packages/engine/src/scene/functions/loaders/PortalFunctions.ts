@@ -69,29 +69,26 @@ export const deserializePortal: ComponentDeserializeFunction = (
     spawnHelperMesh.add(spawnDirection)
 
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
-
-    // TODO: this will be unnecessary when the trigger volume node is converted to ECS
-    const triggerMesh = new Mesh(
-      new BoxBufferGeometry(1, 1, 0.2),
-      new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.25 })
-    )
-    addComponent(entity, Object3DComponent, { value: triggerMesh })
   }
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
 }
 
-export const updatePortal: ComponentUpdateFunction = (entity: Entity, prop: any) => {
+export const updatePortal: ComponentUpdateFunction = (entity: Entity) => {
   const portalComponent = getComponent(entity, PortalComponent)
   const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-  if (prop.spawnPosition) {
-    helperTransform.position.set(prop.spawnPosition.x || 0, prop.spawnPosition.y || 0, prop.spawnPosition.z || 0)
+  if (portalComponent.spawnPosition) {
+    helperTransform.position.set(
+      portalComponent.spawnPosition.x || 0,
+      portalComponent.spawnPosition.y || 0,
+      portalComponent.spawnPosition.z || 0
+    )
   }
-  if (prop.spawnRotation) {
+  if (portalComponent.spawnRotation) {
     const euler = new Euler().setFromQuaternion(helperTransform.rotation)
-    euler.x = prop.spawnRotation.x ?? euler.x
-    euler.y = prop.spawnRotation.y ?? euler.y
-    euler.z = prop.spawnRotation.z ?? euler.z
+    euler.x = portalComponent.spawnRotation.x ?? euler.x
+    euler.y = portalComponent.spawnRotation.y ?? euler.y
+    euler.z = portalComponent.spawnRotation.z ?? euler.z
     helperTransform.rotation.setFromEuler(euler)
   }
 }

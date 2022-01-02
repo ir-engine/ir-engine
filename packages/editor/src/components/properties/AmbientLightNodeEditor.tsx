@@ -25,7 +25,6 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   // used to change the color property of selected scene, when we change color property of ambient light
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateAmbientLight,
       component: AmbientLightComponent,
       properties: { color }
     })
@@ -34,7 +33,6 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   // used to change the intensity of selected scene
   const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateAmbientLight,
       component: AmbientLightComponent,
       properties: { intensity }
     })

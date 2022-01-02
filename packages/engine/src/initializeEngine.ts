@@ -215,9 +215,7 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
 
   // Scene Systems
   // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
-  //   simulationEnabled: options.physics.simulationEnabled
-  // })
+  registerSystem(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'))
   // Miscellaneous Systems
   // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
   // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))

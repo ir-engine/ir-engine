@@ -19,16 +19,11 @@ export default function useSetPropertySelected(propName) {
 }
 
 //function used to setting changes in editor properties
-export function useSetPropertyOnSelectedEntities(
-  component: ComponentConstructor<any, any>,
-  updateFunction: ComponentUpdateFunction,
-  propName: string
-) {
+export function useSetPropertyOnSelectedEntities(component: ComponentConstructor<any, any>, propName: string) {
   return useCallback(
     (value) =>
       CommandManager.instance.setPropertyOnSelectionEntities({
         component,
-        updateFunction,
         properties: { [propName]: value }
       }),
     [component, propName]

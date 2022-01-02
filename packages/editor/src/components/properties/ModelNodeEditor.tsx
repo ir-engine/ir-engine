@@ -34,7 +34,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const onChangeValue = (prop) => (value) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateModel,
       component: ModelComponent,
       properties: { [prop]: value }
     })

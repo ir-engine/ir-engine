@@ -25,7 +25,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateDirectionalLight,
       component: DirectionalLightComponent,
       properties: { color }
     })
@@ -33,7 +32,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in intensity property of DirectionalLight
   const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateDirectionalLight,
       component: DirectionalLightComponent,
       properties: { intensity }
     })
@@ -42,7 +40,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in camera far property of DirectionalLight
   const onChangeCameraFar = (cameraFar) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateDirectionalLight,
       component: DirectionalLightComponent,
       properties: { cameraFar }
     })
@@ -51,7 +48,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   // function to handle changes in showCameraHelper propery
   const onChangeshowCameraHelper = (showCameraHelper) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateDirectionalLight,
       component: DirectionalLightComponent,
       properties: { showCameraHelper }
     })

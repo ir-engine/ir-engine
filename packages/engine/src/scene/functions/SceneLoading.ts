@@ -22,8 +22,6 @@ import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
-import { createPortal } from '../functions/createPortal'
-import { createTriggerVolume } from '../functions/createTriggerVolume'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -241,10 +239,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       }
       break
     }
-
-    case 'trigger-volume':
-      createTriggerVolume(entity, component.props)
-      break
 
     case 'clouds':
       isClient && addObject3DComponent(entity, new Clouds(), component.props)

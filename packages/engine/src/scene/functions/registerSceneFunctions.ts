@@ -123,6 +123,12 @@ import {
   serializeCameraProperties
 } from './loaders/CameraPropertiesFunctions'
 import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
+import {
+  deserializeTriggerVolume,
+  SCENE_COMPONENT_TRIGGER_VOLUME,
+  serializeTriggerVolume,
+  updateTriggerVolume
+} from './loaders/TriggerVolumeFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -301,5 +307,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializePortal,
     serialize: serializePortal,
     update: updatePortal
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRIGGER_VOLUME, {
+    deserialize: deserializeTriggerVolume,
+    serialize: serializeTriggerVolume,
+    update: updateTriggerVolume
   })
 }

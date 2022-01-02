@@ -22,7 +22,6 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   //function handle change in skyColor property
   const onChangeSkyColor = (skyColor) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateHemisphereLight,
       component: HemisphereLightComponent,
       properties: { skyColor }
     })
@@ -31,7 +30,6 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in ground property
   const onChangeGroundColor = (groundColor) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateHemisphereLight,
       component: HemisphereLightComponent,
       properties: { groundColor }
     })
@@ -40,7 +38,6 @@ export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in intensity property
   const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateHemisphereLight,
       component: HemisphereLightComponent,
       properties: { intensity }
     })

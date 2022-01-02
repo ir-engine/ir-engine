@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { ControlledStringInput } from '../inputs/StringInput'
+import StringInput, { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
@@ -43,7 +43,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
 
   const onChangeValue = (prop) => (value) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updatePortal,
       component: PortalComponent,
       properties: { [prop]: value }
     })
@@ -85,7 +84,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
-        <ControlledStringInput value={portalComponent.location} onChange={onChangeValue('location')} />
+        <StringInput value={portalComponent.location} onChange={onChangeValue('location')} />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput

@@ -84,6 +84,7 @@ export default async function PhysicsSystem(world: World): Promise<System> {
       world.physics.doRaycast(getComponent(entity, RaycastComponent))
     }
 
+    console.log('physics')
     for (const entity of colliderQuery()) {
       const velocity = getComponent(entity, VelocityComponent)
       if (!velocity) continue

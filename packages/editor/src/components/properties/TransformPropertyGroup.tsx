@@ -43,11 +43,13 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   //function to handle the position properties
   const onChangePosition = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
+    onChangeValue('position', value)
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
+    onChangeValue('rotation', value)
   }
 
   //function to handle changes in scale properties
@@ -55,6 +57,15 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
       scales: value,
       overrideScale: true
+    })
+    onChangeValue('scale', value)
+  }
+
+  //function to handle the changes in enterValue property
+  const onChangeValue = (prop, value) => {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      component: null!,
+      properties: { [prop]: value }
     })
   }
 

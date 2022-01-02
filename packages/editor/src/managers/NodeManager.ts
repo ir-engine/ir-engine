@@ -78,6 +78,7 @@ import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loade
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
 import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { SCENE_COMPONENT_TRIGGER_VOLUME } from '@xrengine/engine/src/scene/functions/loaders/TriggerVolumeFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -140,7 +141,7 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
+  // NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
   NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
@@ -173,6 +174,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_LINK]: LinkNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
   [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
+  [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
@@ -193,6 +195,7 @@ export const prefabIcons = {
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
+  [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,

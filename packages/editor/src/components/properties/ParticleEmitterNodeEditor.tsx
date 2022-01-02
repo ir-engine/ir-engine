@@ -12,7 +12,6 @@ import { camelPad } from '../../functions/utils'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import GrainIcon from '@mui/icons-material/Grain'
-import { updateParticleEmitter } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
 
 //creating object containing Curve options for SelectInput
@@ -31,7 +30,6 @@ export const ParticleEmitterNodeEditor = (props: ParticleEmitterNodeEditorProps)
 
   const onChangeValue = (prop) => (value) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateParticleEmitter,
       component: ParticleEmitterComponent,
       properties: { [prop]: value }
     })

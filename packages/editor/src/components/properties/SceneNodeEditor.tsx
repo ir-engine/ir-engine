@@ -189,7 +189,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
     if (directory !== (node as any).envMapSourceURL) {
       CommandManager.instance.setPropertyOnSelectionEntities({
         component: EnvmapComponent,
-        updateFunction: updateEnvMap,
         properties: { envMapSourceURL: directory }
       })
     }
