@@ -122,6 +122,7 @@ import {
   SCENE_COMPONENT_CAMERA_PROPERTIES,
   serializeCameraProperties
 } from './loaders/CameraPropertiesFunctions'
+import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -294,5 +295,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
     deserialize: deserializeCameraProperties,
     serialize: serializeCameraProperties
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
+    deserialize: deserializePortal,
+    serialize: serializePortal,
+    update: updatePortal
   })
 }

@@ -264,10 +264,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'interior':
       isClient && addObject3DComponent(entity, new Interior(), component.props)
       break
-
-    case 'portal':
-      createPortal(entity, component.props)
-      break
   }
 }
 

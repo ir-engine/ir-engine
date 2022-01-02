@@ -50,6 +50,7 @@ import {
   SCENE_COMPONENT_CAMERA_PROPERTIES,
   SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
 } from './loaders/CameraPropertiesFunctions'
+import { SCENE_COMPONENT_PORTAL, SCENE_COMPONENT_PORTAL_DEFAULT_VALUES } from './loaders/PortalFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -63,6 +64,7 @@ export const ScenePrefabs = {
   link: 'Link' as const,
   cameraProperties: 'Camera Properties' as const,
   particleEmitter: 'Particle Emitter' as const,
+  portal: 'Portal' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
@@ -161,5 +163,11 @@ export const registerPrefabs = (world: World) => {
 
   world.scenePrefabRegistry.set(ScenePrefabs.cameraProperties, [
     { name: SCENE_COMPONENT_CAMERA_PROPERTIES, props: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.portal, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES }
+    // { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES },
   ])
 }

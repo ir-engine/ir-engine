@@ -77,6 +77,7 @@ import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions
 import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
+import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -171,6 +172,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
   [SCENE_COMPONENT_LINK]: LinkNodeEditor,
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
+  [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
@@ -190,6 +192,7 @@ export const prefabIcons = {
   [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
+  [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,

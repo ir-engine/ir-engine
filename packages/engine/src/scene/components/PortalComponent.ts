@@ -1,4 +1,5 @@
 import { Quaternion, Vector3, Euler, Mesh } from 'three'
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type PortalComponentType = {
@@ -6,7 +7,7 @@ export type PortalComponentType = {
   linkedPortalId: string
   isPlayerInPortal: boolean
   displayText: string
-  previewMesh: Mesh
+  helper: Entity
   remoteSpawnPosition: Vector3
   remoteSpawnRotation: Quaternion
   remoteSpawnEuler: Euler

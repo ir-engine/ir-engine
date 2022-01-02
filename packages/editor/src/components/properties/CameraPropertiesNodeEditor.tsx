@@ -74,7 +74,7 @@ const projectionTypeSelect = [
 
 export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
   const cameraPropertiesComponent = getComponent(props.node.entity, CameraPropertiesComponent)
-  console.log(cameraPropertiesComponent)
+
   // function to handle changes in payloadName property
   const onChangePayload = (prop) => (value) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
