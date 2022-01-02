@@ -33,8 +33,6 @@ const EditorProtectedRoutes = () => {
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
-  const dispatch = useDispatch()
-
   const editorState = useEditorState()
 
   const initializationOptions: InitializeOptions = {
@@ -109,18 +107,8 @@ const EditorProtectedRoutes = () => {
     </>
   )
 
-  // const projectReroute = (props) => {
-  //   if (props?.match?.params?.projectName) dispatch(EditorAction.projectLoaded(props?.match?.params?.projectName))
-  //   if (props?.match?.params?.sceneName) dispatch(EditorAction.sceneLoaded(props?.match?.params?.sceneName))
-  //   useEffect(() => {
-  //     props.history.push('/editor')
-  //   }, [])
-  //   return <></>
-  // }
-
   return (
-    <>
-      <img style={{ opacity: 0.2, zIndex: -2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+    <div>
       {canvas}
       <Suspense fallback={React.Fragment}>
         <Switch>
@@ -129,7 +117,7 @@ const EditorProtectedRoutes = () => {
           <Route path="/editor" component={editorRoute} />
         </Switch>
       </Suspense>
-    </>
+    </div>
   )
 }
 
