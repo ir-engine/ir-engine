@@ -521,12 +521,6 @@ export class SceneManager {
   }
 
   dispose() {
-    if (this.cameraEntity) removeEntity(this.cameraEntity)
-    if (this.gizmoEntity) removeEntity(this.gizmoEntity)
-    if (this.editorEntity) removeEntity(this.editorEntity)
-    Engine.renderer?.dispose()
-    this.screenshotRenderer?.dispose()
-    Engine.effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
   }
 }
