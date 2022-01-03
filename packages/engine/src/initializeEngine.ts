@@ -72,9 +72,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   }
 
   globalThis.botHooks = BotHookFunctions
-  globalThis.Engine = Engine
-  globalThis.EngineEvents = EngineEvents
-  globalThis.Network = Network
 
   await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
@@ -319,6 +316,10 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true
   }
+
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
 
   // Mark engine initialized
   Engine.isInitialized = true

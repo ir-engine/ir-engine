@@ -1,10 +1,12 @@
 import { store } from '@xrengine/client-core/src/store'
 import { createState, useState } from '@hookstate/core'
 
-const state = createState<{
+type EditorServiceStateType = {
   projectName: string | null
   sceneName: string | null
-}>({
+}
+
+const state = createState<EditorServiceStateType>({
   projectName: null,
   sceneName: null
 })
