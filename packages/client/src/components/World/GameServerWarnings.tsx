@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
@@ -7,7 +6,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 type GameServerWarningsProps = {
   instanceId: string
@@ -69,6 +68,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [invalidLocationState.value])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
+    const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
     switch (type) {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
@@ -93,7 +93,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
         if (!Engine.userId) return
-        if ((Network.instance.transport as SocketWebRTCClientTransport).left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
           open: true,
@@ -106,7 +106,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         break
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED:
-        if ((Network.instance.transport as SocketWebRTCClientTransport).left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value) return
 
         setModalValues({
           open: true,

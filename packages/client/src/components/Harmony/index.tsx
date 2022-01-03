@@ -57,7 +57,6 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import moment from 'moment'
@@ -82,6 +81,8 @@ import { useMediaStreamState } from '@xrengine/client-core/src/media/services/Me
 import { TransportService } from '@xrengine/client-core/src/common/services/TransportService'
 import { useTransportStreamState } from '@xrengine/client-core/src/common/services/TransportService'
 import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -169,7 +170,6 @@ const Harmony = (props: Props): any => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
-  const [channelDisconnected, setChannelDisconnected] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
   const [callStartedFromButton, _setCallStartedFromButton] = useState(false)
@@ -260,9 +260,6 @@ const Harmony = (props: Props): any => {
       () => setNoGameserverProvision(true)
     )
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
-      if (activeAVChannelIdRef.current?.length > 0) setChannelDisconnected(true)
-    })
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, async () => {
       setChannelAwaitingProvision({
         id: activeAVChannelIdRef.current,
@@ -306,10 +303,6 @@ const Harmony = (props: Props): any => {
     if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
       UserService.getLayerUsers(false)
   }, [selfUser, userState.channelLayerUsersUpdateNeeded.value])
-
-  useEffect(() => {
-    TransportService.updateChannelTypeState()
-  }, [MediaStreams.instance.channelType, MediaStreams.instance.channelId])
 
   useEffect(() => {
     setActiveAVChannelId(transportState.channelId.value)
@@ -425,23 +418,6 @@ const Harmony = (props: Props): any => {
     }
   }, [])
 
-  useEffect(() => {
-    if (channelDisconnected === true) {
-      const newValues = {
-        ...warningRefreshModalValues,
-        open: true,
-        title: 'Call disconnected',
-        body: "You've lost your connection to this call. We'll try to reconnect before the following time runs out, otherwise you'll hang up",
-        action: async () => endCall(),
-        parameters: [],
-        timeout: 30000,
-        closeAction: endCall
-      }
-      setWarningRefreshModalValues(newValues)
-      setChannelDisconnected(false)
-    }
-  }, [channelDisconnected])
-
   const handleWindowResize = () => {
     setDimensions({
       height: window.innerHeight,
@@ -491,7 +467,7 @@ const Harmony = (props: Props): any => {
       TransportService.updateChannelTypeState()
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
+      dispatchLocal(EngineActions.sceneLoaded(true) as any)
     }
   }
 
@@ -752,21 +728,14 @@ const Harmony = (props: Props): any => {
   }
 
   async function init(): Promise<any> {
-    if (Network.instance?.isInitialized !== true) {
-      const initializationOptions: InitializeOptions = {
-        networking: {
-          schema: {
-            transport: SocketWebRTCClientTransport
-          } as NetworkSchema
-        },
-        scene: {
-          disabled: true
-        }
+    const initializationOptions: InitializeOptions = {
+      scene: {
+        disabled: true
       }
-
-      await initializeEngine(initializationOptions)
-      if (engineInitialized === false) createEngineListeners()
     }
+
+    await initializeEngine(initializationOptions)
+    if (engineInitialized === false) createEngineListeners()
   }
 
   function getChannelName(): string {
@@ -853,30 +822,12 @@ const Harmony = (props: Props): any => {
         ChannelConnectionService.provisionChannelServer(instanceChannel.id)
       }
     }
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS })
+    dispatchLocal(EngineActions.startSuspendedContexts() as any)
   }
 
   const openProfileMenu = (): void => {
     setProfileMenuOpen(true)
   }
-
-  useEffect(() => {
-    if (
-      channelConnectionState.instanceProvisioned.value === true &&
-      channelConnectionState.updateNeeded.value === true &&
-      channelConnectionState.instanceServerConnecting.value === false &&
-      channelConnectionState.connected.value === false
-    ) {
-      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value, isHarmonyPage)
-      MediaStreamService.updateCamVideoState()
-      MediaStreamService.updateCamAudioState()
-    }
-  }, [
-    channelConnectionState.instanceProvisioned,
-    channelConnectionState.updateNeeded,
-    channelConnectionState.instanceServerConnecting,
-    channelConnectionState.connected
-  ])
 
   const chatSelectors = (
     <div

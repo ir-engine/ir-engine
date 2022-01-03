@@ -19,6 +19,8 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { EngineActions, receptors } from './ecs/classes/EngineService'
+import { dispatchLocal } from './networking/functions/dispatchFrom'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -47,15 +49,12 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
     if (!enableRenderer)
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        message: 'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-      })
-    EngineEvents.instance.dispatchEvent({
-      type: EngineEvents.EVENTS.ENABLE_SCENE,
-      renderer: enableRenderer,
-      physics: true
-    })
+      dispatchLocal(
+        EngineActions.browserNotSupported(
+          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+        ) as any
+      )
+    dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
   })
 
@@ -88,13 +87,9 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
 
-  // Had to add this to make mocha tests pass
-  Network.instance ||= new Network()
-  Network.instance.isInitialized = true
-
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     console.log('joined world')
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
+    dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
   })
 
@@ -256,6 +251,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
+  Engine.currentWorld.receptors.push(...receptors())
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
@@ -300,30 +296,24 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer = Timer(executeWorlds)
 
   // Engine type specific post configuration work
-  if (options.type === EngineSystemPresets.CLIENT) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-      Engine.engineTimer.start()
-    })
+  Engine.engineTimer.start()
 
+  if (options.type === EngineSystemPresets.CLIENT) {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Network.instance.isInitialized = true
       Engine.userId = id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
-    Engine.engineTimer.start()
   } else if (options.type === EngineSystemPresets.MEDIA) {
-    Engine.userId = 'mediaserver' as UserId
-    Engine.engineTimer.start()
+    Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
-    Engine.engineTimer.start()
   }
 
   // Mark engine initialized
   Engine.isInitialized = true
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+  dispatchLocal(EngineActions.initializeEngine(true) as any)
 }
 
 export const shutdownEngine = async () => {

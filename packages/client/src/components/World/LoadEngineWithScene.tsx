@@ -6,12 +6,20 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineAction, useEngineState } from '@xrengine/client-core/src/world/services/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import matches from 'ts-matches'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -52,7 +60,23 @@ export const LoadEngineWithScene = (props: Props) => {
 
   useEffect(() => {
     const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    if (!Engine.isInitialized) initEngine(engineInitializeOptions)
+    if (!Engine.isInitialized)
+      initEngine(engineInitializeOptions).then(() => {
+        useWorld().receptors.push((action) => {
+          matches(action)
+            .when(NetworkWorldAction.createClient.matches, () => {
+              console.log('CLIENT RECEPTORS', action)
+              updateNearbyAvatars()
+              MediaStreamService.triggerUpdateNearbyLayerUsers()
+            })
+            .when(NetworkWorldAction.destroyClient.matches, () => {
+              console.log('CLIENT RECEPTORS', action)
+              updateNearbyAvatars()
+              MediaStreamService.triggerUpdateNearbyLayerUsers()
+            })
+        })
+      })
+
     addUIEvents()
   }, [])
 
@@ -66,7 +90,7 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
 
   const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    dispatch(EngineAction.setTeleporting(portalComponent))
+    dispatchLocal(EngineActions.setTeleporting(portalComponent))
     dispatch(LocationAction.fetchingCurrentSocialLocation())
 
     // TODO: this needs to be implemented on the server too
@@ -80,8 +104,8 @@ export const LoadEngineWithScene = (props: Props) => {
     // }
 
     // shut down connection with existing GS
-    console.log('reseting connection for tp')
-    Network.instance.transport.close(true, false)
+    console.log('reseting connection for portal teleport')
+    leave(getWorldTransport())
     InstanceConnectionService.resetInstanceServer()
 
     await teleportToScene(portalComponent, async () => {

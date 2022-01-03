@@ -9,8 +9,10 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import normalizeWheel from '../functions/normalizeWheel'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
-let prevTouchPosition: [number, number] = [0, 0]
+export let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
 const tapLength = 200 // 100ms between doubletaps
 
@@ -30,7 +32,7 @@ export const usingThumbstick = () => {
 }
 
 export const handleTouchMove = (event: TouchEvent): void => {
-  if (!Engine.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled || event.touches.length <= 0) {
     return
   }
 
@@ -255,7 +257,7 @@ export const handleTouchDirectionalPad = (event: CustomEvent): void => {
     })
   } else {
     // If position set, check it's value
-    const oldStickPosition = Engine.inputState.get(stick)
+    const oldStickPosition = Engine.inputState.get(stick)?.value
     // If it's not the same, set it and update the lifecycle value to changed
     if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
       // console.log('---changed');
@@ -551,10 +553,7 @@ export const handleVisibilityChange = (event: Event) => {
       }
     })
   }
-  EngineEvents.instance.dispatchEvent({
-    type: EngineEvents.EVENTS.WINDOW_FOCUS,
-    focused: document.visibilityState === 'visible'
-  })
+  dispatchLocal(EngineActions.windowFocus() as any)
 }
 
 /**

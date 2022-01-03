@@ -18,13 +18,15 @@ import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from './setObjectLayers'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../../ecs/classes/EngineService'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
   handleNewScene: () => Promise<void>
 ) => {
   Engine.currentWorld!.isInPortal = true
-  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+  dispatchLocal(EngineActions.enableScene({ physics: false }) as any)
   Engine.hasJoinedWorld = false
 
   const world = useWorld()
@@ -85,7 +87,7 @@ export const teleportToScene = async (
   await new Promise<void>((resolve) => {
     Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+    dispatchLocal(EngineActions.enableScene({ physics: true }) as any)
   })
 
   await delay(100)

@@ -38,7 +38,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
-  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo5.glb'
+  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/Geoff.glb'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
