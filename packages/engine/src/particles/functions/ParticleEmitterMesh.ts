@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Mesh,
   InstancedBufferGeometry,
@@ -62,11 +61,12 @@ export class ParticleEmitterMesh extends Mesh {
   inverseWorldScale: Vector3
   count: number
   src: string = '/static/editor/dot.png'
+
   constructor(args: any) {
-    createParticles()
+    super()
     // TODO: refactor this to use registerSceneLoadPromise
     loadTexture(args.src).then((texture: Texture) => {
-      createParticles(args, texture)
+      this.createParticles(args, texture)
     })
   }
 
@@ -117,20 +117,19 @@ export class ParticleEmitterMesh extends Mesh {
   }
 
   updateParticles() {
-    const texture = ((this as any).material as ShaderMaterial).uniforms.map.value
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const tempGeo = new InstancedBufferGeometry()
     tempGeo.index = planeGeometry.index
     tempGeo.attributes = planeGeometry.attributes
 
-    const positions = []
-    const colors = []
-    const lifetimes = []
-    const ages = []
-    const initialAges = []
-    const initialPositions = []
-    const particleSizeRandomness = []
-    const angles = []
+    const positions = [] as Array<number>
+    const colors = [] as Array<number>
+    const lifetimes = [] as Array<number>
+    const ages = [] as Array<number>
+    const initialAges = [] as Array<number>
+    const initialPositions = [] as Array<number>
+    const particleSizeRandomness = [] as Array<number>
+    const angles = [] as Array<number>
 
     ;(this as any).getWorldScale(this.worldScale)
 
