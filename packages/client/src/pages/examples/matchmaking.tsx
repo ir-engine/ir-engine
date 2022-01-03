@@ -125,7 +125,7 @@ const Page = () => {
   }
 
   return (
-    <div style={{ backgroundColor: 'black', margin: '10px' }}>
+    <div style={{ pointerEvents: 'auto', backgroundColor: 'black', margin: '10px' }}>
       {isUpdating ? (
         <>Loading...</>
       ) : (
