@@ -482,8 +482,8 @@ export class SceneManager {
 
     const meshes = [] as any[]
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
-      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent).value
-      obj3d.traverse((child: any) => {
+      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent)?.value
+      obj3d?.traverse((child: any) => {
         if (
           !child.userData.disableOutline &&
           !child.userData.isHelper &&

@@ -198,48 +198,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       else createMediaServer(entity, component.props)
       break
 
-    case 'collider': {
-      const object3d = getComponent(entity, Object3DComponent)
-      if (object3d) {
-        const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.props)
-        const body = createBody(entity, component.props, shapes)
-        addComponent(entity, ColliderComponent, { body })
-        addComponent(entity, CollisionComponent, { collisions: [] })
-      }
-      break
-    }
-
-    case 'box-collider': {
-      const boxColliderProps: BoxColliderProps = component.props
-      const transform = getComponent(entity, TransformComponent)
-
-      const shape = world.physics.createShape(
-        new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
-        undefined,
-        {
-          ...(boxColliderProps as any),
-          collisionLayer: DefaultCollisionMask,
-          collisionMask: CollisionGroups.Default
-        }
-      )
-
-      const body = createBody(entity, { bodyType: 0 }, [shape])
-      addComponent(entity, ColliderComponent, { body })
-      addComponent(entity, CollisionComponent, { collisions: [] })
-
-      if (
-        boxColliderProps.removeMesh === 'true' ||
-        (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
-      ) {
-        const obj = getComponent(entity, Object3DComponent)
-        if (obj?.value) {
-          if (obj.value.parent) obj.value.removeFromParent()
-          removeComponent(entity, Object3DComponent)
-        }
-      }
-      break
-    }
-
     case 'clouds':
       isClient && addObject3DComponent(entity, new Clouds(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})

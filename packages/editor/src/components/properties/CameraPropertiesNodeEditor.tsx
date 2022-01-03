@@ -11,22 +11,6 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { EditorComponentType } from './Util'
 
-/**
- * [propTypes Defining properties for CameraProperties component]
- * @type {Object}
- */
-type CameraPropertiesNodeEditorPropTypes = {
-  node?: any
-}
-
-interface Props {
-  node?: any
-  value?: any
-  onChangeFunction?: any
-  op?: any
-  getProp?: any
-}
-
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
   {

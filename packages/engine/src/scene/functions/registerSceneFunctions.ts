@@ -129,6 +129,12 @@ import {
   serializeTriggerVolume,
   updateTriggerVolume
 } from './loaders/TriggerVolumeFunctions'
+import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
+import {
+  deserializeBoxCollider,
+  SCENE_COMPONENT_BOX_COLLIDER,
+  serializeBoxCollider
+} from './loaders/BoxColliderFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -313,5 +319,15 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeTriggerVolume,
     serialize: serializeTriggerVolume,
     update: updateTriggerVolume
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+    deserialize: deserializeCollider,
+    serialize: serializeCollider
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_BOX_COLLIDER, {
+    deserialize: deserializeBoxCollider,
+    serialize: serializeBoxCollider
   })
 }

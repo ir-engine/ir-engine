@@ -55,6 +55,10 @@ import {
   SCENE_COMPONENT_TRIGGER_VOLUME,
   SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES
 } from './loaders/TriggerVolumeFunctions'
+import {
+  SCENE_COMPONENT_BOX_COLLIDER,
+  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
+} from './loaders/BoxColliderFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -70,6 +74,7 @@ export const ScenePrefabs = {
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,
   triggerVolume: 'Trigger Volume' as const,
+  boxCollider: 'Box Collider' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
@@ -177,7 +182,14 @@ export const registerPrefabs = (world: World) => {
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.triggerVolume, [
-    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.boxCollider, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_BOX_COLLIDER, props: SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES }
   ])
 }

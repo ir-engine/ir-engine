@@ -561,6 +561,11 @@ export const isTriggerShape = (shape: PhysX.PxShape) => {
 }
 
 // TODO double check this
+export const setTriggerShape = (shape: PhysX.PxShape, value: boolean) => {
+  return shape.setFlag(PhysX.PxShapeFlag.eTRIGGER_SHAPE, value)
+}
+
+// TODO double check this
 export const getGeometryType = (shape: PhysX.PxShape) => {
   return (shape.getGeometry().getType() as any).value
 }

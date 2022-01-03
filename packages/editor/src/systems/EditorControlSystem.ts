@@ -126,19 +126,20 @@ export default async function EditorControlSystem(_: World): Promise<System> {
   return () => {
     for (let entity of editorControlQuery()) {
       editorControlComponent = getComponent(entity, EditorControlComponent)
-      if (!editorControlComponent.enable) return
+      if (!editorControlComponent.enable) continue
 
       selectedTransformRoots = CommandManager.instance.selectedTransformRoots
       flyControlComponent = getComponent(entity, FlyControlComponent)
       gizmoObj = getComponent(SceneManager.instance.gizmoEntity, Object3DComponent)?.value as TransformGizmo
 
-      if (!gizmoObj) return
+      if (!gizmoObj) continue
 
       if (selectedTransformRoots.length === 0 || editorControlComponent.transformMode === TransformMode.Disabled) {
         gizmoObj.visible = false
       } else {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent)?.value
+        if (!lastSelectedObj3d) continue
         const isChanged =
           editorControlComponent.selectionChanged ||
           editorControlComponent.transformModeChanged ||
@@ -479,7 +480,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         })
       }
 
-      if (flyControlComponent.enable) return
+      if (flyControlComponent.enable) continue
 
       const selecting = getInput(EditorActionSet.selecting)
       const zoomDelta = getInput(EditorActionSet.zoomDelta)

@@ -215,7 +215,7 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'))
   // Miscellaneous Systems
   // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
