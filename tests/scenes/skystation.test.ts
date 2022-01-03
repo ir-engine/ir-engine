@@ -29,7 +29,7 @@ describe('Sky Station Bot Tests', () => {
   })
 })
 
-describe('Sky Station Multiple Bot Tests', () => {
+describe.only('Sky Station Multiple Bot Tests', () => {
   const bots = Array.apply(null, Array(3)).map((_, index) => new XREngineBot({ name: `bot-${index}`, verbose: true }))
   const vector3 = new Vector3()
 

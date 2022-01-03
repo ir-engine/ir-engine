@@ -56,20 +56,6 @@ spec:
           value: {{ .Values.mariadb.externalPort | quote }}
         - name: RELEASE_NAME
           value: {{ $releaseName }}
-      # ports:
-      #   - name: http
-      #     containerPort: 3000
-      #     protocol: TCP
-      # livenessProbe:
-      #   httpGet:
-      #     path: /
-      #     port: http
-      #   initialDelaySeconds: 30
-      # readinessProbe:
-      #   httpGet:
-      #     path: /
-      #     port: http
-      #   initialDelaySeconds: 30
       resources:
         {{- toYaml .Values.testbot.resources | nindent 12 }}
   {{- with .Values.testbot.nodeSelector }}

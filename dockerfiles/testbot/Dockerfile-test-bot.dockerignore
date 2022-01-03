@@ -10,7 +10,6 @@ packages/native-plugin-example
 packages/docs
 packages/ops
 readme/
-tests/
 vendor/
 packages/**/node_modules
 package-lock.json
