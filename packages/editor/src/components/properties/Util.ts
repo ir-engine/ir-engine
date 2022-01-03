@@ -1,4 +1,4 @@
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/ComponentNames'
+import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useCallback } from 'react'
@@ -19,16 +19,11 @@ export default function useSetPropertySelected(propName) {
 }
 
 //function used to setting changes in editor properties
-export function useSetPropertyOnSelectedEntities(
-  component: ComponentConstructor<any, any>,
-  updateFunction: ComponentUpdateFunction,
-  propName: string
-) {
+export function useSetPropertyOnSelectedEntities(component: ComponentConstructor<any, any>, propName: string) {
   return useCallback(
     (value) =>
       CommandManager.instance.setPropertyOnSelectionEntities({
         component,
-        updateFunction,
         properties: { [propName]: value }
       }),
     [component, propName]

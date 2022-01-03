@@ -18,7 +18,6 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   //function handles the changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateGroundPlane,
       component: GroundPlaneComponent,
       properties: { color }
     })
@@ -26,7 +25,6 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
 
   const onChangeGenerateNavmesh = (generateNavmesh) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateGroundPlane,
       component: GroundPlaneComponent,
       properties: { generateNavmesh }
     })

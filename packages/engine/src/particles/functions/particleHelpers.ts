@@ -1,9 +1,6 @@
-import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
-import { ParticleEmitterMesh } from './ParticleEmitterMesh'
-import { Engine } from '../../ecs/classes/Engine'
 
 export const DEG2RAD = 0.0174533
 
@@ -42,14 +39,6 @@ export const fragmentShader = `
     #include <fog_fragment>
   }
 `
-
-export const createParticleEmitterObject = (entity, configs): void => {
-  if (!isClient) return
-  ParticleEmitterMesh.fromArgs(configs).then((mesh) => {
-    addComponent(entity, ParticleEmitterComponent, { particleEmitterMesh: mesh })
-    Engine.scene.add(mesh)
-  })
-}
 
 export const applyTransform = (entity, emitter): void => {
   if (!isClient) return

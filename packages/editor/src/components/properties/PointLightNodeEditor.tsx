@@ -18,7 +18,6 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updatePointLight,
       component: PointLightComponent,
       properties: { color }
     })
@@ -27,7 +26,6 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in intensity
   const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updatePointLight,
       component: PointLightComponent,
       properties: { intensity }
     })
@@ -36,7 +34,6 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
   //function to handle changes on range property
   const onChangeRange = (range) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updatePointLight,
       component: PointLightComponent,
       properties: { range }
     })
@@ -44,7 +41,6 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
 
   const onChangeDecay = (decay) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updatePointLight,
       component: PointLightComponent,
       properties: { decay }
     })

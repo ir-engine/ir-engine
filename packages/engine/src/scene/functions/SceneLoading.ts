@@ -5,7 +5,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D } from '../../physics/functions/createCollider'
@@ -23,15 +22,10 @@ import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
-import { createPortal } from '../functions/createPortal'
-import { createTriggerVolume } from '../functions/createTriggerVolume'
-import { setCameraProperties } from '../functions/setCameraProperties'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
@@ -78,6 +72,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    console.log(sceneEntity.name, node)
     reparentObject3D(node, node.parentNode)
   })
 
@@ -203,61 +198,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       else createMediaServer(entity, component.props)
       break
 
-    case 'collider': {
-      const object3d = getComponent(entity, Object3DComponent)
-      if (object3d) {
-        const shapes = getAllShapesFromObject3D(entity, object3d.value as any, component.props)
-        const body = createBody(entity, component.props, shapes)
-        addComponent(entity, ColliderComponent, { body })
-        addComponent(entity, CollisionComponent, { collisions: [] })
-      }
-      break
-    }
-
-    case 'box-collider': {
-      const boxColliderProps: BoxColliderProps = component.props
-      const transform = getComponent(entity, TransformComponent)
-
-      const shape = world.physics.createShape(
-        new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
-        undefined,
-        {
-          ...(boxColliderProps as any),
-          collisionLayer: DefaultCollisionMask,
-          collisionMask: CollisionGroups.Default
-        }
-      )
-
-      const body = createBody(entity, { bodyType: 0 }, [shape])
-      addComponent(entity, ColliderComponent, { body })
-      addComponent(entity, CollisionComponent, { collisions: [] })
-
-      if (
-        boxColliderProps.removeMesh === 'true' ||
-        (typeof boxColliderProps.removeMesh === 'boolean' && boxColliderProps.removeMesh === true)
-      ) {
-        const obj = getComponent(entity, Object3DComponent)
-        if (obj?.value) {
-          if (obj.value.parent) obj.value.removeFromParent()
-          removeComponent(entity, Object3DComponent)
-        }
-      }
-      break
-    }
-
-    case 'trigger-volume':
-      createTriggerVolume(entity, component.props)
-      break
-
-    case 'link':
-      addObject3DComponent(entity, new Object3D(), component.props)
-      addComponent(entity, InteractableComponent, { action: 'link' })
-      break
-
-    case 'particle-emitter':
-      createParticleEmitterObject(entity, component.props)
-      break
-
     case 'clouds':
       isClient && addObject3DComponent(entity, new Clouds(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})
@@ -275,22 +215,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
     case 'interior':
       isClient && addObject3DComponent(entity, new Interior(), component.props)
-      break
-
-    case 'cameraproperties':
-      if (isClient) {
-        matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
-          if (spawnAction.$from === Engine.userId) {
-            setCameraProperties(useWorld().localClientEntity, component.props)
-            return true
-          }
-          return false
-        })
-      }
-      break
-
-    case 'portal':
-      createPortal(entity, component.props)
       break
   }
 }

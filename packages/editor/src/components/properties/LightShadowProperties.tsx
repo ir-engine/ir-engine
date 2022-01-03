@@ -58,7 +58,6 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   // function to handle the change in shadowMapResolution propery
   const onChangeShadowMapResolution = (shadowMapResolution) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: props.updateFunction,
       component: props.comp,
       properties: { shadowMapResolution }
     })
@@ -67,7 +66,6 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   // function to handle changes in castShadow propery
   const onChangeCastShadow = (castShadow) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: props.updateFunction,
       component: props.comp,
       properties: { castShadow }
     })
@@ -76,7 +74,6 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   // fucntion to handle changes in shadowBias property
   const onChangeShadowBias = (shadowBias) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: props.updateFunction,
       component: props.comp,
       properties: { shadowBias }
     })
@@ -85,7 +82,6 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   // function to handle changes shadowRadius property
   const onChangeShadowRadius = (shadowRadius) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: props.updateFunction,
       component: props.comp,
       properties: { shadowRadius }
     })

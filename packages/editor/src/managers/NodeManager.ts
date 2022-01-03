@@ -74,6 +74,12 @@ import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
+import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
+import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
+import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
+import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { SCENE_COMPONENT_TRIGGER_VOLUME } from '@xrengine/engine/src/scene/functions/loaders/TriggerVolumeFunctions'
+import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -120,23 +126,23 @@ export class NodeManager {
 export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
-  NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
+  // NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
-  NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
+  // NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
   NodeManager.instance.registerNode(MapNode, MapNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
   // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
-  NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
+  // NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
+  // NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
   NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
@@ -164,7 +170,13 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
   [SCENE_COMPONENT_SPOT_LIGHT]: SpotLightNodeEditor,
   [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
+  [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
   [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
+  [SCENE_COMPONENT_LINK]: LinkNodeEditor,
+  [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
+  [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
+  [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
+  [SCENE_COMPONENT_BOX_COLLIDER]: BoxColliderNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
@@ -181,6 +193,12 @@ export const prefabIcons = {
   [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
+  [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
+  [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
+  [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
+  [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
+  [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,

@@ -14,7 +14,7 @@ import { SceneManager } from '../../managers/SceneManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
-import { accessEditorState, useEditorState } from '../../services/EditorServices'
+import { accessEditorState } from '../../services/EditorServices'
 
 /**
  * ViewportPanelContainer used to render viewport.

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import VideocamIcon from '@mui/icons-material/Videocam'
 import React from 'react'
 import InputGroup from '../inputs/InputGroup'

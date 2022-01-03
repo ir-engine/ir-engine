@@ -62,7 +62,6 @@ export const NameInputGroup: EditorComponentType = (props) => {
     // This can happen when clicking on another node in the HierarchyPanel
     if (nodeName !== name && props?.node === focusedNode) {
       CommandManager.instance.setPropertyOnSelectionEntities({
-        updateFunction: () => {},
         component: NameComponent,
         properties: { name }
       })
@@ -76,7 +75,6 @@ export const NameInputGroup: EditorComponentType = (props) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       CommandManager.instance.setPropertyOnSelectionEntities({
-        updateFunction: () => {},
         component: NameComponent,
         properties: { name }
       })

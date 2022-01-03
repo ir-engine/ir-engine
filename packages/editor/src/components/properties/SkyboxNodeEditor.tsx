@@ -63,7 +63,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in turbidity Property
   const onChangeTurbidity = (turbidity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.turbidity': turbidity }
     })
@@ -72,7 +71,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle changes in rayleigh property
   const onChangeRayleigh = (rayleigh) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.rayleigh': rayleigh }
     })
@@ -81,7 +79,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in luminance property
   const onChangeLuminance = (luminance) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.luminance': luminance }
     })
@@ -90,7 +87,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in mieCoefficient property
   const onChangeMieCoefficient = (mieCoefficient) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.mieCoefficient': mieCoefficient }
     })
@@ -99,7 +95,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in mieDirectionalG property
   const onChangeMieDirectionalG = (mieDirectionalG) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.mieDirectionalG': mieDirectionalG }
     })
@@ -108,7 +103,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in inclination
   const onChangeInclination = (inclination) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.inclination': inclination }
     })
@@ -117,7 +111,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle changes azimuth
   const onChangeAzimuth = (azimuth) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { 'skyboxProps.azimuth': azimuth }
     })
@@ -135,7 +128,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes skyType
   const onChangeSkyOption = (backgroundType) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { backgroundType }
     })
@@ -145,7 +137,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
       CommandManager.instance.setPropertyOnSelectionEntities({
-        updateFunction: updateSkybox,
         component: SkyboxComponent,
         properties: { equirectangularPath }
       })
@@ -157,7 +148,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
     if (directory !== skyComponent.cubemapPath) {
       CommandManager.instance.setPropertyOnSelectionEntities({
-        updateFunction: updateSkybox,
         component: SkyboxComponent,
         properties: { cubemapPath: directory }
       })
@@ -167,7 +157,6 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes backgroundPath
   const onChangeColorOption = (backgroundColor) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSkybox,
       component: SkyboxComponent,
       properties: { backgroundColor }
     })

@@ -1,57 +1,34 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
 import PanToolIcon from '@mui/icons-material/PanTool'
 import { CommandManager } from '../../managers/CommandManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../../nodes/SceneNode'
+import { EditorComponentType } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { isTriggerShape } from '@xrengine/engine/src/physics/classes/Physics'
 
-type BoxColliderNodeEditorProps = {
-  node?: any
-  multiEdit: boolean
-}
-
-/**
- * BoxColliderNodeEditor is used to provide properties to customize box collider element.
- *
- * @author Robert Long
- * @type {[component class]}
- */
-export const BoxColliderNodeEditor = (props: BoxColliderNodeEditorProps) => {
-  let [options, setOptions] = useState([])
+export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  useEffect(() => {
-    const options = []
-    const sceneNode = Engine.scene as any as SceneNode
-    sceneNode.traverse((o) => {
-      if (o.isNode && o !== sceneNode && o.nodeName === 'Game') {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
-      }
+  const onChangeValue = (prop) => (value) => {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      component: null!,
+      properties: { [prop]: value }
     })
-    setOptions(options)
-  }, [])
-
-  // function to handle changes in payloadName property
-  const onChangeRole = (role) => {
-    CommandManager.instance.setPropertyOnSelection('role', role)
   }
-
-  //function to handle the changes in target
-  const onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelection('target', target)
-  }
-  // function to handle the changes on trigger property
-  const onChangeTrigger = (isTrigger) => {
-    CommandManager.instance.setPropertyOnSelection('isTrigger', isTrigger)
-  }
+  const colliderComponent = getComponent(props.node.entity, ColliderComponent)
+  const world = useWorld()
+  const boxShape = world.physics.getRigidbodyShapes(colliderComponent.body)[0]
+  const isTrigger = isTriggerShape(boxShape)
 
   return (
     <NodeEditor {...props} description={t('editor:properties.boxCollider.description')}>
       <InputGroup name="Trigger" label={t('editor:properties.boxCollider.lbl-isTrigger')}>
-        <BooleanInput value={props.node?.isTrigger} onChange={onChangeTrigger} />
+        <BooleanInput value={isTrigger} onChange={onChangeValue('isTrigger')} />
       </InputGroup>
     </NodeEditor>
   )

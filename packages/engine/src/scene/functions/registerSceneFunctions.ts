@@ -110,6 +110,32 @@ import {
   serializeSpotLight,
   updateSpotLight
 } from './loaders/StopLightFunctions'
+import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
+import {
+  deserializeParticleEmitter,
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  serializeParticleEmitter,
+  updateParticleEmitter
+} from './loaders/ParticleEmitterFunctions'
+import {
+  deserializeCameraProperties,
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  serializeCameraProperties
+} from './loaders/CameraPropertiesFunctions'
+import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
+import {
+  deserializeTriggerVolume,
+  SCENE_COMPONENT_TRIGGER_VOLUME,
+  serializeTriggerVolume,
+  updateTriggerVolume
+} from './loaders/TriggerVolumeFunctions'
+import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
+import {
+  deserializeBoxCollider,
+  SCENE_COMPONENT_BOX_COLLIDER,
+  serializeBoxCollider,
+  updateBoxCollider
+} from './loaders/BoxColliderFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -265,5 +291,45 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeLoopAnimation,
     serialize: serializeLoopAnimation,
     update: updateLoopAnimation
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_LINK, {
+    deserialize: deserializeLink,
+    serialize: serializeLink,
+    prepareForGLTFExport: prepareLinkForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
+    deserialize: deserializeParticleEmitter,
+    serialize: serializeParticleEmitter,
+    update: updateParticleEmitter
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
+    deserialize: deserializeCameraProperties,
+    serialize: serializeCameraProperties
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
+    deserialize: deserializePortal,
+    serialize: serializePortal,
+    update: updatePortal
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRIGGER_VOLUME, {
+    deserialize: deserializeTriggerVolume,
+    serialize: serializeTriggerVolume,
+    update: updateTriggerVolume
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+    deserialize: deserializeCollider,
+    serialize: serializeCollider
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_BOX_COLLIDER, {
+    deserialize: deserializeBoxCollider,
+    serialize: serializeBoxCollider,
+    update: updateBoxCollider
   })
 }

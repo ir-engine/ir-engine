@@ -150,6 +150,8 @@ export class SceneManager {
         }) as any
       )
 
+      applyAndArchiveIncomingAction(useWorld(), EngineActions.setPhysicsDebug(true) as any)
+
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
 
@@ -482,8 +484,8 @@ export class SceneManager {
 
     const meshes = [] as any[]
     for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
-      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent).value
-      obj3d.traverse((child: any) => {
+      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent)?.value
+      obj3d?.traverse((child: any) => {
         if (
           !child.userData.disableOutline &&
           !child.userData.isHelper &&
@@ -498,14 +500,11 @@ export class SceneManager {
   }
 
   dispose() {
-    // if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
-    // if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)
-    // if (this.editorEntity) removeEntity(this.editorEntity, true)
-    // if (this.grid) Engine.scene?.remove(this.grid)
+    if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
+    if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)
+    if (this.editorEntity) removeEntity(this.editorEntity, true)
+    if (this.grid) Engine.scene?.remove(this.grid)
 
-    // Engine.renderer?.dispose()
-    // this.screenshotRenderer?.dispose()
-    // Engine.effectComposer?.dispose()
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false
   }
@@ -518,6 +517,8 @@ type EngineRendererProps = {
 
 // TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+  new EngineRenderer({ canvas: props.canvas, enabled: true })
+
   // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   // EngineRenderer.instance.dispatchSettingsChangeEvent()
 

@@ -25,7 +25,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in color property
   const onChangeColor = (color) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { color }
     })
@@ -34,7 +33,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in intensity property
   const onChangeIntensity = (intensity) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { intensity }
     })
@@ -43,7 +41,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes innerConeAngle property
   const onChangePenumbra = (penumbra) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { penumbra }
     })
@@ -52,7 +49,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in outerConeAngle property
   const onChangeAngle = (angle) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { angle }
     })
@@ -61,7 +57,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
   //function to handle the changes in ranges property
   const onChangeRange = (range) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { range }
     })
@@ -69,7 +64,6 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
 
   const onChangeDecay = (decay) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
-      updateFunction: updateSpotLight,
       component: SpotLightComponent,
       properties: { decay }
     })

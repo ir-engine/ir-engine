@@ -7,8 +7,6 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -40,7 +38,7 @@ const EditorProtectedRoutes = () => {
         systemModulePromise: import('../managers/SceneManager'),
         type: SystemUpdateType.PRE_RENDER,
         sceneSystem: true,
-        args: { enabled: true }
+        args: { enabled: true, canvas: document.getElementById(engineRendererCanvasId) }
       },
       {
         systemModulePromise: import('../systems/InputSystem'),
@@ -84,8 +82,6 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
-      new EngineRenderer({ canvas: document.querySelector('canvas')!, enabled: true })
-      Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
     })

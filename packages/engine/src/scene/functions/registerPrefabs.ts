@@ -41,6 +41,24 @@ import {
 } from './loaders/LoopAnimationFunctions'
 import { SCENE_COMPONENT_POINT_LIGHT, SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES } from './loaders/PointLightFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT, SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES } from './loaders/StopLightFunctions'
+import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
+import {
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
+} from './loaders/ParticleEmitterFunctions'
+import {
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
+} from './loaders/CameraPropertiesFunctions'
+import { SCENE_COMPONENT_PORTAL, SCENE_COMPONENT_PORTAL_DEFAULT_VALUES } from './loaders/PortalFunctions'
+import {
+  SCENE_COMPONENT_TRIGGER_VOLUME,
+  SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES
+} from './loaders/TriggerVolumeFunctions'
+import {
+  SCENE_COMPONENT_BOX_COLLIDER,
+  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
+} from './loaders/BoxColliderFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -51,6 +69,12 @@ export const ScenePrefabs = {
   spotLight: 'Spot Light' as const,
   metadata: 'Metadata' as const,
   model: 'Model' as const,
+  link: 'Link' as const,
+  cameraProperties: 'Camera Properties' as const,
+  particleEmitter: 'Particle Emitter' as const,
+  portal: 'Portal' as const,
+  triggerVolume: 'Trigger Volume' as const,
+  boxCollider: 'Box Collider' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
@@ -135,5 +159,37 @@ export const registerPrefabs = (world: World) => {
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
     { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.link, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_LINK, props: SCENE_COMPONENT_LINK_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PARTICLE_EMITTER, props: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.cameraProperties, [
+    { name: SCENE_COMPONENT_CAMERA_PROPERTIES, props: SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.portal, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.triggerVolume, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.boxCollider, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_BOX_COLLIDER, props: SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES }
   ])
 }
