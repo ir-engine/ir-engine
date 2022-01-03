@@ -133,7 +133,8 @@ import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from
 import {
   deserializeBoxCollider,
   SCENE_COMPONENT_BOX_COLLIDER,
-  serializeBoxCollider
+  serializeBoxCollider,
+  updateBoxCollider
 } from './loaders/BoxColliderFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
@@ -328,6 +329,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_BOX_COLLIDER, {
     deserialize: deserializeBoxCollider,
-    serialize: serializeBoxCollider
+    serialize: serializeBoxCollider,
+    update: updateBoxCollider
   })
 }

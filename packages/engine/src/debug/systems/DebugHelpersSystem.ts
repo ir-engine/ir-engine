@@ -57,7 +57,7 @@ export default async function DebugHelpersSystem(world: World): Promise<System> 
 
   let physicsDebugRenderer = DebugRenderer()
 
-  let physicsDebugEnabled = Engine.isEditor
+  let physicsDebugEnabled = false
   let avatarDebugEnabled = false
 
   const avatarDebugToggle = ({ enabled }) => {

@@ -150,6 +150,8 @@ export class SceneManager {
         }) as any
       )
 
+      applyAndArchiveIncomingAction(useWorld(), EngineActions.setPhysicsDebug(true) as any)
+
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
 

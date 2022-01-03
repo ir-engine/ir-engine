@@ -17,7 +17,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
-import { setTriggerShape } from '../../../physics/classes/Physics'
+import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
 
 export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
 export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
@@ -43,22 +43,11 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   )
 
   const body = createBody(entity, { bodyType: 0 }, [shape])
+  console.log('body', body)
   addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   if (Engine.isEditor) {
-    // const transform = getComponent(entity, TransformComponent)
-    // const pos = transform.position
-    // const rot = transform.rotation
-    // const scale = transform.scale
-
-    // const helperMesh = new Mesh(
-    //   new BoxBufferGeometry(),
-    //   new MeshBasicMaterial({ color: 0xff0000, opacity: 0.5, transparent: true })
-    // )
-    // helperMesh.position.set(pos.x, pos.y, pos.z)
-    // helperMesh.scale.set(scale.x, scale.y, scale.z)
-    // helperMesh.quaternion.set(rot.x, rot.y, rot.z, rot.w)
     addComponent(entity, Object3DComponent, { value: new Object3D() })
   } else {
     if (
@@ -75,11 +64,20 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 }
 
-export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity, props: any) => {
+export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: any) => {
   const component = getComponent(entity, ColliderComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  const pose = component.body.getGlobalPose()
+  pose.translation = transform.position
+  pose.rotation = transform.rotation
+  component.body.setGlobalPose(pose, false)
+  component.body._debugNeedsUpdate = true
+
   const world = useWorld()
   const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
   setTriggerShape(boxShape, props.isTrigger)
+  boxShape._debugNeedsUpdate = true
 }
 
 export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
@@ -88,11 +86,12 @@ export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
   const world = useWorld()
 
   const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
+  const isTrigger = isTriggerShape(boxShape)
 
   return {
     name: SCENE_COMPONENT_BOX_COLLIDER,
     props: {
-      isTrigger: boxShape._isTrigger
+      isTrigger
       // TODO: these are only used for deserialization for gltf metadata support
       // removeMesh: boolean | 'true' | 'false'
       // collisionLayer: string | number
