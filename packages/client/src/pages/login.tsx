@@ -21,6 +21,7 @@ export const IndexPage = (): any => {
                 [class*=menuPanel] {
                     top: 75px;
                     bottom: initial;
+                    pointer-events: auto;
                 }
             `}
       </style>
