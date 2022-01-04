@@ -1,13 +1,12 @@
 import config from '@xrengine/server-core/src/appconfig'
 import fs from 'fs'
 import path from 'path'
-import favicon from 'serve-favicon'
 import compress from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 import swagger from 'feathers-swagger'
 import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, notFound, errorHandler } from '@feathersjs/express'
+import express, { json, urlencoded, static as _static, rest, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 import AgonesSDK from '@google-cloud/agones-sdk'
 import { Application } from '@xrengine/server-core/declarations'
@@ -82,7 +81,6 @@ export const createApp = (): Application => {
       app.use(compress())
       app.use(json())
       app.use(urlencoded({ extended: true }))
-      app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
 
       // Set up Plugins and providers
       app.configure(rest())

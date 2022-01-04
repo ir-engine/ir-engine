@@ -1,5 +1,4 @@
 import { createTheme } from '@mui/material/styles'
-import { red } from '@mui/material/colors'
 import { useTheme as styledUseTheme } from 'styled-components'
 
 const theme = createTheme({

@@ -2,6 +2,7 @@ import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
@@ -12,7 +13,6 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
   let lastTime = null
   let elapsedTime = 0
   let delta = 0
-  let frameId
   let debugTick = 0
 
   const newEngineTicks = {
@@ -36,33 +36,14 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
   let prevTimerRuns = 0
   let serverLoop
 
-  function xrAnimationLoop(time, xrFrame) {
-    Engine.xrFrame = xrFrame
-    if (lastTime !== null) {
-      delta = (time - lastTime) / 1000
-      elapsedTime += delta
-      update(delta, elapsedTime)
-    }
-    lastTime = time
-  }
-
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
-    stop()
-  })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.xrManager.setAnimationLoop(xrAnimationLoop)
-  })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
-    start()
-  })
-
-  function onFrame(time) {
+  function onFrame(time, xrFrame) {
     timerRuns += 1
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time
     if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
       tpsPrintReport(time)
     }
 
+    Engine.xrFrame = xrFrame
     if (lastTime !== null) {
       delta = (time - lastTime) / 1000
 
@@ -158,16 +139,12 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
     elapsedTime = 0
     lastTime = null
     if (isClient) {
-      const _onFrame = (time) => {
-        frameId = window.requestAnimationFrame(_onFrame)
-        onFrame(time)
-      }
-      frameId = window.requestAnimationFrame(_onFrame)
+      Engine.renderer.setAnimationLoop(onFrame)
     } else {
       serverLoop = () => {
         const time = nowMilliseconds()
         if (time - lastTime! >= expectedDelta) {
-          onFrame(time)
+          onFrame(time, null)
           lastTime = time
         }
         setImmediate(serverLoop)
@@ -179,7 +156,7 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
   function stop() {
     if (isClient) {
-      cancelAnimationFrame(frameId)
+      Engine.renderer.setAnimationLoop(null)
     } else {
       clearImmediate(serverLoop)
     }
@@ -187,9 +164,6 @@ export function Timer(update: TimerUpdateCallback): { start: Function; stop: Fun
 
   function clear() {
     stop()
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
   }
 
   return {

@@ -5,6 +5,7 @@ mariadb:
     user: <username>
   enabled: false
   externalHost: <RDS hostname>
+  externalPort: 3306
 builder:
   extraEnv:
     RELEASE_NAME: <RELEASE_NAME>
@@ -24,6 +25,12 @@ builder:
     STORAGE_S3_REGION: <S3_REGION>
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
     STORAGE_S3_AVATAR_DIRECTORY: avatars
+    VITE_APP_HOST: dev.<domain>
+    VITE_APP_PORT: "3000"
+    VITE_SERVER_HOST: api-dev.<domain>
+    VITE_SERVER_PORT: "3030"
+    VITE_GAMESERVER_HOST: gameserver-dev.<domain>
+    VITE_GAMESERVER_PORT: "3031"
   image:
     repository: <ECR_URL>/xrengine-dev-builder
   service:

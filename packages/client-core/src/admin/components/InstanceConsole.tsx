@@ -177,7 +177,7 @@ function InstanceConsole(props: Props) {
       gsId: instance.gameserver_subdomain_provision?.gs_id,
       serverAddress:
         instance.gameserver_subdomain_provision != null
-          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}`
+          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${globalThis.process.env['VITE_GAMESERVER_HOST']}`
           : ''
     }
   })

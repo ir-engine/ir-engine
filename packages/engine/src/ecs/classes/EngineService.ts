@@ -1,29 +1,31 @@
 import { createState, useState } from '@hookstate/core'
+import { number } from 'ts-matches/lib/mjs/parsers'
 import { InteractionData } from '../../interaction/types/InteractionTypes'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
-  isInitialised: false,
+  fixedTick: 0,
+  isEngineInitialized: false,
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: -1,
   connectedWorld: false,
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
-
   isPhysicsDebug: false,
-  isAvatarDebug: false
+  isAvatarDebug: false,
+  leaveWorld: false,
+  socketInstance: false,
+  connectionTimeoutInstance: false,
+  avatarTappedId: null! as string,
+  interactionData: null! as InteractionData
 })
 
-export const receptors = (): [] => {
-  const ret: any = []
-  ret.push(stateReceptor)
-  ret.push(callbackReceptor)
-  return ret
-}
-function stateReceptor(action: EngineActionType) {
+export function EngineEventReceptor(action: EngineActionType) {
   state.batch((s) => {
     switch (action.type) {
+      case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
+        break
       case EngineEvents.EVENTS.PHYSICS_DEBUG:
         return s.merge({
           isPhysicsDebug: action.isPhysicsDebug
@@ -33,8 +35,16 @@ function stateReceptor(action: EngineActionType) {
           isAvatarDebug: action.isAvatarDebug
         })
 
+      case EngineEvents.EVENTS.RESET_ENGINE:
+        return s.merge({
+          socketInstance: action.instance
+        })
+      case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
+        return s.merge({
+          avatarTappedId: action.userId
+        })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
-        return s.merge({ isInitialised: action.initialised })
+        return s.merge({ isEngineInitialized: action.initialised })
       case EngineEvents.EVENTS.SCENE_LOADED:
         return s.merge({ sceneLoaded: action.sceneLoaded })
       case EngineEvents.EVENTS.JOINED_WORLD:
@@ -42,7 +52,15 @@ function stateReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.LOADING_PROGRESS:
         return s.merge({ loadingProgress: action.count })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
-        return s.merge({ connectedWorld: true })
+        return s.merge({ connectedWorld: action.connectedWorld })
+      case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
+        return s.merge({ connectionTimeoutInstance: action.instance })
+      case EngineEvents.EVENTS.OBJECT_ACTIVATION:
+        return s.merge({ interactionData: action.interactionData })
+      case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
+        return s.merge({
+          isTeleporting: action.portalComponent
+        })
       case EngineEvents.EVENTS.SET_TELEPORTING:
         if (action.portalComponent) {
           s.merge({
@@ -56,147 +74,6 @@ function stateReceptor(action: EngineActionType) {
         })
     }
   }, action.type)
-}
-
-function callbackReceptor(action: EngineActionType) {
-  switch (action.type) {
-    case EngineEvents.EVENTS.RESET_ENGINE:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.RESET_ENGINE,
-        instance: action.instance
-      })
-      break
-
-    case EngineEvents.EVENTS.INITIALIZED_ENGINE:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
-      break
-
-    case EngineEvents.EVENTS.CONNECT_TO_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD
-      })
-      break
-
-    case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT
-      })
-      break
-
-    case EngineEvents.EVENTS.JOINED_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.JOINED_WORLD
-      })
-      break
-
-    case EngineEvents.EVENTS.LEAVE_WORLD:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.LEAVE_WORLD
-      })
-      break
-    case EngineEvents.EVENTS.SCENE_LOADED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SCENE_LOADED
-      })
-      break
-    case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-        entitiesLeft: action.entitiesLeft
-      })
-      break
-    case EngineEvents.EVENTS.ENABLE_SCENE:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ENABLE_SCENE,
-        renderer: action.env.renderer,
-        physics: action.env.physics
-      })
-      break
-    case EngineEvents.EVENTS.WINDOW_FOCUS:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.WINDOW_FOCUS,
-        focused: document.visibilityState === 'visible'
-      })
-      break
-    case EngineEvents.EVENTS.ENTITY_DEBUG_DATA:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
-      })
-      break
-    case EngineEvents.EVENTS.OBJECT_HOVER:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.OBJECT_HOVER,
-        ...action.props
-      })
-      break
-    case EngineEvents.EVENTS.OBJECT_ACTIVATION:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
-        interaction: action.interactionData
-      })
-      break
-    case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-        portalComponent: action.portalComponent
-      })
-      break
-    case EngineEvents.EVENTS.XR_START:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_START
-      })
-      break
-    case EngineEvents.EVENTS.XR_SESSION:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_SESSION
-      })
-      break
-    case EngineEvents.EVENTS.XR_END:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.XR_END
-      })
-      break
-    case EngineEvents.EVENTS.CONNECT:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECT,
-        id: action.id
-      })
-      break
-    case EngineEvents.EVENTS.CONNECTION_LOST:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.CONNECTION_LOST
-      })
-      break
-    case EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
-      })
-      break
-    case EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.SUSPEND_POSITIONAL_AUDIO
-      })
-      break
-    case EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.BROWSER_NOT_SUPPORTED,
-        msg: action.msg
-      })
-      break
-    case EngineEvents.EVENTS.PHYSICS_DEBUG:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.PHYSICS_DEBUG, enabled: action.isPhysicsDebug })
-      break
-
-    case EngineEvents.EVENTS.AVATAR_DEBUG:
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.AVATAR_DEBUG, enabled: action.isAvatarDebug })
-      break
-    case EngineEvents.EVENTS.USER_AVATAR_TAPPED:
-      EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.USER_AVATAR_TAPPED,
-        userId: action.userId
-      })
-      break
-  }
 }
 
 export const useEngineState = () => useState(state) as any as typeof state
@@ -222,7 +99,7 @@ export const EngineActions = {
       portalComponent
     }
   },
-  resetEngine: (instance: any) => {
+  resetEngine: (instance: boolean) => {
     return {
       type: EngineEvents.EVENTS.RESET_ENGINE,
       instance
@@ -234,14 +111,16 @@ export const EngineActions = {
       initialised
     }
   },
-  connectToWorld: () => {
+  connectToWorld: (connectedWorld: boolean) => {
     return {
-      type: EngineEvents.EVENTS.CONNECT_TO_WORLD
+      type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
+      connectedWorld
     }
   },
-  connectToWorldTimeout: () => {
+  connectToWorldTimeout: (instance: boolean) => {
     return {
-      type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT
+      type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT,
+      instance
     }
   },
   joinedWorld: (joinedWorld: boolean) => {
@@ -275,23 +154,6 @@ export const EngineActions = {
     }
   },
 
-  /////////////
-  windowFocus: () => {
-    return {
-      type: EngineEvents.EVENTS.WINDOW_FOCUS
-    }
-  },
-  entityDebugData: () => {
-    return {
-      type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA
-    }
-  },
-  objectHover: (props: {}) => {
-    return {
-      type: EngineEvents.EVENTS.OBJECT_HOVER,
-      props
-    }
-  },
   objectActivation: (interactionData: InteractionData) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
@@ -324,11 +186,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.CONNECT,
       id
-    }
-  },
-  connectionLost: () => {
-    return {
-      type: EngineEvents.EVENTS.CONNECTION_LOST
     }
   },
   startSuspendedContexts: () => {

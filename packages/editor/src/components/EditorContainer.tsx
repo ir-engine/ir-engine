@@ -36,7 +36,6 @@ import { DialogContext } from './hooks/useDialog'
 import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
@@ -144,10 +143,6 @@ const EditorContainer = (props) => {
   const dispatch = useDispatch()
   const history = useHistory()
   const dockPanelRef = useRef()
-
-  const initializeEditor = async () => {
-    await Promise.all([ProjectManager.instance.init()])
-  }
 
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -514,7 +509,7 @@ const EditorContainer = (props) => {
 
     registerPredefinedNodes()
 
-    initializeEditor().then(() => {
+    ProjectManager.instance.init().then(() => {
       setEditorReady(true)
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
@@ -668,7 +663,7 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer id="editor-container">
+    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndProvider backend={HTML5Backend}>
           <DragLayer />
@@ -679,7 +674,7 @@ const EditorContainer = (props) => {
               <DockLayout
                 ref={dockPanelRef}
                 defaultLayout={defaultLayout}
-                style={{ pointerEvents: 'none', position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
               />
             </DockContainer>
           </WorkspaceContainer>

@@ -5,8 +5,7 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent,
-  MappedComponent
+  hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'

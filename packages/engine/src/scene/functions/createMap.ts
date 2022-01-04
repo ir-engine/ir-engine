@@ -4,7 +4,7 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
-import { Group, Mesh, Vector3 } from 'three'
+import { Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { MapAction, mapReducer } from '../../map/MapReceptor'
@@ -71,13 +71,5 @@ export async function createMap(entity: Entity, args: MapProps): Promise<void> {
     yukaNavMesh: store.navMesh,
   */
     navTarget: navigationRaycastTarget
-  })
-
-  // Force higest resolution. There is a heavy CPU/GPU load while the map is being generated which,
-  // when using the automatic setting, causes the lowest resolution to be selected.
-  EngineEvents.instance.dispatchEvent({ type: EngineRenderer.EVENTS.SET_RESOLUTION, payload: 1 })
-  EngineEvents.instance.dispatchEvent({
-    type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
-    payload: false
   })
 }

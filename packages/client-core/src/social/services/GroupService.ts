@@ -9,7 +9,7 @@ import waitForClientAuthenticated from '../../util/wait-for-client-authenticated
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 import _ from 'lodash'
 
 //State
@@ -267,7 +267,6 @@ export const GroupService = {
       dispatch(GroupAction.fetchingInvitableGroups())
       const groupActionState = accessGroupState().value
       try {
-        await waitForClientAuthenticated()
         const groupResults = await client.service('group').find({
           query: {
             invitable: true,

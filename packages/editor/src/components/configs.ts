@@ -9,10 +9,10 @@ import { Config } from '@xrengine/common/src/config'
 const configs = {
   name: (): string => 'Scene Editor',
   longName: (): string => 'Scene Editor',
-  SERVER_URL: Config.publicRuntimeConfig.apiServer,
-  APP_URL: Config.publicRuntimeConfig.appServer,
-  FEATHERS_STORE_KEY: Config.publicRuntimeConfig.feathersStoreKey,
-  ROOT_REDIRECT: Config.publicRuntimeConfig.rootRedirect
+  SERVER_URL: `https://${globalThis.process.env['VITE_SERVER_HOST']}`,
+  APP_URL: `https://${globalThis.process.env['VITE_APP_HOST']}`,
+  FEATHERS_STORE_KEY: `https://${globalThis.process.env['VITE_FEATHERS_STORE_KEY']}`,
+  ROOT_REDIRECT: globalThis.process.env['VITE_ROOT_REDIRECT']
 }
 
 export default configs

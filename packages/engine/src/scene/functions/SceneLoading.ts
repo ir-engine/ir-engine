@@ -1,17 +1,6 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  Euler,
-  HemisphereLight,
-  Object3D,
-  PointLight,
-  Quaternion,
-  SpotLight,
-  Vector3
-} from 'three'
+import { AmbientLight, Euler, HemisphereLight, Object3D, PointLight, Quaternion, SpotLight, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'

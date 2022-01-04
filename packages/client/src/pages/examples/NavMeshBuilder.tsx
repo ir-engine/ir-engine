@@ -29,13 +29,9 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
-import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
+import { CellSpacePartitioning, EntityManager, FollowPathBehavior, Time } from 'yuka'
 import { defineQuery } from 'bitecs'
-import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
-// import { fetchVectorTiles } from '@xrengine/engine/src/map/functions/fetchVectorTile'
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import pc from 'polygon-clipping'
-import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 

@@ -4,7 +4,6 @@ import {
   BodyType,
   RigidBody,
   ShapeOptions,
-  SceneQuery,
   CollisionEvents,
   ControllerEvents,
   SceneQueryType,

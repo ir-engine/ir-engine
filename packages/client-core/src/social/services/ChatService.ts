@@ -226,7 +226,6 @@ export const ChatService = {
     const dispatch = useDispatch()
     {
       try {
-        await waitForClientAuthenticated()
         const chatState = accessChatState().value
 
         const channelResult = await client.service('channel').find({
@@ -259,10 +258,8 @@ export const ChatService = {
     }
   },
   createMessage: async (values: any) => {
-    const dispatch = useDispatch()
     {
       try {
-        await waitForClientAuthenticated()
         const chatState = accessChatState().value
         const data = {
           targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
@@ -321,7 +318,6 @@ export const ChatService = {
     }
   },
   removeMessage: async (messageId: string) => {
-    const dispatch = useDispatch()
     {
       try {
         await client.service('message').remove(messageId)
@@ -331,7 +327,6 @@ export const ChatService = {
     }
   },
   patchMessage: async (messageId: string, text: string) => {
-    const dispatch = useDispatch()
     {
       try {
         await client.service('message').patch(messageId, {

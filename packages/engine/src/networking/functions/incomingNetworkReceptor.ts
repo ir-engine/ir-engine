@@ -1,5 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from './NetworkWorldAction'
@@ -7,8 +7,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
-import { Action, ResolvedActionShape } from '../interfaces/Action'
+import { dispatchLocal } from './dispatchFrom'
 
 /**
  * @author Gheric Speiginer <github.com/speigg>

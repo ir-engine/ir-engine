@@ -19,7 +19,6 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '@xrengine/engine/src/input/functions/WebcamInput'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -34,10 +33,7 @@ import { useMediaStreamState } from '@xrengine/client-core/src/media/services/Me
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import {
-  ClientTransportHandler,
-  getMediaTransport
-} from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -66,6 +62,7 @@ const MediaIconsBox = (props) => {
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   const engineState = useEngineState()
+  let callbackDone = false
 
   useEffect(() => {
     navigator.mediaDevices
@@ -80,8 +77,11 @@ const MediaIconsBox = (props) => {
   }, [])
 
   useEffect(() => {
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported))
-  }, [engineState.isInitialised.value])
+    if (engineState.joinedWorld.value && !callbackDone) {
+      setXRSupported(Engine.xrSupported)
+      callbackDone = true
+    }
+  }, [engineState.joinedWorld.value])
 
   const handleFaceClick = async () => {
     const partyId =

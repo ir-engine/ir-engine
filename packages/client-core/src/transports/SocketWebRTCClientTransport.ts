@@ -1,4 +1,9 @@
-import { Network, NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import {
+  Network,
+  NetworkTransportHandler,
+  TransportType,
+  TransportTypes
+} from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as mediasoupClient from 'mediasoup-client'
@@ -9,10 +14,15 @@ import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
-// import { encode, decode } from 'msgpackr'
 
-const gameserverAddress = `https://${process.env.VITE_GAMESERVER_HOST}:${process.env.VITE_GAMESERVER_PORT}`
+// import { encode, decode } from 'msgpackr'
+const gameserverAddress =
+  process.env.APP_ENV === 'development'
+    ? `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}:${
+        (globalThis as any).process.env['VITE_GAMESERVER_PORT']
+      }`
+    : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
+console.log('gameserverAddress', gameserverAddress)
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -22,13 +32,13 @@ const promisedRequest = (socket: Socket) => {
 }
 
 export class ClientTransportHandler
-  implements NetworkTransportHandler<SocketWebRTCClientTransport, SocketWebRTCClientMediaTransport>
+  implements NetworkTransportHandler<SocketWebRTCClientTransport, SocketWebRTCClientTransport>
 {
   worldTransports = new Map<UserId, SocketWebRTCClientTransport>()
-  mediaTransports = new Map<UserId, SocketWebRTCClientMediaTransport>()
+  mediaTransports = new Map<UserId, SocketWebRTCClientTransport>()
   constructor() {
-    this.worldTransports.set('server' as UserId, new SocketWebRTCClientTransport())
-    this.mediaTransports.set('media' as UserId, new SocketWebRTCClientMediaTransport())
+    this.worldTransports.set('server' as UserId, new SocketWebRTCClientTransport(TransportTypes.world))
+    this.mediaTransports.set('media' as UserId, new SocketWebRTCClientTransport(TransportTypes.media))
   }
   getWorldTransport() {
     return this.worldTransports.get('server' as UserId)!
@@ -39,7 +49,7 @@ export class ClientTransportHandler
 }
 
 export const getMediaTransport = () =>
-  Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientMediaTransport
+  Network.instance.transportHandler.getMediaTransport() as SocketWebRTCClientTransport
 export const getWorldTransport = () =>
   Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
 
@@ -53,6 +63,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     INSTANCE_RECONNECTED: 'WEBRTC_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'WEBRTC_CHANNEL_DISCONNECTED',
     CHANNEL_RECONNECTED: 'WEBRTC_CHANNEL_RECONNECTED'
+  }
+
+  type: TransportType
+  constructor(type: TransportType) {
+    this.type = type
   }
 
   mediasoupDevice = new mediasoupClient.Device()
@@ -146,33 +161,5 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.socket.emit(MessageTypes.Heartbeat.toString())
       }, 1000)
     })
-  }
-}
-
-export class SocketWebRTCClientMediaTransport extends SocketWebRTCClientTransport {
-  localScreen: any
-  videoEnabled = false
-  channelType: ChannelType
-  channelId: string
-
-  close() {
-    super.close()
-
-    if (MediaStreams.instance.audioStream) {
-      const audioTracks = MediaStreams.instance.audioStream?.getTracks()
-      audioTracks.forEach((track) => track.stop())
-    }
-    if (MediaStreams.instance.videoStream) {
-      const videoTracks = MediaStreams.instance.videoStream?.getTracks()
-      videoTracks.forEach((track) => track.stop())
-    }
-    MediaStreams.instance.camVideoProducer = null
-    MediaStreams.instance.camAudioProducer = null
-    MediaStreams.instance.screenVideoProducer = null
-    MediaStreams.instance.screenAudioProducer = null
-    MediaStreams.instance.videoStream = null!
-    MediaStreams.instance.audioStream = null!
-    MediaStreams.instance.localScreen = null
-    MediaStreams.instance.consumers = []
   }
 }

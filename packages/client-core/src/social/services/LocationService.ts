@@ -1,9 +1,7 @@
 import { AlertService } from '../../common/services/AlertService'
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 

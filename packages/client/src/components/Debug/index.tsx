@@ -2,8 +2,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { getEntityComponents } from 'bitecs'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -64,7 +62,7 @@ export const Debug = () => {
             key,
             Object.fromEntries(
               getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                if (C !== NameComponent) components.push([C._name, getComponent(value, C as any)])
+                if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
                 return components
               }, [] as [string, any][])
             )
@@ -99,6 +97,7 @@ export const Debug = () => {
         </button>
         {Network.instance !== null && (
           <div>
+            <div>Tick: {engineState.fixedTick.value}</div>
             <div>
               <h1>Named Entities</h1>
               <JSONTree data={renderNamedEntities()} />

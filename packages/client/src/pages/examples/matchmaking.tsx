@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { MatchmakingTicketAssignment, OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
@@ -125,7 +125,7 @@ const Page = () => {
   }
 
   return (
-    <div style={{ backgroundColor: 'black', margin: '10px' }}>
+    <div style={{ pointerEvents: 'auto', backgroundColor: 'black', margin: '10px' }}>
       {isUpdating ? (
         <>Loading...</>
       ) : (

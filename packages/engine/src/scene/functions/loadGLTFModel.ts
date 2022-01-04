@@ -1,10 +1,10 @@
-import { AnimationMixer, BufferGeometry, MathUtils, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Quaternion, Scene, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent, loadComponent } from '../functions/SceneLoading'
@@ -20,6 +20,8 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   const components: { [key: string]: any } = {}
@@ -61,7 +63,7 @@ export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   }
 }
 
-export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene) => {
+export const parseObjectComponentsFromGLTF = (entity: Entity, res: Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -71,10 +73,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, res as Mesh)
+    createObjectEntityFromGLTF(entity, res as any as Mesh)
   } else {
     for (const mesh of meshesToProcess) {
-      if (mesh === res) {
+      if (mesh === (res as any as Mesh)) {
         createObjectEntityFromGLTF(entity, mesh)
       } else {
         const e = createEntity()
@@ -101,8 +103,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
   }
 }
 
-export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
+export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, gltf: GLTF) => {
   // console.log('parseGLTFModel', entity, component, scene)
+  const { scene, animations } = gltf
+  scene.animations = animations
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -165,7 +169,7 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
     // we should push this to ECS, something like a SceneObjectLoadComponent,
     // or add engine events for specific objects being added to the scene,
     // the scene load event + delay 1 second delay works for now.
-    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    const onSceneLoaded = async () => {
       await delay(1000)
       const objToCopy = Engine.scene.children.find((obj: any) => {
         return obj.sceneEntityId === component.data.textureOverride
@@ -180,7 +184,8 @@ export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, sc
             })
           }
         })
-    })
+    }
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded)
   }
 
   if (
@@ -214,18 +219,18 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
     AssetLoader.load(
       {
         url: component.data.src,
-        entity
+        entity,
+        instanced: component.data.isUsingGPUInstancing
       },
       (res) => {
-        parseGLTFModel(entity, component, res.scene)
+        parseGLTFModel(entity, component, res)
         resolve()
       },
       null!,
       (err) => {
         console.log('[SCENE-LOADING]:', err)
         reject(err)
-      },
-      component.data.isUsingGPUInstancing
+      }
     )
   })
 }

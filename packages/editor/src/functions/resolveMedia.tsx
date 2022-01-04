@@ -4,7 +4,7 @@ import i18n from 'i18next'
 import { fetchContentType } from '@xrengine/common/src/utils/fetchContentType'
 import { guessContentType } from '@xrengine/common/src/utils/guessContentType'
 
-const serverURL = Config.publicRuntimeConfig.apiServer
+const serverURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 export const resolveMediaCache = new Map()
 
 /**

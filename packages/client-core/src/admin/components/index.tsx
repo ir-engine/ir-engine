@@ -26,7 +26,6 @@ import { client } from '../../feathers'
 import { useAuthState } from '../../user/services/AuthService'
 import { ADMIN_PAGE_LIMIT } from '../services/AdminService'
 import { useLocationState } from '../services/LocationService'
-import { SceneService } from '../services/SceneService'
 import { UserService } from '../services/UserService'
 import { InstanceService } from '../services/InstanceService'
 import { useUserState } from '../services/UserService'
@@ -255,7 +254,7 @@ const AdminConsole = (props: Props) => {
       gsId: instance?.gameserver_subdomain_provision?.gs_id,
       serverAddress:
         instance.gameserver_subdomain_provision != null
-          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}`
+          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${globalThis.process.env['VITE_GAMESERVER_HOST']}`
           : ''
     }
   })

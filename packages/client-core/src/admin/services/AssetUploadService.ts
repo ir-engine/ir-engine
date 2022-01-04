@@ -1,6 +1,5 @@
-import { store, useDispatch } from '../../store'
+import { useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { createState, useState } from '@hookstate/core'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 // const state = createState({})
