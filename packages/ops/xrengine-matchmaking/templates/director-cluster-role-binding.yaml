@@ -3,6 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ include "xrengine.director.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
   labels:
     {{- include "xrengine.director.labels" . | nindent 4 }}
 subjects:

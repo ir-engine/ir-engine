@@ -3,12 +3,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ include "xrengine.matchfunction.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
   labels:
     {{- include "xrengine.matchfunction.labels" . | nindent 4 }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "xrengine.matchfunction.serviceAccountName" . }}
-    namespace: default
+    namespace: {{ include "xrengine.matchmaking-namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

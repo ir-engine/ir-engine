@@ -1,5 +1,5 @@
 apiVersion: v2
-name: xrengine-matchmaker
+name: xrengine-matchmaking
 description: A Helm chart for Kubernetes
 icon: https://avatars3.githubusercontent.com/u/61642798
 
@@ -11,4 +11,4 @@ version: 1.0.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 0.4.8
+appVersion: 0.4.13
