@@ -17,11 +17,13 @@
 import { FileLoader, BufferGeometry, DefaultLoadingManager, Float32BufferAttribute, Int16BufferAttribute, Int32BufferAttribute, Int8BufferAttribute, TrianglesDrawMode, TriangleStripDrawMode, Uint16BufferAttribute, Uint32BufferAttribute, Uint8BufferAttribute } from "three";
 
 let DRACO_DECODER
+let DRACO_ENCODER
 
 export const loadDRACODecoder = async () => {
   if (typeof DRACO_DECODER === 'undefined') {
     const { default: draco3dgltf } = await import('draco3dgltf');
     DRACO_DECODER = await draco3dgltf.createDecoderModule()
+    DRACO_ENCODER = await draco3dgltf.createEncoderModule()
   }
 }
 
@@ -43,6 +45,12 @@ export class NodeDRACOLoader {
     this.dispose = () => { }
   }
 
+  async getDecoderModule() {
+    return DRACO_DECODER
+  }
+  async getEncoderModule() {
+    return DRACO_ENCODER
+  }
 
   load(url, onLoad, onProgress, onError) {
     var scope = this;

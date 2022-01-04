@@ -6,7 +6,7 @@ import { useHistory, Redirect } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { Config } from '@xrengine/common/src/config'
 
-const ROOT_REDIRECT: any = `https://${globalThis.process.env['VITE_ROOT_REDIRECT']}`
+const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
 export const HomePage = (): any => {
   console.log('homepage')
@@ -18,7 +18,7 @@ export const HomePage = (): any => {
   //   }
   // }, [])
 
-  if (ROOT_REDIRECT !== false && ROOT_REDIRECT !== 'false') {
+  if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
     if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
     else window.location.href = ROOT_REDIRECT

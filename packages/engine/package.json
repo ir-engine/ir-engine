@@ -32,9 +32,9 @@
   },
   "version": "0.4.13",
   "dependencies": {
-    "@gltf-transform/core": "1.2.4",
-    "@gltf-transform/extensions": "1.2.4",
-    "@gltf-transform/functions": "1.2.4",
+    "@gltf-transform/core": "2.0.0-alpha.3",
+    "@gltf-transform/functions": "2.0.0-alpha.3",
+    "@gltf-transform/extensions": "2.0.0-alpha.3",
     "@hookstate/core": "3.0.13",
     "@mapbox/vector-tile": "^1.3.1",
     "@turf/turf": "^6.5.0",
@@ -65,7 +65,7 @@
     "troika-three-text": "^0.44.0",
     "ts-matches": "^5.1.0-1",
     "twitch-m3u8": "^1.1.4",
-    "vite": "2.7.8",
+    "vite": "2.6.14",
     "volumetric": "^0.3.5",
     "web-worker": "1.2.0",
     "yuka": "0.7.6"

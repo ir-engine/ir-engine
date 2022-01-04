@@ -100,7 +100,7 @@ const Layout = (props: Props): any => {
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
-    <>
+    <div style={{ pointerEvents: 'auto' }}>
       <FullScreen handle={handle} onChange={reportChange}>
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={props.theme ?? defaultTheme}>
@@ -153,7 +153,7 @@ const Layout = (props: Props): any => {
           </ThemeProvider>
         </StyledEngineProvider>
       </FullScreen>
-    </>
+    </div>
   )
 }
 

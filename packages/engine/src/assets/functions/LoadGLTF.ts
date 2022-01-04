@@ -1,7 +1,7 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
+import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
-import { instanceGLTF } from './transformGLTF'
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -13,7 +13,7 @@ export interface LoadGLTFResultInterface {
   stats: any
 }
 const loader = createGLTFLoader()
-export function getLoader(): any {
+export function getLoader(): GLTFLoader {
   return loader
 }
 
@@ -27,8 +27,8 @@ export function disposeDracoLoaderWorkers(): void {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
-  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
+export async function LoadGLTF(url: string): Promise<GLTF> {
+  return await new Promise<GLTF>((resolve, reject) => {
     getLoader().load(
       url,
       (gltf) => {
@@ -38,38 +38,9 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
         })
 
         loadExtentions(gltf)
-        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
+        resolve(gltf)
       },
-      null,
-      (e) => {
-        console.log(e)
-        reject(e)
-      }
-    )
-  })
-}
-
-/**
- * Loads an Instanced Asset which is in GLTF format and uses EXT_mesh_gpu_instancing extension.
- *
- * @param url URL of the asset.
- * @returns a promise of {@link LoadGLTFResultInterface}.
- */
-export async function LoadInstancedGLTF(url: string): Promise<LoadGLTFResultInterface> {
-  let buffer = await instanceGLTF(url)
-  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
-    getLoader().parse(
-      buffer,
-      null,
-      (gltf) => {
-        // TODO: Remove me when we add retargeting
-        gltf.scene.traverse((o) => {
-          o.name = o.name.replace('mixamorig', '')
-        })
-
-        loadExtentions(gltf)
-        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
-      },
+      null!,
       (e) => {
         console.log(e)
         reject(e)
