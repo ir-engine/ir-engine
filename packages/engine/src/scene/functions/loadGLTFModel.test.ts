@@ -44,7 +44,7 @@ describe('loadGLTFModel', () => {
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, SpawnPointComponent])
 
-    parseGLTFModel(entity, mockComponentData, { scene } as any)
+    parseGLTFModel(entity, mockComponentData, scene)
 
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)

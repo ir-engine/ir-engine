@@ -17,7 +17,13 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import { loadGLTFModel, loadNavmesh, overrideTexture, parseObjectComponentsFromGLTF } from '../loadGLTFModel'
+import {
+  loadGLTFModel,
+  loadNavmesh,
+  overrideTexture,
+  parseGLTFModel,
+  parseObjectComponentsFromGLTF
+} from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
 import { setObjectLayers } from '../setObjectLayers'
 
@@ -58,51 +64,7 @@ export const updateModel: ComponentUpdateFunction = async (entity: Entity): Prom
 
   if (!obj3d) obj3d = getComponent(entity, Object3DComponent).value
 
-  setObjectLayers(obj3d, ObjectLayers.Render, ObjectLayers.Scene)
-
-  // DIRTY HACK TO LOAD NAVMESH
-  if (component.src.match(/navmesh/)) {
-    loadNavmesh(entity, obj3d)
-  }
-
-  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-  if (obj3d.animations?.length) {
-    // We only have to update the mixer time for this animations on each frame
-    addComponent(entity, AnimationComponent, {
-      mixer: new AnimationMixer(obj3d),
-      animationSpeed: 1,
-      animations: obj3d.animations
-    })
-  }
-
-  const world = useWorld()
-
-  if (component.textureOverride) {
-    // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
-    // or add engine events for specific objects being added to the scene,
-    // the scene load event + delay 1 second delay works for now.
-    overrideTexture(entity, obj3d, world)
-  }
-
-  if (component.isDynamicObject) {
-    const node = world.entityTree.findNodeFromEid(entity)
-    if (node) {
-      dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.spawnObject({ prefab: '', parameters: { sceneEntityId: node.uuid } })
-      ).cache()
-    }
-  } else {
-    if (component.matrixAutoUpdate === false) {
-      obj3d.traverse((child) => {
-        child.updateMatrixWorld(true)
-        child.matrixAutoUpdate = false
-      })
-    }
-  }
-
-  parseObjectComponentsFromGLTF(entity, obj3d)
-
-  return
+  parseGLTFModel(entity, component, obj3d)
 }
 
 export const serializeModel: ComponentSerializeFunction = (entity) => {

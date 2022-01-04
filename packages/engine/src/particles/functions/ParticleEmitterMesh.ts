@@ -173,6 +173,7 @@ export class ParticleEmitterMesh extends Mesh {
 
   update(dt: number) {
     const geometry = (this as any).geometry as ParticleEmitterGeometry
+    if (!geometry.attributes.particlePosition) return
     const particlePosition = geometry.attributes.particlePosition.array as Float32Array
     const particleColor = geometry.attributes.particleColor.array as Float32Array
     const particleAngle = geometry.attributes.particleAngle.array as Float32Array

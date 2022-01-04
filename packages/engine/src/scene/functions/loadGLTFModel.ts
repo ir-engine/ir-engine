@@ -1,4 +1,4 @@
-import { BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
@@ -19,6 +19,11 @@ import { accessEngineState } from '../../ecs/classes/EngineService'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { setObjectLayers } from './setObjectLayers'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
 export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -164,6 +169,52 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
       overrideTexture(entity, object3d, world)
     })
   }
+}
+
+export const parseGLTFModel = (entity: Entity, props: any, obj3d: Object3D) => {
+  setObjectLayers(obj3d, ObjectLayers.Render, ObjectLayers.Scene)
+
+  // DIRTY HACK TO LOAD NAVMESH
+  if (props.src.match(/navmesh/)) {
+    loadNavmesh(entity, obj3d)
+  }
+
+  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
+  if (obj3d.animations?.length) {
+    // We only have to update the mixer time for this animations on each frame
+    addComponent(entity, AnimationComponent, {
+      mixer: new AnimationMixer(obj3d),
+      animationSpeed: 1,
+      animations: obj3d.animations
+    })
+  }
+
+  const world = useWorld()
+
+  if (props.textureOverride) {
+    // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
+    // or add engine events for specific objects being added to the scene,
+    // the scene load event + delay 1 second delay works for now.
+    overrideTexture(entity, obj3d, world)
+  }
+
+  if (props.isDynamicObject) {
+    const node = world.entityTree.findNodeFromEid(entity)
+    if (node) {
+      dispatchFrom(world.hostId, () =>
+        NetworkWorldAction.spawnObject({ prefab: '', parameters: { sceneEntityId: node.uuid } })
+      ).cache()
+    }
+  } else {
+    if (props.matrixAutoUpdate === false) {
+      obj3d.traverse((child) => {
+        child.updateMatrixWorld(true)
+        child.matrixAutoUpdate = false
+      })
+    }
+  }
+
+  parseObjectComponentsFromGLTF(entity, obj3d)
 }
 
 export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
