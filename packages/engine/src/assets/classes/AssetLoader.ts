@@ -3,12 +3,10 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
-import { instanceGLTF } from '../functions/transformGLTF'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+// import { instanceGLTF } from '../functions/transformGLTF'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
@@ -176,11 +174,12 @@ const load = async (
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 
-  if (params.instanced) {
-    ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
-  } else {
-    loader.load(url, callback, onProgress, onError)
-  }
+  // TODO: fix instancing for GLTFs
+  // if (params.instanced) {
+  //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
+  // } else {
+  loader.load(url, callback, onProgress, onError)
+  // }
 }
 
 export class AssetLoader {
