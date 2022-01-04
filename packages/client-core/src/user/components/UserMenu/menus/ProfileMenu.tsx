@@ -223,12 +223,9 @@ const ProfileMenu = (props: Props): any => {
   }
 
   const goToEthNFT = () => {
-    ;(window as any).userData = selfUser.id.value
     let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
     if (selfUser.id.value && token)
       window.open(`${Config.publicRuntimeConfig.ethMarketplace}?data=${selfUser.id.value}&token=${token}`, '_blank')
-    const customEvent = new CustomEvent('message', { detail: { asd: token } })
-    document.dispatchEvent(customEvent)
   }
   const enableSocial =
     authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
