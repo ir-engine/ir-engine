@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useRef, useState } from 'react'
 import Projects from '@xrengine/editor/src/pages/projects'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import EditorContainer from '../components/EditorContainer'
@@ -9,14 +9,30 @@ import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import * as styles from '../components/viewport/Viewport.module.scss'
+import { SceneManager } from '../managers/SceneManager'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+const engineRendererCanvasId = 'engine-renderer-canvas'
+
+const canvasStyle = {
+  zIndex: -1,
+  width: '100%',
+  height: '100%',
+  position: 'fixed',
+  WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
+  userSelect: 'none'
+} as React.CSSProperties
+
+const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 const EditorProtectedRoutes = () => {
   const [engineIsInitialized, setEngineInitialized] = useState(false)
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
-  const dispatch = useDispatch()
-
   const editorState = useEditorState()
 
   const initializationOptions: InitializeOptions = {
@@ -71,6 +87,8 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     AuthService.doLoginAuto(false)
     initializeEngine(initializationOptions).then(() => {
+      new EngineRenderer({ canvas: document.querySelector('canvas')!, enabled: true })
+      Engine.engineTimer.start()
       console.log('Setting engine inited')
       setEngineInitialized(true)
     })
@@ -89,17 +107,9 @@ const EditorProtectedRoutes = () => {
     </>
   )
 
-  // const projectReroute = (props) => {
-  //   if (props?.match?.params?.projectName) dispatch(EditorAction.projectLoaded(props?.match?.params?.projectName))
-  //   if (props?.match?.params?.sceneName) dispatch(EditorAction.sceneLoaded(props?.match?.params?.sceneName))
-  //   useEffect(() => {
-  //     props.history.push('/editor')
-  //   }, [])
-  //   return <></>
-  // }
-
   return (
-    <>
+    <div>
+      {canvas}
       <Suspense fallback={React.Fragment}>
         <Switch>
           <Route path="/editor/:projectName/:sceneName" component={editorRoute} />
@@ -107,7 +117,7 @@ const EditorProtectedRoutes = () => {
           <Route path="/editor" component={editorRoute} />
         </Switch>
       </Suspense>
-    </>
+    </div>
   )
 }
 

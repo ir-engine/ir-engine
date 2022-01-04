@@ -98,6 +98,8 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   const target = getComponent(entity, TargetCameraRotationComponent)
   const epsilon = 0.001
 
+  target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
+
   if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
     removeComponent(entity, TargetCameraRotationComponent)
     return
@@ -109,9 +111,9 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 
 const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
-  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
-    return camRayCastCache
-  }
+  // if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
+  //   return camRayCastCache
+  // }
 
   camRayCastClock.start()
 
@@ -122,6 +124,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
+  // followCamera.raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
@@ -184,7 +187,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Limit the pitch
-  followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+  followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
 
   calculateCameraTarget(entity, tempVec)
 
@@ -208,7 +211,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.06 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,

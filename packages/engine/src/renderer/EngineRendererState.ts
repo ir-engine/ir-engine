@@ -23,7 +23,7 @@ function setUseAutomatic(s: StateType, automatic: boolean) {
 }
 
 function setQualityLevel(s: StateType, qualityLevel) {
-  EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
+  EngineRenderer.instance.scaleFactor = Math.round(qualityLevel / EngineRenderer.instance.maxQualityLevel) ?? 1
   Engine.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
   EngineRenderer.instance.needsResize = true
   ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, EngineRenderer.instance.scaleFactor)

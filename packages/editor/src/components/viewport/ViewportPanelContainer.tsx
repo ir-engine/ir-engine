@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useState as useHookstate } from '@hookstate/core'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
@@ -12,6 +13,7 @@ import { SceneManager } from '../../managers/SceneManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import { accessEditorState, useEditorState } from '../../services/EditorServices'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -20,10 +22,10 @@ import { FlyControlComponent } from '../../classes/FlyControlComponent'
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const canvasRef = useRef<HTMLCanvasElement>()
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
+  const sceneLoaded = useHookstate(accessEditorState().sceneName)
   // const [showStats, setShowStats] = useState(false);
   const { t } = useTranslation()
 
@@ -48,7 +50,7 @@ export function ViewportPanelContainer() {
   }, [])
 
   useEffect(() => {
-    const initRenderer = () => SceneManager.instance.initializeRenderer(canvasRef.current)
+    const initRenderer = () => SceneManager.instance.initializeRenderer()
 
     CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
@@ -138,12 +140,13 @@ export function ViewportPanelContainer() {
       className={styles.viewportContainer}
       style={{
         borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
-        backgroundColor: 'grey'
+        backgroundColor: sceneLoaded.value ? undefined! : 'grey'
       }}
       ref={dropRef}
     >
-      <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      <canvas className={styles.viewportCanvas} ref={canvasRef} tabIndex={-1} id="viewport-canvas" />
+      {!sceneLoaded.value && (
+        <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      )}
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>

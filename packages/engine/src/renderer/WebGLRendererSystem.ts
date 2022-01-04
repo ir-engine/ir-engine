@@ -80,7 +80,7 @@ export class EngineRenderer {
   /** Maximum Quality level of the rendered. **Default** value is 5. */
   maxQualityLevel = 5
   /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 40 // 40 fps = 25 ms
+  maxRenderDelta = 1000 / 28 // 28 fps = 35 ms  (on some devices, rAF updates at 30fps, e.g., Low Power Mode)
   /** point at which we upgrade quality level (small delta) */
   minRenderDelta = 1000 / 55 // 55 fps = 18 ms
   /** Resoulion scale. **Default** value is 1. */
@@ -188,7 +188,6 @@ export class EngineRenderer {
       const state = accessEngineRendererState()
       const engineState = accessEngineState()
       if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
-
       if (this.rendereringEnabled) {
         if (this.needsResize) {
           const curPixelRatio = Engine.renderer.getPixelRatio()
@@ -284,3 +283,5 @@ export default async function WebGLRendererSystem(world: World, props: EngineRen
     if (props.enabled) EngineRenderer.instance.execute(world.delta)
   }
 }
+
+globalThis.EngineRenderer = EngineRenderer

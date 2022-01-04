@@ -22,6 +22,7 @@ import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
+import { EngineRenderer } from './renderer/WebGLRendererSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -70,9 +71,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   }
 
   globalThis.botHooks = BotHookFunctions
-  globalThis.Engine = Engine
-  globalThis.EngineEvents = EngineEvents
-  globalThis.Network = Network
 
   await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
@@ -294,10 +292,12 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
+  // temporary, will be fixed with editor engine integration
   Engine.engineTimer = Timer(executeWorlds)
 
-  // Engine type specific post configuration work
-  Engine.engineTimer.start()
+  if (options.type !== EngineSystemPresets.EDITOR) {
+    Engine.engineTimer.start()
+  }
 
   if (options.type === EngineSystemPresets.CLIENT) {
     receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
@@ -311,6 +311,10 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
   }
+
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
 
   // Mark engine initialized
   Engine.isInitialized = true

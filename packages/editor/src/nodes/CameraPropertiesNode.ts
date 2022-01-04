@@ -35,8 +35,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     node.cameraModeDefault = cameraModeDefault ?? CameraMode.ThirdPerson
     node.startInFreeLook = startInFreeLook ?? false
     node.startCameraDistance = startCameraDistance ?? 5
-    node.minPhi = minPhi ?? 0
-    node.maxPhi = maxPhi ?? 90
+    node.minPhi = minPhi ?? -70
+    node.maxPhi = maxPhi ?? 85
     node.startPhi = startPhi ?? 10
     return node
   }
@@ -61,8 +61,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
         cameraMode: this.cameraMode ?? CameraMode.Dynamic,
         cameraModeDefault: this.cameraModeDefault ?? CameraMode.ThirdPerson,
         startInFreeLook: this.startInFreeLook ?? false,
-        minPhi: this.minPhi ?? 0,
-        maxPhi: this.maxPhi ?? 90,
+        minPhi: this.minPhi ?? -70,
+        maxPhi: this.maxPhi ?? 85,
         startPhi: this.startPhi ?? 10
       }
     } as any

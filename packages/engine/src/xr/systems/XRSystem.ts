@@ -13,7 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { initializeXRInputs } from '../functions/addControllerModels'
+import { initializeXRInputs, cleanXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -33,7 +33,6 @@ const startXRSession = async () => {
     Engine.xrManager.getCamera().layers.enableAll()
 
     Engine.xrManager.addEventListener('sessionend', async () => {
-      endXR()
       dispatchLocal(EngineActions.xrEnd() as any)
     })
 
@@ -66,6 +65,12 @@ export default async function XRSystem(world: World): Promise<System> {
     switch (action.type) {
       case EngineEvents.EVENTS.XR_START:
         startXRSession()
+        break
+      case EngineEvents.EVENTS.XR_END:
+        for (const entity of localXRControllerQuery()) {
+          cleanXRInputs(entity)
+        }
+        endXR()
         break
     }
   })

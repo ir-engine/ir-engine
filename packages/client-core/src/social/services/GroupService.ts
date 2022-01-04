@@ -267,7 +267,6 @@ export const GroupService = {
       dispatch(GroupAction.fetchingInvitableGroups())
       const groupActionState = accessGroupState().value
       try {
-        await waitForClientAuthenticated()
         const groupResults = await client.service('group').find({
           query: {
             invitable: true,
