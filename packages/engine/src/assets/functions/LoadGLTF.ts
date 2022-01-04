@@ -1,6 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
-import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 
 /**
@@ -27,8 +27,8 @@ export function disposeDracoLoaderWorkers(): void {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
-  return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
+export async function LoadGLTF(url: string): Promise<GLTF> {
+  return await new Promise<GLTF>((resolve, reject) => {
     getLoader().load(
       url,
       (gltf) => {
@@ -38,7 +38,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
         })
 
         loadExtentions(gltf)
-        resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
+        resolve(gltf)
       },
       null!,
       (e) => {

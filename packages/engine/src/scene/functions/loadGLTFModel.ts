@@ -20,8 +20,8 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { EngineActionType } from '../../ecs/classes/EngineService'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 
 export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   const components: { [key: string]: any } = {}
@@ -63,7 +63,7 @@ export const createObjectEntityFromGLTF = (e: Entity, mesh: Mesh) => {
   }
 }
 
-export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene) => {
+export const parseObjectComponentsFromGLTF = (entity: Entity, res: Scene) => {
   const meshesToProcess: Mesh[] = []
 
   res.traverse((mesh: Mesh) => {
@@ -73,10 +73,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, res as Mesh)
+    createObjectEntityFromGLTF(entity, res as any as Mesh)
   } else {
     for (const mesh of meshesToProcess) {
-      if (mesh === res) {
+      if (mesh === (res as any as Mesh)) {
         createObjectEntityFromGLTF(entity, mesh)
       } else {
         const e = createEntity()
@@ -103,8 +103,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, res: Mesh | Scene)
   }
 }
 
-export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, scene: Mesh | Scene) => {
+export const parseGLTFModel = (entity: Entity, component: SceneDataComponent, gltf: GLTF) => {
   // console.log('parseGLTFModel', entity, component, scene)
+  const { scene, animations } = gltf
+  scene.animations = animations
 
   const world = useWorld()
   setObjectLayers(scene, ObjectLayers.Render, ObjectLayers.Scene)
@@ -221,7 +223,7 @@ export const loadGLTFModel = (entity: Entity, component: SceneDataComponent) => 
         instanced: component.data.isUsingGPUInstancing
       },
       (res) => {
-        parseGLTFModel(entity, component, res.scene)
+        parseGLTFModel(entity, component, res)
         resolve()
       },
       null!,
