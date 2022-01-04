@@ -134,9 +134,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
   // Bot
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
 
-  // Maps
-  registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
-
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSystem'))

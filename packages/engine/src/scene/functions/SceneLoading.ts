@@ -20,7 +20,6 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
-import { createMap } from '../functions/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../functions/createMedia'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -182,10 +181,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       } else {
         createMediaServer(entity, component.props)
       }
-      break
-
-    case 'map':
-      if (isClient) registerSceneLoadPromise(createMap(entity, component.props))
       break
 
     case 'audio':
