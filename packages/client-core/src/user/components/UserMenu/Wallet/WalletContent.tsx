@@ -73,11 +73,13 @@ const amountValidation = /^\d*\.?(\d{1,2})?$/
 const WalletContent = ({
   data,
   user,
+  ids,
   getreceiverid,
   coinlimit,
   sendamtsender,
   sendamtreceiver,
   sendamtwallet,
+  dataReceive,
   changeActiveMenu
 }: any) => {
   const history = useHistory()
@@ -110,9 +112,19 @@ const WalletContent = ({
   }
 
   const handleSubmit = (e) => {
-    sendamtsender(sendData.userid, sendData.amount)
-    sendamtreceiver(sendData.userid, sendData.amount)
-    // sendamtwallet(sendData.amount)
+    sendamtsender(
+      sendData.userid,
+      sendData.amount,
+      data[0].user_inventory.userInventoryId,
+      data[0].user_inventory.quantity,
+      ids
+    )
+    sendamtreceiver(
+      sendData.userid,
+      sendData.amount,
+      dataReceive[0].user_inventory.userInventoryId,
+      dataReceive[0].user_inventory.quantity
+    )
   }
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>

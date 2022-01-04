@@ -1,5 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AnimationMixer, Object3D } from 'three'
+import { AnimationMixer, Mesh, Object3D } from 'three'
+import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import {
   ComponentDeserializeFunction,
@@ -42,13 +43,16 @@ export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, c
 export const updateModel: ComponentUpdateFunction = async (entity: Entity): Promise<void> => {
   const component = getComponent(entity, ModelComponent)
 
-  let obj3d
+  // TODO: refactor this
+  let gltf
   if (component.curScr !== component.src) {
-    obj3d = await loadGLTFModel(entity).catch<Error>((error) => {
+    gltf = await loadGLTFModel(entity).catch<Error>((error) => {
       return error
     })
-    if (obj3d instanceof Error) return
+    if (gltf instanceof Error) return
   }
+
+  let obj3d = (gltf as GLTF).scene
 
   component.curScr = component.src
 

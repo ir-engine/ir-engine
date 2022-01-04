@@ -1,5 +1,6 @@
 import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import {
   TransformAxis,
   TransformAxisType,
@@ -21,7 +22,7 @@ type AxisInfo = {
 }
 type MeshWithAxisInfo = Mesh & { axisInfo: AxisInfo }
 
-let gizmoGltf: { scene: any; json: any; stats: any } = null!
+let gizmoGltf: GLTF = null!
 const GLTF_PATH = '/static/editor/TransformGizmo.glb' // STATIC
 export default class TransformGizmo extends Object3D {
   model: Object3D

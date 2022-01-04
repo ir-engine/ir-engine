@@ -18,6 +18,7 @@ import { VIDEO_MESH_NAME } from '../classes/Video'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 
 export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -165,16 +166,18 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
   }
 }
 
-export const loadGLTFModel = (entity: Entity): Promise<Object3D | undefined> => {
+export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
   const modelComponent = getComponent(entity, ModelComponent)
 
-  return new Promise<Object3D | undefined>((resolve, reject) => {
+  return new Promise<GLTF | undefined>((resolve, reject) => {
     AssetLoader.load(
-      { url: modelComponent.src, entity },
+      { url: modelComponent.src, entity, instanced: modelComponent.isUsingGPUInstancing },
       (res) => {
         if (res.scene instanceof Object3D) {
-          addComponent(entity, ReplaceObject3DComponent, { replacement: res.scene })
-          resolve(res.scene)
+          // TODO: refactor this
+          addComponent(entity, ReplaceObject3DComponent, { replacement: res })
+          res.scene.animations = res.animation
+          resolve(res)
         } else {
           reject()
         }
@@ -183,8 +186,7 @@ export const loadGLTFModel = (entity: Entity): Promise<Object3D | undefined> => 
       (err) => {
         modelComponent.error = err.message
         reject(err)
-      },
-      modelComponent.isUsingGPUInstancing
+      }
     )
   })
 }
