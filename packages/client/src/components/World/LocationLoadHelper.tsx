@@ -1,6 +1,5 @@
 import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { client } from '@xrengine/client-core/src/feathers'
-import { Config } from '@xrengine/common/src/config'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
@@ -27,7 +26,7 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
     authState.user?.id?.value != null &&
     authState.user?.id?.value.length > 0
   ) {
-    if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
+    if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
       LocationService.getLobby()
         .then((lobby) => {
           history.replace('/location/' + lobby.slugifiedName)
