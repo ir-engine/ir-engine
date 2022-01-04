@@ -8,9 +8,6 @@ import ListItemText from '@mui/material/ListItemText'
 import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
 import ListSubheader from '@mui/material/ListSubheader'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import Collapse from '@mui/material/Collapse'
 import { useAuthState } from '../../services/AuthService'
 import { SidebarItems, SocialSidebarItems } from './DashboardItems'
 
@@ -52,69 +49,28 @@ const DashboardMenuItem = (props: Props) => {
   })
 
   const classes = useStylesForDashboard()
-  const [openSetting, setOpenSetting] = React.useState(false)
-  const [openAvatars, setOpenAvatars] = React.useState(false)
-  const [openUser, setOpenUser] = React.useState(false)
-  const [openLocation, setOpenLocation] = React.useState(false)
 
   return (
     <>
       <Divider />
       <List>
-        {SidebarItems(
-          allowedRoutes,
-          openLocation,
-          openUser,
-          openAvatars,
-          openSetting,
-          setOpenLocation,
-          setOpenUser,
-          setOpenAvatars,
-          setOpenSetting
-        ).map((sidebarItem, index) => {
-          return sidebarItem.title ? (
-            sidebarItem.items.filter(Boolean).length > 0 ? (
-              <div key={index}>
-                <Link to={sidebarItem.items.filter(Boolean)[0].path} className={classes.textLink}>
-                  <ListItem style={{ color: 'white' }} button onClick={() => sidebarItem.click()}>
-                    <ListItemIcon>{sidebarItem.items[0].icon}</ListItemIcon>
-                    <ListItemText primary={sidebarItem.title} />
-                    {sidebarItem.open ? <ExpandLess /> : <ExpandMore />}
-                  </ListItem>
-                </Link>
-                <Collapse in={sidebarItem.open} timeout="auto" unmountOnExit>
-                  {sidebarItem.items.filter(Boolean).map((item, key) => {
-                    return (
-                      <Link key={key} to={item.path} className={classes.textLink}>
-                        <ListItem
-                          classes={{ selected: classes.selected }}
-                          style={{ color: 'white' }}
-                          selected={item.path === pathname}
-                          button
-                        >
-                          <ListItemIcon>{item.icon}</ListItemIcon>
-                          <ListItemText primary={t(item.name)} />
-                        </ListItem>
-                      </Link>
-                    )
-                  })}
-                </Collapse>
-              </div>
-            ) : null
-          ) : sidebarItem.items.filter(Boolean).length > 0 ? (
-            <Link key={index} to={sidebarItem.items[0].path} className={classes.textLink}>
-              <ListItem
-                classes={{ selected: classes.selected }}
-                style={{ color: 'white' }}
-                selected={sidebarItem.items[0].path === pathname}
-                button
-              >
-                <ListItemIcon>{sidebarItem.items[0].icon}</ListItemIcon>
-                <ListItemText primary={t(sidebarItem.items[0].name)} />
-              </ListItem>
-            </Link>
-          ) : null
-        })}
+        {SidebarItems(allowedRoutes)
+          .filter(Boolean)
+          .map((sidebarItem, index) => {
+            return (
+              <Link key={index} to={sidebarItem.path} className={classes.textLink}>
+                <ListItem
+                  classes={{ selected: classes.selected }}
+                  style={{ color: 'white' }}
+                  selected={sidebarItem.path === pathname}
+                  button
+                >
+                  <ListItemIcon>{sidebarItem.icon}</ListItemIcon>
+                  <ListItemText primary={t(sidebarItem.name)} />
+                </ListItem>
+              </Link>
+            )
+          })}
         {/* {Add the below to SidebarItems.tsx file when you need to enable them} */}
         {/* <Link to="/admin/sessions" className={classes.textLink}>
           <ListItem style={{ color: 'white' }} button>
