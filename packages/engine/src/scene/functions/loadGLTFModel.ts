@@ -13,7 +13,7 @@ import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { NameComponent } from '../components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { ModelComponent } from '../components/ModelComponent'
+import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { VIDEO_MESH_NAME } from '../classes/Video'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
@@ -171,7 +171,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
   }
 }
 
-export const parseGLTFModel = (entity: Entity, props: any, obj3d: Object3D) => {
+export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
   setObjectLayers(obj3d, ObjectLayers.Render, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH

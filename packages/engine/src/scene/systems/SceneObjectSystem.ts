@@ -105,7 +105,6 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
 
       if (!obj3d || !replacementObj) continue
-
       ;(replacementObj as any).entity = entity
       replacementObj.parent = obj3d.value.parent
 
