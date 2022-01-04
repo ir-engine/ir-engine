@@ -58,7 +58,7 @@ export default class TransformGizmo extends Object3D {
 
   static async load() {
     if (gizmoGltf) return Promise.resolve(gizmoGltf)
-    gizmoGltf = await LoadGLTF(GLTF_PATH)
+    gizmoGltf = (await LoadGLTF(GLTF_PATH)).scene
     return gizmoGltf
   }
 
