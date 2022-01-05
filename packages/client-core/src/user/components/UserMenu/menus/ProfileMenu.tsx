@@ -11,7 +11,7 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
 import { getAvatarURLForUser, Views } from '../util'
-import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
@@ -22,6 +22,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Snackbar from '@mui/material/Snackbar'
 import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import appconfig from '@xrengine/server-core/src/appconfig'
 
 interface Props {
   changeActiveMenu?: any
@@ -78,7 +79,7 @@ const ProfileMenu = (props: Props): any => {
 
   const loadCredentialHandler = async () => {
     try {
-      const mediator = `${Config.publicRuntimeConfig.mediatorServer}/mediator?origin=${encodeURIComponent(
+      const mediator = `${globalThis.process.env['VITE_MEDIATOR_SERVER']}/mediator?origin=${encodeURIComponent(
         window.location.origin
       )}`
 
@@ -221,6 +222,14 @@ const ProfileMenu = (props: Props): any => {
     }
   }
 
+  const goToEthNFT = () => {
+    let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
+    if (selfUser.id.value && token)
+      window.open(
+        `${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${selfUser.id.value}&token=${token}`,
+        '_blank'
+      )
+  }
   const enableSocial =
     authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
 
@@ -312,6 +321,9 @@ const ProfileMenu = (props: Props): any => {
                 </button>
                 <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
                   My Wallet
+                </button>
+                <button onClick={() => goToEthNFT()} className={styles.walletBtn}>
+                  Open ETH NFT Marketplace
                 </button>
               </>
             )}

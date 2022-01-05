@@ -9,7 +9,6 @@ const serverHost =
         (globalThis as any).process.env['VITE_SERVER_PORT']
       }`
     : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
-console.log('serverHost', serverHost)
 
 const socket = io(serverHost, {
   withCredentials: true

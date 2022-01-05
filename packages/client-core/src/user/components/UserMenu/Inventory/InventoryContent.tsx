@@ -81,7 +81,16 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type, changeActiveMenu }: any) => {
+const InventoryContent = ({
+  coinData,
+  data,
+  user,
+  id,
+  InventoryService,
+  isLoadingtransfer,
+  type,
+  changeActiveMenu
+}: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -352,7 +361,7 @@ const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtrans
                   <Button
                     variant="outlined"
                     disabled={isLoadingtransfer}
-                    onClick={() => handleTransfer(userid, selectedid)}
+                    onClick={() => InventoryService.handleTransfer(userid, selectedid, id)}
                   >
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Transfer'}
                   </Button>

@@ -4,6 +4,21 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Debug Engine Tests",
+            "cwd": "${workspaceFolder}/packages/engine",
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "--config",
+                "${workspaceFolder}/packages/engine/.mocharc.js",
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Debug e2e Tests",
             "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
             "args": [

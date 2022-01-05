@@ -3,7 +3,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { accessAuthState } from '../../user/services/AuthService'
-import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
@@ -168,7 +167,7 @@ export const ChannelConnectionService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance-provision').on('created', (params) => {
     if (params.channelId != null) {
       const dispatch = useDispatch()

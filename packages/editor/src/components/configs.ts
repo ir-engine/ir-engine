@@ -1,5 +1,3 @@
-import { Config } from '@xrengine/common/src/config'
-
 /**
  * Read configs from meta tags if available, otherwise use the process.env injected from build.
  *
