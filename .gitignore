@@ -162,3 +162,5 @@ certs/
 /packages/client/public/projects/*
 /packages/projects/projects/*
 
+# Visual Studio Code settings
+.vscode
