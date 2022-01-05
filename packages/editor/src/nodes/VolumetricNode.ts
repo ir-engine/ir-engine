@@ -83,7 +83,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   isUVOLPlay: boolean
 
   constructor() {
-    super(SceneManager.instance.audioListener)
+    super(Engine.audioListener)
     this._autoPlay = true
     this.volume = 0.5
     this.controls = true

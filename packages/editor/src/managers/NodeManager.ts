@@ -32,12 +32,10 @@ import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeE
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import AudioNode from '../nodes/AudioNode'
 import BoxColliderNode from '../nodes/BoxColliderNode'
 import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import ImageNode from '../nodes/ImageNode'
 import InteriorNode from '../nodes/InteriorNode'
 import LinkNode from '../nodes/LinkNode'
 import MapNode from '../nodes/MapNode'
@@ -52,7 +50,6 @@ import SceneNode from '../nodes/SceneNode'
 import SplineNode from '../nodes/SplineNode'
 import SystemNode from '../nodes/SystemNode'
 import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
-import VideoNode from '../nodes/VideoNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
@@ -80,6 +77,9 @@ import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/fu
 import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { SCENE_COMPONENT_TRIGGER_VOLUME } from '@xrengine/engine/src/scene/functions/loaders/TriggerVolumeFunctions'
 import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
+import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
+import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -124,12 +124,10 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(AudioNode, AudioNodeEditor)
   NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
   // NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
-  NodeManager.instance.registerNode(ImageNode, ImageNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
   // NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
   NodeManager.instance.registerNode(MapNode, MapNodeEditor)
@@ -143,7 +141,6 @@ export const registerPredefinedNodes = () => {
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
   // NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
-  NodeManager.instance.registerNode(VideoNode, VideoNodeEditor)
   NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
   NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
@@ -182,7 +179,10 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
   [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
   [SCENE_COMPONENT_SKYBOX]: SkyboxNodeEditor,
-  [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor
+  [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor,
+  [SCENE_COMPONENT_IMAGE]: ImageNodeEditor,
+  [SCENE_COMPONENT_AUDIO]: AudioNodeEditor,
+  [SCENE_COMPONENT_VIDEO]: VideoNodeEditor
 }
 
 export const prefabIcons = {
@@ -203,5 +203,8 @@ export const prefabIcons = {
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
-  [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent
+  [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
+  [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
+  [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
+  [ScenePrefabs.video]: VideoNodeEditor.iconComponent
 }

@@ -1,12 +1,12 @@
 import AudioSource from '@xrengine/engine/src/scene/classes/AudioSource'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
-import { resolveMedia } from '../functions/resolveMedia'
+import { resolveMedia } from '@xrengine/engine/src/common/functions/resolveMedia'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import EditorNodeMixin from './EditorNodeMixin'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 let audioHelperTexture = null
 
@@ -46,7 +46,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   controls: boolean = true
   helper: Mesh
   constructor() {
-    super(SceneManager.instance.audioListener)
+    super(Engine.audioListener)
     const geometry = new PlaneBufferGeometry()
     const material = new MeshBasicMaterial()
     material.map = audioHelperTexture

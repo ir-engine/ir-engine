@@ -1,4 +1,5 @@
 import { Color, DirectionalLight } from 'three'
+import { AudioComponent } from '../../audio/components/AudioComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
@@ -12,8 +13,10 @@ import { RenderSettingComponent } from '../components/RenderSettingComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
+import { VideoComponent } from '../components/VideoComponent'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
+import { EntityVideoElements } from '../functions/loaders/VideoFunctions'
 
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
@@ -24,6 +27,8 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
   const renderSettingQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
+  const videoQuery = defineQuery([VideoComponent])
+  const videoAudioQuery = defineQuery([VideoComponent, AudioComponent])
 
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
@@ -79,6 +84,18 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
     for (const _ of scenePreviewCameraQuery.exit()) {
       const obj3d = Engine.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
       if (obj3d) Engine.scene.remove(obj3d)
+    }
+
+    for (const entity of videoQuery.exit()) {
+      const elementId = EntityVideoElements[entity]
+      if (elementId) document.getElementById(elementId)?.remove()
+      delete EntityVideoElements[entity]
+    }
+
+    /* Misc */
+    for (const entity of videoAudioQuery.enter()) {
+      const obj3d = getComponent(entity, Object3DComponent).value
+      obj3d.userData.textureMesh.visible = false
     }
   }
 }

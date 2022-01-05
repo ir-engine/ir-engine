@@ -16,7 +16,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import AudioSourceProperties from './AudioSourceProperties'
 import { ControlledStringInput } from '../inputs/StringInput'
 import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
-import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/ImageUtils'
 
 /**
  * Declaring properties for ModalNodeEditor component.

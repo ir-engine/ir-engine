@@ -7,6 +7,6 @@ import { guessContentType } from './guessContentType'
  * @param  {any}  contentUrl
  * @return {Promise}
  */
-export const getContentType = async (contentUrl): Promise<any> => {
+export const getContentType = async (contentUrl: string): Promise<string | null> => {
   return guessContentType(contentUrl) || (await fetchContentType(contentUrl))
 }

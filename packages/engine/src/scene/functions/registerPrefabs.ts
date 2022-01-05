@@ -59,6 +59,10 @@ import {
   SCENE_COMPONENT_BOX_COLLIDER,
   SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
 } from './loaders/BoxColliderFunctions'
+import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
+import { SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './loaders/AudioFunctions'
+import { SCENE_COMPONENT_VIDEO, SCENE_COMPONENT_VIDEO_DEFAULT_VALUES } from './loaders/VideoFunctions'
+import { SCENE_COMPONENT_MEDIA, SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from './loaders/MediaFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -79,7 +83,10 @@ export const ScenePrefabs = {
   previewCamera: 'Preview Camera' as const,
   skybox: 'Skybox' as const,
   spawnPoint: 'Spawn Point' as const,
-  group: 'Group' as const
+  group: 'Group' as const,
+  image: 'Image' as const,
+  audio: 'Audio' as const,
+  video: 'Video' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -191,5 +198,25 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_BOX_COLLIDER, props: SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.image, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_IMAGE, props: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.audio, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.video, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_VIDEO, props: SCENE_COMPONENT_VIDEO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_IMAGE, props: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES }
   ])
 }

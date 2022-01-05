@@ -1,4 +1,3 @@
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useCallback } from 'react'
@@ -28,4 +27,11 @@ export function useSetPropertyOnSelectedEntities(component: ComponentConstructor
       }),
     [component, propName]
   )
+}
+
+export const updateProperty = (component: ComponentConstructor<any, any>, propName: string, value: any) => {
+  CommandManager.instance.setPropertyOnSelectionEntities({
+    component,
+    properties: { [propName]: value }
+  })
 }

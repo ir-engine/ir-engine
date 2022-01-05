@@ -29,7 +29,7 @@ export default class WaterNode extends EditorNodeMixin(Water) {
 
   constructor() {
     super()
-    this.disableOutline = true
+    this.userData.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false
     this.add(this.helper)

@@ -165,32 +165,8 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
       if (component.props.interactable) addComponent(entity, InteractableComponent, component.props)
       break
 
-    case 'image':
-      addObject3DComponent(entity, new Image(), component.props)
-      break
-
-    case 'video':
-      // if livestream, server will send the video info to the client
-      if (isClient) {
-        // if(!component.props.isLivestream) {
-        createVideo(entity, component.props)
-        // }
-        // addComponent(entity, LivestreamComponent)
-        // } else if(component.props.isLivestream) {
-        // @todo
-        // addComponent(entity, LivestreamProxyComponent, { src: component.props.src })
-      } else {
-        createMediaServer(entity, component.props)
-      }
-      break
-
     case 'map':
       if (isClient) registerSceneLoadPromise(createMap(entity, component.props))
-      break
-
-    case 'audio':
-      if (isClient) createAudio(entity, component.props)
-      else createMediaServer(entity, component.props)
       break
 
     case 'volumetric':

@@ -73,7 +73,6 @@ export class SceneManager {
 
   isInitialized: boolean = false
   sceneModified: boolean
-  audioListener: AudioListener
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
   raycastTargets: Intersection<Object3D>[] = []
@@ -92,9 +91,6 @@ export class SceneManager {
 
     this.isInitialized = false
     this.raycaster = new Raycaster()
-
-    this.audioListener = new AudioListener()
-    Engine.camera.add(this.audioListener)
 
     this.centerScreenSpace = new Vector2()
 

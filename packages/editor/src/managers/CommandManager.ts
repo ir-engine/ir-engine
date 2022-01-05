@@ -1,6 +1,5 @@
 import EventEmitter from 'events'
-import { fetchContentType } from '@xrengine/common/src/utils/fetchContentType'
-import { guessContentType } from '@xrengine/common/src/utils/guessContentType'
+import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import History from '../classes/History'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -26,8 +25,6 @@ import ImageNode from '../nodes/ImageNode'
 import VolumetricNode from '../nodes/VolumetricNode'
 import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../nodes/SceneNode'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
@@ -267,7 +264,7 @@ export class CommandManager extends EventEmitter {
     const { hostname } = new URL(url)
 
     try {
-      contentType = (await guessContentType(url)) || (await fetchContentType(url)) || ''
+      contentType = (await getContentType(url)) || ''
     } catch (error) {
       console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
     }

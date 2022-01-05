@@ -6,7 +6,7 @@ import { SceneManager } from '../managers/SceneManager'
 import axios from 'axios'
 import OAuth from 'oauth-1.0a'
 import CryptoJS from 'crypto-js'
-import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/ImageUtils'
 
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'

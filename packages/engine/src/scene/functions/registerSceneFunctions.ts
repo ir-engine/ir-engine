@@ -136,6 +136,28 @@ import {
   serializeBoxCollider,
   updateBoxCollider
 } from './loaders/BoxColliderFunctions'
+import {
+  deserializeImage,
+  prepareImageForGLTFExport,
+  SCENE_COMPONENT_IMAGE,
+  serializeImage,
+  updateImage
+} from './loaders/ImageFunctions'
+import {
+  deserializeAudio,
+  prepareAudioForGLTFExport,
+  SCENE_COMPONENT_AUDIO,
+  serializeAudio,
+  updateAudio
+} from './loaders/AudioFunctions'
+import {
+  deserializeVideo,
+  prepareVideoForGLTFExport,
+  SCENE_COMPONENT_VIDEO,
+  serializeVideo,
+  updateVideo
+} from './loaders/VideoFunctions'
+import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -331,5 +353,32 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeBoxCollider,
     serialize: serializeBoxCollider,
     update: updateBoxCollider
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
+    deserialize: deserializeImage,
+    serialize: serializeImage,
+    update: updateImage,
+    prepareForGLTFExport: prepareImageForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
+    deserialize: deserializeAudio,
+    serialize: serializeAudio,
+    update: updateAudio,
+    prepareForGLTFExport: prepareAudioForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
+    deserialize: deserializeVideo,
+    serialize: serializeVideo,
+    update: updateVideo,
+    prepareForGLTFExport: prepareVideoForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
+    deserialize: deserializeMedia,
+    serialize: serializeMedia,
+    update: updateMedia
   })
 }

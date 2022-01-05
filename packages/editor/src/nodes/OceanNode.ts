@@ -71,7 +71,7 @@ export default class OceanNode extends EditorNodeMixin(Ocean) {
 
   constructor() {
     super()
-    this.disableOutline = true
+    this.userData.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false
     this.add(this.helper)

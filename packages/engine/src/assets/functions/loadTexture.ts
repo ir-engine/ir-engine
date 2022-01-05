@@ -1,9 +1,11 @@
-import { TextureLoader } from 'three'
+import { Texture, TextureLoader } from 'three'
 import { isClient } from '../../common/functions/isClient'
 
-export default function loadTexture(src, textureLoader: any = new TextureLoader()) {
-  return new Promise((resolve, reject) => {
+export default function loadTexture(src, textureLoader = new TextureLoader()) {
+  return new Promise<Texture | null>((resolve, reject) => {
     if (!isClient) resolve(null)
-    textureLoader.load(src, resolve, null, (error) => reject(new Error(`Error loading texture "${src}"`)))
+    textureLoader.load(src, resolve, undefined, (_) => {
+      reject(new Error(`Error loading texture "${src}"`))
+    })
   })
 }
