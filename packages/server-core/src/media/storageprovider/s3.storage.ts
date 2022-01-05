@@ -12,18 +12,32 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
-  bucket = config.aws.s3.staticResourceBucket
-  cacheDomain = config.aws.cloudfront.domain
-  provider: AWS.S3 = new AWS.S3({
-    accessKeyId: config.aws.keys.accessKeyId,
-    secretAccessKey: config.aws.keys.secretAccessKey,
-    region: config.aws.s3.region,
-    s3ForcePathStyle: true
-  })
+  bucket = config.server.storageProvider === 'aws' ? config.aws.s3.staticResourceBucket : config.ipfs.fleekKeys.bucket
+
+  cacheDomain =
+    config.server.storageProvider === 'aws' ? config.aws.cloudfront.domain : config.ipfs.fleekKeys.storageDomain
+
+  cacheDomainWithBucket = `${config.ipfs.fleekKeys.storageDomain}/${config.ipfs.fleekKeys.bucket}/`
+
+  provider: AWS.S3 =
+    config.server.storageProvider === 'aws'
+      ? new AWS.S3({
+          accessKeyId: config.aws.keys.accessKeyId,
+          secretAccessKey: config.aws.keys.secretAccessKey,
+          region: config.aws.s3.region,
+          s3ForcePathStyle: true
+        })
+      : new AWS.S3({
+          accessKeyId: config.ipfs.fleekKeys.apiKey,
+          secretAccessKey: config.ipfs.fleekKeys.apiSecret,
+          endpoint: `https://${config.ipfs.fleekKeys.storageDomain}`,
+          region: config.aws.s3.region,
+          s3ForcePathStyle: true
+        })
 
   blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
-    bucket: config.aws.s3.staticResourceBucket,
+    bucket: this.bucket,
     ACL: 'public-read'
   })
 
@@ -154,28 +168,32 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: invalidationItems.length,
-              Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
+    if (config.server.storageProvider === 'aws') {
+      return new Promise((resolve, reject) => {
+        this.cloudfront.createInvalidation(
+          {
+            DistributionId: config.aws.cloudfront.distributionId,
+            InvalidationBatch: {
+              CallerReference: Date.now().toString(),
+              Paths: {
+                Quantity: invalidationItems.length,
+                Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
+              }
+            }
+          },
+          (err, data) => {
+            if (err) {
+              console.error(err)
+              reject(err)
+            } else {
+              resolve(data)
             }
           }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
+        )
+      })
+    } else {
+      return Promise.resolve()
+    }
   }
 
   getStorage = (): typeof S3BlobStore => this.blob
@@ -199,7 +217,7 @@ export class S3Provider implements StorageProviderInterface {
     await this.createInvalidation([key])
     return {
       fields: result.fields,
-      cacheDomain: this.cacheDomain,
+      cacheDomain: config.server.storageProvider === 'aws' ? this.cacheDomain : this.cacheDomainWithBucket,
       url: result.url,
       local: false
     }
@@ -230,28 +248,36 @@ export class S3Provider implements StorageProviderInterface {
     const promises: Promise<FileContentType>[] = []
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = folderContent.Contents[i].Key
-          const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-          const query = regexx.exec(key)
-          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-          const cont: FileContentType = {
-            key,
-            url,
-            name: query!.groups!.name,
-            type: query!.groups!.extension
-          }
-          resolve(cont)
-        })
-      )
+      const key = folderContent.Contents[i].Key
+      const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
+      const query = regexx.exec(key)
+      if (query) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const url =
+              config.server.storageProvider === 'aws'
+                ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
+                : `https://${this.cacheDomainWithBucket}${key}`
+            const cont: FileContentType = {
+              key,
+              url,
+              name: query!.groups!.name,
+              type: query!.groups!.extension
+            }
+            resolve(cont)
+          })
+        )
+      }
     }
     // Folders
     for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
+          const url =
+            config.server.storageProvider === 'aws'
+              ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
+              : `https://${this.cacheDomainWithBucket}${key}`
           const cont: FileContentType = {
             key,
             url,
@@ -266,9 +292,14 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
-    const promises: any[] = []
-    promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
-    await Promise.all(promises)
+    if (config.server.storageProvider === 'aws') {
+      const promises: any[] = []
+      promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
+      await Promise.all(promises)
+    } else {
+      // Currently Fleek storage doesn't have "copyObject" method
+      throw new Error('Method not implemented.')
+    }
     return
   }
 

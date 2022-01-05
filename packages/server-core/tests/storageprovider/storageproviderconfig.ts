@@ -56,9 +56,9 @@ const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promis
   })
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
-  if (provider.constructor.name === 'S3Provider') {
+  if (process.env.STORAGE_PROVIDER === 'aws') {
     provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
-  } else if (provider.constructor.name === 'S3IPFSProvider') {
+  } else if (process.env.STORAGE_PROVIDER === 'ipfs') {
     provider.bucket = process.env.IPFS_FLEEK_TEST_RESOURCE_BUCKET!
   }
 

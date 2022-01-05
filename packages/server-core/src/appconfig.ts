@@ -71,7 +71,6 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
-  ipfsStorageProvider: process.env.IPFS_STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!

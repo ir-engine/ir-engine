@@ -20,8 +20,18 @@ describe('storageprovider', () => {
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
-  if(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET && process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+  if (
+    (process.env.STORAGE_PROVIDER === 'aws' &&
+      process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
+      process.env.STORAGE_AWS_ACCESS_KEY_ID &&
+      process.env.STORAGE_AWS_ACCESS_KEY_SECRET) ||
+    (process.env.STORAGE_PROVIDER === 'ipfs' &&
+      process.env.IPFS_FLEEK_TEST_RESOURCE_BUCKET &&
+      process.env.IPFS_FLEEK_API_KEY &&
+      process.env.IPFS_FLEEK_API_SECRET_KEY)
+  ) {
     storageProviders.push(new S3Provider())
+  }
 
   storageProviders.forEach((provider) => {
     before(async function () {
@@ -78,33 +88,39 @@ describe('storageprovider', () => {
       assert.ok(res?.ok)
     })
 
-    it(`should be able to move/copy object in ${provider.constructor.name}`, async function () {
-      const fileKeyOriginal = path.join(testFolderName, testFileName)
-      const fileKeyTemp = path.join(testFolderName, 'temp', testFileName)
-      const fileKeyTemp2 = path.join(testFolderName, 'temp2', testFileName)
 
-      //check copy functionality
-      await provider.moveObject(fileKeyOriginal, folderKeyTemp, true)
-      await assert.rejects(provider.checkObjectExistence(fileKeyOriginal))
-      await assert.rejects(provider.checkObjectExistence(fileKeyTemp))
+    if(!(provider.constructor.name ==='S3Provider' && process.env.STORAGE_PROVIDER === 'ipfs')) {
 
-      //check move functionality
-      await provider.moveObject(fileKeyTemp, folderKeyTemp2)
-      await assert.rejects(provider.checkObjectExistence(fileKeyTemp2))
-      await assert.doesNotReject(provider.checkObjectExistence(fileKeyTemp))
-    })
+      // Unable to perform move/copy and rename test cases because Fleek storage doesn't implemented those methods
 
-    it(`should be able to rename object in ${provider.constructor.name}`, async function () {
-      const temp2Folder = path.join(testFolderName, 'temp2')
-      const fileKeyTemp2 = path.join(temp2Folder, testFileName)
-      await provider.moveObject(fileKeyTemp2, temp2Folder, false, 'Renamed.txt')
-      const res = await provider.listFolderContent(temp2Folder, true)
-      if (res[0].name === 'Renamed' && res.length===1) {
-        assert.ok(true)
-        return
-      }
-      assert.ok(false)
-    })
+      it(`should be able to move/copy object in ${provider.constructor.name}`, async function () {
+        const fileKeyOriginal = path.join(testFolderName, testFileName)
+        const fileKeyTemp = path.join(testFolderName, 'temp', testFileName)
+        const fileKeyTemp2 = path.join(testFolderName, 'temp2', testFileName)
+
+        //check copy functionality
+        await provider.moveObject(fileKeyOriginal, folderKeyTemp, true)
+        await assert.rejects(provider.checkObjectExistence(fileKeyOriginal))
+        await assert.rejects(provider.checkObjectExistence(fileKeyTemp))
+
+        //check move functionality
+        await provider.moveObject(fileKeyTemp, folderKeyTemp2)
+        await assert.rejects(provider.checkObjectExistence(fileKeyTemp2))
+        await assert.doesNotReject(provider.checkObjectExistence(fileKeyTemp))
+      })
+
+      it(`should be able to rename object in ${provider.constructor.name}`, async function () {
+        const temp2Folder = path.join(testFolderName, 'temp2')
+        const fileKeyTemp2 = path.join(temp2Folder, testFileName)
+        await provider.moveObject(fileKeyTemp2, temp2Folder, false, 'Renamed.txt')
+        const res = await provider.listFolderContent(temp2Folder, true)
+        if (res[0].name === 'Renamed' && res.length===1) {
+          assert.ok(true)
+          return
+        }
+        assert.ok(false)
+      })
+    }
 
     it(`should delete object in ${provider.constructor.name}`, async function () {
       const fileKey = path.join(testFolderName, testFileName)
@@ -127,24 +143,47 @@ describe('storageprovider', () => {
       assert.deepStrictEqual(fileData, ret.Body)
     })
 
-    it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
-      const promises: any[] = []
-      for(let i = 0; i < 1010; i++) {
-        const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
-        const data = Buffer.from([])
-        promises.push(provider.putObject({
-          Body: data,
-          Key: fileKey,
-          ContentType: getContentType(fileKey)
-        }))
-      }
-      await Promise.all(promises)
-    })
+    if (provider.constructor.name ==='S3Provider' && process.env.STORAGE_PROVIDER === 'ipfs') {
+      // Separate test cases for IPFS-Fleek storage provider test account limitation
+      it(`should put over 10 objects in ${provider.constructor.name}`, async function () {
+        const promises: any[] = []
+        for(let i = 0; i < 11; i++) {
+          const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+          const data = Buffer.from(testFileContent)
+          promises.push(provider.putObject({
+            Body: data,
+            Key: fileKey,
+            ContentType: getContentType(fileKey)
+          }))
+        }
+        await Promise.all(promises)
+      })
+  
+      it(`should list over 10 objects in ${provider.constructor.name}`, async function () {
+        const res = await provider.listFolderContent(testFolderName, true)
+        assert(res.length > 10)
+      })
+    } else {
+      it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
+        const promises: any[] = []
+        for(let i = 0; i < 1010; i++) {
+          const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+          const data = Buffer.from([])
+          promises.push(provider.putObject({
+            Body: data,
+            Key: fileKey,
+            ContentType: getContentType(fileKey)
+          }))
+        }
+        await Promise.all(promises)
+      })
 
-    it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
-      const res = await provider.listFolderContent(testFolderName, true)
-      assert(res.length > 1000)
-    })
+      it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
+        const res = await provider.listFolderContent(testFolderName, true)
+        assert(res.length > 1000)
+      })
+    }
+  
 
     after(async function () {
       await providerAfterTest(provider, testFolderName)

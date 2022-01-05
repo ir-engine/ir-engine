@@ -10,7 +10,7 @@ import {
   AssetUploadType,
   IPFSUploadType
 } from '@xrengine/common/src/interfaces/UploadAssetInterface'
-import { useStorageProvider, useIPFSStorageProvider } from '../storageprovider/storageprovider'
+import { useStorageProvider } from '../storageprovider/storageprovider'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
@@ -24,10 +24,9 @@ declare module '../../../declarations' {
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
   file: Buffer,
-  args: AdminAssetUploadArgumentsType,
-  isIPFSProvider?: boolean
+  args: AdminAssetUploadArgumentsType
 ) => {
-  const provider = isIPFSProvider ? useIPFSStorageProvider() : useStorageProvider()
+  const provider = useStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
 
@@ -78,7 +77,6 @@ export const addGenericAssetToS3AndStaticResources = async (
           url: assetURL,
           key: args.key,
           staticResourceType: args.staticResourceType,
-          storageProvider: provider.constructor.name,
           ...userIdQuery
         },
         { isInternal: true }
@@ -93,8 +91,7 @@ export const addGenericAssetToS3AndStaticResources = async (
 export default (app: Application): void => {
   app.use(
     'upload-asset',
-    //multipartMiddleware.single('files'),
-    multipartMiddleware.fields([{ name: 'media' }]),
+    multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
         req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
@@ -125,7 +122,7 @@ export default (app: Application): void => {
           const argsData = JSON.parse(data.args)
           return Promise.all(
             params?.files.map((file, i) =>
-              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] }, true)
+              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
             )
           )
         }

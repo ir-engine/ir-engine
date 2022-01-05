@@ -11,7 +11,6 @@ export type StaticResourceModelType = {
   key: number
   mimeType: string
   metadata: any
-  storageProvider: string
 }
 
 export default (app: Application) => {
@@ -50,10 +49,6 @@ export default (app: Application) => {
       },
       metadata: {
         type: DataTypes.JSON,
-        allowNull: true
-      },
-      storageProvider: {
-        type: DataTypes.STRING,
         allowNull: true
       }
     },

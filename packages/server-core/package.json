@@ -49,7 +49,6 @@
     "@feathersjs/express": "^5.0.0-pre.10",
     "@feathersjs/feathers": "5.0.0-pre.10",
     "@feathersjs/transport-commons": "^5.0.0-pre.10",
-    "@fleekhq/fleek-storage-js": "^1.0.20",
     "@xrengine/common": "^0.4.13",
     "@xrengine/engine": "^0.4.13",
     "@xrengine/matchmaking": "^0.4.13",
