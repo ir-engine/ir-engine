@@ -18,8 +18,10 @@ export const Debug = () => {
     console.log('setup keypress')
     window.addEventListener('keypress', (ev) => {
       if (ev.key === 'p') {
-        togglePhysicsDebug()
-        toggleAvatarDebug()
+        if (document.activeElement?.querySelector('canvas')) {
+          togglePhysicsDebug()
+          toggleAvatarDebug()
+        }
       }
     })
   }
