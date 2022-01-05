@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "xrengine.matchfunction.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
   labels:
     {{- include "xrengine.matchfunction.labels" . | nindent 4 }}
 spec:
@@ -11,7 +12,7 @@ spec:
     - port: {{ .Values.matchfunction.service.port }}
       targetPort: {{ .Values.matchfunction.service.port }}
       protocol: TCP
-      name: http
+      name: grpc
   selector:
     {{- include "xrengine.matchfunction.selectorLabels" . | nindent 4 }}
 {{- end -}}

@@ -1,7 +1,6 @@
 import { RethrownError } from './errors'
 import i18n from 'i18next'
 import { getToken } from './getToken'
-import { Config } from '@xrengine/common/src/config'
 import { client } from '../feathers'
 
 const serverURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`

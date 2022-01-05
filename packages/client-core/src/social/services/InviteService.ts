@@ -2,7 +2,6 @@ import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/services/AuthService'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
@@ -259,7 +258,7 @@ export const InviteService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('invite').on('created', (params) => {
     const invite = params.invite
     const selfUser = accessAuthState().user

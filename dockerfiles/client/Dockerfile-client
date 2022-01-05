@@ -23,6 +23,17 @@ RUN npm install --production=false --loglevel notice --legacy-peer-deps
 # copy then compile the code
 COPY . .
 
+ARG MYSQL_HOST
+ARG MYSQL_USER
+ARG MYSQL_PORT
+ARG MYSQL_PASSWORD
+ARG MYSQL_DATABASE
+ENV MYSQL_HOST=$MYSQL_HOST
+ENV MYSQL_PORT=$MYSQL_PORT
+ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
+ENV MYSQL_DATABASE=$MYSQL_DATABASE
+ENV MYSQL_USER=$MYSQL_USER
+
 RUN npm run build-client
 
 ENV APP_ENV=production

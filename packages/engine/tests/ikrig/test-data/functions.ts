@@ -148,7 +148,7 @@ export function adoptBones(rawBones: fungiSerializedPoseBones[]): PoseBoneLocalS
 }
 
 export function adoptIKPose(ikposeData: fungiSerializedIKPose): IKPoseComponentType {
-  const ikpose: Partial<IKPoseComponentType> = {}
+  const ikpose: IKPoseComponentType = defaultIKPoseComponentValues()
 
   ikpose.length = ikposeData.target.len
   ikpose.startPosition = vector3FromSerialized(ikposeData.target.start_pos)

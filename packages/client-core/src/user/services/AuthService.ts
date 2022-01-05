@@ -12,7 +12,7 @@ import querystring from 'querystring'
 import { store, useDispatch } from '../../store'
 import { v1 } from 'uuid'
 import { client } from '../../feathers'
-import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
@@ -323,6 +323,12 @@ export const AuthService = {
   },
   loginUserByOAuth: async (service: string) => {
     const dispatch = useDispatch()
+    const serverHost =
+      process.env.APP_ENV === 'development'
+        ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
+            (globalThis as any).process.env['VITE_SERVER_PORT']
+          }`
+        : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
     {
       dispatch(AuthAction.actionProcessing(true))
       const token = accessAuthState().authUser.accessToken.value
@@ -333,11 +339,9 @@ export const AuthService = {
       } as any
       if (queryString.instanceId && queryString.instanceId.length > 0)
         redirectObject.instanceId = queryString.instanceId
-      let redirectUrl = `https://${
-        globalThis.process.env['VITE_SERVER_HOST']
-      }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
-
-      window.location.href = redirectUrl
+      window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
+        redirectObject
+      )}`
     }
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
@@ -809,7 +813,7 @@ const parseUserWalletCredentials = (wallet) => {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
   client.service('location-ban').on('created', async (params) => {
     const selfUser = accessAuthState().user

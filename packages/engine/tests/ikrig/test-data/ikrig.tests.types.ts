@@ -19,7 +19,7 @@ export type fungiSerializedTransform = {
 export type fungiSerializedPoseBones = {
   chg_state: number
   idx: number
-  p_idx: number | null
+  p_idx: number
   len: number
   name: string
   local: fungiSerializedTransform

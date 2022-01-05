@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { PublicVideo, VideoAction } from '../../media/services/VideoService'
