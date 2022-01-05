@@ -78,7 +78,7 @@
     "@rollup/plugin-replace": "3.0.0",
     "@types/node": "16.11.19",
     "@types/react": "17.0.38",
-    "@types/three": "0.136.0",
+    "@types/three": "0.136.1",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "esbuild": "0.14.8",
