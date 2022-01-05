@@ -1,5 +1,4 @@
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import { Config } from '@xrengine/common/src/config'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { theme } from '@xrengine/client-core/src/theme'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -64,7 +63,7 @@ const App = (): any => {
   return (
     <>
       <Helmet>
-        <title>{ctitle || Config.publicRuntimeConfig.title}</title>
+        <title>{ctitle}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"

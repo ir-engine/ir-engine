@@ -1,4 +1,3 @@
-import { Config } from '@xrengine/common/src/config'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -282,7 +281,7 @@ export const GroupService = {
     }
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('group-user').on('created', (params) => {
     const newGroupUser = params.groupUser
     const selfUser = accessAuthState().user
