@@ -55,11 +55,18 @@ const InstanceChat = (props: Props): any => {
     activeChannel = activeChannelMatch[1]
   }
 
+  // somehow user?.instanceId?.value, and instanceConnectionState.instance.id?.value, are different when they should be the same
+  console.log(
+    user?.instanceId?.value,
+    instanceConnectionState.instance.id?.value,
+    instanceConnectionState.connected.value,
+    chatState.instanceChannelFetching.value
+  )
   useEffect(() => {
     if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value === true &&
-      channelState.instanceChannelFetching.value !== true
+      chatState.instanceChannelFetching.value !== true
     ) {
       ChatService.getInstanceChannel()
     }
@@ -67,7 +74,7 @@ const InstanceChat = (props: Props): any => {
     user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
-    channelState.instanceChannelFetching.value
+    chatState.instanceChannelFetching.value
   ])
 
   const handleComposingMessageChange = (event: any): void => {
@@ -77,13 +84,11 @@ const InstanceChat = (props: Props): any => {
 
   const packageMessage = (): void => {
     if (composingMessage.length > 0) {
-      dispatch(
-        ChatService.createMessage({
-          targetObjectId: user.instanceId.value,
-          targetObjectType: 'instance',
-          text: composingMessage
-        })
-      )
+      ChatService.createMessage({
+        targetObjectId: user.instanceId.value,
+        targetObjectType: 'instance',
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }

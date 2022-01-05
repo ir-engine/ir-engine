@@ -16,13 +16,14 @@ import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } 
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
+import { createWorld, World } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { applyIncomingActions } from './networking/systems/IncomingNetworkSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -241,6 +242,14 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+  registerSystem(
+    SystemUpdateType.UPDATE,
+    new Promise((resolve) =>
+      resolve({
+        default: async () => (world: World) => applyIncomingActions(world)
+      })
+    )
+  )
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
