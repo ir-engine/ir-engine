@@ -1,5 +1,5 @@
 import React from 'react'
-import NodeEditor from '../properties/NodeEditor'
+import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ImageInput from '../inputs/ImageInput'
 import Vector3Input from '../inputs/Vector3Input'

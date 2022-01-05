@@ -11,7 +11,7 @@ import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from '../managers/CacheManager'
 import { ControlManager } from '../managers/ControlManager'
-import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+// import { LoadInstancedGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import SceneNode from './SceneNode'
 
@@ -124,11 +124,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
-    let loadPromise = null
+    let loadPromise = null! as any
     if (this.isUsingGPUInstancing) {
       console.log('instanced')
       // TODO: Look into how to support caching for this
-      loadPromise = LoadInstancedGLTF(src)
+      // loadPromise = LoadInstancedGLTF(src)
     } else {
       console.log('non-instanced')
       loadPromise = CacheManager.gltfCache.get(src)

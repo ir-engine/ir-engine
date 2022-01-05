@@ -29,7 +29,7 @@ export const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractive
 export const createInteractUI = (entity: Entity) => {
   console.log('createInteractUI ', entity)
   const interactiveComponent = getComponent(entity, InteractableComponent)
-  if (getInteractUI(entity) || !interactiveComponent || !interactiveComponent.data) return
+  if (getInteractUI(entity) || !interactiveComponent) return
 
   //create interactive view
   interactiveComponent.interactionUserData = {}

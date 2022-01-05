@@ -11,7 +11,6 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
-import MapNodeEditor from '../components/properties/MapNodeEditor'
 import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import WooCommerceNodeEditor from '../components/properties/WooCommerceNodeEditor'
@@ -38,7 +37,6 @@ import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
 import InteriorNode from '../nodes/InteriorNode'
 import LinkNode from '../nodes/LinkNode'
-import MapNode from '../nodes/MapNode'
 import MetadataNode from '../nodes/MetadataNode'
 import ModelNode from '../nodes/ModelNode'
 import WooCommerceNode from '../nodes/WooCommerceNode'
@@ -130,7 +128,6 @@ export const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
   // NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
-  NodeManager.instance.registerNode(MapNode, MapNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
   // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)

@@ -99,13 +99,13 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       obj3d.removeFromParent()
     }
 
+    // TODO: refactor this
     for (const entity of objectReplaceQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent)
-      const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement as Object3DWithEntity
+      const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
 
       if (!obj3d || !replacementObj) continue
-
-      replacementObj.entity = entity
+      ;(replacementObj as any).entity = entity
       replacementObj.parent = obj3d.value.parent
 
       const parent = obj3d.value.parent!

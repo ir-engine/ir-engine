@@ -116,6 +116,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <InteractableGroup node={props.node}></InteractableGroup>
       )}
       <ShadowProperties node={props.node} />
+      <InputGroup name="isUsingGPUInstancing" label={t('editor:properties.model.lbl-isUsingGPUInstancing')}>
+        <BooleanInput value={modelComponent.isUsingGPUInstancing} onChange={onChangeValue('isUsingGPUInstancing')} />
+      </InputGroup>
     </NodeEditor>
   )
 }
