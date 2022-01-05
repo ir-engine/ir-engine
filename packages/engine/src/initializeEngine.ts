@@ -246,7 +246,7 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
     SystemUpdateType.UPDATE,
     new Promise((resolve) =>
       resolve({
-        default: async () => (world: World) => applyIncomingActions(world)
+        default: async (world: World) => () => applyIncomingActions(world)
       })
     )
   )
