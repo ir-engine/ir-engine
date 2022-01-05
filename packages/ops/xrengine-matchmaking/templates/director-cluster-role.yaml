@@ -1,0 +1,19 @@
+{{- if .Values.director.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "xrengine.director.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
+  labels:
+    {{- include "xrengine.director.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+{{- end }}

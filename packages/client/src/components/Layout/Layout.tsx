@@ -6,7 +6,6 @@ import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
 import { AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
-import { Config } from '@xrengine/common/src/config'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
@@ -26,8 +25,6 @@ declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
-
-const title: string = Config.publicRuntimeConfig.title
 
 interface Props {
   login?: boolean
@@ -107,7 +104,7 @@ const Layout = (props: Props): any => {
             <section>
               <Helmet>
                 <title>
-                  {ctitle || title} | {pageTitle}
+                  {ctitle} | {pageTitle}
                 </title>
                 {description && <meta name="description" content={description}></meta>}
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}

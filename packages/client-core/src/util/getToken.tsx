@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-import { Config } from '@xrengine/common/src/config'
 
 /**
  * getToken used to get the token of logined user.

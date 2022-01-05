@@ -5,9 +5,6 @@ node_modules/
 *.swp
 *.swo
 
-#vscode
-.vscode/
-
 # npm / yarn / pnpm
 package-lock.json
 yarn.lock
@@ -146,8 +143,6 @@ bin/
 packages/server/upload/
 
 .dccache
-.vscode/*
-.vscode
 .DS_Store
 */.DS_Store
 
@@ -167,3 +162,5 @@ certs/
 /packages/client/public/projects/*
 /packages/projects/projects/*
 
+# Visual Studio Code settings
+.vscode

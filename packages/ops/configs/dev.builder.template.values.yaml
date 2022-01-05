@@ -31,6 +31,13 @@ builder:
     VITE_SERVER_PORT: "3030"
     VITE_GAMESERVER_HOST: gameserver-dev.<domain>
     VITE_GAMESERVER_PORT: "3031"
+    VITE_ROOT_REDIRECT: "false"
+    VITE_READY_PLAYER_ME_URL: https://xre.readyplayer.me
+    VITE_LOCAL_STORAGE_KEY: theoverlay-client-store-key-v1
+    VITE_FEATHERS_STORE_KEY: TheOverlay-Auth-Store
+    VITE_GA_MEASUREMENT_ID: <GOOGLE_ANALYTICS_MEASUREMENT_ID>
+    VITE_MAPBOX_API_KEY: <MAPBOX_API_KEY>
+    VITE_ETH_MARKETPLACE: <ETH_MARKETPLACE_ADDRESS>
   image:
     repository: <ECR_URL>/xrengine-dev-builder
   service:

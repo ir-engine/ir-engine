@@ -5,7 +5,7 @@ export const bones: fungiSerializedPoseBones[] = [
   {
     chg_state: 0,
     idx: 0,
-    p_idx: null,
+    p_idx: -1,
     len: 0.09999105733857654,
     name: 'Hips',
     local: {

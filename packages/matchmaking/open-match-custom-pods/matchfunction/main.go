@@ -20,18 +20,26 @@
 package main
 
 import (
+    "os"
+    "log"
+    "strconv"
+
+
 	"lagunalabs/matchmaking/matchfunction/mmf"
 )
-
 // This tutorial implements a basic Match Function that is hosted in the below
 // configured port. You can also configure the Open Match QueryService endpoint
 // with which the Match Function communicates to query the Tickets.
 
 const (
 	queryServiceAddress = "open-match-query.open-match.svc.cluster.local:50503" // Address of the QueryService endpoint.
-	serverPort          = 50502                                                 // The port for hosting the Match Function.
 )
 
 func main() {
+	serverPort, portErr := strconv.Atoi(os.Getenv("MATCHFUNCTION_PORT"))         // The port for hosting the Match Function.
+	if (portErr != nil) {
+	    log.Fatalf(portErr.Error())
+	}
+    log.Printf("serverPort %s", serverPort)
 	mmf.Start(queryServiceAddress, serverPort)
 }
