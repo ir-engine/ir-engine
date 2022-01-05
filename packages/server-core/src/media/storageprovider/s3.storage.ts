@@ -12,32 +12,19 @@ import {
 } from './storageprovider.interface'
 
 export class S3Provider implements StorageProviderInterface {
-  bucket = config.server.storageProvider === 'aws' ? config.aws.s3.staticResourceBucket : config.ipfs.fleekKeys.bucket
-
-  cacheDomain =
-    config.server.storageProvider === 'aws' ? config.aws.cloudfront.domain : config.ipfs.fleekKeys.storageDomain
-
-  cacheDomainWithBucket = `${config.ipfs.fleekKeys.storageDomain}/${config.ipfs.fleekKeys.bucket}/`
-
-  provider: AWS.S3 =
-    config.server.storageProvider === 'aws'
-      ? new AWS.S3({
-          accessKeyId: config.aws.keys.accessKeyId,
-          secretAccessKey: config.aws.keys.secretAccessKey,
-          region: config.aws.s3.region,
-          s3ForcePathStyle: true
-        })
-      : new AWS.S3({
-          accessKeyId: config.ipfs.fleekKeys.apiKey,
-          secretAccessKey: config.ipfs.fleekKeys.apiSecret,
-          endpoint: `https://${config.ipfs.fleekKeys.storageDomain}`,
-          region: config.aws.s3.region,
-          s3ForcePathStyle: true
-        })
+  bucket = config.aws.s3.staticResourceBucket
+  cacheDomain = config.aws.cloudfront.domain
+  provider: AWS.S3 = new AWS.S3({
+    accessKeyId: config.aws.keys.accessKeyId,
+    secretAccessKey: config.aws.keys.secretAccessKey,
+    endpoint: config.aws.s3.endpoint,
+    region: config.aws.s3.region,
+    s3ForcePathStyle: true
+  })
 
   blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
-    bucket: this.bucket,
+    bucket: config.aws.s3.staticResourceBucket,
     ACL: 'public-read'
   })
 
@@ -217,7 +204,7 @@ export class S3Provider implements StorageProviderInterface {
     await this.createInvalidation([key])
     return {
       fields: result.fields,
-      cacheDomain: config.server.storageProvider === 'aws' ? this.cacheDomain : this.cacheDomainWithBucket,
+      cacheDomain: config.server.storageProvider === 'aws' ? this.cacheDomain : `${this.cacheDomain}/${this.bucket}/`,
       url: result.url,
       local: false
     }
@@ -257,7 +244,7 @@ export class S3Provider implements StorageProviderInterface {
             const url =
               config.server.storageProvider === 'aws'
                 ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-                : `https://${this.cacheDomainWithBucket}${key}`
+                : `https://${this.cacheDomain}/${this.bucket}/`
             const cont: FileContentType = {
               key,
               url,
@@ -277,7 +264,7 @@ export class S3Provider implements StorageProviderInterface {
           const url =
             config.server.storageProvider === 'aws'
               ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-              : `https://${this.cacheDomainWithBucket}${key}`
+              : `https://${this.cacheDomain}/${this.bucket}/`
           const cont: FileContentType = {
             key,
             url,
