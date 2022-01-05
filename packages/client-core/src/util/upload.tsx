@@ -1,7 +1,6 @@
 import { RethrownError } from './errors'
 import i18n from 'i18next'
 import { getToken } from './getToken'
-import { IPFSUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { client } from '../feathers'
 
 const serverURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`
@@ -38,9 +37,9 @@ export const upload = (
     if (signal) {
       signal.addEventListener('abort', onAbort)
     }
-    console.log('Posting to: ', `${serverURL}/media`)
+    console.log('Posting to: ', `${serverURL}/upload-asset`)
 
-    request.open('post', `${serverURL}/media`, true)
+    request.open('post', `${serverURL}/upload-asset`, true)
 
     request.upload.addEventListener('progress', (e) => {
       if (onUploadProgress) {

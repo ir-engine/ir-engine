@@ -4,8 +4,6 @@ import { StorageProviderInterface } from './storageprovider.interface'
 import config from '../../appconfig'
 
 const provider: StorageProviderInterface =
-  config.server.storageProvider === 'aws' || config.server.storageProvider === 'ipfs'
-    ? new S3Storage()
-    : new LocalStorage()
+  config.server.storageProvider !== 'aws' ? new LocalStorage() : new S3Storage()
 
 export const useStorageProvider = () => provider

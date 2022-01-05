@@ -225,19 +225,6 @@ const authentication = {
 }
 
 /**
- * IPFS
- */
-
-const ipfs = {
-  fleekKeys: {
-    apiKey: process.env.IPFS_FLEEK_API_KEY!,
-    apiSecret: process.env.IPFS_FLEEK_API_SECRET_KEY!,
-    bucket: process.env.IPFS_FLEEK_BUCKET!,
-    storageDomain: process.env.IPFS_FLEEK_DOMAIN!
-  }
-}
-
-/**
  * AWS
  */
 const aws = {
@@ -305,7 +292,6 @@ const config = {
   analytics,
   authentication,
   aws,
-  ipfs,
   chargebee,
   client,
   db,

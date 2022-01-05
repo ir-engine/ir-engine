@@ -22,6 +22,11 @@ export class S3Provider implements StorageProviderInterface {
     s3ForcePathStyle: true
   })
 
+  bucketAssetURL =
+    config.server.storageProvider === 'aws'
+      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
+      : `https://${this.cacheDomain}/${this.bucket}/`
+
   blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
     bucket: config.aws.s3.staticResourceBucket,
@@ -204,7 +209,7 @@ export class S3Provider implements StorageProviderInterface {
     await this.createInvalidation([key])
     return {
       fields: result.fields,
-      cacheDomain: config.server.storageProvider === 'aws' ? this.cacheDomain : `${this.cacheDomain}/${this.bucket}/`,
+      cacheDomain: this.cacheDomain,
       url: result.url,
       local: false
     }
@@ -241,13 +246,9 @@ export class S3Provider implements StorageProviderInterface {
       if (query) {
         promises.push(
           new Promise(async (resolve) => {
-            const url =
-              config.server.storageProvider === 'aws'
-                ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-                : `https://${this.cacheDomain}/${this.bucket}/`
             const cont: FileContentType = {
               key,
-              url,
+              url: `${this.bucketAssetURL}/${key}`,
               name: query!.groups!.name,
               type: query!.groups!.extension
             }
@@ -261,13 +262,9 @@ export class S3Provider implements StorageProviderInterface {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const url =
-            config.server.storageProvider === 'aws'
-              ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-              : `https://${this.cacheDomain}/${this.bucket}/`
           const cont: FileContentType = {
             key,
-            url,
+            url: `${this.bucketAssetURL}/${key}`,
             name: key.split('/').pop()!,
             type: 'folder'
           }
@@ -279,14 +276,9 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   async moveObject(current: string, destination: string, isCopy: boolean = false, renameTo: string = null!) {
-    if (config.server.storageProvider === 'aws') {
-      const promises: any[] = []
-      promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
-      await Promise.all(promises)
-    } else {
-      // Currently Fleek storage doesn't have "copyObject" method
-      throw new Error('Method not implemented.')
-    }
+    const promises: any[] = []
+    promises.push(...(await this._moveObject(current, destination, isCopy, renameTo)))
+    await Promise.all(promises)
     return
   }
 
