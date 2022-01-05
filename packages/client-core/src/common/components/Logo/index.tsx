@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Config } from '@xrengine/common/src/config'
 import { ClientSettingService } from '../../../admin/services/Setting/ClientSettingService'
 import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
 
@@ -24,13 +23,7 @@ const Logo = (props: Props): any => {
 
   return (
     <div className="logo">
-      <img
-        src={logo || Config.publicRuntimeConfig.logo}
-        alt="logo"
-        crossOrigin="anonymous"
-        className="logo"
-        onClick={props.onClick ?? null}
-      />
+      <img src={logo} alt="logo" crossOrigin="anonymous" className="logo" onClick={props.onClick ?? null} />
     </div>
   )
 }

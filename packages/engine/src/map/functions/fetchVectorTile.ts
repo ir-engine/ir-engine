@@ -1,4 +1,3 @@
-import { Config } from '@xrengine/common/src/config'
 import TileKey from '../classes/TileKey'
 import { TILE_ZOOM } from '../constants'
 import { VectorTile } from '../types'
@@ -13,7 +12,7 @@ export default async function fetchVectorTile(_: any, key: TileKey): Promise<Vec
     y,
     TILE_ZOOM,
     'vector.pbf',
-    Config.publicRuntimeConfig.MAPBOX_API_KEY
+    globalThis.process.env['VITE_MAPBOX_API_KEY'] || ''
   )
   const response = await fetch(url)
   const blob = await response.blob()

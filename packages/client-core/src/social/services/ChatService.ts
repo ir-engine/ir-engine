@@ -4,8 +4,6 @@ import waitForClientAuthenticated from '../../util/wait-for-client-authenticated
 
 import { AlertService } from '../../common/services/AlertService'
 
-import { Config } from '@xrengine/common/src/config'
-
 import { accessAuthState } from '../../user/services/AuthService'
 import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
 import { Message } from '@xrengine/common/src/interfaces/Message'
@@ -384,7 +382,7 @@ export const ChatService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
     const { message } = params

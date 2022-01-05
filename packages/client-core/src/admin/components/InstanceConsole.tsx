@@ -1,4 +1,3 @@
-import { Config } from '@xrengine/common/src/config'
 import React, { useEffect, useState } from 'react'
 import Search from './Search'
 import Table from '@mui/material/Table'

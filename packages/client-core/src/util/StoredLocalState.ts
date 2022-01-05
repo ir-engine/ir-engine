@@ -1,5 +1,4 @@
 import { createState, Downgraded, useState } from '@hookstate/core'
-import { Config } from '@xrengine/common/src/config'
 import { store } from '../store'
 
 const state = createState({

@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState } from 'react'
 import EmailIcon from '@mui/icons-material/Email'
 import SocialIcon from '@mui/icons-material/Public'
 import UserIcon from '@mui/icons-material/Person'
-import { Config } from '@xrengine/common/src/config'
 import MagicLinkEmail from './MagicLinkEmail'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
@@ -68,16 +67,14 @@ const SignIn = (): any => {
     setTabIndex(newValue)
   }
 
-  if (Config.publicRuntimeConfig?.auth) {
-    enableSmsMagicLink = state.smsMagicLink
-    enableEmailMagicLink = state.emailMagicLink
-    enableUserPassword = state.local
-    enableGithubSocial = state.github
-    enableGoogleSocial = state.google
-    enableFacebookSocial = state.facebook
-    enableLinkedInSocial = state.linkedin
-    enableTwitterSocial = state.twitter
-  }
+  enableSmsMagicLink = state.smsMagicLink
+  enableEmailMagicLink = state.emailMagicLink
+  enableUserPassword = state.local
+  enableGithubSocial = state.github
+  enableGoogleSocial = state.google
+  enableFacebookSocial = state.facebook
+  enableLinkedInSocial = state.linkedin
+  enableTwitterSocial = state.twitter
 
   const socials = [
     enableGithubSocial,

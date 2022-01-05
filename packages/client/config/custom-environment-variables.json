@@ -1,7 +1,0 @@
-{
-    "publicRuntimeConfig": {
-      "apiServer": "NEXT_PUBLIC_API_SERVER",
-      "siteTitle": "SITE_TITLE",
-      "siteDescription": "SITE_DESC"
-    }
-}

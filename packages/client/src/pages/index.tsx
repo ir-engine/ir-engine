@@ -4,7 +4,6 @@ import ContactForm from '@xrengine/client-core/src/common/components/ContactForm
 import { useHistory, Redirect } from 'react-router-dom'
 // import { Capacitor } from '@capacitor/core'
 import { useTranslation, Trans } from 'react-i18next'
-import { Config } from '@xrengine/common/src/config'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
