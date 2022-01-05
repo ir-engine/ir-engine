@@ -160,32 +160,30 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
-    if (config.server.storageProvider === 'aws') {
-      return new Promise((resolve, reject) => {
-        this.cloudfront.createInvalidation(
-          {
-            DistributionId: config.aws.cloudfront.distributionId,
-            InvalidationBatch: {
-              CallerReference: Date.now().toString(),
-              Paths: {
-                Quantity: invalidationItems.length,
-                Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
-              }
-            }
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
+    // for non-standard s3 setups, we don't use cloudfront
+    if (config.server.storageProvider !== 'aws') return
+    return new Promise((resolve, reject) => {
+      this.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: invalidationItems.length,
+              Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
             }
           }
-        )
-      })
-    } else {
-      return Promise.resolve()
-    }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
   }
 
   getStorage = (): typeof S3BlobStore => this.blob

@@ -37,9 +37,9 @@ export const upload = (
     if (signal) {
       signal.addEventListener('abort', onAbort)
     }
-    console.log('Posting to: ', `${serverURL}/upload-asset`)
+    console.log('Posting to: ', `${serverURL}/media`)
 
-    request.open('post', `${serverURL}/upload-asset`, true)
+    request.open('post', `${serverURL}/media`, true)
 
     request.upload.addEventListener('progress', (e) => {
       if (onUploadProgress) {

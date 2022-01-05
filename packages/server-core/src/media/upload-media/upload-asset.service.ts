@@ -5,7 +5,7 @@ import hooks from './upload-asset.hooks'
 import express from 'express'
 import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import { AdminAssetUploadArgumentsType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 
@@ -96,7 +96,7 @@ export default (app: Application): void => {
       next()
     },
     {
-      create: async (data: any, params?: Params) => {
+      create: async (data: AssetUploadType, params?: Params) => {
         console.log('\n\nupload-asset', data, '\n\n')
         // console.log(params)
         if (data.type === 'user-avatar-upload') {
@@ -110,10 +110,9 @@ export default (app: Application): void => {
           )
         } else if (data.type === 'admin-file-upload') {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
-          const argsData = JSON.parse(data.args)
           return Promise.all(
             params?.files.map((file, i) =>
-              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
+              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...data.args[i] })
             )
           )
         }
