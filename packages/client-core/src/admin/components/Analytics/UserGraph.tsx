@@ -1,5 +1,8 @@
 import React from 'react'
+
+import ApexCharts from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'
+
 const UserGraph = ({ data /* see data tab */ }) => {
   let maxY = 0
   if (data) {
@@ -17,13 +20,14 @@ const UserGraph = ({ data /* see data tab */ }) => {
   const roundPower = Math.pow(10, Math.floor(Math.log10(maxY)))
   maxY = Math.ceil(maxY / roundPower) * roundPower
 
-  const [state, setState] = React.useState({
+  const graphData = {
     series: data,
     options: {
       chart: {
         id: 'area-datetime',
         type: 'area',
         height: 350,
+        width: '100%',
         zoom: {
           autoScaleYaxis: true
         },
@@ -106,11 +110,12 @@ const UserGraph = ({ data /* see data tab */ }) => {
       theme: {
         palette: 'palette1'
       }
-    }
-  })
+    } as ApexCharts.ApexOptions
+  }
+
   return (
     <div id="chart-timeline" style={{ height: '30rem' }}>
-      <ReactApexChart options={state.options} series={state.series} type="line" height="100%" width="100%" />
+      <ReactApexChart options={graphData.options} series={graphData.series} type="line" height="100%" width="100%" />
     </div>
   )
 }
