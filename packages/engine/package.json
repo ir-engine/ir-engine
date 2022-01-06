@@ -55,7 +55,7 @@
     "react": "17.0.2",
     "rewire": "^6.0.0",
     "simplex-noise": "^3.0.0",
-    "socket.io": "4.4.0",
+    "socket.io": "4.4.1",
     "three": "^0.136.0",
     "three-mesh-bvh": "^0.5.0",
     "ts-matches": "^5.1.0-1",
