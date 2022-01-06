@@ -1,6 +1,7 @@
 import { AuthenticationService } from '@feathersjs/authentication'
 import { expressOauth } from '@feathersjs/authentication-oauth'
 import { Application } from '../../declarations'
+import DiscordStrategy from './strategies/discord'
 import GithubStrategy from './strategies/github'
 import GoogleStrategy from './strategies/google'
 import FacebookStrategy from './strategies/facebook'
@@ -19,6 +20,7 @@ export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any)
   authentication.register('jwt', new MyJwtStrategy())
   authentication.register('local', new MyLocalStrategy())
+  authentication.register('discord', new DiscordStrategy(app))
   authentication.register('google', new GoogleStrategy(app))
   authentication.register('facebook', new FacebookStrategy(app))
   authentication.register('github', new GithubStrategy(app))

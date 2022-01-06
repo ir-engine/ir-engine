@@ -163,7 +163,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -175,6 +175,7 @@ const authentication = {
     numBytes: 16
   },
   callback: {
+    discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
@@ -188,6 +189,14 @@ const authentication = {
           ? server.hostname
           : server.hostname + ':' + server.port,
       protocol: 'https'
+    },
+    discord: {
+      key: process.env.DISCORD_CLIENT_ID!,
+      secret: process.env.DISCORD_CLIENT_SECRET!,
+      scope: ['identify', 'email'],
+      custom_params: {
+        prompt: 'none'
+      }
     },
     facebook: {
       key: process.env.FACEBOOK_CLIENT_ID!,
