@@ -23,6 +23,7 @@ export class Authentication extends Service {
         oauth: {
           ...JSON.parse(JSON.parse(el.oauth)),
           defaults: JSON.parse(JSON.parse(JSON.parse(el.oauth)).defaults),
+          discord: JSON.parse(JSON.parse(JSON.parse(el.oauth)).discord),
           facebook: JSON.parse(JSON.parse(JSON.parse(el.oauth)).facebook),
           github: JSON.parse(JSON.parse(JSON.parse(el.oauth)).github),
           google: JSON.parse(JSON.parse(JSON.parse(el.oauth)).google),
