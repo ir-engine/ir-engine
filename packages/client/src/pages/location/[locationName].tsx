@@ -17,10 +17,10 @@ const LocationPage = (props: Props) => {
 
   return (
     <>
-      <NetworkInstanceProvisioning locationName={locationName} />
-      <LoadLocationScene locationName={props.match.params.locationName} />
-      <LoadEngineWithScene />
       <Layout pageTitle={t('location.locationName.pageTitle')}>
+        <NetworkInstanceProvisioning locationName={locationName} />
+        <LoadLocationScene locationName={props.match.params.locationName} />
+        <LoadEngineWithScene />
         <DefaultLayoutView allowDebug={true} locationName={locationName} />
       </Layout>
     </>
