@@ -1,3 +1,4 @@
+import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
@@ -24,31 +25,21 @@ import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
-import SplineNodeEditor from '../components/properties/SplineNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import BoxColliderNode from '../nodes/BoxColliderNode'
-import CameraPropertiesNode from '../nodes/CameraPropertiesNode'
 import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
 import InteriorNode from '../nodes/InteriorNode'
-import LinkNode from '../nodes/LinkNode'
 import MetadataNode from '../nodes/MetadataNode'
-import ModelNode from '../nodes/ModelNode'
 import WooCommerceNode from '../nodes/WooCommerceNode'
 import ShopifyNode from '../nodes/ShopifyNode'
 import OceanNode from '../nodes/OceanNode'
-import ParticleEmitterNode from '../nodes/ParticleEmitterNode'
 import PortalNode from '../nodes/PortalNode'
-import SceneNode from '../nodes/SceneNode'
-import SplineNode from '../nodes/SplineNode'
 import SystemNode from '../nodes/SystemNode'
-import TriggerVolumeNode from '../nodes/TriggerVolumeNode'
-import VolumetricNode from '../nodes/VolumetricNode'
 import WaterNode from '../nodes/WaterNode'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -78,6 +69,7 @@ import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functio
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
 import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
+import { SCENE_COMPONENT_VOLUMETRIC } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
@@ -122,30 +114,22 @@ export class NodeManager {
 }
 
 export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(BoxColliderNode, BoxColliderNodeEditor)
-  // NodeManager.instance.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
-  // NodeManager.instance.registerNode(LinkNode, LinkNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
-  // NodeManager.instance.registerNode(ModelNode, ModelNodeEditor)
   NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
-  // NodeManager.instance.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
-  // NodeManager.instance.registerNode(SceneNode, SceneNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  // NodeManager.instance.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
-  NodeManager.instance.registerNode(VolumetricNode, VolumetricNodeEditor)
   NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
   NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
 }
 
-export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType | null => {
+export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {
   const entityNode = getComponent(entity, EntityNodeComponent)
-  if (!entityNode) return null
+  if (!entityNode) return DefaultNodeEditor
 
   let editor = null
 
@@ -154,7 +138,7 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType | n
     if (editor) break
   }
 
-  return editor
+  return editor || DefaultNodeEditor
 }
 
 export const EntityNodeEditor = {
@@ -179,7 +163,8 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor,
   [SCENE_COMPONENT_IMAGE]: ImageNodeEditor,
   [SCENE_COMPONENT_AUDIO]: AudioNodeEditor,
-  [SCENE_COMPONENT_VIDEO]: VideoNodeEditor
+  [SCENE_COMPONENT_VIDEO]: VideoNodeEditor,
+  [SCENE_COMPONENT_VOLUMETRIC]: VolumetricNodeEditor
 }
 
 export const prefabIcons = {
@@ -203,5 +188,6 @@ export const prefabIcons = {
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
   [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
-  [ScenePrefabs.video]: VideoNodeEditor.iconComponent
+  [ScenePrefabs.video]: VideoNodeEditor.iconComponent,
+  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent
 }

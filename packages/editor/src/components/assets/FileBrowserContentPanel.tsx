@@ -13,7 +13,6 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu
 import { ToolButton } from '../toolbar/ToolButton'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
@@ -47,10 +46,9 @@ export const UploadFileType = {
  * @author Abhishek Pathak
  * @constructor
  */
-
 export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const { t } = useTranslation()
-  const panelRef = useRef(null)
+  const panelRef = useRef<HTMLElement>(null)
   // const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
   const [scrollWindowHeight, setScrollWindowHeight] = useState(750)
   const [isLoading, setLoading] = useState(true)
@@ -60,6 +58,8 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
 
   useEffect(() => {
     useElementResize(panelRef.current, () => {
+      if (!panelRef.current) return
+
       // setScrollWindowWidth(panelRef.current.clientWidth)
       setScrollWindowHeight(panelRef.current.clientHeight)
     })
@@ -70,7 +70,6 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
     } else {
       const newPath = `${selectedDirectory}${props.label}/`
-      console.log('New Path for the DIrectory is:' + newPath)
       setSelectedDirectory(newPath)
     }
   }
@@ -78,7 +77,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
   const files = fileState.files.value.map((file): FileDataType => {
     const nodeClass = UploadFileType[file.type]
     const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-    const iconComponent = nodeEditor.iconComponent
+    const iconComponent = nodeEditor?.iconComponent
     const url = file.url
     return {
       description: url,

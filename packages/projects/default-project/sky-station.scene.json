@@ -203,7 +203,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {}
         }
       ],
@@ -448,7 +448,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "infoBox",
@@ -975,7 +975,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "infoBox",
@@ -1090,7 +1090,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "equippable"

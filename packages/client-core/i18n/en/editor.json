@@ -482,6 +482,7 @@
             "lbl-test": "Test"
         },
         "volumetric": {
+            "name": "Volumetric",
             "description": "Dynamically loads a volumetric video.",
             "uvolPaths": "UVOL Paths",
             "playmode": "Play Mode",

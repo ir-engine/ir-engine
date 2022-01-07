@@ -27,15 +27,14 @@ import { ImageComponent } from '../../components/ImageComponent'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { resizeImageMesh } from './ImageFunctions'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import isHLS from '../isHLS'
+import Hls from 'hls.js'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
   videoSource: '',
-  isLiveStream: false,
   elementId: 'video-' + Date.now()
 }
-
-export const EntityVideoElements = {} as { [key: Entity]: string }
 
 export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   if (!isClient) {
@@ -78,8 +77,22 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.videoSource) {
     try {
-      const { url } = await resolveMedia(component.videoSource)
-      obj3d.userData.videoEl.src = url
+      const { url, contentType } = await resolveMedia(component.videoSource)
+
+      if (isHLS(url, contentType)) {
+        component.hls = setupHLS(url)
+        component.hls.attachMedia(obj3d.userData.videoEl)
+      }
+      // else if (isDash(url)) {
+      //   const { MediaPlayer } = await import('dashjs')
+      //   component.dash = MediaPlayer().create();
+      //   component.dash.initialize(obj3d.userData.videoEl, src, component.autoPlay)
+      //   component.dash.on('ERROR', (e) => console.error('ERROR', e)
+      // }
+      else {
+        obj3d.userData.videoEl.src = url
+      }
+
       const texture = new VideoTexture(obj3d.userData.videoEl)
       obj3d.userData.videoEl.currentTime = 1
 
@@ -115,10 +128,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('elementId')) {
-    obj3d.userData.videoEl.id = component.elementId
-    EntityVideoElements[entity] = component.elementId
-  }
+  if (properties.hasOwnProperty('elementId')) obj3d.userData.videoEl.id = component.elementId
 }
 
 export const serializeVideo: ComponentSerializeFunction = (entity) => {
@@ -129,7 +139,6 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_VIDEO,
     props: {
       src: component.videoSource,
-      isLiveStream: component.isLiveStream,
       elementId: component.elementId
     }
   }
@@ -145,4 +154,36 @@ export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = 
     if (video.userData.mesh.parent) video.userData.mesh.removeFromParent()
     delete video.userData.mesh
   }
+}
+
+const setupHLS = (url: string): Hls => {
+  const hls = new Hls()
+  hls.on(Hls.Events.ERROR, function (event, data) {
+    if (data.fatal) {
+      switch (data.type) {
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          // try to recover network error
+          console.error('fatal network error encountered, try to recover', event, data)
+          hls.startLoad()
+          break
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          console.error('fatal media error encountered, try to recover', event, data)
+          // hls.recoverMediaError();
+          break
+        default:
+          // cannot recover
+          console.error('HLS fatal error encountered, destroying video...', event, data)
+          hls.destroy()
+          break
+      }
+    }
+  })
+
+  // hls.once(Hls.Events.LEVEL_LOADED, () => { resolve() })
+  hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+    hls.loadSource(url)
+    hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {})
+  })
+
+  return hls
 }

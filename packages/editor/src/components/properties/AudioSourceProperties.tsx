@@ -3,21 +3,15 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import useSetPropertySelected, { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import { useTranslation } from 'react-i18next'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { AudioType, DistanceModel } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { AudioType, DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 
 const AudioTypeOptions = [
   { label: AudioType.Stereo, value: AudioType.Stereo },
   { label: AudioType.Positional, value: AudioType.Positional }
-]
-
-const DistanceModelOptions = [
-  { label: 'Linear', value: DistanceModel.Linear },
-  { label: 'Inverse', value: DistanceModel.Inverse },
-  { label: 'Exponential', value: DistanceModel.Exponential }
 ]
 
 /**
@@ -32,10 +26,6 @@ const DistanceModelOptions = [
  */
 
 export const AudioSourceProperties: EditorComponentType = (props) => {
-  const onChangeControls = useSetPropertySelected('controls')
-  const onChangeAutoPlay = useSetPropertySelected('autoPlay')
-  const onChangeSynchronize = useSetPropertySelected('synchronize')
-  const onChangeLoop = useSetPropertySelected('loop')
   const { t } = useTranslation()
 
   const audioComponent = getComponent(props.node.entity, AudioComponent)
@@ -46,14 +36,11 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           options={AudioTypeOptions}
           value={audioComponent.audioType}
-          onChange={(v) => updateProperty(AudioComponent, 'audioType', v)}
+          onChange={updateProperty(AudioComponent, 'audioType')}
         />
       </InputGroup>
       <InputGroup name="Volume" label={t('editor:properties.audio.lbl-volume')}>
-        <CompoundNumericInput
-          value={audioComponent.volume}
-          onChange={(v) => updateProperty(AudioComponent, 'volume', v)}
-        />
+        <CompoundNumericInput value={audioComponent.volume} onChange={updateProperty(AudioComponent, 'volume')} />
       </InputGroup>
       {!props.multiEdit && audioComponent.audioType === AudioType.Positional && (
         <>
@@ -65,7 +52,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             <SelectInput
               options={DistanceModelOptions}
               value={audioComponent.distanceModel}
-              onChange={(v) => updateProperty(AudioComponent, 'distanceModel', v)}
+              onChange={updateProperty(AudioComponent, 'distanceModel')}
             />
           </InputGroup>
 
@@ -82,7 +69,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
                 mediumStep={0.01}
                 largeStep={0.1}
                 value={audioComponent.rolloffFactor}
-                onChange={(v) => updateProperty(AudioComponent, 'rolloffFactor', v)}
+                onChange={updateProperty(AudioComponent, 'rolloffFactor')}
               />
             </InputGroup>
           ) : (
@@ -95,7 +82,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
               mediumStep={1}
               largeStep={10}
               value={audioComponent.rolloffFactor}
-              onChange={(v) => updateProperty(AudioComponent, 'rolloffFactor', v)}
+              onChange={updateProperty(AudioComponent, 'rolloffFactor')}
             />
           )}
           <NumericInputGroup
@@ -107,7 +94,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.refDistance}
-            onChange={(v) => updateProperty(AudioComponent, 'refDistance', v)}
+            onChange={updateProperty(AudioComponent, 'refDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -119,7 +106,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.maxDistance}
-            onChange={(v) => updateProperty(AudioComponent, 'maxDistance', v)}
+            onChange={updateProperty(AudioComponent, 'maxDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -132,7 +119,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.coneInnerAngle}
-            onChange={(v) => updateProperty(AudioComponent, 'coneInnerAngle', v)}
+            onChange={updateProperty(AudioComponent, 'coneInnerAngle')}
             unit="°"
           />
           <NumericInputGroup
@@ -145,7 +132,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.coneOuterAngle}
-            onChange={(v) => updateProperty(AudioComponent, 'coneOuterAngle', v)}
+            onChange={updateProperty(AudioComponent, 'coneOuterAngle')}
             unit="°"
           />
           <InputGroup
@@ -158,7 +145,7 @@ export const AudioSourceProperties: EditorComponentType = (props) => {
               max={1}
               step={0.01}
               value={audioComponent.coneOuterGain}
-              onChange={(v) => updateProperty(AudioComponent, 'coneOuterGain', v)}
+              onChange={updateProperty(AudioComponent, 'coneOuterGain')}
             />
           </InputGroup>
         </>

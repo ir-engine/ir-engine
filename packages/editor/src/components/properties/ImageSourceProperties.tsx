@@ -34,7 +34,7 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
         <SelectInput
           options={imageTransparencyOptions}
           value={imageComponent.alphaMode}
-          onChange={(v) => updateProperty(ImageComponent, 'alphaMode', v)}
+          onChange={updateProperty(ImageComponent, 'alphaMode')}
         />
       </InputGroup>
       {imageComponent.alphaMode === ImageAlphaMode.Mask && (
@@ -48,21 +48,21 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
           mediumStep={0.1}
           largeStep={0.25}
           value={imageComponent.alphaCutoff}
-          onChange={(v) => updateProperty(ImageComponent, 'alphaCutoff', v)}
+          onChange={updateProperty(ImageComponent, 'alphaCutoff')}
         />
       )}
       <InputGroup name="Projection" label={t('editor:properties.image.lbl-projection')}>
         <SelectInput
           options={imageProjectionOptions}
           value={imageComponent.projection}
-          onChange={(v) => updateProperty(ImageComponent, 'projection', v)}
+          onChange={updateProperty(ImageComponent, 'projection')}
         />
       </InputGroup>
       <InputGroup name="Side" label={t('editor:properties.image.lbl-side')}>
         <SelectInput
           options={ImageProjectionSideOptions}
           value={imageComponent.side}
-          onChange={(v) => updateProperty(ImageComponent, 'side', v)}
+          onChange={updateProperty(ImageComponent, 'side')}
         />
       </InputGroup>
     </>

@@ -16,6 +16,8 @@ import { FileDataType } from './FileDataType'
 import InfiniteScroll from 'react-infinite-scroller'
 import { CircularProgress } from '@mui/material'
 import FolderIcon from '@mui/icons-material/Folder'
+import DescriptionIcon from '@mui/icons-material/Description'
+import styles from './styles.module.scss'
 
 function collectMenuProps({ item }) {
   return { item }
@@ -47,12 +49,12 @@ export function FileListItem({
     if (isRenaming) inputref.current.focus()
   }, [isRenaming])
   return (
-    <FileListItemContainer onDoubleClick={onDoubleClick} onClick={onClick}>
-      <div style={{ marginRight: '3px' }}>
-        <IconComponent size={'20px'} />
+    <div className={styles.fileListItemContainer} onDoubleClick={onDoubleClick} onClick={onClick}>
+      <div className={styles.fileNameContainer}>
+        {IconComponent ? <IconComponent width={15} /> : <DescriptionIcon width={20} />}
       </div>
       {label}
-    </FileListItemContainer>
+    </div>
   )
 }
 
@@ -63,20 +65,6 @@ export function FileListItem({
 export const FileList = (styled as any).div`
  width: 100%;
  padding-bottom: 60px;
-`
-
-/**
- *
- *  @author Robert Long
- */
-export const FileListItemContainer = (styled as any).div`
- width: 100%;
- display: flex;
- flex-direction: row;
- align-items: center;
- margin-left: 3px;
- margin-bottom: 3px;
- color: white;
 `
 
 MediaGrid.defaultProps = {
@@ -300,6 +288,7 @@ FileBrowserItem.defaultProps = {
 let lastId = 0
 
 const MemoFileGridItem = memo(FileBrowserItem)
+
 type FileBrowserGridTypes = {
   isLoading: boolean
   scrollWindowHeight: number
@@ -309,6 +298,7 @@ type FileBrowserGridTypes = {
   deleteContent: any
   currentContent: any
 }
+
 /**
  * FileBrowserGrid component used to render FileBrowser.
  *
@@ -323,7 +313,7 @@ type FileBrowserGridTypes = {
  * @param       {any}  source
  * @constructor
  */
-export function FileBrowserGrid(props: FileBrowserGridTypes) {
+export const FileBrowserGrid = (props: FileBrowserGridTypes) => {
   const { isLoading, scrollWindowHeight, items, onSelect, moveContent, deleteContent, currentContent } = props
   const uniqueId = useRef(`FileGrid${lastId}`)
   const { t } = useTranslation()
@@ -333,7 +323,7 @@ export function FileBrowserGrid(props: FileBrowserGridTypes) {
   }, [])
 
   // itemHeight = num rows / num cols
-  const itemsRendered = unique(items, 'id').map((item, i) => (
+  const itemsRendered = unique(items, (item) => item.id).map((item, i) => (
     <MemoFileGridItem
       key={item.id}
       contextMenuId={i.toString()}

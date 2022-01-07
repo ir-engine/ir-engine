@@ -6,12 +6,10 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
 import AdjustIcon from '@mui/icons-material/Adjust'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
-import { updateSpotLight } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
@@ -22,59 +20,12 @@ import { updateSpotLight } from '@xrengine/engine/src/scene/functions/loaders/St
 export const SpotLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  //function to handle the changes in color property
-  const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { color }
-    })
-  }
-
-  //function to handle the changes in intensity property
-  const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { intensity }
-    })
-  }
-
-  //function to handle the changes innerConeAngle property
-  const onChangePenumbra = (penumbra) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { penumbra }
-    })
-  }
-
-  //function to handle the changes in outerConeAngle property
-  const onChangeAngle = (angle) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { angle }
-    })
-  }
-
-  //function to handle the changes in ranges property
-  const onChangeRange = (range) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { range }
-    })
-  }
-
-  const onChangeDecay = (decay) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: SpotLightComponent,
-      properties: { decay }
-    })
-  }
-
   const lightComponent = getComponent(props.node.entity, SpotLightComponent)
 
   return (
     <NodeEditor {...props} description={t('editor:properties.spotLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(SpotLightComponent, 'color')} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -84,7 +35,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={0.01}
         largeStep={0.1}
         value={lightComponent.intensity}
-        onChange={onChangeIntensity}
+        onChange={updateProperty(SpotLightComponent, 'intensity')}
       />
       <NumericInputGroup
         name="Penumbra"
@@ -94,7 +45,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         smallStep={0.01}
         mediumStep={0.1}
         value={lightComponent.penumbra}
-        onChange={onChangePenumbra}
+        onChange={updateProperty(SpotLightComponent, 'penumbra')}
       />
       <RadianNumericInputGroup
         name="Outer Cone Angle"
@@ -105,7 +56,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={lightComponent.angle}
-        onChange={onChangeAngle}
+        onChange={updateProperty(SpotLightComponent, 'angle')}
         unit="°"
       />
       <NumericInputGroup
@@ -116,7 +67,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={lightComponent.range}
-        onChange={onChangeRange}
+        onChange={updateProperty(SpotLightComponent, 'range')}
         unit="m"
       />
       <NumericInputGroup
@@ -127,9 +78,9 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         smallStep={0.1}
         mediumStep={1}
         value={lightComponent.decay}
-        onChange={onChangeDecay}
+        onChange={updateProperty(SpotLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={SpotLightComponent} updateFunction={updateSpotLight} />
+      <LightShadowProperties node={props.node} comp={SpotLightComponent} />
     </NodeEditor>
   )
 }

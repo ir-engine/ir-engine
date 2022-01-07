@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput, { ControlledStringInput } from '../inputs/StringInput'
+import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { CommandManager } from '../../managers/CommandManager'
@@ -11,7 +11,7 @@ import { client } from '@xrengine/client-core/src/feathers'
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Euler } from 'three'
@@ -78,19 +78,20 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const portalComponent = getComponent(props.node.entity, PortalComponent)
-  const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-  euler.setFromQuaternion(helperTransform.rotation)
+
+  if (portalComponent.spawnRotation) euler.setFromQuaternion(portalComponent.spawnRotation)
+  else euler.set(0, 0, 0)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
-        <StringInput value={portalComponent.location} onChange={onChangeValue('location')} />
+        <StringInput value={portalComponent.location} onChange={updateProperty(PortalComponent, 'location')} />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           options={portals}
           value={portalComponent.linkedPortalId}
-          onChange={onChangeValue('linkedPortalId')}
+          onChange={updateProperty(PortalComponent, 'linkedPortalId')}
           filterOption={(option: PortalFilterOption, searchString: string) => {
             return option.label.includes(searchString || '')
           }}
@@ -111,14 +112,17 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
               }
             })}
           value={portalComponent.cubemapBakeId}
-          onChange={onChangeCubemapBake}
+          onChange={updateProperty(PortalComponent, 'cubemapBakeId')}
         />
       </InputGroup> */}
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
-        <Vector3Input value={helperTransform.position} onChange={onChangeValue('spawnPosition')} />
+        <Vector3Input
+          value={portalComponent.spawnPosition}
+          onChange={updateProperty(PortalComponent, 'spawnPosition')}
+        />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
-        <EulerInput value={euler} onChange={onChangeValue('spawnRotation')} />
+        <EulerInput value={euler} onChange={updateProperty(PortalComponent, 'spawnRotation')} />
       </InputGroup>
     </NodeEditor>
   )

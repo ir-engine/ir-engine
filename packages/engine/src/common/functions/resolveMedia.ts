@@ -32,7 +32,8 @@ export const resolveMedia = async (
     try {
       contentType = await getContentType(url)
     } catch (error) {
-      throw new Error(error)
+      console.error(error)
+      contentType = ''
     }
 
     return { url, contentType }

@@ -214,13 +214,12 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
-  // TODO: - Nayan - Check for the use of below system
-  // registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
   registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EntityNodeEventSystem'))
 
   // Scene Systems
-  // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'))
+
   // Miscellaneous Systems
   // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
   registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))

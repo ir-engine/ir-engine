@@ -7,11 +7,9 @@ import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
 import BoltIcon from '@mui/icons-material/Bolt'
 import BooleanInput from '../inputs/BooleanInput'
-import { CommandManager } from '../../managers/CommandManager'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
-import { updateDirectionalLight } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -21,39 +19,6 @@ import { EditorComponentType } from './Util'
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  //function to handle changes in color property
-  const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: DirectionalLightComponent,
-      properties: { color }
-    })
-  }
-  //function to handle the changes in intensity property of DirectionalLight
-  const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: DirectionalLightComponent,
-      properties: { intensity }
-    })
-  }
-
-  //function to handle the changes in camera far property of DirectionalLight
-  const onChangeCameraFar = (cameraFar) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: DirectionalLightComponent,
-      properties: { cameraFar }
-    })
-  }
-
-  // function to handle changes in showCameraHelper propery
-  const onChangeshowCameraHelper = (showCameraHelper) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: DirectionalLightComponent,
-      properties: { showCameraHelper }
-    })
-  }
-
-  // renders editor view, provides inputs to customize properties of DirectionalLight element.
   const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
 
   return (
@@ -63,7 +28,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.directionalLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(DirectionalLightComponent, 'color')} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -73,16 +38,15 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={0.01}
         largeStep={0.1}
         value={lightComponent.intensity}
-        onChange={onChangeIntensity}
+        onChange={updateProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      <LightShadowProperties
-        node={props.node}
-        comp={DirectionalLightComponent}
-        updateFunction={updateDirectionalLight}
-      />
+      <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
       <InputGroup name="Camera Debugger" label={t('editor:properties.directionalLight.lbl-showCameraHelper')}>
-        <BooleanInput value={lightComponent.showCameraHelper} onChange={onChangeshowCameraHelper} />
+        <BooleanInput
+          value={lightComponent.showCameraHelper}
+          onChange={updateProperty(DirectionalLightComponent, 'showCameraHelper')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="CameraFar"
@@ -92,7 +56,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={0.1}
         largeStep={1}
         value={lightComponent.cameraFar}
-        onChange={onChangeCameraFar}
+        onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
       />
     </NodeEditor>
   )

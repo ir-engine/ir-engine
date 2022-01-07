@@ -66,7 +66,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 
 let lastRenderTime = 0
 
-type EngineRendererProps = {
+export type EngineRendererProps = {
   canvas: HTMLCanvasElement
   enabled: boolean
 }
@@ -101,6 +101,9 @@ export class EngineRenderer {
   averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
+
+  /** To Disable update for renderer */
+  disableUpdate = false
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {

@@ -15,7 +15,6 @@ import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
-import { createMediaServer, createVolumetric } from '../functions/createMedia'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
@@ -109,9 +108,9 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
   if (deserializer) {
     deserializer(entity, component)
-    return
   }
 
+  return
   switch (name) {
     case '_metadata':
       {
@@ -140,7 +139,8 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     //       if (isClient) {
     //         createVideo(entity, component.props.extend)
     //       } else {
-    //         createMediaServer(entity, component.props.extend)
+    //         addObject3DComponent(entity, new Object3D(), component.props.extend)
+    //         if (component.props.extend.interactable) addComponent(entity, InteractableComponent, component.props.extend)
     //       }
     //     } else if (component.props.extendType == 'image') {
     //       addObject3DComponent(entity, new Image(), component.props.extend)
@@ -153,17 +153,8 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     //   }
     //   break
 
-    case 'interact':
-      if (component.props.interactable) addComponent(entity, InteractableComponent, component.props)
-      break
-
     case 'map':
       if (isClient) registerSceneLoadPromise(createMap(entity, component.props))
-      break
-
-    case 'volumetric':
-      if (isClient) createVolumetric(entity, component.props)
-      else createMediaServer(entity, component.props)
       break
 
     case 'clouds':

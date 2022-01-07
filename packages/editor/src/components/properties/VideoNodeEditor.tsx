@@ -13,6 +13,8 @@ import ImageSourceProperties from './ImageSourceProperties'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import MediaSourceProperties from './MediaSourceProperties'
+import BooleanInput from '../inputs/BooleanInput'
+import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 
 /**
  * VideoNodeEditor used to render editor view for property customization.
@@ -37,6 +39,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }
 
   const videoComponent = getComponent(props.node.entity, VideoComponent)
+  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
 
   return (
     <NodeEditor
@@ -45,26 +48,23 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.video.description')}
     >
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
-        <VideoInput
-          value={videoComponent.videoSource}
-          onChange={(v) => updateProperty(VideoComponent, 'videoSource', v)}
-        />
+        <VideoInput value={videoComponent.videoSource} onChange={updateProperty(VideoComponent, 'videoSource')} />
       </InputGroup>
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
         <ControlledStringInput
           value={videoComponent.elementId}
-          onChange={(v) => updateProperty(VideoComponent, 'elementId', v)}
+          onChange={updateProperty(VideoComponent, 'elementId')}
         />
       </InputGroup>
-      {/* <InputGroup name="Livestream" label={t('editor:properties.video.lbl-islivestream')}>
-        <BooleanInput value={node.isLivestream} onChange={onChangeIsLivestream} />
-      </InputGroup> */}
-      {/* <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
-        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
-      </InputGroup> */}
       <ImageSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
+      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
+        <BooleanInput
+          value={interactableComponent.interactable}
+          onChange={updateProperty(InteractableComponent, 'interactable')}
+        />
+      </InputGroup>
       <PropertiesPanelButton onClick={toggleAudio}>{t('editor:properties.video.lbl-test')}</PropertiesPanelButton>
     </NodeEditor>
   )

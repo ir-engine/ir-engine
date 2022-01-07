@@ -1,16 +1,38 @@
 import VideocamIcon from '@mui/icons-material/Videocam'
-import React from 'react'
+import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import { Button } from '../inputs/Button'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
-import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
 import SelectInput from '../inputs/SelectInput'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { EditorComponentType, updateProperty } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { VolumetricPlayMode } from '@xrengine/engine/src/scene/constants/VolumetricPlayMode'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+
+const PlayModeOptions = [
+  {
+    label: 'Single',
+    value: VolumetricPlayMode.Single
+  },
+  {
+    label: 'Random',
+    value: VolumetricPlayMode.Random
+  },
+  {
+    label: 'Loop',
+    value: VolumetricPlayMode.Loop
+  },
+  {
+    label: 'SingleLoop',
+    value: VolumetricPlayMode.SingleLoop
+  }
+]
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -19,47 +41,49 @@ import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileT
  * @param       {any} props
  * @constructor
  */
-export function VolumetricNodeEditor(props) {
-  const { node } = props
+export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [isPlaying, setPlaying] = useState(false)
 
-  VolumetricNodeEditor.description = t('editor:properties.volumetric.description')
+  const toggle = () => {
+    const obj3d = getComponent(props.node.entity, Object3DComponent).value
 
-  //function to handle the change in src property
+    if (isPlaying) {
+      obj3d.userData.player.stopOnNextFrame = true
+    } else {
+      obj3d.userData.player.stopOnNextFrame = false
+      obj3d.userData.player.play()
+    }
 
-  const onChangePlayMode = (id) => {
-    CommandManager.instance.setPropertyOnSelection('playMode', id)
+    setPlaying(!isPlaying)
   }
 
-  const onChangePaths = (paths) => {
-    CommandManager.instance.setPropertyOnSelection('paths', paths)
-  }
+  const volumetricComponent = getComponent(props.node.entity, VolumetricComponent)
 
-  //returning editor view
   return (
-    <NodeEditor description={VolumetricNodeEditor.description} {...props}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.volumetric.name')}
+      description={t('editor:properties.volumetric.description')}
+    >
       <ArrayInputGroup
         name="UVOL Paths"
         prefix="uvol"
-        values={node.paths}
-        onChange={onChangePaths}
+        values={volumetricComponent.paths}
+        onChange={updateProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.volumetric.uvolPaths')}
         acceptFileTypes={VolumetricFileTypes}
         itemType={ItemTypes.Volumetrics}
       ></ArrayInputGroup>
       <InputGroup name="Play Mode" label={t('editor:properties.volumetric.playmode')}>
-        <SelectInput options={node.playModeItems} value={node.playMode} onChange={onChangePlayMode} />
-        {node.paths && node.paths.length > 0 && node.paths[0] && (
-          <Button
-            style={{ marginLeft: '5px', width: '60px' }}
-            type="submit"
-            onClick={() => {
-              node.onPlay()
-            }}
-          >
-            {node.isUVOLPlay
-              ? t('editor:properties.volumetric.pausetitle')
-              : t('editor:properties.volumetric.playtitle')}
+        <SelectInput
+          options={PlayModeOptions}
+          value={volumetricComponent.playMode}
+          onChange={updateProperty(VolumetricComponent, 'playMode')}
+        />
+        {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
+          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
+            {isPlaying ? t('editor:properties.volumetric.pausetitle') : t('editor:properties.volumetric.playtitle')}
           </Button>
         )}
       </InputGroup>
@@ -71,6 +95,4 @@ export function VolumetricNodeEditor(props) {
 //setting iconComponent with icon name
 VolumetricNodeEditor.iconComponent = VideocamIcon
 
-//setting description and will appear on editor view
-VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description')
 export default VolumetricNodeEditor

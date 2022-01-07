@@ -8,5 +8,9 @@ import { guessContentType } from './guessContentType'
  * @return {Promise}
  */
 export const getContentType = async (contentUrl: string): Promise<string | null> => {
-  return guessContentType(contentUrl) || (await fetchContentType(contentUrl))
+  try {
+    return guessContentType(contentUrl) || (await fetchContentType(contentUrl))
+  } catch (_) {
+    return ''
+  }
 }

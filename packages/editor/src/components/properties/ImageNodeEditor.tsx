@@ -21,10 +21,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput
-          value={imageComponent.imageSource}
-          onChange={(v) => updateProperty(ImageComponent, 'imageSource', v)}
-        />
+        <ImageInput value={imageComponent.imageSource} onChange={updateProperty(ImageComponent, 'imageSource')} />
       </InputGroup>
       <ImageSourceProperties node={props.node} multiEdit={props.multiEdit} />
     </NodeEditor>

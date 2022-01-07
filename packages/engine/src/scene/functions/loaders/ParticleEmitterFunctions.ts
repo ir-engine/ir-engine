@@ -1,29 +1,14 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   ComponentDeserializeFunction,
-  ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Engine } from '../../../ecs/classes/Engine'
-import { LinkComponent } from '../../components/LinkComponent'
-import {
-  Color,
-  DoubleSide,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3
-} from 'three'
+import { Color, ShaderMaterial, Vector3 } from 'three'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
 import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitterMesh'

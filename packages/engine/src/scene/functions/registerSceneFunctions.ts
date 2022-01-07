@@ -158,6 +158,19 @@ import {
   updateVideo
 } from './loaders/VideoFunctions'
 import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
+import {
+  deserializeInteractable,
+  SCENE_COMPONENT_INTERACTABLE,
+  serializeInteractable,
+  updateInteractable
+} from './loaders/InteractableFunctions'
+import {
+  deserializeVolumetric,
+  prepareVolumetricForGLTFExport,
+  SCENE_COMPONENT_VOLUMETRIC,
+  serializeVolumetric,
+  updateVolumetric
+} from './loaders/VolumetricFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -380,5 +393,18 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeMedia,
     serialize: serializeMedia,
     update: updateMedia
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {
+    deserialize: deserializeInteractable,
+    serialize: serializeInteractable,
+    update: updateInteractable
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
+    deserialize: deserializeVolumetric,
+    serialize: serializeVolumetric,
+    update: updateVolumetric,
+    prepareForGLTFExport: prepareVolumetricForGLTFExport
   })
 }

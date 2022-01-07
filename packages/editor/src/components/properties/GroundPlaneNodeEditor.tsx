@@ -5,30 +5,13 @@ import ColorInput from '../inputs/ColorInput'
 import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
 import SquareIcon from '@mui/icons-material/Square'
-import { CommandManager } from '../../managers/CommandManager'
 import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { updateGroundPlane } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import ShadowProperties from './ShadowProperties'
 
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  //function handles the changes in color property
-  const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: GroundPlaneComponent,
-      properties: { color }
-    })
-  }
-
-  const onChangeGenerateNavmesh = (generateNavmesh) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: GroundPlaneComponent,
-      properties: { generateNavmesh }
-    })
-  }
 
   const groundPlaneComponent = getComponent(props.node.entity, GroundPlaneComponent)
 
@@ -39,10 +22,13 @@ export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.groundPlane.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.groundPlane.lbl-color')}>
-        <ColorInput value={groundPlaneComponent.color} onChange={onChangeColor} />
+        <ColorInput value={groundPlaneComponent.color} onChange={updateProperty(GroundPlaneComponent, 'color')} />
       </InputGroup>
       <InputGroup name="Generate Navmesh" label={t('editor:properties.groundPlane.lbl-generateNavmesh')}>
-        <BooleanInput value={groundPlaneComponent.generateNavmesh} onChange={onChangeGenerateNavmesh} />
+        <BooleanInput
+          value={groundPlaneComponent.generateNavmesh}
+          onChange={updateProperty(GroundPlaneComponent, 'generateNavmesh')}
+        />
       </InputGroup>
       <ShadowProperties node={props.node} />
     </NodeEditor>

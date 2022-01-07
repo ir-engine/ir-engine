@@ -16,7 +16,7 @@ import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { Object3D } from 'three'
 import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
 
 export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'

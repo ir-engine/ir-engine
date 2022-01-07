@@ -10,3 +10,9 @@ export const DistanceModel = {
   Inverse: 'inverse' as const,
   Exponential: 'exponential' as const
 }
+
+export const DistanceModelOptions = [
+  { label: 'Linear', value: DistanceModel.Linear },
+  { label: 'Inverse', value: DistanceModel.Inverse },
+  { label: 'Exponential', value: DistanceModel.Exponential }
+]

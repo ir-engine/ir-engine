@@ -21,7 +21,7 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { AudioType } from '../../../audio/constants/AudioConstants'
+import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
@@ -32,8 +32,8 @@ export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   audioSource: '',
   volume: 0.5,
-  audioType: AudioType.Positional,
-  distanceModel: 'linear',
+  audioType: AudioType.Positional as AudioTypeType,
+  distanceModel: 'linear' as DistanceModelType,
   rolloffFactor: 1,
   refDistance: 20,
   maxDistance: 1000,

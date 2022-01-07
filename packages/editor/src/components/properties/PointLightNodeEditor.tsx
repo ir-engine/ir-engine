@@ -6,52 +6,18 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
-import { updatePointLight } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  //function to handle changes in color property
-  const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PointLightComponent,
-      properties: { color }
-    })
-  }
-
-  //function to handle changes in intensity
-  const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PointLightComponent,
-      properties: { intensity }
-    })
-  }
-
-  //function to handle changes on range property
-  const onChangeRange = (range) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PointLightComponent,
-      properties: { range }
-    })
-  }
-
-  const onChangeDecay = (decay) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PointLightComponent,
-      properties: { decay }
-    })
-  }
-
   const lightComponent = getComponent(props.node.entity, PointLightComponent)
 
   return (
     <NodeEditor {...props} description={t('editor:properties.pointLight.description')}>
       <InputGroup name="Color" label={t('editor:properties.pointLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(PointLightComponent, 'color')} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -61,7 +27,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={0.01}
         largeStep={0.1}
         value={lightComponent.intensity}
-        onChange={onChangeIntensity}
+        onChange={updateProperty(PointLightComponent, 'intensity')}
         unit="cd"
       />
       <NumericInputGroup
@@ -72,7 +38,7 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={lightComponent.range}
-        onChange={onChangeRange}
+        onChange={updateProperty(PointLightComponent, 'range')}
         unit="m"
       />
       <NumericInputGroup
@@ -83,9 +49,9 @@ export const PointLightNodeEditor: EditorComponentType = (props) => {
         mediumStep={1}
         largeStep={10}
         value={lightComponent.decay}
-        onChange={onChangeDecay}
+        onChange={updateProperty(PointLightComponent, 'decay')}
       />
-      <LightShadowProperties node={props.node} comp={PointLightComponent} updateFunction={updatePointLight} />
+      <LightShadowProperties node={props.node} comp={PointLightComponent} />
     </NodeEditor>
   )
 }

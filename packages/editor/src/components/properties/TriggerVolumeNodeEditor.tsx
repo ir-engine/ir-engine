@@ -8,8 +8,8 @@ import { CommandManager } from '../../managers/CommandManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
 import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorComponentType } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorComponentType, updateProperty } from './Util'
 
 export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
   //initializing props and state
@@ -39,14 +39,6 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
     })
   }
 
-  //function to handle the changes in enterValue property
-  const onChangeValue = (prop) => (value) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: TriggerVolumeComponent,
-      properties: { [prop]: value }
-    })
-  }
-
   const triggerVolumeComponent = getComponent(props.node.entity, TriggerVolumeComponent)
   const targetOption = options.find((o) => o.value === triggerVolumeComponent.target)
   const target = targetOption ? targetOption.value : null
@@ -71,14 +63,14 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
         <StringInput
           value={triggerVolumeComponent.onEnter}
-          onChange={onChangeValue('onEnter')}
+          onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
           disabled={props.multiEdit || !target}
         />
       </InputGroup>
       <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
         <StringInput
           value={triggerVolumeComponent.onExit}
-          onChange={onChangeValue('onExit')}
+          onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
           disabled={props.multiEdit || !target}
         />
       </InputGroup>

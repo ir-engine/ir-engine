@@ -19,17 +19,20 @@ import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/Rota
 import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
 import isInputSelected from '../functions/isInputSelected'
-import ModelNode from '../nodes/ModelNode'
-import VideoNode from '../nodes/VideoNode'
-import ImageNode from '../nodes/ImageNode'
-import VolumetricNode from '../nodes/VolumetricNode'
-import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -260,46 +263,99 @@ export class CommandManager extends EventEmitter {
   }
 
   async addMedia({ url }, parent?: any, before?: any) {
-    let contentType = ''
+    let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
-    try {
-      contentType = (await getContentType(url)) || ''
-    } catch (error) {
-      console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
-    }
-
-    let node: EntityTreeNode
+    let node = new EntityTreeNode(createEntity())
+    let prefabType = '' as ScenePrefabTypes
+    let updateFunc = null! as Function
 
     if (contentType.startsWith('model/gltf')) {
-      node = new ModelNode()
-      node.initialScale = 'fit'
-      await node.load(url)
+      prefabType = ScenePrefabs.model
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: ModelComponent,
+            properties: { src: url, initialScale: 'fit' }
+          },
+          false
+        )
     }
-
     // else if (contentType.startsWith('shopify/gltf')) {
     //   node = new ShopifyNode()
     //   node.initialScale = 'fit'
     //   await node.load(url)
     // }
     else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
-      node = new VideoNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.video
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: VideoComponent,
+            properties: { videoSource: url }
+          },
+          false
+        )
     } else if (contentType.startsWith('image/')) {
-      node = new ImageNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.image
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: ImageComponent,
+            properties: { imageSource: url }
+          },
+          false
+        )
     } else if (contentType.startsWith('audio/')) {
-      node = new AudioNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.audio
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: AudioComponent,
+            properties: { audioSource: url }
+          },
+          false
+        )
     } else if (url.contains('.uvol')) {
-      node = new VolumetricNode()
+      prefabType = ScenePrefabs.volumetric
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: AudioComponent,
+            properties: { paths: [url] }
+          },
+          false
+        )
     } else {
-      node = new LinkNode()
-      node.href = url
+      prefabType = ScenePrefabs.link
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: LinkComponent,
+            properties: { href: url }
+          },
+          false
+        )
     }
 
-    SceneManager.instance.getSpawnPosition(node.position)
-    this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
+    if (prefabType) {
+      this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+        prefabTypes: prefabType,
+        parents: parent,
+        befores: before
+      })
+
+      updateFunc()
+
+      const transformComponent = getComponent(node.entity, TransformComponent)
+      if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+    }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node

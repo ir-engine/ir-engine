@@ -491,7 +491,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {}
         }
       ],

@@ -1,5 +1,4 @@
 import LanguageIcon from '@mui/icons-material/Language'
-import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import React, { useCallback } from 'react'
@@ -23,7 +22,7 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, useSetPropertyOnSelectedEntities } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 import ImageInput from '../inputs/ImageInput'
 import FolderInput from '../inputs/FolderInput'
 import Vector3Input from '../inputs/Vector3Input'
@@ -38,10 +37,7 @@ import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapCom
 import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
-import { updateMetaData } from '@xrengine/engine/src/scene/functions/loaders/MetaDataFunctions'
-import { updateFog } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
-import { updateEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
-import { updateRenderSetting } from '@xrengine/engine/src/scene/functions/loaders/RenderSettingsFunction'
+import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -162,103 +158,17 @@ const ShadowTypeOptions = [
  * @constructor
  */
 export const SceneNodeEditor: EditorComponentType = (props) => {
-  const { node } = props
   const { t } = useTranslation()
 
-  //creating functions to handle the changes in property of node
-  // const onChangeBackground = useSetPropertySelected("background");
-  const onChangeMetaData = useSetPropertyOnSelectedEntities(MetaDataComponent, updateMetaData, 'meta_data')
-
-  const onChangeFogType = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'type')
-  const onChangeFogColor = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'color')
-  const onChangeFogNearDistance = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'near')
-  const onChangeFogFarDistance = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'far')
-  const onChangeFogDensity = useSetPropertyOnSelectedEntities(FogComponent, updateFog, 'density')
-
-  const onChangeEnvmapSourceType = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'type')
-  const onChangeEnvmapTextureType = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapTextureType')
-  const onChangeEnvmapColorSource = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapSourceColor')
-  const envMapIntensityChanged = useSetPropertyOnSelectedEntities(EnvmapComponent, updateEnvMap, 'envMapIntensity')
-  const onChangeEquirectangularURLSource = useSetPropertyOnSelectedEntities(
-    EnvmapComponent,
-    updateEnvMap,
-    'envMapSourceURL'
-  )
-  const onChangeCubemapURLSource = (value) => {
+  const onChangeCubemapURLSource = useCallback((value) => {
     const directory = getDirectoryFromUrl(value)
-    if (directory !== (node as any).envMapSourceURL) {
+    if (directory !== envmapComponent.envMapSourceURL) {
       CommandManager.instance.setPropertyOnSelectionEntities({
         component: EnvmapComponent,
         properties: { envMapSourceURL: directory }
       })
     }
-  }
-
-  const onChangeUserPositionalAudio = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'usePositionalAudio'
-  )
-  const onChangeMediaVolume = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaVolume'
-  )
-  const onChangeMediaDistanceModel = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaDistanceModel'
-  )
-  const onChangeMediaRolloffFactor = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaRolloffFactor'
-  )
-  const onChangeMediaRefDistance = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaRefDistance'
-  )
-  const onChangeMediaMaxDistance = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaMaxDistance'
-  )
-  const onChangeMediaConeInnerAngle = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaConeInnerAngle'
-  )
-  const onChangeMediaConeOuterAngle = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaConeOuterAngle'
-  )
-  const onChangeMediaConeOuterGain = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'mediaConeOuterGain'
-  )
-  const onChangeAvatarDistanceModel = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'avatarDistanceModel'
-  )
-  const onChangeAvatarRolloffFactor = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'avatarRolloffFactor'
-  )
-  const onChangeAvatarRefDistance = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'avatarRefDistance'
-  )
-  const onChangeAvatarMaxDistance = useSetPropertyOnSelectedEntities(
-    PositionalAudioSettingsComponent,
-    () => {},
-    'avatarMaxDistance'
-  )
+  }, [])
 
   const onChangeUseSimpleMaterials = useCallback((value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
@@ -269,58 +179,31 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
     })
   }, [])
 
-  const onChangeOverrideRendererettings = useSetPropertyOnSelectedEntities(
-    RenderSettingComponent,
-    updateRenderSetting,
-    'overrideRendererSettings'
-  )
-  const onChangeLODs = useSetPropertyOnSelectedEntities(RenderSettingComponent, updateRenderSetting, 'LODs')
-  const onChangeUseCSM = useSetPropertyOnSelectedEntities(RenderSettingComponent, updateRenderSetting, 'csm')
-  const onChangeUseToneMapping = useSetPropertyOnSelectedEntities(
-    RenderSettingComponent,
-    updateRenderSetting,
-    'toneMapping'
-  )
-  const onChangeUseToneMappingExposure = useSetPropertyOnSelectedEntities(
-    RenderSettingComponent,
-    updateRenderSetting,
-    'toneMappingExposure'
-  )
-  const onChangeUseShadowMapType = useSetPropertyOnSelectedEntities(
-    RenderSettingComponent,
-    updateRenderSetting,
-    'shadowMapType'
-  )
+  const metadata = getComponent(props.node.entity, MetaDataComponent)
+  const envmapComponent = getComponent(props.node.entity, EnvmapComponent)
+  const fogComponent = getComponent(props.node.entity, FogComponent)
+  const audioComponent = getComponent(props.node.entity, PositionalAudioSettingsComponent)
+  const renderSettingComponent = getComponent(props.node.entity, RenderSettingComponent)
 
-  const metadata = getComponent(node.entity, MetaDataComponent)
-  const envmapComponent = getComponent(node.entity, EnvmapComponent)
-  const fogComponent = getComponent(node.entity, FogComponent)
-  const audioComponent = getComponent(node.entity, PositionalAudioSettingsComponent)
-  const renderSettingComponent = getComponent(node.entity, RenderSettingComponent)
-
-  // returning editor view for property editor for sceneNode
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.scene.name')}
       description={t('editor:properties.scene.description')}
     >
-      {/* <InputGroup
-        name="Background Color"
-        label={t('editor:properties.scene.lbl-bgcolor')}
-      > */}
-      {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
-      {/* </InputGroup> */}
-
       <InputGroup name="Metadata" label="Metadata">
-        <StringInput value={metadata.meta_data} onChange={onChangeMetaData} />
+        <StringInput value={metadata.meta_data} onChange={updateProperty(MetaDataComponent, 'meta_data')} />
       </InputGroup>
       <InputGroup name="Envmap Source" label="Envmap Source">
-        <SelectInput options={EnvMapSourceOptions} value={envmapComponent.type} onChange={onChangeEnvmapSourceType} />
+        <SelectInput
+          options={EnvMapSourceOptions}
+          value={envmapComponent.type}
+          onChange={updateProperty(EnvmapComponent, 'type')}
+        />
       </InputGroup>
       {envmapComponent.type === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label="EnvMap Color">
-          <ColorInput value={envmapComponent.envMapSourceColor} onChange={onChangeEnvmapColorSource} />
+          <ColorInput value={envmapComponent.envMapSourceColor} onChange={updateProperty(EnvmapComponent, 'type')} />
         </InputGroup>
       )}
       {envmapComponent.type === EnvMapSourceType.Texture && (
@@ -329,7 +212,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={EnvMapTextureOptions}
               value={envmapComponent.envMapTextureType}
-              onChange={onChangeEnvmapTextureType}
+              onChange={updateProperty(EnvmapComponent, 'envMapTextureType')}
             />
           </InputGroup>
           <InputGroup name="Texture URL" label="Texture URL">
@@ -337,7 +220,10 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
               <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType === EnvMapTextureType.Equirectangular && (
-              <ImageInput value={envmapComponent.envMapSourceURL} onChange={onChangeEquirectangularURLSource} />
+              <ImageInput
+                value={envmapComponent.envMapSourceURL}
+                onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
+              />
             )}
             {envmapComponent.errorWhileLoading && <div>Error Loading From URL </div>}
           </InputGroup>
@@ -349,16 +235,20 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           min={0}
           max={20}
           value={envmapComponent.envMapIntensity}
-          onChange={envMapIntensityChanged}
+          onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
         />
       </InputGroup>
 
       <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
-        <SelectInput options={FogTypeOptions} value={fogComponent.type} onChange={onChangeFogType} />
+        <SelectInput
+          options={FogTypeOptions}
+          value={fogComponent.type}
+          onChange={updateProperty(FogComponent, 'type')}
+        />
       </InputGroup>
       {fogComponent.type !== FogType.Disabled && (
         <InputGroup name="Fog Color" label={t('editor:properties.scene.lbl-fogColor')}>
-          <ColorInput value={fogComponent.color} onChange={onChangeFogColor} />
+          <ColorInput value={fogComponent.color} onChange={updateProperty(FogComponent, 'color')} />
         </InputGroup>
       )}
       {fogComponent.type === FogType.Linear && (
@@ -371,7 +261,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             largeStep={10}
             min={0}
             value={fogComponent.near}
-            onChange={onChangeFogNearDistance}
+            onChange={updateProperty(FogComponent, 'near')}
           />
           <NumericInputGroup
             name="Fog Far Distance"
@@ -381,7 +271,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             largeStep={1000}
             min={0}
             value={fogComponent.far}
-            onChange={onChangeFogFarDistance}
+            onChange={updateProperty(FogComponent, 'far')}
           />
         </>
       )}
@@ -394,11 +284,14 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           largeStep={0.25}
           min={0}
           value={fogComponent.density}
-          onChange={onChangeFogDensity}
+          onChange={updateProperty(FogComponent, 'density')}
         />
       )}
       <InputGroup name="Override Audio Settings" label={t('editor:properties.scene.lbl-audioSettings')}>
-        <BooleanInput value={audioComponent.usePositionalAudio} onChange={onChangeUserPositionalAudio} />
+        <BooleanInput
+          value={audioComponent.usePositionalAudio}
+          onChange={updateProperty(PositionalAudioSettingsComponent, 'usePositionalAudio')}
+        />
       </InputGroup>
       {audioComponent.usePositionalAudio && (
         <>
@@ -410,11 +303,11 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={DistanceModelOptions}
               value={audioComponent.avatarDistanceModel}
-              onChange={onChangeAvatarDistanceModel}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarDistanceModel')}
             />
           </InputGroup>
 
-          {audioComponent.avatarDistanceModel === DistanceModelType.Linear ? (
+          {audioComponent.avatarDistanceModel === DistanceModel.Linear ? (
             <InputGroup
               name="Avatar Rolloff Factor"
               label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
@@ -427,7 +320,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.01}
                 largeStep={0.1}
                 value={audioComponent.avatarRolloffFactor}
-                onChange={onChangeAvatarRolloffFactor}
+                onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRolloffFactor')}
               />
             </InputGroup>
           ) : (
@@ -440,7 +333,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
               mediumStep={1}
               largeStep={10}
               value={audioComponent.avatarRolloffFactor}
-              onChange={onChangeAvatarRolloffFactor}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRolloffFactor')}
             />
           )}
           <NumericInputGroup
@@ -452,7 +345,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.avatarRefDistance}
-            onChange={onChangeAvatarRefDistance}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRefDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -464,11 +357,14 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.avatarMaxDistance}
-            onChange={onChangeAvatarMaxDistance}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarMaxDistance')}
             unit="m"
           />
           <InputGroup name="Media Volume" label={t('editor:properties.scene.lbl-mediaVolume')}>
-            <CompoundNumericInput value={audioComponent.mediaVolume} onChange={onChangeMediaVolume} />
+            <CompoundNumericInput
+              value={audioComponent.mediaVolume}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaVolume')}
+            />
           </InputGroup>
           <InputGroup
             name="Media Distance Model"
@@ -478,11 +374,11 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={DistanceModelOptions}
               value={audioComponent.mediaDistanceModel}
-              onChange={onChangeMediaDistanceModel}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaDistanceModel')}
             />
           </InputGroup>
 
-          {audioComponent.mediaDistanceModel === DistanceModelType.Linear ? (
+          {audioComponent.mediaDistanceModel === DistanceModel.Linear ? (
             <InputGroup
               name="Media Rolloff Factor"
               label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
@@ -495,7 +391,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.01}
                 largeStep={0.1}
                 value={audioComponent.mediaRolloffFactor}
-                onChange={onChangeMediaRolloffFactor}
+                onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRolloffFactor')}
               />
             </InputGroup>
           ) : (
@@ -508,7 +404,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
               mediumStep={1}
               largeStep={10}
               value={audioComponent.mediaRolloffFactor}
-              onChange={onChangeMediaRolloffFactor}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRolloffFactor')}
             />
           )}
           <NumericInputGroup
@@ -520,7 +416,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.mediaRefDistance}
-            onChange={onChangeMediaRefDistance}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRefDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -532,7 +428,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.mediaMaxDistance}
-            onChange={onChangeMediaMaxDistance}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaMaxDistance')}
             unit="m"
           />
           <NumericInputGroup
@@ -545,7 +441,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.mediaConeInnerAngle}
-            onChange={onChangeMediaConeInnerAngle}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeInnerAngle')}
             unit="°"
           />
           <NumericInputGroup
@@ -558,7 +454,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             mediumStep={1}
             largeStep={10}
             value={audioComponent.mediaConeOuterAngle}
-            onChange={onChangeMediaConeOuterAngle}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeOuterAngle')}
             unit="°"
           />
           <InputGroup
@@ -571,7 +467,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
               max={1}
               step={0.01}
               value={audioComponent.mediaConeOuterGain}
-              onChange={onChangeMediaConeOuterGain}
+              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeOuterGain')}
             />
           </InputGroup>
         </>
@@ -582,7 +478,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.scene.info-simpleMaterials')}
       >
         <BooleanInput
-          value={hasComponent(node.entity, SimpleMaterialTagComponent)}
+          value={hasComponent(props.node.entity, SimpleMaterialTagComponent)}
           onChange={onChangeUseSimpleMaterials}
         />
       </InputGroup>
@@ -597,13 +493,13 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          onChange={onChangeLODs}
+          onChange={updateProperty(RenderSettingComponent, 'LODs')}
         />
       </InputGroup>
       <InputGroup name="Override Renderer Settings" label={t('editor:properties.scene.lbl-rendererSettings')}>
         <BooleanInput
           value={renderSettingComponent.overrideRendererSettings}
-          onChange={onChangeOverrideRendererettings}
+          onChange={updateProperty(RenderSettingComponent, 'overrideRendererSettings')}
         />
       </InputGroup>
       {renderSettingComponent.overrideRendererSettings && (
@@ -613,7 +509,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.scene.lbl-csm')}
             info={t('editor:properties.scene.info-csm')}
           >
-            <BooleanInput value={renderSettingComponent.csm} onChange={onChangeUseCSM} />
+            <BooleanInput value={renderSettingComponent.csm} onChange={updateProperty(RenderSettingComponent, 'csm')} />
           </InputGroup>
           <InputGroup
             name="Tone Mapping"
@@ -623,7 +519,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={ToneMappingOptions}
               value={renderSettingComponent.toneMapping}
-              onChange={onChangeUseToneMapping}
+              onChange={updateProperty(RenderSettingComponent, 'toneMapping')}
             />
           </InputGroup>
           <InputGroup
@@ -636,7 +532,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
               max={10}
               step={0.1}
               value={renderSettingComponent.toneMappingExposure}
-              onChange={onChangeUseToneMappingExposure}
+              onChange={updateProperty(RenderSettingComponent, 'toneMappingExposure')}
             />
           </InputGroup>
           <InputGroup
@@ -647,7 +543,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
             <SelectInput
               options={ShadowTypeOptions}
               value={renderSettingComponent.shadowMapType}
-              onChange={onChangeUseShadowMapType}
+              onChange={updateProperty(RenderSettingComponent, 'shadowMapType')}
             />
           </InputGroup>
         </>

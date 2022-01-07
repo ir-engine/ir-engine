@@ -1,8 +1,6 @@
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'

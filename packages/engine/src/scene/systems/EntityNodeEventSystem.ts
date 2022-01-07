@@ -14,9 +14,9 @@ import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { VideoComponent } from '../components/VideoComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
-import { EntityVideoElements } from '../functions/loaders/VideoFunctions'
 
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
@@ -29,6 +29,7 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
   const videoQuery = defineQuery([VideoComponent])
   const videoAudioQuery = defineQuery([VideoComponent, AudioComponent])
+  const volumetricAudioQuery = defineQuery([VolumetricComponent, AudioComponent])
 
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
   const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
@@ -87,15 +88,19 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
     }
 
     for (const entity of videoQuery.exit()) {
-      const elementId = EntityVideoElements[entity]
-      if (elementId) document.getElementById(elementId)?.remove()
-      delete EntityVideoElements[entity]
+      const videoComponent = getComponent(entity, VideoComponent, true)
+      document.getElementById(videoComponent.elementId)?.remove()
     }
 
     /* Misc */
     for (const entity of videoAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
       obj3d.userData.textureMesh.visible = false
+    }
+
+    for (const entity of volumetricAudioQuery.enter()) {
+      const obj3d = getComponent(entity, Object3DComponent).value
+      obj3d.userData.textureMesh.removeFromParent()
     }
   }
 }

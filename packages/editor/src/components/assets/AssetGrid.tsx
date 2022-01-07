@@ -38,21 +38,21 @@ const getPrefabs = () => {
     }
   })
 
-  arr.push(
-    ...Array.from(NodeManager.instance.nodeTypes).reduce((acc, nodeType) => {
-      const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
-      acc.push({
-        id: nodeType.nodeName,
-        iconComponent: nodeEditor.iconComponent,
-        label: nodeType.nodeName,
-        description: nodeEditor.description,
-        type: ItemTypes.Element,
-        nodeClass: nodeType,
-        initialProps: nodeType.initialElementProps
-      })
-      return acc
-    }, [] as any[])
-  )
+  // arr.push(
+  //   ...Array.from(NodeManager.instance.nodeTypes).reduce((acc, nodeType) => {
+  //     const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
+  //     acc.push({
+  //       id: nodeType.nodeName,
+  //       iconComponent: nodeEditor.iconComponent,
+  //       label: nodeType.nodeName,
+  //       description: nodeEditor.description,
+  //       type: ItemTypes.Element,
+  //       nodeClass: nodeType,
+  //       initialProps: nodeType.initialElementProps
+  //     })
+  //     return acc
+  //   }, [] as any[])
+  // )
 
   return arr
 }
@@ -262,7 +262,7 @@ export function AssetGrid({ onSelect, tooltip }) {
     <>
       <VerticalScrollContainer flex>
         <MediaGrid>
-          {unique(items, 'id').map((item: any) => (
+          {unique<any>(items, (item) => item.id).map((item: any) => (
             <MemoAssetGridItem
               key={item.id}
               tooltipComponent={tooltip}

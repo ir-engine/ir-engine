@@ -3,7 +3,6 @@ import {
   Raycaster,
   Vector2,
   Vector3,
-  AudioListener,
   WebGLInfo,
   WebGLRenderer,
   MeshBasicMaterial,
@@ -32,7 +31,7 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import makeRenderer from '../renderer/makeRenderer'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer, EngineRendererProps } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
@@ -78,7 +77,6 @@ export class SceneManager {
   raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
   thumbnailRenderer = new ThumbnailRenderer()
-  disableUpdate = true
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   editorEntity: Entity
@@ -87,6 +85,7 @@ export class SceneManager {
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
+    EngineRenderer.instance.disableUpdate = true
     if (this.isInitialized) this.dispose()
 
     this.isInitialized = false
@@ -156,7 +155,7 @@ export class SceneManager {
       window.addEventListener('resize', this.onResize)
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
-      this.disableUpdate = false
+      EngineRenderer.instance.disableUpdate = false
     } catch (error) {
       console.error(error)
     }
@@ -171,7 +170,7 @@ export class SceneManager {
    * @return {Promise}        [generated screenshot according to height and width]
    */
   async takeScreenshot(width: number, height: number) {
-    this.disableUpdate = true
+    EngineRenderer.instance.disableUpdate = true
 
     let scenePreviewCamera: PerspectiveCamera = null!
     const query = defineQuery([ScenePreviewCameraTagComponent])
@@ -202,7 +201,7 @@ export class SceneManager {
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
     scenePreviewCamera.layers.enable(ObjectLayers.Scene)
-    this.disableUpdate = false
+    EngineRenderer.instance.disableUpdate = false
     return blob
   }
 
@@ -506,20 +505,12 @@ export class SceneManager {
   }
 }
 
-type EngineRendererProps = {
-  canvas: any
-  enabled: boolean
-}
-
-// TODO: - Nayan - Probably moved to engine package or will be replaced by already available WebGLRenderSystem
 export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
   new EngineRenderer({ canvas: props.canvas, enabled: true })
 
-  // await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
-  // EngineRenderer.instance.dispatchSettingsChangeEvent()
-
   return () => {
-    if (!accessEditorState().sceneName.value || SceneManager.instance.disableUpdate || !EngineRenderer.instance) return
+    if (!accessEditorState().sceneName.value || !EngineRenderer.instance || EngineRenderer.instance.disableUpdate)
+      return
     EngineRenderer.instance.execute(world.delta)
   }
 }

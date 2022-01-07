@@ -5,7 +5,6 @@ export type MediaComponentType = {
   autoplay: boolean
   autoStartTime: number
   loop: boolean
-  isLiveStream: boolean
   startTimer?: any
 }
 

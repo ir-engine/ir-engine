@@ -185,7 +185,6 @@ export const PropertiesPanelContainer = () => {
   } else {
     // get all editors that this entity has a component for
     const Editor = getNodeEditorsForEntity(node.entity)
-    const nodeEditors = Editor ? <Editor multiEdit={multiEdit} node={node} /> : null
 
     const transform =
       hasComponent(node.entity, TransformComponent) &&
@@ -215,7 +214,7 @@ export const PropertiesPanelContainer = () => {
           </PersistInputGroup>
           {transform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
-        {nodeEditors}
+        <Editor multiEdit={multiEdit} node={node} />
       </StyledNodeEditor>
     )
   }

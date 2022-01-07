@@ -1,9 +1,10 @@
+import Hls from 'hls.js'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VideoComponentType = {
   videoSource: string
-  isLiveStream: boolean
   elementId: string
+  hls: Hls
 }
 
 export const VideoComponent = createMappedComponent<VideoComponentType>('VideoComponent')

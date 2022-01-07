@@ -9,16 +9,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import EditorEvents from '../../constants/EditorEvents'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-
-/**
- * TransformPropertyGroupProps declaring properties for TransformPropertyGroup.
- *
- * @author Robert Long
- * @type {Object}
- */
-type TransformPropertyGroupProps = {
-  node?: any
-}
+import { EditorComponentType } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -26,7 +17,7 @@ type TransformPropertyGroupProps = {
  * @author Robert Long
  * @type {class component}
  */
-export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
+export const TransformPropertyGroup: EditorComponentType = (props) => {
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
 
@@ -43,13 +34,11 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
   //function to handle the position properties
   const onChangePosition = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
-    onChangeValue('position', value)
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
-    onChangeValue('rotation', value)
   }
 
   //function to handle changes in scale properties
@@ -57,15 +46,6 @@ export const TransformPropertyGroup = (props: TransformPropertyGroupProps) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
       scales: value,
       overrideScale: true
-    })
-    onChangeValue('scale', value)
-  }
-
-  //function to handle the changes in enterValue property
-  const onChangeValue = (prop, value) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: null!,
-      properties: { [prop]: value }
     })
   }
 

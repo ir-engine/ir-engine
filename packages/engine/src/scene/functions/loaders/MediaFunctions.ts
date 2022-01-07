@@ -16,8 +16,7 @@ export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
   controls: false,
   autoplay: false,
   autoStartTime: 0,
-  loop: false,
-  isLiveStream: false
+  loop: false
 }
 
 export const deserializeMedia: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
@@ -32,15 +31,19 @@ export const updateMedia: ComponentUpdateFunction = async (entity: Entity, prope
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, MediaComponent)
 
-  if (obj3d.userData.videoEl) {
-    if (properties.hasOwnProperty('autoplay')) obj3d.userData.videoEl.autoplay = component.autoplay
-    if (properties.hasOwnProperty('controls')) obj3d.userData.videoEl.controls = component.controls
-    if (properties.hasOwnProperty('loop')) obj3d.userData.videoEl.loop = component.loop
-    if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
-  } else if (obj3d.userData.audioEl) {
-    if (properties.hasOwnProperty('autoplay')) obj3d.userData.audioEl.autoplay = component.autoplay
-    if (properties.hasOwnProperty('loop')) obj3d.userData.audioEl.setLoop(component.loop)
-    if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+  if (!Engine.isEditor) {
+    if (obj3d.userData.player) {
+      if (properties.hasOwnProperty('autoplay')) obj3d.userData.player.autoplay = component.autoplay
+    } else if (obj3d.userData.videoEl) {
+      if (properties.hasOwnProperty('autoplay')) obj3d.userData.videoEl.autoplay = component.autoplay
+      if (properties.hasOwnProperty('controls')) obj3d.userData.videoEl.controls = component.controls
+      if (properties.hasOwnProperty('loop')) obj3d.userData.videoEl.loop = component.loop
+      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+    } else if (obj3d.userData.audioEl) {
+      if (properties.hasOwnProperty('autoplay')) obj3d.userData.audioEl.autoplay = component.autoplay
+      if (properties.hasOwnProperty('loop')) obj3d.userData.audioEl.setLoop(component.loop)
+      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+    }
   }
 }
 
@@ -54,8 +57,7 @@ export const serializeMedia: ComponentSerializeFunction = (entity) => {
       controls: component.controls,
       autoplay: component.autoplay,
       autoStartTime: component.autoStartTime,
-      loop: component.loop,
-      isLiveStream: component.isLiveStream
+      loop: component.loop
     }
   }
 }
