@@ -14,6 +14,7 @@ import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSe
 const initialState = {
   jwt: true,
   local: false,
+  discord: false,
   facebook: false,
   github: false,
   google: false,
@@ -53,6 +54,7 @@ const SignIn = (): any => {
   let enableSmsMagicLink = true
   let enableEmailMagicLink = true
   let enableUserPassword = false
+  let enableDiscordSocial = false
   let enableGithubSocial = false
   let enableGoogleSocial = false
   let enableFacebookSocial = false
@@ -70,6 +72,7 @@ const SignIn = (): any => {
   enableSmsMagicLink = state.smsMagicLink
   enableEmailMagicLink = state.emailMagicLink
   enableUserPassword = state.local
+  enableDiscordSocial = state.discord
   enableGithubSocial = state.github
   enableGoogleSocial = state.google
   enableFacebookSocial = state.facebook
@@ -77,6 +80,7 @@ const SignIn = (): any => {
   enableTwitterSocial = state.twitter
 
   const socials = [
+    enableDiscordSocial,
     enableGithubSocial,
     enableGoogleSocial,
     enableFacebookSocial,
@@ -87,6 +91,7 @@ const SignIn = (): any => {
     enableSmsMagicLink,
     enableEmailMagicLink,
     enableUserPassword,
+    enableDiscordSocial,
     enableGithubSocial,
     enableGoogleSocial,
     enableFacebookSocial,
@@ -132,6 +137,7 @@ const SignIn = (): any => {
     const socialTabPanel = socialCount > 0 && (
       <TabPanel value={tabIndex} index={index}>
         <SocialLogin
+          enableDiscordSocial={enableDiscordSocial}
           enableFacebookSocial={enableFacebookSocial}
           enableGoogleSocial={enableGoogleSocial}
           enableGithubSocial={enableGithubSocial}

@@ -162,6 +162,7 @@ export const updateAppConfig = async (): Promise<void> => {
         oauth: {
           ...JSON.parse(JSON.parse(dbAuthentication.oauth)),
           defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).defaults),
+          discord: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).discord),
           facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).facebook),
           github: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).github),
           google: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).google),
