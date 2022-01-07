@@ -153,10 +153,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     //   }
     //   break
 
-    case 'map':
-      if (isClient) registerSceneLoadPromise(createMap(entity, component.props))
-      break
-
     case 'clouds':
       isClient && addObject3DComponent(entity, new Clouds(), component.props)
       isClient && addComponent(entity, UpdatableComponent, {})
