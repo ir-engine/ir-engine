@@ -67,6 +67,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.user_trade, { foreignKey: 'fromUserId', required: true })
     ;(User as any).hasMany(models.user_trade, { foreignKey: 'toUserId', required: true })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
+    ;(User as any).hasMany(models.location_authorized_user, { foreignKey: { allowNull: false } })
   }
 
   return User

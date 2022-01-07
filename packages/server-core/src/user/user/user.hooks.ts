@@ -46,6 +46,9 @@ export default {
                 model: 'inventory-item-type'
               }
             ]
+          },
+          {
+            model: 'location-authorized-user'
           }
         ]
       })
@@ -78,6 +81,9 @@ export default {
                 model: 'inventory-item-type'
               }
             ]
+          },
+          {
+            model: 'location-authorized-user'
           }
         ]
       })
@@ -112,6 +118,9 @@ export default {
                 model: 'inventory-item-type'
               }
             ]
+          },
+          {
+            model: 'location-authorized-user'
           }
         ]
       }),

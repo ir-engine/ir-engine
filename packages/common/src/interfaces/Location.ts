@@ -1,4 +1,5 @@
 import { LocationSettings } from './LocationSettings'
+import { LocationAuthorizedUser } from './LocationAuthorizedUser'
 
 export interface Location {
   id: string
@@ -11,6 +12,7 @@ export interface Location {
   isLobby: boolean
   isFeatured: boolean
   location_settings?: any
+  locationAuthorizedUsers?: LocationAuthorizedUser[]
 }
 
 export const LocationSeed: Location = {
@@ -31,5 +33,6 @@ export const LocationSeed: Location = {
     faceStreamingEnabled: false,
     locationType: 'private',
     videoEnabled: false
-  }
+  },
+  locationAuthorizedUsers: []
 }

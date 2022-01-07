@@ -3,6 +3,7 @@ import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
+import { LocationAuthorizedUser } from './LocationAuthorizedUser'
 
 export interface UserSetting {
   id: string
@@ -22,6 +23,7 @@ export interface User {
   avatarId?: string
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
+  locationAuthorizedUsers?: LocationAuthorizedUser[]
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string
@@ -40,7 +42,8 @@ export const UserSeed: User = {
   userRole: '',
   avatarId: '',
   identityProviders: [],
-  locationAdmins: []
+  locationAdmins: [],
+  locationAuthorizedUsers: []
 }
 
 export function resolveUser(user: any): User {
@@ -61,6 +64,12 @@ export function resolveUser(user: any): User {
     returned = {
       ...returned,
       locationBans: user.location_bans
+    }
+  }
+  if (user?.location_authorized_users && user.location_authorized_users.length > 0) {
+    returned = {
+      ...returned,
+      locationAuthorizedUsers: user.location_authorized_users
     }
   }
 

@@ -6,7 +6,7 @@ import { UserService } from '@xrengine/client-core/src/user/services/UserService
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { retriveLocationByName } from './LocationLoadHelper'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -22,6 +22,7 @@ import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 interface Props {
   locationName: string
@@ -38,6 +39,10 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const channelConnectionState = useChannelConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
 
   // 1. Ensure api server connection in and set up reset listener
   useEffect(() => {
@@ -59,10 +64,16 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 2. once we have the location, provision the instance server
   useEffect(() => {
     const currentLocation = locationState.currentLocation.location
+    const locationType = currentLocation.locationSettings.locationType.value
 
-    if (currentLocation.id?.value) {
+    if (currentLocation.id?.value.length > 0) {
+      const isUserAuthorized =
+        (locationType && locationType !== 'private') ||
+        (locationType === 'private' &&
+          currentLocation.locationAuthorizedUsers.value.find((locAuthUser) => locAuthUser.userId === selfUser.id.value))
       if (
         !isUserBanned &&
+        isUserAuthorized &&
         !instanceConnectionState.instanceProvisioned.value &&
         !instanceConnectionState.instanceProvisioning.value
       ) {
@@ -79,6 +90,21 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId || undefined,
           locationState.currentLocation.location.sceneId.value
         )
+      } else {
+        if (isUserBanned) {
+          setModalOpen(true)
+          setTitle('You are banned')
+          setBody('You are banned from this location')
+        }
+        if (!isUserAuthorized) {
+          let body
+          if (selfUser.userRole.value === 'guest')
+            body = 'Guest users are not allowed at this location. Try signing in and then returning.'
+          else body = 'You are not authorized to be at this location. Try signing in with a different account.'
+          setModalOpen(true)
+          setTitle('Not authorized')
+          setBody(body)
+        }
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
@@ -155,5 +181,5 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     channelConnectionState.instanceServerConnecting.value
   ])
 
-  return <></>
+  return <WarningRefreshModal open={modalOpen} title={title} body={body} noCountdown={true} />
 }

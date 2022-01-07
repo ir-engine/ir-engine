@@ -24,7 +24,7 @@ const Location = () => {
   }
 
   return (
-    <div>
+    <div style={{ pointerEvents: 'auto' }}>
       <Grid container spacing={3} className={classes.marginBottom}>
         <Grid item xs={9}>
           <Search />

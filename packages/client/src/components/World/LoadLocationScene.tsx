@@ -16,8 +16,6 @@ export const LoadLocationScene = (props: Props) => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const history = useHistory()
-  const isUserBanned = locationState.currentLocation.selfUserBanned.value
-  const dispatch = useDispatch()
 
   /**
    * Try to log in
@@ -30,19 +28,10 @@ export const LoadLocationScene = (props: Props) => {
    * Once we have logged in, retrieve the location data
    */
   useEffect(() => {
-    const selfUser = authState.user
-    const currentLocation = locationState.currentLocation.location
-
-    const isUserBanned =
-      selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
-    dispatch(LocationAction.socialSelfUserBanned(isUserBanned))
-
-    if (!isUserBanned && !locationState.fetchingCurrentLocation.value) {
+    if (!locationState.fetchingCurrentLocation.value) {
       retriveLocationByName(authState, props.locationName, history)
     }
   }, [authState.isLoggedIn.value, authState.user.id.value])
-
-  if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 
   return <> </>
 }

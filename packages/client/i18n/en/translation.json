@@ -1,6 +1,7 @@
 {
     "location": {
         "youHaveBeenBannedMsg": "You have been banned from this location",
+        "userNotAuthorizedMsg": "You are not allowed to access this location",
         "locationName": {
             "pageTitle": "Home"
         }

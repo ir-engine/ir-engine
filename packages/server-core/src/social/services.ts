@@ -7,6 +7,7 @@ import Group from './group/group.service'
 import InviteType from './invite-type/invite-type.service'
 import Invite from './invite/invite.service'
 import LocationAdmin from './location-admin/location-admin.service'
+import LocationAuthorizedUser from './location-authorized-user/location-authorized-user.service'
 import LocationBan from './location-ban/location-ban.service'
 import LocationSettings from './location-settings/location-settings.service'
 import LocationType from './location-type/location-type.service'
@@ -31,5 +32,6 @@ export default [
   LocationType,
   LocationSettings,
   LocationBan,
-  LocationAdmin
+  LocationAdmin,
+  LocationAuthorizedUser
 ]

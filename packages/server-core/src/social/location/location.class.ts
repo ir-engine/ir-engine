@@ -155,6 +155,10 @@ export class Location extends Service {
           {
             model: (this.app.service('location-ban') as any).Model,
             required: false
+          },
+          {
+            model: (this.app.service('location-authorized-user') as any).Model,
+            required: false
           }
         ]
       })
@@ -174,6 +178,10 @@ export class Location extends Service {
         },
         {
           model: (this.app.service('location-ban') as any).Model,
+          required: false
+        },
+        {
+          model: (this.app.service('location-authorized-user') as any).Model,
           required: false
         }
       ]
