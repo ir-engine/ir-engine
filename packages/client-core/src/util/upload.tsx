@@ -3,7 +3,12 @@ import i18n from 'i18next'
 import { getToken } from './getToken'
 import { client } from '../feathers'
 
-const serverURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`
+const serverURL =
+  process.env.APP_ENV === 'development'
+    ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
+        (globalThis as any).process.env['VITE_SERVER_PORT']
+      }`
+    : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
 
 /**
  * upload used to upload image as blob data.

@@ -13,7 +13,10 @@ import {
 
 export class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket
-  cacheDomain = config.aws.cloudfront.domain
+  cacheDomain =
+    config.server.storageProvider === 'aws'
+      ? config.aws.cloudfront.domain
+      : `${config.aws.cloudfront.domain}/${this.bucket}/`
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
