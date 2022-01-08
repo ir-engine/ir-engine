@@ -1,14 +1,14 @@
+import { Color, Object3D } from 'three'
+import ErrorIcon from '../classes/ErrorIcon'
+import serializeColor from '../functions/serializeColor'
 import {
-  StaticModes,
-  computeStaticMode,
   computeAndSetStaticModes,
+  computeStaticMode,
   isDynamic,
   isInherits,
-  isStatic
+  isStatic,
+  StaticModes
 } from '../functions/StaticMode'
-import { Color, Object3D } from 'three'
-import serializeColor from '../functions/serializeColor'
-import ErrorIcon from '../classes/ErrorIcon'
 
 type SerializedComponents = {
   name: string
@@ -98,7 +98,7 @@ export default function EditorNodeMixin(Object3DClass) {
       return this
     }
     onPlay() {}
-    onUpdate(delta: number, time: number) {}
+    onUpdate(delta: number, time?: number) {}
     onPause() {}
     onAdd() {}
     onChange(prop: string) {}
