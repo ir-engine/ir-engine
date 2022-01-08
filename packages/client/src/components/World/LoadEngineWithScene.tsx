@@ -1,11 +1,9 @@
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
-import { initEngine, loadLocation } from './LocationLoadHelper'
+import { initNetwork, loadLocation } from './LocationLoadHelper'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
@@ -19,6 +17,7 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -64,16 +63,19 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     ProjectService.fetchProjects()
+    initNetwork()
   }, [])
 
   /**
    * Once we know what projects we need, initialise the engine.
    */
   useEffect(() => {
-    if (!Engine.isInitialized && !Engine.isLoading) {
+    console.log(!Engine.isInitialized, !Engine.isLoading, projectState.projects.value.length)
+    // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
+    if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
       const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
       engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
-      initEngine(engineInitializeOptions).then(() => {
+      initializeEngine(engineInitializeOptions).then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
             .when(NetworkWorldAction.createClient.matches, () => {

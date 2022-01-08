@@ -7,7 +7,6 @@ import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
@@ -88,10 +87,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
   dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
-export const initEngine = async (initOptions: InitializeOptions) => {
+export const initNetwork = () => {
   Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
-  await initializeEngine(initOptions)
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
