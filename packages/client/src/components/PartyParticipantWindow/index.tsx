@@ -1,6 +1,4 @@
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import { Downgraded } from '@hookstate/core'
 import {
   Launch,
   Mic,
@@ -14,16 +12,12 @@ import {
   VolumeOff,
   VolumeUp
 } from '@mui/icons-material'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
+import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import classNames from 'classnames'
-import React, { useEffect, useRef, useState } from 'react'
 import {
   globalMuteProducer,
   globalUnmuteProducer,
@@ -32,10 +26,16 @@ import {
   resumeConsumer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import classNames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
-import { Downgraded } from '@hookstate/core'
-import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 interface ContainerProportions {
   width: number | string
@@ -48,21 +48,21 @@ interface Props {
 }
 
 const PartyParticipantWindow = (props: Props): JSX.Element => {
-  const [videoStream, _setVideoStream] = useState(null)
-  const [audioStream, _setAudioStream] = useState(null)
+  const [videoStream, _setVideoStream] = useState<any>(null)
+  const [audioStream, _setAudioStream] = useState<any>(null)
   const [videoStreamPaused, setVideoStreamPaused] = useState(false)
   const [audioStreamPaused, setAudioStreamPaused] = useState(false)
   const [videoProducerPaused, setVideoProducerPaused] = useState(false)
   const [audioProducerPaused, setAudioProducerPaused] = useState(false)
   const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false)
   const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false)
-  const [audioTrackClones, setAudioTrackClones] = useState([])
-  const [videoTrackClones, setVideoTrackClones] = useState([])
+  const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
+  const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [volume, setVolume] = useState(100)
   const { peerId } = props
   const userState = useUserState()
-  const videoRef = React.useRef<HTMLVideoElement>()
-  const audioRef = React.useRef<HTMLAudioElement>()
+  const videoRef = React.useRef<any>()
+  const audioRef = React.useRef<any>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
@@ -335,49 +335,52 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
+    const mediaTransport = getMediaTransport()
     if (peerId === 'me_cam') {
       const videoPaused = MediaStreams.instance.toggleVideoPaused()
-      if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
-      else await resumeProducer(MediaStreams.instance?.camVideoProducer)
+      if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
+      else await resumeProducer(mediaTransport, MediaStreams.instance?.camVideoProducer)
       MediaStreamService.updateCamVideoState()
     } else if (peerId === 'me_screen') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
-      if (videoPaused === true) await pauseProducer(MediaStreams.instance.screenVideoProducer)
-      else await resumeProducer(MediaStreams.instance.screenVideoProducer)
+      if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
+      else await resumeProducer(mediaTransport, MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
     } else {
-      if (videoStream.paused === false) await pauseConsumer(videoStream)
-      else await resumeConsumer(videoStream)
+      if (videoStream.paused === false) await pauseConsumer(mediaTransport, videoStream)
+      else await resumeConsumer(mediaTransport, videoStream)
       setVideoStreamPaused(videoStream.paused)
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
+    const mediaTransport = getMediaTransport()
     if (peerId === 'me_cam') {
       const audioPaused = MediaStreams.instance.toggleAudioPaused()
-      if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
-      else await resumeProducer(MediaStreams.instance?.camAudioProducer)
+      if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
+      else await resumeProducer(mediaTransport, MediaStreams.instance?.camAudioProducer)
       MediaStreamService.updateCamAudioState()
     } else if (peerId === 'me_screen') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
-      if (audioPaused === true) await pauseProducer(MediaStreams.instance.screenAudioProducer)
-      else await resumeProducer(MediaStreams.instance.screenAudioProducer)
+      if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
+      else await resumeProducer(mediaTransport, MediaStreams.instance.screenAudioProducer)
       setAudioStreamPaused(audioPaused)
     } else {
-      if (audioStream.paused === false) await pauseConsumer(audioStream)
-      else await resumeConsumer(audioStream)
+      if (audioStream.paused === false) await pauseConsumer(mediaTransport, audioStream)
+      else await resumeConsumer(mediaTransport, audioStream)
       setAudioStreamPaused(audioStream.paused)
     }
   }
 
   const toggleGlobalMute = async (e) => {
     e.stopPropagation()
+    const mediaTransport = getMediaTransport()
     if (audioProducerGlobalMute === false) {
-      await globalMuteProducer({ id: audioStream.producerId })
+      await globalMuteProducer(mediaTransport, { id: audioStream.producerId })
       setAudioProducerGlobalMute(true)
     } else if (audioProducerGlobalMute === true) {
-      await globalUnmuteProducer({ id: audioStream.producerId })
+      await globalUnmuteProducer(mediaTransport, { id: audioStream.producerId })
       setAudioProducerGlobalMute(false)
     }
   }
