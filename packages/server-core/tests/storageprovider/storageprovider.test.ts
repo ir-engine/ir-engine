@@ -21,10 +21,9 @@ describe('storageprovider', () => {
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
   if (
-    (process.env.STORAGE_PROVIDER === 'aws' &&
       process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
       process.env.STORAGE_AWS_ACCESS_KEY_ID &&
-      process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+      process.env.STORAGE_AWS_ACCESS_KEY_SECRET
   ) {
     storageProviders.push(new S3Provider())
   }
@@ -136,24 +135,24 @@ describe('storageprovider', () => {
       assert.deepStrictEqual(fileData, ret.Body)
     })
 
-    // it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
-    //   const promises: any[] = []
-    //   for(let i = 0; i < 1010; i++) {
-    //     const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
-    //     const data = Buffer.from([])
-    //     promises.push(provider.putObject({
-    //       Body: data,
-    //       Key: fileKey,
-    //       ContentType: getContentType(fileKey)
-    //     }))
-    //   }
-    //   await Promise.all(promises)
-    // })
+    it(`should put over 1000 objects in ${provider.constructor.name}`, async function () {
+      const promises: any[] = []
+      for(let i = 0; i < 1010; i++) {
+        const fileKey = path.join(testFolderName, `${i}-${testFileName}`)
+        const data = Buffer.from([])
+        promises.push(provider.putObject({
+          Body: data,
+          Key: fileKey,
+          ContentType: getContentType(fileKey)
+        }))
+      }
+      await Promise.all(promises)
+    })
 
-    // it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
-    //   const res = await provider.listFolderContent(testFolderName, true)
-    //   assert(res.length > 1000)
-    // })
+    it(`should list over 1000 objects in ${provider.constructor.name}`, async function () {
+      const res = await provider.listFolderContent(testFolderName, true)
+      assert(res.length > 1000)
+    })
 
     after(async function () {
       await providerAfterTest(provider, testFolderName)
