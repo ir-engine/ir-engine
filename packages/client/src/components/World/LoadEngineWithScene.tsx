@@ -18,6 +18,7 @@ import matches from 'ts-matches'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -56,10 +57,22 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const projectState = useProjectState()
 
+  /**
+   * Fetch projects so we know what we need to load into the engine
+   */
   useEffect(() => {
-    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    if (!Engine.isInitialized)
+    ProjectService.fetchProjects()
+  }, [])
+
+  /**
+   * Once we know what projects we need, initialise the engine.
+   */
+  useEffect(() => {
+    if (!Engine.isInitialized) {
+      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+      engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
       initEngine(engineInitializeOptions).then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
@@ -75,10 +88,11 @@ export const LoadEngineWithScene = (props: Props) => {
             })
         })
       })
-  }, [])
+    }
+  }, [projectState.projects.value])
 
   /**
-   * Once we have the scene ID, initialise the engine
+   * Once we have the scene and the engine is loaded, load the location
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {

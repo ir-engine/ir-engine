@@ -23,6 +23,7 @@ import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/clas
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -291,6 +292,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       world.execute(delta, elapsedTime)
     }
   }
+
+  await loadEngineInjection(sceneWorld, initOptions.projects ?? [])
 
   // temporary, will be fixed with editor engine integration
   Engine.engineTimer = Timer(executeWorlds)

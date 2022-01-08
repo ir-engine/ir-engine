@@ -9,7 +9,7 @@ import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { getSystemsFromSceneData } from '@xrengine/projects/loader'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -32,9 +32,11 @@ const loadScene = async (app: Application, scene: string) => {
   const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
+    const projects = await app.service('project').find({ paginate: false })
     const options: InitializeOptions = {
       type: EngineSystemPresets.SERVER,
       publicPath: config.client.url,
+      projects: projects.data.map((project) => project.name),
       systems
     }
     await initializeEngine(options)
