@@ -1,6 +1,6 @@
+import MapIcon from '@mui/icons-material/Map'
 import i18n from 'i18next'
 import React from 'react'
-import MapIcon from '@mui/icons-material/Map'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
@@ -10,6 +10,7 @@ import NodeEditor from './NodeEditor'
 
 type MapNodeEditorProps = {
   node?: any
+  editor?: any
 }
 
 /**

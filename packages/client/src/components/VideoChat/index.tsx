@@ -1,11 +1,12 @@
-import Fab from '@mui/material/Fab'
 import { CallEnd, VideoCall } from '@mui/icons-material'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import Fab from '@mui/material/Fab'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
   configureMediaTransports,
   endVideoChat
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import * as React from 'react'
 
@@ -18,13 +19,11 @@ const VideoChat = (props: Props) => {
   const currentLocation = useLocationState().currentLocation.location
   const gsProvision = async () => {
     if (mediaStreamSystem.videoStream == null) {
-      await configureMediaTransports(
-        ['video', 'audio'],
-        currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true ? 'instance' : user.partyId.value
-      )
+      let mediaTransport = getMediaTransport()
+      await configureMediaTransports(mediaTransport, ['video', 'audio'])
       console.log('Send camera streams called from gsProvision')
     } else {
-      await endVideoChat({})
+      await endVideoChat(null, {})
     }
   }
   return (

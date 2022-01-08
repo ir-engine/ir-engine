@@ -1,7 +1,6 @@
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router'
