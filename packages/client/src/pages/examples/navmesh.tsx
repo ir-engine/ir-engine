@@ -1,4 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
@@ -150,7 +151,7 @@ export const NavigationSystem = async (world: World): Promise<System> => {
     const { delta } = world
 
     for (const entity of navigationQuery(world)) {
-      const navComponent = getComponent(entity, NavigationComponent)
+      const navComponent = getComponent(entity as Entity, NavigationComponent)
 
       navComponent.entityManager.update(delta)
 
