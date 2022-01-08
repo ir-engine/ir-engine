@@ -36,6 +36,15 @@ export class GithubStrategy extends CustomOAuthStrategy {
     await this.app.service('user').patch(entity.userId, {
       userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
     })
+    const apiKey = await this.app.service('user-api-key').find({
+      query: {
+        userId: entity.userId
+      }
+    })
+    if ((apiKey as any).total === 0)
+      await this.app.service('user-api-key').create({
+        userId: entity.userId
+      })
     if (entity.type !== 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)

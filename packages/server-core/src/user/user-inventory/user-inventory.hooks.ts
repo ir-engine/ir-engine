@@ -1,10 +1,9 @@
 import { disallow } from 'feathers-hooks-common'
-import * as authentication from '@feathersjs/authentication'
-const { authenticate } = authentication.hooks
+import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [],
     get: [],
     create: [],
