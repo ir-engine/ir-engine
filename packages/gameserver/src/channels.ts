@@ -11,7 +11,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -32,7 +32,7 @@ const loadScene = async (app: Application, scene: string) => {
   const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
-    const projects = await app.service('project').find({ paginate: false })
+    const projects = await app.service('project').find(null!)
     const options: InitializeOptions = {
       type: EngineSystemPresets.SERVER,
       publicPath: config.client.url,
@@ -205,9 +205,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     dispatchLocal(EngineActions.joinedWorld(true) as any)
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
-    Engine.isLoading = true
     await loadScene(app, sceneId)
-    Engine.isLoading = false
   }
 }
 
@@ -280,7 +278,8 @@ export default (app: Application): void => {
 
         if (isReady || isNeedingNewServer) {
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)
-          if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) await loadEngine(app, sceneId)
+          if (sceneId != null && !accessEngineState().sceneLoaded.value && !accessEngineState().sceneLoading.value)
+            await loadEngine(app, sceneId)
         } else {
           try {
             const instance = await app.service('instance').get(app.instance.id)

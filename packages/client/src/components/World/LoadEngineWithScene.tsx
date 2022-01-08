@@ -3,7 +3,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
 import { initEngine, loadLocation } from './LocationLoadHelper'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -70,7 +70,7 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we know what projects we need, initialise the engine.
    */
   useEffect(() => {
-    if (!Engine.isInitialized) {
+    if (!Engine.isInitialized && !Engine.isLoading) {
       const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
       engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
       initEngine(engineInitializeOptions).then(() => {

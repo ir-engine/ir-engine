@@ -245,6 +245,7 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
+  Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
 
@@ -320,6 +321,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   globalThis.Network = Network
 
   // Mark engine initialized
+  Engine.isLoading = false
   Engine.isInitialized = true
   dispatchLocal(EngineActions.initializeEngine(true) as any)
 }

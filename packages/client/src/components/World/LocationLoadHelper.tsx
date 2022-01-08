@@ -89,7 +89,6 @@ const createOfflineUser = (sceneData: SceneJson) => {
 }
 
 export const initEngine = async (initOptions: InitializeOptions) => {
-  Engine.isLoading = true
   Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
   await initializeEngine(initOptions)
@@ -125,5 +124,4 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   //
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  Engine.isLoading = false
 }
