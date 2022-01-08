@@ -241,6 +241,7 @@ const aws = {
   },
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
+    endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
