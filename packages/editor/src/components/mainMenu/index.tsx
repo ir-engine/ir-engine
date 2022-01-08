@@ -1,9 +1,11 @@
 import React from 'react'
-import ToolButton from '../toolbar/ToolButton'
-import MenuIcon from '@mui/icons-material/Menu'
-import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { useState } from 'react'
 import Hotkeys from 'react-hot-keys'
+
+import MenuIcon from '@mui/icons-material/Menu'
+
+import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
+import ToolButton from '../toolbar/ToolButton'
 
 interface Command {
   name: string

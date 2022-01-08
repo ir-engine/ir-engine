@@ -1,7 +1,7 @@
-import Command, { CommandParams } from './Command'
-import { serializeProperties, serializeObject3DArray } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 type PropertyType = {
   [key: string]: any

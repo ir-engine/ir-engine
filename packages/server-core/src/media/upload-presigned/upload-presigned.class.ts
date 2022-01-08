@@ -1,15 +1,17 @@
-import { Op } from 'sequelize'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
-import S3Provider from '../storageprovider/s3.storage'
-import { useStorageProvider } from '../storageprovider/storageprovider'
+import { Op } from 'sequelize'
+
 import {
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
   PRESIGNED_URL_EXPIRATION_DURATION
 } from '@xrengine/common/src/constants/AvatarConstants'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import Paginated from '../../types/PageObject'
+import S3Provider from '../storageprovider/s3.storage'
+import { useStorageProvider } from '../storageprovider/storageprovider'
 
 const storageProvider: any = useStorageProvider()
 

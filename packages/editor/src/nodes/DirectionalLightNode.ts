@@ -1,7 +1,10 @@
-import EditorNodeMixin from './EditorNodeMixin'
-import PhysicalDirectionalLight from '@xrengine/engine/src/scene/classes/PhysicalDirectionalLight'
-import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { CameraHelper } from 'three'
+
+import PhysicalDirectionalLight from '@xrengine/engine/src/scene/classes/PhysicalDirectionalLight'
+
+import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import EditorNodeMixin from './EditorNodeMixin'
+
 export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirectionalLight) {
   static legacyComponentName = 'directional-light'
   static nodeName = 'Directional Light'

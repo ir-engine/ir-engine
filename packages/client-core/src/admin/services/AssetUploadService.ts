@@ -1,6 +1,7 @@
-import { useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+
+import { client } from '../../feathers'
+import { useDispatch } from '../../store'
 
 // const state = createState({})
 

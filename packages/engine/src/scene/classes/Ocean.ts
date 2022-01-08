@@ -1,23 +1,24 @@
 import {
-  RepeatWrapping,
-  Mesh,
-  PlaneBufferGeometry,
-  Vector2,
-  Color,
-  MeshPhongMaterial,
   AddOperation,
-  WebGLRenderTarget,
-  DepthTexture,
-  RGBFormat,
-  NearestFilter,
+  Color,
   DepthFormat,
-  UnsignedShortType,
-  Texture,
-  ShaderChunk,
+  DepthTexture,
   EquirectangularReflectionMapping,
-  sRGBEncoding,
-  TextureLoader
+  Mesh,
+  MeshPhongMaterial,
+  NearestFilter,
+  PlaneBufferGeometry,
+  RGBFormat,
+  RepeatWrapping,
+  ShaderChunk,
+  Texture,
+  TextureLoader,
+  UnsignedShortType,
+  Vector2,
+  WebGLRenderTarget,
+  sRGBEncoding
 } from 'three'
+
 import { TGALoader } from '../../assets/loaders/tga/TGALoader'
 import { Updatable } from '../interfaces/Updatable'
 

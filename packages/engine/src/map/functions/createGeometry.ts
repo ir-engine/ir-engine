@@ -1,6 +1,7 @@
-import { Vector3, Color, BufferGeometry, BufferAttribute, Shape, ShapeGeometry, ExtrudeGeometry } from 'three'
-import { IStyles } from '../styles'
+import { BufferAttribute, BufferGeometry, Color, ExtrudeGeometry, Shape, ShapeGeometry, Vector3 } from 'three'
+
 import { LongLat } from '../functions/UnitConversionFunctions'
+import { IStyles } from '../styles'
 import { SupportedFeature } from '../types'
 
 const $vector3 = new Vector3()

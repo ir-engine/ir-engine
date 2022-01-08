@@ -10,23 +10,24 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
-import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { createConeOfVectors } from '../../common/functions/vectorHelpers'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()

@@ -1,9 +1,11 @@
 import * as authentication from '@feathersjs/authentication'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+
+import addScopeToUser from '../../hooks/add-scope-to-user'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import addScopeToUser from '../../hooks/add-scope-to-user'
 
 const { authenticate } = authentication.hooks
 

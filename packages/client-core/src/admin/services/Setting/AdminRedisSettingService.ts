@@ -1,8 +1,12 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
 import { createState, useState } from '@hookstate/core'
+
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+//Action
+import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminRedisSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({
@@ -40,9 +44,6 @@ export const AdminRedisSettingService = {
     }
   }
 }
-
-//Action
-import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminRedisSettingResult'
 
 export const AdminRedisSettingAction = {
   redisSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {

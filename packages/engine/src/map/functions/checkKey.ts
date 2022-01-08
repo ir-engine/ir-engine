@@ -1,5 +1,7 @@
 import matches from 'ts-matches'
+
 import { FeatureKey, TileKey } from '../types'
+
 export default function checkKey(key: FeatureKey | TileKey) {
   matches(key)
     .when(matches.tuple(matches.number, matches.number), () => {})

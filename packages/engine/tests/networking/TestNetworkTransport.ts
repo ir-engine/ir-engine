@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { Action } from '../../src/networking/interfaces/Action'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'

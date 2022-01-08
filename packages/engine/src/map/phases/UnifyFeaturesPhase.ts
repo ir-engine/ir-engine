@@ -1,5 +1,5 @@
-import { MapStateUnwrapped } from '../types'
 import unifyCachedFeatures from '../functions/unifyCachedFeatures'
+import { MapStateUnwrapped } from '../types'
 
 export const name = 'UnifyFeatures'
 export const isAsyncPhase = false

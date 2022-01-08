@@ -1,28 +1,30 @@
+import * as bitecs from 'bitecs'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { isClient } from '../../common/functions/isClient'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Action } from '../../networking/interfaces/Action'
+import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { WorldStateInterface } from '../../networking/schema/networkSchema'
+import { Physics } from '../../physics/classes/Physics'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { PortalComponent } from '../../scene/components/PortalComponent'
 import {
+  EntityRemovedComponent,
   addComponent,
   defineQuery,
-  EntityRemovedComponent,
   getComponent,
   hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { SystemFactoryType, SystemModuleType } from '../functions/SystemFunctions'
+import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { Engine } from './Engine'
 import { Entity } from './Entity'
 import { System } from './System'
-import { Engine } from './Engine'
-import * as bitecs from 'bitecs'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Physics } from '../../physics/classes/Physics'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { NetworkClient } from '../../networking/interfaces/NetworkClient'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { WorldStateInterface } from '../../networking/schema/networkSchema'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { PortalComponent } from '../../scene/components/PortalComponent'
 
 type SystemInstanceType = {
   name: string

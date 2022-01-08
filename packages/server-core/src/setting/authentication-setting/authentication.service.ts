@@ -1,6 +1,6 @@
-import hooks from './authentication.hooks'
 import { Application } from '../../../declarations'
 import { Authentication } from './authentication.class'
+import hooks from './authentication.hooks'
 import createModel from './authentication.model'
 
 declare module '../../../declarations' {

@@ -1,6 +1,8 @@
 import { Params } from '@feathersjs/feathers'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import express from 'express'
+
+import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+
 import { Application } from '../../../declarations'
 import { parseScenePortals } from './scene-parser'
 

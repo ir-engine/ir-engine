@@ -1,5 +1,4 @@
 import {
-  Quaternion,
   AmbientLight,
   AnimationClip,
   Bone,
@@ -8,7 +7,6 @@ import {
   ClampToEdgeWrapping,
   Color,
   DefaultLoadingManager,
-  MathUtils,
   DirectionalLight,
   EquirectangularReflectionMapping,
   Euler,
@@ -18,6 +16,8 @@ import {
   Line,
   LineBasicMaterial,
   LoaderUtils,
+  LoadingManager,
+  MathUtils,
   Matrix3,
   Matrix4,
   Mesh,
@@ -29,6 +29,7 @@ import {
   PerspectiveCamera,
   PointLight,
   PropertyBinding,
+  Quaternion,
   QuaternionKeyframeTrack,
   RepeatWrapping,
   Skeleton,
@@ -39,9 +40,9 @@ import {
   Uint16BufferAttribute,
   Vector3,
   Vector4,
-  VectorKeyframeTrack,
-  LoadingManager
+  VectorKeyframeTrack
 } from 'three'
+
 import { TGALoader } from '../tga/TGALoader'
 import { NURBSCurve } from './NURBSCurve'
 import * as Zlib from './inflate.module.min.js'

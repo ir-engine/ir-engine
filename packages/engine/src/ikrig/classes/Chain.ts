@@ -1,7 +1,8 @@
 import { Bone, Vector3 } from 'three'
-import Pose, { PoseBoneLocalState } from './Pose'
+
 import { FORWARD, UP } from '../constants/Vector3Constants'
 import { IKSolverFunction } from '../functions/IKSolvers'
+import Pose, { PoseBoneLocalState } from './Pose'
 
 type ChainBoneData = { index: number; ref: Bone; length: number }
 

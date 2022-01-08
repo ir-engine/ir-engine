@@ -1,13 +1,15 @@
 import i18n from 'i18next'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import Command, { CommandParams } from './Command'
-import { serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3D } from '../functions/debug'
 import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
+import { CommandManager } from '../managers/CommandManager'
 import { NodeManager } from '../managers/NodeManager'
+import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */

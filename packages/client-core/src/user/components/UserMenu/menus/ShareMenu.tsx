@@ -1,15 +1,18 @@
 import React, { useRef } from 'react'
-import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
+
+import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+
+import { FileCopy, Send } from '@mui/icons-material'
+import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import { Send, FileCopy } from '@mui/icons-material'
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import styles from '../UserMenu.module.scss'
+import Typography from '@mui/material/Typography'
+
 import { InviteService } from '../../../../social/services/InviteService'
-import { useDispatch } from '../../../../store'
-import { useTranslation } from 'react-i18next'
 import { useInviteState } from '../../../../social/services/InviteService'
+import { useDispatch } from '../../../../store'
+import styles from '../UserMenu.module.scss'
 
 interface Props {
   alertSuccess?: any

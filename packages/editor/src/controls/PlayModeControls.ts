@@ -1,4 +1,5 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
 import InputManager from '../controls/InputManager'

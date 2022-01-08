@@ -1,10 +1,11 @@
-import EditorNodeMixin from './EditorNodeMixin'
-import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
-import { resolveMedia } from '../functions/resolveMedia'
+import Image, { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+
 import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
+import { resolveMedia } from '../functions/resolveMedia'
 import { CacheManager } from '../managers/CacheManager'
+import { CommandManager } from '../managers/CommandManager'
+import EditorNodeMixin from './EditorNodeMixin'
 
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = 'image'

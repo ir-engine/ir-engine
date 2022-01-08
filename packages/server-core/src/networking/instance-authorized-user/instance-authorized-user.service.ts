@@ -2,8 +2,8 @@
 import { Application } from '../../../declarations'
 import { InstanceAuthorizedUser } from './instance-authorized-user.class'
 import instanceAuthorizedUserDocs from './instance-authorized-user.docs'
-import createModel from './instance-authorized-user.model'
 import hooks from './instance-authorized-user.hooks'
+import createModel from './instance-authorized-user.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

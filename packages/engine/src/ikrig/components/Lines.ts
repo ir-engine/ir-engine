@@ -1,7 +1,9 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from 'three'
+
 // import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+
 // import IKObj from './IKObj'
 
 const DASH_SEG = 1 / 0.07

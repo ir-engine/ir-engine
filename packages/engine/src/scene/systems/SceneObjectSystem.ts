@@ -1,18 +1,19 @@
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
-import { ObjectLayers } from '../constants/ObjectLayers'
+
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { beforeMaterialCompile } from '../../scene/classes/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
-import { Updatable } from '../interfaces/Updatable'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
+import { VisibleComponent } from '../components/VisibleComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { isClient } from '../../common/functions/isClient'
+import { Updatable } from '../interfaces/Updatable'
 
 /**
  * @author Josh Field <github.com/HexaField>

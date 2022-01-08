@@ -1,11 +1,12 @@
 import React, { Fragment } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
+import { Vector2 } from 'three'
+
 import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
 
 /**
  *  Array containing options for shadow resolution

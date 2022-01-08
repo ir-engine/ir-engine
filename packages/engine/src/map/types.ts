@@ -1,10 +1,12 @@
 import { Feature, LineString, MultiLineString, MultiPolygon, Polygon } from 'geojson'
 import { BufferGeometry, InstancedBufferGeometry, Mesh } from 'three'
-import { _MapStateUnwrapped } from './MapReceptor'
 
-import type _TileKey from './classes/TileKey'
-export type TileKey = _TileKey
+import { _MapStateUnwrapped } from './MapReceptor'
 import type _FeatureKey from './classes/FeatureKey'
+import type _TileKey from './classes/TileKey'
+
+export type TileKey = _TileKey
+
 export type FeatureKey = _FeatureKey
 
 export interface ITuple {

@@ -1,18 +1,19 @@
+import fs from 'fs'
+import path from 'path'
+
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
+
+import { analyticsSeeds } from './analytics/seeder-config'
 import { mediaSeeds } from './media/seeder-config'
 import { networkingSeeds } from './networking/seeder-config'
 import { paymentSeeds } from './payments/seeder-config'
+import { routeSeeds } from './route/seeder-config'
+import { scopeSeeds } from './scope/seeder-config'
+import { settingSeeds } from './setting/seeder-config'
 import { socialSeeds } from './social/seeder-config'
 import { userSeeds } from './user/seeder-config'
 import { worldSeeds } from './world/seeder-config'
-import { scopeSeeds } from './scope/seeder-config'
-import { settingSeeds } from './setting/seeder-config'
-import { analyticsSeeds } from './analytics/seeder-config'
-import { routeSeeds } from './route/seeder-config'
-
-import fs from 'fs'
-import path from 'path'
-import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
   ? fs

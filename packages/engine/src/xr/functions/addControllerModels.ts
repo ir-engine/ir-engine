@@ -8,6 +8,7 @@ import {
   SphereGeometry,
   XRInputSource
 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { isClient } from '../../common/functions/isClient'
@@ -16,8 +17,8 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
-import { initializeXRControllerAnimations } from './controllerAnimation'
 import { mapXRControllers } from './WebXRFunctions'
+import { initializeXRControllerAnimations } from './controllerAnimation'
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)

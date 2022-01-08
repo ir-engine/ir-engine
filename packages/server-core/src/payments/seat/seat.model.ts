@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {

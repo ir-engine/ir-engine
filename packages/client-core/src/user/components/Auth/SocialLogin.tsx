@@ -1,15 +1,17 @@
 import React from 'react'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import Container from '@mui/material/Container'
+import { useTranslation } from 'react-i18next'
+
 import ChatBubble from '@mui/icons-material/ChatBubble'
-import GitHubIcon from '@mui/icons-material/GitHub'
 import FacebookIcon from '@mui/icons-material/Facebook'
+import GitHubIcon from '@mui/icons-material/GitHub'
 import LinkedinIcon from '@mui/icons-material/LinkedIn'
 import TwitterIcon from '@mui/icons-material/Twitter'
-import styles from './Auth.module.scss'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
+import styles from './Auth.module.scss'
 
 interface Props {
   auth?: any

@@ -1,9 +1,9 @@
 // Initializes the `location-admin` service on path `/location-admin`
 import { Application } from '../../../declarations'
 import { LocationAdmin } from './location-admin.class'
-import createModel from './location-admin.model'
-import hooks from './location-admin.hooks'
 import locationAdminDocs from './location-admin.docs'
+import hooks from './location-admin.hooks'
+import createModel from './location-admin.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

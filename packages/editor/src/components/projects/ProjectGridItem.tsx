@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { showMenu } from '../layout/ContextMenu'
-import { MenuButton } from '../inputs/Button'
-import StylableContextMenuTrigger from './StylableContextMenuTrigger'
+
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+
+import { MenuButton } from '../inputs/Button'
+import { showMenu } from '../layout/ContextMenu'
+import StylableContextMenuTrigger from './StylableContextMenuTrigger'
 
 /**
  *

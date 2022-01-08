@@ -1,12 +1,14 @@
-import EditorNodeMixin from './EditorNodeMixin'
-import Video from '@xrengine/engine/src/scene/classes/Video'
 import Hls from 'hls.js'
+
+import Video from '@xrengine/engine/src/scene/classes/Video'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
-import { resolveMedia } from '../functions/resolveMedia'
+
 import EditorEvents from '../constants/EditorEvents'
+import { resolveMedia } from '../functions/resolveMedia'
 import { CommandManager } from '../managers/CommandManager'
-import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import EditorNodeMixin from './EditorNodeMixin'
 
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = 'video'

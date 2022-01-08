@@ -1,7 +1,8 @@
-import { RethrownError } from './errors'
 import i18n from 'i18next'
-import { getToken } from './getToken'
+
 import { client } from '../feathers'
+import { RethrownError } from './errors'
+import { getToken } from './getToken'
 
 const serverURL =
   process.env.APP_ENV === 'development'

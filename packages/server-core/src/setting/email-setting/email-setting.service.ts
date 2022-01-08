@@ -1,6 +1,6 @@
-import hooks from './email-setting.hooks'
 import { Application } from '../../../declarations'
 import { EmailSetting } from './email-setting.class'
+import hooks from './email-setting.hooks'
 import createModel from './email-setting.model'
 
 declare module '../../../declarations' {

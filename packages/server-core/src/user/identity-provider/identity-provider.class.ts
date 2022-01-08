@@ -1,15 +1,16 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { AuthenticationService } from '@feathersjs/authentication'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
-import { random } from 'lodash'
-import getFreeInviteCode from '../../util/get-free-invite-code'
-import { AuthenticationService } from '@feathersjs/authentication'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
+import getFreeInviteCode from '../../util/get-free-invite-code'
 
 interface Data {}
 

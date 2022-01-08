@@ -1,20 +1,21 @@
+import { Quaternion, Vector3 } from 'three'
+
+import { ComponentType } from '../../ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '../components/RaycastComponent'
+import { putIntoPhysXHeap } from '../functions/physxHelpers'
 import { loadPhysX } from '../physx/loadPhysX'
 import {
-  PhysXConfig,
   BodyType,
-  RigidBody,
-  ShapeOptions,
+  BoxControllerConfig,
+  CapsuleControllerConfig,
   CollisionEvents,
   ControllerEvents,
+  ObstacleConfig,
+  PhysXConfig,
+  RigidBody,
   SceneQueryType,
-  CapsuleControllerConfig,
-  BoxControllerConfig,
-  ObstacleConfig
+  ShapeOptions
 } from '../types/PhysicsTypes'
-import { putIntoPhysXHeap } from '../functions/physxHelpers'
-import { Quaternion, Vector3 } from 'three'
-import { RaycastComponent } from '../components/RaycastComponent'
-import { ComponentType } from '../../ecs/functions/ComponentFunctions'
 
 const defaultMask = 0
 

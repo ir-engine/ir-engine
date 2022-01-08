@@ -1,16 +1,18 @@
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
 import * as https from 'https'
 import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
-import { startWebRTC } from './WebRTCFunctions'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Application } from '@xrengine/server-core/declarations'
-import { setupSocketFunctions } from './SocketFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { Application } from '@xrengine/server-core/declarations'
+
 import { setupSubdomain } from './NetworkFunctions'
+import { setupSocketFunctions } from './SocketFunctions'
+import { startWebRTC } from './WebRTCFunctions'
 
 export class ServerTransportHandler
   implements NetworkTransportHandler<SocketWebRTCServerTransport, SocketWebRTCServerTransport>

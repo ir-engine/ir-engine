@@ -1,5 +1,7 @@
-import { Object3D, BufferGeometry, Float32BufferAttribute, LineBasicMaterial, LineSegments } from 'three'
+import { BufferGeometry, Float32BufferAttribute, LineBasicMaterial, LineSegments, Object3D } from 'three'
+
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
+
 export default class EditorSpotLightHelper extends Object3D {
   light: any
   color: any

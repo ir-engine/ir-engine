@@ -1,5 +1,7 @@
 import React from 'react'
+
 import Grid from '@mui/material/Grid'
+
 import SearchScene from './SearchScene'
 import SceneTable from './sceneTable'
 import { useSceneStyles } from './styles'

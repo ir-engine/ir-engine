@@ -1,9 +1,9 @@
 // Initializes the `location-settings` service on path `/location-settings`
 import { Application } from '../../../declarations'
-import { LocationSettings } from './location-settings.class'
-import createModel from './location-settings.model'
-import hooks from './location-settings.hooks'
 import locationSettingsDocs from './location-settings-docs'
+import { LocationSettings } from './location-settings.class'
+import hooks from './location-settings.hooks'
+import createModel from './location-settings.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

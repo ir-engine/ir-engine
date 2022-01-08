@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import config from '../appconfig'
 
 export default async (fromUserId, toUserId, walletAmt, accessToken): Promise<any> => {

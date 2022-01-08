@@ -1,7 +1,8 @@
 import React from 'react'
+
 import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
-import Scrubber from './Scrubber'
 import NumericInput from './NumericInput'
+import Scrubber from './Scrubber'
 
 export interface NumericInputGroupProp {
   name?: string

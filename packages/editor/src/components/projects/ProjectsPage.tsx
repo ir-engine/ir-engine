@@ -1,5 +1,17 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { withRouter } from 'react-router-dom'
+
+import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+
+import { getProjects } from '../../functions/projectFunctions'
+import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
+import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
-import { connectMenu, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import { ContextMenu, MenuItem, connectMenu } from '../layout/ContextMenu'
+import { CreateProjectModal } from './CreateProjectModal'
 import {
   ErrorMessage,
   ProjectGrid,
@@ -9,16 +21,6 @@ import {
   ProjectGridHeaderRow
 } from './ProjectGrid'
 import templates from './templates'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { withRouter } from 'react-router-dom'
-import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { getProjects } from '../../functions/projectFunctions'
-import { CreateProjectModal } from './CreateProjectModal'
-import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { EditorAction } from '../../services/EditorServices'
 
 const contextMenuId = 'project-menu'
 

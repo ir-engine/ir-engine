@@ -1,18 +1,20 @@
 import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import { useGroupStyles, useGroupStyle } from './styles'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import Button from '@mui/material/Button'
-import DialogActions from '@mui/material/DialogActions'
-import { formValid } from './validation'
+
 import Autocomplete from '@mui/material/Autocomplete'
-import { GroupService } from '../../services/GroupService'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Drawer from '@mui/material/Drawer'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
 import TextField from '@mui/material/TextField'
-import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import { GroupService } from '../../services/GroupService'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { useGroupStyle, useGroupStyles } from './styles'
+import { formValid } from './validation'
 
 interface Props {
   open: boolean

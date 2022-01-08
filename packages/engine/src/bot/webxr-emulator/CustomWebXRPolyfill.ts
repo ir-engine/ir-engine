@@ -1,18 +1,18 @@
 // @ts-nocheck
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import EmulatedXRDevice from './EmulatedXRDevice'
+import XRHitTestResult from './api/XRHitTestResult'
+import XRHitTestSource from './api/XRHitTestSource'
+import XRTransientInputHitTestResult from './api/XRTransientInputHitTestResult'
+import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource'
+import EX_API from './api/index'
 import WebXRPolyfill from './webxr-polyfill/WebXRPolyfill'
-import { XR_COMPATIBLE } from './webxr-polyfill/constants'
-import XRSystem from './webxr-polyfill/api/XRSystem'
-import XRSession, { PRIVATE as XRSESSION_PRIVATE } from './webxr-polyfill/api/XRSession'
 import XRFrame from './webxr-polyfill/api/XRFrame'
 import XRRigidTransform from './webxr-polyfill/api/XRRigidTransform'
-import XRHitTestSource from './api/XRHitTestSource'
-import XRHitTestResult from './api/XRHitTestResult'
-import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource'
-import XRTransientInputHitTestResult from './api/XRTransientInputHitTestResult'
+import XRSession, { PRIVATE as XRSESSION_PRIVATE } from './webxr-polyfill/api/XRSession'
+import XRSystem from './webxr-polyfill/api/XRSystem'
 import API from './webxr-polyfill/api/index'
-import EX_API from './api/index'
-import EmulatedXRDevice from './EmulatedXRDevice'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { XR_COMPATIBLE } from './webxr-polyfill/constants'
 
 /**
  * Adapted from the mozilla webxr emulator

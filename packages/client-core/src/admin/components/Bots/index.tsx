@@ -1,12 +1,14 @@
 import React from 'react'
+
+import { List } from '@mui/icons-material'
 import Card from '@mui/material/Card'
-import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
-import DisplayBots from './displayBots'
-import { List } from '@mui/icons-material'
-import { useStylesForBots as useStyles } from './styles'
+import Typography from '@mui/material/Typography'
+
 import CreateBot from './CreateBot'
+import DisplayBots from './displayBots'
+import { useStylesForBots as useStyles } from './styles'
 
 const Bots = () => {
   const classes = useStyles()

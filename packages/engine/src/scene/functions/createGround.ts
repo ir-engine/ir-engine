@@ -1,11 +1,12 @@
 import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
+
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { createCollider } from '../../physics/functions/createCollider'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { createCollider } from '../../physics/functions/createCollider'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 
 type GroundProps = {

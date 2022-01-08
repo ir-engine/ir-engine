@@ -4,16 +4,17 @@
  * @author Fernando Serrano, Robert Long
  * @packageDocumentation
  */
-
 import { DirectionalLight, Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
-import { Entity } from './Entity'
-import { InputValue } from '../../input/interfaces/InputValue'
-import { EngineEvents } from './EngineEvents'
-import { CSM } from '../../assets/csm/CSM'
-import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
-import { World } from '../classes/World'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { CSM } from '../../assets/csm/CSM'
+import { InputValue } from '../../input/interfaces/InputValue'
+import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
+import { World } from '../classes/World'
+import { EngineEvents } from './EngineEvents'
+import { Entity } from './Entity'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.

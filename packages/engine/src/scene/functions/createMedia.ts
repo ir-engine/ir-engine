@@ -1,16 +1,16 @@
 import { Object3D, PositionalAudio } from 'three'
 
-import { addObject3DComponent } from './addObject3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { VolumetricComponent } from '../components/VolumetricComponent'
-import { RenderedComponent } from '../components/RenderedComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import Video from '../classes/Video'
-import UpdateableObject3D from '../classes/UpdateableObject3D'
-import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
+import AudioSource from '../classes/AudioSource'
+import UpdateableObject3D from '../classes/UpdateableObject3D'
+import Video from '../classes/Video'
+import { RenderedComponent } from '../components/RenderedComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
+import { addObject3DComponent } from './addObject3DComponent'
 
 let DracosisPlayer = null as any
 

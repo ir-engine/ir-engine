@@ -1,7 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
-import { InfoTooltip } from '../layout/Tooltip'
+
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+
+import { InfoTooltip } from '../layout/Tooltip'
 
 /**
  * Used to provide styles for InputGroupContainer div.

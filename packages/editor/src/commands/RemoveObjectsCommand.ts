@@ -1,11 +1,13 @@
 import i18n from 'i18next'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray } from '../functions/debug'
+
 import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
 import { NodeManager } from '../managers/NodeManager'
+import Command, { CommandParams } from './Command'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */

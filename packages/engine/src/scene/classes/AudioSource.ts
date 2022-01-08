@@ -1,4 +1,4 @@
-import { Object3D, Audio, PositionalAudio } from 'three'
+import { Audio, Object3D, PositionalAudio } from 'three'
 
 export const AudioType = {
   Stereo: 'stereo',

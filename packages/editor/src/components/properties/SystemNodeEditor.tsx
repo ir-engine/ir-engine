@@ -1,18 +1,21 @@
-import React from 'react'
 import i18n from 'i18next'
+import React from 'react'
 import { useTranslation, withTranslation } from 'react-i18next'
-import InputGroup from '../inputs/InputGroup'
-import Systemnode from '../../nodes/SystemNode'
-import { CommandManager } from '../../managers/CommandManager'
-import NodeEditor from './NodeEditor'
-import EditorEvents from '../../constants/EditorEvents'
-import ExtensionIcon from '@mui/icons-material/Extension'
+
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { SelectInput } from '../inputs/SelectInput'
+
+import ExtensionIcon from '@mui/icons-material/Extension'
+
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import Systemnode from '../../nodes/SystemNode'
 import BooleanInput from '../inputs/BooleanInput'
-import StringInput from '../inputs/StringInput'
+import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
+import { SelectInput } from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
+import NodeEditor from './NodeEditor'
 
 /**
  * Define properties for Script component.

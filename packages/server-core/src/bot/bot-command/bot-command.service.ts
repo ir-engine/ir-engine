@@ -1,8 +1,8 @@
-import hooks from './Bot-command.hooks'
 import { Application } from '../../../declarations'
+import hooks from './Bot-command.hooks'
 import { BotCommand } from './bot-command.class'
-import createModel from './bot-command.model'
 import docs from './bot-command.docs'
+import createModel from './bot-command.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

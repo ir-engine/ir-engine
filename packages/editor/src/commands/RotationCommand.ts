@@ -1,10 +1,12 @@
-import Command, { CommandParams } from './Command'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { serializeObject3DArray, serializeEuler } from '../functions/debug'
 import { Matrix4, Quaternion, Vector3 } from 'three'
+
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import EditorEvents from '../constants/EditorEvents'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeEuler, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface RotationCommandParams extends CommandParams {
   rotations?: Vector3 | Vector3[]

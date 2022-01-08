@@ -1,6 +1,7 @@
-import AdminConsole from '../components/Location'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import AdminConsole from '../components/Location'
 
 interface Props {}
 

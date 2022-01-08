@@ -1,5 +1,6 @@
-import io from 'socket.io-client'
 import feathers from '@feathersjs/client'
+import io from 'socket.io-client'
+
 // import type { Application } from '../../server-core/declarations'
 
 const feathersClient = feathers() // as Application

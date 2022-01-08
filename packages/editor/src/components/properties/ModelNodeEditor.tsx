@@ -1,18 +1,21 @@
-import ModelNode from '../../nodes/ModelNode'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Object3D } from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+
+import EditorCommands from '../../constants/EditorCommands'
+import { CommandManager } from '../../managers/CommandManager'
+import ModelNode from '../../nodes/ModelNode'
+import SceneNode from '../../nodes/SceneNode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
+import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { Object3D } from 'three'
-import InteractableGroup from '../inputs/InteractableGroup'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import SceneNode from '../../nodes/SceneNode'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import ModelInput from '../inputs/ModelInput'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 /**
  * Declaring properties for ModalNodeEditor component.

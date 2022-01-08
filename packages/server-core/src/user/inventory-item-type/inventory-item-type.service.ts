@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { InventoryItemType } from './inventory-item-type.class'
-import createModel from './inventory-item-type.model'
-import hooks from './inventory-item-type.hooks'
 import inventoryTypeDocs from './inventory-item-type.docs'
+import hooks from './inventory-item-type.hooks'
+import createModel from './inventory-item-type.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

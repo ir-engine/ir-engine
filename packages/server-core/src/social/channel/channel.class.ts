@@ -1,10 +1,11 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Op } from 'sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import _ from 'lodash'
+import { Op } from 'sequelize'
+
+import { Application } from '../../../declarations'
 import logger from '../../logger'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export class Channel extends Service {
   app: Application

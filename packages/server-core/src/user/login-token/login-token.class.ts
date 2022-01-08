@@ -1,8 +1,9 @@
-import config from '../../appconfig'
 import crypto from 'crypto'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 
 /**
  * A class for Login Token service

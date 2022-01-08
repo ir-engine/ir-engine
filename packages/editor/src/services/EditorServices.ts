@@ -1,5 +1,6 @@
-import { store } from '@xrengine/client-core/src/store'
 import { createState, useState } from '@hookstate/core'
+
+import { store } from '@xrengine/client-core/src/store'
 
 const state = createState({
   projectName: null! as string,

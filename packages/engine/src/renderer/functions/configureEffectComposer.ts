@@ -1,13 +1,14 @@
 import {
   BlendFunction,
+  DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
-  RenderPass,
-  TextureEffect,
   NormalPass,
-  DepthDownsamplingPass
+  RenderPass,
+  TextureEffect
 } from 'postprocessing'
 import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EffectMap, Effects } from '../../scene/classes/PostProcessing'
 import { EngineRenderer } from '../WebGLRendererSystem'

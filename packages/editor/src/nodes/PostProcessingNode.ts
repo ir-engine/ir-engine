@@ -1,6 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import PostProcessing from '@xrengine/engine/src/scene/classes/PostProcessing'
+
 import { SceneManager } from '../managers/SceneManager'
 import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'

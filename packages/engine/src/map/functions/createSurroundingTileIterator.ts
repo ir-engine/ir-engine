@@ -1,11 +1,11 @@
-import createIntersectTestTileCircle from './createIntersectionTestTileCircle'
+import TileKey from '../classes/TileKey'
 import {
-  fromMetersFromCenter,
   LongLat,
+  fromMetersFromCenter,
   latToTileYFraction,
   longToTileXFraction
 } from '../functions/UnitConversionFunctions'
-import TileKey from '../classes/TileKey'
+import createIntersectTestTileCircle from './createIntersectionTestTileCircle'
 
 export default function* createSurroundingTileIterator(
   center: LongLat,

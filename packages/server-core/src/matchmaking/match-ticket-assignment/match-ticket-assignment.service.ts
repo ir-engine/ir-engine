@@ -1,7 +1,7 @@
 import { Application } from '../../../declarations'
 import { MatchTicketAssignment } from './match-ticket-assignment.class'
-import hooks from './match-ticket-assignment.hooks'
 import docs from './match-ticket-assignment.docs'
+import hooks from './match-ticket-assignment.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

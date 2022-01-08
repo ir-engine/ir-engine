@@ -2,9 +2,10 @@
 import type { Application as ExpressFeathers } from '@feathersjs/express'
 import type * as x from '@feathersjs/feathers'
 import '@feathersjs/transport-commons'
-import type { Request } from './src/k8s'
 import type SocketIO from 'socket.io'
+
 import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
+import type { Request } from './src/k8s'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ServiceTypes {

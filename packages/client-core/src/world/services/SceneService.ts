@@ -1,5 +1,6 @@
-import { store } from '../../store'
 import { createState, useState } from '@hookstate/core'
+
+import { store } from '../../store'
 
 //State
 export interface PublicScenesState {

@@ -1,6 +1,7 @@
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
-import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
+import { HookContext } from '@feathersjs/feathers'
+
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
 const logRequest = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {

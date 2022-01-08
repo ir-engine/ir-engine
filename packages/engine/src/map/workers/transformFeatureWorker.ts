@@ -1,4 +1,5 @@
 import * as Comlink from 'comlink'
+
 import transformFeature from '../functions/transformFeature'
 
 export interface WorkerApi {

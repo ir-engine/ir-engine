@@ -1,4 +1,5 @@
 import React from 'react'
+
 import {
   Accessibility,
   CalendarViewDay,
@@ -9,13 +10,13 @@ import {
   NearMe,
   PersonAdd,
   Settings,
+  Shuffle,
   SupervisorAccount,
-  Toys,
-  Shuffle
+  Toys
 } from '@mui/icons-material'
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue'
 import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
 
 export const SidebarItems = (allowedRoutes) => [
   {

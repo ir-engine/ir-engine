@@ -1,6 +1,6 @@
+import { multiPolygon, polygon } from '@turf/turf'
 import { Feature, Polygon } from 'geojson'
 import polygonClipping from 'polygon-clipping'
-import { multiPolygon, polygon } from '@turf/turf'
 
 /** Useful for when a feature is split across multiple vector tiles */
 export default function unifyFeatures(features: Feature[]): Feature {

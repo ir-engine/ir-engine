@@ -1,5 +1,5 @@
-import * as YUKA from 'yuka'
 import { Geometry, Position } from 'geojson'
+import * as YUKA from 'yuka'
 
 // TODO move to classes/NavMeshBuilder.ts
 

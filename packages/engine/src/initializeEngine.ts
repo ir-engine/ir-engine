@@ -1,28 +1,30 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
 import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
-import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
+import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
+import { EngineActionType, EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { registerSystem, registerSystemWithArgs } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } from './initializationOptions'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { FontManager } from './xrui/classes/FontManager'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {

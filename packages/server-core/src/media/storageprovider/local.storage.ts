@@ -1,17 +1,19 @@
 import appRootPath from 'app-root-path'
-import config from '../../appconfig'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
 import path from 'path'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
+import config from '../../appconfig'
+import { getContentType } from '../../util/fileUtils'
 import {
   BlobStore,
   StorageListObjectInterface,
   StorageObjectInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { getContentType } from '../../util/fileUtils'
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload'

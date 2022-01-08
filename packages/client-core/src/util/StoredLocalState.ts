@@ -1,4 +1,5 @@
-import { createState, Downgraded, useState } from '@hookstate/core'
+import { Downgraded, createState, useState } from '@hookstate/core'
+
 import { store } from '../store'
 
 const state = createState({

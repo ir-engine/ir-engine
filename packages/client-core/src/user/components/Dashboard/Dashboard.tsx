@@ -1,18 +1,19 @@
-import React from 'react'
 import clsx from 'clsx'
-import { useTheme } from '@mui/material/styles'
-import Drawer from '@mui/material/Drawer'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import CssBaseline from '@mui/material/CssBaseline'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
-import Avatar from '@mui/material/Avatar'
-import { useAuthState } from '../../services/AuthService'
+import React from 'react'
 
-import { useStylesForDashboard } from './styles'
+import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
+import AppBar from '@mui/material/AppBar'
+import Avatar from '@mui/material/Avatar'
+import CssBaseline from '@mui/material/CssBaseline'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
+
+import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
+import { useStylesForDashboard } from './styles'
 
 interface Props {
   children?: any

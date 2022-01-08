@@ -1,8 +1,9 @@
-import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
-import InventoryContent from './InventoryContent'
-import styles from '../UserMenu.module.scss'
+
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import { InventoryService, useInventoryState } from '../../../services/InventoryService'
+import styles from '../UserMenu.module.scss'
+import InventoryContent from './InventoryContent'
 
 interface Props {
   changeActiveMenu?: any

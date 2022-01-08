@@ -1,4 +1,5 @@
-import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from 'three'
+import { BoxBufferGeometry, BoxHelper, Material, Mesh, Object3D } from 'three'
+
 import EditorNodeMixin from './EditorNodeMixin'
 
 /**

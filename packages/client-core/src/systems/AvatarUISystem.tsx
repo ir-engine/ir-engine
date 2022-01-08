@@ -1,14 +1,15 @@
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/PersonMenuView'
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()

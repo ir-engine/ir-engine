@@ -1,5 +1,6 @@
 import { Paginated, Params } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { Application } from '../../../declarations'
 
 /**

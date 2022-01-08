@@ -1,25 +1,26 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
+import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  defineQuery
+  removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { TweenComponent } from '../../transform/components/TweenComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { FontManager } from '../../xrui/classes/FontManager'
-import { Group, MathUtils, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Engine } from '../../ecs/classes/Engine'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { RenderedComponent } from '../../scene/components/RenderedComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { TweenComponent } from '../../transform/components/TweenComponent'
+import { FontManager } from '../../xrui/classes/FontManager'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 const localUserQuery = defineQuery([LocalInputTagComponent, AvatarComponent])
 const upVec = new Vector3(0, 1, 0)

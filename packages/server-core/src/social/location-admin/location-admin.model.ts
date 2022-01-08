@@ -1,8 +1,9 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+
+import { Application } from '../../../declarations'
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

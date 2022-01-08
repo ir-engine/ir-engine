@@ -1,9 +1,9 @@
 import { Application } from '../../../declarations'
-import { Channel } from './channel.class'
-import createModel from './channel.model'
-import hooks from './channel.hooks'
 import logger from '../../logger'
+import { Channel } from './channel.class'
 import channelDocs from './channel.docs'
+import hooks from './channel.hooks'
+import createModel from './channel.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

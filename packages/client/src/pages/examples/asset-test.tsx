@@ -1,18 +1,19 @@
 import React, { useEffect, useRef } from 'react'
+import { FileDrop } from 'react-file-drop'
 import {
-  Scene,
-  WebGLRenderer,
+  AnimationClip,
+  AnimationMixer,
   Color,
   DirectionalLight,
-  AnimationMixer,
-  AnimationClip,
+  HemisphereLight,
   PerspectiveCamera,
-  HemisphereLight
+  Scene,
+  WebGLRenderer
 } from 'three'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
+
 import { getLoader } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { FileDrop } from 'react-file-drop'
 import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 
 const canvasStyle = {
   zIndex: 0,

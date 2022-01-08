@@ -1,4 +1,5 @@
-import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
+import { AmbientLight, AnimationClip, DirectionalLight, Group, Mesh, Object3D, PointLight } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'

@@ -1,7 +1,7 @@
 import { Application } from '../../../declarations'
 import { UploadPresigned } from './upload-presigned.class'
-import hooks from './upload-presigned.hooks'
 import uploadDocs from './upload-presigned.docs'
+import hooks from './upload-presigned.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

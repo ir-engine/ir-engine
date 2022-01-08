@@ -1,9 +1,11 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TypedArray } from 'bitecs'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { flatten, Vector3SoA } from '../Utils'
-import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8 } from '../ViewCursor'
+import { Vector3SoA, flatten } from '../Utils'
+import { ViewCursor, createViewCursor, readProp, readUint8, readUint16, readUint32 } from '../ViewCursor'
 
 export const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === flag
 

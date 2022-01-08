@@ -1,20 +1,22 @@
+import AWS from 'aws-sdk'
+import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
-import logger from '@xrengine/server-core/src/logger'
-import config from '@xrengine/server-core/src/appconfig'
-import { closeTransport } from './WebRTCFunctions'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
+import logger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
-import AWS from 'aws-sdk'
+
+import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { closeTransport } from './WebRTCFunctions'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 

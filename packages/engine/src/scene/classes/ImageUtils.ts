@@ -1,7 +1,6 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -14,8 +13,8 @@ import {
   MeshBasicMaterial,
   OrthographicCamera,
   PlaneBufferGeometry,
-  RawShaderMaterial,
   RGBAFormat,
+  RawShaderMaterial,
   Scene,
   Texture,
   Uniform,

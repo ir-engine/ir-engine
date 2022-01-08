@@ -7,10 +7,10 @@ import {
   InterleavedBufferAttribute,
   Loader,
   LoadingManager,
+  Material,
   Mesh,
   MeshStandardMaterial,
   Object3D,
-  Material,
   SkinnedMesh,
   Texture
 } from 'three'

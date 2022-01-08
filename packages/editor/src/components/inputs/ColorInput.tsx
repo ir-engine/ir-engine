@@ -1,9 +1,11 @@
 import React, { useCallback } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
-import Input from './Input'
-import { Color } from 'three'
 import styled from 'styled-components'
+import { Color } from 'three'
+
 import Popover from '@mui/material/Popover'
+
+import Input from './Input'
 
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.

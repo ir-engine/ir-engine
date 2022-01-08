@@ -1,6 +1,25 @@
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import { Downgraded } from '@hookstate/core'
+import classNames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
+
+import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import {
+  globalMuteProducer,
+  globalUnmuteProducer,
+  pauseConsumer,
+  pauseProducer,
+  resumeConsumer,
+  resumeProducer
+} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
 import {
   Launch,
   Mic,
@@ -14,28 +33,12 @@ import {
   VolumeOff,
   VolumeUp
 } from '@mui/icons-material'
-import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import classNames from 'classnames'
-import React, { useEffect, useRef, useState } from 'react'
-import {
-  globalMuteProducer,
-  globalUnmuteProducer,
-  pauseConsumer,
-  pauseProducer,
-  resumeConsumer,
-  resumeProducer
-} from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
+
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
-import { Downgraded } from '@hookstate/core'
-import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 
 interface ContainerProportions {
   width: number | string

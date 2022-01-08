@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import NumericInput from './NumericInput'
-import Scrubber from './Scrubber'
-import { Vector2 } from 'three'
 import styled from 'styled-components'
+import { Vector2 } from 'three'
+
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
+
 import Hidden from '../layout/Hidden'
+import NumericInput from './NumericInput'
+import Scrubber from './Scrubber'
 
 export const Vector2InputContainer = (styled as any).div`
   display: flex;

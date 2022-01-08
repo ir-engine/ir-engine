@@ -1,8 +1,11 @@
-import CloudIcon from '@mui/icons-material/Cloud'
-import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
-import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
+import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
+
+import CloudIcon from '@mui/icons-material/Cloud'
+
 import { CommandManager } from '../../managers/CommandManager'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'

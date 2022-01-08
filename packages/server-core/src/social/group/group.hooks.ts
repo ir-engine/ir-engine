@@ -1,8 +1,10 @@
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
-import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
-import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
+
+import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
+import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
+
 import logger from '../../logger'
 
 const { authenticate } = authentication.hooks

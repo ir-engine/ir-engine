@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
-import { Button } from './Button'
+
 import Hidden from '../layout/Hidden'
+import { Button } from './Button'
+
 let nextId = 0
 
 /**

@@ -1,6 +1,7 @@
-import AvatarConsole from '../components/Avatars/Avatars'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import AvatarConsole from '../components/Avatars/Avatars'
 
 interface Props {}
 

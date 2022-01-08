@@ -1,6 +1,7 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
-import { getFreeGameserver } from '../networking/instance-provision/instance-provision.class'
+
 import { Application } from '../../declarations'
+import { getFreeGameserver } from '../networking/instance-provision/instance-provision.class'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {

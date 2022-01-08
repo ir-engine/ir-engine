@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { StaticResource } from './static-resource.class'
-import createModel, { StaticResourceModelType } from './static-resource.model'
-import hooks from './static-resource.hooks'
 import staticResourceDocs from './static-resource.docs'
+import hooks from './static-resource.hooks'
+import createModel, { StaticResourceModelType } from './static-resource.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

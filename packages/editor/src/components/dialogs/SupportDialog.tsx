@@ -1,6 +1,7 @@
 import React from 'react'
-import Dialog from './Dialog'
 import { Trans, useTranslation } from 'react-i18next'
+
+import Dialog from './Dialog'
 
 /**
  * SupportDialog used to render content for support.

@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
 import { createState, useState } from '@hookstate/core'
+
 import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalytics'
 import { SettingAnalyticsResult } from '@xrengine/common/src/interfaces/SettingAnalyticsResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({

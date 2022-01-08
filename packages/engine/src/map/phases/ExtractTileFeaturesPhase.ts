@@ -1,8 +1,8 @@
-import { MapStateUnwrapped, SupportedFeature, TaskStatus, TileKey } from '../types'
-import { SUPPORTED_LAYERS, SUPPORTED_GEOMETRIES, TILE_ZOOM } from '../constants'
-import zipIndexes from '../zipIndexes'
-import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
 import FeatureKey from '../classes/FeatureKey'
+import { SUPPORTED_GEOMETRIES, SUPPORTED_LAYERS, TILE_ZOOM } from '../constants'
+import getFeaturesFromVectorTileLayer from '../functions/getFeaturesFromVectorTileLayer'
+import { MapStateUnwrapped, SupportedFeature, TaskStatus, TileKey } from '../types'
+import zipIndexes from '../zipIndexes'
 
 export const name = 'ExtractTileFeatures'
 export const isAsyncPhase = false

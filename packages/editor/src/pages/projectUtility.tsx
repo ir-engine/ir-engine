@@ -1,7 +1,8 @@
 import React from 'react'
+import styled from 'styled-components'
+
 import { Theme } from '@mui/material/styles'
 import makeStyles from '@mui/styles/makeStyles'
-import styled from 'styled-components'
 
 interface TabPanelProps {
   children?: React.ReactNode

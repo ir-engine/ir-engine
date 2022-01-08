@@ -1,6 +1,7 @@
-import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
 import { Water } from '@xrengine/engine/src/scene/classes/Water'
+
+import EditorNodeMixin from './EditorNodeMixin'
 
 const defaultSkyBoxUrl = '/cubemap/'
 

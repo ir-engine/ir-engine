@@ -1,16 +1,19 @@
-import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
-import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
-import { theme } from '@xrengine/client-core/src/theme'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles'
-import RouterComp from '../route/public'
-import './styles.scss'
-import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
+
 import { ClientSettingService } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { theme } from '@xrengine/client-core/src/theme'
+import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
+import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
+
+import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+
+import RouterComp from '../route/public'
+import './styles.scss'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

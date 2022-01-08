@@ -1,21 +1,24 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
-import styles from './Projects.module.scss'
-import { ProjectService } from '../../services/ProjectService'
-import { useDispatch } from '../../../store'
+
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+
+import GitHubIcon from '@mui/icons-material/GitHub'
+import GroupIcon from '@mui/icons-material/Group'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
-import Modal from '@mui/material/Modal'
 import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-import CircularProgress from '@mui/material/CircularProgress'
-import GroupIcon from '@mui/icons-material/Group'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import { useAuthState, AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+
+import { useDispatch } from '../../../store'
+import { ProjectService } from '../../services/ProjectService'
+import styles from './Projects.module.scss'
 
 interface Props {
   open: boolean

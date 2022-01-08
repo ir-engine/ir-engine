@@ -1,13 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import styled from 'styled-components'
-import { SceneManager } from '../../../managers/SceneManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { ProjectManager } from '../../../managers/ProjectManager'
-import { CommandManager } from '../../../managers/CommandManager'
+import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+
+import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { FlyControlComponent } from '../../../classes/FlyControlComponent'
+import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
+import { ProjectManager } from '../../../managers/ProjectManager'
+import { SceneManager } from '../../../managers/SceneManager'
 
 /**
  * @author Abhishek Pathak

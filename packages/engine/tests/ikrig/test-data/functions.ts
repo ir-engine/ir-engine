@@ -1,23 +1,25 @@
+import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  defaultIKPoseComponentValues,
-  IKPoseComponent,
-  IKPoseComponentType
-} from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
 import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
-import { bones } from './pose1/ikrig.pose.bones'
-import { bones as tbones } from './ikrig.tpose.bones'
-import { rigData as rig2Data } from './rig2.data'
+import {
+  IKPoseComponent,
+  IKPoseComponentType,
+  defaultIKPoseComponentValues
+} from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
+
+import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
+import { addRig, addTargetRig } from '../../../src/ikrig/functions/RigFunctions'
 import {
   fungiSerializedIKPose,
   fungiSerializedPoseBones,
   fungiSerializedQuaternion,
   fungiSerializedVector3
 } from './ikrig.tests.types'
-import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
-import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
-import { addRig, addTargetRig } from '../../../src/ikrig/functions/RigFunctions'
+import { bones as tbones } from './ikrig.tpose.bones'
+import { bones } from './pose1/ikrig.pose.bones'
+import { rigData as rig2Data } from './rig2.data'
 
 export const sourceMeshTransform = {
   position: new Vector3(100, 100, 100),

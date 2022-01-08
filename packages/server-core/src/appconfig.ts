@@ -1,8 +1,9 @@
-import dotenv from 'dotenv-flow'
 import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
+import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
+
 import '@xrengine/engine/src/patchEngineNode'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'

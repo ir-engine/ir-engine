@@ -2,14 +2,15 @@ import { HookContext } from '@feathersjs/feathers'
 import * as path from 'path'
 import * as pug from 'pug'
 import requireMainFilename from 'require-main-filename'
+
 import config from '../appconfig'
+import logger from '../logger'
 import {
   extractLoggedInUserFromParams,
   getInviteLink,
   sendEmail,
   sendSms
 } from '../user/auth-management/auth-management.utils'
-import logger from '../logger'
 
 async function generateEmail(
   app: any,

@@ -1,14 +1,15 @@
-import { bboxPolygon as convertBboxToPolygon, clone } from '@turf/turf'
-import computeTileBoundingBox from '../functions/computeTileBoundingBox'
-import createUsingCache from '../functions/createUsingCache'
-import { MapStateUnwrapped, MapTransformedFeature, TaskStatus, TileKey } from '../types'
-import computePolygonDifference from '../functions/computePolygonDifference'
-import { TILE_ZOOM } from '../constants'
-import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
+import { clone, bboxPolygon as convertBboxToPolygon } from '@turf/turf'
 import { Feature, MultiPolygon, Polygon } from 'geojson'
-import transformGeometry from '../functions/transformGeometry'
 import * as PC from 'polygon-clipping'
+
+import { TILE_ZOOM } from '../constants'
+import computePolygonDifference from '../functions/computePolygonDifference'
+import computeTileBoundingBox from '../functions/computeTileBoundingBox'
+import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
+import createUsingCache from '../functions/createUsingCache'
 import tesselatePolygon from '../functions/tesselatePolygon'
+import transformGeometry from '../functions/transformGeometry'
+import { MapStateUnwrapped, MapTransformedFeature, TaskStatus, TileKey } from '../types'
 
 export const name = 'CreateTileNavMesh'
 export const isAsyncPhase = false

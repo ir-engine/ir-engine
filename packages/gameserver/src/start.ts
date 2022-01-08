@@ -1,12 +1,14 @@
+import { exec } from 'child_process'
 import fs from 'fs'
 import https from 'https'
-import logger from '@xrengine/server-core/src/logger'
-import config from '@xrengine/server-core/src/appconfig'
 import psList from 'ps-list'
-import { exec } from 'child_process'
+
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+
 // import preloadLocation from './preload-location'
 import { createApp } from './app'
-import { Application } from '@xrengine/server-core/declarations'
 
 /**
  * @param status

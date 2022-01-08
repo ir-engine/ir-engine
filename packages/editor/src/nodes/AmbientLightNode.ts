@@ -1,7 +1,10 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { AmbientLight } from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
+
 export default class AmbientLightNode extends EditorNodeMixin(AmbientLight) {
   static legacyComponentName = 'ambient-light'
   static nodeName = 'Ambient Light'

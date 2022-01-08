@@ -1,10 +1,10 @@
 // Initializes the `location-ban` service on dpath `/location-ban`
 import { Application } from '../../../declarations'
-import { LocationBan } from './location-ban.class'
-import createModel from './location-ban.model'
-import hooks from './location-ban.hooks'
 import logger from '../../logger'
+import { LocationBan } from './location-ban.class'
 import locationBanDocs from './location-ban.docs'
+import hooks from './location-ban.hooks'
+import createModel from './location-ban.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

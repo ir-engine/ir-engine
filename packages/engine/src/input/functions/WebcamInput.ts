@@ -1,12 +1,14 @@
 import * as Comlink from 'comlink'
+
+import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
+import { WebCamInputComponent } from '../components/WebCamInputComponent'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-import { WebCamInputComponent } from '../components/WebCamInputComponent'
-import { hasComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+
 const EXPRESSION_THRESHOLD = 0.1
 
 const faceTrackingTimers: any[] = []

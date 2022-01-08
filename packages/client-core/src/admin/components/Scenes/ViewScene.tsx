@@ -1,15 +1,17 @@
 import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import { Paper, Typography, Grid } from '@mui/material'
+
+import { Grid, Paper, Typography } from '@mui/material'
 import Container from '@mui/material/Container'
+import Drawer from '@mui/material/Drawer'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import { EntityData, entityColumns } from './variables'
+
 import { useSceneStyle, useSceneStyles } from './styles'
+import { EntityData, entityColumns } from './variables'
 
 interface Props {
   adminScene: any

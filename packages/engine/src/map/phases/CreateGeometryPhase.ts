@@ -1,14 +1,15 @@
+import { BufferGeometryLoader } from 'three'
+
 import createWorkerFunction from '../functions/createWorkerFunction'
 import fetchUsingCache from '../functions/fetchUsingCache'
 import isIntersectCircleCircle from '../functions/isIntersectCircleCircle'
-import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
+import { getHumanFriendlyFeatureKey } from '../helpers/KeyHelpers'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
+import { FeatureKey, MapStateUnwrapped, TaskStatus } from '../types'
 import { multiplyArray } from '../util'
+import { WorkerApi } from '../workers/geometryWorker'
 // @ts-ignore
 import createGeometryWorker from '../workers/geometryWorker.ts?worker'
-import { WorkerApi } from '../workers/geometryWorker'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
-import { BufferGeometryLoader } from 'three'
-import { getHumanFriendlyFeatureKey } from '../helpers/KeyHelpers'
 
 const $array2 = Array(2)
 

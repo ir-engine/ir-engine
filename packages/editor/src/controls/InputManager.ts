@@ -1,8 +1,9 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { InputComponent, InputComponentType } from '../classes/InputComponent'
 import isInputSelected from '../functions/isInputSelected'
 import { SceneManager } from '../managers/SceneManager'
-import { InputMapping, ActionKey, Action, ActionState, SpecialAliases, MouseButtons } from './input-mappings'
+import { Action, ActionKey, ActionState, InputMapping, MouseButtons, SpecialAliases } from './input-mappings'
 
 export default class InputManager {
   canvas: HTMLCanvasElement

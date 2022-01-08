@@ -1,4 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
+
+import { Checkbox } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -6,13 +9,12 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
+
 import { useAuthState } from '../../../user/services/AuthService'
-import { useRouteStyles, useRouteStyle } from './styles'
+import { ActiveRouteService, useActiveRouteState } from '../../services/ActiveRouteService'
 import { useRouteState } from '../../services/RouteService'
 import { RouteService } from '../../services/RouteService'
-import { ActiveRouteService, useActiveRouteState } from '../../services/ActiveRouteService'
-import { Checkbox } from '@mui/material'
-import CircularProgress from '@mui/material/CircularProgress'
+import { useRouteStyle, useRouteStyles } from './styles'
 
 export interface RouteColumn {
   id: 'project' | 'route' | 'active'

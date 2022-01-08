@@ -1,4 +1,5 @@
 import { TextureLoader } from 'three'
+
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 
 class Cache {

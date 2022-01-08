@@ -1,5 +1,6 @@
-import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import i18n from 'i18next'
+
+import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { fetchContentType } from '@xrengine/common/src/utils/fetchContentType'
 import { guessContentType } from '@xrengine/common/src/utils/guessContentType'
 

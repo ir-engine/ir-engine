@@ -1,8 +1,9 @@
-import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
-import FileBrowserContentPanel from './FileBrowserContentPanel'
-import { AssetsPreviewPanel } from './AssetsPreviewPanel'
+import React from 'react'
+
 import { DockContainer } from '../EditorContainer'
+import { AssetsPreviewPanel } from './AssetsPreviewPanel'
+import FileBrowserContentPanel from './FileBrowserContentPanel'
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.

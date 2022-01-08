@@ -1,18 +1,20 @@
 import React from 'react'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
-import SelectInput from '../inputs/SelectInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import { useTranslation } from 'react-i18next'
+
 import {
   AudioType,
   AudioTypeOptions,
   DistanceModelOptions,
   DistanceModelType
 } from '@xrengine/engine/src/scene/classes/AudioSource'
-import useSetPropertySelected from './useSetPropertySelected'
-import { useTranslation } from 'react-i18next'
+
+import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import useSetPropertySelected from './useSetPropertySelected'
 
 /**
  *

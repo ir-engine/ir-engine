@@ -1,5 +1,7 @@
-import Spline from '@xrengine/engine/src/scene/classes/Spline'
 import { Object3D } from 'three'
+
+import Spline from '@xrengine/engine/src/scene/classes/Spline'
+
 import { NodeManager } from '../managers/NodeManager'
 import EditorNodeMixin from './EditorNodeMixin'
 import SplineHelperNode from './SplineHelperNode'

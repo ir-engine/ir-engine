@@ -1,12 +1,14 @@
-import { Application } from '../../../declarations'
-import hooks from './upload-media.hooks'
-import express from 'express'
-import multer from 'multer'
-import { useStorageProvider } from '../storageprovider/storageprovider'
-import blobService from 'feathers-blob'
-import { v1 as uuidv1 } from 'uuid'
 import dauria from 'dauria'
+import express from 'express'
+import blobService from 'feathers-blob'
+import multer from 'multer'
+import { v1 as uuidv1 } from 'uuid'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { useStorageProvider } from '../storageprovider/storageprovider'
+import hooks from './upload-media.hooks'
+
 const multipartMiddleware = multer()
 
 declare module '../../../declarations' {

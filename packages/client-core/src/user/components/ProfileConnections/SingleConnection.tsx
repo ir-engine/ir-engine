@@ -1,19 +1,22 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from '../../../store'
+
 import { AlertAction } from '../../../common/services/AlertActions'
 import { DialogAction } from '../../../common/services/DialogActions'
+import { useDispatch } from '../../../store'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
-import { AuthService } from '../../services/AuthService'
 import { ConnectionTexts } from './ConnectionTexts'
-import { useTranslation } from 'react-i18next'
 import styles from './ProfileConnections.module.scss'
-import { useAuthState } from '../../services/AuthService'
 
 interface Props {
   auth?: any

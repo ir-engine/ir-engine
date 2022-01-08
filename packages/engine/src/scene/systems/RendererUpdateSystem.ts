@@ -1,9 +1,9 @@
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { RenderedComponent } from '../components/RenderedComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { Updatable } from '../interfaces/Updatable'
-import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { RenderedComponent } from '../components/RenderedComponent'
+import { Updatable } from '../interfaces/Updatable'
 
 /**
  * @author Dhara Patel <github.com/frozencrystal>

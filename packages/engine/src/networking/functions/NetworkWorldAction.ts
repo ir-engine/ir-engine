@@ -1,4 +1,8 @@
 import matches from 'ts-matches'
+
+import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { matchPose } from '../../transform/TransformInterfaces'
 import {
   defineActionCreator,
   matchesNetworkId,
@@ -7,10 +11,7 @@ import {
   matchesVector3,
   matchesWithDefault
 } from '../interfaces/Action'
-import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {
   static createClient = defineActionCreator({

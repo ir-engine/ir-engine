@@ -1,4 +1,5 @@
 import { BlendFunction } from 'postprocessing'
+
 import { Effect } from './Effect'
 import fragmentShader from './glsl/linear-to-srgb/shader.frag'
 

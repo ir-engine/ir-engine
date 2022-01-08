@@ -1,17 +1,4 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  addComponent,
-  createMappedComponent,
-  getComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
-import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
-import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
-import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
+import { defineQuery } from 'bitecs'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
@@ -28,10 +15,24 @@ import {
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { defineQuery } from 'bitecs'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
+import {
+  addComponent,
+  createMappedComponent,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
+import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
+import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
+import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
+import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner

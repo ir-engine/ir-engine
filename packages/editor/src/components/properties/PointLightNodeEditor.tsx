@@ -1,14 +1,15 @@
 // @ts-nocheck
-
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
+import { useTranslation } from 'react-i18next'
+
 import LightbulbIcon from '@mui/icons-material/Lightbulb'
+
+import { CommandManager } from '../../managers/CommandManager'
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import NodeEditor from './NodeEditor'
 
 //Declaring properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {

@@ -1,7 +1,9 @@
 import React from 'react'
+
+import RouteTable from './RouteTable'
 // import Search from './SearchLocation'
 import { useRouteStyles } from './styles'
-import RouteTable from './RouteTable'
+
 // import CreateLocation from './createLocation'
 
 const Routes = () => {

@@ -1,11 +1,14 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
+
 import styles from '@xrengine/client-core/src/admin/components/Project/Projects.module.scss'
+
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 import Modal from '@mui/material/Modal'
-import CircularProgress from '@mui/material/CircularProgress'
+
 interface Props {
   open: boolean
   handleClose: any

@@ -1,9 +1,11 @@
+import { createState, none, useState } from '@hookstate/core'
+
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { useDispatch, store } from '../../store'
-import { client } from '../../feathers'
-import { createState, useState, none } from '@hookstate/core'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
+import { User } from '@xrengine/common/src/interfaces/User'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({

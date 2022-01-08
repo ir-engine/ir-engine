@@ -1,11 +1,14 @@
-import React from 'react'
-import Button from '@mui/material/Button'
-import { useTranslation } from 'react-i18next'
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@hookstate/core'
-import { useUserState } from '../../user/services/UserService'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import Button from '@mui/material/Button'
+
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { useUserState } from '../../user/services/UserService'
 
 const styles = {
   root: {

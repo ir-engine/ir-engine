@@ -1,4 +1,5 @@
 import { Object3D } from 'three'
+
 export default class WooCommerce extends Object3D {
   extendType: string
   wooCommerceProducts: any

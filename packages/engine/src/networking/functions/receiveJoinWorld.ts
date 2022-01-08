@@ -1,11 +1,10 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-
 import { SpawnPoints } from '../../avatar/AvatarSpawnSystem'
 import { Engine } from '../../ecs/classes/Engine'
-import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { EngineActions, accessEngineState } from '../../ecs/classes/EngineService'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
 import { NetworkWorldAction } from './NetworkWorldAction'
+import { dispatchFrom, dispatchLocal } from './dispatchFrom'
 
 export const receiveJoinWorld = ({ tick, clients, cachedActions, avatarDetail }) => {
   console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail)

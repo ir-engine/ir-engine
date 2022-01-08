@@ -1,7 +1,8 @@
 import React from 'react'
-import Slider from './Slider'
-import NumericInput from './NumericInput'
 import styled from 'styled-components'
+
+import NumericInput from './NumericInput'
+import Slider from './Slider'
 
 /**
  * StyledCompoundNumericInput used to provide styles for CompoundNumericInput.

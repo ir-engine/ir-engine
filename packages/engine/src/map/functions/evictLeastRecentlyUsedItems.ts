@@ -1,4 +1,4 @@
-import { ITuple, IParametricMap } from '../types'
+import { IParametricMap, ITuple } from '../types'
 
 export default function* evictLeastRecentlyUsedItems<K extends ITuple, V>(
   cache: IParametricMap<K, V>,

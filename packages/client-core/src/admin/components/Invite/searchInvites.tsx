@@ -1,8 +1,10 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import { IconButton } from '@mui/material'
+
 import SearchIcon from '@mui/icons-material/Search'
+import { IconButton } from '@mui/material'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
 import { inviteStyles } from './styles'
 
 const searchInvites = () => {

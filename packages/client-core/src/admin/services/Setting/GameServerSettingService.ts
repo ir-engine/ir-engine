@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
-import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
 import { createState, useState } from '@hookstate/core'
+
 import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
+import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({

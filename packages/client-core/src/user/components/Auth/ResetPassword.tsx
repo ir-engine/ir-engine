@@ -1,9 +1,11 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import styles from './Auth.module.scss'
 

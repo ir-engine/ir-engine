@@ -1,6 +1,7 @@
 import React from 'react'
-import NumericInputGroup, { NumericInputGroupProp } from './NumericInputGroup'
 import { MathUtils as _Math } from 'three'
+
+import NumericInputGroup, { NumericInputGroupProp } from './NumericInputGroup'
 
 const radToDeg = _Math.radToDeg
 const degToRad = _Math.degToRad

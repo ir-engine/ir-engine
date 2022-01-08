@@ -1,12 +1,14 @@
 import * as authentication from '@feathersjs/authentication'
+import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
+import * as commonHooks from 'feathers-hooks-common'
+
 import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode'
+import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate'
 import sendInvite from '@xrengine/server-core/src/hooks/send-invite'
 import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
-import { HookContext } from '@feathersjs/feathers'
-import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate'
-import * as commonHooks from 'feathers-hooks-common'
+
 import logger from '../../logger'
 
 const { authenticate } = authentication.hooks

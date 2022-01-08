@@ -1,22 +1,24 @@
 import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
+
+import { TableContainer, TableHead, TablePagination, TableRow } from '@mui/material'
+import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
-import { TableContainer, TableHead, TablePagination, TableRow } from '@mui/material'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+
 import { useDispatch } from '../../../store'
+import { useAuthState } from '../../../user/services/AuthService'
 import { useGroupState } from '../../services/GroupService'
 import { GroupService } from '../../services/GroupService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { columns, Data } from './Variables'
-import { useGroupStyles, useGroupStyle } from './styles'
-import ViewGroup from './ViewGroup'
 import { GROUP_PAGE_LIMIT } from '../../services/GroupService'
+import { Data, columns } from './Variables'
+import ViewGroup from './ViewGroup'
+import { useGroupStyle, useGroupStyles } from './styles'
 
 interface Props {}
 

@@ -1,13 +1,15 @@
-import { Application } from '../../../declarations'
-import { getSceneData, Scene } from './scene.class'
-import projectDocs from './scene.docs'
-import hooks from './scene.hooks'
+import { Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { Application } from '../../../declarations'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
-import { Params } from '@feathersjs/feathers'
+import { Scene, getSceneData } from './scene.class'
+import projectDocs from './scene.docs'
+import hooks from './scene.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

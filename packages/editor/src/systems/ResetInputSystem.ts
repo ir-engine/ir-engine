@@ -1,6 +1,7 @@
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { InputComponent } from '../classes/InputComponent'
 import { ActionKey } from '../controls/input-mappings'
 

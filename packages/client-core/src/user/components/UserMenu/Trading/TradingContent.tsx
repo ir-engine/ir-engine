@@ -1,15 +1,14 @@
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import makeStyles from '@mui/styles/makeStyles'
-import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+
+import { ArrowBackIos, FilterList } from '@mui/icons-material'
 import {
-  Grid,
-  Divider,
   Box,
   Card,
   CircularProgress,
+  Divider,
   FormControl,
+  Grid,
   IconButton,
   InputLabel,
   Menu,
@@ -17,7 +16,10 @@ import {
   Select,
   Stack
 } from '@mui/material'
-import { useHistory } from 'react-router-dom'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { usePrevious } from '../../../../hooks/usePrevious'
 
 const useStyles = makeStyles({

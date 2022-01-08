@@ -1,19 +1,20 @@
-import { ColorRepresentation, Object3D, Texture } from 'three'
 import {
   BlendFunction,
   BloomEffect,
   BrightnessContrastEffect,
   ColorDepthEffect,
-  Resizer,
   DepthOfFieldEffect,
   HueSaturationEffect,
   KernelSize,
   OutlineEffect,
+  Resizer,
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { ColorRepresentation, Object3D, Texture } from 'three'
+
 import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
+import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export enum Effects {
   FXAAEffect = 'FXAAEffect',

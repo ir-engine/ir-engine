@@ -1,22 +1,24 @@
-import {
-  LinearFilter,
-  sRGBEncoding,
-  PlaneBufferGeometry,
-  MeshBasicMaterial,
-  DoubleSide,
-  Mesh,
-  SphereBufferGeometry,
-  RGBAFormat,
-  VideoTexture
-} from 'three'
 import Hls from 'hls.js'
+import {
+  DoubleSide,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneBufferGeometry,
+  RGBAFormat,
+  SphereBufferGeometry,
+  VideoTexture,
+  sRGBEncoding
+} from 'three'
+
+import isDash from '../functions/isDash'
 import isHLS from '../functions/isHLS'
 import AudioSource from './AudioSource'
+
 export const VideoProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'
 }
-import isDash from '../functions/isDash'
 
 export default class Video extends AudioSource {
   _texture: any

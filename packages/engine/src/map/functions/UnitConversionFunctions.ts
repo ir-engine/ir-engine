@@ -1,4 +1,5 @@
 import { degreesToRadians } from '@turf/turf'
+
 export const METERS_PER_LONGLAT = 111139
 
 /** Memnonic drop-in replacement for geojson.Position */

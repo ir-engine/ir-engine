@@ -1,8 +1,9 @@
+import * as authentication from '@feathersjs/authentication'
+import { HookContext } from '@feathersjs/feathers'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
 import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
-import * as authentication from '@feathersjs/authentication'
-import { disallow, isProvider, iff } from 'feathers-hooks-common'
-import { HookContext } from '@feathersjs/feathers'
 
 const { authenticate } = authentication.hooks
 

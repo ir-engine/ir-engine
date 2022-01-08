@@ -1,10 +1,12 @@
-import Command, { CommandParams } from './Command'
+import { Matrix4, Vector3 } from 'three'
+
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
-import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
-import { Matrix4, Vector3 } from 'three'
+import Command, { CommandParams } from './Command'
 
 export interface ScaleCommandParams extends CommandParams {
   scales?: Vector3 | Vector3[]

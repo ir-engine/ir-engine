@@ -1,6 +1,7 @@
-import { Interior } from '@xrengine/engine/src/scene/classes/Interior'
-import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
+import { Interior } from '@xrengine/engine/src/scene/classes/Interior'
+
+import EditorNodeMixin from './EditorNodeMixin'
 
 const defaultTextureUrl = '/cubemap/cube.dds'
 

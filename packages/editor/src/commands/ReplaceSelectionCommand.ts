@@ -1,7 +1,7 @@
-import Command, { CommandParams } from './Command'
+import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
+import Command, { CommandParams } from './Command'
 
 export default class ReplaceSelectionCommand extends Command {
   constructor(objects?: any | any[], params?: CommandParams) {

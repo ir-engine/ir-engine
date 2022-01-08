@@ -1,7 +1,10 @@
 import { Object3D } from 'three'
+
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
 import { ProjectionType } from '@xrengine/engine/src/camera/types/ProjectionType'
+
 import EditorNodeMixin from './EditorNodeMixin'
+
 export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'cameraproperties'
   static nodeName = 'Camera Properties'

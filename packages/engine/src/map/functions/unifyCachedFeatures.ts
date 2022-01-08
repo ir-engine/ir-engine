@@ -1,5 +1,6 @@
 import { Feature } from 'geojson'
 import { every } from 'lodash'
+
 import FeatureCache from '../classes/FeatureCache'
 import findSplitFeatures from './findSplitFeatures'
 import unifyFeatures from './unifyFeatures'

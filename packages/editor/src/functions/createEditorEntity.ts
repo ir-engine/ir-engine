@@ -1,12 +1,14 @@
+import { MathUtils, Vector2 } from 'three'
+
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { SnapMode, TransformMode, TransformPivot } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { MathUtils, Vector2 } from 'three'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
 import { InputComponent } from '../classes/InputComponent'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { SceneManager } from '../managers/SceneManager'
 
 export const createEditorEntity = (): Entity => {

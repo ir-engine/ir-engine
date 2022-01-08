@@ -1,14 +1,16 @@
+import classNames from 'classnames'
+import React, { Fragment, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AccountCircle, Settings } from '@mui/icons-material'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { AccountCircle, Settings } from '@mui/icons-material'
-import classNames from 'classnames'
-import React, { Fragment, useState } from 'react'
+
 import styles from './Profile.module.scss'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean

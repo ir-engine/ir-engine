@@ -1,9 +1,20 @@
-import ClickAwayListener from '@mui/material/ClickAwayListener'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { useTranslation } from 'react-i18next'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import React, { useState } from 'react'
+
+import { Person } from '@mui/icons-material'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+
+import {
+  ProjectGridContainer,
+  ProjectGridContent,
+  ProjectGridHeader,
+  ProjectGridHeaderRow
+} from '../components/projects/ProjectGrid'
+import Projects from '../components/projects/ProjectsPage'
 import {
   ProfileButton,
   StyledProjectsContainer,
@@ -11,14 +22,6 @@ import {
   StyledProjectsSection,
   useStyles
 } from './projectUtility'
-import Projects from '../components/projects/ProjectsPage'
-import { Person } from '@mui/icons-material'
-import {
-  ProjectGridContainer,
-  ProjectGridContent,
-  ProjectGridHeader,
-  ProjectGridHeaderRow
-} from '../components/projects/ProjectGrid'
 
 /**
  *Component to render the existing projects in grids with a grid to add new project.

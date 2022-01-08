@@ -1,24 +1,24 @@
 // Copied here for dependency reasons from @mozillareality/three-particle-emitter
 // TODO: Refactor me into ParticleEmitter.ts!
-
 import {
-  Mesh,
-  InstancedBufferGeometry,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3,
-  Color,
-  InstancedBufferAttribute,
-  MathUtils as _Math,
   AddEquation,
-  Texture,
   BufferAttribute,
-  RawShaderMaterial,
+  Color,
+  DynamicDrawUsage,
+  InstancedBufferAttribute,
+  InstancedBufferGeometry,
   Matrix4,
-  UniformsUtils,
+  Mesh,
+  PlaneBufferGeometry,
+  RawShaderMaterial,
+  ShaderMaterial,
+  Texture,
   UniformsLib,
-  DynamicDrawUsage
+  UniformsUtils,
+  Vector3,
+  MathUtils as _Math
 } from 'three'
+
 import * as EasingFunctions from '../../common/functions/EasingFunctions'
 import { clamp, lerp } from '../../common/functions/MathLerpFunctions'
 

@@ -1,13 +1,14 @@
 import { TypedArray } from 'bitecs'
+
 import { Entity } from '../../../ecs/classes/Entity'
 import {
-  createViewCursor,
   ViewCursor,
-  spaceUint32,
+  createViewCursor,
+  sliceViewCursor,
   spaceUint8,
+  spaceUint32,
   writeNetworkId,
-  writeProp,
-  sliceViewCursor
+  writeProp
 } from './../ViewCursor'
 
 export const writeProps = (v: ViewCursor, props: TypedArray[] | Function, entities: Entity[]) => {

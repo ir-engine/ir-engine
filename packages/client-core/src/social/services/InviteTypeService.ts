@@ -1,9 +1,11 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
-import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
 import { createState, useState } from '@hookstate/core'
+
+import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
+import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({

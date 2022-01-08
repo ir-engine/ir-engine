@@ -1,9 +1,11 @@
 // @ts-nocheck
+
 /**
  * Extracted and modified from Three.js
  * https://github.com/mrdoob/three.js/blob/dev/examples/jsm/exporters/GLTFExporter.js
  * https://github.com/mrdoob/three.js/blob/dev/LICENSE
  **/
+
 /**
  * @author fernandojsg / http://fernandojsg.com
  * @author Don McCurdy / https://www.donmccurdy.com
@@ -18,21 +20,23 @@ import {
   LinearFilter,
   LinearMipMapLinearFilter,
   LinearMipMapNearestFilter,
-  MathUtils as _Math,
+  Material,
   MirroredRepeatWrapping,
   NearestFilter,
   NearestMipMapLinearFilter,
   NearestMipMapNearestFilter,
+  Object3D,
   PropertyBinding,
   RGBAFormat,
   RepeatWrapping,
   Scene,
-  Vector3,
-  Material,
   Texture,
-  Object3D
+  Vector3,
+  MathUtils as _Math
 } from 'three'
+
 import { LightmapExporterExtension } from './extensions/exporter/LightmapExporterExtension'
+
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------

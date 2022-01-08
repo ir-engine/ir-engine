@@ -1,11 +1,11 @@
 import { BinaryValue } from '../../common/enums/BinaryValue'
-import { applyThreshold } from '../../common/functions/applyThreshold'
-import { InputType } from '../enums/InputType'
-import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
-import { InputAlias } from '../types/InputAlias'
-import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { applyThreshold } from '../../common/functions/applyThreshold'
 import { Engine } from '../../ecs/classes/Engine'
+import { BaseInput } from '../enums/BaseInput'
+import { GamepadAxis, GamepadButtons, XRAxes } from '../enums/InputEnums'
+import { InputType } from '../enums/InputType'
+import { InputAlias } from '../types/InputAlias'
 
 /**
  * @property {Boolean} gamepadConnected Connection a new gamepad

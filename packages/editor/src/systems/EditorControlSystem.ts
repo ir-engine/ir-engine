@@ -1,3 +1,17 @@
+import {
+  Box3,
+  Intersection,
+  Layers,
+  MathUtils,
+  Object3D,
+  Plane,
+  Quaternion,
+  Ray,
+  Raycaster,
+  Vector2,
+  Vector3
+} from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -14,25 +28,13 @@ import {
   TransformPivot,
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import {
-  Vector3,
-  Quaternion,
-  Raycaster,
-  MathUtils,
-  Layers,
-  Object3D,
-  Vector2,
-  Intersection,
-  Box3,
-  Plane,
-  Ray
-} from 'three'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'

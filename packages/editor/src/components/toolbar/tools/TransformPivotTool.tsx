@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import { TransformPivot, TransformPivotType } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { InfoTooltip } from '../../layout/Tooltip'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import { setTransformPivot, toggleTransformPivot } from '../../../systems/EditorControlSystem'
-import { SceneManager } from '../../../managers/SceneManager'
+import { TransformPivot, TransformPivotType } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import AdjustIcon from '@mui/icons-material/Adjust'
+
+import { EditorControlComponent } from '../../../classes/EditorControlComponent'
+import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
+import { SceneManager } from '../../../managers/SceneManager'
+import { setTransformPivot, toggleTransformPivot } from '../../../systems/EditorControlSystem'
+import SelectInput from '../../inputs/SelectInput'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 /**
  *

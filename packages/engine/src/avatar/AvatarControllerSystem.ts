@@ -1,14 +1,14 @@
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { moveAvatar } from './functions/moveAvatar'
-import { World } from '../ecs/classes/World'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()

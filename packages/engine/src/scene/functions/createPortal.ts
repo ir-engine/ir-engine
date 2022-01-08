@@ -1,13 +1,14 @@
 import { BoxBufferGeometry, Color, Euler, Mesh, MeshPhongMaterial, Quaternion, Vector3 } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { BodyType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { BodyType } from '../../physics/types/PhysicsTypes'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
 export type PortalProps = {

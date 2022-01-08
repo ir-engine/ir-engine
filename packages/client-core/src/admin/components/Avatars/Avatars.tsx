@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import Grid from '@mui/material/Grid'
+
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
-import TableSortLabel from '@mui/material/TableSortLabel'
-import Paper from '@mui/material/Paper'
 import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import TableSortLabel from '@mui/material/TableSortLabel'
+
+import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
-import styles from './Avatars.module.scss'
 import { useAvatarState } from '../../services/AvatarService'
-import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { AvatarService } from '../../services/AvatarService'
+import styles from './Avatars.module.scss'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

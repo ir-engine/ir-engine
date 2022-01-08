@@ -1,19 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react'
 import { useState as useHookstate } from '@hookstate/core'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import AssetDropZone from '../assets/AssetDropZone'
-import { addAssetAtCursorPositionOnDrop } from '../dnd'
-import * as styles from './Viewport.module.scss'
+
 import editorTheme from '@xrengine/client-core/src/util/theme'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { FlyControlComponent } from '../../classes/FlyControlComponent'
 import { accessEditorState, useEditorState } from '../../services/EditorServices'
+import AssetDropZone from '../assets/AssetDropZone'
+import { addAssetAtCursorPositionOnDrop } from '../dnd'
+import * as styles from './Viewport.module.scss'
 
 /**
  * ViewportPanelContainer used to render viewport.

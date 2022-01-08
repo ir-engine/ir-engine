@@ -1,4 +1,5 @@
 import { Geometry } from 'geojson'
+
 import { ILayerName } from './types'
 
 export const SUPPORTED_LAYERS: readonly ILayerName[] = Object.freeze([

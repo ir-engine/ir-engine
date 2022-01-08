@@ -1,21 +1,20 @@
+import Hls from 'hls.js'
+import { MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+
+import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { MathUtils, Quaternion, Vector3, Object3D } from 'three'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-
-import { Engine } from '../../ecs/classes/Engine'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-
-import { hideInteractText, showInteractText, createInteractText } from './interactText'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'
-
-import Hls from 'hls.js'
-import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { createInteractText, hideInteractText, showInteractText } from './interactText'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>

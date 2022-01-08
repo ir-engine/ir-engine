@@ -1,9 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 /**
  * This class used to find user

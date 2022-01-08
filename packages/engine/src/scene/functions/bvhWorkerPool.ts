@@ -1,4 +1,5 @@
 import { Mesh } from 'three'
+
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
 
 //TODO: Find number of cores on server side

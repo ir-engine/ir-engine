@@ -1,4 +1,5 @@
 import { Euler } from 'three'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'

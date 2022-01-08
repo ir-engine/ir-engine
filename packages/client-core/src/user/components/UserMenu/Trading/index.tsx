@@ -1,10 +1,11 @@
-import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
+
 import { client } from '../../../../feathers'
-import { useDispatch, store } from '../../../../store'
-import TradingContent from './TradingContent'
-import styles from '../UserMenu.module.scss'
+import { store, useDispatch } from '../../../../store'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import { TradingAction, TradingService, useTradingState } from '../../../services/TradingService'
+import styles from '../UserMenu.module.scss'
+import TradingContent from './TradingContent'
 
 interface Props {
   changeActiveMenu?: any

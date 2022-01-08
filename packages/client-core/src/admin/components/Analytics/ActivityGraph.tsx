@@ -1,6 +1,5 @@
-import React from 'react'
-
 import ApexCharts from 'apexcharts'
+import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
 const ActivityGraph = ({ data /* see data tab */ }) => {

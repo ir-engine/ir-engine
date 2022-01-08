@@ -1,9 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { BadRequest } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Params } from '@feathersjs/feathers'
-import { BadRequest } from '@feathersjs/errors'
-import { Op } from 'sequelize'
 
 export class Message extends Service {
   app: Application

@@ -11,22 +11,23 @@ import {
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRenderTarget } from 'three'
+import { PerspectiveCamera, WebGL1Renderer, WebGLRenderTarget, WebGLRenderer, sRGBEncoding } from 'three'
+
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
+import { EngineActionType, EngineActions, accessEngineState } from '../ecs/classes/EngineService'
 import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { EngineRendererAction, EngineRendererReceptor, accessEngineRendererState } from './EngineRendererState'
+import { RENDERER_SETTINGS, databasePrefix } from './EngineRnedererConstants'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { World } from '../ecs/classes/World'
 import { configureEffectComposer } from './functions/configureEffectComposer'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
-import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
-import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
-import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 
 export interface EffectComposerWithSchema extends EffectComposer {
   // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?

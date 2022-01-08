@@ -5,7 +5,6 @@
  * @param  {any} url
  * @return {string}     [contentType]
  */
-
 import { CommonKnownContentTypes } from './CommonKnownContentTypes'
 
 export function guessContentType(url): string {

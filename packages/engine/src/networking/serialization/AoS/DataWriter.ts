@@ -1,14 +1,14 @@
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
-import { flatten, Vector3SoA } from '../Utils'
+import { Vector3SoA, flatten } from '../Utils'
 import {
-  createViewCursor,
   ViewCursor,
+  createViewCursor,
+  sliceViewCursor,
+  spaceUint8,
   spaceUint16,
   spaceUint32,
-  spaceUint8,
-  sliceViewCursor,
   writePropIfChanged
 } from './../ViewCursor'
 

@@ -1,4 +1,5 @@
 import React from 'react'
+
 import Catch from './functionalErrorBoundary'
 
 type Props = {

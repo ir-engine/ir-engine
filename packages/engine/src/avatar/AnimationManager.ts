@@ -1,4 +1,5 @@
 import { AnimationClip, SkinnedMesh } from 'three'
+
 import { getLoader } from '../assets/functions/LoadGLTF'
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'

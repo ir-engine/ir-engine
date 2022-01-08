@@ -1,16 +1,19 @@
-import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
-import SelectInput from '../inputs/SelectInput'
-import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
-import VideoInput from '../inputs/VideoInput'
-import VideocamIcon from '@mui/icons-material/Videocam'
-import AudioSourceProperties from './AudioSourceProperties'
-import useSetPropertySelected from './useSetPropertySelected'
-import { ControlledStringInput } from '../inputs/StringInput'
 import i18n from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
+
+import VideocamIcon from '@mui/icons-material/Videocam'
+
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { ControlledStringInput } from '../inputs/StringInput'
+import VideoInput from '../inputs/VideoInput'
+import AudioSourceProperties from './AudioSourceProperties'
+import NodeEditor from './NodeEditor'
+import useSetPropertySelected from './useSetPropertySelected'
 
 /**
  * videoProjectionOptions contains VideoProjection options.

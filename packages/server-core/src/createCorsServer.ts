@@ -1,6 +1,7 @@
 import cors_proxy from 'cors-anywhere'
-import config from './appconfig'
 import net from 'net'
+
+import config from './appconfig'
 
 const createCorsServer = (useSSL, certOptions, port) => {
   cors_proxy

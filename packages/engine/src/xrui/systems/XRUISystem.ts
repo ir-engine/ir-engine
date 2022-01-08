@@ -1,18 +1,19 @@
 import { Color, Mesh, Raycaster } from 'three'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { XRUIManager } from '../classes/XRUIManager'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import { XRUIManager } from '../classes/XRUIManager'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 export default async function XRUISystem(world: World): Promise<System> {
   const hitColor = new Color(0x00e6e6)

@@ -1,4 +1,5 @@
 import traverseEarlyOut from './traverseEarlyOut'
+
 export default function findObject(object, callback) {
   let result
   traverseEarlyOut(object, (child) => {

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+
 import { CommandManager } from '../../managers/CommandManager'
 
 //function used to setting changes in editor properties

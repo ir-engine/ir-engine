@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import PropertyGroup from './PropertyGroup'
-import InputGroup from '../inputs/InputGroup'
-import Vector3Input from '../inputs/Vector3Input'
-import EulerInput from '../inputs/EulerInput'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+
 import EditorCommands from '../../constants/EditorCommands'
 import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import EulerInput from '../inputs/EulerInput'
+import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
+import PropertyGroup from './PropertyGroup'
 
 /**
  * TransformPropertyGroupProps declaring properties for TransformPropertyGroup.

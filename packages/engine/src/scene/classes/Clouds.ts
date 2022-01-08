@@ -1,18 +1,19 @@
+import SimplexNoise from 'simplex-noise'
 import {
-  Mesh,
-  InstancedBufferGeometry,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3,
+  Color,
   InstancedBufferAttribute,
+  InstancedBufferGeometry,
+  Mesh,
+  PlaneBufferGeometry,
   RawShaderMaterial,
+  ShaderMaterial,
+  Texture,
+  TextureLoader,
   UniformsUtils,
   Vector2,
-  Color,
-  Texture,
-  TextureLoader
+  Vector3
 } from 'three'
-import SimplexNoise from 'simplex-noise'
+
 import { TGALoader } from '../../assets/loaders/tga/TGALoader'
 
 const vertexShader = `

@@ -1,5 +1,6 @@
-import matches from 'ts-matches'
 import { AnimationAction, AnimationActionLoopStyles, AnimationClip, Vector3 } from 'three'
+import matches from 'ts-matches'
+
 import { matchesVector3 } from '../../networking/interfaces/Action'
 
 /** State of the avatar animation */

@@ -2,8 +2,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const respawnAvatar = (entity: Entity) => {

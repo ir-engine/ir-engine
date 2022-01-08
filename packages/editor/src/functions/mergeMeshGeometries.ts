@@ -1,5 +1,7 @@
 import { BufferGeometry, Float32BufferAttribute } from 'three'
+
 import { mergeBufferGeometries } from '@xrengine/engine/src/common/classes/BufferGeometryUtils'
+
 function createEmptyGeometry() {
   const emptyGeometry = new BufferGeometry()
   emptyGeometry.setIndex([])

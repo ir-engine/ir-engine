@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { InstanceAttendance } from './instance-attendance.class'
-import createModel from './instance-attendance.model'
-import hooks from './instance-attendance.hooks'
 import instanceAttendanceDocs from './instance-attendance.docs'
+import hooks from './instance-attendance.hooks'
+import createModel from './instance-attendance.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

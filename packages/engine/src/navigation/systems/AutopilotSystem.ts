@@ -1,8 +1,12 @@
 import { Intersection, Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
+
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -10,19 +14,16 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
+import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
-import { System } from '../../ecs/classes/System'
-import { World } from '../../ecs/classes/World'
 import createSpeedFunction from '../functions/createSpeedFunction'
-import { Entity } from '../../ecs/classes/Entity'
 
 export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
   // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center

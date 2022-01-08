@@ -1,6 +1,7 @@
 import React from 'react'
-import Dialog from './Dialog'
 import styled from 'styled-components'
+
+import Dialog from './Dialog'
 
 // export function ConfirmDialog(props: Props) {
 //   return <Dialog {...props}>{props?.message}</Dialog>

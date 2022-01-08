@@ -1,9 +1,9 @@
-import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { HighlightComponent } from './components/HighlightComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
+import { HighlightComponent } from './components/HighlightComponent'
 
 export default async function HighlightSystem(world: World): Promise<System> {
   const highlightsQuery = defineQuery([Object3DComponent, HighlightComponent])

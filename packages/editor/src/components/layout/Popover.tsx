@@ -1,8 +1,9 @@
-import React, { useRef, useCallback, ReactNode } from 'react'
+import { useHookstate } from '@hookstate/core'
+import React, { ReactNode, useCallback, useRef } from 'react'
+
+import Overlay from './Overlay'
 import Portal from './Portal'
 import Positioner from './Positioner'
-import Overlay from './Overlay'
-import { useHookstate } from '@hookstate/core'
 
 interface PopoverProp {
   children?: ReactNode

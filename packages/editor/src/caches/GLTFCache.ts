@@ -1,4 +1,5 @@
 import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+
 export default class GLTFCache {
   cache: Map<any, any>
   constructor() {

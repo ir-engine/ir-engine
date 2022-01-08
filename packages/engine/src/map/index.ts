@@ -1,5 +1,5 @@
-import { LongLat } from './functions/UnitConversionFunctions'
 import { MapProps } from './MapProps'
+import { LongLat } from './functions/UnitConversionFunctions'
 
 // TODO move to functions/
 

@@ -1,3 +1,17 @@
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
+
+import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -7,20 +21,8 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { Message as MessageIcon, Send } from '@mui/icons-material'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 
 import defaultStyles from './InstanceChat.module.scss'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   styles?: any

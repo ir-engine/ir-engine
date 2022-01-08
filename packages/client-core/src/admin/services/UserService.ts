@@ -1,9 +1,11 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@hookstate/core'
+
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State

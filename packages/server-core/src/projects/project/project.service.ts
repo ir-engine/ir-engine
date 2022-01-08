@@ -1,11 +1,13 @@
-import hooks from './project.hooks'
-import { Application } from '../../../declarations'
-import { Project } from './project.class'
-import createModel from './project.model'
-import projectDocs from './project.docs'
-import { retriggerBuilderService } from './project-helper'
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 import * as authentication from '@feathersjs/authentication'
+
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+
+import { Application } from '../../../declarations'
+import { retriggerBuilderService } from './project-helper'
+import { Project } from './project.class'
+import projectDocs from './project.docs'
+import hooks from './project.hooks'
+import createModel from './project.model'
 
 const { authenticate } = authentication.hooks
 

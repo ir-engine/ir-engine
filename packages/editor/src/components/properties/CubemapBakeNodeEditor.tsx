@@ -1,10 +1,11 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import React from 'react'
-import { CubemapBakeProperties } from './CubemapBakeProperties'
+
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
+
+import { CubemapBakeProperties } from './CubemapBakeProperties'
 
 export const enum BakePropertyTypes {
   'Boolean',

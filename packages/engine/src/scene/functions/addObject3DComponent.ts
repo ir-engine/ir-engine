@@ -2,11 +2,11 @@
  *    {@link https://threejs.org/docs/#api/en/core/Object3D | Object3D } from three.js library.
  * @packageDocumentation
  * */
-
-import { Object3DComponent } from '../components/Object3DComponent'
 import { Object3D } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { applyArgsToObject3d } from './applyArgsToObject3d'
 
 /**

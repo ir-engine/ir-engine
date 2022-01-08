@@ -1,4 +1,5 @@
 import { Fog, FogExp2 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { FogComponent } from '../components/FogComponent'

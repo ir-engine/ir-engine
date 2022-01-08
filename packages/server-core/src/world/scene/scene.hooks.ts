@@ -1,5 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
+
 import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code'
+
 import verifyScope from '../../hooks/verify-scope'
 
 const { authenticate } = authentication.hooks

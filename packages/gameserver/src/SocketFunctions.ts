@@ -1,5 +1,9 @@
+import { Socket } from 'socket.io'
+
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { handleNetworkStateUpdate } from '@xrengine/engine/src/networking/functions/updateNetworkState'
+import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
+
 import {
   handleConnectToWorld,
   handleDisconnect,
@@ -8,8 +12,7 @@ import {
   handleJoinWorld,
   handleLeaveWorld
 } from './NetworkFunctions'
-import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
-import { Socket } from 'socket.io'
+import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import {
   handleWebRtcCloseConsumer,
   handleWebRtcCloseProducer,
@@ -28,7 +31,6 @@ import {
   handleWebRtcTransportConnect,
   handleWebRtcTransportCreate
 } from './WebRTCFunctions'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefined {
   return typeof obj === 'undefined' || obj === null

@@ -1,26 +1,27 @@
 // @ts-nocheck
 import {
-  Mesh,
-  InstancedBufferGeometry,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3,
-  Color,
-  InstancedBufferAttribute,
   AddEquation,
-  Texture,
   BufferAttribute,
-  RawShaderMaterial,
-  Matrix4,
-  UniformsUtils,
-  UniformsLib,
+  Color,
+  DoubleSide,
   DynamicDrawUsage,
-  DoubleSide
+  InstancedBufferAttribute,
+  InstancedBufferGeometry,
+  Matrix4,
+  Mesh,
+  PlaneBufferGeometry,
+  RawShaderMaterial,
+  ShaderMaterial,
+  Texture,
+  UniformsLib,
+  UniformsUtils,
+  Vector3
 } from 'three'
-import * as EasingFunctions from '../../common/functions/EasingFunctions'
+
 import loadTexture from '../../assets/functions/loadTexture'
-import { lerp, clamp } from '../../common/functions/MathLerpFunctions'
-import { DEG2RAD, vertexShader, fragmentShader } from './particleHelpers'
+import * as EasingFunctions from '../../common/functions/EasingFunctions'
+import { clamp, lerp } from '../../common/functions/MathLerpFunctions'
+import { DEG2RAD, fragmentShader, vertexShader } from './particleHelpers'
 
 interface ParticleEmitterGeometry extends InstancedBufferGeometry {
   attributes: {

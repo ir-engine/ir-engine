@@ -1,4 +1,10 @@
 import { Group, Quaternion, Vector3 } from 'three'
+import matches from 'ts-matches'
+
+import { isClient } from '../common/functions/isClient'
+import { Engine } from '../ecs/classes/Engine'
+import { System } from '../ecs/classes/System'
+import { World } from '../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -6,26 +12,21 @@ import {
   hasComponent,
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
+import { useWorld } from '../ecs/functions/SystemHooks'
+import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
+import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { initializeHandModel } from '../xr/functions/addControllerModels'
+import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
-import { World } from '../ecs/classes/World'
-import { System } from '../ecs/classes/System'
-import matches from 'ts-matches'
-import { useWorld } from '../ecs/functions/SystemHooks'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { Engine } from '../ecs/classes/Engine'
-import { initializeHandModel } from '../xr/functions/addControllerModels'
-import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
-import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import { isClient } from '../common/functions/isClient'
 import { loadAvatarForEntity } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
 

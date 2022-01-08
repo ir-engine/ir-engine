@@ -1,13 +1,14 @@
 import {
+  CubeTexture,
+  CubeTextureLoader,
   Mesh,
   PlaneBufferGeometry,
   ShaderMaterial,
-  CubeTextureLoader,
-  CubeTexture,
-  sRGBEncoding,
   Texture,
-  Vector2
+  Vector2,
+  sRGBEncoding
 } from 'three'
+
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
 
 const vertexShader = `

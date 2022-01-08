@@ -1,7 +1,7 @@
-import { ErrorActionType } from './ErrorService'
-
 import { createState, useState } from '@hookstate/core'
+
 import { store } from '../../store'
+import { ErrorActionType } from './ErrorService'
 
 //State
 const state = createState({

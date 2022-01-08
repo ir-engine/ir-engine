@@ -1,4 +1,4 @@
-import { DefaultLoadingManager, Texture, FileLoader } from 'three'
+import { DefaultLoadingManager, FileLoader, Texture } from 'three'
 
 declare const OffscreenCanvas: {
   prototype: any

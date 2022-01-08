@@ -1,6 +1,8 @@
+import { Sequelize } from 'sequelize'
+
 import config from '@xrengine/server-core/src/appconfig'
 import seeder from '@xrengine/server-core/src/util/seeder'
-import { Sequelize } from 'sequelize'
+
 import { Application } from '../declarations'
 import seederConfig from './seeder-config'
 

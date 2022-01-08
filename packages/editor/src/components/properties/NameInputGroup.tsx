@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
+import { CommandManager } from '../../managers/CommandManager'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
-import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * Creating styled component using InputGroup component.

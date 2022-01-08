@@ -1,7 +1,9 @@
 import i18n from 'i18next'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { client } from '@xrengine/client-core/src/feathers'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import SceneNode from '../nodes/SceneNode'
 
 /**

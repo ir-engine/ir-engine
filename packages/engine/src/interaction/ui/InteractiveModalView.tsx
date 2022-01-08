@@ -1,9 +1,12 @@
-import React from 'react'
 import { createState } from '@hookstate/core'
-import { createXRUI } from '../../xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
+import React from 'react'
+
 import { InteractionData } from '@xrengine/engine/src/interaction/types/InteractionTypes'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import { NavigateBefore, NavigateNext } from '@mui/icons-material'
+
+import { createXRUI } from '../../xrui/functions/createXRUI'
 
 export function createInteractiveModalView(data: InteractionData) {
   return createXRUI(

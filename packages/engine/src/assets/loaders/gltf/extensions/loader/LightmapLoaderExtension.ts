@@ -1,5 +1,7 @@
-import { sRGBEncoding, RGBFormat } from 'three'
+import { RGBFormat, sRGBEncoding } from 'three'
+
 import { LoaderExtension } from './LoaderExtension'
+
 function getLightmap(materialDef) {
   return materialDef.extensions && materialDef.extensions[LightmapLoaderExtension.extensionName]
 }

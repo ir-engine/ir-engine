@@ -1,5 +1,5 @@
 import { AnimationGraph } from './AnimationGraph'
-import { IdleState, LoopableEmoteState, RunState, WalkState, JumpState, EmoteState } from './AnimationState'
+import { EmoteState, IdleState, JumpState, LoopableEmoteState, RunState, WalkState } from './AnimationState'
 import { AvatarStates } from './Util'
 
 /** Class to hold the animation graph for player entity. Every avatar entity will have their saperate graph. */

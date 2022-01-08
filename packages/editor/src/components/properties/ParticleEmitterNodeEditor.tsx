@@ -1,17 +1,20 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import ColorInput from '../inputs/ColorInput'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import Vector3Input from '../inputs/Vector3Input'
-import SelectInput from '../inputs/SelectInput'
-import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
-import { camelPad } from '../../functions/utils'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+
+import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
+
 import GrainIcon from '@mui/icons-material/Grain'
+
+import { camelPad } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
+import ColorInput from '../inputs/ColorInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
+import NodeEditor from './NodeEditor'
 
 //creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map((name) => ({

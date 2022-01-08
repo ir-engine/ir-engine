@@ -1,4 +1,5 @@
 import traverseEarlyOut from './traverseEarlyOut'
+
 export default function getDetachedObjectRoots(objects, target = []) {
   // Initially all objects are candidates
   for (let i = 0; i < objects.length; i++) {

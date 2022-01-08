@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React from 'react'
 import RCSlider from 'rc-slider/es/Slider'
+import React from 'react'
 import { createGlobalStyle } from 'styled-components'
 
 /**

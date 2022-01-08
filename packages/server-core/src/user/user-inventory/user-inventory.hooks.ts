@@ -1,5 +1,6 @@
-import { disallow } from 'feathers-hooks-common'
 import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+
 const { authenticate } = authentication.hooks
 
 export default {

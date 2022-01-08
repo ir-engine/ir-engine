@@ -1,24 +1,27 @@
+import classNames from 'classnames'
+import _ from 'lodash'
 import React, { useEffect } from 'react'
+import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator'
+import { useHistory } from 'react-router-dom'
+import { Dropdown } from 'semantic-ui-react'
+
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import FormGroup from '@mui/material/FormGroup'
+import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
+import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import classNames from 'classnames'
-import styles from '../Admin.module.scss'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
 import { useDispatch } from '../../../store'
-import { Dropdown } from 'semantic-ui-react'
-import Snackbar from '@mui/material/Snackbar'
-import _ from 'lodash'
-import Grid from '@mui/material/Grid'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator'
-import { useHistory } from 'react-router-dom'
-import makeStyles from '@mui/styles/makeStyles'
+import styles from '../Admin.module.scss'
+
 interface Props {
   open: boolean
   handleClose: any

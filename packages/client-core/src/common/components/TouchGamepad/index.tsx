@@ -1,11 +1,14 @@
-import TouchAppIcon from '@mui/icons-material/TouchApp'
+import nipplejs from 'nipplejs'
+import React, { FunctionComponent, useEffect, useRef } from 'react'
+
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 import { handleTouch, handleTouchMove } from '@xrengine/engine/src/input/schema/ClientInputSchema'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import nipplejs from 'nipplejs'
-import React, { FunctionComponent, useEffect, useRef } from 'react'
+
+import TouchAppIcon from '@mui/icons-material/TouchApp'
+
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 

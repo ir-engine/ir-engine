@@ -1,15 +1,17 @@
 import {
-  Object3D,
-  MeshBasicMaterial,
-  SphereBufferGeometry,
   DoubleSide,
-  Mesh,
-  sRGBEncoding,
   LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
   PlaneBufferGeometry,
-  MeshStandardMaterial
+  SphereBufferGeometry,
+  sRGBEncoding
 } from 'three'
+
 import loadTexture from '../../assets/functions/loadTexture'
+
 export const ImageProjection = {
   Flat: 'flat',
   Equirectangular360: '360-equirectangular'

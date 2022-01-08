@@ -1,4 +1,5 @@
-import { PropertyBinding, AnimationClip } from 'three'
+import { AnimationClip, PropertyBinding } from 'three'
+
 // Modified version of Don McCurdy's AnimationUtils.clone
 // https://github.com/mrdoob/three.js/pull/14494
 function parallelTraverse(a, b, callback) {

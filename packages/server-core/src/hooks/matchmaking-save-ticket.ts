@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 export default (): Hook => {

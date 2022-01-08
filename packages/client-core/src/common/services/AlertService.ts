@@ -1,5 +1,6 @@
-import { store, useDispatch } from '../../store'
 import { createState, useState } from '@hookstate/core'
+
+import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({

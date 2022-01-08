@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import PanToolIcon from '@mui/icons-material/PanTool'
-import { CommandManager } from '../../managers/CommandManager'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import PanToolIcon from '@mui/icons-material/PanTool'
+
+import { CommandManager } from '../../managers/CommandManager'
 import SceneNode from '../../nodes/SceneNode'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
 
 type BoxColliderNodeEditorProps = {
   node?: any

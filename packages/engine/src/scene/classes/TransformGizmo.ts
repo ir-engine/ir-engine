@@ -1,4 +1,5 @@
-import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial } from 'three'
+import { Color, Intersection, Mesh, MeshStandardMaterial, Object3D, Raycaster, Vector3 } from 'three'
+
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
 import {
   TransformAxis,

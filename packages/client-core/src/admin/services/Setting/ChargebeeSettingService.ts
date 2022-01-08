@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
-import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
 import { createState, useState } from '@hookstate/core'
+
 import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetting'
+import { ChargebeeSettingResult } from '@xrengine/common/src/interfaces/ChargebeeSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 const state = createState({
   chargebee: [] as Array<ChargebeeSetting>,

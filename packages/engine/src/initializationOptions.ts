@@ -1,6 +1,6 @@
 import { AvatarInputSchema } from './avatar/AvatarInputSchema'
-import { InputSchema } from './input/interfaces/InputSchema'
 import { SystemModuleType } from './ecs/functions/SystemFunctions'
+import { InputSchema } from './input/interfaces/InputSchema'
 import { PhysXConfig } from './physics/types/PhysicsTypes'
 
 export enum EngineSystemPresets {

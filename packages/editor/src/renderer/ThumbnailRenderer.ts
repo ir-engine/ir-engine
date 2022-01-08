@@ -1,8 +1,10 @@
-import { Scene, AmbientLight, DirectionalLight, PerspectiveCamera, Box3, Vector3 } from 'three'
+import { AmbientLight, Box3, DirectionalLight, PerspectiveCamera, Scene, Vector3 } from 'three'
+
 import { environmentMap } from '../components/EnvironmentMap'
 import { traverseMaterials } from '../functions/materials'
 import { getCanvasBlob } from '../functions/thumbnails'
 import makeRenderer from './makeRenderer'
+
 export default class ThumbnailRenderer {
   renderer: any
   constructor() {

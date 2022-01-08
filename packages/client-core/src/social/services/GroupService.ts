@@ -1,15 +1,17 @@
-import { store, useDispatch } from '../../store'
+import { createState, none, useState } from '@hookstate/core'
+import _ from 'lodash'
+
+import { Group } from '@xrengine/common/src/interfaces/Group'
+import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
+
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
-import { UserAction } from '../../user/services/UserService'
+import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
-import { ChatService } from './ChatService'
+import { UserAction } from '../../user/services/UserService'
 import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
-import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { createState, useState, none } from '@hookstate/core'
-import _ from 'lodash'
+import { ChatService } from './ChatService'
 
 //State
 

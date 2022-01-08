@@ -1,9 +1,9 @@
-import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
+import { isClient } from '../../common/functions/isClient'
 import { GLTFInstancingExtension } from '../classes/GLTFInstancingExtension'
-import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { isClient } from '../../common/functions/isClient'
+import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()

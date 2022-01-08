@@ -1,4 +1,5 @@
 import { Params } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 

@@ -1,10 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@hookstate/core'
-import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
+
 import { User } from '@xrengine/common/src/interfaces/User'
+import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const USER_PAGE_LIMIT = 100

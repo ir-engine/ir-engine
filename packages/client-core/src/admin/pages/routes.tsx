@@ -1,6 +1,7 @@
-import RoutesConsole from '../components/Routes'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import RoutesConsole from '../components/Routes'
 
 interface Props {}
 

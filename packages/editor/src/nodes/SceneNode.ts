@@ -1,8 +1,3 @@
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
-import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import {
   Color,
   CubeTextureLoader,
@@ -18,16 +13,23 @@ import {
   RGBFormat,
   Scene,
   ShadowMapType,
-  sRGBEncoding,
   TextureLoader,
-  Vector3
+  Vector3,
+  sRGBEncoding
 } from 'three'
+
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
+import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
+import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
+
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
+import { StaticModes, isStatic, setStaticMode } from '../functions/StaticMode'
 import asyncTraverse from '../functions/asyncTraverse'
 import getNodeWithUUID from '../functions/getNodeWithUUID'
 import serializeColor from '../functions/serializeColor'
 import sortEntities from '../functions/sortEntities'
-import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
 import { NodeManager } from '../managers/NodeManager'
 import CubemapBakeNode from './CubemapBakeNode'
 import EditorNodeMixin from './EditorNodeMixin'

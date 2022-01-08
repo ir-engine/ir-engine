@@ -1,5 +1,5 @@
 import evictLeastRecentlyUsedItems from '../functions/evictLeastRecentlyUsedItems'
-import { ITuple, IParametricMap } from '../types'
+import { IParametricMap, ITuple } from '../types'
 import HashMap from './HashMap'
 import HashSet from './HashSet'
 

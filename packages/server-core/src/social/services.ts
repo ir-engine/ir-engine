@@ -12,8 +12,8 @@ import LocationSettings from './location-settings/location-settings.service'
 import LocationType from './location-type/location-type.service'
 import MessageStatus from './message-status/message-status.service'
 import Message from './message/message.service'
-import Party from './party/party.service'
 import PartyUser from './party-user/party-user.service'
+import Party from './party/party.service'
 
 export default [
   ChannelType,

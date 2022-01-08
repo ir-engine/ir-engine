@@ -1,8 +1,9 @@
-import { ILayerName, MapTransformedFeature, SupportedFeature } from '../types'
-import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
-import transformGeometry from './transformGeometry'
 import * as turf from '@turf/turf'
+
+import { LongLat, toMetersFromCenter } from '../functions/UnitConversionFunctions'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from '../styles'
+import { ILayerName, MapTransformedFeature, SupportedFeature } from '../types'
+import transformGeometry from './transformGeometry'
 
 export function measure(feature: SupportedFeature) {
   const [minX, minY, maxX, maxY] = turf.bbox(feature)

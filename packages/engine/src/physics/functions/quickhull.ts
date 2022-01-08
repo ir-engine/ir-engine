@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 /** 
 
   QuickHull
@@ -38,9 +39,9 @@
     It's also very messy
 
  */
-
 import * as THREE from 'three'
 import { BufferAttribute, BufferGeometry } from 'three'
+
 /* tslint:disable */
 export const quickhull = (function () {
   let faces = []

@@ -1,5 +1,6 @@
 import { Mesh, MeshLambertMaterial } from 'three'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from '../styles'
+
+import { DEFAULT_FEATURE_STYLES, MAX_Z_INDEX, getFeatureStyles } from '../styles'
 import { ILayerName, MapDerivedFeatureComplete, MapDerivedFeatureGeometry, SupportedFeature } from '../types'
 import getCachedMaterial from './getCachedMaterial'
 

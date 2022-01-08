@@ -1,6 +1,8 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+
 interface Data {}
 
 interface ServiceOptions {}

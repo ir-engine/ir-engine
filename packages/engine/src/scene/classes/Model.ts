@@ -1,4 +1,5 @@
 import { AnimationMixer, Object3D } from 'three'
+
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import cloneObject3D from '../../scene/functions/cloneObject3D'

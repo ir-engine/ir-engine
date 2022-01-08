@@ -1,4 +1,5 @@
 import { Box3, Matrix4, Vector3 } from 'three'
+
 const boundingBox = new Box3()
 const frustumBox = new Box3()
 const inverseLightMatrixWorld = new Matrix4()

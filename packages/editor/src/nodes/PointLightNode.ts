@@ -1,8 +1,9 @@
 // @ts-nocheck
-
 import PhysicalPointLight from '@xrengine/engine/src/scene/classes/PhysicalPointLight'
+
 import EditorPointLightHelper from '../classes/EditorPointLightHelper'
 import EditorNodeMixin from './EditorNodeMixin'
+
 export default class PointLightNode extends EditorNodeMixin(PhysicalPointLight) {
   static legacyComponentName = 'point-light'
   static nodeName = 'Point Light'

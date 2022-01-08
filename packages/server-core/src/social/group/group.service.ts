@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { Group } from './group.class'
-import createModel from './group.model'
-import hooks from './group.hooks'
 import groupDocs from './group.docs'
+import hooks from './group.hooks'
+import createModel from './group.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

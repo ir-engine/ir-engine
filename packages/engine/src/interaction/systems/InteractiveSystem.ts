@@ -1,3 +1,11 @@
+import { Not } from 'bitecs'
+
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { EngineActions } from '../../ecs/classes/EngineService'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -5,35 +13,28 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import AudioSource from '../../scene/classes/AudioSource'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { EquippedComponent } from '../components/EquippedComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractedComponent } from '../components/InteractedComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-
-import { interactBoxRaycast } from '../functions/interactBoxRaycast'
-import { InteractedComponent } from '../components/InteractedComponent'
-import AudioSource from '../../scene/classes/AudioSource'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { System } from '../../ecs/classes/System'
-import { World } from '../../ecs/classes/World'
+import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import {
+  InteractiveUI,
   createInteractUI,
-  showInteractUI,
-  hideInteractUI,
   getInteractUI,
-  updateInteractUI,
+  hideInteractUI,
   setUserDataInteractUI,
-  InteractiveUI
+  showInteractUI,
+  updateInteractUI
 } from '../functions/interactUI'
-import { EquippedComponent } from '../components/EquippedComponent'
-import { Not } from 'bitecs'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])

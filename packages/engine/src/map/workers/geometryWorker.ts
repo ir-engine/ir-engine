@@ -1,4 +1,5 @@
 import * as Comlink from 'comlink'
+
 import createGeometry from '../functions/createGeometry'
 import { IStyles } from '../styles'
 import { SupportedFeature } from '../types'

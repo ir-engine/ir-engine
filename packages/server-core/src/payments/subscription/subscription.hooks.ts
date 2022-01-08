@@ -1,6 +1,8 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
+
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks

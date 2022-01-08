@@ -1,14 +1,17 @@
-import React, { useRef, ReactNode } from 'react'
-import Portal from '../layout/Portal'
-import { getStepSize, toPrecision } from '../../functions/utils'
-import styled from 'styled-components'
-import Overlay from '../layout/Overlay'
-import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
-import {} from 'react'
+import { useHookstate } from '@hookstate/core'
+import React, { ReactNode, useRef } from 'react'
+import 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
-import { useHookstate } from '@hookstate/core'
+import styled from 'styled-components'
+
+import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+
 import MultipleStopIcon from '@mui/icons-material/MultipleStop'
+
+import { getStepSize, toPrecision } from '../../functions/utils'
+import Overlay from '../layout/Overlay'
+import Portal from '../layout/Portal'
 
 /**
  *

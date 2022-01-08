@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import Card from './CardNumber'
-
 import clsx from 'clsx'
+import React, { useEffect, useState } from 'react'
+
+import Paper from '@mui/material/Paper'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { Theme } from '@mui/material/styles'
-import makeStyles from '@mui/styles/makeStyles'
 import createStyles from '@mui/styles/createStyles'
-import Paper from '@mui/material/Paper'
-import UserGraph from './UserGraph'
-import ActivityGraph from './ActivityGraph'
+import makeStyles from '@mui/styles/makeStyles'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
+import ActivityGraph from './ActivityGraph'
+import Card from './CardNumber'
+import UserGraph from './UserGraph'
 
 interface Props {
   adminGroupState?: any

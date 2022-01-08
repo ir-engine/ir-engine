@@ -1,14 +1,15 @@
 import { Box3, Frustum, Matrix4, Vector3 } from 'three'
+
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { interactiveReachDistance } from '../../avatar/functions/getInteractiveIsInReachDistance'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
-import { interactiveReachDistance } from '../../avatar/functions/getInteractiveIsInReachDistance'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 
 const mat4 = new Matrix4()
 const projectionMatrix = new Matrix4().makePerspective(

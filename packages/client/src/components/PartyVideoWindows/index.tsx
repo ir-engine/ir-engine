@@ -1,11 +1,13 @@
+import { useState } from '@hookstate/core'
 import React, { useEffect } from 'react'
-import PartyParticipantWindow from '../PartyParticipantWindow'
+
+import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { accessMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { useState } from '@hookstate/core'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+
+import PartyParticipantWindow from '../PartyParticipantWindow'
 
 const PartyVideoWindows = (): JSX.Element => {
   const nearbyLayerUsers = useState(accessMediaStreamState().nearbyLayerUsers)

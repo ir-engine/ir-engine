@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
+
 import { FlexRow } from '../layout/Flex'
 import AssetDropZone from './AssetDropZone'
-import styles from './styles.module.scss'
 import NodesListPanel from './NodesListPanel'
+import styles from './styles.module.scss'
 
 /**
  * AssetsPanelContainer used as container element for asset penal.

@@ -1,11 +1,13 @@
-import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
-import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLTF'
-import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { AssetType } from '../enum/AssetType'
-import { AssetClass } from '../enum/AssetClass'
+import { FileLoader, LOD, MeshPhysicalMaterial, Object3D, TextureLoader } from 'three'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
-import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
+import { AssetClass } from '../enum/AssetClass'
+import { AssetType } from '../enum/AssetType'
+import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLTF'
+import { FBXLoader } from '../loaders/fbx/FBXLoader'
+
 // import { instanceGLTF } from '../functions/transformGLTF'
 
 export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {

@@ -1,7 +1,6 @@
 /**
  * adapted from https://github.com/soldair/node-gitconfiglocal
  */
-
 import fs from 'fs'
 import ini from 'ini'
 

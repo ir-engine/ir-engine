@@ -1,4 +1,5 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
 

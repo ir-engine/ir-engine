@@ -1,55 +1,57 @@
 import i18n from 'i18next'
 import {
+  AudioListener,
+  Intersection,
+  MeshBasicMaterial,
+  MeshNormalMaterial,
+  Object3D,
+  PropertyBinding,
   Raycaster,
   Vector2,
   Vector3,
-  AudioListener,
-  PropertyBinding,
   WebGLInfo,
-  WebGLRenderer,
-  MeshBasicMaterial,
-  MeshNormalMaterial,
-  Intersection,
-  Object3D
+  WebGLRenderer
 } from 'three'
-import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import SceneNode from '../nodes/SceneNode'
-import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
-import { generateImageFileThumbnail, generateVideoFileThumbnail, getCanvasBlob } from '../functions/thumbnails'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from './CommandManager'
-import EditorCommands from '../constants/EditorCommands'
-import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
-import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
-import isEmptyObject from '../functions/isEmptyObject'
-import { ControlManager } from './ControlManager'
-import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import PostProcessingNode from '../nodes/PostProcessingNode'
-import { NodeManager } from './NodeManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import makeRenderer from '../renderer/makeRenderer'
-import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createGizmoEntity } from '../functions/createGizmoEntity'
-import { createCameraEntity } from '../functions/createCameraEntity'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEditorEntity } from '../functions/createEditorEntity'
+import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../classes/EditorControlComponent'
-import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { Effects } from '@xrengine/engine/src/scene/classes/PostProcessing'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import cloneObject3D from '@xrengine/engine/src/scene/functions/cloneObject3D'
+
+import { EditorControlComponent } from '../classes/EditorControlComponent'
+import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { RenderModes, RenderModesType } from '../constants/RenderModes'
+import { createCameraEntity } from '../functions/createCameraEntity'
+import { createEditorEntity } from '../functions/createEditorEntity'
+import { createGizmoEntity } from '../functions/createGizmoEntity'
+import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
+import isEmptyObject from '../functions/isEmptyObject'
+import resizeShadowCameraFrustum from '../functions/resizeShadowCameraFrustum'
+import { generateImageFileThumbnail, generateVideoFileThumbnail, getCanvasBlob } from '../functions/thumbnails'
+import PostProcessingNode from '../nodes/PostProcessingNode'
+import SceneNode from '../nodes/SceneNode'
+import ScenePreviewCameraNode from '../nodes/ScenePreviewCameraNode'
+import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
+import makeRenderer from '../renderer/makeRenderer'
 import { accessEditorState } from '../services/EditorServices'
+import { CommandManager } from './CommandManager'
+import { ControlManager } from './ControlManager'
+import { NodeManager } from './NodeManager'
 
 export class SceneManager {
   static instance: SceneManager = new SceneManager()

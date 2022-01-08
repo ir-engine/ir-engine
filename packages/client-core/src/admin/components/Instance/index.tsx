@@ -1,6 +1,7 @@
 import React from 'react'
-import Search from './SearchInstance'
+
 import InstanceTable from './InstanceTable'
+import Search from './SearchInstance'
 import { useInstanceStyles } from './styles'
 
 const Instance = () => {

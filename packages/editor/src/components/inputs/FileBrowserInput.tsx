@@ -1,8 +1,9 @@
 import React from 'react'
-import { ControlledStringInput } from './StringInput'
 import { useDrop } from 'react-dnd'
-import useUpload from '../assets/useUpload'
+
 import { ItemTypes } from '../../constants/AssetTypes'
+import useUpload from '../assets/useUpload'
+import { ControlledStringInput } from './StringInput'
 
 /**
  * Function component used for rendering FileBrowserInput.

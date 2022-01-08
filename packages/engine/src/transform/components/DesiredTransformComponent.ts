@@ -1,4 +1,5 @@
-import { Vector3, Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type DesiredTransformComponentType = {

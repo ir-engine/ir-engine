@@ -1,7 +1,8 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import Pose from '../classes/Pose'
-import { Chain } from '../classes/Chain'
 import { Object3D } from 'three'
+
+import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { Chain } from '../classes/Chain'
+import Pose from '../classes/Pose'
 
 export type PointData = { index: number }
 

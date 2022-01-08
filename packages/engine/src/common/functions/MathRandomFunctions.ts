@@ -1,5 +1,5 @@
-import { Euler, Quaternion, Vector3 } from 'three'
 import assert from 'assert'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 export const randomVector3 = (scale = 1) => {
   return new Vector3((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2)

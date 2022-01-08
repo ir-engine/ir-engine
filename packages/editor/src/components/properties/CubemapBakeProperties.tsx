@@ -1,16 +1,17 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import React from 'react'
+
 import { CubemapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/CubemapBakeRefreshTypes'
 import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
+
+import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { BakePropertyTypes } from './CubemapBakeNodeEditor'
-import { CommandManager } from '../../managers/CommandManager'
 
 type CubemapBakePropertyEditorProps = {
   element?: any

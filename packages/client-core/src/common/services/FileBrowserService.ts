@@ -1,7 +1,9 @@
 import { createState, useState } from '@hookstate/core'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 export const state = createState({
   files: [] as Array<FileContentType>

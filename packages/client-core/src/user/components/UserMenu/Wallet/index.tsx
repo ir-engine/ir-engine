@@ -1,9 +1,10 @@
-import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
+
 import { client } from '../../../../feathers'
-import WalletContent from './WalletContent'
+import { AuthService, useAuthState } from '../../../services/AuthService'
+import { WalletService, useWalletState } from '../../../services/WalletService'
 import styles from '../UserMenu.module.scss'
-import { useWalletState, WalletService } from '../../../services/WalletService'
+import WalletContent from './WalletContent'
 
 interface Props {
   changeActiveMenu?: any

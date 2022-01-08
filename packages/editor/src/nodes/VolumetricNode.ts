@@ -1,13 +1,14 @@
-import EditorNodeMixin from './EditorNodeMixin'
+import DracosisPlayer from 'volumetric/player'
+
+import { getFileExtension } from '@xrengine/common/src/utils/getFileExtension'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Volumetric from '@xrengine/engine/src/scene/classes/Volumetric'
+
+import { ItemTypes } from '../constants/AssetTypes'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ItemTypes } from '../constants/AssetTypes'
-import { getFileExtension } from '@xrengine/common/src/utils/getFileExtension'
-
-import DracosisPlayer from 'volumetric/player'
+import EditorNodeMixin from './EditorNodeMixin'
 
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   static legacyComponentName = 'volumetric'

@@ -1,6 +1,6 @@
-import hooks from './aws-setting.hooks'
 import { Application } from '../../../declarations'
 import { Aws } from './aws-setting.class'
+import hooks from './aws-setting.hooks'
 import createModel from './aws-setting.model'
 
 declare module '../../../declarations' {

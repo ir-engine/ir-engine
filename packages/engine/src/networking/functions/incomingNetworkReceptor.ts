@@ -1,12 +1,13 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import matches from 'ts-matches'
+
+import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { isClient } from '../../common/functions/isClient'
-import { NetworkWorldAction } from './NetworkWorldAction'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import matches from 'ts-matches'
-import { Engine } from '../../ecs/classes/Engine'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { NetworkWorldAction } from './NetworkWorldAction'
 import { dispatchLocal } from './dispatchFrom'
 
 /**

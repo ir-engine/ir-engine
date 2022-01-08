@@ -1,9 +1,9 @@
 import { Application } from '../../../declarations'
-import { PartyUser } from './party-user.class'
-import createModel from './party-user.model'
-import hooks from './party-user.hooks'
 import logger from '../../logger'
+import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
+import hooks from './party-user.hooks'
+import createModel from './party-user.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

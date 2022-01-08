@@ -1,10 +1,12 @@
-import config from '@xrengine/server-core/src/appconfig'
 import fs from 'fs'
 import https from 'https'
-import app from './app'
-import logger from '@xrengine/server-core/src/logger'
 import psList from 'ps-list'
+
+import config from '@xrengine/server-core/src/appconfig'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
+import logger from '@xrengine/server-core/src/logger'
+
+import app from './app'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')

@@ -1,7 +1,8 @@
-import { disallow } from 'feathers-hooks-common'
+import * as authentication from '@feathersjs/authentication'
 //import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
-import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+
 //import app from "../../../../server/src/app"
 
 /*

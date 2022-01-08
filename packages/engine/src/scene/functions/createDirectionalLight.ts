@@ -1,4 +1,5 @@
 import { DirectionalLight, Vector2 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneDataComponent } from '../functions/SceneLoading'

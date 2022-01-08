@@ -1,12 +1,14 @@
 import * as authentication from '@feathersjs/authentication'
-import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
-import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-party-owner'
+
 import checkPartyInstanceSize from '@xrengine/server-core/src/hooks/check-party-instance-size'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
+import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
+import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-party-owner'
+
 import logger from '../../logger'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 

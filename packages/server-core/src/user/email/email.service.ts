@@ -1,10 +1,11 @@
-import { Application } from '../../../declarations'
-import { Email } from './email.class'
-import hooks from './email.hooks'
-import smtpTransport from 'nodemailer-smtp-transport'
 import Mailer from 'feathers-mailer'
+import smtpTransport from 'nodemailer-smtp-transport'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { Email } from './email.class'
 import emailDocs from './email.docs'
+import hooks from './email.hooks'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

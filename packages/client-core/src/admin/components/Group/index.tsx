@@ -1,10 +1,12 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+
 import Button from '@mui/material/Button'
-import { useGroupStyles } from './styles'
-import SearchGroup from './SearchGroup'
+import Grid from '@mui/material/Grid'
+
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
+import SearchGroup from './SearchGroup'
+import { useGroupStyles } from './styles'
 
 const GroupConsole = () => {
   const classes = useGroupStyles()

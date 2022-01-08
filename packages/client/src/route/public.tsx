@@ -1,8 +1,11 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import CircularProgress from '@mui/material/CircularProgress'
-import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
+
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
+
+import CircularProgress from '@mui/material/CircularProgress'
+
+import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }

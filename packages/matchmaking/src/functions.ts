@@ -1,12 +1,13 @@
-import {
-  isOpenAPIError,
-  isOpenMatchTicketAssignmentResponse,
-  OpenMatchTicket,
-  OpenMatchTicketAssignment,
-  OpenMatchTicketAssignmentResponse
-} from './interfaces'
 import axios from 'axios'
 import nodeFetch from 'node-fetch'
+
+import {
+  OpenMatchTicket,
+  OpenMatchTicketAssignment,
+  OpenMatchTicketAssignmentResponse,
+  isOpenAPIError,
+  isOpenMatchTicketAssignmentResponse
+} from './interfaces'
 
 export const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({

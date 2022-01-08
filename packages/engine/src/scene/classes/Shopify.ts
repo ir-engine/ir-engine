@@ -1,4 +1,5 @@
 import { Object3D } from 'three'
+
 export default class Shopify extends Object3D {
   extendType: string
   shopifyProducts: any

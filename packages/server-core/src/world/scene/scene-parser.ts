@@ -1,6 +1,7 @@
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 

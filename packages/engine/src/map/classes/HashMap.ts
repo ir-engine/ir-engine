@@ -1,6 +1,5 @@
 // TODO(perf) would something like megahash help?
 // import HashMap from 'megahash'
-
 import { ITuple } from '../types'
 
 interface Options<Value> {

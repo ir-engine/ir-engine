@@ -1,6 +1,15 @@
+import classNames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { User } from '@xrengine/common/src/interfaces/User'
+
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
+import Snackbar from '@mui/material/Snackbar'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -8,17 +17,12 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import Snackbar from '@mui/material/Snackbar'
 import { Theme } from '@mui/material/styles'
 import makeStyles from '@mui/styles/makeStyles'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
-import classNames from 'classnames'
-import { useHistory } from 'react-router-dom'
-import React, { useEffect, useRef, useState } from 'react'
+
 import { client } from '../../../feathers'
 import styles from '../Admin.module.scss'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { User } from '@xrengine/common/src/interfaces/User'
+
 interface Props {
   open: boolean
   handleClose: any

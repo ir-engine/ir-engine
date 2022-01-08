@@ -1,9 +1,9 @@
-import { MapStateUnwrapped, FeatureKey, TaskStatus } from '../types'
+import createWorkerFunction from '../functions/createWorkerFunction'
 import fetchUsingCache from '../functions/fetchUsingCache'
+import { FeatureKey, MapStateUnwrapped, TaskStatus } from '../types'
+import { WorkerApi } from '../workers/transformFeatureWorker'
 // @ts-ignore
 import createWorker from '../workers/transformFeatureWorker.ts?worker'
-import { WorkerApi } from '../workers/transformFeatureWorker'
-import createWorkerFunction from '../functions/createWorkerFunction'
 
 const transformFeature = createWorkerFunction<WorkerApi>(createWorker())
 

@@ -1,15 +1,17 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import { AuthService } from '../../services/AuthService'
-import React, { useState } from 'react'
+
 import { useDispatch } from '../../../store'
+import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
-import { useTranslation } from 'react-i18next'
 
 interface Props {}
 

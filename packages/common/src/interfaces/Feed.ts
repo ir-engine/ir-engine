@@ -1,4 +1,5 @@
 import { CreatorShort } from './Creator'
+
 export interface FeedShort {
   id: string
   previewUrl: string

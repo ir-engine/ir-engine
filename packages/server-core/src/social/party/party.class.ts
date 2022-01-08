@@ -1,9 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-// import { Params, Id, NullableId } from '@feathersjs/feathers'
-
-import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+// import { Params, Id, NullableId } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+
 // import { Forbidden } from '@feathersjs/errors'
 
 /**

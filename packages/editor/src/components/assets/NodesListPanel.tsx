@@ -1,13 +1,15 @@
 import React, { useCallback } from 'react'
-import AssetGrid from './AssetGrid'
-import { AssetPanelContentContainer } from './AssetsPanel'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { EditorControlComponent } from '../../classes/EditorControlComponent'
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { setTransformMode, setTransformPivot } from '../../systems/EditorControlSystem'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../../classes/EditorControlComponent'
+import AssetGrid from './AssetGrid'
+import { AssetPanelContentContainer } from './AssetsPanel'
 
 /**
  * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.

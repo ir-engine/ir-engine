@@ -1,5 +1,5 @@
 // https://usehooks.com/useHover/
-import { useRef, useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * Function component used adding and removing to current node.

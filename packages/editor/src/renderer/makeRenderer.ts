@@ -1,4 +1,5 @@
-import { WebGLRenderer, PCFSoftShadowMap, LinearToneMapping, sRGBEncoding } from 'three'
+import { LinearToneMapping, PCFSoftShadowMap, WebGLRenderer, sRGBEncoding } from 'three'
+
 import WebGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 
 export default function makeRenderer(width, height, props = {}) {

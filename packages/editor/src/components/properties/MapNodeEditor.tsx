@@ -1,7 +1,9 @@
 import i18n from 'i18next'
 import React from 'react'
-import MapIcon from '@mui/icons-material/Map'
 import { useTranslation } from 'react-i18next'
+
+import MapIcon from '@mui/icons-material/Map'
+
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'

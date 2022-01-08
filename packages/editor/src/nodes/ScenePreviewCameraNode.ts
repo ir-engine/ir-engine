@@ -1,8 +1,10 @@
 import { CameraHelper, Matrix4, PerspectiveCamera } from 'three'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import EditorNodeMixin from './EditorNodeMixin'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
 
 export default class ScenePreviewCameraNode extends EditorNodeMixin(PerspectiveCamera) {

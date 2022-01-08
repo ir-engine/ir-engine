@@ -1,9 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@hookstate/core'
+
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+
 /**
  *
  * @param files FIle type

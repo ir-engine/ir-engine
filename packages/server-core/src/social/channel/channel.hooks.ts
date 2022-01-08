@@ -1,5 +1,6 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
+
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
 /**

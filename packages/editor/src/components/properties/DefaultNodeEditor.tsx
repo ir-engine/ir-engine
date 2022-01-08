@@ -1,4 +1,5 @@
 import React from 'react'
+
 import NodeEditor from './NodeEditor'
 
 type DefaultNodeEditorProps = {

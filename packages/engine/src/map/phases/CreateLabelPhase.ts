@@ -1,7 +1,8 @@
 import { Feature, LineString } from 'geojson'
-import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
-import createUsingCache from '../functions/createUsingCache'
+
 import createFeatureLabel from '../functions/createFeatureLabel'
+import createUsingCache from '../functions/createUsingCache'
+import { FeatureKey, MapStateUnwrapped, TaskStatus } from '../types'
 
 export const name = 'CreateLabel'
 export const isAsyncPhase = false

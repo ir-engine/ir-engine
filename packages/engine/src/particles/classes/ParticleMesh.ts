@@ -1,22 +1,23 @@
-import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from '../interfaces'
-
 import {
-  DataTexture,
-  RGBFormat,
-  TextureLoader,
-  NormalBlending,
-  InstancedBufferGeometry,
   BufferGeometry,
-  ShaderLib,
-  UniformsUtils,
-  ShaderMaterial,
-  Mesh,
-  Points,
-  InstancedBufferAttribute,
+  DataTexture,
   Float32BufferAttribute,
+  InstancedBufferAttribute,
+  InstancedBufferGeometry,
   Matrix4,
-  Texture
+  Mesh,
+  NormalBlending,
+  Points,
+  RGBFormat,
+  ShaderLib,
+  ShaderMaterial,
+  Texture,
+  TextureLoader,
+  UniformsUtils
 } from 'three'
+
+import { ParticleGeometry, ParticleMesh, ParticleMeshMaterial, particleMeshOptions } from '../interfaces'
+
 // import { RGBFormat } from "three"
 // import { DataTexture } from "three"
 // import { TextureLoader } from "three"

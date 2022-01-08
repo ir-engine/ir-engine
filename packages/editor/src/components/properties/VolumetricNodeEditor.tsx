@@ -1,17 +1,20 @@
 // @ts-nocheck
-import VideocamIcon from '@mui/icons-material/Videocam'
+import i18n from 'i18next'
 import React from 'react'
-import InputGroup from '../inputs/InputGroup'
+import { useTranslation } from 'react-i18next'
+
+import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+
+import VideocamIcon from '@mui/icons-material/Videocam'
+
+import { ItemTypes } from '../../constants/AssetTypes'
+import { CommandManager } from '../../managers/CommandManager'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
 import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
-import i18n from 'i18next'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import SelectInput from '../inputs/SelectInput'
-import ArrayInputGroup from '../inputs/ArrayInputGroup'
-import { ItemTypes } from '../../constants/AssetTypes'
-import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.

@@ -1,6 +1,7 @@
 import React from 'react'
-import Dialog from './Dialog'
 import styled from 'styled-components'
+
+import Dialog from './Dialog'
 
 /**
  * LeftContent used to provide styles for left div.

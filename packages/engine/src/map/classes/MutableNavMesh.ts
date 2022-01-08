@@ -1,4 +1,4 @@
-import { NavMesh, NavNode, NavEdge } from 'yuka'
+import { NavEdge, NavMesh, NavNode } from 'yuka'
 
 export default class MutableNavMesh extends NavMesh {
   _buildGraph() {

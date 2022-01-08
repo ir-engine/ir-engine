@@ -1,9 +1,10 @@
-import { Application } from '../../../declarations'
-import { getLink, sendEmail } from './auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
 import requireMainFilename from 'require-main-filename'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { getLink, sendEmail } from './auth-management.utils'
 
 /**
  * A function which sent an email for authentication

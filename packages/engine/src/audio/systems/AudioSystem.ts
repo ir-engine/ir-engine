@@ -1,11 +1,11 @@
-import { SoundEffect } from '../components/SoundEffect'
-import { BackgroundMusic } from '../components/BackgroundMusic'
-import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { BackgroundMusic } from '../components/BackgroundMusic'
+import { PlaySoundEffect } from '../components/PlaySoundEffect'
+import { SoundEffect } from '../components/SoundEffect'
 
 export default async function AudioSystem(world: World): Promise<System> {
   const soundEffectQuery = defineQuery([SoundEffect])

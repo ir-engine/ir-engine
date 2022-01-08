@@ -1,12 +1,14 @@
 import React from 'react'
-import NodeEditor from '../properties/NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import Vector2Input from '../inputs/Vector2Input'
 import { useTranslation } from 'react-i18next'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { CommandManager } from '../../managers/CommandManager'
+
 import LocationCityIcon from '@mui/icons-material/LocationCity'
+
+import { CommandManager } from '../../managers/CommandManager'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import Vector2Input from '../inputs/Vector2Input'
+import NodeEditor from '../properties/NodeEditor'
 
 //declaring properties for InteriorNodeEditor
 type InteriorNodeEditorProps = {

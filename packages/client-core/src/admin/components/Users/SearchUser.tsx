@@ -1,8 +1,10 @@
+import React from 'react'
+
+import SearchIcon from '@mui/icons-material/Search'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
-import SearchIcon from '@mui/icons-material/Search'
-import React from 'react'
+
 import { useDispatch } from '../../../store'
 import { UserService } from '../../services/UserService'
 import { useUserStyles } from './styles'

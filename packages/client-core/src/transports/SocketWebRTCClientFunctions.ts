@@ -1,20 +1,22 @@
+import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
-import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
-import { accessAuthState } from '../user/services/AuthService'
-import { MediaStreamService } from '../media/services/MediaStreamService'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import { ChannelConnectionAction, accessChannelConnectionState } from '../common/services/ChannelConnectionService'
 import { InstanceConnectionAction } from '../common/services/InstanceConnectionService'
+import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
-import { accessChannelConnectionState, ChannelConnectionAction } from '../common/services/ChannelConnectionService'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { accessAuthState } from '../user/services/AuthService'
+import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessChannelConnectionState()

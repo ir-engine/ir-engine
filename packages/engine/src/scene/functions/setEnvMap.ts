@@ -4,19 +4,20 @@ import {
   DataTexture,
   PMREMGenerator,
   RGBFormat,
-  sRGBEncoding,
   TextureLoader,
-  Vector3
+  Vector3,
+  sRGBEncoding
 } from 'three'
+
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { convertEquiToCubemap } from '../classes/ImageUtils'
-import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
-import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { SceneOptions } from '../systems/SceneObjectSystem'
 import { EngineActionType } from '../../ecs/classes/EngineService'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { CubemapBakeTypes } from '../../scene/types/CubemapBakeTypes'
+import { convertEquiToCubemap } from '../classes/ImageUtils'
+import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
+import { SceneOptions } from '../systems/SceneObjectSystem'
 
 export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {

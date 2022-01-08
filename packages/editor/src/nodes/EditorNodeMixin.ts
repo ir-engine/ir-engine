@@ -1,14 +1,15 @@
+import { Color, Object3D } from 'three'
+
+import ErrorIcon from '../classes/ErrorIcon'
 import {
   StaticModes,
-  computeStaticMode,
   computeAndSetStaticModes,
+  computeStaticMode,
   isDynamic,
   isInherits,
   isStatic
 } from '../functions/StaticMode'
-import { Color, Object3D } from 'three'
 import serializeColor from '../functions/serializeColor'
-import ErrorIcon from '../classes/ErrorIcon'
 
 type SerializedComponents = {
   name: string

@@ -1,9 +1,9 @@
 // Initializes the `login-token` service on path `/login-token`
 import { Application } from '../../../declarations'
 import { LoginToken } from './login-token.class'
-import createModel from './login-token.model'
-import hooks from './login-token.hooks'
 import loginTokenDocs from './login-token.docs'
+import hooks from './login-token.hooks'
+import createModel from './login-token.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

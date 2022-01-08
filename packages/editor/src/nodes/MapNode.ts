@@ -1,11 +1,13 @@
-import { Object3D, BoxBufferGeometry, Material } from 'three'
-import EditorNodeMixin from './EditorNodeMixin'
 import { debounce } from 'lodash'
+import { BoxBufferGeometry, Material, Object3D } from 'three'
+
 import { getStartCoords } from '@xrengine/engine/src/map'
 import { MapProps } from '@xrengine/engine/src/map/MapProps'
+import { MapAction, mapReducer } from '@xrengine/engine/src/map/MapReceptor'
 import { getPhases, startPhases } from '@xrengine/engine/src/map/functions/PhaseFunctions'
 import { addChildFast, setPosition } from '@xrengine/engine/src/map/util'
-import { MapAction, mapReducer } from '@xrengine/engine/src/map/MapReceptor'
+
+import EditorNodeMixin from './EditorNodeMixin'
 
 const PROPS_THAT_REFRESH_MAP_ON_CHANGE = ['startLatitude', 'startLongitude', 'useDeviceGeolocation']
 

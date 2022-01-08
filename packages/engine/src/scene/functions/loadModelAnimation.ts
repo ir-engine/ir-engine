@@ -1,4 +1,5 @@
-import { LoopRepeat, AnimationClip, AnimationMixer } from 'three'
+import { AnimationClip, AnimationMixer, LoopRepeat } from 'three'
+
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { AnimationState } from '../../avatar/animations/AnimationState'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'

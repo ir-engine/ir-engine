@@ -1,13 +1,15 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
+import { useTranslation } from 'react-i18next'
+
+import BoltIcon from '@mui/icons-material/Bolt'
+
+import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
-import { useTranslation } from 'react-i18next'
-import BoltIcon from '@mui/icons-material/Bolt'
-import BooleanInput from '../inputs/BooleanInput'
-import { CommandManager } from '../../managers/CommandManager'
+import NodeEditor from './NodeEditor'
 
 /**
  * Defining properties for DirectionalLightNodeEditor.

@@ -1,7 +1,9 @@
 import React from 'react'
+import { Euler, MathUtils as _Math } from 'three'
+
 import NumericInput from './NumericInput'
-import { MathUtils as _Math, Euler } from 'three'
 import { Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
+
 const { RAD2DEG, DEG2RAD } = _Math
 
 /**

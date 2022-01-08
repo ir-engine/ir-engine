@@ -1,6 +1,7 @@
-import { MapStateUnwrapped } from '../types'
 import { NavMeshBuilder } from '../NavMeshBuilder'
+import { MapStateUnwrapped } from '../types'
 import { TileKey } from '../types'
+
 export const name = 'CreateCompleteNavMesh'
 export const isAsyncPhase = false
 export const isCachingPhase = false

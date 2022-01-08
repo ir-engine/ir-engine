@@ -1,11 +1,13 @@
-import Command, { CommandParams } from './Command'
+import { Matrix4, Vector3 } from 'three'
+
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { Matrix4, Vector3 } from 'three'
+import Command, { CommandParams } from './Command'
 
 export interface RotateOnAxisCommandParams extends CommandParams {
   axis?: any

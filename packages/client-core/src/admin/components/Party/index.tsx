@@ -1,11 +1,13 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+
 import Button from '@mui/material/Button'
-import Search from './SearchParty'
+import Grid from '@mui/material/Grid'
 import { Theme } from '@mui/material/styles'
 import makeStyles from '@mui/styles/makeStyles'
-import PartyTable from './PartyTable'
+
 import CreateParty from './CreateParty'
+import PartyTable from './PartyTable'
+import Search from './SearchParty'
 import { usePartyStyles } from './style'
 
 const useStyles = makeStyles((theme: Theme) => ({

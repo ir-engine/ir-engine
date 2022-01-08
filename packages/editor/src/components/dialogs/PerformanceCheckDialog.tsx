@@ -1,9 +1,10 @@
-import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import Dialog from './Dialog'
-import { bytesToSize } from '../../functions/utils'
 import i18n from 'i18next'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import styled, { ThemeContext } from 'styled-components'
+
+import { bytesToSize } from '../../functions/utils'
+import Dialog from './Dialog'
 
 /**
  * ColoredText used to provide color property Dynamically.

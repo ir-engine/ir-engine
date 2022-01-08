@@ -1,10 +1,10 @@
 // Initializes the `invite` service on path `/invite`
 import { Application } from '../../../declarations'
-import { Invite } from './invite.class'
-import createModel from './invite.model'
-import hooks from './invite.hooks'
 import logger from '../../logger'
+import { Invite } from './invite.class'
 import inviteDocs from './invite.docs'
+import hooks from './invite.hooks'
+import createModel from './invite.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

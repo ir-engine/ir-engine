@@ -1,7 +1,17 @@
-import { createState, Downgraded } from '@hookstate/core'
+import { Downgraded, createState } from '@hookstate/core'
+import { MultiPolygon } from 'polygon-clipping'
+import { Mesh } from 'three'
+
+import { isClient } from '../common/functions/isClient'
+import FeatureCache from './classes/FeatureCache'
 import HashMap from './classes/HashMap'
+import HashSet from './classes/HashSet'
+import MutableNavMesh from './classes/MutableNavMesh'
 import TileCache from './classes/TileCache'
+import { MAX_CACHED_FEATURES, MAX_CACHED_TILES } from './constants'
+import { LongLat } from './functions/UnitConversionFunctions'
 import {
+  FeatureKey,
   MapDerivedFeatureComplete,
   MapDerivedFeatureGeometry,
   MapFeatureLabel,
@@ -9,19 +19,10 @@ import {
   MapTransformedFeature,
   SupportedFeature,
   TaskStatus,
-  VectorTile,
+  Text3D,
   TileKey,
-  FeatureKey,
-  Text3D
+  VectorTile
 } from './types'
-import { MAX_CACHED_TILES, MAX_CACHED_FEATURES } from './constants'
-import FeatureCache from './classes/FeatureCache'
-import { MultiPolygon } from 'polygon-clipping'
-import MutableNavMesh from './classes/MutableNavMesh'
-import { LongLat } from './functions/UnitConversionFunctions'
-import HashSet from './classes/HashSet'
-import { isClient } from '../common/functions/isClient'
-import { Mesh } from 'three'
 
 const state = createState({
   center: [0, 0],

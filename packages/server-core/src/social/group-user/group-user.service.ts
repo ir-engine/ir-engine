@@ -1,9 +1,9 @@
 import { Application } from '../../../declarations'
-import { GroupUser } from './group-user.class'
-import createModel from './group-user.model'
-import hooks from './group-user.hooks'
 import logger from '../../logger'
+import { GroupUser } from './group-user.class'
 import groupUserDocs from './group-user.docs'
+import hooks from './group-user.hooks'
+import createModel from './group-user.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

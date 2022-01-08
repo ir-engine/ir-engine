@@ -1,27 +1,29 @@
 import {
-  ShaderMaterial,
-  Vector2,
-  Matrix4,
-  Vector3,
   Color,
-  LinearFilter,
-  RGBAFormat,
-  MeshBasicMaterial,
   DoubleSide,
-  WebGLRenderTarget,
-  MeshDepthMaterial,
-  RGBADepthPacking,
-  NoBlending,
-  UniformsUtils,
-  OrthographicCamera,
-  Scene,
+  Layers,
+  LinearFilter,
+  Matrix4,
   Mesh,
+  MeshBasicMaterial,
+  MeshDepthMaterial,
+  NoBlending,
+  OrthographicCamera,
   PlaneBufferGeometry,
-  Layers
+  RGBADepthPacking,
+  RGBAFormat,
+  Scene,
+  ShaderMaterial,
+  UniformsUtils,
+  Vector2,
+  Vector3,
+  WebGLRenderTarget
 } from 'three'
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
 import { Pass } from 'three/examples/jsm/postprocessing/Pass'
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
+
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+
 /**
  * Adapted from THREE.OutlinePass
  * Original author spidersharma / http://eduperiment.com/

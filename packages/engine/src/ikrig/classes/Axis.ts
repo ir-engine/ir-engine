@@ -1,5 +1,6 @@
 import { Vector3 } from 'three'
-import { LEFT, UP, FORWARD } from '../constants/Vector3Constants'
+
+import { FORWARD, LEFT, UP } from '../constants/Vector3Constants'
 
 /*
 3x3 Rotation Matrix

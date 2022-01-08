@@ -1,19 +1,21 @@
 import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import Paper from '@mui/material/Paper'
+
 import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import Drawer from '@mui/material/Drawer'
+import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
-import Chip from '@mui/material/Chip'
-import { useGroupStyles, useGroupStyle } from './styles'
+import ListItemText from '@mui/material/ListItemText'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+
 import EditGroup from './EditGroup'
+import { useGroupStyle, useGroupStyles } from './styles'
 
 interface Props {
   groupAdmin: any

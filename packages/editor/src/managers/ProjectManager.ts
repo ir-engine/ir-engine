@@ -1,16 +1,17 @@
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
-import { loadEnvironmentMap } from '../components/EnvironmentMap'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+
 import ErrorIcon from '../classes/ErrorIcon'
+import { loadEnvironmentMap } from '../components/EnvironmentMap'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
+import { ControlManager } from './ControlManager'
 import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ControlManager } from './ControlManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()

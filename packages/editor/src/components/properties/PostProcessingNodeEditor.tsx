@@ -1,6 +1,8 @@
-import Checkbox from '@mui/material/Checkbox'
 import React from 'react'
+
 import LooksIcon from '@mui/icons-material/Looks'
+import Checkbox from '@mui/material/Checkbox'
+
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
 import { PostProcessingProperties } from './PostProcessingProperties'

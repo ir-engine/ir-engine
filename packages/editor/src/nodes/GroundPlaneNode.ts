@@ -1,8 +1,11 @@
-import { Mesh, CircleBufferGeometry, MeshBasicMaterial, Object3D } from 'three'
-import EditorNodeMixin from './EditorNodeMixin'
-import GroundPlane from '@xrengine/engine/src/scene/classes/GroundPlane'
+import { CircleBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import GroundPlane from '@xrengine/engine/src/scene/classes/GroundPlane'
+
+import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
+
 export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
   static legacyComponentName = 'ground-plane'
   static nodeName = 'Ground Plane'

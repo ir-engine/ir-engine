@@ -1,7 +1,3 @@
-import LanguageIcon from '@mui/icons-material/Language'
-import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
-import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
-import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import i18n from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,22 +13,29 @@ import {
   ReinhardToneMapping,
   VSMShadowMap
 } from 'three'
+
+import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
+import { DistanceModelOptions, DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
+import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
+import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
+
+import LanguageIcon from '@mui/icons-material/Language'
+
+import serializeColor from '../../functions/serializeColor'
+import { CommandManager } from '../../managers/CommandManager'
+import SceneNode from '../../nodes/SceneNode'
 import BooleanInput from '../inputs/BooleanInput'
-import StringInput from '../inputs/StringInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import FolderInput from '../inputs/FolderInput'
+import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
+import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import useSetPropertySelected from './useSetPropertySelected'
-import ImageInput from '../inputs/ImageInput'
-import FolderInput from '../inputs/FolderInput'
-import serializeColor from '../../functions/serializeColor'
-import SceneNode from '../../nodes/SceneNode'
-import Vector3Input from '../inputs/Vector3Input'
-import { CommandManager } from '../../managers/CommandManager'
-import { getDirectoryFromUrl } from '@xrengine/common/src/utils/getDirectoryFromUrl'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap

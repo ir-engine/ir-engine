@@ -1,15 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import EmailIcon from '@mui/icons-material/Email'
-import SocialIcon from '@mui/icons-material/Public'
-import UserIcon from '@mui/icons-material/Person'
-import MagicLinkEmail from './MagicLinkEmail'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
-import SocialLogin from './SocialLogin'
-import PasswordLogin from './PasswordLogin'
 import { useTranslation } from 'react-i18next'
+
+import EmailIcon from '@mui/icons-material/Email'
+import UserIcon from '@mui/icons-material/Person'
+import SocialIcon from '@mui/icons-material/Public'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+
 import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import MagicLinkEmail from './MagicLinkEmail'
+import PasswordLogin from './PasswordLogin'
+import SocialLogin from './SocialLogin'
 
 const initialState = {
   jwt: true,

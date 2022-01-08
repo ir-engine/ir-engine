@@ -1,9 +1,10 @@
 import * as authentication from '@feathersjs/authentication'
-import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import * as commonHooks from 'feathers-hooks-common'
+
+import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking-remove-ticket'
 import matchmakingRestrictMultipleQueueing from '@xrengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
 import matchmakingSaveTicket from '@xrengine/server-core/src/hooks/matchmaking-save-ticket'
-import * as commonHooks from 'feathers-hooks-common'
-import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking-remove-ticket'
+import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 

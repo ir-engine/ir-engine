@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { UserRelationshipType } from './user-relationship-type.class'
-import createModel from './user-relationship-type.model'
-import hooks from './user-relationship-type.hooks'
 import userRelationshipTypeDocs from './user-relationship-type.docs'
+import hooks from './user-relationship-type.hooks'
+import createModel from './user-relationship-type.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

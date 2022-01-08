@@ -1,8 +1,10 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import TimelineIcon from '@mui/icons-material/Timeline'
 import { useTranslation } from 'react-i18next'
+
+import TimelineIcon from '@mui/icons-material/Timeline'
+
 import { PropertiesPanelButton } from '../inputs/Button'
+import NodeEditor from './NodeEditor'
 
 /**
  * Define properties for SplineNodeEditor component.

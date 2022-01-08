@@ -1,7 +1,9 @@
 import { App } from '@octokit/app'
-import { Octokit } from '@octokit/rest'
 import { createAppAuth } from '@octokit/auth-app'
+import { Octokit } from '@octokit/rest'
+
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+
 import config from '../../appconfig'
 
 let app, appOctokit

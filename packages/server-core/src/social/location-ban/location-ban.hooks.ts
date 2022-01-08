@@ -1,8 +1,9 @@
 import * as authentication from '@feathersjs/authentication'
-import { disallow } from 'feathers-hooks-common'
-import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import { disallow } from 'feathers-hooks-common'
+
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 const { authenticate } = authentication.hooks
 

@@ -1,4 +1,5 @@
 import React from 'react'
+
 import PropertyGroup from './PropertyGroup'
 
 //declaring NodeEditorProps

@@ -1,9 +1,10 @@
-import Command, { CommandParams } from './Command'
+import { Matrix4, Vector3 } from 'three'
+
+import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { Matrix4, Vector3 } from 'three'
+import Command, { CommandParams } from './Command'
 
 export interface RotateAroundCommandParams extends CommandParams {
   axis?: Vector3

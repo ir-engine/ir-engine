@@ -1,9 +1,9 @@
+import React, { useEffect } from 'react'
+
 import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema'
 import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { InputComponent } from '@xrengine/engine/src/input/components/InputComponent'
-
-import React, { useEffect } from 'react'
 
 interface Props {
   enabled?: boolean

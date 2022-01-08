@@ -1,10 +1,12 @@
-import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
+
+import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
+
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export class Location extends Service {
   app: Application

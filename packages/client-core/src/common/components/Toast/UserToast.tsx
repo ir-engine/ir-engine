@@ -1,9 +1,10 @@
+import { useState } from '@hookstate/core'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { accessUserState } from '../../../user/services/UserService'
 import Toast from './Toast'
 import styles from './toast.module.scss'
-import { useTranslation } from 'react-i18next'
-import { accessUserState } from '../../../user/services/UserService'
-import { useState } from '@hookstate/core'
 
 const UserToast = () => {
   const toastMessages = useState(accessUserState().toastMessages).value

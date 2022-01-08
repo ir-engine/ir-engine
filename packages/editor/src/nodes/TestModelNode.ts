@@ -1,7 +1,6 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import {
   Color,
   Group,
@@ -13,8 +12,10 @@ import {
   RepeatWrapping,
   TextureLoader
 } from 'three'
+
 import { resolveMedia } from '../functions/resolveMedia'
 import EditorNodeMixin from './EditorNodeMixin'
+
 export default class TestModelNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'TestModel'
   groundPlane: any

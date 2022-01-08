@@ -1,12 +1,14 @@
-import AudioSource from '@xrengine/engine/src/scene/classes/AudioSource'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
-import { resolveMedia } from '../functions/resolveMedia'
+
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
-import EditorNodeMixin from './EditorNodeMixin'
-import { CommandManager } from '../managers/CommandManager'
+import AudioSource from '@xrengine/engine/src/scene/classes/AudioSource'
+
 import EditorEvents from '../constants/EditorEvents'
-import { SceneManager } from '../managers/SceneManager'
+import { resolveMedia } from '../functions/resolveMedia'
+import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import EditorNodeMixin from './EditorNodeMixin'
 
 let audioHelperTexture = null
 

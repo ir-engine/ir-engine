@@ -1,6 +1,5 @@
 // Credit https://github.com/maximeq/three-js-capsule-geometry
-
-import { BufferGeometry, BufferAttribute, Vector3, Vector2 } from 'three'
+import { BufferAttribute, BufferGeometry, Vector2, Vector3 } from 'three'
 
 // helper letiables
 

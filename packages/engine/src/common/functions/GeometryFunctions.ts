@@ -1,4 +1,5 @@
 import { Box3, BufferGeometry } from 'three'
+
 /**
  * @param target if the result is applied to this geometry's scale it would be the same size as `source`
  */

@@ -1,4 +1,5 @@
-import { Object3D, CircleBufferGeometry, MeshStandardMaterial, Mesh, Color } from 'three'
+import { CircleBufferGeometry, Color, Mesh, MeshStandardMaterial, Object3D } from 'three'
+
 export default class GroundPlane extends Object3D {
   static _geometry = new CircleBufferGeometry(4000, 32)
   _receiveShadow: boolean

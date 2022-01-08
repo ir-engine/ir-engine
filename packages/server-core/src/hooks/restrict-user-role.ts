@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import config from '../appconfig'
 
 // Get the logged in user entity

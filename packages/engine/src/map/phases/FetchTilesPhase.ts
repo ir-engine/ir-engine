@@ -1,9 +1,9 @@
-import { MapStateUnwrapped, TaskStatus, TileKey } from '../types'
-import { VectorTile } from '../types'
-import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
 import { TILE_ZOOM } from '../constants'
+import createSurroundingTileIterator from '../functions/createSurroundingTileIterator'
 import fetchUsingCache from '../functions/fetchUsingCache'
 import fetchVectorTile from '../functions/fetchVectorTile'
+import { MapStateUnwrapped, TaskStatus, TileKey } from '../types'
+import { VectorTile } from '../types'
 
 const fetchVectorTileUsingCache = fetchUsingCache<TileKey, VectorTile>(fetchVectorTile)
 

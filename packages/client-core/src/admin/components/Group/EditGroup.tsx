@@ -1,18 +1,19 @@
 import React from 'react'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import Button from '@mui/material/Button'
-import DialogActions from '@mui/material/DialogActions'
-import TextField from '@mui/material/TextField'
-import { formValid } from './validation'
 
 import Autocomplete from '@mui/material/Autocomplete'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+import TextField from '@mui/material/TextField'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { GroupService } from '../../services/GroupService'
-import { useGroupStyles, useGroupStyle } from './styles'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { useGroupStyle, useGroupStyles } from './styles'
+import { formValid } from './validation'
 
 interface Props {
   groupAdmin: any

@@ -1,17 +1,18 @@
-import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { createState, useState } from '@hookstate/core'
+
+import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { accessAuthState } from '../../user/services/AuthService'
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { accessLocationState } from '../../social/services/LocationService'
-import { MediaStreamService } from '../../media/services/MediaStreamService'
 
-import { createState, useState } from '@hookstate/core'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { client } from '../../feathers'
+import { MediaStreamService } from '../../media/services/MediaStreamService'
+import { accessLocationState } from '../../social/services/LocationService'
+import { store, useDispatch } from '../../store'
+import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 const state = createState({

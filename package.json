@@ -95,13 +95,8 @@
       "git add"
     ]
   },
-  "importSort": {
-    ".js, .jsx, .ts, .tsx": {
-      "style": "module",
-      "parser": "typescript"
-    }
-  },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^3.1.1",
     "@types/mocha": "9.0.0",
     "c8": "7.10.0",
     "cli": "1.0.1",
@@ -116,7 +111,6 @@
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
     "prettier": "2.5.1",
-    "prettier-plugin-import-sort": "^0.0.7",
     "react-dnd": "14.0.4",
     "react-router-dom": "5.3.0",
     "supertest": "6.1.6",

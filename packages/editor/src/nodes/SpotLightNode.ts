@@ -1,6 +1,8 @@
-import EditorNodeMixin from './EditorNodeMixin'
 import PhysicalSpotLight from '@xrengine/engine/src/scene/classes/PhysicalSpotLight'
+
 import EditorSpotLightHelper from '../classes/EditorSpotLightHelper'
+import EditorNodeMixin from './EditorNodeMixin'
+
 export default class SpotLightNode extends EditorNodeMixin(PhysicalSpotLight) {
   static legacyComponentName = 'spot-light'
   static nodeName = 'Spot Light'

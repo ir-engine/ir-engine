@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import DefaultNodeEditor from './DefaultNodeEditor'
-import styled from 'styled-components'
-import TransformPropertyGroup from './TransformPropertyGroup'
-import NameInputGroup from './NameInputGroup'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { NodeManager } from '../../managers/NodeManager'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import DefaultNodeEditor from './DefaultNodeEditor'
+import NameInputGroup from './NameInputGroup'
+import TransformPropertyGroup from './TransformPropertyGroup'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.

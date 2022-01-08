@@ -1,7 +1,6 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import {
   BoxBufferGeometry,
   BoxHelper,
@@ -14,18 +13,20 @@ import {
   Vector3,
   WebGLCubeRenderTarget
 } from 'three'
-import { CubemapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/CubemapBakeRefreshTypes'
-import { CubemapBakeSettings } from '@xrengine/engine/src/scene/types/CubemapBakeSettings'
-import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
-import EditorNodeMixin from './EditorNodeMixin'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { envmapPhysicalParsReplace, worldposReplace } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import SkyboxNode from './SkyboxNode'
+import { CubemapBakeRefreshTypes } from '@xrengine/engine/src/scene/types/CubemapBakeRefreshTypes'
+import { CubemapBakeSettings } from '@xrengine/engine/src/scene/types/CubemapBakeSettings'
+import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
+
 import { uploadProjectAsset } from '../functions/assetFunctions'
 import { accessEditorState } from '../services/EditorServices'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
+import SkyboxNode from './SkyboxNode'
 
 const assetIdentitifer = 'cubemapbake'
 

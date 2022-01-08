@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+
+import { Check, Close, Delete, NavigateBefore, NavigateNext, PersonAdd } from '@mui/icons-material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import { NavigateNext, NavigateBefore, Check, PersonAdd, Delete, Close } from '@mui/icons-material'
-import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
+
 import { LazyImage } from '../../../../common/components/LazyImage'
+import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 
 const AvatarMenu = (props: any): any => {
   const MAX_AVATARS_PER_PAGE = 6

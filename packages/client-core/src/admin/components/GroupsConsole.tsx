@@ -1,3 +1,5 @@
+import React from 'react'
+
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -9,7 +11,7 @@ import TableSortLabel from '@mui/material/TableSortLabel'
 import { Theme } from '@mui/material/styles'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
-import React from 'react'
+
 import styles from './Admin.module.scss'
 
 const useStyles = makeStyles((theme: Theme) =>

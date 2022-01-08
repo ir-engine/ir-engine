@@ -1,4 +1,5 @@
-import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
+import { Color, CubeTextureLoader, PMREMGenerator, TextureLoader, sRGBEncoding } from 'three'
+
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'

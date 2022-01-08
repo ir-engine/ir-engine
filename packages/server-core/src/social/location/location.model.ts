@@ -1,5 +1,6 @@
 // A place in physical or virtual space, with many copies (instances)
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Sequelize } from 'sequelize'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {

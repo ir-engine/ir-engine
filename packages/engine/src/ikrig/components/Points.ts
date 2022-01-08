@@ -1,7 +1,9 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from 'three'
+
 // import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+
 // import IKObj from './IKObj'
 /*
 class PointsComponent extends Component<PointsComponent> {

@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { GroupUserRank } from './group-user-rank.class'
-import createModel from './group-user-rank.model'
-import hooks from './group-user-rank.hooks'
 import groupUserRankDocs from './group-user-rank.docs'
+import hooks from './group-user-rank.hooks'
+import createModel from './group-user-rank.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { Seat } from './seat.class'
-import createModel from './seat.model'
-import hooks from './seat.hooks'
 import seatDocs from './seat.docs'
+import hooks from './seat.hooks'
+import createModel from './seat.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

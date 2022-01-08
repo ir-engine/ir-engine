@@ -1,13 +1,15 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import Vector2Input from '../inputs/Vector2Input'
 import { useTranslation } from 'react-i18next'
-import ColorInput from '../inputs/ColorInput'
+
 import WaterIcon from '@mui/icons-material/Water'
-import NumericInputGroup from '../inputs/NumericInputGroup'
+
 import { CommandManager } from '../../managers/CommandManager'
+import ColorInput from '../inputs/ColorInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import Vector2Input from '../inputs/Vector2Input'
+import NodeEditor from './NodeEditor'
 
 //declaring properties for OceanNodeEditor
 type OceanNodeEditorProps = {

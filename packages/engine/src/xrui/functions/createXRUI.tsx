@@ -1,14 +1,15 @@
-import React from 'react'
 import { State } from '@hookstate/core'
+import React from 'react'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { XRUIStateContext } from '../XRUIStateContext'
-import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { XRUIStateContext } from '../XRUIStateContext'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 

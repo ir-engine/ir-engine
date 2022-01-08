@@ -1,8 +1,8 @@
-import hooks from './scope.hooks'
 import { Application } from '../../../declarations'
 import { Scope } from './scope.class'
-import createModel from './scope.model'
 import scopeDocs from './scope.docs'
+import hooks from './scope.hooks'
+import createModel from './scope.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

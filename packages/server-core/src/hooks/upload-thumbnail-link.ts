@@ -1,5 +1,6 @@
-import bent from 'bent'
 import { Hook, HookContext } from '@feathersjs/feathers'
+import bent from 'bent'
+
 import config from '../appconfig'
 
 const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/

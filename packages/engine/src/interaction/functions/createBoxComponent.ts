@@ -1,4 +1,5 @@
 import { Box3, Mesh, Vector3 } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { isDynamicBody } from '../../physics/classes/Physics'

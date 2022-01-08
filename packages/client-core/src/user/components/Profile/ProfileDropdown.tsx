@@ -1,17 +1,20 @@
-import React, { KeyboardEvent, MouseEvent, useRef, useState, useEffect } from 'react'
+import React, { KeyboardEvent, MouseEvent, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
+
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
+import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import Grow from '@mui/material/Grow'
-import Paper from '@mui/material/Paper'
-import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
-import ProfileModal from './index'
-import { useHistory } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import Avatar from '@mui/material/Avatar'
-import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle'
+import Paper from '@mui/material/Paper'
+import Popper from '@mui/material/Popper'
+
 import { useAuthState } from '../../services/AuthService'
+import ProfileModal from './index'
+
 interface Props {
   avatarUrl: any
   logoutUser: any

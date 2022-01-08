@@ -1,7 +1,9 @@
-import { Ocean } from '@xrengine/engine/src/scene/classes/Ocean'
-import EditorNodeMixin from './EditorNodeMixin'
-import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
 import { Color, Vector2 } from 'three'
+
+import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
+import { Ocean } from '@xrengine/engine/src/scene/classes/Ocean'
+
+import EditorNodeMixin from './EditorNodeMixin'
 
 const defaultNormalMapUrl = '/ocean/water_normal.tga'
 const defaultDistortionMapUrl = '/ocean/water_distortion.tga'

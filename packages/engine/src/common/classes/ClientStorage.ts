@@ -1,5 +1,6 @@
-import { isBrowser, isJsDom, isNode } from '../functions/getEnvironment'
 import * as idbstorage from 'idb-keyval'
+
+import { isBrowser, isJsDom, isNode } from '../functions/getEnvironment'
 
 const memory = {}
 

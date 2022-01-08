@@ -1,7 +1,9 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
-import { Switch, Redirect } from 'react-router-dom'
-import PrivateRoute from '../Private'
+import { Redirect, Switch } from 'react-router-dom'
+
 import CircularProgress from '@mui/material/CircularProgress'
+
+import PrivateRoute from '../Private'
 import { useAuthState } from '../user/services/AuthService'
 import { AuthService } from '../user/services/AuthService'
 

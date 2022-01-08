@@ -1,4 +1,5 @@
 import { TextureLoader } from 'three'
+
 import { isClient } from '../../common/functions/isClient'
 
 export default function loadTexture(src, textureLoader: any = new TextureLoader()) {

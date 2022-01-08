@@ -1,6 +1,7 @@
-import { EventDispatcher, WebGLRenderer, WebGLRenderTarget } from 'three'
-import disposeScene from '../functions/disposeScene'
 import { BlendFunction, BlendMode } from 'postprocessing'
+import { EventDispatcher, WebGLRenderTarget, WebGLRenderer } from 'three'
+
+import disposeScene from '../functions/disposeScene'
 
 /**
  * An abstract effect.

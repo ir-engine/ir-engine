@@ -1,7 +1,7 @@
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { SceneManager } from '../../managers/SceneManager'
 import { isAsset } from '../../constants/AssetTypes'
+import EditorCommands from '../../constants/EditorCommands'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
 
 /**
  * addAssetOnDrop used to adding assets to the editor scene.

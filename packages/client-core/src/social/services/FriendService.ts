@@ -1,13 +1,15 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { UserAction } from '../../user/services/UserService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { createState, none, useState } from '@hookstate/core'
+import _ from 'lodash'
+
+import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
-import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, useState, none } from '@hookstate/core'
-import _ from 'lodash'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
+import { UserAction } from '../../user/services/UserService'
 
 //State
 const state = createState({

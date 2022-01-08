@@ -1,6 +1,6 @@
-import { FeatureKey, TaskStatus, MapStateUnwrapped } from '../types'
-import createUsingCache from '../functions/createUsingCache'
 import createCompleteObject from '../functions/createCompleteObject'
+import createUsingCache from '../functions/createUsingCache'
+import { FeatureKey, MapStateUnwrapped, TaskStatus } from '../types'
 
 export const name = 'CreateCompleteObject'
 export const isAsyncPhase = false

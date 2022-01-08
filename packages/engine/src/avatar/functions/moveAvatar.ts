@@ -1,13 +1,14 @@
-import { Vector3, Matrix4, Quaternion, PerspectiveCamera, OrthographicCamera } from 'three'
+import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { AvatarSettings } from '../AvatarControllerSystem'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { World } from '../../ecs/classes/World'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>

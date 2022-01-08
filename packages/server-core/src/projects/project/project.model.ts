@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { Application } from '../../../declarations'
 
 export type ProjectModelType = {

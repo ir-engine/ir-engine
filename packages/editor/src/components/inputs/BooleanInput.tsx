@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import Input from './Input'
 import styled from 'styled-components'
+
 import CheckIcon from '@mui/icons-material/Check'
+
+import Input from './Input'
 
 let uniqueId = 0
 

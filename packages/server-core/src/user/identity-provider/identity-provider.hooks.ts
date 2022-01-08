@@ -1,9 +1,10 @@
 import * as feathersAuthentication from '@feathersjs/authentication'
 import { hooks } from '@feathersjs/authentication-local'
-import accountService from '../auth-management/auth-management.notifier'
+import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
-import { NotFound } from '@feathersjs/errors'
+
+import accountService from '../auth-management/auth-management.notifier'
 
 const { authenticate } = feathersAuthentication.hooks
 const hashPassword = hooks.hashPassword

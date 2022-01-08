@@ -1,11 +1,13 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
-import { accessAuthState } from '../../user/services/AuthService'
-import { AlertService } from '../../common/services/AlertService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 import { createState, useState } from '@hookstate/core'
+
+import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
+import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/

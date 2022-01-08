@@ -1,14 +1,17 @@
 import React, { FunctionComponent } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { CommonInteractiveData } from '@xrengine/engine/src/interaction/interfaces/CommonInteractiveData'
-import styles from './OpenLink.module.scss'
+
+import CloseIcon from '@mui/icons-material/Close'
+import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import CloseIcon from '@mui/icons-material/Close'
-import { useTranslation } from 'react-i18next'
+
+import styles from './OpenLink.module.scss'
 
 export type OpenLinkProps = {
   onClose: unknown

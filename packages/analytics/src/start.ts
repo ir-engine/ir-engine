@@ -1,7 +1,8 @@
-import config from '@xrengine/server-core/src/appconfig'
-import { createApp } from './app'
-import logger from '@xrengine/server-core/src/logger'
 import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+
+import { createApp } from './app'
 import collectAnalytics from './collect-analytics'
 
 process.on('unhandledRejection', (error, promise) => {

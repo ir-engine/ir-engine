@@ -1,9 +1,10 @@
 import { LinearToneMapping, PCFSoftShadowMap, PerspectiveCamera, ShadowMapType, ToneMapping, Vector3 } from 'three'
-import { isClient } from '../../common/functions/isClient'
-import { CSM } from '../../assets/csm/CSM'
-import { Engine } from '../../ecs/classes/Engine'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
+import { CSM } from '../../assets/csm/CSM'
+import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
 
 export type RenderSettingsProps = {
   LODs: Vector3

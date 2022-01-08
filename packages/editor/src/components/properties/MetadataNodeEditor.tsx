@@ -1,9 +1,11 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
+
+import AnalyticsIcon from '@mui/icons-material/Analytics'
+
+import { CommandManager } from '../../managers/CommandManager'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
-import AnalyticsIcon from '@mui/icons-material/Analytics'
-import { CommandManager } from '../../managers/CommandManager'
+import NodeEditor from './NodeEditor'
 
 type MetadataNodeEditorProps = {
   node?: any

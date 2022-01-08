@@ -1,9 +1,11 @@
+import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { Vector3, Matrix4, Quaternion, Matrix3 } from 'three'
+
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
 import EditorEvents from '../constants/EditorEvents'

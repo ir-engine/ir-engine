@@ -1,7 +1,9 @@
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { store } from '../../store'
 import { createState, useState } from '@hookstate/core'
+
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import { store } from '../../store'
 
 //State
 const state = createState({

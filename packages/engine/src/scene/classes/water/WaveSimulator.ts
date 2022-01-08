@@ -1,8 +1,9 @@
 import { WebGLRenderTarget } from 'three'
 import * as THREE from 'three'
-import vertexShader from './shaders/waves/vertex'
+
 import dropFragmentShader from './shaders/waves/drop_fragment'
 import updateFragmentShader from './shaders/waves/update_fragment'
+import vertexShader from './shaders/waves/vertex'
 
 export class WaveSimulator {
   _camera

@@ -1,12 +1,13 @@
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
-import { Network } from '../classes/Network'
-import { isClient } from '../../common/functions/isClient'
-import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
-import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
-import { Engine } from '../../ecs/classes/Engine'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+
+import { isClient } from '../../common/functions/isClient'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { System } from '../../ecs/classes/System'
+import { World } from '../../ecs/classes/World'
+import { Network } from '../classes/Network'
+import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
+import { NearbyUser, getNearbyUsers } from '../functions/getNearbyUsers'
 
 /** System class for media streaming. */
 export class MediaStreams {

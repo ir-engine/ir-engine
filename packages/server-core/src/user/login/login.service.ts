@@ -1,10 +1,10 @@
 // Initializes the `login` service on path `/login`
 import { Application } from '../../../declarations'
-import { Login } from './login.class'
-import hooks from './login.hooks'
 import config from '../../appconfig'
 import logger from '../../logger'
+import { Login } from './login.class'
 import loginDocs from './login.docs'
+import hooks from './login.hooks'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

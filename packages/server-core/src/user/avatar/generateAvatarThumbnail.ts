@@ -1,13 +1,14 @@
 import {
+  Box3,
   DirectionalLight,
   HemisphereLight,
   PerspectiveCamera,
   Scene,
-  sRGBEncoding,
+  Vector3,
   WebGLRenderer,
-  Box3,
-  Vector3
+  sRGBEncoding
 } from 'three'
+
 import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
@@ -17,6 +18,7 @@ import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGL
 // import { createCanvas } from 'canvas'
 // import gl from '@fable/gl'
 import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
+
 // import encode from 'image-encode'
 
 /**

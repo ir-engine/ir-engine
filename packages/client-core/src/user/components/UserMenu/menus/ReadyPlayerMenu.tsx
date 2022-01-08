@@ -1,5 +1,7 @@
-import CircularProgress from '@mui/material/CircularProgress'
-import { ArrowBack } from '@mui/icons-material'
+import React from 'react'
+import { withTranslation } from 'react-i18next'
+import * as THREE from 'three'
+
 import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
@@ -7,12 +9,13 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import React from 'react'
-import { withTranslation } from 'react-i18next'
-import * as THREE from 'three'
+
+import { ArrowBack } from '@mui/icons-material'
+import CircularProgress from '@mui/material/CircularProgress'
+
+import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { AuthService } from '../../../services/AuthService'
 
 interface State {
   selectedFile: any

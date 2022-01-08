@@ -1,14 +1,16 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import UserModel from './CreateUser'
-import UserTable from './UserTable'
-import SearchUser from './SearchUser'
-import { useUserStyles } from './styles'
-import styles from '../Admin.module.scss'
+import Grid from '@mui/material/Grid'
+
 import { UserService } from '../../services/UserService'
+import styles from '../Admin.module.scss'
+import UserModel from './CreateUser'
+import SearchUser from './SearchUser'
+import UserTable from './UserTable'
+import { useUserStyles } from './styles'
 
 const Users = () => {
   const classes = useUserStyles()

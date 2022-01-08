@@ -1,7 +1,9 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
 import { useTranslation } from 'react-i18next'
+
 import StreetviewIcon from '@mui/icons-material/Streetview'
+
+import NodeEditor from './NodeEditor'
 
 /**
  * SpawnPointNodeEditorProps declaring properties for SpawnPointNodeEditor.

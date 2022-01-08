@@ -1,17 +1,19 @@
-import { client } from '../../feathers'
+import { createState, useState } from '@hookstate/core'
+
+import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import { client } from '../../feathers'
+import { MediaStreamService } from '../../media/services/MediaStreamService'
+import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { leave } from '../../transports/SocketWebRTCClientFunctions'
-import { MediaStreamService } from '../../media/services/MediaStreamService'
-import { accessAuthState } from '../../user/services/AuthService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { createState, useState } from '@hookstate/core'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { accessLocationState } from '../../social/services/LocationService'
+import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 const state = createState({

@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import NodeEditor from './NodeEditor'
+import { useTranslation } from 'react-i18next'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
+
+import EditorCommands from '../../constants/EditorCommands'
+import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
+import NodeEditor from './NodeEditor'
 
 //Declaring TriggerVolumeNodeEditor properties
 type TriggerVolumeNodeEditorProps = {

@@ -1,14 +1,14 @@
-import { store, useDispatch } from '../../store'
+import { createState, useState } from '@hookstate/core'
+
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
+import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
+import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
+
 import { AlertService } from '../../common/services/AlertService'
 import { ErrorAction } from '../../common/services/ErrorService'
 import { client } from '../../feathers'
-
-import { createState, useState } from '@hookstate/core'
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
+import { store, useDispatch } from '../../store'
 
 //State
 export const LOCATION_PAGE_LIMIT = 100

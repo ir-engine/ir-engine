@@ -1,9 +1,10 @@
-import { TileKey, MapStateUnwrapped } from '../types'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles, MAX_Z_INDEX } from '../styles'
-import getCachedMaterial from '../functions/getCachedMaterial'
 import { Mesh, MeshLambertMaterial, PlaneBufferGeometry } from 'three'
-import computeTileBoundingBox from '../functions/computeTileBoundingBox'
+
 import FeatureKey from '../classes/FeatureKey'
+import computeTileBoundingBox from '../functions/computeTileBoundingBox'
+import getCachedMaterial from '../functions/getCachedMaterial'
+import { DEFAULT_FEATURE_STYLES, MAX_Z_INDEX, getFeatureStyles } from '../styles'
+import { MapStateUnwrapped, TileKey } from '../types'
 
 export const name = 'CreateFallbackLanduseMesh'
 export const isAsyncPhase = false

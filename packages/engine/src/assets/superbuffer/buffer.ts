@@ -1,5 +1,5 @@
-import { uint8 } from './views'
 import type { BufferView, Serializable } from './types'
+import { uint8 } from './views'
 
 // setBigUint64/getBigUint64 polfyill needed for some browsers
 

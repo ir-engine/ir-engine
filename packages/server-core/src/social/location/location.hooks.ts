@@ -1,8 +1,10 @@
 import * as authentication from '@feathersjs/authentication'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+import { iff, isProvider } from 'feathers-hooks-common'
+
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import verifyScope from '@xrengine/server-core/src/hooks/verify-scope'
-import { isProvider, iff } from 'feathers-hooks-common'
+
 const { authenticate } = authentication.hooks
 
 export default {

@@ -1,6 +1,7 @@
 import * as bitECS from 'bitecs'
+
 import { Entity } from '../classes/Entity'
-import { addComponent, EntityRemovedComponent, removeAllComponents } from './ComponentFunctions'
+import { EntityRemovedComponent, addComponent, removeAllComponents } from './ComponentFunctions'
 import { useWorld } from './SystemHooks'
 
 export const createEntity = (world = useWorld()): Entity => {

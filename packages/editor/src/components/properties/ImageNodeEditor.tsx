@@ -1,15 +1,19 @@
-import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
-import ImageInput from '../inputs/ImageInput'
-import useSetPropertySelected from './useSetPropertySelected'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import i18n from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { ImageAlphaMode, ImageProjection } from '@xrengine/engine/src/scene/classes/Image'
+
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+
+import BooleanInput from '../inputs/BooleanInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import NodeEditor from './NodeEditor'
+import useSetPropertySelected from './useSetPropertySelected'
+
 //
 const mapValue = (v) => ({ label: v, value: v })
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue)

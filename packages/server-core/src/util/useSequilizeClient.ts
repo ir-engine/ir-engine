@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize/types'
+
 import { Application, Models } from '../../declarations'
 
 export const useSequelizeClient = (app: Application): Sequelize => {

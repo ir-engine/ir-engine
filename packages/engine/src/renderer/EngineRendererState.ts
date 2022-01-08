@@ -1,7 +1,8 @@
-import { createState, State, useState } from '@hookstate/core'
+import { State, createState, useState } from '@hookstate/core'
+
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
-import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
+import { RENDERER_SETTINGS, databasePrefix } from './EngineRnedererConstants'
 import { EngineRenderer } from './WebGLRendererSystem'
 
 const state = createState({

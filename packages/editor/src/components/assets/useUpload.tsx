@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react'
-import ErrorDialog from '../dialogs/ErrorDialog'
-import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useTranslation } from 'react-i18next'
+
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useDialog } from '../hooks/useDialog'
+
 import { getEntries, uploadProjectAssetFromEntries } from '../../functions/assetFunctions'
 import { accessEditorState } from '../../services/EditorServices'
+import ErrorDialog from '../dialogs/ErrorDialog'
+import { ProgressDialog } from '../dialogs/ProgressDialog'
+import { useDialog } from '../hooks/useDialog'
 
 type Props = {
   multiple?: boolean

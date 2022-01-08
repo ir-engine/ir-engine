@@ -1,11 +1,13 @@
-import React, { useState, useCallback } from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import BooleanInput from '../inputs/BooleanInput'
+import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
 import SquareIcon from '@mui/icons-material/Square'
+
 import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
 
 /**
  * Declaring GroundPlaneNodeEditor properties.

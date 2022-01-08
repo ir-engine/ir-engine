@@ -1,3 +1,5 @@
+import { Vector2 } from 'three'
+
 import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SnapModeType,
@@ -5,7 +7,6 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { Vector2 } from 'three'
 
 export type EditorControlComponentType = {
   enable: boolean

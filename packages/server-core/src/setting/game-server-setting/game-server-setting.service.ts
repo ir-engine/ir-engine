@@ -1,6 +1,6 @@
-import hooks from './game-server-setting.hooks'
 import { Application } from '../../../declarations'
 import { GameServerSetting } from './game-server-setting.class'
+import hooks from './game-server-setting.hooks'
 import createModel from './game-server-setting.model'
 
 declare module '../../../declarations' {

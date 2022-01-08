@@ -1,4 +1,5 @@
 import { Feature } from 'geojson'
+
 import updateKeyVal from '../../common/functions/updateKeyVal'
 import zipIterators from '../../common/functions/zipIterators'
 import { FeatureKey } from '../types'

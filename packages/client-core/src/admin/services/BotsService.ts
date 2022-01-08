@@ -1,10 +1,12 @@
-import { useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { accessAuthState } from '../../user/services/AuthService'
 import { createState, useState } from '@hookstate/core'
-import { store } from '../../store'
-import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
+
 import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
+
+import { client } from '../../feathers'
+import { useDispatch } from '../../store'
+import { store } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 export const BOTS_PAGE_LIMIT = 100

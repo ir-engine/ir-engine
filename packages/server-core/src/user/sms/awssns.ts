@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+
 import config from '../../appconfig'
 
 export async function sendSmsWithAWS(phone: string, text: string): Promise<void> {

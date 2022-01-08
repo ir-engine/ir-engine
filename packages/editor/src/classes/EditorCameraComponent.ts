@@ -1,5 +1,6 @@
-import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Vector3 } from 'three'
+
+import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 export type EditorCameraComponentType = {
   dirty?: boolean

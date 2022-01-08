@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
 import {
-  Scene,
-  WebGLRenderer,
+  AmbientLight,
+  BoxBufferGeometry,
   Color,
   Mesh,
-  BoxBufferGeometry,
   MeshStandardMaterial,
-  Vector3,
   PerspectiveCamera,
-  AmbientLight
+  Scene,
+  Vector3,
+  WebGLRenderer
 } from 'three'
+
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 

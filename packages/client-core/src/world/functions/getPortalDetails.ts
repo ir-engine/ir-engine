@@ -1,8 +1,9 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+
 import { client } from '../../feathers'
 
 export const getPortalDetails = () => {

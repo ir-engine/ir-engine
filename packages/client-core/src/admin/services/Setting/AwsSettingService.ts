@@ -1,8 +1,10 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
 import { createState, useState } from '@hookstate/core'
+
 import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({

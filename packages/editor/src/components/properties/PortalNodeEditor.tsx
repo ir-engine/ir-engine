@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
-import PortalNode from '../../nodes/PortalNode'
+
+import { client } from '@xrengine/client-core/src/feathers'
+import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+
+import { CommandManager } from '../../managers/CommandManager'
 import CubemapBakeNode from '../../nodes/CubemapBakeNode'
+import PortalNode from '../../nodes/PortalNode'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
-import { CommandManager } from '../../managers/CommandManager'
-import { client } from '@xrengine/client-core/src/feathers'
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type PortalNodeEditorProps = {
   node?: PortalNode

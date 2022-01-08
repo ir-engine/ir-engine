@@ -1,7 +1,8 @@
 import * as authentication from '@feathersjs/authentication'
+import * as commonHooks from 'feathers-hooks-common'
+
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import setLoggedInUserInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
-import * as commonHooks from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks
 

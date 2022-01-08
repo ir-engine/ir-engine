@@ -1,4 +1,5 @@
 import { CubeTexture, ImageBitmapLoader, ImageLoader, Loader } from 'three'
+
 import { isWebWorker } from '../../../common/functions/getEnvironment'
 
 class CubeTextureLoader extends Loader {

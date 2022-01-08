@@ -1,15 +1,17 @@
+import { Icon } from '@iconify/react'
 import React from 'react'
+
+import LockIcon from '@mui/icons-material/Lock'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
+import ViewCompactIcon from '@mui/icons-material/ViewCompact'
+import Avatar from '@mui/material/Avatar'
+import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Divider from '@mui/material/Divider'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
-import Avatar from '@mui/material/Avatar'
-import ViewCompactIcon from '@mui/icons-material/ViewCompact'
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
-import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import LockIcon from '@mui/icons-material/Lock'
-import { Icon } from '@iconify/react'
+import ListItemText from '@mui/material/ListItemText'
+
 import { useStyles } from './styles'
 
 const settings = ({

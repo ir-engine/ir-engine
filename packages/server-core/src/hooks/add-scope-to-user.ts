@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 

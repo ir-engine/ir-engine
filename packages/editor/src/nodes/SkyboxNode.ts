@@ -1,7 +1,9 @@
+import { Color, CubeTextureLoader, Mesh, PMREMGenerator, TextureLoader, sRGBEncoding } from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Sky } from '@xrengine/engine/src/scene/classes/Sky'
 import { SceneBackgroundProps, SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyBoxShaderProps'
-import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from 'three'
+
 import EditorNodeMixin from './EditorNodeMixin'
 import SceneNode from './SceneNode'
 

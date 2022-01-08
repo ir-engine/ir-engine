@@ -1,7 +1,9 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TypedArray } from 'bitecs'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+
 import { Entity } from '../../../ecs/classes/Entity'
-import { createViewCursor, readNetworkId, readProp, readUint32, readUint8, ViewCursor } from '../ViewCursor'
+import { ViewCursor, createViewCursor, readNetworkId, readProp, readUint8, readUint32 } from '../ViewCursor'
 
 export const readProps = (v: ViewCursor, props: TypedArray[], idMap: Map<NetworkId, Entity>) => {
   while (v.cursor < v.buffer.byteLength) {

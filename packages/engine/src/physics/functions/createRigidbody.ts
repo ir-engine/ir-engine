@@ -1,8 +1,3 @@
-import { BodyOptions } from '../functions/createCollider'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { VelocityComponent } from '../components/VelocityComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import {
   BoxBufferGeometry,
   CylinderBufferGeometry,
@@ -12,9 +7,15 @@ import {
   SphereBufferGeometry,
   Vector3
 } from 'three'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { BodyType } from '../types/PhysicsTypes'
+
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { BodyOptions } from '../functions/createCollider'
+import { BodyType } from '../types/PhysicsTypes'
 
 export const createRigidbody = (world, type) => {
   const entity = createEntity(world)

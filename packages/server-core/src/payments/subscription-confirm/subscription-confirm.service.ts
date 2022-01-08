@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
-import { SubscriptionConfirm } from './subscription-confirm.class'
-import hooks from './subscription-confirm.hooks'
 import config from '../../appconfig'
+import { SubscriptionConfirm } from './subscription-confirm.class'
 import subscriptionConfirmDocs from './subscription-confirm.docs'
+import hooks from './subscription-confirm.hooks'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

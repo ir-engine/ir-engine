@@ -1,6 +1,7 @@
-import { Vector3, Quaternion } from 'three'
+import { ComponentType, Types, defineComponent } from 'bitecs'
+import { Quaternion, Vector3 } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { Types, ComponentType, defineComponent } from 'bitecs'
 
 export type TransformComponentType = {
   position: Vector3

@@ -1,6 +1,8 @@
-import { Params, NullableId } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { NullableId, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { Application } from '../../../declarations'
+
 export class ServerSetting extends Service {
   app: Application
 

@@ -1,5 +1,6 @@
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type RaycastIntersectionNode = Intersection<Object3D> & {
   node: Object3D

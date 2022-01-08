@@ -1,8 +1,10 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
+
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
+import { PropertiesPanelButton } from '../inputs/Button'
+import NodeEditor from './NodeEditor'
 
 /**
  * ScenePreviewCameraNodeEditorProps declaring props for ScenePreviewCameraNodeEditor.

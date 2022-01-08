@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@mui/material'
+import { Icon } from '@iconify/react'
+import React, { useEffect, useState } from 'react'
+
+import { Button, Grid, Paper, Typography } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
-import { useStyles } from './styles'
+import Switch from '@mui/material/Switch'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
 import { AuthSettingService } from '../../services/Setting/AuthSettingService'
-import Switch from '@mui/material/Switch'
-import IconButton from '@mui/material/IconButton'
-import { Icon } from '@iconify/react'
+import { useStyles } from './styles'
 
 interface Props {}
 

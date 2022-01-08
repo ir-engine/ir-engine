@@ -1,6 +1,7 @@
 import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
-import { uploadAvatarStaticResource, getAvatarFromStaticResources, AvatarUploadArguments } from './avatar-helper'
+import { AvatarUploadArguments, getAvatarFromStaticResources, uploadAvatarStaticResource } from './avatar-helper'
 
 export class Avatar implements ServiceMethods<any> {
   app: Application

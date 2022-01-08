@@ -1,12 +1,14 @@
-import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import AudioInput from '../inputs/AudioInput'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-import AudioSourceProperties from './AudioSourceProperties'
-import useSetPropertySelected from './useSetPropertySelected'
 import i18n from 'i18next'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+
+import AudioInput from '../inputs/AudioInput'
+import InputGroup from '../inputs/InputGroup'
+import AudioSourceProperties from './AudioSourceProperties'
+import NodeEditor from './NodeEditor'
+import useSetPropertySelected from './useSetPropertySelected'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.

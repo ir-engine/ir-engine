@@ -1,4 +1,5 @@
 import SocketIO from 'socket.io'
+
 export interface Client {
   socket: SocketIO.Socket
   lastSeenTs: number

@@ -1,6 +1,7 @@
-import GroupsConsole from '../components/Group'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import GroupsConsole from '../components/Group'
 
 interface Props {}
 

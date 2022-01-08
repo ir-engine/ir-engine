@@ -1,11 +1,12 @@
 import { BoxBufferGeometry, BoxHelper, Material, Mesh } from 'three'
-import { ObjectLayers } from '../constants/ObjectLayers'
+
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { createCollider } from '../../physics/functions/createCollider'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
 
 export const createTriggerVolume = async function (entity, args): Promise<Mesh> {
   console.log('args are', args)

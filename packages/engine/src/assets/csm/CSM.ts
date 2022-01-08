@@ -1,18 +1,19 @@
 import {
+  Box3,
+  DirectionalLight,
+  Material,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  Object3D,
+  PerspectiveCamera,
+  ShaderChunk,
+  Shader as ShaderType,
   Vector2,
   Vector3,
-  DirectionalLight,
-  MathUtils,
-  ShaderChunk,
-  Matrix4,
-  Box3,
-  Object3D,
-  WebGLRenderTarget,
-  PerspectiveCamera,
-  Material,
-  Shader as ShaderType,
-  Mesh
+  WebGLRenderTarget
 } from 'three'
+
 import Frustum from './Frustum'
 import Shader from './Shader'
 

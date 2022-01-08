@@ -1,13 +1,15 @@
-import Shopify from '@xrengine/engine/src/scene/classes/Shopify'
-import EditorNodeMixin from './EditorNodeMixin'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
 import axios from 'axios'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import Shopify from '@xrengine/engine/src/scene/classes/Shopify'
+
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import EditorNodeMixin from './EditorNodeMixin'
+import ImageNode from './ImageNode'
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
-import ImageNode from './ImageNode'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class ShopifyNode extends EditorNodeMixin(Shopify) {
   static nodeName = 'Shopify'

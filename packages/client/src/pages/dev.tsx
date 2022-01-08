@@ -1,5 +1,6 @@
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import React, { useEffect } from 'react'
+
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 
 const LocationPage = () => {
   useEffect(() => {

@@ -1,9 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { NullableId, Params } from '@feathersjs/feathers'
-import { resolveModelData } from '../../util/model-resolver'
-import { Transaction, Sequelize } from 'sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Sequelize, Transaction } from 'sequelize'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import { resolveModelData } from '../../util/model-resolver'
 
 /**
  * A class for User Relationship service

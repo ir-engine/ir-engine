@@ -1,16 +1,17 @@
-import WooCommerce from '@xrengine/engine/src/scene/classes/WooCommerce'
-import EditorNodeMixin from './EditorNodeMixin'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { SceneManager } from '../managers/SceneManager'
 import axios from 'axios'
-import OAuth from 'oauth-1.0a'
 import CryptoJS from 'crypto-js'
-import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import OAuth from 'oauth-1.0a'
 
+import { ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import WooCommerce from '@xrengine/engine/src/scene/classes/WooCommerce'
+
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
+import EditorNodeMixin from './EditorNodeMixin'
+import ImageNode from './ImageNode'
 import ModelNode from './ModelNode'
 import VideoNode from './VideoNode'
-import ImageNode from './ImageNode'
 
 export default class WooCommerceNode extends EditorNodeMixin(WooCommerce) {
   static nodeName = 'WooCommerce'

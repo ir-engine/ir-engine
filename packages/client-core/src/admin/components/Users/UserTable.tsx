@@ -1,4 +1,9 @@
 import React from 'react'
+
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -6,18 +11,15 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import { UserService } from '../../services/UserService'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
+import { UserService } from '../../services/UserService'
 import { useUserState } from '../../services/UserService'
 import { USER_PAGE_LIMIT } from '../../services/UserService'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
+import { UserData, UserProps, userColumns } from './Variables'
 import ViewUser from './ViewUser'
 import { useUserStyle, useUserStyles } from './styles'
-import { userColumns, UserData, UserProps } from './Variables'
 
 const UserTable = (props: UserProps) => {
   const classes = useUserStyle()

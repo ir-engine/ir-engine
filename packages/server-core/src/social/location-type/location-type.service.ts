@@ -1,9 +1,9 @@
 // Initializes the `location-type` service on path `/location-type`
 import { Application } from '../../../declarations'
 import { LocationType } from './location-type.class'
-import createModel from './location-type.model'
-import hooks from './location-type.hooks'
 import locationTypeDocs from './location-type.docs'
+import hooks from './location-type.hooks'
+import createModel from './location-type.model'
 
 // Add this service to the service type index
 declare module '../../../declarations' {

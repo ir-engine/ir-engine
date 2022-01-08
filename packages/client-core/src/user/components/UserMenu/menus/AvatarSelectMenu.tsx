@@ -1,24 +1,27 @@
 import React from 'react'
-import * as THREE from 'three'
-import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@mui/icons-material'
-import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { Views } from '../util'
 import { withTranslation } from 'react-i18next'
-import styles from '../UserMenu.module.scss'
+import * as THREE from 'three'
+
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
+  MAX_ALLOWED_TRIANGLES,
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
-  MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
+import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+
+import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
 import { TextField } from '@mui/material'
+
+import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
+import styles from '../UserMenu.module.scss'
+import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function

@@ -1,7 +1,7 @@
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { dispatchFrom } from './dispatchFrom'
 import { NetworkWorldAction } from './NetworkWorldAction'
+import { dispatchFrom } from './dispatchFrom'
 
 export async function validateNetworkObjects(world): Promise<void> {
   for (const [userId, client] of world.clients) {

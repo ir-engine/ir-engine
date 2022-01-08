@@ -1,13 +1,13 @@
 import { Polygon } from 'polygon-clipping'
 import {
-  Float32BufferAttribute,
-  Color,
   BufferGeometry,
-  MeshBasicMaterial,
+  Color,
+  Float32BufferAttribute,
   Mesh,
+  MeshBasicMaterial,
+  Path,
   Shape,
-  ShapeBufferGeometry,
-  Path
+  ShapeBufferGeometry
 } from 'three'
 
 export function createPolygonHelper(polygon: Polygon): Mesh {

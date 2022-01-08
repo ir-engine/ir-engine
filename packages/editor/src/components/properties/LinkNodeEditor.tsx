@@ -1,10 +1,12 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import LinkIcon from '@mui/icons-material/Link'
+
+import { CommandManager } from '../../managers/CommandManager'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
 
 //declaring properties for LinkNodeEditor
 type LinkNodeEditorProps = {

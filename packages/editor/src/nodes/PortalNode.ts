@@ -1,4 +1,3 @@
-import Model from '@xrengine/engine/src/scene/classes/Model'
 import {
   BoxBufferGeometry,
   ConeGeometry,
@@ -9,6 +8,9 @@ import {
   Object3D,
   Vector3
 } from 'three'
+
+import Model from '@xrengine/engine/src/scene/classes/Model'
+
 import EditorNodeMixin from './EditorNodeMixin'
 
 export default class PortalNode extends EditorNodeMixin(Model) {

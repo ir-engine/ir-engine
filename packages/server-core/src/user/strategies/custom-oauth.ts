@@ -1,6 +1,8 @@
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
+
 import { Application } from '../../../declarations'
+
 // import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
 
 export class CustomOAuthStrategy extends OAuthStrategy {

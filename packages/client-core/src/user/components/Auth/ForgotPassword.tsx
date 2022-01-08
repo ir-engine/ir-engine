@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
+
 import { AuthService } from '../../services/AuthService'
-import Grid from '@mui/material/Grid'
 import styles from './Auth.module.scss'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   classes: any

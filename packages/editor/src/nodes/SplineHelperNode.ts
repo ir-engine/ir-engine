@@ -1,8 +1,9 @@
 // @ts-nocheck
+import { Object3D } from 'three'
+
+import SplineHelper from '@xrengine/engine/src/scene/classes/SplineHelper'
 
 import EditorNodeMixin from './EditorNodeMixin'
-import SplineHelper from '@xrengine/engine/src/scene/classes/SplineHelper'
-import { Object3D } from 'three'
 
 export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'SplineHelperNode'

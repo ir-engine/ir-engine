@@ -1,4 +1,3 @@
-import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 import {
   handleContextMenu,
   handleKey,
@@ -13,6 +12,7 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
+import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 
 const supportsPassive = (function () {
   let supportsPassiveValue = false

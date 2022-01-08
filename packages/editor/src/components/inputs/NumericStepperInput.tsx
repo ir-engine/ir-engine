@@ -1,9 +1,11 @@
 import React from 'react'
-import NumericInput from './NumericInput'
 import styled from 'styled-components'
+
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
 import { InfoTooltip } from '../layout/Tooltip'
+import NumericInput from './NumericInput'
 
 /**
  *

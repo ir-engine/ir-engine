@@ -1,6 +1,7 @@
 import * as authentication from '@feathersjs/authentication'
-import verifyScope from '../../hooks/verify-scope'
 import * as commonHooks from 'feathers-hooks-common'
+
+import verifyScope from '../../hooks/verify-scope'
 
 const { authenticate } = authentication.hooks
 

@@ -1,13 +1,15 @@
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import React, { Suspense } from 'react'
-import Debug from '../Debug'
-import GameServerWarnings from './GameServerWarnings'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import InstanceChat from '../InstanceChat'
-import MediaIconsBox from '../MediaIconsBox'
+
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+
+import Debug from '../Debug'
+import InstanceChat from '../InstanceChat'
+import MediaIconsBox from '../MediaIconsBox'
+import GameServerWarnings from './GameServerWarnings'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 

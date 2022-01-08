@@ -1,5 +1,7 @@
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import React from 'react'
+
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+
 import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
 import { LoadLocationScene } from '../../components/World/LoadLocationScene'
 

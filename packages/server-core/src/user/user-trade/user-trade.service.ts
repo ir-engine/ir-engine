@@ -1,8 +1,8 @@
 import { Application } from '../../../declarations'
 import { UserTrade } from './user-trade.class'
-import createModel from './user-trade.model'
-import hooks from './user-trade.hooks'
 import userTradeDocs from './user-trade.docs'
+import hooks from './user-trade.hooks'
+import createModel from './user-trade.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

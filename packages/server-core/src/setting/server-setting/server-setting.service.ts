@@ -1,8 +1,8 @@
-import hooks from './server-setting.hooks'
 import { Application } from '../../../declarations'
-import { ServerSetting } from './server-setting.class'
-import createModel from './server-setting.model'
 import { refreshAppConfig } from '../../updateAppConfig'
+import { ServerSetting } from './server-setting.class'
+import hooks from './server-setting.hooks'
+import createModel from './server-setting.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

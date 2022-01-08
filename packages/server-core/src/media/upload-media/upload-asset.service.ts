@@ -1,13 +1,15 @@
-import { Application } from '../../../declarations'
-import multer from 'multer'
 import { Params } from '@feathersjs/feathers'
-import hooks from './upload-asset.hooks'
 import express from 'express'
-import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import multer from 'multer'
+
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
-import { useStorageProvider } from '../storageprovider/storageprovider'
+
+import { Application } from '../../../declarations'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
+import { useStorageProvider } from '../storageprovider/storageprovider'
+import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 

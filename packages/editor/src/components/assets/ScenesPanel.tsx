@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { AssetsPanelContainer } from '../layout/Flex'
-import styles from './styles.module.scss'
-import { AssetPanelContentContainer } from './AssetsPanel'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ProjectGrid } from '../projects/ProjectGrid'
+
 import { getScenes } from '../../functions/sceneFunctions'
+import { AssetsPanelContainer } from '../layout/Flex'
+import { ProjectGrid } from '../projects/ProjectGrid'
+import { AssetPanelContentContainer } from './AssetsPanel'
+import styles from './styles.module.scss'
 
 /**
  * Displays the scenes that exist in the current project.

@@ -1,13 +1,15 @@
 import i18n from 'i18next'
 import { Matrix4 } from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */

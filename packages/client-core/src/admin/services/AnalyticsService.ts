@@ -1,7 +1,9 @@
+import { createState, useState } from '@hookstate/core'
+
+import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { createState, useState } from '@hookstate/core'
-import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
 
 //State
 export const ANALYTICS_PAGE_LIMIT = 100

@@ -2,6 +2,7 @@
 // For more information on hooks see: http://docs.feathersjs.com/api/hooks.html
 import { Hook, HookContext } from '@feathersjs/feathers'
 import ua from 'universal-analytics'
+
 import config from '../appconfig'
 
 export default (): Hook => {

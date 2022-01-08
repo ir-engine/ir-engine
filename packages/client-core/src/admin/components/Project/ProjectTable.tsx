@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Cross from '@mui/icons-material/Cancel'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
 import Cached from '@mui/icons-material/Cached'
+import Cross from '@mui/icons-material/Cancel'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import Paper from '@mui/material/Paper'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
 import { ProjectService } from '../../services/ProjectService'
-import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

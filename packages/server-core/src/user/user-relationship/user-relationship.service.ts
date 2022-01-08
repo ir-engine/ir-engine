@@ -1,10 +1,11 @@
-import { Application } from '../../../declarations'
-import { UserRelationship } from './user-relationship.class'
-import createModel from './user-relationship.model'
-import hooks from './user-relationship.hooks'
 import { Op } from 'sequelize'
+
+import { Application } from '../../../declarations'
 import logger from '../../logger'
 import userRalationshipDocs from './user-ralationship.docs'
+import { UserRelationship } from './user-relationship.class'
+import hooks from './user-relationship.hooks'
+import createModel from './user-relationship.model'
 
 declare module '../../../declarations' {
   interface ServiceTypes {

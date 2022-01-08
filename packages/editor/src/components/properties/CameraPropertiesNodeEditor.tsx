@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
 import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
+
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
+
+import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { CommandManager } from '../../managers/CommandManager'
 
 /**
  * [propTypes Defining properties for CameraProperties component]

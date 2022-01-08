@@ -1,10 +1,12 @@
 import React from 'react'
-import { useDispatch } from '../../store'
+
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import Box from '@mui/material/Box'
+
+import { useDispatch } from '../../store'
 import { useAlertState } from '../services/AlertService'
 import { AlertService } from '../services/AlertService'
-import Box from '@mui/material/Box'
 import styles from './Common.module.scss'
 
 interface Props {}

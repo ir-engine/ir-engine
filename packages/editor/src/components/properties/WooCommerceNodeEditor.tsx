@@ -1,22 +1,24 @@
 import i18n from 'i18next'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
-import InteractableGroup from '../inputs/InteractableGroup'
-import NodeEditor from './NodeEditor'
 import { Object3D } from 'three'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { CommandManager } from '../../managers/CommandManager'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ImageAlphaMode, ImageProjection } from '@xrengine/engine/src/scene/classes/Image'
+import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
+
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 
-import AudioSourceProperties from './AudioSourceProperties'
+import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
 import { ControlledStringInput } from '../inputs/StringInput'
-import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
-import { ImageProjection, ImageAlphaMode } from '@xrengine/engine/src/scene/classes/Image'
+import AudioSourceProperties from './AudioSourceProperties'
+import NodeEditor from './NodeEditor'
 
 /**
  * Declaring properties for ModalNodeEditor component.

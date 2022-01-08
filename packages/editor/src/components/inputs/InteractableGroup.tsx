@@ -1,13 +1,16 @@
-import React, { Fragment } from 'react'
-import InputGroup from './InputGroup'
-import SelectInput from './SelectInput'
-import StringInput from './StringInput'
 import dompurify from 'dompurify'
-import NumericInputGroup from './NumericInputGroup'
+import React, { Fragment } from 'react'
+
+import { ImageFileTypes, ModelFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+
+import { ItemTypes } from '../../constants/AssetTypes'
 import { CommandManager } from '../../managers/CommandManager'
 import ArrayInputGroup from './ArrayInputGroup'
-import { ItemTypes } from '../../constants/AssetTypes'
-import { VideoFileTypes, ImageFileTypes, ModelFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import InputGroup from './InputGroup'
+import NumericInputGroup from './NumericInputGroup'
+import SelectInput from './SelectInput'
+import StringInput from './StringInput'
+
 /**
  * Array containing options for InteractableOption.
  *

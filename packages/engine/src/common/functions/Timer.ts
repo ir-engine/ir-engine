@@ -1,8 +1,8 @@
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 import { isClient } from './isClient'
 import { nowMilliseconds } from './nowMilliseconds'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActionType } from '../../ecs/classes/EngineService'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 

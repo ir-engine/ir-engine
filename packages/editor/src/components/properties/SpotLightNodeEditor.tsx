@@ -1,14 +1,17 @@
 import React, { Component } from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
+import { useTranslation } from 'react-i18next'
+import { MathUtils as _Math } from 'three'
+
+import AdjustIcon from '@mui/icons-material/Adjust'
+
+import { CommandManager } from '../../managers/CommandManager'
 import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
-import { MathUtils as _Math } from 'three'
 import LightShadowProperties from './LightShadowProperties'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import AdjustIcon from '@mui/icons-material/Adjust'
+import NodeEditor from './NodeEditor'
+
 const radToDeg = _Math.radToDeg
 
 /**
