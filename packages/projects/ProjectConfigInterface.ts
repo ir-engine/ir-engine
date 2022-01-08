@@ -33,7 +33,7 @@ export interface ProjectConfigInterface {
    * This is loaded on ALL pages if enabled
    * Allows for loading of site-wide state and other globals
    */
-  webappInjection?: () => Promise<{ default: (props: any) => void }>
+  webappInjection?: () => Promise<{ default: (props: any) => void | JSX.Element }>
 
   /**
    * World Injection

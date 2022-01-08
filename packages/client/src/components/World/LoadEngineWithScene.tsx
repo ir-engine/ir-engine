@@ -62,7 +62,6 @@ export const LoadEngineWithScene = (props: Props) => {
    * Fetch projects so we know what we need to load into the engine
    */
   useEffect(() => {
-    ProjectService.fetchProjects()
     initNetwork()
   }, [])
 
@@ -70,7 +69,6 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we know what projects we need, initialise the engine.
    */
   useEffect(() => {
-    console.log(!Engine.isInitialized, !Engine.isLoading, projectState.projects.value.length)
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
     if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
       const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
