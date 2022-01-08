@@ -288,11 +288,13 @@ export const ChatService = {
   },
   sendMessage: (text: string) => {
     const user = accessAuthState().user.value
-    ChatService.sendChatMessage({
-      targetObjectId: user.instanceId,
-      targetObjectType: 'instance',
-      text: text
-    })
+    if (user.instanceId && text) {
+      ChatService.sendChatMessage({
+        targetObjectId: user.instanceId,
+        targetObjectType: 'instance',
+        text: text
+      })
+    }
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()

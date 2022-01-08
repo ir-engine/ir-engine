@@ -75,14 +75,12 @@ const InstanceChat = (props: Props): any => {
   }
 
   const packageMessage = (): void => {
-    if (composingMessage.length > 0) {
-      dispatch(
-        ChatService.createMessage({
-          targetObjectId: user.instanceId.value,
-          targetObjectType: 'instance',
-          text: composingMessage
-        })
-      )
+    if (composingMessage && user.instanceId.value) {
+      ChatService.createMessage({
+        targetObjectId: user.instanceId.value,
+        targetObjectType: 'instance',
+        text: composingMessage
+      })
       setComposingMessage('')
     }
   }
