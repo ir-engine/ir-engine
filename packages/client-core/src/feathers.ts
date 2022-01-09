@@ -16,7 +16,7 @@ const socket = io(serverHost, {
 feathersClient.configure(feathers.socketio(socket, { timeout: 10000 }))
 feathersClient.configure(
   feathers.authentication({
-    storageKey: process.env.FEATHERS_STORE_KEY
+    storageKey: globalThis.process.env['VITE_FEATHERS_STORE_KEY']
   })
 )
 

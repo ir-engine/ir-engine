@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react'
-import { Scene, WebGLRenderer, Color, DirectionalLight, Camera, PerspectiveCamera, HemisphereLight } from 'three'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import MapNode from '@xrengine/editor/src/nodes/MapNode'
-import MapNodeEditor from '@xrengine/editor/src/components/properties/MapNodeEditor'
 import { createState, useState } from '@hookstate/core'
+import MapNodeEditor from '@xrengine/editor/src/components/properties/MapNodeEditor'
+import MapNode from '@xrengine/editor/src/nodes/MapNode'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
+import React, { useEffect } from 'react'
+import { Camera, Color, DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 const scene = new Scene()
 
@@ -14,19 +14,19 @@ class EditorMock {
   renderer: {
     renderer: WebGLRenderer
   }
-  object = new MapNode(this)
-  async load() {
+  object = new MapNode()
+  load = async () => {
     const json = localStorage.getItem(LOCAL_STORAGE_KEY)
     if (json) {
-      this.object = (await MapNode.deserialize(this, JSON.parse(json))) as MapNode
+      this.object = (await MapNode.deserialize(JSON.parse(json))) as MapNode
       globalState.set(this.object)
     }
   }
-  async save() {
+  save = async () => {
     const serialized = await this.object.serialize('test')
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(serialized))
   }
-  setPropertySelected(propertyName: string, value: any) {
+  setPropertySelected = (propertyName: string, value: any) => {
     if (this.object) {
       this.object[propertyName] = value
       this.object.onChange(propertyName)
@@ -98,7 +98,7 @@ const Page = () => {
 
   return (
     <>
-      <p style={{ color: 'black' }}>JSON: {JSON.stringify(state.value.getProps())}</p>
+      <p style={{ color: 'black' }}>JSON: {JSON.stringify(state.value.getProps?.())}</p>
       <MapNodeEditor editor={editor} node={editor.object} />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
     </>

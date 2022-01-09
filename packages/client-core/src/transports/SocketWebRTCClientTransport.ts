@@ -132,7 +132,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (locationId) delete query.channelId
     if (channelId) delete query.locationId
 
-    if (process.env.VITE_LOCAL_BUILD === 'true') {
+    if (globalThis.process.env['VITE_LOCAL_BUILD'] === 'true') {
       this.socket = ioclient(`https://${ipAddress as string}:${port.toString()}`, {
         query
       })
