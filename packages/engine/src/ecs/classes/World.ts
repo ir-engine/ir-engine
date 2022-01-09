@@ -192,7 +192,7 @@ export class World {
   }
 
   async initSystems(systemModulesToLoad: SystemModuleType<any>[] = this._pipeline) {
-    const loadSystem = async (s: SystemFactoryType<any>) => {
+    const loadSystemInjection = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {
         name: s.systemModule.default.name,
@@ -217,7 +217,7 @@ export class World {
         }
       })
     )
-    const systems = await Promise.all(systemModule.map(loadSystem))
+    const systems = await Promise.all(systemModule.map(loadSystemInjection))
     systems.forEach((s) => {
       this.pipelines[s.type].push(s)
       console.log(`${s.type} ${s.name}`)

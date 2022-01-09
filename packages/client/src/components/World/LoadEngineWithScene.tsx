@@ -14,11 +14,13 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
 import matches from 'ts-matches'
-import { initEngine, loadLocation } from './LocationLoadHelper'
+import { initNetwork, loadLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -57,11 +59,24 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const projectState = useProjectState()
 
+  /**
+   * Fetch projects so we know what we need to load into the engine
+   */
   useEffect(() => {
-    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    if (!Engine.isInitialized)
-      initEngine(engineInitializeOptions).then(() => {
+    initNetwork()
+  }, [])
+
+  /**
+   * Once we know what projects we need, initialise the engine.
+   */
+  useEffect(() => {
+    // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
+    if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
+      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+      engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
+      initializeEngine(engineInitializeOptions).then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
             .when(NetworkWorldAction.createClient.matches, () => {
@@ -76,10 +91,11 @@ export const LoadEngineWithScene = (props: Props) => {
             })
         })
       })
-  }, [])
+    }
+  }, [projectState.projects.value])
 
   /**
-   * Once we have the scene ID, initialise the engine
+   * Once we have the scene and the engine is loaded, load the location
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {

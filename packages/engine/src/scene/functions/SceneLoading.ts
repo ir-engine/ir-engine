@@ -65,6 +65,7 @@ export interface SceneData extends SceneJson {
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson) => {
   Engine.sceneLoadPromises = []
+  dispatchLocal(EngineActions.sceneLoading(true) as any)
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   destroyCSM()
