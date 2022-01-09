@@ -13,6 +13,9 @@ import { Helmet } from 'react-helmet'
 import { BrowserRouter } from 'react-router-dom'
 import RouterComp from '../route/public'
 import './styles.scss'
+import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
@@ -31,6 +34,9 @@ const App = (): any => {
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const dispatch = useDispatch()
+  const [projectComponents, setProjectComponents] = useState<Array<any>>(null!)
+  const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
+  const projectState = useProjectState()
 
   const initApp = useCallback(() => {
     if (process.env && process.env.NODE_CONFIG) {
@@ -49,8 +55,21 @@ const App = (): any => {
   useEffect(initApp, [])
 
   useEffect(() => {
+    ProjectService.fetchProjects()
     !clientSetting && ClientSettingService.fetchedClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
+      setFetchedProjectComponents(true)
+      loadWebappInjection(
+        {},
+        projectState.projects.value.map((project) => project.name)
+      ).then((result) => {
+        setProjectComponents(result)
+      })
+    }
+  }, [projectState.projects.value])
 
   useEffect(() => {
     if (clientSetting) {
@@ -77,6 +96,7 @@ const App = (): any => {
         <ThemeProvider theme={theme}>
           <GlobalStyle />
           <RouterComp />
+          {projectComponents}
         </ThemeProvider>
       </StyledEngineProvider>
     </>

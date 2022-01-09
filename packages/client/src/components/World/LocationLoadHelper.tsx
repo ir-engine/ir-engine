@@ -2,22 +2,21 @@ import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/se
 import { client } from '@xrengine/client-core/src/feathers'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { getSystemsFromSceneData } from '@xrengine/projects/loader'
+import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Quaternion, Vector3 } from 'three'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
@@ -88,11 +87,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
   dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
 }
 
-export const initEngine = async (initOptions: InitializeOptions) => {
-  Engine.isLoading = true
+export const initNetwork = () => {
   Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
-  await initializeEngine(initOptions)
 }
 
 export const loadLocation = async (sceneName: string): Promise<any> => {
@@ -125,5 +122,4 @@ export const loadLocation = async (sceneName: string): Promise<any> => {
   //
   getPortalDetails()
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
-  Engine.isLoading = false
 }
