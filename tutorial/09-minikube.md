@@ -39,7 +39,7 @@ If you're going to have the minikube deployment use a local storage provider, ra
 storage provider like AWS S3, you'll need to have the local file server running on your machine
 outside of minikube.
 
-Tun `npm install` (or `yarn install` if `npm install` isn't working right;
+Run `npm install` (or `yarn install` if `npm install` isn't working right;
 you'd need to install yarn in that case) from the root of the XREngine repo. When that's finished,
 go to packages/server and run `npm run serve-local-files`. This will start a local file server
 on port 8642, and will create and serve those files from packages/server/upload.
