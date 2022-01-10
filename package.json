@@ -97,7 +97,7 @@
     "@types/mocha": "9.0.0",
     "cli": "1.0.1",
     "concurrently": "6.5.1",
-    "depcheck": "1.4.2",
+    "depcheck": "1.4.3",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "lint-staged": "12.1.7",
