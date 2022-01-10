@@ -149,8 +149,9 @@ const LocationTable = (props: LocationProps) => {
       el.id,
       el.name,
       el.sceneId,
-      el.maxUsersPerInstance,
+      el.maxUsersPerInstance.toString(),
       el.slugifiedName,
+      //@ts-ignore
       el.location_setting?.locationType,
       <div>
         {' '}
@@ -170,8 +171,14 @@ const LocationTable = (props: LocationProps) => {
           />
         )}{' '}
       </div>,
-      <div> {el.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'} </div>,
-      <div> {el.location_setting?.videoEnabled ? 'Yes' : 'No'}</div>
+      <div>
+        {/**@ts-ignore*/}
+        {el.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'}{' '}
+      </div>,
+      <div>
+        {/**@ts-ignore*/}
+        {el.location_setting?.videoEnabled ? 'Yes' : 'No'}
+      </div>
     )
   })
 
