@@ -281,13 +281,7 @@ export class CommandManager extends EventEmitter {
           },
           false
         )
-    }
-    // else if (contentType.startsWith('shopify/gltf')) {
-    //   node = new ShopifyNode()
-    //   node.initialScale = 'fit'
-    //   await node.load(url)
-    // }
-    else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
+    } else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
       prefabType = ScenePrefabs.video
       updateFunc = () =>
         this.setPropertyOnEntityNode(
