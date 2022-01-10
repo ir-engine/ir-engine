@@ -48,7 +48,7 @@
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
     "helmet": "4.6.0",
-    "winston": "3.3.3"
+    "winston": "3.3.4"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
