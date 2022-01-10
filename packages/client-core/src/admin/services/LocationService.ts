@@ -104,7 +104,7 @@ export const LocationService = {
       }
     }
   },
-  fetchAdminLocations: async (incDec?: 'increment' | 'decrement', value: string = '') => {
+  fetchAdminLocations: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       try {

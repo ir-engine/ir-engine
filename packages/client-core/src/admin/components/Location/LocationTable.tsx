@@ -38,6 +38,7 @@ const LocationTable = (props: LocationProps) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
+  const [locationName, setLocationName] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [locationAdmin, setLocationAdmin] = React.useState('')
   const dispatch = useDispatch()
@@ -84,11 +85,11 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      LocationService.fetchAdminLocations()
+      LocationService.fetchAdminLocations('increment', null)
     }
-    if (search) {
-      LocationService.fetchAdminLocations('increment', search)
-    }
+    // if (search) {
+    LocationService.fetchAdminLocations('increment', search)
+    // }
   }, [search, authState.user?.id?.value, adminLocationState.updateNeeded.value])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -140,6 +141,7 @@ const LocationTable = (props: LocationProps) => {
             onClick={() => {
               setPopConfirmOpen(true)
               setLocationId(id)
+              setLocationName(name)
             }}
           >
             {' '}
@@ -244,7 +246,9 @@ const LocationTable = (props: LocationProps) => {
         aria-describedby="alert-dialog-description"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="alert-dialog-title">Confirm location deletion</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          Do you want to delete location <b>{locationName}</b>
+        </DialogTitle>
         <DialogActions>
           <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
             Cancel
