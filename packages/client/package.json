@@ -36,7 +36,7 @@
     "@feathersjs/client": "5.0.0-pre.10",
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.5",
-    "@mui/material": "5.2.7",
+    "@mui/material": "5.2.8",
     "@mui/styled-engine-sc": "5.1.0",
     "@mui/styles": "5.2.3",
     "@rollup/plugin-inject": "4.0.3",
