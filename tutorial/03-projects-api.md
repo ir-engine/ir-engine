@@ -66,6 +66,8 @@ export interface ProjectConfigInterface {
       }
     }
   }
+  webappInjection?: () => Promise<{ default: (props: any) => void | JSX.Element }>
+  worldInjection?: () => Promise<{ default: (world: World) => Promise<void> }>
   services?: string
   databaseSeed?: string
 }
@@ -91,6 +93,13 @@ This is a URL to a thumbnail for the project.
 ### Routes
 
 Routes enable users to customise the various URL paths of their website utilising dynamic loading of modules. The key of each object represents the path (with leading forward slash included) while the value represents a react component object which gets wrapped in `React.lazy()` and a props object which passes options into the react-dom-router Route component corresponding to the route.
+
+### Webapp Injection
+Webapp injection allows logic to be run on all pages, loaded before any routes are loaded. This will soon be extended to allow easy stylesheet injection and other configurables of the webapp.
+
+### World Injection
+
+World injection allows logic to be run every time a new world is created, currently only when the engine is initialised. This is loaded on all instances of the engine, such as a location and the editor. An example use case of this would be registering custom scene loader and editor prefabs.
 
 ### Services
 
