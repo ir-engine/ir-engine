@@ -11,17 +11,18 @@ interface Props {}
 const SearchLocation = (props: Props) => {
   const classes = useLocationStyles()
   const [search, setSearch] = React.useState('')
-  //    const handleChange = (e: any) => {
-  //      setSearch(e.target.value);
-  //    };
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
+  }
 
+  console.log(search)
   return (
     <Paper component="form" className={classes.searchRoot}>
       <InputBase
         className={classes.input}
         placeholder={`Search for location`}
         inputProps={{ 'aria-label': 'search for location ' }}
-        //onChange={handleChange}
+        onChange={handleChange}
       />
       <IconButton type="submit" className={classes.iconButton} aria-label="search" size="large">
         <SearchIcon />
