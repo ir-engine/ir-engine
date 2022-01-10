@@ -109,7 +109,7 @@ import {
   SCENE_COMPONENT_SPOT_LIGHT,
   serializeSpotLight,
   updateSpotLight
-} from './loaders/StopLightFunctions'
+} from './loaders/SpotLightFunctions'
 import { deserializeLink, prepareLinkForGLTFExport, SCENE_COMPONENT_LINK, serializeLink } from './loaders/LinkFunctions'
 import {
   deserializeParticleEmitter,
@@ -171,6 +171,15 @@ import {
   serializeVolumetric,
   updateVolumetric
 } from './loaders/VolumetricFunctions'
+import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } from './loaders/CloudFunctions'
+import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
+import { deserializeWater, SCENE_COMPONENT_WATER, serializeWater, updateWater } from './loaders/WaterFunctions'
+import {
+  deserializeInterior,
+  SCENE_COMPONENT_INTERIOR,
+  serializeInterior,
+  updateInterior
+} from './loaders/InteriorFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -406,5 +415,29 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializeVolumetric,
     update: updateVolumetric,
     prepareForGLTFExport: prepareVolumetricForGLTFExport
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
+    deserialize: deserializeCloud,
+    serialize: serializeCloud,
+    update: updateCloud
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
+    deserialize: deserializeOcean,
+    serialize: serializeOcean,
+    update: updateOcean
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
+    deserialize: deserializeWater,
+    serialize: serializeWater,
+    update: updateWater
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERIOR, {
+    deserialize: deserializeInterior,
+    serialize: serializeInterior,
+    update: updateInterior
   })
 }

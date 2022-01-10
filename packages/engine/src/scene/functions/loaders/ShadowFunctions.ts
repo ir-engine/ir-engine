@@ -18,7 +18,10 @@ export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
   receive: true
 }
 
-export const deserializeShadow: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeShadow: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<typeof SCENE_COMPONENT_SHADOW_DEFAULT_VALUES>
+) => {
   addComponent(entity, ShadowComponent, {
     castShadow: json.props.cast,
     receiveShadow: json.props.receive

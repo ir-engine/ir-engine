@@ -1,5 +1,5 @@
 import AudioSource from '@xrengine/engine/src/scene/classes/AudioSource'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry, Texture } from 'three'
 import { resolveMedia } from '@xrengine/engine/src/common/functions/resolveMedia'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 import EditorNodeMixin from './EditorNodeMixin'
@@ -8,7 +8,7 @@ import EditorEvents from '../constants/EditorEvents'
 import { ControlManager } from '../managers/ControlManager'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-let audioHelperTexture = null
+let audioHelperTexture = null! as Texture
 
 export default class AudioNode extends EditorNodeMixin(AudioSource) {
   static legacyComponentName = 'audio'

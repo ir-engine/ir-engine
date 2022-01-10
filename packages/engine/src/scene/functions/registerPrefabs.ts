@@ -40,7 +40,7 @@ import {
   SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
 } from './loaders/LoopAnimationFunctions'
 import { SCENE_COMPONENT_POINT_LIGHT, SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES } from './loaders/PointLightFunctions'
-import { SCENE_COMPONENT_SPOT_LIGHT, SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES } from './loaders/StopLightFunctions'
+import { SCENE_COMPONENT_SPOT_LIGHT, SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES } from './loaders/SpotLightFunctions'
 import { SCENE_COMPONENT_LINK, SCENE_COMPONENT_LINK_DEFAULT_VALUES } from './loaders/LinkFunctions'
 import {
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -68,6 +68,10 @@ import {
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from './loaders/InteractableFunctions'
 import { SCENE_COMPONENT_VOLUMETRIC, SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES } from './loaders/VolumetricFunctions'
+import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './loaders/CloudFunctions'
+import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
+import { SCENE_COMPONENT_WATER, SCENE_COMPONENT_WATER_DEFAULT_VALUES } from './loaders/WaterFunctions'
+import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -92,7 +96,11 @@ export const ScenePrefabs = {
   image: 'Image' as const,
   audio: 'Audio' as const,
   video: 'Video' as const,
-  volumetric: 'Volumetric' as const
+  volumetric: 'Volumetric' as const,
+  cloud: 'Cloud' as const,
+  water: 'Water' as const,
+  ocean: 'Ocean' as const,
+  interior: 'Interior' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -236,5 +244,25 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_INTERACTABLE, props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.cloud, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_CLOUD, props: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.ocean, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_OCEAN, props: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.water, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_WATER, props: SCENE_COMPONENT_WATER_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.interior, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_INTERIOR, props: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES }
   ])
 }

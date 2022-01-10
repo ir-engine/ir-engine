@@ -31,16 +31,11 @@ import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeE
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import CloudsNode from '../nodes/CloudsNode'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import InteriorNode from '../nodes/InteriorNode'
 import MetadataNode from '../nodes/MetadataNode'
 import WooCommerceNode from '../nodes/WooCommerceNode'
 import ShopifyNode from '../nodes/ShopifyNode'
-import OceanNode from '../nodes/OceanNode'
-import PortalNode from '../nodes/PortalNode'
 import SystemNode from '../nodes/SystemNode'
-import WaterNode from '../nodes/WaterNode'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -59,7 +54,7 @@ import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loa
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/StopLightFunctions'
+import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/SpotLightFunctions'
 import { SCENE_COMPONENT_LINK } from '@xrengine/engine/src/scene/functions/loaders/LinkFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
@@ -70,20 +65,20 @@ import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
 import { SCENE_COMPONENT_VOLUMETRIC } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
+import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/loaders/CloudFunctions'
+import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
+import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/loaders/WaterFunctions'
+import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
 
 export class NodeManager {
   static instance: NodeManager = new NodeManager()
 
-  nodes: any[]
-
   nodeTypes: Set<ReturnType<typeof EditorNodeMixin>>
-
   nodeEditors: Map<any, any>
 
   constructor() {
     this.nodeTypes = new Set()
     this.nodeEditors = new Map()
-    this.nodes = []
   }
 
   /**
@@ -97,33 +92,14 @@ export class NodeManager {
     this.nodeTypes.add(nodeConstructor)
     this.nodeEditors.set(nodeConstructor, nodeEditor)
   }
-
-  /**
-   * Function getEditorFromClass used to get properties of currently provided node class.
-   *
-   * @author Robert Long
-   * @param  {any} nodeClass contains properties of node
-   */
-  getEditorFromClass(nodeClass) {
-    return this.nodeEditors.get(nodeClass)
-  }
-
-  add(node: any): void {
-    this.nodes.push(node)
-  }
 }
 
-export const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(CloudsNode, CloudsNodeEditor)
+const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
-  NodeManager.instance.registerNode(InteriorNode, InteriorNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
-  NodeManager.instance.registerNode(OceanNode, OceanNodeEditor)
-  NodeManager.instance.registerNode(PortalNode, PortalNodeEditor)
   NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  NodeManager.instance.registerNode(WaterNode, WaterNodeEditor)
   NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
 }
 
@@ -164,7 +140,11 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_IMAGE]: ImageNodeEditor,
   [SCENE_COMPONENT_AUDIO]: AudioNodeEditor,
   [SCENE_COMPONENT_VIDEO]: VideoNodeEditor,
-  [SCENE_COMPONENT_VOLUMETRIC]: VolumetricNodeEditor
+  [SCENE_COMPONENT_VOLUMETRIC]: VolumetricNodeEditor,
+  [SCENE_COMPONENT_CLOUD]: CloudsNodeEditor,
+  [SCENE_COMPONENT_OCEAN]: OceanNodeEditor,
+  [SCENE_COMPONENT_WATER]: WaterNodeEditor,
+  [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor
 }
 
 export const prefabIcons = {
@@ -189,5 +169,9 @@ export const prefabIcons = {
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
   [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
   [ScenePrefabs.video]: VideoNodeEditor.iconComponent,
-  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent
+  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
+  [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
+  [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
+  [ScenePrefabs.water]: WaterNodeEditor.iconComponent,
+  [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent
 }

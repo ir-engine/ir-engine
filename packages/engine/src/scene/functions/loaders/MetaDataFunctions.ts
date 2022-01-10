@@ -12,7 +12,10 @@ import { Engine } from '../../../ecs/classes/Engine'
 
 export const SCENE_COMPONENT_METADATA = 'mtdata'
 
-export const deserializeMetaData: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeMetaData: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<MetaDataComponentType>
+) => {
   //if (isClient && Engine.isBot) {
   addComponent(entity, MetaDataComponent, json.props)
   console.log('scene_metadata|' + json.props.meta_data)

@@ -36,7 +36,10 @@ export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
   elementId: 'video-' + Date.now()
 }
 
-export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeVideo: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<VideoComponentType>
+) => {
   if (!isClient) {
     addComponent(entity, Object3DComponent, { value: new Object3D() })
     return

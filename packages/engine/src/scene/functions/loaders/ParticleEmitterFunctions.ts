@@ -39,7 +39,10 @@ export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
 
 // todo: add a directional plane helper via another component
 
-export const deserializeParticleEmitter: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeParticleEmitter: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<typeof SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES>
+) => {
   if (!isClient) return
   json.props.startColor = new Color(json.props.startColor)
   json.props.middleColor = new Color(json.props.middleColor)

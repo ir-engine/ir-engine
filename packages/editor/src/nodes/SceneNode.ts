@@ -1,7 +1,6 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
-import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
+import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import {
   Color,

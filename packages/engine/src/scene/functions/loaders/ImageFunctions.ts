@@ -36,7 +36,10 @@ export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
   side: DoubleSide
 }
 
-export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeImage: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<ImageComponentType>
+) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
 
   if (!obj3d) {

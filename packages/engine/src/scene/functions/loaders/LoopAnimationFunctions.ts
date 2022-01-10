@@ -2,7 +2,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationClip, AnimationMixer } from 'three'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
+import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -24,7 +24,10 @@ export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
   hasAvatarAnimations: false
 }
 
-export const deserializeLoopAnimation: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
+export const deserializeLoopAnimation: ComponentDeserializeFunction = (
+  entity: Entity,
+  component: ComponentJson<LoopAnimationComponentType>
+) => {
   if (!isClient) return
 
   addComponent(entity, LoopAnimationComponent, { ...component.props })

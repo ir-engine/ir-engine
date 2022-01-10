@@ -10,7 +10,7 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { LinkComponent } from '../../components/LinkComponent'
+import { LinkComponent, LinkComponentType } from '../../components/LinkComponent'
 import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
@@ -26,7 +26,10 @@ if (isClient) {
   AssetLoader.load({ url: '/static/editor/link-icon.png' })
 }
 
-export const deserializeLink: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeLink: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<LinkComponentType>
+) => {
   const obj3d = new Object3D()
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteractableComponent, { action: 'link' })

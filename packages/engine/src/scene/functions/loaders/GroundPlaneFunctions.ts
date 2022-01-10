@@ -32,7 +32,7 @@ export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
 
 export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
-  json: ComponentJson
+  json: ComponentJson<GroundPlaneComponentType>
 ): Promise<void> {
   const mesh = new Mesh(new CircleBufferGeometry(1000, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
 

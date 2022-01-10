@@ -25,7 +25,7 @@ export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'
 export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA_DEFAULT_VALUES = {}
 export const SCENE_PREVIEW_CAMERA_HELPER = 'scene-preview-camera-helper'
 
-export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson) => {
+export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   if (!isClient) return
 
   addComponent(entity, ScenePreviewCameraTagComponent, {})

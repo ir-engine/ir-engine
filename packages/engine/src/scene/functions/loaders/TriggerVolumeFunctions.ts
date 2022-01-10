@@ -1,5 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -8,19 +8,21 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { createCollider } from '../../../physics/functions/createCollider'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
+import { TriggerVolumeComponent, TriggerVolumeComponentType } from '../../components/TriggerVolumeComponent'
 
 export const SCENE_COMPONENT_TRIGGER_VOLUME = 'trigger-volume'
 export const SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES = {}
 
-export const deserializeTriggerVolume: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson): void => {
+export const deserializeTriggerVolume: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<TriggerVolumeComponentType>
+): void => {
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
   boxMesh.userData = {
     type: 'box',

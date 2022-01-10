@@ -17,7 +17,10 @@ import { RenderSettingComponent, RenderSettingComponentType } from '../../compon
 
 export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
 
-export const deserializeRenderSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeRenderSetting: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<RenderSettingComponentType>
+) => {
   if (!isClient) return
   addComponent(entity, RenderSettingComponent, {
     ...json.props,

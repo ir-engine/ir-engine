@@ -31,7 +31,10 @@ export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
   playMode: VolumetricPlayMode.Single
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeVolumetric: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<VolumetricVideoComponentType>
+) => {
   const obj3d = new UpdateableObject3D()
   obj3d.name = 'Volumetric'
   addComponent(entity, Object3DComponent, { value: obj3d })

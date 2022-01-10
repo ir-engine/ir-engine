@@ -34,7 +34,10 @@ export const SCENE_COMPONENT_ENVMAP = 'envmap'
 const tempVector = new Vector3()
 const tempColor = new Color()
 
-export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeEnvMap: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<EnvmapComponentType>
+) => {
   if (!isClient) return
 
   addComponent(entity, EnvmapComponent, {

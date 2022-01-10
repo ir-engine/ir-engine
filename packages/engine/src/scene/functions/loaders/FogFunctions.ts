@@ -14,7 +14,7 @@ import { FogType } from '../../constants/FogType'
 
 export const SCENE_COMPONENT_FOG = 'fog'
 
-export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<FogComponentType>) => {
   addComponent(entity, FogComponent, {
     ...json.props,
     color: new Color(json.props.color)

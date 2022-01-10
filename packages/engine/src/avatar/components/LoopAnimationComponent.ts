@@ -1,7 +1,7 @@
 import { AnimationAction } from 'three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-type LoopAnimationComponentType = {
+export type LoopAnimationComponentType = {
   activeClipIndex: number
   hasAvatarAnimations: boolean
   action?: AnimationAction

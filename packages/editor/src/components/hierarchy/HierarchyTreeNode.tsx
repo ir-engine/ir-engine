@@ -230,7 +230,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             )}
 
             <div className={styles.selectTarget}>
-              <editor.iconComponent className={styles.nodeIcon} />
+              {editor ? <editor.iconComponent className={styles.nodeIcon} /> : null}
               <div className={styles.labelContainer}>
                 {renaming ? (
                   <div className={styles.renameInputContainer}>

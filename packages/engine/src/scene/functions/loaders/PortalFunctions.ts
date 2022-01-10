@@ -9,16 +9,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
-import {
-  BoxBufferGeometry,
-  ConeGeometry,
-  CylinderGeometry,
-  Euler,
-  Mesh,
-  MeshBasicMaterial,
-  Quaternion,
-  Vector3
-} from 'three'
+import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'

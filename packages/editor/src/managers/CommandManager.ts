@@ -262,7 +262,7 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia({ url }, parent?: any, before?: any) {
+  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode, updatePosition = true) {
     let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
@@ -353,8 +353,10 @@ export class CommandManager extends EventEmitter {
 
       updateFunc()
 
-      const transformComponent = getComponent(node.entity, TransformComponent)
-      if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+      if (updatePosition) {
+        const transformComponent = getComponent(node.entity, TransformComponent)
+        if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+      }
     }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)

@@ -10,7 +10,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 export const SCENE_COMPONENT_VISIBLE = 'visible'
 export const SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES = {}
 
-export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson) => {
+export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   if (isClient) addComponent(entity, VisibleComponent, {})
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VISIBLE)
 }

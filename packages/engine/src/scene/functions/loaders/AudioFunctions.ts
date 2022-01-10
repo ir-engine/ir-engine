@@ -45,7 +45,10 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
 let audioTexture: Texture = null!
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
 
-export const deserializeAudio: ComponentDeserializeFunction = async (entity: Entity, json: ComponentJson) => {
+export const deserializeAudio: ComponentDeserializeFunction = async (
+  entity: Entity,
+  json: ComponentJson<AudioComponentType>
+) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
   if (!obj3d) obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
 

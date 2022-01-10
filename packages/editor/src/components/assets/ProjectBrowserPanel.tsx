@@ -1,7 +1,7 @@
 import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
-import { AssetsPreviewPanel } from './AssetsPreviewPanel'
+import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import { DockContainer } from '../EditorContainer'
 
 /**
@@ -17,7 +17,7 @@ export default function ProjectBrowserPanel() {
     ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
   }
 
-  const onSelectionChanged = (props) => {
+  const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef as any).current?.onSelectionChanged?.(props)
   }
 

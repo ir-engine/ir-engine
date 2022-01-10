@@ -11,7 +11,10 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_AUDIO_SETTINGS = 'audio-settings'
 
-export const deserializeAudioSetting: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeAudioSetting: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<PositionalAudioSettingsComponentType>
+) => {
   addComponent(entity, PositionalAudioSettingsComponent, json.props)
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
 }

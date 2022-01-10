@@ -7,50 +7,45 @@ import { useTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
 import WaterIcon from '@mui/icons-material/Water'
 import NumericInputGroup from '../inputs/NumericInputGroup'
-import { CommandManager } from '../../managers/CommandManager'
-
-//declaring properties for OceanNodeEditor
-type OceanNodeEditorProps = {
-  node: any
-}
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
- * OceanNodeEditor provides the editor to customize properties.
+ * Ocean Editor provides the editor to customize properties.
  *
  * @author Robert Long
  * @type {class component}
  */
-export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
+export const OceanNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const oceanComponent = getComponent(props.node.entity, OceanComponent)
 
-  const onChangeProperty = (name) => {
-    return (value) => {
-      CommandManager.instance.setPropertyOnSelection(name, value)
-    }
-  }
-
-  //rendering view for OceanNodeEditor
   return (
-    <NodeEditor {...props} description={t('editor:properties.ocean.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.ocean.name')}
+      description={t('editor:properties.ocean.description')}
+    >
       <InputGroup name="Normal Map" label={t('editor:properties.ocean.lbl-normalMap')}>
-        <ImageInput value={props.node.normalMap} onChange={onChangeProperty('normalMap')} />
+        <ImageInput value={oceanComponent.normalMap} onChange={updateProperty(OceanComponent, 'normalMap')} />
       </InputGroup>
 
       <InputGroup name="Distortion Map" label={t('editor:properties.ocean.lbl-distortionMap')}>
-        <ImageInput value={props.node.distortionMap} onChange={onChangeProperty('distortionMap')} />
+        <ImageInput value={oceanComponent.distortionMap} onChange={updateProperty(OceanComponent, 'distortionMap')} />
       </InputGroup>
 
       <InputGroup name="Environment Map" label={t('editor:properties.ocean.lbl-envMap')}>
-        <ImageInput value={props.node.envMap} onChange={onChangeProperty('envMap')} />
+        <ImageInput value={oceanComponent.envMap} onChange={updateProperty(OceanComponent, 'envMap')} />
       </InputGroup>
 
       <InputGroup name="Color" label={t('editor:properties.ocean.lbl-color')}>
-        <ColorInput value={props.node.color} onChange={onChangeProperty('color')} disabled={false} />
+        <ColorInput value={oceanComponent.color} onChange={updateProperty(OceanComponent, 'color')} disabled={false} />
       </InputGroup>
       <InputGroup name="Shallow Color" label={t('editor:properties.ocean.lbl-shallowWaterColor')}>
         <ColorInput
-          value={props.node.shallowWaterColor}
-          onChange={onChangeProperty('shallowWaterColor')}
+          value={oceanComponent.shallowWaterColor}
+          onChange={updateProperty(OceanComponent, 'shallowWaterColor')}
           disabled={false}
         />
       </InputGroup>
@@ -61,8 +56,8 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.shallowToDeepDistance}
-        onChange={onChangeProperty('shallowToDeepDistance')}
+        value={oceanComponent.shallowToDeepDistance}
+        onChange={updateProperty(OceanComponent, 'shallowToDeepDistance')}
       />
       <NumericInputGroup
         name="Opacity Fade Distance"
@@ -71,11 +66,11 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.opacityFadeDistance}
-        onChange={onChangeProperty('opacityFadeDistance')}
+        value={oceanComponent.opacityFadeDistance}
+        onChange={updateProperty(OceanComponent, 'opacityFadeDistance')}
       />
       <InputGroup name="Opacity Range" label={t('editor:properties.ocean.lbl-opacityRange')}>
-        <Vector2Input value={props.node.opacityRange} onChange={onChangeProperty('opacityRange')} />
+        <Vector2Input value={oceanComponent.opacityRange} onChange={updateProperty(OceanComponent, 'opacityRange')} />
       </InputGroup>
       <NumericInputGroup
         name="Shininess"
@@ -84,8 +79,8 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.01}
         mediumStep={0.1}
         largeStep={1.0}
-        value={props.node.shininess}
-        onChange={onChangeProperty('shininess')}
+        value={oceanComponent.shininess}
+        onChange={updateProperty(OceanComponent, 'shininess')}
       />
       <NumericInputGroup
         name="Reflectivity"
@@ -95,14 +90,18 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.reflectivity}
-        onChange={onChangeProperty('reflectivity')}
+        value={oceanComponent.reflectivity}
+        onChange={updateProperty(OceanComponent, 'reflectivity')}
       />
       <InputGroup name="Foam Color" label={t('editor:properties.ocean.lbl-foamColor')}>
-        <ColorInput value={props.node.foamColor} onChange={onChangeProperty('foamColor')} disabled={false} />
+        <ColorInput
+          value={oceanComponent.foamColor}
+          onChange={updateProperty(OceanComponent, 'foamColor')}
+          disabled={false}
+        />
       </InputGroup>
       <InputGroup name="Foam Speed" label={t('editor:properties.ocean.lbl-foamSpeed')}>
-        <Vector2Input value={props.node.foamSpeed} onChange={onChangeProperty('foamSpeed')} />
+        <Vector2Input value={oceanComponent.foamSpeed} onChange={updateProperty(OceanComponent, 'foamSpeed')} />
       </InputGroup>
       <NumericInputGroup
         name="Foam Tiling"
@@ -111,14 +110,14 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.foamTiling}
-        onChange={onChangeProperty('foamTiling')}
+        value={oceanComponent.foamTiling}
+        onChange={updateProperty(OceanComponent, 'foamTiling')}
       />
       <InputGroup name="Big Wave Tiling" label={t('editor:properties.ocean.lbl-bigWaveTiling')}>
-        <Vector2Input value={props.node.bigWaveTiling} onChange={onChangeProperty('bigWaveTiling')} />
+        <Vector2Input value={oceanComponent.bigWaveTiling} onChange={updateProperty(OceanComponent, 'bigWaveTiling')} />
       </InputGroup>
       <InputGroup name="Big Wave Speed" label={t('editor:properties.ocean.lbl-bigWaveSpeed')}>
-        <Vector2Input value={props.node.bigWaveSpeed} onChange={onChangeProperty('bigWaveSpeed')} />
+        <Vector2Input value={oceanComponent.bigWaveSpeed} onChange={updateProperty(OceanComponent, 'bigWaveSpeed')} />
       </InputGroup>
       <NumericInputGroup
         name="Big Wave Height"
@@ -127,14 +126,14 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.bigWaveHeight}
-        onChange={onChangeProperty('bigWaveHeight')}
+        value={oceanComponent.bigWaveHeight}
+        onChange={updateProperty(OceanComponent, 'bigWaveHeight')}
       />
       <InputGroup name="Wave Speed" label={t('editor:properties.ocean.lbl-waveSpeed')}>
-        <Vector2Input value={props.node.waveSpeed} onChange={onChangeProperty('waveSpeed')} />
+        <Vector2Input value={oceanComponent.waveSpeed} onChange={updateProperty(OceanComponent, 'waveSpeed')} />
       </InputGroup>
       <InputGroup name="Wave Scale" label={t('editor:properties.ocean.lbl-waveScale')}>
-        <Vector2Input value={props.node.waveScale} onChange={onChangeProperty('waveScale')} />
+        <Vector2Input value={oceanComponent.waveScale} onChange={updateProperty(OceanComponent, 'waveScale')} />
       </InputGroup>
       <NumericInputGroup
         name="Wave Tiling"
@@ -143,11 +142,14 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.waveTiling}
-        onChange={onChangeProperty('waveTiling')}
+        value={oceanComponent.waveTiling}
+        onChange={updateProperty(OceanComponent, 'waveTiling')}
       />
       <InputGroup name="Wave Distortion Speed" label={t('editor:properties.ocean.lbl-waveDistortionSpeed')}>
-        <Vector2Input value={props.node.waveDistortionSpeed} onChange={onChangeProperty('waveDistortionSpeed')} />
+        <Vector2Input
+          value={oceanComponent.waveDistortionSpeed}
+          onChange={updateProperty(OceanComponent, 'waveDistortionSpeed')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Wave Distortion Tiling"
@@ -156,8 +158,8 @@ export const OceanNodeEditor = (props: OceanNodeEditorProps) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={props.node.waveDistortionTiling}
-        onChange={onChangeProperty('waveDistortionTiling')}
+        value={oceanComponent.waveDistortionTiling}
+        onChange={updateProperty(OceanComponent, 'waveDistortionTiling')}
       />
     </NodeEditor>
   )

@@ -325,6 +325,7 @@
             "info-sizeRandomness": "The amount of variation between particle starting sizes."
         },
         "clouds": {
+            "name": "Cloud",
             "description": "Sprite based cloud volume.",
             "lbl-image": "Sprite Image",
             "lbl-wroldScale": "World Scale",
@@ -336,9 +337,10 @@
             "lbl-fogRange": "Fog Range"
         },
         "ocean": {
+            "name": "Ocean",
             "description": "Ocean surface with waves and foam",
-            "lbl-normalMap": "Normal Map",     
-            "lbl-distortionMap": "Distortion Map",  
+            "lbl-normalMap": "Normal Map",
+            "lbl-distortionMap": "Distortion Map",
             "lbl-envMap": "Environment Map",
             "lbl-color": "Color",
             "lbl-shallowWaterColor": "Shallow Water Color",
@@ -360,9 +362,11 @@
             "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
         },
         "water": {
+            "name": "Water",
             "description": "Small water surface"
         },
         "interior": {
+            "name": "Interior",
             "description": "A surface with mapped cube texture to emulate interior environments",
             "lbl-cubeMap":  "Cube Map texture",
             "lbl-tiling": "Tiling amount",
