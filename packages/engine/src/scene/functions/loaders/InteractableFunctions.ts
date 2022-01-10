@@ -15,7 +15,10 @@ export const SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES = {
   interactable: false
 }
 
-export const deserializeInteractable: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeInteractable: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<InteractableComponentType>
+) => {
   addComponent(entity, InteractableComponent, { ...json.props })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)

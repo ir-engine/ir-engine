@@ -27,7 +27,6 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
-import { registerPredefinedNodes } from '../managers/NodeManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
@@ -515,8 +514,6 @@ const EditorContainer = (props) => {
 
   useEffect(() => {
     CacheManager.init()
-
-    registerPredefinedNodes()
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)

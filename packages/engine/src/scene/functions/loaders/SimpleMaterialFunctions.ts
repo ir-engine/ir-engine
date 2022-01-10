@@ -11,7 +11,10 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 
-export const deserializeSimpleMaterial: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<{ simpleMaterials: {} }>
+) => {
   if (!json.props.simpleMaterials) return
 
   addComponent(entity, SimpleMaterialTagComponent, {})

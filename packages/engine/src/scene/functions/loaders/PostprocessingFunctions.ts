@@ -23,7 +23,7 @@ export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = defaultPostProcessi
 
 export const deserializePostprocessing: ComponentDeserializeFunction = async function (
   entity: Entity,
-  json: ComponentJson
+  json: ComponentJson<PostprocessingComponentType>
 ): Promise<void> {
   if (!isClient) return
 

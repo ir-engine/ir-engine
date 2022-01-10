@@ -47,7 +47,10 @@ export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
   }
 }
 
-export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeSkybox: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<SkyboxComponentType>
+) => {
   if (isClient) {
     json.props.backgroundColor = new Color(json.props.backgroundColor)
     addComponent(entity, Object3DComponent, { value: new Object3D() })

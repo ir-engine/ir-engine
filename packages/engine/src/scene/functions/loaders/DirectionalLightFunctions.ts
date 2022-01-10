@@ -26,7 +26,10 @@ export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
   showCameraHelper: false
 }
 
-export const deserializeDirectionalLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeDirectionalLight: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<DirectionalLightComponentType>
+) => {
   const light = new DirectionalLight()
 
   light.target.position.set(0, 0, 1)
@@ -48,7 +51,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (entity
   addComponent(entity, DirectionalLightComponent, {
     ...json.props,
     color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution)
+    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution as any)
   })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)

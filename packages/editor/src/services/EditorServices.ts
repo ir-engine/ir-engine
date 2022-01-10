@@ -31,13 +31,13 @@ export const EditorService = {}
 
 //Action
 export const EditorAction = {
-  sceneLoaded: (sceneName: string) => {
+  sceneLoaded: (sceneName: string | null) => {
     return {
       type: 'SCENE_LOADED' as const,
       sceneName
     }
   },
-  projectLoaded: (projectName: string) => {
+  projectLoaded: (projectName: string | null) => {
     return {
       type: 'PROJECT_LOADED' as const,
       projectName

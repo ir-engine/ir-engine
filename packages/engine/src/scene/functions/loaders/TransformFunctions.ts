@@ -17,7 +17,10 @@ export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
 const euler = new Euler()
 const v3 = new Vector3()
 
-export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeTransform: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<TransformComponentType>
+) => {
   const { position, rotation, scale } = json.props
   addComponent(entity, TransformComponent, {
     position: new Vector3(position.x, position.y, position.z),

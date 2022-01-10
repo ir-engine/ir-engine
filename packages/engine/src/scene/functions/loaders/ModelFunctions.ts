@@ -1,7 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AnimationMixer, Mesh, Object3D } from 'three'
+import { Object3D } from 'three'
 import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
-import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -10,22 +9,11 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { dispatchFrom } from '../../../networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '../../../networking/functions/NetworkWorldAction'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
+import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import {
-  loadGLTFModel,
-  loadNavmesh,
-  overrideTexture,
-  parseGLTFModel,
-  parseObjectComponentsFromGLTF
-} from '../loadGLTFModel'
+import { loadGLTFModel, parseGLTFModel } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
-import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
@@ -37,7 +25,10 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   isDynamicObject: false
 }
 
-export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, component: ComponentJson) => {
+export const deserializeModel: ComponentDeserializeFunction = (
+  entity: Entity,
+  component: ComponentJson<ModelComponentType>
+) => {
   addComponent(entity, Object3DComponent, { value: new Object3D() }) // Temperarily hold a value
   addComponent(entity, ModelComponent, { ...component.props })
 

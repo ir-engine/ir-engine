@@ -22,7 +22,10 @@ export const SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES = {
   intensity: 1
 }
 
-export const deserializeHemisphereLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeHemisphereLight: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<HemisphereLightComponentType>
+) => {
   if (!isClient || !json) return
 
   const light = new HemisphereLight()

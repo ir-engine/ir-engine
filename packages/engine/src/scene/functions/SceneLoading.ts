@@ -6,13 +6,8 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Clouds } from '../classes/Clouds'
-import { Interior } from '../classes/Interior'
-import { Ocean } from '../classes/Ocean'
-import { Water } from '../classes/Water'
 import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
 import { UserdataComponent } from '../components/UserdataComponent'
 import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -131,6 +126,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'userdata':
       addComponent(entity, UserdataComponent, { data: component.props })
       break
+
     // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
     // case 'wooCommerce':
     // case 'shopify':
@@ -153,25 +149,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     //     }
     //   }
     //   break
-
-    case 'clouds':
-      isClient && addObject3DComponent(entity, new Clouds(), component.props)
-      isClient && addComponent(entity, UpdatableComponent, {})
-      break
-
-    case 'ocean':
-      isClient && addObject3DComponent(entity, new Ocean(), component.props)
-      isClient && addComponent(entity, UpdatableComponent, {})
-      break
-
-    case 'water':
-      isClient && addObject3DComponent(entity, new Water(), component.props)
-      isClient && addComponent(entity, UpdatableComponent, {})
-      break
-
-    case 'interior':
-      isClient && addObject3DComponent(entity, new Interior(), component.props)
-      break
   }
 }
 

@@ -19,7 +19,10 @@ export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
   loop: false
 }
 
-export const deserializeMedia: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeMedia: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<MediaComponentType>
+) => {
   addComponent(entity, MediaComponent, { ...json.props })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)

@@ -1,10 +1,14 @@
 import { Texture, TextureLoader } from 'three'
-import { isClient } from '../../common/functions/isClient'
+import { TGALoader } from '../loaders/tga/TGALoader'
 
-export default function loadTexture(src, textureLoader = new TextureLoader()) {
-  return new Promise<Texture | null>((resolve, reject) => {
-    if (!isClient) resolve(null)
-    textureLoader.load(src, resolve, undefined, (_) => {
+export default function loadTexture(src: string, textureLoader?: TextureLoader | TGALoader) {
+  let loader: TextureLoader | TGALoader = textureLoader!
+  if (!loader) {
+    loader = src.endsWith('tga') ? new TGALoader() : new TextureLoader()
+  }
+
+  return new Promise<Texture>((resolve, reject) => {
+    loader.load(src, resolve, undefined, (_) => {
       reject(new Error(`Error loading texture "${src}"`))
     })
   })

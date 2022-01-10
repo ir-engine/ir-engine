@@ -32,8 +32,8 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 export const NameInputGroup: EditorComponentType = (props) => {
   const nodeName = getComponent(props.node.entity, NameComponent).name
 
-  let [name, setName] = useState(nodeName)
-  let [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
+  const [name, setName] = useState(nodeName)
+  const [focusedNode, setFocusedNode] = useState<EntityTreeNode>()
   const { t } = useTranslation()
 
   useEffect(() => {

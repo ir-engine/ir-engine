@@ -27,7 +27,10 @@ export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
   shadowRadius: 1
 }
 
-export const deserializeSpotLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeSpotLight: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<SpotLightComponentType>
+) => {
   const light = new SpotLight()
 
   light.target.position.set(0, -1, 0)
@@ -55,7 +58,7 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (entity: Entit
   addComponent(entity, SpotLightComponent, {
     ...json.props,
     color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution)
+    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution as any)
   })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)

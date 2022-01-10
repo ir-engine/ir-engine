@@ -10,7 +10,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../../networking/functions/NetworkWorldAction'
 import { setCameraProperties } from '../setCameraProperties'
-import { CameraPropertiesComponent } from '../../components/CameraPropertiesComponent'
+import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_CAMERA_PROPERTIES = 'cameraproperties'
@@ -32,7 +32,7 @@ export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
 
 export const deserializeCameraProperties: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson
+  json: ComponentJson<CameraPropertiesComponentType>
 ): void => {
   addComponent(entity, CameraPropertiesComponent, { ...json.props })
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)

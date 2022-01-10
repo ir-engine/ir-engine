@@ -21,7 +21,10 @@ export const SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES = {
   intensity: 1
 }
 
-export const deserializeAmbientLight: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
+export const deserializeAmbientLight: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<AmbientLightComponentType>
+) => {
   if (!isClient || !json) return
 
   const light = new AmbientLight()

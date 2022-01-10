@@ -9,7 +9,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 
 export const SCENE_COMPONENT_PERSIST = 'persist'
 
-export const deserializePersist: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson) => {
+export const deserializePersist: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
   if (isClient) addComponent(entity, PersistTagComponent, {})
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PERSIST)
 }
