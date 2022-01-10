@@ -104,7 +104,7 @@ export const LocationService = {
       }
     }
   },
-  fetchAdminLocations: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminLocations: async (incDec?: 'increment' | 'decrement', value: string = '') => {
     const dispatch = useDispatch()
     {
       try {
@@ -115,10 +115,35 @@ export const LocationService = {
             },
             $skip: accessLocationState().skip.value,
             $limit: accessLocationState().limit.value,
-            adminnedLocations: true
+            adminnedLocations: true,
+            search: value
           }
         })
         dispatch(LocationAction.locationsRetrieved(locations))
+      } catch (error) {
+        console.error(error)
+        dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
+      }
+    }
+  },
+  searchAdminLocations: async (value) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        const result = await client.service('location').find({
+          query: {
+            search: value,
+            $sort: {
+              name: 1
+            },
+            $skip: accessLocationState().skip.value,
+            $limit: accessLocationState().limit.value,
+            adminnedLocations: true
+          }
+        })
+        dispatch(LocationAction.locationsRetrieved(result))
+
+        console.log(result)
       } catch (error) {
         console.error(error)
         dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))

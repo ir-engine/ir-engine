@@ -29,6 +29,7 @@ import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 
 const LocationTable = (props: LocationProps) => {
+  const { search } = props
   const classes = useLocationStyles()
   const classex = useLocationStyle()
   const adminInstanceState = useInstanceState()
@@ -61,9 +62,6 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      LocationService.fetchAdminLocations()
-    }
     if (user?.id.value != null) {
       // && adminSceneState.scenes.updateNeeded.value === true) {
       SceneService.fetchAdminScenes('all')
@@ -83,6 +81,15 @@ const LocationTable = (props: LocationProps) => {
     adminInstanceState.updateNeeded.value,
     adminLocationState.updateNeeded.value
   ])
+
+  useEffect(() => {
+    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+      LocationService.fetchAdminLocations()
+    }
+    if (search) {
+      LocationService.fetchAdminLocations('increment', search)
+    }
+  }, [search, authState.user?.id?.value, adminLocationState.updateNeeded.value])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
