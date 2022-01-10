@@ -1,7 +1,7 @@
-import './hookstate_devtools.es'
-import './env-config'
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
+import './env-config'
+import './hookstate_devtools.es'
 import { initialize } from './util'
 
 const AppPage = React.lazy(() => import('./pages/_app'))

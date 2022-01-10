@@ -1,5 +1,3 @@
-import { Vector3 } from 'three'
-
 export const testScenePreset = {
   metadata: '{"name":"Crater"}',
   url: 'https://127.0.0.1:3030/collection/d4457fc0-24e4-11eb-bc2e-e7e742fb069f',

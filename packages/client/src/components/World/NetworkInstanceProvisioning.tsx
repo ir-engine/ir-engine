@@ -1,27 +1,26 @@
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserService } from '@xrengine/client-core/src/user/services/UserService'
-import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import React, { useEffect } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { retriveLocationByName } from './LocationLoadHelper'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import {
   ChannelConnectionService,
   useChannelConnectionState
 } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import {
+  InstanceConnectionService,
+  useInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import React, { useEffect } from 'react'
+import { retriveLocationByName } from './LocationLoadHelper'
 
 interface Props {
   locationName: string

@@ -16,7 +16,7 @@ import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
 import { CreateProjectModal } from './CreateProjectModal'
-import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
+import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { EditorAction } from '../../services/EditorServices'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'

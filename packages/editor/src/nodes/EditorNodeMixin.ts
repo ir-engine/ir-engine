@@ -81,7 +81,7 @@ export default function EditorNodeMixin(Object3DClass) {
       return this
     }
     onPlay() {}
-    onUpdate(delta: number, time: number) {}
+    onUpdate(delta: number, time?: number) {}
     onPause() {}
     onAdd() {}
     onChange(prop: string) {}

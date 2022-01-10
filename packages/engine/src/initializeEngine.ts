@@ -32,6 +32,7 @@ import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -255,6 +256,7 @@ const registerMediaServerSystems = async (options: Required<InitializeOptions>) 
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
+  Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
   registerPrefabs(sceneWorld)
@@ -304,6 +306,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
+  await loadEngineInjection(sceneWorld, initOptions.projects ?? [])
+
   // temporary, will be fixed with editor engine integration
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -327,6 +331,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   globalThis.Network = Network
 
   // Mark engine initialized
+  Engine.isLoading = false
   Engine.isInitialized = true
   dispatchLocal(EngineActions.initializeEngine(true) as any)
 }

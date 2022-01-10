@@ -1,9 +1,9 @@
-import { Helmet } from 'react-helmet'
-import React from 'react'
 import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
-import { useHistory, Redirect } from 'react-router-dom'
+import React from 'react'
+import { Helmet } from 'react-helmet'
 // import { Capacitor } from '@capacitor/core'
-import { useTranslation, Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import { Redirect, useHistory } from 'react-router-dom'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 

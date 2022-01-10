@@ -6,6 +6,7 @@ import { EngineEvents } from './EngineEvents'
 const state = createState({
   fixedTick: 0,
   isEngineInitialized: false,
+  sceneLoading: false,
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: -1,
@@ -44,8 +45,10 @@ export function EngineEventReceptor(action: EngineActionType) {
         })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
         return s.merge({ isEngineInitialized: action.initialised })
+      case EngineEvents.EVENTS.SCENE_LOADING:
+        return s.merge({ sceneLoaded: false, sceneLoading: action.sceneLoading })
       case EngineEvents.EVENTS.SCENE_LOADED:
-        return s.merge({ sceneLoaded: action.sceneLoaded })
+        return s.merge({ sceneLoaded: action.sceneLoaded, sceneLoading: false })
       case EngineEvents.EVENTS.JOINED_WORLD:
         return s.merge({ joinedWorld: action.joinedWorld })
       case EngineEvents.EVENTS.LOADING_PROGRESS:
@@ -131,6 +134,12 @@ export const EngineActions = {
   leaveWorld: () => {
     return {
       type: EngineEvents.EVENTS.LEAVE_WORLD
+    }
+  },
+  sceneLoading: (sceneLoading: boolean) => {
+    return {
+      type: EngineEvents.EVENTS.SCENE_LOADING,
+      sceneLoading
     }
   },
   sceneLoaded: (sceneLoaded: boolean) => {
