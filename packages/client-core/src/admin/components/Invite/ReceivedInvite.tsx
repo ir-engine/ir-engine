@@ -162,7 +162,7 @@ const ReceivedInvite = (props: Props) => {
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[INVITE_PAGE_LIMIT]}
-              component="div"
+              component="td"
               colSpan={3}
               count={receivedInviteCount}
               rowsPerPage={rowsPerPage}

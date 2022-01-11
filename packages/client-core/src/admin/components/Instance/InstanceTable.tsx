@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -45,19 +45,26 @@ const InstanceTable = (props: Props) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
+  const isMounted = useRef(false)
 
   const fetchTick = () => {
     setTimeout(() => {
+      if (!isMounted.current) return
       setRefetch(true)
       fetchTick()
     }, 5000)
   }
 
   useEffect(() => {
+    isMounted.current = true
     fetchTick()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   React.useEffect(() => {
+    if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
