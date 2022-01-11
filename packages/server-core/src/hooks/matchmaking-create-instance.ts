@@ -10,7 +10,11 @@ export default (): Hook => {
     const connection = result?.connection
     const gameMode = result?.extensions?.GameMode.value
     // context.params.connection
-    if (!connection || !gameMode) {
+    if (!connection) {
+      // assignment is not found yet
+      return context
+    }
+    if (!gameMode) {
       // throw error?!
       throw new Error('Unexpected response from match finder. ' + JSON.stringify(result))
     }
