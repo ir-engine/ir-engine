@@ -150,7 +150,7 @@ export const updateAppConfig = async (): Promise<void> => {
   const authenticationSettingPromise = authenticationSetting
     .findAll()
     .then(([dbAuthentication]) => {
-      const oauth = dbAuthentication.oauth
+      const oauth = JSON.parse(JSON.parse(dbAuthentication.oauth))
       const dbAuthenticationConfig = dbAuthentication && {
         service: dbAuthentication.service,
         entity: dbAuthentication.entity,
