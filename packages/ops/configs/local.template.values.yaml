@@ -6,7 +6,6 @@ client:
     API_MEDIA_SEARCH_ROUTE: "-search"
     API_META_ROUTE: /meta
     API_PROJECTS_ROUTE: /project
-    API_RESOLVE_MEDIA_ROUTE: /resolve-media
     API_PROJECT_PUBLISH_ACTION: /publish-project
     API_SCENES_ROUTE: /collection
     API_SERVER_ADDRESS: api-local.theoverlay.io
