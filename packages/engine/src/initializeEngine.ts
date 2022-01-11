@@ -24,7 +24,7 @@ import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } 
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
+import { createWorld, World } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
@@ -32,6 +32,7 @@ import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { applyIncomingActions } from './networking/systems/IncomingNetworkSystem'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 // @ts-ignore
@@ -253,6 +254,17 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+    tickRate: 60
+  })
+  registerSystem(
+    SystemUpdateType.FIXED,
+    new Promise((resolve) =>
+      resolve({
+        default: async (world: World) => () => applyIncomingActions(world)
+      })
+    )
+  )
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {

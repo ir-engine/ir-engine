@@ -1,9 +1,6 @@
 {
   "dependencies": [
     "@feathersjs/client",
-    "@gltf-transform/core",
-    "@gltf-transform/extensions",
-    "@gltf-transform/functions",
     "@hookstate/core",
     "@mapbox/vector-tile",
     "@mui/icons-material",
