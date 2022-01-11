@@ -13,7 +13,7 @@ export default (userRole: string) => {
     const loggedInUser = context.params[loggedInUserEntity]
     const user = await context.app.service('user').get(loggedInUser.userId)
     if (user.userRole !== userRole) {
-      throw new Error('Must be admin to access this function')
+      throw new Error(`Must be ${userRole} to access this function`)
     }
 
     return context
