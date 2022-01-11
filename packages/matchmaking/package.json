@@ -31,6 +31,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "axios": "0.24.0",
     "node-fetch": "^2.6.1"
   },
