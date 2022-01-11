@@ -14,8 +14,6 @@ import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
 import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
-import WooCommerceNodeEditor from '../components/properties/WooCommerceNodeEditor'
-import ShopifyNodeEditor from '../components/properties/ShopifyNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -33,8 +31,6 @@ import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 import CubemapBakeNode from '../nodes/CubemapBakeNode'
 import MetadataNode from '../nodes/MetadataNode'
-import WooCommerceNode from '../nodes/WooCommerceNode'
-import ShopifyNode from '../nodes/ShopifyNode'
 import SystemNode from '../nodes/SystemNode'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -97,10 +93,10 @@ export class NodeManager {
 const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
-  NodeManager.instance.registerNode(ShopifyNode, ShopifyNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  NodeManager.instance.registerNode(WooCommerceNode, WooCommerceNodeEditor)
+  // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
+  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
 }
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {

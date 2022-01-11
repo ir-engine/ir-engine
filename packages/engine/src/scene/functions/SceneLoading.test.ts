@@ -341,11 +341,6 @@ describe.skip('SceneLoading.test', () => {
 
     })
 
-    // TODO: this will be refactored to be composed of multiple other components rather than it's own thing
-    it.skip('shopify', async () => {
-
-    })
-
     // TODO: this is currently unused and needs to be re-implemented
     it.skip('loop-animation', async () => {
 

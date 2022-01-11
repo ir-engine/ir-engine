@@ -126,29 +126,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     case 'userdata':
       addComponent(entity, UserdataComponent, { data: component.props })
       break
-
-    // TODO: we can remove these entirely when we have a more composable solution than the mixin nodes
-    // case 'wooCommerce':
-    // case 'shopify':
-    //   if (component.props && component.props.extend) {
-    //     if (component.props.extendType == 'video') {
-    //       // if livestream, server will send the video info to the client
-    //       if (isClient) {
-    //         createVideo(entity, component.props.extend)
-    //       } else {
-    //         addObject3DComponent(entity, new Object3D(), component.props.extend)
-    //         if (component.props.extend.interactable) addComponent(entity, InteractableComponent, component.props.extend)
-    //       }
-    //     } else if (component.props.extendType == 'image') {
-    //       addObject3DComponent(entity, new Image(), component.props.extend)
-    //     } else if (component.props.extendType == 'model') {
-    //       Object.keys(component.props.extend).forEach((key) => {
-    //         component.props[key] = component.props.extend[key]
-    //       })
-    //       registerSceneLoadPromise(loadGLTFModel(entity, component))
-    //     }
-    //   }
-    //   break
   }
 }
 
