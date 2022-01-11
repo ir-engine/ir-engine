@@ -75,7 +75,7 @@
     "@types/yuka": "0.7.1",
     "app-root-path": "3.0.0",
     "cli": "1.0.1",
-    "config": "3.3.6",
+    "config": "3.3.7",
     "cross-env": "7.0.3",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0",
