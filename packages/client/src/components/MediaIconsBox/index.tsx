@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from 'react'
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
-import styles from './MediaIconsBox.module.scss'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
+import {
+  ChannelConnectionService,
+  useChannelConnectionState
+} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -12,28 +18,20 @@ import {
   pauseProducer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import {
   startFaceTracking,
   startLipsyncTracking,
   stopFaceTracking,
   stopLipsyncTracking
 } from '@xrengine/engine/src/input/functions/WebcamInput'
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import {
-  ChannelConnectionService,
-  useChannelConnectionState
-} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import React, { useEffect, useState } from 'react'
+import styles from './MediaIconsBox.module.scss'
 
 const MediaIconsBox = (props) => {
   const [xrSupported, setXRSupported] = useState(false)
@@ -105,7 +103,7 @@ const MediaIconsBox = (props) => {
     if (
       (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
       (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null) &&
-      mediaTransport.channelType !== 'instance'
+      instanceChannel.channelType !== 'instance'
     ) {
       await endVideoChat(mediaTransport, {})
       if (mediaTransport.socket?.connected === true) {

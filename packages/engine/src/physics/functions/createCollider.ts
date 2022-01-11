@@ -24,10 +24,6 @@ const yVec = new Vector3(0, 1, 0)
 const zVec = new Vector3(0, 0, 1)
 const halfPI = Math.PI / 2
 
-export type BodyOptions = {
-  bodyType?: BodyType
-}
-
 export type ShapeOptions = {
   type: ColliderTypes
   bodyType?: BodyType
@@ -253,9 +249,9 @@ export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
 }
 
 const EPSILON = 1e-6
-export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: BodyOptions | ShapeOptions) => {
+export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: ShapeOptions) => {
   const shapes: any[] = []
-  shapes.push(createShape(entity, asset as any, data as ShapeOptions))
+  shapes.push(createShape(entity, asset as any, data))
 
   const shapeObjs: any[] = []
   asset.traverse((mesh: Mesh) => {

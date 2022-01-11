@@ -2,11 +2,12 @@ import EditorNodeMixin from './EditorNodeMixin'
 import Video from '@xrengine/engine/src/scene/classes/Video'
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
-import { resolveMedia } from '../functions/resolveMedia'
+import { resolveMedia } from '@xrengine/engine/src/common/functions/resolveMedia'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ControlManager } from '../managers/ControlManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 export default class VideoNode extends EditorNodeMixin(Video) {
   static legacyComponentName = 'video'
@@ -46,7 +47,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   isLivestream = false
   synchronize = 0
   constructor() {
-    super(SceneManager.instance.audioListener)
+    super(Engine.audioListener)
   }
   async load(onError?) {
     this.issues = []

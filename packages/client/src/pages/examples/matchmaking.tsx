@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { MatchmakingTicketAssignment, OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 const gameModes = ['ctf', 'tournament']

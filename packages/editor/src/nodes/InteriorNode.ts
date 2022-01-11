@@ -21,7 +21,7 @@ export default class InteriorNode extends EditorNodeMixin(Interior) {
 
   constructor() {
     super(null)
-    this.disableOutline = true
+    this.userData.disableOutline = true
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false
     this.add(this.helper)

@@ -37,8 +37,25 @@ export class IdentityProvider extends Service {
    */
   async create(data: any, params: Params): Promise<any> {
     let { token, type, password } = data
+    let user
 
-    if (params.provider && type !== 'password' && type !== 'email' && type !== 'sms') type = 'guest' //Non-password/magiclink create requests must always be for guests
+    if (params.authentication) {
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: params.authentication.accessToken },
+        {}
+      )
+      if (authResult[config.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
+      }
+    }
+    if (
+      (!user || user.userRole !== 'admin') &&
+      params.provider &&
+      type !== 'password' &&
+      type !== 'email' &&
+      type !== 'sms'
+    )
+      type = 'guest' //Non-password/magiclink create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -87,6 +104,12 @@ export class IdentityProvider extends Service {
         }
         break
       case 'linkedin':
+        identityProvider = {
+          token: token,
+          type
+        }
+        break
+      case 'discord':
         identityProvider = {
           token: token,
           type
@@ -142,19 +165,25 @@ export class IdentityProvider extends Service {
       }
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
-    const result = await super.create(
-      {
-        ...data,
-        ...identityProvider,
-        user: {
-          id: userId,
-          userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
-          inviteCode: type === 'guest' ? null : code,
-          avatarId: avatars[random(avatars.length - 1)].avatarId
-        }
-      },
-      params
-    )
+    let result
+    try {
+      result = await super.create(
+        {
+          ...data,
+          ...identityProvider,
+          user: {
+            id: userId,
+            userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
+            inviteCode: type === 'guest' ? null : code,
+            avatarId: avatars[random(avatars.length - 1)].avatarId
+          }
+        },
+        params
+      )
+    } catch (err) {
+      await this.app.service('user').remove(userId)
+      throw err
+    }
     // DRC
     try {
       if (result.user.userRole !== 'guest') {

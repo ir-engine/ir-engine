@@ -2,7 +2,7 @@ import { ParticleEmitterMesh as ParticleEmitter } from '@xrengine/engine/src/par
 import EditorNodeMixin from './EditorNodeMixin'
 import DirectionalPlaneHelper from '@xrengine/engine/src/scene/classes/DirectionalPlaneHelper'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
-import { resolveMedia } from '../functions/resolveMedia'
+import { resolveMedia } from '@xrengine/engine/src/common/functions/resolveMedia'
 
 let defaultParticleSprite = null
 const defaultParticleUrl = '/static/editor/dot.png'
@@ -78,7 +78,7 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
 
   constructor() {
     super(defaultParticleSprite)
-    this.disableOutline = true
+    this.userData.disableOutline = true
     this._canonicalUrl = ''
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false

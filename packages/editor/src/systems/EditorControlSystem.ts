@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -38,6 +38,9 @@ import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -46,6 +49,7 @@ const SELECT_SENSITIVITY = 0.001
  */
 export default async function EditorControlSystem(_: World): Promise<System> {
   const editorControlQuery = defineQuery([EditorControlComponent])
+
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
   const raycastIgnoreLayers = new Layers()
@@ -76,7 +80,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
   let editorControlComponent: EditorControlComponentType
   let flyControlComponent: FlyControlComponentType
   let cameraComponent: EditorCameraComponentType
-  let selectedTransformRoots: Object3D[]
+  let selectedTransformRoots: EntityTreeNode[]
   let gizmoObj: TransformGizmo
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
@@ -99,8 +103,11 @@ export default async function EditorControlSystem(_: World): Promise<System> {
     raycaster.setFromCamera(coords, Engine.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
+    const os = CommandManager.instance.selectedTransformRoots.map(
+      (o) => getComponent(o.entity, Object3DComponent).value
+    )
 
-    findIntersectObjects(Engine.scene, CommandManager.instance.selectedTransformRoots, raycastIgnoreLayers)
+    findIntersectObjects(Engine.scene, os, raycastIgnoreLayers)
     findIntersectObjects(SceneManager.instance.grid)
 
     raycasterResults.sort((a, b) => a.distance - b.distance)
@@ -119,18 +126,20 @@ export default async function EditorControlSystem(_: World): Promise<System> {
   return () => {
     for (let entity of editorControlQuery()) {
       editorControlComponent = getComponent(entity, EditorControlComponent)
-      if (!editorControlComponent.enable) return
+      if (!editorControlComponent.enable) continue
 
       selectedTransformRoots = CommandManager.instance.selectedTransformRoots
       flyControlComponent = getComponent(entity, FlyControlComponent)
       gizmoObj = getComponent(SceneManager.instance.gizmoEntity, Object3DComponent)?.value as TransformGizmo
 
-      if (!gizmoObj) return
+      if (!gizmoObj) continue
 
       if (selectedTransformRoots.length === 0 || editorControlComponent.transformMode === TransformMode.Disabled) {
         gizmoObj.visible = false
       } else {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
+        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent)?.value
+        if (!lastSelectedObj3d) continue
         const isChanged =
           editorControlComponent.selectionChanged ||
           editorControlComponent.transformModeChanged ||
@@ -138,11 +147,13 @@ export default async function EditorControlSystem(_: World): Promise<System> {
 
         if (isChanged || editorControlComponent.transformPivotChanged) {
           if (editorControlComponent.transformPivot === TransformPivot.Selection) {
-            lastSelectedObject.getWorldPosition(gizmoObj.position)
+            lastSelectedObj3d.getWorldPosition(gizmoObj.position)
           } else {
             box.makeEmpty()
 
-            for (let i = 0; i < selectedTransformRoots.length; i++) box.expandByObject(selectedTransformRoots[i])
+            for (let i = 0; i < selectedTransformRoots.length; i++) {
+              box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
+            }
 
             box.getCenter(gizmoObj.position)
             if (editorControlComponent.transformPivot === TransformPivot.Bottom) {
@@ -153,7 +164,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
 
         if (isChanged || editorControlComponent.transformSpaceChanged) {
           if (editorControlComponent.transformSpace === TransformSpace.LocalSelection) {
-            lastSelectedObject.getWorldQuaternion(gizmoObj.quaternion)
+            lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
           } else {
             gizmoObj.rotation.set(0, 0, 0)
           }
@@ -186,7 +197,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           gizmoObj.selectAxisWithRaycaster(raycaster)
 
           if (gizmoObj.selectedAxis) {
-            planeNormal.copy(gizmoObj.selectedPlaneNormal).applyQuaternion(gizmoObj.quaternion).normalize()
+            planeNormal.copy(gizmoObj.selectedPlaneNormal!).applyQuaternion(gizmoObj.quaternion).normalize()
             transformPlane.setFromNormalAndCoplanarPoint(planeNormal, gizmoObj.position)
             editorControlComponent.dragging = true
           } else {
@@ -208,14 +219,14 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           getRaycastPosition(
             flyControlComponent.enable ? centerViewportPosition : cursorPosition,
             planeIntersection,
-            shouldSnap && editorControlComponent.translationSnap
+            shouldSnap ? editorControlComponent.translationSnap : 0
           )
           constraint = TransformAxisConstraints.XYZ
         } else {
           ray.origin.setFromMatrixPosition(Engine.camera.matrixWorld)
           ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.camera).sub(ray.origin)
           ray.intersectPlane(transformPlane, planeIntersection)
-          constraint = TransformAxisConstraints[gizmoObj.selectedAxis]
+          constraint = TransformAxisConstraints[gizmoObj.selectedAxis!]
         }
 
         if (!constraint) {
@@ -269,8 +280,8 @@ export default async function EditorControlSystem(_: World): Promise<System> {
 
           if (isGrabbing && editorControlComponent.transformMode === TransformMode.Grab) {
             editorControlComponent.grabHistoryCheckpoint = CommandManager.instance.selected
-              ? CommandManager.instance.selected[0].id
-              : 0
+              ? CommandManager.instance.selected[0].entity
+              : (0 as Entity)
           }
         } else if (editorControlComponent.transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
@@ -297,15 +308,15 @@ export default async function EditorControlSystem(_: World): Promise<System> {
             angle: relativeRotationAngle
           })
 
-          const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo
+          const selectedAxisInfo = gizmoObj.selectedAxisObj?.axisInfo!
           if (selectStartAndNoGrabbing) {
-            selectedAxisInfo.startMarker.visible = true
-            selectedAxisInfo.endMarker.visible = true
+            selectedAxisInfo.startMarker!.visible = true
+            selectedAxisInfo.endMarker!.visible = true
             if (editorControlComponent.transformSpace !== TransformSpace.World) {
-              selectedAxisInfo.startMarkerLocal.position.copy(gizmoObj.position)
-              selectedAxisInfo.startMarkerLocal.quaternion.copy(gizmoObj.quaternion)
-              selectedAxisInfo.startMarkerLocal.scale.copy(gizmoObj.scale)
-              Engine.scene.add(selectedAxisInfo.startMarkerLocal)
+              selectedAxisInfo.startMarkerLocal!.position.copy(gizmoObj.position)
+              selectedAxisInfo.startMarkerLocal!.quaternion.copy(gizmoObj.quaternion)
+              selectedAxisInfo.startMarkerLocal!.scale.copy(gizmoObj.scale)
+              Engine.scene.add(selectedAxisInfo.startMarkerLocal!)
             }
           }
 
@@ -323,12 +334,12 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           }
 
           if (selectEnd) {
-            selectedAxisInfo.startMarker.visible = false
-            selectedAxisInfo.endMarker.visible = false
-            selectedAxisInfo.rotationTarget.rotation.set(0, 0, 0)
+            selectedAxisInfo.startMarker!.visible = false
+            selectedAxisInfo.endMarker!.visible = false
+            selectedAxisInfo.rotationTarget!.rotation.set(0, 0, 0)
             if (editorControlComponent.transformSpace !== TransformSpace.World) {
               const startMarkerLocal = selectedAxisInfo.startMarkerLocal
-              Engine.scene.remove(startMarkerLocal)
+              if (startMarkerLocal) Engine.scene.remove(startMarkerLocal)
             }
           }
         } else if (editorControlComponent.transformMode === TransformMode.Scale) {
@@ -380,7 +391,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
       editorControlComponent.transformPivotChanged = false
       editorControlComponent.transformSpaceChanged = false
 
-      cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
+      cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       const shift = getInput(EditorActionSet.shift)
 
       if (selectEnd) {
@@ -388,7 +399,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         if (editorControlComponent.transformMode === TransformMode.Grab) {
           setTransformMode(
             shift || boost ? TransformMode.Placement : editorControlComponent.transformModeOnCancel,
-            null,
+            false,
             editorControlComponent
           )
         } else if (editorControlComponent.transformMode === TransformMode.Placement) {
@@ -397,7 +408,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
               isObjectSelected: false
             })
           } else {
-            setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+            setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
           }
         } else {
           const selectEndPosition = getInput(EditorActionSet.selectEndPosition)
@@ -406,7 +417,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
             if (result) {
               CommandManager.instance.executeCommandWithHistory(
                 shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                result.node
+                result.node!
               )
             } else if (!shift) {
               CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
@@ -436,7 +447,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           cancel(editorControlComponent)
         }
         if (CommandManager.instance.selected.length > 0) {
-          setTransformMode(TransformMode.Grab, null, editorControlComponent)
+          setTransformMode(TransformMode.Grab, false, editorControlComponent)
         }
       } else if (getInput(EditorActionSet.cancel)) {
         cancel(editorControlComponent)
@@ -444,11 +455,11 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         cameraComponent.focusedObjects = CommandManager.instance.selected
         cameraComponent.dirty = true
       } else if (getInput(EditorActionSet.setTranslateMode)) {
-        setTransformMode(TransformMode.Translate, null, editorControlComponent)
+        setTransformMode(TransformMode.Translate, false, editorControlComponent)
       } else if (getInput(EditorActionSet.setRotateMode)) {
-        setTransformMode(TransformMode.Rotate, null, editorControlComponent)
+        setTransformMode(TransformMode.Rotate, false, editorControlComponent)
       } else if (getInput(EditorActionSet.setScaleMode)) {
-        setTransformMode(TransformMode.Scale, null, editorControlComponent)
+        setTransformMode(TransformMode.Scale, false, editorControlComponent)
       } else if (getInput(EditorActionSet.toggleSnapMode)) {
         toggleSnapMode(editorControlComponent)
       } else if (getInput(EditorActionSet.toggleTransformPivot)) {
@@ -463,18 +474,13 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         CommandManager.instance.undo()
       } else if (getInput(EditorActionSet.redo)) {
         CommandManager.instance.redo()
-      } else if (getInput(EditorActionSet.duplicateSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS)
-      } else if (getInput(EditorActionSet.groupSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.GROUP)
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
-      } else if (getInput(EditorActionSet.saveProject)) {
-        // TODO: Move save to Project class
-        CommandManager.instance.emitEvent(EditorEvents.SAVE_PROJECT)
+        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+          deselectObject: true
+        })
       }
 
-      if (flyControlComponent.enable) return
+      if (flyControlComponent.enable) continue
 
       const selecting = getInput(EditorActionSet.selecting)
       const zoomDelta = getInput(EditorActionSet.zoomDelta)
@@ -490,6 +496,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         if (result) {
           cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
+          cameraComponent.refocus = true
         }
       } else if (getInput(EditorActionSet.panning)) {
         cameraComponent.isPanning = true
@@ -518,7 +525,7 @@ export const setTransformMode = (
 
   if (
     (mode === TransformMode.Placement || mode === TransformMode.Grab) &&
-    CommandManager.instance.selected.some((node) => node.disableTransform) // TODO: THIS doesn't prevent nesting and then grabbing
+    CommandManager.instance.selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent)) // TODO: THIS doesn't prevent nesting and then grabbing
   ) {
     // Dont allow grabbing / placing objects with transform disabled.
     return
@@ -529,7 +536,7 @@ export const setTransformMode = (
   }
 
   editorControlComponent.multiplePlacement = multiplePlacement || false
-  editorControlComponent.grabHistoryCheckpoint = null
+  editorControlComponent.grabHistoryCheckpoint = undefined
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
@@ -616,11 +623,13 @@ const cancel = (editorControlComponent?: EditorControlComponentType) => {
   }
 
   if (editorControlComponent.transformMode === TransformMode.Grab) {
-    setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
+    setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
     CommandManager.instance.revert(editorControlComponent.grabHistoryCheckpoint)
   } else if (editorControlComponent.transformMode === TransformMode.Placement) {
-    setTransformMode(editorControlComponent.transformModeOnCancel, null, editorControlComponent)
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
+    setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
+    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+      deselectObject: true
+    })
   }
 
   CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])

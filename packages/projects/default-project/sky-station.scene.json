@@ -1,9 +1,7 @@
 {
   "version": 4,
-  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
   "entities": {
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
-      "name": "sky-station-25-03-2021",
       "components": [
         {
           "name": "mtdata",
@@ -15,7 +13,11 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": "#ffffff",
+            "color": {
+              "r": 1,
+              "g": 1,
+              "b": 1
+            },
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -39,12 +41,6 @@
           }
         },
         {
-          "name": "simple-materials",
-          "props": {
-            "simpleMaterials": false
-          }
-        },
-        {
           "name": "renderer-settings",
           "props": {
             "LODs": {
@@ -63,15 +59,16 @@
           "name": "envmap",
           "props": {
             "type": 1,
-            "envMapIntensity": 3.5,
             "envMapTextureType": 0,
-            "envMapSourceURL": "/hdr/cubemap/MilkyWay/"
+            "envMapSourceColor": {},
+            "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
+            "envMapIntensity": 3.5
           }
         }
-      ]
+      ],
+      "name": "sky-station-25-03-2021"
     },
     "15D96FA9-8B36-4EB1-89D1-6FDDA1AD2EBD": {
-      "name": "skybox",
       "components": [
         {
           "name": "transform",
@@ -95,14 +92,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "skybox",
           "props": {
-            "backgroundColor": "#000000",
+            "backgroundColor": 0,
             "equirectangularPath": "/hdr/cubemap/MilkyWay/",
             "cubemapPath": "/hdr/cubemap/MilkyWay/",
             "backgroundType": 1,
@@ -119,10 +114,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 0
+      "index": 0,
+      "name": "skybox"
     },
     "633CD01A-BC2A-4584-99E2-2A3CFE2C8AD9": {
-      "name": "spawn point",
       "components": [
         {
           "name": "transform",
@@ -134,7 +129,7 @@
             },
             "rotation": {
               "x": 3.141592653589793,
-              "y": -0.7853981633974483,
+              "y": -0.7853981633974484,
               "z": 3.141592653589793
             },
             "scale": {
@@ -146,9 +141,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "spawn-point",
@@ -156,10 +149,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 1
+      "index": 1,
+      "name": "spawn point"
     },
     "CD8E5818-7659-4675-9720-200657B9B7DF": {
-      "name": "model",
       "components": [
         {
           "name": "transform",
@@ -183,9 +176,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "gltf-model",
@@ -203,23 +194,15 @@
           }
         },
         {
-          "name": "interact",
-          "props": {}
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
+          "name": "interactable",
           "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 2
+      "index": 2,
+      "name": "model"
     },
     "CEF7BCDE-4C78-45B7-A2DB-66F8159AA945": {
-      "name": "scene preview camera",
       "components": [
         {
           "name": "transform",
@@ -232,7 +215,7 @@
             "rotation": {
               "x": -1.7703503812978527,
               "y": -0.9595641083436542,
-              "z": -1.81291179062497
+              "z": -1.8129117906249699
             },
             "scale": {
               "x": 0.9999999999999997,
@@ -243,9 +226,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "scene-preview-camera",
@@ -253,10 +234,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 3
+      "index": 3,
+      "name": "scene preview camera"
     },
     "949A8E39-25D0-48B3-AADF-FCDD2D21A2FE": {
-      "name": "Ambient Light",
       "components": [
         {
           "name": "transform",
@@ -280,23 +261,21 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "ambient-light",
           "props": {
-            "color": "#e9ffff",
+            "color": 15335423,
             "intensity": 1.6
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 4
+      "index": 4,
+      "name": "Ambient Light"
     },
     "A8F61640-74D2-4E33-8CFF-60D52C833D70": {
-      "name": "Directional Light",
       "components": [
         {
           "name": "transform",
@@ -320,14 +299,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "directional-light",
           "props": {
-            "color": "#c1cce1",
+            "color": 12700897,
             "intensity": 3,
             "castShadow": true,
             "shadowMapResolution": [
@@ -342,10 +319,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 5
+      "index": 5,
+      "name": "Directional Light"
     },
     "A4B9313F-C244-4A83-813D-281C43B671BE": {
-      "name": "Portal",
       "components": [
         {
           "name": "transform",
@@ -357,7 +334,7 @@
             },
             "rotation": {
               "x": 3.141592653589793,
-              "y": -1.5539241938416273,
+              "y": -1.5539241938416208,
               "z": 3.141592653589793
             },
             "scale": {
@@ -369,50 +346,30 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "portal",
           "props": {
-            "locationName": "apartment",
             "linkedPortalId": "BF989CD9-DEFB-41D0-B536-0F723D5A8DBD",
-            "modelUrl": "__$project$__/default-project/assets/portal_frame.glb",
-            "displayText": "Apartment",
             "spawnPosition": {
-              "x": 49.45498515651018,
-              "y": 1.979821728775554,
-              "z": -0.008053372554778395
-            },
-            "spawnRotation": {
-              "x": 3.141592653589793,
-              "y": -1.5539241938416273,
-              "z": 3.141592653589793
-            },
-            "triggerPosition": {
-              "x": 0,
-              "y": 0.8,
-              "z": 0
-            },
-            "triggerRotation": {
               "x": 0,
               "y": 0,
               "z": 0
             },
-            "triggerScale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
+            "spawnRotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
             }
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 6
+      "index": 6,
+      "name": "Portal"
     },
     "78007030-F875-4F6A-8EA2-4F7472CAD25A": {
-      "name": "Model",
       "components": [
         {
           "name": "transform",
@@ -436,9 +393,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "gltf-model",
@@ -456,42 +411,17 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
-            "interactable": true,
-            "interactionType": "infoBox",
-            "interactionText": "Laptop",
-            "interactionName": "ThinkPad X1 Carbon Gen 9 Intel (14\")",
-            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
-            "interactionImages": [
-              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
-              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508"
-            ],
-            "interactionVideos": [
-              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
-            ],
-            "interactionUrls": [
-              "https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpade/e15-g2/20td001jus"
-            ],
-            "interactionModels": [
-              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
-            ]
+            "interactable": true
           }
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7
+      "index": 7,
+      "name": "Model"
     },
     "560B2C33-DD18-42DF-8848-4605FF6B91B6": {
-      "name": "Video",
       "components": [
         {
           "name": "transform",
@@ -515,37 +445,18 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "video",
-          "props": {
-            "src": "__$project$__/default-project/assets/SampleVideo.mp4",
-            "interactable": false,
-            "isLivestream": false,
-            "controls": true,
-            "autoPlay": true,
-            "synchronize": 0,
-            "loop": true,
-            "volume": 0.5,
-            "distanceModel": null,
-            "rolloffFactor": null,
-            "refDistance": null,
-            "maxDistance": null,
-            "coneInnerAngle": null,
-            "coneOuterAngle": null,
-            "coneOuterGain": null,
-            "projection": "flat"
-          }
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 8
+      "index": 8,
+      "name": "Video"
     },
     "D98AD592-0DDF-4F1C-9C41-FC1E5229FAB3": {
-      "name": "Trigger Volume",
       "components": [
         {
           "name": "transform",
@@ -569,25 +480,22 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "trigger-volume",
           "props": {
             "target": null,
             "onEnter": "",
-            "onExit": "",
-            "showHelper": false
+            "onExit": ""
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 9
+      "index": 9,
+      "name": "Trigger Volume"
     },
     "358A1F93-4823-4436-A26E-2D4ED06DD9E1": {
-      "name": "Particle Emitter",
       "components": [
         {
           "name": "transform",
@@ -598,7 +506,7 @@
               "z": 0
             },
             "rotation": {
-              "x": -1.5707963267948966,
+              "x": -1.5707963267948963,
               "y": 0,
               "z": 0
             },
@@ -611,49 +519,14 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
-        },
-        {
-          "name": "particle-emitter",
-          "props": {
-            "src": "/static/editor/dot.png",
-            "startColor": "#f61919",
-            "middleColor": "#7ed321",
-            "endColor": "#4a90e2",
-            "startOpacity": 1,
-            "middleOpacity": 1,
-            "endOpacity": 1,
-            "colorCurve": "linear",
-            "sizeCurve": "linear",
-            "startSize": 0.25,
-            "endSize": 0.25,
-            "sizeRandomness": 0,
-            "ageRandomness": 10,
-            "lifetime": 5,
-            "lifetimeRandomness": 5,
-            "particleCount": 100,
-            "startVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 0.5
-            },
-            "endVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 0.5
-            },
-            "velocityCurve": "linear",
-            "angularVelocity": 0
-          }
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 10
+      "index": 10,
+      "name": "Particle Emitter"
     },
     "68F3E172-E383-4EC0-832A-657CE147B1CE": {
-      "name": "Post Processing",
       "components": [
         {
           "name": "transform",
@@ -677,9 +550,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "postprocessing",
@@ -766,10 +637,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 11
+      "index": 11,
+      "name": "Post Processing"
     },
     "9E159A4E-08FE-4B2B-A927-D86D378F1E07": {
-      "name": "Shopify",
       "components": [
         {
           "name": "transform",
@@ -793,231 +664,20 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
-          "name": "shopify",
+          "name": "interactable",
           "props": {
-            "shopifyProducts": [
-              {
-                "title": "ThinkPad Laptop X1",
-                "description": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
-                "storeUrl": null,
-                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTAxNTI1ODcyODc=",
-                "label": "ThinkPad Laptop X1",
-                "media": [
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8",
-                    "mimeType": "application/x-mpegURL",
-                    "format": "m3u8",
-                    "height": 720,
-                    "width": 1280,
-                    "extendType": "video"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 1101196,
-                    "extendType": "model"
-                  }
-                ]
-              },
-              {
-                "title": "Snowball iCE Plug",
-                "description": "Custom condenser capsule: Powered by Blue’s custom condenser capsule, Snowball iCE microphone delivers crystal-clear audio quality that’s light-years ahead of your built-in computer microphone Cardioid pickup pattern: Captures your voice with clear, focused sound for streaming, podcasting, broadcasting, Skype calls and Zoom meetings Stylish retro design: Record or stream in style with a classic recording",
-                "storeUrl": null,
-                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTA0MTY5NTk1MTE=",
-                "label": "Snowball iCE Plug",
-                "media": [
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/download.jpg?v=1636657508",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/aHR0cDovL3d3dy5ibG9nY2RuLmNvbS93d3cuZW5nYWRnZXQuY29tL21lZGlhLzIwMTIvMDgvZHNjMDE3NTktMTM0NTc5MDE3OS5qcGc.jpg?v=1636657509",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/3b98ad3c84c2a82c/Mic_Pink.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 506112,
-                    "extendType": "model"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/893462f2d5e575eb/Mic_White.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 506344,
-                    "extendType": "model"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/5d9ec3a38428f700/Mic_Black.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 504220,
-                    "extendType": "model"
-                  }
-                ]
-              },
-              {
-                "title": "Sennheiser Headphones",
-                "description": "These comfortable and reliable headphones are designed for professional monitoring. Among the features, it is worth highlighting a durable coiled cable, a foldable design and a 32 dB reduction in external noise.",
-                "storeUrl": null,
-                "value": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTA0MjU2NDMwMzE=",
-                "label": "Sennheiser Headphones",
-                "media": [
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/photo-1484704849700-f032a568e944.jpg?v=1636658743",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/headphones.jpg?v=1636658742",
-                    "mimeType": "image/png",
-                    "format": "png",
-                    "extendType": "image"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/9b220a1a1e22e637/Headphones_Pink.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 941852,
-                    "extendType": "model"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/4c676cca63154c94/Headphones_White.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 951492,
-                    "extendType": "model"
-                  },
-                  {
-                    "url": "https://model3d.shopifycdn.com/models/o/d678bc2e5d597b8c/Headphones_Black.glb",
-                    "mimeType": "model/gltf-binary",
-                    "format": "glb",
-                    "filesize": 1379104,
-                    "extendType": "model"
-                  }
-                ]
-              }
-            ],
-            "shopifyDomain": "https://xrengine-test-site.myshopify.com/",
-            "shopifyToken": "878e6efb8645b374a57b0439ac204ad3",
-            "shopifyProductId": "Z2lkOi8vc2hvcGlmeS9Qcm9kdWN0LzY2MTAxNTI1ODcyODc=",
-            "shopifyProductItemId": 3,
-            "shopifyProductItems": [
-              {
-                "value": 0,
-                "label": "Image 1",
-                "media": {
-                  "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
-                  "mimeType": "image/png",
-                  "format": "png",
-                  "extendType": "image"
-                }
-              },
-              {
-                "value": 1,
-                "label": "Image 2",
-                "media": {
-                  "url": "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
-                  "mimeType": "image/png",
-                  "format": "png",
-                  "extendType": "image"
-                }
-              },
-              {
-                "value": 2,
-                "label": "Video 1",
-                "media": {
-                  "url": "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8",
-                  "mimeType": "application/x-mpegURL",
-                  "format": "m3u8",
-                  "height": 720,
-                  "width": 1280,
-                  "extendType": "video"
-                }
-              },
-              {
-                "value": 3,
-                "label": "Model 1",
-                "media": {
-                  "url": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
-                  "mimeType": "model/gltf-binary",
-                  "format": "glb",
-                  "filesize": 1101196,
-                  "extendType": "model"
-                }
-              }
-            ],
-            "extendType": "model",
-            "extend": {
-              "src": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
-              "textureOverride": "",
-              "castShadow": false,
-              "receiveShadow": false,
-              "loop-animation": {
-                "activeClipIndex": -1,
-                "hasAvatarAnimations": false
-              }
-            }
-          }
-        },
-        {
-          "name": "interact",
-          "props": {
-            "interactable": true,
-            "interactionType": "infoBox",
-            "interactionText": "ThinkPad Laptop X1",
-            "interactionThemeIndex": 0,
-            "interactionName": "ThinkPad Laptop X1",
-            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
-            "interactionImages": [
-              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image_1.jpg?v=1636577558",
-              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558"
-            ],
-            "interactionVideos": [
-              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
-            ],
-            "interactionUrls": [],
-            "interactionModels": [
-              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
-            ]
+            "interactable": true
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 12
+      "index": 12,
+      "name": "Shopify"
     },
     "A4B9313F-C244-4A83-813D-281C43B671EB": {
-      "name": "Image",
       "components": [
         {
           "name": "transform",
@@ -1041,26 +701,22 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "image",
           "props": {
-            "src": "/static/xrengine.png",
-            "controls": true,
-            "alphaMode": "opaque",
             "alphaCutoff": 0.5,
+            "alphaMode": "opaque",
             "projection": "flat"
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 13
+      "index": 13,
+      "name": "Image"
     },
     "8E515C31-872E-4017-AD92-B03078F3729B": {
-      "name": "Equippable",
       "components": [
         {
           "name": "transform",
@@ -1084,9 +740,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "gltf-model",
@@ -1106,23 +760,16 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
-            "interactable": true,
-            "interactionType": "equippable"
+            "interactable": true
           }
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 14
+      "index": 14,
+      "name": "Equippable"
     }
-  }
+  },
+  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
 }

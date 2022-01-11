@@ -1,6 +1,5 @@
 import Spline from '@xrengine/engine/src/scene/classes/Spline'
 import { Object3D } from 'three'
-import { NodeManager } from '../managers/NodeManager'
 import EditorNodeMixin from './EditorNodeMixin'
 import SplineHelperNode from './SplineHelperNode'
 
@@ -40,7 +39,7 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
   addSplineHelperObjectToEditorNodes(splineHelperObject) {
     super.add(splineHelperObject)
     // Maybe this should not be done here?
-    NodeManager.instance.add(splineHelperObject)
+    // NodeManager.instance.add(splineHelperObject)
   }
 
   copy(source): this {

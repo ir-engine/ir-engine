@@ -1,6 +1,6 @@
-import i18n from 'i18next'
-import { loadRoute } from '@xrengine/projects/loadRoute'
 import { client } from '@xrengine/client-core/src/feathers'
+import { loadRoute } from '@xrengine/projects/loadRoute'
+import i18n from 'i18next'
 import { lazy } from 'react'
 
 export type CustomRoute = {
@@ -26,7 +26,7 @@ export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
   } else {
     for (const project of routes.data) {
       const routeLazyLoad = await loadRoute(project.project, project.route)
-      if (!!routeLazyLoad)
+      if (routeLazyLoad)
         components.push({
           route: project.route,
           ...routeLazyLoad

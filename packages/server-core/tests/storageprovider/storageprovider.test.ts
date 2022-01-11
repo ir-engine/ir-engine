@@ -20,8 +20,13 @@ describe('storageprovider', () => {
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
-  if(process.env.STORAGE_S3_TEST_RESOURCE_BUCKET && process.env.STORAGE_AWS_ACCESS_KEY_ID && process.env.STORAGE_AWS_ACCESS_KEY_SECRET)
+  if (
+      process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
+      process.env.STORAGE_AWS_ACCESS_KEY_ID &&
+      process.env.STORAGE_AWS_ACCESS_KEY_SECRET
+  ) {
     storageProviders.push(new S3Provider())
+  }
 
   storageProviders.forEach((provider) => {
     before(async function () {
@@ -77,6 +82,9 @@ describe('storageprovider', () => {
       if (!res) console.log('Make sure server is running')
       assert.ok(res?.ok)
     })
+
+
+    // Unable to perform move/copy and rename test cases because Fleek storage doesn't implemented those methods
 
     it(`should be able to move/copy object in ${provider.constructor.name}`, async function () {
       const fileKeyOriginal = path.join(testFolderName, testFileName)

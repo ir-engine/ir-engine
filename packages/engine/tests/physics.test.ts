@@ -1,7 +1,7 @@
 import { useWorld } from "../src/ecs/functions/SystemHooks"
 import { putIntoPhysXHeap, vectorToArray } from "../src/physics/functions/physxHelpers"
 import assert from 'assert'
-import { BodyOptions, createCollider } from '../src/physics/functions/createCollider'
+import { createCollider, ShapeOptions } from '../src/physics/functions/createCollider'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { BodyType } from '../src/physics/types/PhysicsTypes'
 import { CollisionGroups } from '../src/physics/enums/CollisionGroups'
@@ -215,7 +215,7 @@ describe('Physics Interation Tests', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.STATIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {
@@ -254,7 +254,7 @@ describe('Physics Interation Tests', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.KINEMATIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {
@@ -295,7 +295,7 @@ describe('Physics Interation Tests', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.DYNAMIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {

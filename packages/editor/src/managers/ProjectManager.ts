@@ -6,11 +6,10 @@ import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
-import { NodeManager } from './NodeManager'
 import { SceneManager } from './SceneManager'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { ControlManager } from './ControlManager'
+import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
@@ -41,11 +40,12 @@ export class ProjectManager {
 
     this.initializing = true
 
-    const tasks = [loadEnvironmentMap(), ErrorIcon.load(), TransformGizmo.load()]
-
-    for (const NodeConstructor of NodeManager.instance.nodeTypes) {
-      tasks.push(NodeConstructor.load())
-    }
+    const tasks = [
+      loadEnvironmentMap(),
+      ErrorIcon.load(),
+      TransformGizmo.load(),
+      AnimationManager.instance.getAnimations()
+    ]
 
     await Promise.all(tasks)
 
@@ -67,7 +67,6 @@ export class ProjectManager {
     ControlManager.instance.dispose()
     const errors = await SceneManager.instance.initializeScene(projectFile)
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, Engine.scene)
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 

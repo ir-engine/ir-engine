@@ -116,15 +116,18 @@
     "properties": {
         "title": "Properties",
         "lbl-visible": "Visible",
+        "lbl-preventBake": "Prevent Bake",
         "lbl-persist": "Persist",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
         "noNodeSelected": "No node selected",
         "ambientLight": {
+            "name": "Ambient Light",
             "description": "A light which illuminates all objects in your scene.",
             "lbl-intensity": "Intensity",
             "lbl-color": "Color"
         },
         "audio": {
+            "name": "Audio",
             "description": "Dynamically loads audio.",
             "lbl-audiourl": "Audio Url",
             "lbl-controls": "controls",
@@ -143,7 +146,7 @@
             "info-rfInfinity": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity",
             "lbl-refDistance": "Ref Distance",
             "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
-            "lbl-maxDistance": "Max Distance 132",
+            "lbl-maxDistance": "Max Distance",
             "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
             "lbl-coneInnerAngle": "Cone Inner Angle",
             "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
@@ -151,14 +154,15 @@
             "info-coneOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
             "lbl-coreOuterGain": "Cone Outer Gain",
             "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
-            "lbl-volume": "Volume"
+            "lbl-volume": "Volume",
+            "lbl-test": "Test"
         },
         "boxCollider": {
             "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-            "lbl-walkable": "Walkable",
             "lbl-isTrigger": "Trigger"
         },
         "directionalLight": {
+            "name": "Directional Light",
             "description": "A light which illuminates the entire scene, but emits along a single direction.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
@@ -175,11 +179,11 @@
             "lbl-showCameraHelper": "Show Camera Helper"
         },
         "groundPlane": {
+            "name": "Ground Plane",
             "description": "A flat ground plane that extends into the distance.",
             "lbl-color": "Color",
             "lbl-receiveShadow": "Receive Shadow",
-            "lbl-generateNavmesh": "Generate Navmesh",
-            "lbl-walkable": "Walkable"
+            "lbl-generateNavmesh": "Generate Navmesh"
         },
         "link": {
             "description": "Link to a room or a website.",
@@ -192,12 +196,13 @@
             "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
             "lbl-usingGPUInstancingFlag": "Use GPU Instancing",
             "lbl-modelurl": "Model Url",
+            "lbl-envmapUrl": "Environment Map Url",
             "lbl-textureOverride": "Override Texture",
             "error-url": "Error Loading From URL",
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
+            "lbl-isGPUInstancing": "Is Using GPU Instancing",
+            "lbl-isDynamic": "Is Dynamic",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
@@ -222,70 +227,25 @@
             "urls": "Interaction Urls",
             "models": "Interaction Models"
         },
-        "shopify": {
-            "description": "A 3D object of a scene loaded from Shopify Products Media.",
-            "lbl-shopifyDomain": "Shopify Domain",
-            "lbl-shopifyAccessToken": "Shopify Access Token",
-            "lbl-shopifyProducts": "Shopify Products",
-            "lbl-shopifyProductItems": "Shopify Media",
-            "lbl-textureOverride": "Override Texture",
-            "error-url": "Error Loading From URL",
-            "lbl-loopAnimation": "Loop Animation",
-            "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
-            "lbl-castShadow": "Cast Shadow",
-            "lbl-receiveShadow": "Receive Shadow",
-            "lbl-interactable": "Interactable",
-            "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
-            "lbl-name": "Name",
-            "lbl-url": "Model Url",
-            "lbl-buy": "Buy Url",
-            "lbl-learnMore": "Learn More Url",
-            "lbl-htmlContent": "Html Content",
-            "lbl-interactionText": "Interaction Text",
-            "lbl-interactionType": "Interaction Type"
-        },
-
-        "woocommerce" : {
-            "description": "A Media object of a scene loaded from Wordpress Woocommerce",
-            "lbl-domain": "Site Domain",
-            "lbl-consumerKey": "Consumer Key",
-            "lbl-consumerSecret": "Consumer Secret",
-            "lbl-products": "Products",
-            "lbl-productItems": "Media",
-            "error-url": "Error Loading From URL",
-            "lbl-loopAnimation": "Loop Animation",
-            "lbl-isAvatar": "Is Avatar",
-            "lbl-collidable": "Collidable",
-            "lbl-walkable": "Walkable",
-            "lbl-castShadow": "Cast Shadow",
-            "lbl-receiveShadow": "Receive Shadow",
-            "lbl-interactable": "Interactable",
-            "lbl-name": "Name",
-            "lbl-url": "Model Url",
-            "lbl-buy": "Buy Url",
-            "lbl-learnMore": "Learn More Url",
-            "lbl-htmlContent": "Html Content",
-            "lbl-interactionText": "Interaction Text",
-            "lbl-interactionType": "Interaction Type"
-        },
         "group": {
+            "name": "Group",
             "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
         },
         "hemisphere": {
+            "name": "Hemisphere Light",
             "description": "A light which illuminates the scene from directly overhead.",
             "lbl-skyColor": "Sky Color",
             "lbl-groundColor": "Ground Color",
             "lbl-intensity": "Intensity"
         },
         "image": {
+            "name": "Image",
             "description": "Dynamically loads an image.",
             "lbl-imgURL": "Image Url",
-            "lbl-controls": "Controls",
             "lbl-transparency": "Transparency Mode",
             "lbl-alphaCutoff": "Alpha Cutoff",
             "lbl-projection": "Projection",
+            "lbl-side": "Side",
             "info-controls": "Toggle the visibility of the media controls in Hubs.",
             "info-transparency": "How to apply transparency:\n'opaque' = no transparency\n'blend' = use the images alpha channel\n'mask' = Use a specified cutoff value for on/off transparency (more performant)",
             "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent"
@@ -321,6 +281,7 @@
             "info-sizeRandomness": "The amount of variation between particle starting sizes."
         },
         "clouds": {
+            "name": "Cloud",
             "description": "Sprite based cloud volume.",
             "lbl-image": "Sprite Image",
             "lbl-wroldScale": "World Scale",
@@ -332,9 +293,10 @@
             "lbl-fogRange": "Fog Range"
         },
         "ocean": {
+            "name": "Ocean",
             "description": "Ocean surface with waves and foam",
-            "lbl-normalMap": "Normal Map",     
-            "lbl-distortionMap": "Distortion Map",  
+            "lbl-normalMap": "Normal Map",
+            "lbl-distortionMap": "Distortion Map",
             "lbl-envMap": "Environment Map",
             "lbl-color": "Color",
             "lbl-shallowWaterColor": "Shallow Water Color",
@@ -356,9 +318,11 @@
             "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
         },
         "water": {
+            "name": "Water",
             "description": "Small water surface"
         },
         "interior": {
+            "name": "Interior",
             "description": "A surface with mapped cube texture to emulate interior environments",
             "lbl-cubeMap":  "Cube Map texture",
             "lbl-tiling": "Tiling amount",
@@ -368,9 +332,11 @@
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
-            "lbl-range": "Range"
+            "lbl-range": "Range",
+            "lbl-decay": "Decay"
         },
         "scene": {
+            "name": "Scene",
             "description": "The root object of the scene.",
             "lbl-bgcolor": "Background Color",
             "lbl-fogType": "Fog Type",
@@ -419,12 +385,15 @@
             "info-shadowMapType": "Type of shadow map"
         },
         "sceneCamera": {
+            "name": "Scene Preview Camera",
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
             "lbl-setFromViewPort": "Set From Viewport"
         },
         "skybox": {
+            "name": "Skybox",
             "description": "",
             "lbl-timeOfDay": "Time of Day",
+            "lbl-color": "Color",
             "lbl-latitude": "Latitude",
             "lbl-luminance": "Luminance",
             "lbl-scattering": "Scattering Amount",
@@ -435,15 +404,17 @@
             "lbl-skyType": "Sky Type"
         },
         "spawnPoint": {
+            "name": "Spawn Point",
             "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
         },
         "spotLight": {
             "description": "A light which emits along a direction, illuminating objects within a cone.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
-            "lbl-innerConeAngle": "Inner Cone Angle",
-            "lbl-outerConeAngle": "Outer Cone Angle",
-            "lbl-range": "Range"
+            "lbl-penumbra": "Penumbra",
+            "lbl-angle": "Angle",
+            "lbl-range": "Range",
+            "lbl-decay": "Decay"
         },
         "transform": {
             "title": "Transform",
@@ -461,14 +432,17 @@
             "ph-selectNode": "Select node..."
         },
         "video": {
+            "name": "Video",
             "description": "Dynamically loads a video.",
             "lbl-video": "Video",
             "lbl-projection": "Projection",
             "lbl-islivestream": "Live Stream",
             "lbl-interactable": "Interactable",
-            "lbl-id": "Element Id"
+            "lbl-id": "Element Id",
+            "lbl-test": "Test"
         },
         "volumetric": {
+            "name": "Volumetric",
             "description": "Dynamically loads a volumetric video.",
             "uvolPaths": "UVOL Paths",
             "playmode": "Play Mode",
@@ -500,6 +474,10 @@
             "lbl-triggerPosition": "Trigger Position",
             "lbl-triggerRotation": "Trigger Rotation",
             "lbl-triggerScale": "Trigger Scale"
+        },
+        "postprocessing": {
+            "name": "Post Processing",
+            "description": "For applying Post Processing effects to you scene."
         }
     },
     "projects": {

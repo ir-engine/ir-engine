@@ -1,12 +1,12 @@
 import { createState, useState } from '@hookstate/core'
-import { number } from 'ts-matches/lib/mjs/parsers'
-import { InteractionData } from '../../interaction/types/InteractionTypes'
+import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
 const state = createState({
   fixedTick: 0,
   isEngineInitialized: false,
+  sceneLoading: false,
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: -1,
@@ -18,7 +18,7 @@ const state = createState({
   socketInstance: false,
   connectionTimeoutInstance: false,
   avatarTappedId: null! as string,
-  interactionData: null! as InteractionData
+  interactionData: null! as InteractableComponentType
 })
 
 export function EngineEventReceptor(action: EngineActionType) {
@@ -45,8 +45,10 @@ export function EngineEventReceptor(action: EngineActionType) {
         })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
         return s.merge({ isEngineInitialized: action.initialised })
+      case EngineEvents.EVENTS.SCENE_LOADING:
+        return s.merge({ sceneLoaded: false, sceneLoading: action.sceneLoading })
       case EngineEvents.EVENTS.SCENE_LOADED:
-        return s.merge({ sceneLoaded: action.sceneLoaded })
+        return s.merge({ sceneLoaded: action.sceneLoaded, sceneLoading: false })
       case EngineEvents.EVENTS.JOINED_WORLD:
         return s.merge({ joinedWorld: action.joinedWorld })
       case EngineEvents.EVENTS.LOADING_PROGRESS:
@@ -134,6 +136,12 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.LEAVE_WORLD
     }
   },
+  sceneLoading: (sceneLoading: boolean) => {
+    return {
+      type: EngineEvents.EVENTS.SCENE_LOADING,
+      sceneLoading
+    }
+  },
   sceneLoaded: (sceneLoaded: boolean) => {
     return {
       type: EngineEvents.EVENTS.SCENE_LOADED,
@@ -154,7 +162,7 @@ export const EngineActions = {
     }
   },
 
-  objectActivation: (interactionData: InteractionData) => {
+  objectActivation: (interactionData: InteractableComponentType) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData

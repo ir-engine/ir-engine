@@ -1,8 +1,22 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { InteractionData } from '../types/InteractionTypes'
 
 export type InteractableComponentType = {
-  data: InteractionData
+  interactable?: boolean
+  interactionType?: string
+  interactionText?: string
+  interactionDistance?: number
+  interactionThemeIndex?: number
+  interactionName?: string
+  interactionDescription?: string
+  interactionImages?: any
+  interactionVideos?: any
+  interactionUrls?: any
+  interactionModels?: any
+  interactionUserData?: any
+  mediaIndex?: number
+  callback?: any
+  action?: any
+  intensity?: number
 }
 
 export const InteractableComponent = createMappedComponent<InteractableComponentType>('InteractableComponent')
