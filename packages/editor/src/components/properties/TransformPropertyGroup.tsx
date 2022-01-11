@@ -20,6 +20,7 @@ import { EditorComponentType } from './Util'
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
+  const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
 
   const forceUpdate = useCallback(() => updateState({}), [])
 
@@ -38,6 +39,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
+    setState({ x: value.x, y: value.y, z: value.z })
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
@@ -64,7 +66,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput value={transfromComponent.rotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput value={rotEulerValue} onChange={onChangeRotation} unit="°" />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
