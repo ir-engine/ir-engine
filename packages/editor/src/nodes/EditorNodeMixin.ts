@@ -1,14 +1,7 @@
+import { StaticModes } from '../functions/StaticMode'
 import { Color, Object3D } from 'three'
-import ErrorIcon from '../classes/ErrorIcon'
 import serializeColor from '../functions/serializeColor'
-import {
-  computeAndSetStaticModes,
-  computeStaticMode,
-  isDynamic,
-  isInherits,
-  isStatic,
-  StaticModes
-} from '../functions/StaticMode'
+import ErrorIcon from '../classes/ErrorIcon'
 
 type SerializedComponents = {
   name: string
@@ -23,10 +16,7 @@ export type SerializedNode = {
 export default function EditorNodeMixin(Object3DClass) {
   return class extends Object3DClass {
     static nodeName = 'Unknown Node'
-    static disableTransform = false
     static useMultiplePlacementMode = false
-    static ignoreRaycast = false
-    static haveStaticTags = true
     // Used for props like src that have side effects that we don't want to happen in the constructor
     static initialElementProps = {}
     static hideInElementsPanel = false
@@ -36,9 +26,6 @@ export default function EditorNodeMixin(Object3DClass) {
     }
     static async load() {
       return Promise.resolve()
-    }
-    static shouldDeserialize(entityJson) {
-      return !!entityJson.components.find((c) => c.name === this.legacyComponentName)
     }
     static async deserialize(json, loadAsync?, onError?) {
       // Unused params used in derived class methods
@@ -70,13 +57,9 @@ export default function EditorNodeMixin(Object3DClass) {
       this.name = (this.constructor as any).nodeName
       this.isNode = true
       this.isCollapsed = false
-      this.disableTransform = (this.constructor as any).disableTransform
-      this.haveStaticTags = (this.constructor as any).haveStaticTags
       this.useMultiplePlacementMode = (this.constructor as any).useMultiplePlacementMode
-      this.ignoreRaycast = (this.constructor as any).ignoreRaycast
       this.staticMode = StaticModes.Inherits
       this.originalStaticMode = null
-      this.saveParent = false
       this.errorIcon = null
       this.issues = []
     }
@@ -222,22 +205,6 @@ export default function EditorNodeMixin(Object3DClass) {
     gltfIndexForUUID(nodeUUID) {
       return { __gltfIndexForUUID: nodeUUID }
     }
-    getObjectByUUID(uuid) {
-      return this.getObjectByProperty('uuid', uuid)
-    }
-    computeStaticMode() {
-      return computeStaticMode(this)
-    }
-    computeAndSetStaticModes() {
-      return computeAndSetStaticModes(this)
-    }
-    computeAndSetVisible() {
-      this.traverse((object) => {
-        if (object.parent && !object.parent.visible) {
-          object.visible = false
-        }
-      })
-    }
     showErrorIcon() {
       if (!this.errorIcon) {
         this.errorIcon = new ErrorIcon()
@@ -256,15 +223,6 @@ export default function EditorNodeMixin(Object3DClass) {
         this.errorIcon = null
       }
     }
-    isInherits() {
-      return isInherits(this)
-    }
-    isStatic() {
-      return isStatic(this)
-    }
-    isDynamic() {
-      return isDynamic(this)
-    }
     findNodeByType(nodeType) {
       if (this.constructor === nodeType) {
         return this
@@ -278,21 +236,6 @@ export default function EditorNodeMixin(Object3DClass) {
         }
       }
       return null
-    }
-    getNodesByType(nodeType) {
-      const nodes = []
-      if (this.constructor === nodeType) {
-        nodes.push(this)
-      }
-      for (const child of this.children) {
-        if (child.isNode) {
-          const results = child.getNodesByType(nodeType)
-          for (const result of results) {
-            nodes.push(result)
-          }
-        }
-      }
-      return nodes
     }
   }
 }

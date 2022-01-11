@@ -22,7 +22,10 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type SystemInstanceType = {
   name: string
@@ -132,6 +135,15 @@ export class World {
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
+
+  /** Tree of entity holding parent child relation between entities. */
+  entityTree: EntityTree
+
+  /** Registry map of scene loader components  */
+  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Registry map of prefabs  */
+  scenePrefabRegistry = new Map<string, ComponentJson[]>()
 
   /**
    * Get the network objects owned by a given user

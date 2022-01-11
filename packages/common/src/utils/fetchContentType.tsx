@@ -7,7 +7,6 @@
  * @return {Promise}               [wait for the response and return response]
  */
 
-export const fetchContentType = async (url): Promise<any> => {
-  const f = await fetch(url, { method: 'HEAD' }).then((r) => r.headers.get('content-type'))
-  return f
+export const fetchContentType = (url: string): Promise<string | null> => {
+  return fetch(url, { method: 'HEAD' }).then((r) => r.headers.get('content-type'))
 }

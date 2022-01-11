@@ -27,7 +27,7 @@ export const upload = (
   signal?,
   params: any = {}
 ): Promise<any> => {
-  const token = getToken()
+  const token = getToken()?.authData?.authUser?.accessToken
 
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
