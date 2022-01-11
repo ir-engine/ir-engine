@@ -20,7 +20,7 @@ Projects have a few conventions.
 
 - `xrengine.config.ts` the project configuration, where client routes, database models, feathers services and the project thumbnail can be defined
 
-A project can also have a package.json to provide custom dependencies. @xrengine/* monorepo dependencies will be symlinked and not needed, but some package managers (such as pnpm) requrie these to be defined. If so, they should be defined in `peerDependencies`.
+A project can also have a package.json to provide custom dependencies. @xrengine/* monorepo dependencies will be symlinked and not needed, but some package managers (such as pnpm) require these to be defined. If so, they should be defined in `peerDependencies`.
 
 ## Local Install Flow
 
