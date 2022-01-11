@@ -73,7 +73,7 @@
     "moment": "2.29.1",
     "multer": "^1.4.2",
     "mysql2": "2.3.3",
-    "nanoid": "3.1.30",
+    "nanoid": "3.1.31",
     "node-fetch": "^2.6.0",
     "nodemailer-smtp-transport": "^2.4.2",
     "pug": "^3.0.0",
