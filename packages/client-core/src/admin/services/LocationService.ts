@@ -43,16 +43,7 @@ store.receptors.push((action: LocationActionType): any => {
       case 'ADMIN_LOCATION_CREATED':
         return s.merge({ updateNeeded: true, created: true })
       case 'ADMIN_LOCATION_PATCHED':
-        const locationsList = state.locations.value
-        for (let i = 0; i < locationsList.length; i++) {
-          if (locationsList[i].id === action.location.id) {
-            locationsList[i] = action.location
-          } else if (action.location.isLobby && locationsList[i].isLobby) {
-            // if updated location is lobby then remove old lobby.
-            locationsList[i].isLobby = false
-          }
-        }
-        return s.merge({ locations: locationsList })
+        return s.merge({ updateNeeded: true })
 
       case 'ADMIN_LOCATION_REMOVED':
         return s.merge({ updateNeeded: true })

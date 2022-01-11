@@ -47,7 +47,6 @@ const LocationTable = (props: LocationProps) => {
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
   const adminLocations = adminLocationState
-  console.log(adminLocations)
   const adminLocationCount = adminLocationState.total
   const { t } = useTranslation()
   const adminUserState = useUserState()
@@ -82,7 +81,6 @@ const LocationTable = (props: LocationProps) => {
     adminInstanceState.updateNeeded.value,
     adminLocationState.updateNeeded.value
   ])
-
   useEffect(() => {
     if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
       LocationService.fetchAdminLocations('increment', null)

@@ -2,7 +2,6 @@ import React from 'react'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
-import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
 import { useStyles } from '../styles/ui'
 
@@ -23,7 +22,7 @@ const Search = (props: Props) => {
         inputProps={{ 'aria-label': 'search for location ' }}
         onChange={(e) => handleChange(e)}
       />
-      <IconButton type="submit" className={classes.iconButton} aria-label="search" size="large">
+      <IconButton className={classes.iconButton} aria-label="search" size="large">
         <SearchIcon />
       </IconButton>
     </Paper>
