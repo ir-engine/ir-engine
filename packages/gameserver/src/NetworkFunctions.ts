@@ -149,6 +149,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
 
   await Promise.all(
     instances.rows.map((instance) => {
+      if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
       const match = gameservers.items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
