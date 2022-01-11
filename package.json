@@ -98,7 +98,6 @@
   "devDependencies": {
     "@types/mocha": "9.0.0",
     "cli": "1.0.1",
-    "c8": "7.10.0",
     "concurrently": "6.5.1",
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
