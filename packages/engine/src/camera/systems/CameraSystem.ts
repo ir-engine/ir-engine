@@ -211,7 +211,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.1 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
