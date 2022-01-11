@@ -21,6 +21,7 @@ import {
   PerspectiveCamera
 } from 'three'
 import loadTexture from '../../assets/functions/loadTexture'
+import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 
 const vertexUniforms = `uniform float time;
 uniform sampler2D distortionMap;
@@ -104,18 +105,6 @@ vec3 foam( const in vec3 waterColor )
 
 const pixelData =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
-
-function insertBeforeString(source, searchTerm, addition) {
-  const position = source.indexOf(searchTerm)
-  return [source.slice(0, position), addition, source.slice(position)].join('\n')
-}
-
-function insertAfterString(source, searchTerm, addition) {
-  const position = source.indexOf(searchTerm)
-  return [source.slice(0, position + searchTerm.length), addition, source.slice(position + searchTerm.length)].join(
-    '\n'
-  )
-}
 
 function addImageProcess(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
