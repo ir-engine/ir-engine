@@ -2,11 +2,12 @@ import fs from 'fs'
 import fsExtra from 'fs-extra'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
-import config from "config"
 import inject from '@rollup/plugin-inject'
 import OptimizationPersist from './scripts/viteoptimizeplugin'
 import PkgConfig from 'vite-plugin-package-config'
 import { injectHtml } from 'vite-plugin-html'
+import dotenv from 'dotenv'
+import { getClientSetting } from './scripts/getClientSettings'
 
 const copyProjectDependencies = () => {
   const projects = fs
@@ -51,39 +52,13 @@ const getDependenciesToOptimize = () => {
   return [...dependencies, ...defaultDeps.dependencies]
 }
 
-const replaceEnvs = (obj, env) => {
-  let result = {};
-
-  for (let key of Object.keys(obj)) {
-    if (typeof obj[key] === 'object') {
-      result[key] = replaceEnvs(obj[key], env);
-      continue;
-    }
-
-    result[key] = obj[key];
-
-    if (typeof obj[key] !== 'string') {
-      continue;
-    }
-
-    const matches = Array.from(obj[key].matchAll(/\$\{[^}]*\}+/g), m => m[0]);
-
-    for (let match of matches) {
-      result[key] = result[key].replace(match, env[match.substring(2, match.length - 1)])
-    }
-  }
-
-  return result;
-}
-
-export default defineConfig((command) => {
+export default defineConfig(async (command) => {
   const env = loadEnv('', process.cwd() + '../../');
-  const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
-
+  dotenv.config()
+  const clientSetting = await getClientSetting()
   process.env = {
     ...process.env,
     ...env,
-    publicRuntimeConfig: JSON.stringify(runtime)
   };
 
   const returned = {
@@ -96,13 +71,13 @@ export default defineConfig((command) => {
       OptimizationPersist(),
         injectHtml({
           data: {
-            title: runtime.title || 'XRENGINE',
-            appleTouchIcon: runtime.appleTouchIcon || '/apple-touch-icon.png',
-            favicon32px: runtime.favicon32px || '/favicon-32x32.png',
-            favicon16px: runtime.favicon16px || '/favicon-16x16.png',
-            icon192px: runtime.icon192px || '/android-chrome-192x192.png',
-            icon512px: runtime.icon512px || '/android-chrome-512x512.png',
-            webmanifestLink: runtime.webmanifestLink || '/site.webmanifest'
+            title: clientSetting.title || 'XRENGINE',
+            appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+            favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+            favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+            icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+            icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+            webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest'
           }
         })
     ],

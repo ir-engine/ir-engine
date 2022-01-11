@@ -26,8 +26,7 @@ import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
-import { SceneManager } from '../managers/SceneManager'
-import { registerPredefinedNodes } from '../managers/NodeManager'
+import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import ScenesPanel from './assets/ScenesPanel'
@@ -136,13 +135,13 @@ const EditorContainer = (props) => {
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
-  const [DialogComponent, setDialogComponent] = useState(null)
+  const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [modified, setModified] = useState(false)
   const [sceneLoaded, setSceneLoaded] = useState(false)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
-  const dockPanelRef = useRef()
+  const dockPanelRef = useRef<DockLayout>(null)
 
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -200,8 +199,12 @@ const EditorContainer = (props) => {
     dispatch(EditorAction.sceneLoaded(null))
     setSceneLoaded(false)
     try {
+      if (!projectName) return
       const project = await getScene(projectName, sceneName, false)
+
+      if (!project.scene) return
       await ProjectManager.instance.loadProject(project.scene)
+
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -225,6 +228,8 @@ const EditorContainer = (props) => {
     try {
       // TODO: replace with better template functionality
       const project = await getScene('default-project', 'empty', false)
+
+      if (!project.scene) return
       await ProjectManager.instance.loadProject(project.scene)
       setDialogComponent(null)
     } catch (error) {
@@ -311,21 +316,21 @@ const EditorContainer = (props) => {
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
-              thumbnailUrl={URL.createObjectURL(blob)}
+              thumbnailUrl={URL.createObjectURL(blob!)}
               initialName={Engine.scene.name}
               onConfirm={resolve}
               onCancel={resolve}
             />
           )
         })) as any
-        if (result) {
+        if (result && projectName) {
           await saveScene(projectName, result.name, blob, abortController.signal)
           SceneManager.instance.sceneModified = false
         } else {
           saveProjectFlag = false
         }
       }
-      if (saveProjectFlag) {
+      if (saveProjectFlag && projectName) {
         await saveProject(projectName)
         updateModifiedState()
       }
@@ -341,7 +346,7 @@ const EditorContainer = (props) => {
 
   const onExportProject = async () => {
     if (!sceneName) return
-    const options = await new Promise((resolve) => {
+    const options = await new Promise<DefaultExportOptionsType>((resolve) => {
       setDialogComponent(
         <ExportProjectDialog
           defaultOptions={Object.assign({}, SceneManager.DefaultExportOptions)}
@@ -415,7 +420,7 @@ const EditorContainer = (props) => {
     el.accept = '.world'
     el.style.display = 'none'
     el.onchange = () => {
-      if (el.files.length > 0) {
+      if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
           const json = JSON.parse((fileReader as any).result)
@@ -467,8 +472,11 @@ const EditorContainer = (props) => {
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
 
     try {
-      await saveScene(projectName, sceneName, blob, abortController.signal)
-      await saveProject(projectName)
+      if (projectName) {
+        await saveScene(projectName, sceneName, blob, abortController.signal)
+        await saveProject(projectName)
+      }
+
       SceneManager.instance.sceneModified = false
       updateModifiedState()
       setDialogComponent(null)
@@ -507,20 +515,16 @@ const EditorContainer = (props) => {
   useEffect(() => {
     CacheManager.init()
 
-    registerPredefinedNodes()
-
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
       CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
-      CommandManager.instance.addListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
     })
   }, [])
 
   useEffect(() => {
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SAVE_PROJECT.toString(), onSaveScene)
       CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       ProjectManager.instance.dispose()

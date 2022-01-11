@@ -1,30 +1,28 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
-
-import { AlertService } from '../../common/services/AlertService'
-
-import { Config } from '@xrengine/common/src/config'
-
-import { accessAuthState } from '../../user/services/AuthService'
-import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
-import { Message } from '@xrengine/common/src/interfaces/Message'
-import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
+import { createState, none, useState } from '@hookstate/core'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
-import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
-
-import { createState, useState, none } from '@hookstate/core'
-
-import _ from 'lodash'
-import { User } from '@xrengine/common/src/interfaces/User'
 import { Group } from '@xrengine/common/src/interfaces/Group'
-import { Party } from '@xrengine/common/src/interfaces/Party'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Message } from '@xrengine/common/src/interfaces/Message'
+import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
+import { Party } from '@xrengine/common/src/interfaces/Party'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import { AlertService } from '../../common/services/AlertService'
+import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
 import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
+
+interface ChatMessageProps {
+  targetObjectId: string
+  targetObjectType: string
+  text: string
+}
 
 //State
 
@@ -258,7 +256,7 @@ export const ChatService = {
       }
     }
   },
-  createMessage: async (values: any) => {
+  createMessage: async (values: ChatMessageProps) => {
     {
       try {
         const chatState = accessChatState().value
@@ -278,7 +276,7 @@ export const ChatService = {
       }
     }
   },
-  sendChatMessage: (values: any) => {
+  sendChatMessage: (values: ChatMessageProps) => {
     try {
       client.service('message').create({
         targetObjectId: values.targetObjectId,
@@ -291,11 +289,13 @@ export const ChatService = {
   },
   sendMessage: (text: string) => {
     const user = accessAuthState().user.value
-    ChatService.sendChatMessage({
-      targetObjectId: user.instanceId,
-      targetObjectType: 'instance',
-      text: text
-    })
+    if (user.instanceId && text) {
+      ChatService.sendChatMessage({
+        targetObjectId: user.instanceId,
+        targetObjectType: 'instance',
+        text: text
+      })
+    }
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
     const dispatch = useDispatch()
@@ -385,7 +385,7 @@ export const ChatService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
     const { message } = params

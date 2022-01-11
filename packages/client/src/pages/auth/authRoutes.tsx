@@ -1,6 +1,7 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
 
+const $discord = React.lazy(() => import('./oauth/discord'))
 const $facebook = React.lazy(() => import('./oauth/facebook'))
 const $github = React.lazy(() => import('./oauth/github'))
 const $google = React.lazy(() => import('./oauth/google'))
@@ -13,6 +14,7 @@ const $magiclink = React.lazy(() => import('./magiclink'))
 const AuthRoutes = () => {
   return (
     <Switch>
+      <Route path="/auth/oauth/discord" component={$discord} />
       <Route path="/auth/oauth/facebook" component={$facebook} />
       <Route path="/auth/oauth/github" component={$github} />
       <Route path="/auth/oauth/google" component={$google} />

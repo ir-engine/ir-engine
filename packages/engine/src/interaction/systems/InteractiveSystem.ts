@@ -13,7 +13,6 @@ import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
@@ -47,7 +46,7 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
-      const interactionData = getComponent(entity, InteractableComponent).data
+      const interactionData = getComponent(entity, InteractableComponent)
       if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
@@ -121,7 +120,7 @@ export default async function InteractiveSystem(world: World): Promise<System> {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {
-        dispatchLocal(EngineActions.objectActivation(interactiveComponent.data) as any)
+        dispatchLocal(EngineActions.objectActivation(interactiveComponent))
       }
       removeComponent(entity, InteractedComponent)
     }

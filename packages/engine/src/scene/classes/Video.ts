@@ -18,6 +18,8 @@ export const VideoProjection = {
 }
 import isDash from '../functions/isDash'
 
+export const VIDEO_MESH_NAME = 'VideoMesh'
+
 export default class Video extends AudioSource {
   _texture: any
   _mesh: Mesh
@@ -36,7 +38,7 @@ export default class Video extends AudioSource {
     material.map = this._texture
     material.side = DoubleSide
     this._mesh = new Mesh(geometry, material)
-    this._mesh.name = 'VideoMesh'
+    this._mesh.name = VIDEO_MESH_NAME
     this.add(this._mesh)
     this._projection = 'flat'
     this.el.addEventListener('play', () => {
@@ -138,7 +140,7 @@ export default class Video extends AudioSource {
     material.map = this._texture
     this._projection = projection
     const nextMesh = new Mesh(geometry, material)
-    nextMesh.name = 'VideoMesh'
+    nextMesh.name = VIDEO_MESH_NAME
     const meshIndex = (this as any).children.indexOf(this._mesh)
     if (meshIndex === -1) {
       ;(this as any).add(nextMesh)

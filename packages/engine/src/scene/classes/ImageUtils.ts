@@ -25,6 +25,20 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
+export const ImageProjection = {
+  Flat: 'Flat',
+  Equirectangular360: 'Equirectangular360'
+}
+
+export const ImageAlphaMode = {
+  Opaque: 'Opaque' as const,
+  Blend: 'Blend' as const,
+  Mask: 'Mask' as const
+}
+
+export type ImageAlphaModeType = keyof typeof ImageAlphaMode
+export type ImageProjectionType = keyof typeof ImageProjection
+
 //#region CubemapToEquirectangular Shader
 const vertexShader = `
 	attribute vec3 position;

@@ -1,3 +1,4 @@
+import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -7,20 +8,18 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { Message as MessageIcon, Send } from '@mui/icons-material'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { ChatService } from '@xrengine/client-core/src/social/services/ChatService'
+import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
-
 import defaultStyles from './InstanceChat.module.scss'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 
 interface Props {
   styles?: any
@@ -40,7 +39,7 @@ const InstanceChat = (props: Props): any => {
     newMessageLabel = 'World Chat...'
   } = props
 
-  let activeChannel
+  let activeChannel: Channel | null = null
   const dispatch = useDispatch()
   const messageRef = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
@@ -83,7 +82,7 @@ const InstanceChat = (props: Props): any => {
   }
 
   const packageMessage = (): void => {
-    if (composingMessage.length > 0) {
+    if (composingMessage.length > 0 && user.instanceId.value) {
       ChatService.createMessage({
         targetObjectId: user.instanceId.value,
         targetObjectType: 'instance',
@@ -161,7 +160,7 @@ const InstanceChat = (props: Props): any => {
         <div className={styles['list-container']}>
           <Card square={true} elevation={0} className={styles['message-wrapper']}>
             <CardContent className={styles['message-container']}>
-              {activeChannel != null &&
+              {activeChannel &&
                 activeChannel.messages &&
                 [...activeChannel.messages]
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
