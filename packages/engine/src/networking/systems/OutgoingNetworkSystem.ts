@@ -18,6 +18,7 @@ import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 
 /***********
  * QUERIES *
@@ -86,12 +87,18 @@ function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, l
  **************/
 
 export const queueEntityTransform = (world: World, entity: Entity) => {
-  const { outgoingNetworkState, previousNetworkState } = world
+  const { outgoingNetworkState, previousNetworkState, clients } = world
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
   const transformComponent = getComponent(entity, TransformComponent)
 
   if (!networkObject || !transformComponent) return world
+
+  if (!clients.has(networkObject.ownerId)) {
+    // cleanup network objects whose owners are no longer present
+    removeEntity(entity, world)
+    return world
+  }
 
   let vel = undefined! as number[]
   let angVel = undefined
