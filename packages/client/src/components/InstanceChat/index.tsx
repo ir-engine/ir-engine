@@ -84,7 +84,7 @@ const InstanceChat = (props: Props): any => {
   }
 
   const packageMessage = (): void => {
-    if (composingMessage.length > 0 && user.instanceId.value) {
+    if (composingMessage?.length && user.instanceId.value) {
       ChatService.createMessage({
         targetObjectId: user.instanceId.value,
         targetObjectType: 'instance',

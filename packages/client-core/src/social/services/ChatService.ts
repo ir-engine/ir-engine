@@ -62,7 +62,6 @@ store.receptors.push((action: ChatActionType) => {
           findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
         let idx = findIndex > -1 ? findIndex : s.channels.channels.length
         s.channels.channels[idx].set(action.channel)
-        console.log('action.channelType', action.channelType)
         if (action.channelType === 'instance') {
           const endedInstanceChannelIndex = s.channels.channels.findIndex(
             (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
