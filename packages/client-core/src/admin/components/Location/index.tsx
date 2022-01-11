@@ -2,12 +2,12 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Search from '../../common/Search'
-import { useLocationStyles } from './styles'
+import { useStyles } from '../../styles/ui'
 import LocationTable from './LocationTable'
 import CreateLocation from './createLocation'
 
 const Location = () => {
-  const classes = useLocationStyles()
+  const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
 

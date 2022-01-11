@@ -1,12 +1,6 @@
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement } from 'react'
 import { LocationService } from '../../services/LocationService'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import { useLocationStyles, useLocationStyle } from './styles'
+import { useStyles } from '../../styles/ui'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useLocationState } from '../../services/LocationService'
 import { useInstanceState } from '../../services/InstanceService'
@@ -17,21 +11,20 @@ import { InstanceService } from '../../services/InstanceService'
 import { useErrorState } from '../../../common/services/ErrorService'
 import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
-import { locationColumns, LocationProps } from './variable'
+import { locationColumns, LocationProps } from '../../common/variables/location'
 import Chip from '@mui/material/Chip'
 import Avatar from '@mui/material/Avatar'
-import TablePagination from '@mui/material/TablePagination'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
 import ViewLocation from './ViewLocation'
 import { LOCATION_PAGE_LIMIT } from '../../services/LocationService'
+import ConfirmModel from '../../common/ConfirmModel'
+import TableComponent from '../../common/Table'
+import { useFetchLocation, useFetchAdminScenes, useFetchLocationTypes } from '../../common/hooks/Location.hooks'
+import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
+import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
-  const classes = useLocationStyles()
-  const classex = useLocationStyle()
+  const classes = useStyles()
   const adminInstanceState = useInstanceState()
 
   const [page, setPage] = React.useState(0)
@@ -48,47 +41,35 @@ const LocationTable = (props: LocationProps) => {
   const adminLocationState = useLocationState()
   const adminLocations = adminLocationState
   const adminLocationCount = adminLocationState.total
+
+  // Call custom hooks
   const { t } = useTranslation()
   const adminUserState = useUserState()
+  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService)
+  useFetchAdminScenes(user, SceneService)
+  useFetchLocationTypes(user, adminLocationState, LocationService)
+  useFetchUsersAsAdmin(user, adminUserState, UserService)
+  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     LocationService.fetchAdminLocations(incDec)
     setPage(newPage)
   }
 
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
+  }
+
+  const submitRemoveLocation = async () => {
+    await LocationService.removeLocation(locationId)
+    setPopConfirmOpen(false)
+  }
+
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-
-  useEffect(() => {
-    if (user?.id.value != null) {
-      // && adminSceneState.scenes.updateNeeded.value === true) {
-      SceneService.fetchAdminScenes('all')
-    }
-    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
-      LocationService.fetchLocationTypes()
-    }
-    if (user?.id.value != null && adminUserState.updateNeeded.value === true) {
-      UserService.fetchUsersAsAdmin()
-    }
-    if (user?.id.value != null && adminInstanceState.updateNeeded.value === true) {
-      InstanceService.fetchAdminInstances()
-    }
-  }, [
-    authState.user?.id?.value,
-    // adminSceneState.scenes.updateNeeded.value,
-    adminInstanceState.updateNeeded.value,
-    adminLocationState.updateNeeded.value
-  ])
-  useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      LocationService.fetchAdminLocations('increment', null)
-    }
-    // if (search) {
-    LocationService.fetchAdminLocations('increment', search)
-    // }
-  }, [search, authState.user?.id?.value, adminLocationState.updateNeeded.value])
 
   const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -130,12 +111,12 @@ const LocationTable = (props: LocationProps) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={classex.actionStyle} onClick={openViewModel(true, el)}>
-            <span className={classex.spanWhite}>View</span>
+          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
+            <span className={classes.spanWhite}>View</span>
           </a>
           <a
             href="#h"
-            className={classex.actionStyle}
+            className={classes.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setLocationId(id)
@@ -143,7 +124,7 @@ const LocationTable = (props: LocationProps) => {
             }}
           >
             {' '}
-            <span className={classex.spanDange}>Delete</span>{' '}
+            <span className={classes.spanDange}>Delete</span>{' '}
           </a>
         </>
       )
@@ -190,82 +171,25 @@ const LocationTable = (props: LocationProps) => {
   })
 
   return (
-    <div>
-      <React.Fragment>
-        <TableContainer className={classes.container}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {locationColumns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                    className={classex.tableCellHeader}
-                  >
-                    {column.label}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                    {locationColumns.map((column) => {
-                      const value = row[column.id]
-                      return (
-                        <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
-                          {value}
-                        </TableCell>
-                      )
-                    })}
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[12]}
-          component="div"
-          count={adminLocationCount.value}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-          className={classex.tableFooter}
-        />
-      </React.Fragment>
-      <Dialog
-        open={popConfirmOpen}
-        onClose={() => setPopConfirmOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        classes={{ paper: classes.paperDialog }}
-      >
-        <DialogTitle id="alert-dialog-title">
-          Do you want to delete location <b>{locationName}</b>
-        </DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
-            Cancel
-          </Button>
-          <Button
-            className={classes.spanDange}
-            onClick={async () => {
-              await LocationService.removeLocation(locationId)
-              setPopConfirmOpen(false)
-            }}
-            autoFocus
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={locationColumns}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        count={adminLocationCount.value}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
+      />
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveLocation}
+        name={locationName}
+        label={'location'}
+      />
       <ViewLocation openView={viewModel} closeViewModel={closeViewModel} locationAdmin={locationAdmin} />
-    </div>
+    </React.Fragment>
   )
 }
 
