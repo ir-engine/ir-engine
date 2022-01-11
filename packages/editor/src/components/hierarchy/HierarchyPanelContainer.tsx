@@ -257,7 +257,6 @@ export default function HierarchyPanel() {
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
       CommandManager.instance.setPropertyOnEntityNode(node.entityNode, {
-        updateFunction: () => {},
         component: NameComponent,
         properties: { name }
       })

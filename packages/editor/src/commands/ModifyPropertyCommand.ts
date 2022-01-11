@@ -4,7 +4,6 @@ import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ComponentUpdateFunction } from '@xrengine/engine/src/common/constants/PrefabFunctionType'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -30,7 +29,8 @@ export default class ModifyPropertyCommand extends Command {
 
     this.component = params.component
 
-    for (const propertyName in params.properties) {
+    const propertyNames = Object.keys(params.properties)
+    for (const propertyName of propertyNames) {
       const value = params.properties[propertyName]
       this.properties[propertyName] = value && value.clone ? value.clone() : value
     }
@@ -41,7 +41,7 @@ export default class ModifyPropertyCommand extends Command {
         const comp = getComponent(objects[i].entity, this.component)
         const oldProps = {}
 
-        for (const propertyName in params.properties) {
+        for (const propertyName of propertyNames) {
           const { result, finalProp } = this.getNestedObject(comp, propertyName)
           const oldValue = result[finalProp]
           oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
@@ -84,12 +84,14 @@ export default class ModifyPropertyCommand extends Command {
   }
 
   updateProperties(nodes: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
+    const propertyNames = Object.keys(properties)
+
     for (let i = 0; i < nodes.length; i++) {
       const entity = nodes[i].entity
       if (component) {
         const comp = getComponent(entity, component)
         if (comp) {
-          for (const propertyName in properties) {
+          for (const propertyName of propertyNames) {
             const value = properties[propertyName]
             const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
@@ -109,7 +111,7 @@ export default class ModifyPropertyCommand extends Command {
       }
     }
 
-    for (const propertyName in properties) {
+    for (const propertyName of propertyNames) {
       CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
     }
   }

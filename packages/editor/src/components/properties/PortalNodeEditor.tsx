@@ -13,9 +13,7 @@ import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Euler } from 'three'
-import { updatePortal } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 
 type PortalOptions = {
   name: string
@@ -37,8 +35,8 @@ const euler = new Euler()
  * @type {class component}
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
-  let [portals, setPortals] = useState<Array<{ value: string; name: string }>>([])
-  let [entityId, setEntityId] = useState('')
+  const [portals, setPortals] = useState<Array<{ value: string; name: string }>>([])
+  const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
 
   const onChangeValue = (prop) => (value) => {

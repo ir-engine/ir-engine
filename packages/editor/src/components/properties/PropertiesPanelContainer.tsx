@@ -110,6 +110,8 @@ const NoNodeSelectedMessage = (styled as any).div`
   height: 100%;
 `
 
+const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
+
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  *
@@ -126,9 +128,7 @@ export const PropertiesPanelContainer = () => {
   const onObjectsChanged = (objects, property) => {
     const selected = CommandManager.instance.selected
 
-    if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
-      return
-    }
+    if (PropsToWatch.includes(property)) return
 
     for (let i = 0; i < objects.length; i++) {
       if (selected.indexOf(objects[i]) !== -1) {

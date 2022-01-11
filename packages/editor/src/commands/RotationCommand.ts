@@ -83,8 +83,8 @@ export default class RotationCommand extends Command {
 
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i]
-      let obj3d = getComponent(object.entity, Object3DComponent).value
-      let transformComponent = getComponent(object.entity, TransformComponent)
+      const obj3d = getComponent(object.entity, Object3DComponent).value
+      const transformComponent = getComponent(object.entity, TransformComponent)
 
       T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
@@ -93,7 +93,7 @@ export default class RotationCommand extends Command {
       } else {
         obj3d.updateMatrixWorld() // Update parent world matrices
 
-        let _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : spaceMatrix
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : spaceMatrix
 
         const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
         const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)

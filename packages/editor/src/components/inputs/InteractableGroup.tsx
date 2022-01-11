@@ -79,69 +79,64 @@ export const InteractableGroup: EditorComponentType = (props) => {
 
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
 
-  const renderInteractableTypeOptions = () => {
-    switch (interactableComponent.interactionType) {
-      case 'infoBox':
-        return (
-          <>
-            <InputGroup name="Interaction Theme" label={t('editor:properties.interaction.theme')}>
-              <SelectInput
-                options={InteractableTheme}
-                value={interactableComponent.interactionThemeIndex}
-                onChange={updateProperty(InteractableComponent, 'interactionThemeIndex')}
-              />
-            </InputGroup>
-            <InputGroup name="Interaction Name" label={t('editor:properties.interaction.name')}>
-              <StringInput
-                value={interactableComponent.interactionName}
-                onChange={updateProperty(InteractableComponent, 'interactionName')}
-              />
-            </InputGroup>
-            <InputGroup name="Interaction Description" label={t('editor:properties.interaction.description')}>
-              <StringInput
-                value={interactableComponent.interactionDescription}
-                onChange={updateProperty(InteractableComponent, 'interactionDescription')}
-              />
-            </InputGroup>
-            <ArrayInputGroup
-              name="Interaction Images"
-              prefix="Image"
-              values={interactableComponent.interactionImages}
-              onChange={updateProperty(InteractableComponent, 'interactionImages')}
-              label={t('editor:properties.interaction.images')}
-              acceptFileTypes={ImageFileTypes}
-              itemType={ItemTypes.Images}
-            ></ArrayInputGroup>
-            <ArrayInputGroup
-              name="Interaction Videos"
-              prefix="Video"
-              values={interactableComponent.interactionVideos}
-              onChange={updateProperty(InteractableComponent, 'interactionVideos')}
-              label={t('editor:properties.interaction.videos')}
-              acceptFileTypes={VideoFileTypes}
-              itemType={ItemTypes.Videos}
-            ></ArrayInputGroup>
-            <ArrayInputGroup
-              name="Interaction Urls"
-              prefix="Url"
-              values={interactableComponent.interactionUrls}
-              onChange={updateProperty(InteractableComponent, 'interactionUrls')}
-              label={t('editor:properties.interaction.urls')}
-            ></ArrayInputGroup>
-            <ArrayInputGroup
-              name="Interaction Models"
-              prefix="Model"
-              values={interactableComponent.interactionModels}
-              onChange={updateProperty(InteractableComponent, 'interactionModels')}
-              label={t('editor:properties.interaction.models')}
-              acceptFileTypes={ModelFileTypes}
-              itemType={ItemTypes.Models}
-            ></ArrayInputGroup>
-          </>
-        )
-      default:
-        break
-    }
+  const renderInfoBoxOptions = () => {
+    return (
+      <>
+        <InputGroup name="Interaction Theme" label={t('editor:properties.interaction.theme')}>
+          <SelectInput
+            options={InteractableTheme}
+            value={interactableComponent.interactionThemeIndex}
+            onChange={updateProperty(InteractableComponent, 'interactionThemeIndex')}
+          />
+        </InputGroup>
+        <InputGroup name="Interaction Name" label={t('editor:properties.interaction.name')}>
+          <StringInput
+            value={interactableComponent.interactionName}
+            onChange={updateProperty(InteractableComponent, 'interactionName')}
+          />
+        </InputGroup>
+        <InputGroup name="Interaction Description" label={t('editor:properties.interaction.description')}>
+          <StringInput
+            value={interactableComponent.interactionDescription}
+            onChange={updateProperty(InteractableComponent, 'interactionDescription')}
+          />
+        </InputGroup>
+        <ArrayInputGroup
+          name="Interaction Images"
+          prefix="Image"
+          values={interactableComponent.interactionImages}
+          onChange={updateProperty(InteractableComponent, 'interactionImages')}
+          label={t('editor:properties.interaction.images')}
+          acceptFileTypes={ImageFileTypes}
+          itemType={ItemTypes.Images}
+        ></ArrayInputGroup>
+        <ArrayInputGroup
+          name="Interaction Videos"
+          prefix="Video"
+          values={interactableComponent.interactionVideos}
+          onChange={updateProperty(InteractableComponent, 'interactionVideos')}
+          label={t('editor:properties.interaction.videos')}
+          acceptFileTypes={VideoFileTypes}
+          itemType={ItemTypes.Videos}
+        ></ArrayInputGroup>
+        <ArrayInputGroup
+          name="Interaction Urls"
+          prefix="Url"
+          values={interactableComponent.interactionUrls}
+          onChange={updateProperty(InteractableComponent, 'interactionUrls')}
+          label={t('editor:properties.interaction.urls')}
+        ></ArrayInputGroup>
+        <ArrayInputGroup
+          name="Interaction Models"
+          prefix="Model"
+          values={interactableComponent.interactionModels}
+          onChange={updateProperty(InteractableComponent, 'interactionModels')}
+          label={t('editor:properties.interaction.models')}
+          acceptFileTypes={ModelFileTypes}
+          itemType={ItemTypes.Models}
+        ></ArrayInputGroup>
+      </>
+    )
   }
 
   return (
@@ -169,7 +164,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
         largeStep={0.1}
         value={interactableComponent.intensity || 0}
       />
-      {renderInteractableTypeOptions()}
+      {interactableComponent.interactionType === 'infoBox' ? renderInfoBoxOptions() : null}
     </Fragment>
   )
 }

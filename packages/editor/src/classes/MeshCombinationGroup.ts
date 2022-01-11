@@ -46,7 +46,7 @@ export async function compareTextures(hashCache, a, b) {
 async function meshBasicMaterialComparator(group: MeshCombinationGroup, a: MeshBasicMaterial, b: MeshBasicMaterial) {
   const imageHashes = group.imageHashes
 
-  return (
+  if (
     a.alphaTest === b.alphaTest &&
     a.blendDst === b.blendDst &&
     a.blendDstAlpha === b.blendDstAlpha &&
@@ -59,10 +59,21 @@ async function meshBasicMaterialComparator(group: MeshCombinationGroup, a: MeshB
     a.side === b.side &&
     a.transparent === b.transparent &&
     a.color.equals(b.color) &&
-    a.lightMapIntensity === b.lightMapIntensity &&
-    (await compareTextures(imageHashes, a.map, b.map)) &&
-    (await compareTextures(imageHashes, a.lightMap, b.lightMap))
-  )
+    a.lightMapIntensity === b.lightMapIntensity
+  ) {
+    return Promise.all([
+      compareTextures(imageHashes, a.lightMap, b.lightMap),
+      compareTextures(imageHashes, a.map, b.map)
+    ]).then((results) => {
+      for (let i = 0; i < results.length; i++) {
+        if (!results[i]) return false
+      }
+
+      return true
+    })
+  }
+
+  return false
 }
 
 async function meshStandardMaterialComparator(
@@ -72,19 +83,30 @@ async function meshStandardMaterialComparator(
 ) {
   const imageHashes = group.imageHashes
 
-  return (
+  if (
     a.roughness === b.roughness &&
     a.metalness === b.metalness &&
     a.aoMapIntensity === b.aoMapIntensity &&
     a.normalScale.equals(b.normalScale) &&
-    a.emissive.equals(b.emissive) &&
-    (await meshBasicMaterialComparator(group, a as any, b as any)) &&
-    (await compareTextures(imageHashes, a.roughnessMap, b.roughnessMap)) &&
-    (await compareTextures(imageHashes, a.metalnessMap, b.metalnessMap)) &&
-    (await compareTextures(imageHashes, a.aoMap, b.aoMap)) &&
-    (await compareTextures(imageHashes, a.normalMap, b.normalMap)) &&
-    (await compareTextures(imageHashes, a.emissiveMap, b.emissiveMap))
-  )
+    a.emissive.equals(b.emissive)
+  ) {
+    return Promise.all([
+      meshBasicMaterialComparator(group, a as any, b as any),
+      compareTextures(imageHashes, a.roughnessMap, b.roughnessMap),
+      compareTextures(imageHashes, a.metalnessMap, b.metalnessMap),
+      compareTextures(imageHashes, a.aoMap, b.aoMap),
+      compareTextures(imageHashes, a.normalMap, b.normalMap),
+      compareTextures(imageHashes, a.emissiveMap, b.emissiveMap)
+    ]).then((results) => {
+      for (let i = 0; i < results.length; i++) {
+        if (!results[i]) return false
+      }
+
+      return true
+    })
+  }
+
+  return false
 }
 
 async function dedupeTexture(
@@ -128,16 +150,27 @@ export default class MeshCombinationGroup {
     const textureCache = new Map<string, Texture>()
 
     const materials = collectUniqueMaterials(rootObject as Mesh)
+    const matPromises = [] as Promise<Texture | null>[]
 
     for (const material of materials as MeshStandardMaterial[]) {
-      material.map = await dedupeTexture(imageHashes, textureCache, material.map)
-      material.roughnessMap = await dedupeTexture(imageHashes, textureCache, material.roughnessMap)
-      material.metalnessMap = await dedupeTexture(imageHashes, textureCache, material.metalnessMap)
-      material.aoMap = await dedupeTexture(imageHashes, textureCache, material.aoMap)
-      material.normalMap = await dedupeTexture(imageHashes, textureCache, material.normalMap)
-      material.emissiveMap = await dedupeTexture(imageHashes, textureCache, material.emissiveMap)
-      material.lightMap = await dedupeTexture(imageHashes, textureCache, material.lightMap)
+      matPromises.push(
+        dedupeTexture(imageHashes, textureCache, material.map).then((texture) => (material.map = texture)),
+        dedupeTexture(imageHashes, textureCache, material.roughnessMap).then(
+          (texture) => (material.roughnessMap = texture)
+        ),
+        dedupeTexture(imageHashes, textureCache, material.metalnessMap).then(
+          (texture) => (material.metalnessMap = texture)
+        ),
+        dedupeTexture(imageHashes, textureCache, material.aoMap).then((texture) => (material.aoMap = texture)),
+        dedupeTexture(imageHashes, textureCache, material.normalMap).then((texture) => (material.normalMap = texture)),
+        dedupeTexture(imageHashes, textureCache, material.emissiveMap).then(
+          (texture) => (material.emissiveMap = texture)
+        ),
+        dedupeTexture(imageHashes, textureCache, material.lightMap).then((texture) => (material.lightMap = texture))
+      )
     }
+
+    await Promise.all(matPromises)
 
     await asyncTraverse(rootObject, async (object: Mesh) => {
       if (isStatic(object) && object.isMesh) {

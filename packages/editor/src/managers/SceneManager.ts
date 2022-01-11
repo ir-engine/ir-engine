@@ -372,7 +372,8 @@ export class SceneManager {
 
     function hasExtrasOrExtensions(object) {
       const userData = object.userData
-      for (const key in userData) {
+      const keys = Object.keys(userData)
+      for (const key of keys) {
         if (Object.prototype.hasOwnProperty.call(userData, key)) {
           return true
         }

@@ -194,6 +194,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const collectNodeMenuProps = useCallback(() => node, [node])
   const editor = getNodeEditorsForEntity(node.entityNode.entity)
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
+  const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
   return (
     <li>
@@ -214,10 +215,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         >
           <div
             className={styles.nodeDropTraget}
-            style={{
-              marginLeft: node.depth > 0 ? node.depth * 8 + 20 : 0,
-              borderTopWidth: isOverBefore && canDropBefore ? 2 : 0
-            }}
+            style={{ marginLeft, borderTopWidth: isOverBefore && canDropBefore ? 2 : 0 }}
             ref={beforeDropTarget}
           />
           <div className={styles.nodeContent} style={{ paddingLeft: node.depth * 8 + 'px' }} ref={onDropTarget}>
@@ -256,10 +254,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
           <div
             className={styles.nodeDropTraget}
-            style={{
-              marginLeft: node.depth > 0 ? node.depth * 8 + 20 : 0,
-              borderBottomWidth: isOverAfter && canDropAfter ? 2 : 0
-            }}
+            style={{ marginLeft, borderBottomWidth: isOverAfter && canDropAfter ? 2 : 0 }}
             ref={afterDropTarget}
           />
         </div>
