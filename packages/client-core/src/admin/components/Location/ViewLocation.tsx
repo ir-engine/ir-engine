@@ -193,27 +193,29 @@ const ViewLocation = (props: Props) => {
         classes={{ paper: classes.paperDrawer }}
       >
         <Paper elevation={0} className={classes.rootPaper}>
-          <Container maxWidth="sm">
-            <div className={classes.locationTitle}>
-              <Typography variant="h4" component="span">
-                {location?.name}
-              </Typography>
-            </div>
-            <div className={classes.locationSubTitle}>
-              {location.isFeatured && (
-                <Chip
-                  style={{ marginLeft: '5px' }}
-                  avatar={<Avatar>F</Avatar>}
-                  label={t('admin:components.index.featured')}
-                  //  onClick={handleClick}
-                />
-              )}
-              {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
-              {/* <Paper className={classes.smpd} elevation={0}>
+          {location && (
+            <Container maxWidth="sm">
+              <div className={classes.locationTitle}>
+                <Typography variant="h4" component="span">
+                  {location?.name}
+                </Typography>
+              </div>
+              <div className={classes.locationSubTitle}>
+                {location.isFeatured && (
+                  <Chip
+                    style={{ marginLeft: '5px' }}
+                    avatar={<Avatar>F</Avatar>}
+                    label={t('admin:components.index.featured')}
+                    //  onClick={handleClick}
+                  />
+                )}
+                {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
+                {/* <Paper className={classes.smpd} elevation={0}>
                         <Typography variant="h6" component="span" >{location.createdAt ? `Created At: ${location.createdAt.slice(0, 10)}`:""}</Typography>
                         </Paper> */}
-            </div>
-          </Container>
+              </div>
+            </Container>
+          )}
         </Paper>
 
         {editMode ? (
