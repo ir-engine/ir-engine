@@ -8,7 +8,7 @@ import { store } from '../../store'
 
 //State
 const state = createState({
-  webxrnative: null
+  webxrnative: false
 })
 
 store.receptors.push((action: WebxrNativeActionType): any => {

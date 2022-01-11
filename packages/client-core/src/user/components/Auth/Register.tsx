@@ -30,12 +30,11 @@ const SignUp = (props: Props): any => {
 
   const handleRegister = (e: any): void => {
     e.preventDefault()
-    dispatch(
-      AuthService.registerUserByEmail({
-        email: state.email,
-        password: state.password
-      })
-    )
+
+    AuthService.registerUserByEmail({
+      email: state.email,
+      password: state.password
+    })
   }
 
   return (

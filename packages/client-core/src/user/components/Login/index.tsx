@@ -85,8 +85,8 @@ const FlatSignIn = (props: Props) => {
     AuthService.resetPassword(token, password)
   }
 
-  let component = null
-  let footer = null
+  let component = null! as any
+  let footer = null! as any
 
   switch (view) {
     case 'sign-up':

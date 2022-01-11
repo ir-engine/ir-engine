@@ -32,30 +32,26 @@ export const PasswordLogin = (props: Props): any => {
 
   const handleInput = (e: any): void => setState({ ...state, [e.target.name]: e.target.value })
 
-  const handleEmailLogin = (e: any): void => {
+  const handleEmailLogin = async (e: any): Promise<void> => {
     e.preventDefault()
 
     if (isAddConnection) {
       const user = auth.user
       const userId = user ? user.id.value : ''
 
-      dispatch(
-        AuthService.addConnectionByPassword(
-          {
-            email: state.email,
-            password: state.password
-          },
-          userId
-        )
+      await AuthService.addConnectionByPassword(
+        {
+          email: state.email,
+          password: state.password
+        },
+        userId!
       )
       dispatch(DialogAction.dialogClose())
     } else {
-      dispatch(
-        AuthService.loginUserByPassword({
-          email: state.email,
-          password: state.password
-        })
-      )
+      await AuthService.loginUserByPassword({
+        email: state.email,
+        password: state.password
+      })
     }
   }
 
@@ -101,7 +97,7 @@ export const PasswordLogin = (props: Props): any => {
             <Grid item xs={12}>
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
-                label={t('user:auth.passwordLogin.lbl-rememberMe')}
+                label={t('user:auth.passwordLogin.lbl-rememberMe') as string}
               />
             </Grid>
             <Grid item xs={12}>

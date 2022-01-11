@@ -1,8 +1,6 @@
 import React from 'react'
-// import Search from './SearchLocation'
 import { useRouteStyles } from './styles'
 import RouteTable from './RouteTable'
-// import CreateLocation from './createLocation'
 
 const Routes = () => {
   const classes = useRouteStyles()
@@ -23,20 +21,9 @@ const Routes = () => {
 
   return (
     <div>
-      {/* <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
-          <Search />
-        </Grid>
-        <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New Location
-          </Button>
-        </Grid>
-      </Grid> */}
       <div className={classes.rootTable}>
         <RouteTable />
       </div>
-      {/* <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} /> */}
     </div>
   )
 }

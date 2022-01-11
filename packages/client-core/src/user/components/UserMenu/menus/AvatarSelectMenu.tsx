@@ -144,7 +144,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
       try {
         if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
           const loader = getLoader()
-          loader.parse(fileData.target!.result, '', (gltf) => {
+          loader.parse(fileData.target?.result!, '', (gltf) => {
             gltf.scene.name = 'avatar'
             loadExtentions(gltf)
             this.scene.add(gltf.scene)

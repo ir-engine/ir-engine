@@ -86,9 +86,9 @@ const MagicLinkEmail = (props: Props): any => {
     const user = auth.user
     const userId = user ? user.id.value : ''
     if (type === 'email') {
-      AuthService.addConnectionByEmail(state.emailPhone, userId)
+      AuthService.addConnectionByEmail(state.emailPhone, userId!)
     } else {
-      AuthService.addConnectionBySms(state.emailPhone, userId)
+      AuthService.addConnectionBySms(state.emailPhone, userId!)
     }
   }
   let descr = ''

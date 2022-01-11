@@ -70,11 +70,11 @@ const UserTable = (props: UserProps) => {
     id: any,
     user: any,
     name: string,
-    avatar: string,
-    status: string,
-    location: string,
-    inviteCode: string,
-    instanceId: string
+    avatar: string | JSX.Element,
+    status: string | JSX.Element,
+    location: string | JSX.Element,
+    inviteCode: string | JSX.Element,
+    instanceId: string | JSX.Element
   ): UserData => {
     return {
       id,
@@ -160,7 +160,7 @@ const UserTable = (props: UserProps) => {
                       <TableCell
                         key={column.id}
                         align={column.align}
-                        classes={{ root: classes.rootT }}
+                        classes={{ root: classes.root }}
                         className={classx.tableCellBody}
                       >
                         {value}
