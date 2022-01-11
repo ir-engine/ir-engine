@@ -254,8 +254,11 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+    tickRate: 60
+  })
   registerSystem(
-    SystemUpdateType.UPDATE,
+    SystemUpdateType.FIXED,
     new Promise((resolve) =>
       resolve({
         default: async (world: World) => () => applyIncomingActions(world)
