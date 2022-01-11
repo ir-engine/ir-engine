@@ -62,7 +62,7 @@ export const createInteractUI = (entity: Entity) => {
         // refresh video element
         if (videoElement && videoElement.element) {
           //TODO: sometimes the video rendering does not work, set resize for refreshing
-          videoElement.element.style.height = 0
+          // videoElement.element.style.height = 0
           if (mediaData[mediaIndex].type == 'video') {
             const path = mediaData[mediaIndex].path
             if (isHLS(path)) {
@@ -76,7 +76,7 @@ export const createInteractUI = (entity: Entity) => {
             videoElement.element.addEventListener(
               'loadeddata',
               function () {
-                videoElement.element.style.height = 'auto'
+                // videoElement.element.style.height = 'auto'
                 videoElement.element.play()
               },
               false

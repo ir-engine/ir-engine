@@ -35,7 +35,8 @@ const renderMedia = (detailState) => {
       <img
         src={imageUrl}
         style={{
-          width: '100%'
+          width: '100%',
+          display: data.type == 'image' ? 'block' : 'none'
         }}
       ></img>
       <video
@@ -54,6 +55,7 @@ const renderMedia = (detailState) => {
         id={`interactive-ui-model-${entityIndex}`}
         style={{
           width: '100%',
+          height: '300px',
           display: data.type == 'model' ? 'block' : 'none'
         }}
       ></div>
