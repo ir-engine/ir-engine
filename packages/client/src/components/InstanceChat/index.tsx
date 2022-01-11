@@ -63,6 +63,7 @@ const InstanceChat = (props: Props): any => {
       console.warn(
         '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
       )
+      console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
     }
     if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
