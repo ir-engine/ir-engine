@@ -222,58 +222,51 @@ globalThis.chatState = state
 export const ChatService = {
   getChannels: async (skip?: number, limit?: number) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const chatState = accessChatState().value
+    try {
+      const chatState = accessChatState().value
 
-        const channelResult = await client.service('channel').find({
-          query: {
-            $limit: limit != null ? limit : chatState.channels.limit,
-            $skip: skip != null ? skip : chatState.channels.skip
-          }
-        })
-        dispatch(ChatAction.loadedChannels(channelResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+      const channelResult = await client.service('channel').find({
+        query: {
+          $limit: limit != null ? limit : chatState.channels.limit,
+          $skip: skip != null ? skip : chatState.channels.skip
+        }
+      })
+      dispatch(ChatAction.loadedChannels(channelResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getInstanceChannel: async () => {
-    console.log('get instance channel')
     const dispatch = useDispatch()
-    {
-      try {
-        const channelResult = await client.service('channel').find({
-          query: {
-            channelType: 'instance',
-            instanceId: accessInstanceConnectionState().instance.id.value
-          }
-        })
-        if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-        dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      const channelResult = await client.service('channel').find({
+        query: {
+          channelType: 'instance',
+          instanceId: accessInstanceConnectionState().instance.id.value
+        }
+      })
+      if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
+      dispatch(ChatAction.loadedChannel(channelResult.data[0], 'instance'))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   createMessage: async (values: ChatMessageProps) => {
-    {
-      try {
-        const chatState = accessChatState().value
-        const data = {
-          targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
-          targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
-          text: values.text
-        }
-        if (data.targetObjectId === null || data.targetObjectType === null) {
-          console.log('invalid data, something is null: ')
-          console.log(data)
-          return
-        }
-        await client.service('message').create(data)
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+    try {
+      const chatState = accessChatState().value
+      const data = {
+        targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
+        targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
+        text: values.text
       }
+      if (data.targetObjectId === null || data.targetObjectType === null) {
+        console.log('invalid data, something is null: ')
+        console.log(data)
+        return
+      }
+      await client.service('message').create(data)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   sendChatMessage: (values: ChatMessageProps) => {
@@ -319,69 +312,59 @@ export const ChatService = {
     }
   },
   removeMessage: async (messageId: string) => {
-    {
-      try {
-        await client.service('message').remove(messageId)
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('message').remove(messageId)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchMessage: async (messageId: string, text: string) => {
-    {
-      try {
-        await client.service('message').patch(messageId, {
-          text: text
-        })
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('message').patch(messageId, {
+        text: text
+      })
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
-    {
-      if (!targetObject) {
-        dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
-      } else {
-        const targetChannelResult = await client.service('channel').find({
-          query: {
-            findTargetId: true,
-            targetObjectType: targetObjectType,
-            targetObjectId: targetObject.id
-          }
-        })
-        dispatch(
-          ChatAction.setChatTarget(
-            targetObjectType,
-            targetObject,
-            targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
-          )
+    if (!targetObject) {
+      dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+    } else {
+      const targetChannelResult = await client.service('channel').find({
+        query: {
+          findTargetId: true,
+          targetObjectType: targetObjectType,
+          targetObjectId: targetObject.id
+        }
+      })
+      dispatch(
+        ChatAction.setChatTarget(
+          targetObjectType,
+          targetObject,
+          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
         )
-      }
+      )
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
     const dispatch = useDispatch()
-    {
-      const chatState = accessChatState().value
-      const chatStateTargetObjectType = chatState.targetObjectType
-      const chatStateTargetObjectId = chatState.targetObjectId
-      if (
-        targetObjectType === chatStateTargetObjectType &&
-        (targetObject.id === chatStateTargetObjectId ||
-          targetObject.relatedUserId === chatStateTargetObjectId ||
-          targetObject.userId === chatStateTargetObjectId)
-      ) {
-        dispatch(ChatAction.setChatTarget('', {}, ''))
-      }
+    const chatState = accessChatState().value
+    const chatStateTargetObjectType = chatState.targetObjectType
+    const chatStateTargetObjectId = chatState.targetObjectId
+    if (
+      targetObjectType === chatStateTargetObjectType &&
+      (targetObject.id === chatStateTargetObjectId ||
+        targetObject.relatedUserId === chatStateTargetObjectId ||
+        targetObject.userId === chatStateTargetObjectId)
+    ) {
+      dispatch(ChatAction.setChatTarget('', {}, ''))
     }
   },
   updateMessageScrollInit: async (value: boolean) => {
     const dispatch = useDispatch()
-    {
-      dispatch(ChatAction.setMessageScrollInit(value))
-    }
+    dispatch(ChatAction.setMessageScrollInit(value))
   }
 }
 

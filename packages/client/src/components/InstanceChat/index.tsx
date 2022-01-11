@@ -54,18 +54,20 @@ const InstanceChat = (props: Props): any => {
     activeChannel = activeChannelMatch[1]
   }
 
-  // somehow user?.instanceId?.value, and instanceConnectionState.instance.id?.value, are different when they should be the same
-  console.log(
-    user?.instanceId?.value,
-    instanceConnectionState.instance.id?.value,
-    instanceConnectionState.connected.value,
-    chatState.instanceChannelFetching.value
-  )
   useEffect(() => {
     if (
+      user?.instanceId?.value &&
+      instanceConnectionState.instance.id?.value &&
+      user?.instanceId?.value !== instanceConnectionState.instance.id?.value
+    ) {
+      console.warn(
+        '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
+      )
+    }
+    if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
-      instanceConnectionState.connected.value === true &&
-      chatState.instanceChannelFetching.value !== true
+      instanceConnectionState.connected.value &&
+      !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
