@@ -49,8 +49,10 @@ const InstanceModal = (props: Props): any => {
 
   const [instanceUsers, setInstanceUsers] = useState<User[]>([])
 
+  const isMounted = useRef(false)
   const getInstanceUsers = async () => {
-    if (instance?.id != null && instance?.id !== 0 && currentInstanceId.current === instance.id) {
+    if (!isMounted.current) return
+    if (instance?.id != null && instance?.id !== '0' && currentInstanceId.current.toString() === instance.id) {
       const instanceUserResult = await client.service('user').find({
         query: {
           $limit: 1000,
@@ -70,8 +72,12 @@ const InstanceModal = (props: Props): any => {
   }
 
   useEffect(() => {
-    currentInstanceId.current = instance?.id || 0
+    isMounted.current = true
+    currentInstanceId.current = parseInt(instance?.id || '0')
     getInstanceUsers()
+    return () => {
+      isMounted.current = false
+    }
   }, [instance])
 
   type Order = 'asc' | 'desc'
@@ -173,7 +179,7 @@ const InstanceModal = (props: Props): any => {
                           <TableCell
                             className={styles.tcell}
                             component="th"
-                            id={row.id.toString()}
+                            id={row.id?.toString()}
                             align="right"
                             scope="row"
                             padding="none"

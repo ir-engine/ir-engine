@@ -13,7 +13,8 @@ export class Authentication extends Service {
   async find(params: Params): Promise<any> {
     const auth = (await super.find()) as any
     const data = auth.data.map((el) => {
-      return {
+      const oauth = JSON.parse(JSON.parse(el.oauth))
+      const returned = {
         ...el,
         authStrategies: JSON.parse(JSON.parse(el.authStrategies)),
         local: JSON.parse(JSON.parse(el.local)),
@@ -21,16 +22,17 @@ export class Authentication extends Service {
         bearerToken: JSON.parse(JSON.parse(el.bearerToken)),
         callback: JSON.parse(JSON.parse(el.callback)),
         oauth: {
-          ...JSON.parse(JSON.parse(el.oauth)),
-          defaults: JSON.parse(JSON.parse(JSON.parse(el.oauth)).defaults),
-          discord: JSON.parse(JSON.parse(JSON.parse(el.oauth)).discord),
-          facebook: JSON.parse(JSON.parse(JSON.parse(el.oauth)).facebook),
-          github: JSON.parse(JSON.parse(JSON.parse(el.oauth)).github),
-          google: JSON.parse(JSON.parse(JSON.parse(el.oauth)).google),
-          linkedin: JSON.parse(JSON.parse(JSON.parse(el.oauth)).linkedin),
-          twitter: JSON.parse(JSON.parse(JSON.parse(el.oauth)).twitter)
+          ...JSON.parse(JSON.parse(el.oauth))
         }
       }
+      if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)
+      if (oauth.discord) returned.oauth.discord = JSON.parse(oauth.discord)
+      if (oauth.facebook) returned.oauth.facebook = JSON.parse(oauth.facebook)
+      if (oauth.github) returned.oauth.github = JSON.parse(oauth.github)
+      if (oauth.google) returned.oauth.google = JSON.parse(oauth.google)
+      if (oauth.linkedin) returned.oauth.linkedin = JSON.parse(oauth.linkedin)
+      if (oauth.twitter) returned.oauth.twitter = JSON.parse(oauth.twitter)
+      return returned
     })
     return {
       total: auth.total,
