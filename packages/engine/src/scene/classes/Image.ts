@@ -10,15 +10,8 @@ import {
   MeshStandardMaterial
 } from 'three'
 import loadTexture from '../../assets/functions/loadTexture'
-export const ImageProjection = {
-  Flat: 'flat',
-  Equirectangular360: '360-equirectangular'
-}
-export const ImageAlphaMode = {
-  Opaque: 'opaque',
-  Blend: 'blend',
-  Mask: 'mask'
-}
+import { ImageAlphaMode, ImageProjection } from './ImageUtils'
+
 export default class Image extends Object3D {
   _src: any
   _projection: string
@@ -26,10 +19,11 @@ export default class Image extends Object3D {
   _alphaCutoff: number
   _mesh: Mesh
   _texture: any
+
   constructor() {
     super()
     this._src = null
-    this._projection = 'flat'
+    this._projection = ImageProjection.Flat
     this._alphaMode = ImageAlphaMode.Opaque
     this._alphaCutoff = 0.5
     const geometry = new PlaneBufferGeometry()
@@ -42,12 +36,15 @@ export default class Image extends Object3D {
     ;(this as any).add(this._mesh)
     this._texture = null
   }
+
   get src() {
     return this._src
   }
+
   set src(src) {
     this.load(src).catch(console.error)
   }
+
   loadTexture(src) {
     return loadTexture(src)
   }

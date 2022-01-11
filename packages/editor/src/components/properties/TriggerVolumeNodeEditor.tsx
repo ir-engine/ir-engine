@@ -2,38 +2,22 @@ import React, { useEffect, useState } from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
+import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EditorComponentType, updateProperty } from './Util'
 
-//Declaring TriggerVolumeNodeEditor properties
-type TriggerVolumeNodeEditorProps = {
-  node?: any
-  multiEdit?: boolean
-}
-
-//Declaring TriggerVolumeNodeEditor state
-type TriggerVolumeNodeEditorState = {
-  options: any[]
-}
-
-/**
- * TriggerVolumeNodeEditor provides the editor view to customize properties.
- *
- * @author Robert Long
- * @type {class component}
- */
-export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => {
+export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
   //initializing props and state
-  let [options, setOptions] = useState([])
+  let [options, setOptions] = useState<any[]>([])
   const { t } = useTranslation()
 
   useEffect(() => {
-    const options = []
+    const options: any[] = []
     const sceneNode = Engine.scene
     sceneNode.traverse((o: any) => {
       if (o.isNode && o !== sceneNode) {
@@ -43,44 +27,25 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
     setOptions(options)
   }, [])
 
-  //function to handle the changes in showHelper property
-  const onChangeShowHelperValue = (value) => {
-    CommandManager.instance.setPropertyOnSelection('showHelper', value)
-  }
-
   //function to handle the changes in target
   const onChangeTarget = (target) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.MODIFY_PROPERTY, {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      component: TriggerVolumeComponent,
       properties: {
         target,
         onEnter: '',
-        onExit: '',
-        showHelper: false
+        onExit: ''
       }
     })
   }
 
-  //function to handle the changes in enterValue property
-  const onChangeOnEnter = (value) => {
-    CommandManager.instance.setPropertyOnSelection('onEnter', value)
-  }
-
-  // function to handle the changes in leaveValue
-  const onChangeOnExit = (value) => {
-    CommandManager.instance.setPropertyOnSelection('onExit', value)
-  }
-
-  //rendering editor view for property customization
-  const { node, multiEdit } = props
-  const targetOption = options.find((o) => o.value === node.target)
+  const triggerVolumeComponent = getComponent(props.node.entity, TriggerVolumeComponent)
+  const targetOption = options.find((o) => o.value === triggerVolumeComponent.target)
   const target = targetOption ? targetOption.value : null
-  const targetNotFound = node.target && target === null
+  const targetNotFound = triggerVolumeComponent.target && target === null
 
   return (
     <NodeEditor description={t('editor:properties.triggereVolume.description')} {...props}>
-      <InputGroup name="Show Helper" label={t('editor:properties.triggereVolume.lbl-showHelper')}>
-        <BooleanInput value={node.showHelper} onChange={onChangeShowHelperValue} disabled={false} />
-      </InputGroup>
       <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
         <SelectInput
           error={targetNotFound}
@@ -89,17 +54,25 @@ export const TriggerVolumeNodeEditor = (props: TriggerVolumeNodeEditorProps) => 
               ? t('editor:properties.triggereVolume.ph-errorNode')
               : t('editor:properties.triggereVolume.ph-selectNode')
           }
-          value={node.target}
+          value={triggerVolumeComponent.target}
           onChange={onChangeTarget}
           options={options}
-          disabled={multiEdit}
+          disabled={props.multiEdit}
         />
       </InputGroup>
       <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
-        <StringInput value={node.onEnter} onChange={onChangeOnEnter} disabled={multiEdit || !target} />
+        <StringInput
+          value={triggerVolumeComponent.onEnter}
+          onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
+          disabled={props.multiEdit || !target}
+        />
       </InputGroup>
       <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
-        <StringInput value={node.onExit} onChange={onChangeOnExit} disabled={multiEdit || !target} />
+        <StringInput
+          value={triggerVolumeComponent.onExit}
+          onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
+          disabled={props.multiEdit || !target}
+        />
       </InputGroup>
     </NodeEditor>
   )

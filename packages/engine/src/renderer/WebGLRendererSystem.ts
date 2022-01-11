@@ -66,7 +66,7 @@ export interface EffectComposerWithSchema extends EffectComposer {
 
 let lastRenderTime = 0
 
-type EngineRendererProps = {
+export type EngineRendererProps = {
   canvas: HTMLCanvasElement
   enabled: boolean
 }
@@ -86,13 +86,12 @@ export class EngineRenderer {
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
-  postProcessingConfig = null
   renderPass: RenderPass
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
 
   supportWebGL2: boolean
-  rendereringEnabled = true
+  rendereringEnabled = false
   canvas: HTMLCanvasElement
 
   averageFrameTime = 1000 / 60
@@ -102,6 +101,9 @@ export class EngineRenderer {
   averageTimePeriods = 3 * 60 // 3 seconds @ 60fps
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
+
+  /** To Disable update for renderer */
+  disableUpdate = false
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: EngineRendererProps) {
@@ -159,8 +161,9 @@ export class EngineRenderer {
 
     this.needsResize = true
     Engine.renderer.autoClear = true
+    Engine.effectComposer = new EffectComposer(Engine.renderer)
 
-    configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
+    configureEffectComposer()
 
     Engine.currentWorld.receptors.push((action: EngineActionType) => {
       switch (action.type) {
@@ -211,7 +214,7 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && Engine.csm?.update()
-        if (state.usePostProcessing.value && Engine.effectComposer) {
+        if (state.usePostProcessing.value) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true

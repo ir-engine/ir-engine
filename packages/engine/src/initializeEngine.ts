@@ -1,6 +1,14 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import {
+  BufferGeometry,
+  Euler,
+  Mesh,
+  PerspectiveCamera,
+  Quaternion,
+  Scene,
+  AudioListener as PositionalAudioListener
+} from 'three'
 import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
@@ -19,7 +27,8 @@ import { FontManager } from './xrui/classes/FontManager'
 import { createWorld } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, EngineActionType, EngineEventReceptor } from './ecs/classes/EngineService'
+import { registerPrefabs } from './scene/functions/registerPrefabs'
+import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -80,6 +89,8 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.name = 'Camera'
+  Engine.audioListener = new PositionalAudioListener()
+  Engine.camera.add(Engine.audioListener)
 
   globalThis.botHooks = BotHookFunctions
   globalThis.Engine = Engine
@@ -138,9 +149,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
   // Bot
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
-
-  // Maps
-  registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
 
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
@@ -212,15 +220,18 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   // Bot
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
 
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EntityNodeEventSystem'))
+
   // Scene Systems
-  // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
-  // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
-  //   simulationEnabled: options.physics.simulationEnabled
-  // })
+  registerSystem(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'))
+
   // Miscellaneous Systems
   // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
@@ -256,6 +267,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
+  registerPrefabs(sceneWorld)
 
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
@@ -306,10 +318,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
 
   // temporary, will be fixed with editor engine integration
   Engine.engineTimer = Timer(executeWorlds)
-
-  if (options.type !== EngineSystemPresets.EDITOR) {
-    Engine.engineTimer.start()
-  }
+  Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
     receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
@@ -322,6 +331,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
+    Engine.isEditor = true
   }
 
   globalThis.Engine = Engine

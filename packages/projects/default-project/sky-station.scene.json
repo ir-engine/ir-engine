@@ -203,15 +203,7 @@
           }
         },
         {
-          "name": "interact",
-          "props": {}
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
+          "name": "interactable",
           "props": {}
         }
       ],
@@ -456,7 +448,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "infoBox",
@@ -477,14 +469,6 @@
               "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
             ]
           }
-        },
-        {
-          "name": "collidable",
-          "props": {}
-        },
-        {
-          "name": "walkable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -991,7 +975,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "infoBox",
@@ -1106,7 +1090,7 @@
           }
         },
         {
-          "name": "interact",
+          "name": "interactable",
           "props": {
             "interactable": true,
             "interactionType": "equippable"
