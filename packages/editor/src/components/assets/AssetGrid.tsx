@@ -21,9 +21,10 @@ import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { FileDataType } from './FileDataType'
 
 const getPrefabs = () => {
-  const arr = [] as any
+  const arr = [] as FileDataType[]
 
   useWorld().scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
     if (shouldPrefabDeserialize(prefabType)) {
@@ -34,7 +35,8 @@ const getPrefabs = () => {
         description: '', // todo
         type: ItemTypes.Element,
         nodeClass: prefabType,
-        initialProps: null
+        initialProps: null,
+        url: ''
       })
     }
   })

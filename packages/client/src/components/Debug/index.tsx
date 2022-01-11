@@ -61,7 +61,7 @@ export const Debug = () => {
       ...Object.fromEntries(
         [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
           return [
-            key,
+            key + '(' + value + ')',
             Object.fromEntries(
               getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
                 if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])

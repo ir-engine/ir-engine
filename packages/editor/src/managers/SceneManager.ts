@@ -76,11 +76,10 @@ export class SceneManager {
   raycaster: Raycaster
   raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
-  thumbnailRenderer = new ThumbnailRenderer()
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   editorEntity: Entity
-  onUpdateStats: (info: WebGLInfo) => void
+  onUpdateStats?: (info: WebGLInfo) => void
   screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
 
@@ -156,6 +155,8 @@ export class SceneManager {
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
       EngineRenderer.instance.disableUpdate = false
+
+      ThumbnailRenderer.instance = new ThumbnailRenderer()
     } catch (error) {
       console.error(error)
     }
@@ -268,7 +269,7 @@ export class SceneManager {
     if (fileName.endsWith('.glb')) {
       const { scene } = await LoadGLTF(url)
 
-      blob = await this.thumbnailRenderer.generateThumbnail(scene, width, height)
+      blob = await ThumbnailRenderer.instance.generateThumbnail(scene, width, height)
     } else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].some((ext) => fileName.endsWith(ext))) {
       blob = await generateImageFileThumbnail(file)
     } else if (file.name.toLowerCase().endsWith('.mp4')) {
@@ -513,5 +514,13 @@ export default async function EditorRendererSystem(world: World, props: EngineRe
     if (!accessEditorState().sceneName.value || !EngineRenderer.instance || EngineRenderer.instance.disableUpdate)
       return
     EngineRenderer.instance.execute(world.delta)
+
+    if (SceneManager.instance.onUpdateStats) {
+      Engine.renderer.info.reset()
+      const renderStat = Engine.renderer.info.render as any
+      renderStat.fps = 1 / world.delta
+      renderStat.frameTime = world.delta * 1000
+      SceneManager.instance.onUpdateStats(Engine.renderer.info)
+    }
   }
 }

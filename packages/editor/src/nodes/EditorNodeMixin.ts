@@ -3,16 +3,6 @@ import { Color, Object3D } from 'three'
 import serializeColor from '../functions/serializeColor'
 import ErrorIcon from '../classes/ErrorIcon'
 
-type SerializedComponents = {
-  name: string
-  props: any
-}
-
-export type SerializedNode = {
-  name: string
-  components: SerializedComponents[]
-}
-
 export default function EditorNodeMixin(Object3DClass) {
   return class extends Object3DClass {
     static nodeName = 'Unknown Node'
@@ -88,7 +78,7 @@ export default function EditorNodeMixin(Object3DClass) {
     onRemove() {}
     onSelect() {}
     onDeselect() {}
-    async serialize(projectID, components?): Promise<SerializedNode> {
+    async serialize(projectID, components?): Promise<any> {
       const entityJson = {
         name: this.name,
         components: [

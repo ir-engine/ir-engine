@@ -28,7 +28,7 @@ type EulerInputProps = {
  */
 export const EulerInput = (props: EulerInputProps) => {
   const onChange = (x, y, z) => {
-    props.onChange(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
+    props.onChange?.(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
   }
 
   // creating view for component
