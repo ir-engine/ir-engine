@@ -1,29 +1,27 @@
-import Button from '@mui/material/Button'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import { useAuthState } from '../../../services/AuthService'
-import { AuthService } from '../../../services/AuthService'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import InputAdornment from '@mui/material/InputAdornment'
+import Snackbar from '@mui/material/Snackbar'
+import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
-import { getAvatarURLForUser, Views } from '../util'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Tooltip from '@mui/material/Tooltip'
-import Grid from '@mui/material/Grid'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Snackbar from '@mui/material/Snackbar'
-import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
-import appconfig from '@xrengine/server-core/src/appconfig'
+import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
   changeActiveMenu?: any
@@ -48,6 +46,7 @@ const initialState = {
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
+  const location: any = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -142,7 +141,7 @@ const ProfileMenu = (props: Props): any => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleLogout = async (e) => {
