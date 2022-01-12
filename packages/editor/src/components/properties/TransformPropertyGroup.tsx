@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import PropertyGroup from './PropertyGroup'
+import { Euler } from 'three'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import EulerInput from '../inputs/EulerInput'
@@ -11,6 +12,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { EditorComponentType } from './Util'
 
+const euler = new Euler()
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  *
@@ -26,6 +28,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
+    euler.setFromQuaternion(transfromComponent.rotation)
+    setState({ x: euler.x, y: euler.y, z: euler.z })
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
