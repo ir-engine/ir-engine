@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import PropertyGroup from './PropertyGroup'
+import { Euler } from 'three'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import EulerInput from '../inputs/EulerInput'
@@ -11,6 +12,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { EditorComponentType } from './Util'
 
+const euler = new Euler()
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  *
@@ -20,11 +22,14 @@ import { EditorComponentType } from './Util'
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
+  const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
 
   const forceUpdate = useCallback(() => updateState({}), [])
 
   useEffect(() => {
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
+    euler.setFromQuaternion(transfromComponent.rotation)
+    setState({ x: euler.x, y: euler.y, z: euler.z })
 
     return () => {
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
@@ -38,6 +43,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
+    setState({ x: value.x, y: value.y, z: value.z })
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
@@ -64,7 +70,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput value={transfromComponent.rotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput value={rotEulerValue} onChange={onChangeRotation} unit="°" />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input

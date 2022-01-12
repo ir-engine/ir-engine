@@ -33,9 +33,10 @@ export const EulerInput = (props: EulerInputProps) => {
 
   // creating view for component
   const { value, ...rest } = props
-  const vx = value ? (value.x || 0) * RAD2DEG : 0
-  const vy = value ? (value.y || 0) * RAD2DEG : 0
-  const vz = value ? (value.z || 0) * RAD2DEG : 0
+
+  const vx = value ? Math.round((value.x || 0) * RAD2DEG) : 0
+  const vy = value ? Math.round((value.y || 0) * RAD2DEG) : 0
+  const vz = value ? Math.round((value.z || 0) * RAD2DEG) : 0
 
   return (
     <Vector3InputContainer>
