@@ -56,9 +56,19 @@ const InstanceChat = (props: Props): any => {
 
   useEffect(() => {
     if (
+      user?.instanceId?.value &&
+      instanceConnectionState.instance.id?.value &&
+      user?.instanceId?.value !== instanceConnectionState.instance.id?.value
+    ) {
+      console.warn(
+        '[WARNING]: somehow user.instanceId and instanceConnectionState.instance.id, are different when they should be the same'
+      )
+      console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
+    }
+    if (
       user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
-      instanceConnectionState.connected.value === true &&
-      chatState.instanceChannelFetching.value !== true
+      instanceConnectionState.connected.value &&
+      !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
@@ -75,7 +85,7 @@ const InstanceChat = (props: Props): any => {
   }
 
   const packageMessage = (): void => {
-    if (composingMessage && user.instanceId.value) {
+    if (composingMessage?.length && user.instanceId.value) {
       ChatService.createMessage({
         targetObjectId: user.instanceId.value,
         targetObjectType: 'instance',

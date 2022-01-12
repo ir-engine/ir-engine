@@ -3,7 +3,6 @@ import { client } from '../../feathers'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/services/AuthService'
 import { AlertService } from '../../common/services/AlertService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 import { createState, useState } from '@hookstate/core'
 

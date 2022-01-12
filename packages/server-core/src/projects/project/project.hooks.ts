@@ -1,6 +1,6 @@
 import * as authentication from '@feathersjs/authentication'
 import verifyScope from '../../hooks/verify-scope'
-import * as commonHooks from 'feathers-hooks-common'
+import { iff, isProvider } from 'feathers-hooks-common'
 
 const { authenticate } = authentication.hooks
 
@@ -9,22 +9,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      authenticate('jwt'),
-      commonHooks.iff(commonHooks.isProvider('external'), verifyScope('editor', 'write') as any)
-    ],
-    update: [
-      authenticate('jwt'),
-      commonHooks.iff(commonHooks.isProvider('external'), verifyScope('editor', 'write') as any)
-    ],
-    patch: [
-      authenticate('jwt'),
-      commonHooks.iff(commonHooks.isProvider('external'), verifyScope('editor', 'write') as any)
-    ],
-    remove: [
-      authenticate('jwt'),
-      commonHooks.iff(commonHooks.isProvider('external'), verifyScope('editor', 'write') as any)
-    ]
+    create: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    update: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    patch: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    remove: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)]
   },
 
   after: {
