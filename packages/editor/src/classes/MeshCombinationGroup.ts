@@ -1,5 +1,4 @@
 import { BufferGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, SkinnedMesh, Texture } from 'three'
-import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
 import asyncTraverse from '../functions/asyncTraverse'
 import keysEqual from '../functions/keysEqual'
 import hashImage from '../functions/hashImage'
@@ -138,7 +137,6 @@ export default class MeshCombinationGroup {
   imageHashes: Map<string, string>
 
   static async combineMeshes(rootObject: Object3D) {
-    computeAndSetStaticModes(rootObject)
     rootObject.traverse((object) => {
       if (object.parent && !object.parent.visible) {
         object.visible = false
@@ -173,7 +171,7 @@ export default class MeshCombinationGroup {
     await Promise.all(matPromises)
 
     await asyncTraverse(rootObject, async (object: Mesh) => {
-      if (isStatic(object) && object.isMesh) {
+      if (object.isMesh) {
         let added = false
 
         for (const group of meshCombinationGroups) {

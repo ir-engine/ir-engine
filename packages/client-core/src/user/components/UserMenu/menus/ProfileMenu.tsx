@@ -181,7 +181,7 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setUserIdState({ ...userIdState, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
   const handleClose = () => {
@@ -299,7 +299,7 @@ const ProfileMenu = (props: Props): any => {
               </Grid>
               <Grid item container xs={6} alignItems="flex-start" direction="column">
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>

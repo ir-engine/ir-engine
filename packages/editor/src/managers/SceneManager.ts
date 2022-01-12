@@ -51,7 +51,6 @@ import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functi
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
-import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
@@ -369,8 +368,6 @@ export class SceneManager {
   }
 
   removeUnusedObjects = (object3d: Object3D) => {
-    computeAndSetStaticModes(object3d)
-
     function hasExtrasOrExtensions(object) {
       const userData = object.userData
       const keys = Object.keys(userData)
@@ -398,7 +395,6 @@ export class SceneManager {
         canBeRemoved &&
         object.children.length === 0 &&
         (object.constructor === Object3D || object.constructor === Scene || object.constructor === Group) &&
-        isStatic(object) &&
         !hasExtrasOrExtensions(object)
       ) {
         object.parent?.remove(object)
