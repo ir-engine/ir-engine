@@ -40,3 +40,5 @@ fi
 docker start xrengine_minikube_db
 eval $(minikube docker-env)
 DOCKER_BUILDKIT=1 docker build -t xrengine --build-arg MYSQL_HOST=$MYSQL_HOST --build-arg MYSQL_PORT=$MYSQL_PORT --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD --build-arg MYSQL_USER=$MYSQL_USER --build-arg MYSQL_DATABASE=$MYSQL_DATABASE .
+
+DOCKER_BUILDKIT=1 docker build -t xrengine-test-bot -f ./dockerfiles/testbot/Dockerfile-test-bot .
