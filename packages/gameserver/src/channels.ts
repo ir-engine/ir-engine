@@ -441,7 +441,8 @@ export default (app: Application): void => {
         console.log('user instanceId: ' + user.instanceId)
 
         if (instanceId != null && instance != null) {
-          const activeUsers = Engine.currentWorld.clients
+          const activeClients = Engine.currentWorld.clients
+          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== 'server'))
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {
