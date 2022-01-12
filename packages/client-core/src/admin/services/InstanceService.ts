@@ -60,7 +60,6 @@ export const InstanceService = {
       const user = accessAuthState().user
       try {
         if (user.userRole.value === 'admin') {
-          console.log(search)
           const instances = await client.service('instance').find({
             query: {
               $sort: {
