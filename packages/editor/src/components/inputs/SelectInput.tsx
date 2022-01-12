@@ -1,66 +1,14 @@
 import React from 'react'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import { useStyle } from './style'
 
 /**
  * @author Robert Long
  */
-const staticStyle = {
-  container: (base) => ({
-    ...base,
-    width: '100%',
-    maxWidth: '200px'
-  }),
-  control: (base, { isDisabled }) => ({
-    ...base,
-    backgroundColor: isDisabled ? '#222222' : 'black',
-    minHeight: '24px',
-    border: '1px solid #5D646C',
-    cursor: 'pointer'
-  }),
-  input: (base, { isDisabled }) => ({
-    ...base,
-    margin: '0px',
-    color: isDisabled ? 'grey' : 'white'
-  }),
-  dropdownIndicator: (base) => ({
-    ...base,
-    padding: '0 4px 0 0'
-  }),
-  clearIndicator: (base) => ({
-    ...base,
-    padding: '0',
-    width: '16px',
-    height: '16px',
-    alignItems: 'center',
-    paddingTop: '1px'
-  }),
-  menu: (base, { isDisabled }) => ({
-    ...base,
-    borderRadius: '4px',
-    border: '1px solid black',
-    backgroundColor: 'black',
-    outline: 'none',
-    padding: '0',
-    position: 'absolute',
-    color: isDisabled ? 'grey' : 'white',
-    top: '20px'
-  }),
-  menuList: (base) => ({
-    ...base,
-    padding: '0',
-    maxHeight: '120px'
-  }),
-  option: (base, { isFocused }) => ({
-    ...base,
-    backgroundColor: isFocused ? '#006EFF' : 'black',
-    cursor: 'pointer'
-  }),
-  singleValue: (base, { isDisabled }) => ({
-    ...base,
-    color: isDisabled ? 'grey' : 'white'
-  })
-}
 
 interface SelectInputProp {
   value: any
@@ -93,52 +41,46 @@ interface SelectInputProp {
  * @param {any} rest
  * @returns
  */
-export function SelectInput({
-  value,
-  options,
-  onChange,
-  placeholder,
-  disabled,
-  error,
-  styles,
-  creatable,
-  ...rest
-}: SelectInputProp) {
-  const selectedOption =
-    options.find((o) => {
-      if (o === null) {
-        return o
-      } else if (o.value && o.value.equals) {
-        return o.value.equals(value)
-      } else {
-        return o.value === value
-      }
-    }) || null
+export function SelectInput({ value, options, placeholder, disabled, creatable }: SelectInputProp) {
+  const classx = useStyle()
 
-  const dynamicStyle = {
-    ...staticStyle,
-    placeholder: (base, { isDisabled }) => ({
-      ...base,
-      color: isDisabled ? 'grey' : error ? 'red' : 'white'
-    }),
-    ...styles
+  const [valueSelected, setValue] = React.useState(value)
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value as string)
   }
 
-  const Component = creatable ? CreatableSelect : Select
-
-  return (
-    <Component
-      {...rest}
-      styles={dynamicStyle}
-      value={selectedOption}
-      components={{ IndicatorSeparator: () => null }}
-      placeholder={placeholder}
+  const Component = creatable ? (
+    <Autocomplete
       options={options}
-      menuPlacement="auto"
-      onChange={(option) => onChange(option && option.value, option)}
-      isDisabled={disabled}
+      disablePortal
+      value={value}
+      classes={{ root: classx.autoSelect, inputRoot: classx.inputRoot, listbox: classx.paper }}
+      renderInput={(params) => <TextField {...params} disabled={disabled} />}
     />
+  ) : (
+    <React.Fragment>
+      <FormControl fullWidth>
+        <Select
+          labelId="select-label"
+          id="select"
+          value={valueSelected}
+          onChange={handleChange}
+          placeholder={placeholder}
+          classes={{ select: classx.select }}
+          disabled={disabled}
+          MenuProps={{ classes: { paper: classx.paper } }}
+        >
+          {options.map((el, index) => (
+            <MenuItem value={el.value} key={`${el + index}`} classes={{ root: classx.root }}>
+              {el.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </React.Fragment>
   )
+
+  return <>{Component}</>
 }
 
 SelectInput.defaultProps = {
