@@ -7,7 +7,7 @@ import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { Engine } from '../../src/ecs/classes/Engine'
 import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
-import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/world/scene/scene-parser'
+import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
 import appRootPath from 'app-root-path'
 import dotenv from 'dotenv-flow'

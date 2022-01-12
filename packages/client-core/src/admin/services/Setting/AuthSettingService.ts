@@ -1,9 +1,10 @@
 import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
-import { AdminRedisSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
+import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
 import { createState, useState } from '@hookstate/core'
 import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 //State
 const state = createState({
@@ -21,10 +22,10 @@ store.receptors.push((action: AuthSettingActionType): any => {
     switch (action.type) {
       case 'ADMIN_AUTH_SETTING_FETCHED':
         return s.merge({
-          authSettings: action.adminRedisSettingResult.data,
-          skip: action.adminRedisSettingResult.skip,
-          limit: action.adminRedisSettingResult.limit,
-          total: action.adminRedisSettingResult.total,
+          authSettings: action.adminAuthSettingResult.data,
+          skip: action.adminAuthSettingResult.skip,
+          limit: action.adminAuthSettingResult.limit,
+          total: action.adminAuthSettingResult.total,
           updateNeeded: false
         })
       case 'ADMIN_AUTH_SETTING_PATCHED':
@@ -43,6 +44,7 @@ export const AuthSettingService = {
     const dispatch = useDispatch()
     {
       try {
+        await waitForClientAuthenticated()
         const authSetting = await client.service('authentication-setting').find()
         dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
       } catch (err) {
@@ -65,10 +67,10 @@ export const AuthSettingService = {
 
 //Action
 export const AuthSettingAction = {
-  authSettingRetrieved: (adminRedisSettingResult: AdminRedisSettingResult) => {
+  authSettingRetrieved: (adminAuthSettingResult: AdminAuthSettingResult) => {
     return {
       type: 'ADMIN_AUTH_SETTING_FETCHED' as const,
-      adminRedisSettingResult: adminRedisSettingResult
+      adminAuthSettingResult: adminAuthSettingResult
     }
   },
   authSettingPatched: () => {
