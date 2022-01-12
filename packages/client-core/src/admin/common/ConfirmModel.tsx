@@ -25,7 +25,7 @@ const ConfirmModel = (props: Props) => {
       classes={{ paper: classes.paperDialog }}
     >
       <DialogTitle id="alert-dialog-title">
-        Do you want to delete {label} <b>{name}</b>
+        Do you want to delete {label} <b>{name}</b> ?
       </DialogTitle>
       <DialogActions>
         <Button onClick={handleCloseModel} className={classes.spanNone}>
