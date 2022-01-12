@@ -109,7 +109,7 @@
     "prettier": "2.5.1",
     "react-dnd": "14.0.5",
     "react-router-dom": "5.3.0",
-    "supertest": "6.1.6",
+    "supertest": "6.2.1",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8"
