@@ -43,7 +43,6 @@ export class Instance extends Service {
           ]
         }
       }
-
       const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
@@ -52,8 +51,9 @@ export class Instance extends Service {
           required: false
         },
         nest: false,
-        where: { ended: { [Op.not]: true }, ...q }
+        where: { ended: { [Op.not]: true } }
       })
+
       return {
         skip: skip,
         limit: limit,

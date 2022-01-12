@@ -13,6 +13,7 @@ import { instanceColumns, InstanceData } from './variables'
 import { useInstanceState } from '../../services/InstanceService'
 import { useInstanceStyle, useInstanceStyles } from './styles'
 import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
+import ConfirmModel from '../../common/ConfirmModel'
 
 interface Props {
   fetchAdminState?: any
@@ -34,15 +35,29 @@ const InstanceTable = (props: Props) => {
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INSTNCE_PAGE_LIMIT)
   const [refetch, setRefetch] = React.useState(false)
+  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
+  const [instanceId, setInstanceId] = React.useState('')
+  const [instanceName, setInstanceName] = React.useState('')
 
   const user = useAuthState().user
   const adminInstanceState = useInstanceState()
   const adminInstances = adminInstanceState
+
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     InstanceService.fetchAdminInstances(incDec)
     setPage(newPage)
   }
+
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
+  }
+
+  const submitRemoveInstance = async () => {
+    await InstanceService.removeInstance(instanceId)
+    setPopConfirmOpen(false)
+  }
+
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
@@ -88,9 +103,16 @@ const InstanceTable = (props: Props) => {
       channelId,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setPopConfirmOpen(true)
+              setInstanceId(id)
+              setInstanceName(ipAddress)
+            }}
+          >
+            <span className={classes.spanDange}>Delete</span>
           </a>
         </>
       )
@@ -146,6 +168,14 @@ const InstanceTable = (props: Props) => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
         className={classex.tableFooter}
+      />
+
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveInstance}
+        name={instanceName}
+        label={'instance'}
       />
     </div>
   )
