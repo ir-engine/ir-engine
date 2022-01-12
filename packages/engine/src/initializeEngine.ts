@@ -213,6 +213,15 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
+  registerSystem(
+    SystemUpdateType.FIXED,
+    new Promise((resolve) =>
+      resolve({
+        default: async (world: World) => () => applyIncomingActions(world)
+      })
+    )
+  )
+
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
