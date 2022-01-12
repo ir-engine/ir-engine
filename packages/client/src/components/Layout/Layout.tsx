@@ -63,7 +63,7 @@ const Layout = (props: Props): any => {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }
-    !clientSetting && ClientSettingService.fetchedClientSettings()
+    !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
 
   useEffect(() => {
