@@ -17,7 +17,15 @@ export default {
         ]
       })
     ],
-    get: [],
+    get: [
+      addAssociations({
+        models: [
+          {
+            model: 'gameserver-subdomain-provision'
+          }
+        ]
+      })
+    ],
     create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     patch: [iff(isProvider('external'), restrictUserRole('admin') as any)],

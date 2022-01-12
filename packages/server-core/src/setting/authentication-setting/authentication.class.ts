@@ -1,6 +1,7 @@
 import { Params } from '@feathersjs/feathers/lib'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export class Authentication extends Service {
   app: Application
@@ -12,7 +13,16 @@ export class Authentication extends Service {
 
   async find(params: Params): Promise<any> {
     const auth = (await super.find()) as any
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    const user = await this.app.service('user').get(loggedInUser.userId)
     const data = auth.data.map((el) => {
+      if (user.userRole !== 'admin')
+        return {
+          id: el.id,
+          entity: el.entity,
+          service: el.service,
+          authStrategies: JSON.parse(JSON.parse(el.authStrategies))
+        }
       const oauth = JSON.parse(JSON.parse(el.oauth))
       const returned = {
         ...el,
