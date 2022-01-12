@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
@@ -7,17 +7,9 @@ import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
 import BoltIcon from '@mui/icons-material/Bolt'
 import BooleanInput from '../inputs/BooleanInput'
-import { CommandManager } from '../../managers/CommandManager'
-
-/**
- * Defining properties for DirectionalLightNodeEditor.
- *
- * @author Robert Long
- * @type {Object}
- */
-type DirectionalLightNodeEditorProps = {
-  node?: object
-}
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
@@ -25,35 +17,18 @@ type DirectionalLightNodeEditorProps = {
  *  @author Robert Long
  *  @type {Component class}
  */
-export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProps) => {
+export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  //function to handle changes in color property
-  const onChangeColor = (color) => {
-    CommandManager.instance.setPropertyOnSelection('color', color)
-  }
-  //function to handle the changes in intensity property of DirectionalLight
-  const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
-  }
-
-  //function to handle the changes in camera far property of DirectionalLight
-  const onChangeCameraFar = (cameraFar) => {
-    CommandManager.instance.setPropertyOnSelection('cameraFar', cameraFar)
-  }
-
-  // function to handle changes in showCameraHelper propery
-  const onChangeshowCameraHelper = (showCameraHelper) => {
-    CommandManager.instance.setPropertyOnSelection('showCameraHelper', showCameraHelper)
-  }
-
-  // renders editor view, provides inputs to customize properties of DirectionalLight element.
-  const { node } = props
+  const lightComponent = getComponent(props.node.entity, DirectionalLightComponent)
 
   return (
-    <NodeEditor {...props} description={t('editor:properties.directionalLight.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.directionalLight.name')}
+      description={t('editor:properties.directionalLight.description')}
+    >
       <InputGroup name="Color" label={t('editor:properties.directionalLight.lbl-color')}>
-        <ColorInput value={node.color} onChange={onChangeColor} />
+        <ColorInput value={lightComponent.color} onChange={updateProperty(DirectionalLightComponent, 'color')} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -62,13 +37,16 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={node.intensity}
-        onChange={onChangeIntensity}
+        value={lightComponent.intensity}
+        onChange={updateProperty(DirectionalLightComponent, 'intensity')}
         unit="cd"
       />
-      <LightShadowProperties node={node} />
+      <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
       <InputGroup name="Camera Debugger" label={t('editor:properties.directionalLight.lbl-showCameraHelper')}>
-        <BooleanInput value={(node as any).showCameraHelper} onChange={onChangeshowCameraHelper} />
+        <BooleanInput
+          value={lightComponent.showCameraHelper}
+          onChange={updateProperty(DirectionalLightComponent, 'showCameraHelper')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="CameraFar"
@@ -77,8 +55,8 @@ export const DirectionalLightNodeEditor = (props: DirectionalLightNodeEditorProp
         smallStep={0.01}
         mediumStep={0.1}
         largeStep={1}
-        value={node.cameraFar}
-        onChange={onChangeCameraFar}
+        value={lightComponent.cameraFar}
+        onChange={updateProperty(DirectionalLightComponent, 'cameraFar')}
       />
     </NodeEditor>
   )

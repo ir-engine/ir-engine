@@ -15,6 +15,8 @@ bash ./scripts/setup_helm.sh
 bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
 npm run check-db-exists
 npm run install-projects
+cd packages/client && npm run buildenv
+cd ../..
 bash ./scripts/build_docker.sh $RELEASE_NAME $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION
 npm install -g cli aws-sdk
 bash ./scripts/publish_ecr.sh $RELEASE_NAME ${TAG}__${START_TIME} $DOCKER_LABEL $PRIVATE_ECR $AWS_REGION

@@ -62,7 +62,7 @@ export const refreshAppConfig = async (): Promise<void> => {
 }
 
 export const updateAppConfig = async (): Promise<void> => {
-  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development') return
+  if (appConfig.db.forceRefresh || process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD) return
   const sequelizeClient = new Sequelize({
     ...(db as any),
     define: {
@@ -150,6 +150,7 @@ export const updateAppConfig = async (): Promise<void> => {
   const authenticationSettingPromise = authenticationSetting
     .findAll()
     .then(([dbAuthentication]) => {
+      const oauth = JSON.parse(JSON.parse(dbAuthentication.oauth))
       const dbAuthenticationConfig = dbAuthentication && {
         service: dbAuthentication.service,
         entity: dbAuthentication.entity,
@@ -160,16 +161,17 @@ export const updateAppConfig = async (): Promise<void> => {
         bearerToken: JSON.parse(JSON.parse(dbAuthentication.bearerToken)),
         callback: JSON.parse(JSON.parse(dbAuthentication.callback)),
         oauth: {
-          ...JSON.parse(JSON.parse(dbAuthentication.oauth)),
-          defaults: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).defaults),
-          facebook: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).facebook),
-          github: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).github),
-          google: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).google),
-          linkedin: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).linkedin),
-          twitter: JSON.parse(JSON.parse(JSON.parse(dbAuthentication.oauth)).twitter)
+          ...JSON.parse(JSON.parse(dbAuthentication.oauth))
         }
       }
       if (dbAuthenticationConfig) {
+        if (oauth.defaults) dbAuthenticationConfig.oauth.defaults = JSON.parse(oauth.defaults)
+        if (oauth.discord) dbAuthenticationConfig.oauth.discord = JSON.parse(oauth.discord)
+        if (oauth.facebook) dbAuthenticationConfig.oauth.facebook = JSON.parse(oauth.facebook)
+        if (oauth.github) dbAuthenticationConfig.oauth.github = JSON.parse(oauth.github)
+        if (oauth.google) dbAuthenticationConfig.oauth.google = JSON.parse(oauth.google)
+        if (oauth.linkedin) dbAuthenticationConfig.oauth.linkedin = JSON.parse(oauth.linkedin)
+        if (oauth.twitter) dbAuthenticationConfig.oauth.twitter = JSON.parse(oauth.twitter)
         const authStrategies = ['jwt', 'local']
         for (let authStrategy of dbAuthenticationConfig.authStrategies) {
           const keys = Object.keys(authStrategy)

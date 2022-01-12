@@ -1,14 +1,11 @@
 import React from 'react'
 import PropertyGroup from './PropertyGroup'
+import { EditorPropType } from './Util'
 
 //declaring NodeEditorProps
-type NodeEditorProps = {
-  name?: string
+type NodeEditorProps = EditorPropType & {
   description?: string
-  node?: any
-  disableTransform?: boolean
-  children?: any
-  multiEdit?: boolean
+  name?: string
 }
 
 /**
@@ -17,11 +14,11 @@ type NodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export const NodeEditor = (props: NodeEditorProps) => {
-  const { node, description, children } = props
+export const NodeEditor: React.FC<NodeEditorProps> = (props) => {
+  const { description, children, name } = props
 
   return (
-    <PropertyGroup name={node.nodeName} description={description}>
+    <PropertyGroup name={name} description={description}>
       {children}
     </PropertyGroup>
   )

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
 import Cross from '@mui/icons-material/Cancel'
 import Cached from '@mui/icons-material/Cached'
 import Table from '@mui/material/Table'
@@ -12,10 +11,9 @@ import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
-import TablePagination from '@mui/material/TablePagination'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
-import { ProjectService } from '../../services/ProjectService'
+import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
+import { ProjectService } from '../../../common/services/ProjectService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
@@ -143,7 +141,7 @@ const Projects = () => {
 
   // const handlePageChange = (event: unknown, newPage: number) => {
   //   const incDec = page < newPage ? 'increment' : 'decrement'
-  //   fetchAdminProjects(incDec)
+  //   fetchProjects(incDec)
   //   setPage(newPage)
   // }
 
@@ -178,7 +176,7 @@ const Projects = () => {
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchAdminProjects()
+      ProjectService.fetchProjects()
     }
   }, [adminProjectState.updateNeeded.value])
 

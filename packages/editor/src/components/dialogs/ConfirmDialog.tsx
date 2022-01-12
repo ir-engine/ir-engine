@@ -1,7 +1,6 @@
 import React from 'react'
 import Dialog from './Dialog'
 import styled from 'styled-components'
-import i18n from 'i18next'
 
 // export function ConfirmDialog(props: Props) {
 //   return <Dialog {...props}>{props?.message}</Dialog>

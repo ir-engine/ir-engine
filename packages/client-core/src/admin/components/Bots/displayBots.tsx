@@ -182,7 +182,7 @@ const DisplayBots = (props: Props) => {
                 >
                   Add command
                 </Button>
-                {bot.botCommands.map((el, i) => {
+                {bot.botCommands?.map((el, i) => {
                   return (
                     <div className={classes.alterContainer} key={i}>
                       <List dense={true}>

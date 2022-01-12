@@ -1,6 +1,7 @@
-import { Timer } from '@xrengine/engine/src/common/functions/Timer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   createMappedComponent,
@@ -9,11 +10,14 @@ import {
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
 import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
 import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
+import { defineQuery } from 'bitecs'
+import { MultiPolygon, Polygon, Position } from 'geojson'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
@@ -29,15 +33,7 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
-import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { defineQuery } from 'bitecs'
-import { NavMeshBuilder } from '@xrengine/engine/src/map/NavMeshBuilder'
-// import { fetchVectorTiles } from '@xrengine/engine/src/map/functions/fetchVectorTile'
-import { Position, Polygon, MultiPolygon } from 'geojson'
-import pc from 'polygon-clipping'
-import { computeBoundingBox } from '@xrengine/engine/src/map/GeoJSONFns'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { CellSpacePartitioning, EntityManager, FollowPathBehavior, Time } from 'yuka'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
@@ -187,7 +183,7 @@ export const NavigationSystem = async (world: World): Promise<System> => {
     const { delta } = world
 
     for (const entity of navigationQuery(world)) {
-      const navComponent = getComponent(entity, NavigationComponent)
+      const navComponent = getComponent(entity as Entity, NavigationComponent)
 
       navComponent.entityManager.update(delta)
 

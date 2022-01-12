@@ -84,7 +84,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
 
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // TODO: Define interaction types in some enum?
-  if (interactiveComponent.data.interactionType === 'equippable') {
+  if (interactiveComponent.interactionType === 'equippable') {
     const attachmentPoint = getAttachmentPoint(parityValue)
     equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
   } else {
@@ -137,7 +137,7 @@ const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: Input
  * Fix camera behind the avatar to follow the avatar.
  * @param entity Entity on which camera will be fixed.
  */
-const fixedCameraBehindAvatar: InputBehaviorType = (
+export const fixedCameraBehindAvatar: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -150,7 +150,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
   }
 }
 
-const switchShoulderSide: InputBehaviorType = (
+export const switchShoulderSide: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -163,7 +163,7 @@ const switchShoulderSide: InputBehaviorType = (
   }
 }
 
-const setTargetCameraRotation = (entity: Entity, phi: number, theta: number) => {
+export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
   const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
@@ -171,11 +171,12 @@ const setTargetCameraRotation = (entity: Entity, phi: number, theta: number) => 
       phiVelocity: { value: 0 },
       theta: theta,
       thetaVelocity: { value: 0 },
-      time: 0.3
+      time: time
     })
   } else {
     cameraRotationTransition.phi = phi
     cameraRotationTransition.theta = theta
+    cameraRotationTransition.time = time
   }
 }
 
@@ -185,7 +186,7 @@ let lastScrollValue = 0
  * Change camera distance.
  * @param entity Entity holding camera and input component.
  */
-const changeCameraDistanceByDelta: InputBehaviorType = (
+export const changeCameraDistanceByDelta: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -240,7 +241,7 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const setCameraRotation: InputBehaviorType = (
+export const setCameraRotation: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -331,7 +332,7 @@ const moveByInputAxis: InputBehaviorType = (
     controller.localMovementDirection.x = inputValue.value[0]
   }
 }
-const setWalking: InputBehaviorType = (
+export const setWalking: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
@@ -427,16 +428,14 @@ const lookByInputAxis: InputBehaviorType = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  const followCamera = getComponent(entity, FollowCameraComponent)
-
-  if (hasComponent(entity, TargetCameraRotationComponent)) {
-    removeComponent(entity, TargetCameraRotationComponent)
-  }
-
-  if (followCamera) {
-    followCamera.theta -= inputValue.value[0] * 100
-    followCamera.phi -= inputValue.value[1] * 100
-  }
+  const target = getComponent(entity, TargetCameraRotationComponent) || getComponent(entity, FollowCameraComponent)
+  if (target)
+    setTargetCameraRotation(
+      entity,
+      target.phi - inputValue.value[1] * 20000 * delta,
+      target.theta - inputValue.value[0] * 20000 * delta,
+      0.1
+    )
 }
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {

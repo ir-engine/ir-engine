@@ -1,5 +1,4 @@
 import { Object3D, Audio, PositionalAudio } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
 
 export const AudioType = {
   Stereo: 'stereo',
@@ -11,16 +10,6 @@ export const DistanceModelType = {
   Inverse: 'inverse',
   Exponential: 'exponential'
 }
-
-export const AudioTypeOptions = Object.values(AudioType).map((v) => ({
-  label: v,
-  value: v
-}))
-
-export const DistanceModelOptions = Object.values(DistanceModelType).map((v) => ({
-  label: v,
-  value: v
-}))
 
 const elementPlaying = (element: HTMLMediaElement): boolean => {
   return element && !!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2)

@@ -1,14 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { getEntityComponents } from 'bitecs'
-import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -20,8 +18,10 @@ export const Debug = () => {
     console.log('setup keypress')
     window.addEventListener('keypress', (ev) => {
       if (ev.key === 'p') {
-        togglePhysicsDebug()
-        toggleAvatarDebug()
+        if (document.activeElement?.querySelector('canvas')) {
+          togglePhysicsDebug()
+          toggleAvatarDebug()
+        }
       }
     })
   }
@@ -64,7 +64,7 @@ export const Debug = () => {
             key,
             Object.fromEntries(
               getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                if (C !== NameComponent) components.push([C._name, getComponent(value, C as any)])
+                if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
                 return components
               }, [] as [string, any][])
             )
@@ -99,6 +99,7 @@ export const Debug = () => {
         </button>
         {Network.instance !== null && (
           <div>
+            <div>Tick: {engineState.fixedTick.value}</div>
             <div>
               <h1>Named Entities</h1>
               <JSONTree data={renderNamedEntities()} />

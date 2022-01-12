@@ -23,6 +23,7 @@ export type InitializeOptions = {
     canvasId?: string
     postProcessing?: boolean
   }
+  projects?: string[]
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
@@ -50,6 +51,7 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
     disabled: false,
     postProcessing: true
   },
+  projects: [],
   physics: {
     settings: {
       bounceThresholdVelocity: 0.5,

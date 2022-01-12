@@ -17,7 +17,6 @@ import {
   Group,
   Line,
   LineBasicMaterial,
-  Loader,
   LoaderUtils,
   Matrix3,
   Matrix4,

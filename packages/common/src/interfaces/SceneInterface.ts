@@ -1,6 +1,7 @@
-export interface ComponentJson {
+export interface ComponentJson<T extends any = any> {
+  // todo: eventually remove '= any'
   name: string
-  props: any
+  props: T
 }
 export interface EntityJson {
   name: string

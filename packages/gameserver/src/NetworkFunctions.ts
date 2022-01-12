@@ -6,7 +6,6 @@ import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
@@ -150,6 +149,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
 
   await Promise.all(
     instances.rows.map((instance) => {
+      if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
       const match = gameservers.items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
@@ -320,7 +320,6 @@ export async function handleDisconnect(socket): Promise<any> {
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
     dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
-
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -339,6 +338,11 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
   if (Engine.currentWorld?.clients.has(userId)) {
     Engine.currentWorld.clients.delete(userId)
+    for (const eid of Engine.currentWorld?.getOwnedNetworkObjects(userId)) {
+      const { networkId } = getComponent(eid, NetworkObjectComponent)
+      dispatchFrom(Engine.currentWorld?.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    }
+
     logger.info('Removing ' + userId + ' from client list')
   }
   if (callback !== undefined) callback({})

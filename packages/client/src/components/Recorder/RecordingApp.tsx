@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './Me.module.scss'
+
 declare var MediaRecorder: any
 declare const window: any
 
@@ -20,7 +21,7 @@ function isObject(o) {
  * @param {MediaStreamConstraints} mediaType
  */
 function validateMediaTrackConstraints(mediaType) {
-  let supportedMediaConstraints = null
+  let supportedMediaConstraints = null as MediaTrackSupportedConstraints | null
 
   if (navigator.mediaDevices) {
     supportedMediaConstraints = navigator.mediaDevices.getSupportedConstraints()
@@ -31,7 +32,7 @@ function validateMediaTrackConstraints(mediaType) {
   }
 
   let unSupportedMediaConstraints = Object.keys(mediaType).filter(
-    (constraint) => !supportedMediaConstraints[constraint]
+    (constraint) => !supportedMediaConstraints?.[constraint]
   )
 
   if (unSupportedMediaConstraints.length !== 0) {
@@ -89,12 +90,12 @@ function useMediaRecorder({
   mediaRecorderOptions,
   mediaStreamConstraints
 }) {
-  let mediaChunks = React.useRef([])
-  let mediaStream = React.useRef(null)
-  let mediaRecorder = React.useRef(null)
+  let mediaChunks = React.useRef<any>([])
+  let mediaStream = React.useRef<any>(null)
+  let mediaRecorder = React.useRef<any>(null)
   let [error, setError] = React.useState(null)
   let [status, setStatus] = React.useState('idle')
-  let [mediaBlob, setMediaBlob] = React.useState(null)
+  let [mediaBlob, setMediaBlob] = React.useState<Blob | null>(null)
   let [isAudioMuted, setIsAudioMuted] = React.useState(false)
 
   async function getMediaStream() {

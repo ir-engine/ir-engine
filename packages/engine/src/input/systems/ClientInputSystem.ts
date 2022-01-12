@@ -6,7 +6,6 @@ import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
-import { handleGamepads } from '../functions/GamepadInput'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 

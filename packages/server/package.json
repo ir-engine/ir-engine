@@ -32,16 +32,15 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "dev": "cross-env APP_ENV=development concurrently -n server,gameserver,files \"ts-node-dev --inspect --respawn --transpile-only  src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
-    "dev-windows": "cross-env APP_ENV=development concurrently -n server,gameserver,files -i \"nodemon --watch src/** -r ts-node/register src/index.ts\" \"cd ../gameserver && npm run dev\" \"npm run serve-local-files\"",
     "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
     "dev-api-server": "ts-node-dev --inspect --respawn --transpile-only  src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node-dev --inspect --respawn --transpile-only src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-node-dev --inspect --respawn --transpile-only src/index.ts\"",
     "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --transpile-only src/index.ts",
-    "dev-reinit-db-windows": "cross-env APP_ENV=development FORCE_DB_REFRESH=true nodemon --watch src/** -r ts-node/register src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
     "upload-avatar": "node ./scripts/upload-avatar.js",
+    "upload-avatar-db-only": "node ./scripts/upload-avatar.js --db-only",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
   "types": "lib/",
@@ -51,7 +50,7 @@
     "@feathersjs/socketio": "5.0.0-pre.10",
     "@feathersjs/transport-commons": "5.0.0-pre.10",
     "@xrengine/server-core": "^0.4.13",
-    "aws-sdk": "2.1036.0",
+    "aws-sdk": "2.1048.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
@@ -61,7 +60,7 @@
     "mysql2": "2.3.3",
     "nanoid": "3.1.30",
     "ps-list": "7.2.0",
-    "sequelize": "6.11.0",
+    "sequelize": "6.12.3",
     "serve-favicon": "2.5.0",
     "uuid": "8.3.2",
     "winston": "3.3.3"
@@ -69,17 +68,17 @@
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/cors": "2.8.12",
-    "@types/node": "16.11.10",
+    "@types/node": "16.11.17",
     "@types/serve-favicon": "2.5.3",
     "cli": "1.0.1",
-    "concurrently": "6.4.0",
+    "concurrently": "6.5.1",
     "cross-env": "7.0.3",
     "http-server": "14.0.0",
     "nodemon": "2.0.15",
     "supertest": "6.1.6",
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8",
-    "typescript": "4.5.2"
+    "typescript": "4.5.4"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

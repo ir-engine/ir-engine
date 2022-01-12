@@ -267,7 +267,7 @@ const CreateLocation = (props: Props) => {
                         name="videoEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-ve')}
+                    label={t('admin:components.locationModel.lbl-ve') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -282,7 +282,7 @@ const CreateLocation = (props: Props) => {
                         name="audioEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-ae')}
+                    label={t('admin:components.locationModel.lbl-ae') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -297,7 +297,7 @@ const CreateLocation = (props: Props) => {
                         name="globalMediaEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-gme')}
+                    label={t('admin:components.locationModel.lbl-gme') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -312,7 +312,7 @@ const CreateLocation = (props: Props) => {
                         name="screenSharingEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-se')}
+                    label={t('admin:components.locationModel.lbl-se') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -330,7 +330,7 @@ const CreateLocation = (props: Props) => {
                           name="faceStreamingEnabled"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-fe')}
+                      label={t('admin:components.locationModel.lbl-fe') as string}
                     />
                   </FormControl>
                 </FormGroup>
@@ -345,7 +345,7 @@ const CreateLocation = (props: Props) => {
                           name="isLobby"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-lobby')}
+                      label={t('admin:components.locationModel.lbl-lobby') as string}
                     />
                   </FormControl>
                 </FormGroup>
@@ -360,7 +360,7 @@ const CreateLocation = (props: Props) => {
                           name="isFeatured"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-featured')}
+                      label={t('admin:components.locationModel.lbl-featured') as string}
                     />
                   </FormControl>
                 </FormGroup>

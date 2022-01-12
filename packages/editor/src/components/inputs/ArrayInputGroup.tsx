@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent, InputGroupInfo } from './InputGroup'
+import React from 'react'
+import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent } from './InputGroup'
 import StringInput from './StringInput'
 import FileBrowserInput from './FileBrowserInput'
 
@@ -91,7 +91,7 @@ export function ArrayInputGroup({
                   <FileBrowserInput
                     value={value}
                     acceptFileTypes={acceptFileTypes}
-                    acceptDropItems={itemType}
+                    acceptDropItems={itemType || []}
                     onChange={(text) => {
                       onChangeText(text, index, values, onChange)
                     }}

@@ -2,6 +2,11 @@ import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
 import { isAsset } from '../../constants/AssetTypes'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { Vector2 } from 'three'
 
 /**
  * addAssetOnDrop used to adding assets to the editor scene.
@@ -11,40 +16,36 @@ import { isAsset } from '../../constants/AssetTypes'
  * @param {Object} parent
  * @param {Object} before
  */
-export function addAssetOnDrop(item, parent?, before?) {
-  if (isAsset(item)) {
-    const { nodeClass, initialProps } = item
-    const node = new nodeClass()
-    if (initialProps) {
-      Object.assign(node, initialProps)
-    }
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
-      parents: parent,
-      befores: before
-    })
-    return true
-  }
-  return false
+export function addItem(item: any, parent?: EntityTreeNode, before?: EntityTreeNode): boolean {
+  if (!isAsset(item)) return false
+
+  const entity = createEntity()
+
+  CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, new EntityTreeNode(entity), {
+    prefabTypes: item.nodeClass,
+    parents: parent,
+    befores: before
+  })
+
+  return true
 }
 
 /**
- * addAssetAtCursorPositionOnDrop used to add element on editor scene position using cursor.
+ * addItemAtCursorPosition used to add element on editor scene position using cursor.
  *
  * @author Robert Long
  * @param {Object} item
  * @param {Object} mousePos
  */
-export function addAssetAtCursorPositionOnDrop(item, mousePos) {
-  if (isAsset(item)) {
-    const { nodeClass, initialProps } = item
-    const node = new nodeClass()
-    if (initialProps) {
-      Object.assign(node, initialProps)
-    }
-    SceneManager.instance.getCursorSpawnPosition(mousePos, node.position)
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+export function addItemAtCursorPosition(item, mousePos: Vector2): void {
+  if (!isAsset(item)) return
 
-    return true
-  }
-  return false
+  const entity = createEntity()
+
+  CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, new EntityTreeNode(entity), {
+    prefabTypes: item.nodeClass
+  })
+
+  const transformComponent = getComponent(entity, TransformComponent)
+  if (transformComponent) transformComponent.position = SceneManager.instance.getCursorSpawnPosition(mousePos)
 }

@@ -3,12 +3,10 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { useDispatch } from '../../../store'
 import Grid from '@mui/material/Grid'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
 import { Link } from 'react-router-dom'
-import { Config } from '@xrengine/common/src/config'
 import styles from './Auth.module.scss'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
@@ -41,12 +39,11 @@ const defaultState = {
   descr: ''
 }
 
-const termsOfService = Config.publicRuntimeConfig.staticPages?.termsOfService ?? '/terms-of-service'
+const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
 const MagicLinkEmail = (props: Props): any => {
   const { type, isAddConnection } = props
 
-  const dispatch = useDispatch()
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()

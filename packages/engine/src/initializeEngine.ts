@@ -1,6 +1,14 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import {
+  BufferGeometry,
+  Euler,
+  Mesh,
+  PerspectiveCamera,
+  Quaternion,
+  Scene,
+  AudioListener as PositionalAudioListener
+} from 'three'
 import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
@@ -16,11 +24,16 @@ import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } 
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
+import { createWorld, World } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { EngineActions, receptors } from './ecs/classes/EngineService'
+import { registerPrefabs } from './scene/functions/registerPrefabs'
+import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
+import { receiveActionOnce } from './networking/functions/matchActionOnce'
+import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { applyIncomingActions } from './networking/systems/IncomingNetworkSystem'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -41,7 +54,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   Engine.audioListener = new AudioListener()
 
   Engine.scene = new Scene()
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     const canvas = document.createElement('canvas')
     const gl = canvas.getContext('webgl')!
     const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
@@ -56,8 +69,8 @@ const configureClient = async (options: Required<InitializeOptions>) => {
       )
     dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
-
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
   const canvas = document.querySelector('canvas')!
 
   if (options.scene.disabled !== true) {
@@ -69,9 +82,6 @@ const configureClient = async (options: Required<InitializeOptions>) => {
   }
 
   globalThis.botHooks = BotHookFunctions
-  globalThis.Engine = Engine
-  globalThis.EngineEvents = EngineEvents
-  globalThis.Network = Network
 
   await Promise.all([FontManager.instance.getDefaultFont(), registerClientSystems(options, canvas)])
 }
@@ -80,18 +90,20 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
   Engine.camera.layers.enable(ObjectLayers.Scene)
   Engine.camera.name = 'Camera'
+  Engine.audioListener = new PositionalAudioListener()
+  Engine.camera.add(Engine.audioListener)
 
   await registerEditorSystems(options)
 }
 
 const configureServer = async (options: Required<InitializeOptions>, isMediaServer = false) => {
   Engine.scene = new Scene()
-
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  const joinedWorld = () => {
     console.log('joined world')
     dispatchLocal(EngineActions.enableScene({ renderer: true, physics: true }) as any)
     Engine.hasJoinedWorld = true
-  })
+  }
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   if (!isMediaServer) {
     await loadDRACODecoder()
@@ -133,9 +145,6 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 
   // Bot
   registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
-
-  // Maps
-  registerSystem(SystemUpdateType.FIXED, import('./map/MapUpdateSystem'))
 
   // Avatar Systems
   registerSystem(SystemUpdateType.FIXED, import('./avatar/AvatarSpawnSystem'))
@@ -204,15 +213,18 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
+  registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
+
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./audio/systems/PositionalAudioSystem'))
+  registerSystem(SystemUpdateType.PRE_RENDER, import('./scene/systems/EntityNodeEventSystem'))
+
   // Scene Systems
-  // registerSystem(SystemUpdateType.FIXED, import('./scene/systems/NamedEntitiesSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./transform/systems/TransformSystem'))
-  // registerSystemWithArgs(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'), {
-  //   simulationEnabled: options.physics.simulationEnabled
-  // })
+  registerSystem(SystemUpdateType.FIXED, import('./physics/systems/PhysicsSystem'))
+
   // Miscellaneous Systems
   // registerSystem(SystemUpdateType.FIXED, import('./particles/systems/ParticleSystem'))
-  // registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
+  registerSystem(SystemUpdateType.FIXED, import('./debug/systems/DebugHelpersSystem'))
 }
 
 const registerServerSystems = async (options: Required<InitializeOptions>) => {
@@ -242,16 +254,29 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+    tickRate: 60
+  })
+  registerSystem(
+    SystemUpdateType.FIXED,
+    new Promise((resolve) =>
+      resolve({
+        default: async (world: World) => () => applyIncomingActions(world)
+      })
+    )
+  )
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
+  Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
+  registerPrefabs(sceneWorld)
 
   Engine.currentWorld = sceneWorld
   Engine.publicPath = options.publicPath
 
-  Engine.currentWorld.receptors.push(...receptors())
+  Engine.currentWorld.receptors.push(EngineEventReceptor)
   // Browser state set
   if (options.type !== EngineSystemPresets.SERVER && globalThis.navigator && globalThis.window) {
     const browser = detect()
@@ -293,14 +318,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     }
   }
 
-  Engine.engineTimer = Timer(executeWorlds)
+  await loadEngineInjection(sceneWorld, initOptions.projects ?? [])
 
-  // Engine type specific post configuration work
+  // temporary, will be fixed with editor engine integration
+  Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
-      Engine.userId = id
+    receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+      Engine.userId = action.id
     })
   } else if (options.type === EngineSystemPresets.SERVER) {
     Engine.userId = 'server' as UserId
@@ -309,9 +335,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
     Engine.userId = 'editor' as UserId
+    Engine.isEditor = true
   }
 
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
+
   // Mark engine initialized
+  Engine.isLoading = false
   Engine.isInitialized = true
   dispatchLocal(EngineActions.initializeEngine(true) as any)
 }

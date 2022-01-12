@@ -10,7 +10,6 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import { CreatorService } from '../../../social/services/CreatorService'
 import { useCreatorState } from '../../../social/services/CreatorService'
-import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import styles from './Auth.module.scss'
@@ -21,7 +20,6 @@ interface Props {}
 
 export const PasswordLoginApp = (props: Props): any => {
   const {} = props
-  const dispatch = useDispatch()
   const auth = useAuthState()
   const history = useHistory()
   const { t } = useTranslation()

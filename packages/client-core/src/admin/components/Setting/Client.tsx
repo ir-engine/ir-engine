@@ -40,7 +40,7 @@ const Client = (props: clientProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
-      ClientSettingService.fetchedClientSettings()
+      ClientSettingService.fetchClientSettings()
     }
   }, [authState?.user?.id?.value, clientSettingState?.updateNeeded?.value])
 

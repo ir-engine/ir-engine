@@ -1,6 +1,5 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { store } from '../../store'
+import { createState, useState } from '@hookstate/core'
 
 //State
 export interface PublicScenesState {

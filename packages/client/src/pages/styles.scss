@@ -313,16 +313,6 @@ body{
   }
 }
 
-[class*=Harmony_selectable] {
-  & > .MuiListItemText-root {
-    width: 75%;
-
-    & > .MuiTypography-displayBlock {
-      @media (max-width: 768px) {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-    }
-  }
+[class*=MuiModal-root] {
+  pointer-events: auto
 }

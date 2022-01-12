@@ -1,7 +1,6 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DistanceModelType } from '@xrengine/engine/src/scene/classes/AudioSource'
-import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
+import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
 import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import {
   Color,
@@ -9,10 +8,8 @@ import {
   DataTexture,
   Fog,
   FogExp2,
-  Group,
   LinearFilter,
   LinearToneMapping,
-  Object3D,
   PCFSoftShadowMap,
   PMREMGenerator,
   RGBFormat,
@@ -22,78 +19,12 @@ import {
   TextureLoader,
   Vector3
 } from 'three'
-import MeshCombinationGroup from '../classes/MeshCombinationGroup'
-import asyncTraverse from '../functions/asyncTraverse'
-import getNodeWithUUID from '../functions/getNodeWithUUID'
 import serializeColor from '../functions/serializeColor'
-import sortEntities from '../functions/sortEntities'
-import { isStatic, setStaticMode, StaticModes } from '../functions/StaticMode'
-import { NodeManager } from '../managers/NodeManager'
+import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import CubemapBakeNode from './CubemapBakeNode'
 import EditorNodeMixin from './EditorNodeMixin'
-import GroupNode from './GroupNode'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
-  static nodeName = 'Scene'
-  static disableTransform = true
-  static canAddNode() {
-    return false
-  }
-  static async loadProject(json: SceneJson) {
-    console.log(json)
-    const { root, entities } = json
-    let scene = null
-    const dependencies = []
-    function loadAsync(promise) {
-      dependencies.push(promise)
-    }
-    const errors = []
-    function onError(object, error) {
-      errors.push(error)
-    }
-    const sortedEntities = sortEntities(entities)
-    for (const entityId of sortedEntities) {
-      const entity = entities[entityId]
-      let EntityNodeConstructor
-      for (const NodeConstructor of NodeManager.instance.nodeTypes) {
-        if (NodeConstructor.shouldDeserialize(entity)) {
-          EntityNodeConstructor = NodeConstructor
-          break
-        }
-      }
-      if (!EntityNodeConstructor) {
-        console.warn(`No node constructor found for entity "${entity.name}"`)
-      } else {
-        try {
-          const node = await EntityNodeConstructor.deserialize(entity, loadAsync, onError)
-          node.uuid = entityId
-          if (entity.parent) {
-            const parent = getNodeWithUUID(scene, entity.parent)
-            if (!parent) {
-              throw new Error(
-                `Node "${entity.name}" with uuid "${entity.uuid}" specifies parent "${entity.parent}", but was not found.`
-              )
-            }
-            parent.children.splice(entity.index, 0, node)
-            node.parent = parent
-          } else if (entityId === root) {
-            scene = node
-            Engine.scene = scene
-          } else {
-            throw new Error(`Node "${entity.name}" with uuid "${entity.uuid}" does not specify a parent.`)
-          }
-        } catch (e) {
-          console.error('Node failed to load - it will be removed', e)
-          errors.push(e)
-        }
-      }
-    }
-    await Promise.all(dependencies)
-    return [scene, errors]
-  }
-  static shouldDeserialize(entityJson) {
-    return entityJson.parent === undefined
-  }
   static async deserialize(json) {
     const node = await super.deserialize(json)
     if (json.components) {
@@ -339,6 +270,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     }
     const pmren = new PMREMGenerator(Engine.renderer)
     const texture = new DataTexture(data, resolution, resolution, RGBFormat)
+    texture.needsUpdate = true
     texture.encoding = sRGBEncoding
     this.environment = pmren.fromEquirectangular(texture).texture
     pmren.dispose()
@@ -506,25 +438,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         }
       }
     }
-
-    const serializeCallback = async (child) => {
-      if (!child.isNode || child === this) {
-        return
-      }
-      const entityJson = await child.serialize(sceneId)
-      entityJson.parent = child.parent.uuid
-      let index = 0
-      for (const sibling of child.parent.children) {
-        if (sibling === child) {
-          break
-        } else if (sibling.isNode) {
-          index++
-        }
-      }
-      entityJson.index = index
-      sceneJson.entities[child.uuid] = entityJson
-    }
-    await asyncTraverse(this, serializeCallback)
     return sceneJson
   }
   prepareForExport(ctx) {
@@ -583,55 +496,5 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         simpleMaterials: this.simpleMaterials
       })
     }
-  }
-  async combineMeshes() {
-    await MeshCombinationGroup.combineMeshes(this)
-  }
-  removeUnusedObjects() {
-    this.computeAndSetStaticModes()
-    function hasExtrasOrExtensions(object) {
-      const userData = object.userData
-      for (const key in userData) {
-        if (Object.prototype.hasOwnProperty.call(userData, key)) {
-          return true
-        }
-      }
-      return false
-    }
-    function _removeUnusedObjects(object) {
-      let canBeRemoved = !!object.parent
-      for (const child of object.children.slice(0)) {
-        if (!_removeUnusedObjects(child)) {
-          canBeRemoved = false
-        }
-      }
-      const shouldRemove =
-        canBeRemoved &&
-        (object.constructor === Object3D ||
-          object.constructor === Scene ||
-          object.constructor === Group ||
-          object.constructor === GroupNode) &&
-        object.children.length === 0 &&
-        isStatic(object) &&
-        !hasExtrasOrExtensions(object)
-      if (canBeRemoved && shouldRemove) {
-        object.parent.remove(object)
-        return true
-      }
-      return false
-    }
-    _removeUnusedObjects(this)
-  }
-  getAnimationClips() {
-    const animations = []
-    this.traverse((child) => {
-      if (child.isNode && child.type === 'Model') {
-        const activeClip = child.activeClip
-        if (activeClip) {
-          animations.push(child.activeClip)
-        }
-      }
-    })
-    return animations
   }
 }

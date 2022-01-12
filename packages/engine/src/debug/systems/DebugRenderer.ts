@@ -10,8 +10,6 @@ import {
   Vector3,
   Matrix4,
   Quaternion,
-  LineBasicMaterial,
-  Line,
   MeshStandardMaterial,
   Material,
   Float32BufferAttribute
@@ -19,7 +17,6 @@ import {
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'

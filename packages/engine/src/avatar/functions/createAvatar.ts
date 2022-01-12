@@ -17,7 +17,6 @@ import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AnimationState } from '../animations/AnimationState'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { isClient } from '../../common/functions/isClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -127,7 +126,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     world.physics.physics.createMaterial(0, 0, 0),
     {
       collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     }
   )
   const body = world.physics.addBody({
