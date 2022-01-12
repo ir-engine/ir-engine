@@ -35,6 +35,8 @@ sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install build-essential
 npm install
+npm install mediasoup@3 --save
+sudo service docker start
 npm run dev-docker
 npm run dev-reinit
 ```
