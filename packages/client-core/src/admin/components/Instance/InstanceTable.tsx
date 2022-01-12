@@ -16,6 +16,7 @@ import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
 
 interface Props {
   fetchAdminState?: any
+  search: any
 }
 
 /**
@@ -26,6 +27,7 @@ interface Props {
  * @author KIMENYI Kevin
  */
 const InstanceTable = (props: Props) => {
+  const { search } = props
   const dispatch = useDispatch()
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
@@ -65,7 +67,9 @@ const InstanceTable = (props: Props) => {
 
   React.useEffect(() => {
     if (!isMounted.current) return
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
+    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) {
+      InstanceService.fetchAdminInstances('increment', search)
+    }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 export const useFetchLocation = (user, adminLocationState, adminScopeReadErrMsg, search, LocationService) => {
   useEffect(() => {
-    if (user?.id?.value !== null && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+    if (user?.id?.value && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
       LocationService.fetchAdminLocations('increment', null)
     }
     // if (search) {
@@ -13,7 +13,7 @@ export const useFetchLocation = (user, adminLocationState, adminScopeReadErrMsg,
 
 export const useFetchAdminScenes = (user: any, SceneService: any) => {
   useEffect(() => {
-    if (user?.id.value != null) {
+    if (user?.id.value) {
       // && adminSceneState.scenes.updateNeeded.value === true) {
       SceneService.fetchAdminScenes('all')
     }
@@ -22,7 +22,7 @@ export const useFetchAdminScenes = (user: any, SceneService: any) => {
 
 export const useFetchLocationTypes = (user, adminLocationState, LocationService) => {
   useEffect(() => {
-    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
       LocationService.fetchLocationTypes()
     }
   }, [adminLocationState.updateNeeded.value, user?.id?.value])

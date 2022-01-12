@@ -52,7 +52,7 @@ export const useInstanceState = () => useState(state) as any as typeof state
 
 //Service
 export const InstanceService = {
-  fetchAdminInstances: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search?: string = '') => {
     const dispatch = useDispatch()
     {
       const skip = accessInstanceState().skip.value
@@ -60,6 +60,7 @@ export const InstanceService = {
       const user = accessAuthState().user
       try {
         if (user.userRole.value === 'admin') {
+          console.log(search)
           const instances = await client.service('instance').find({
             query: {
               $sort: {
@@ -67,7 +68,8 @@ export const InstanceService = {
               },
               $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
               $limit: limit,
-              action: 'admin'
+              action: 'admin',
+              search: search
             }
           })
           dispatch(InstanceAction.instancesRetrievedAction(instances))
