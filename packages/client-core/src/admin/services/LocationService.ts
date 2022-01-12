@@ -133,8 +133,6 @@ export const LocationService = {
           }
         })
         dispatch(LocationAction.locationsRetrieved(result))
-
-        console.log(result)
       } catch (error) {
         console.error(error)
         dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
