@@ -10,7 +10,7 @@ export type CustomRoute = {
 }
 
 /**
- * getCustomRoutes used to get a the routes created by the user.
+ * getCustomRoutes used to get the routes created by the user.
  *
  * @return {Promise}
  */
