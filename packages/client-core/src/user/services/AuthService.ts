@@ -142,7 +142,15 @@ accessAuthState().attach(() => ({
     onSet(arg) {
       const state = accessAuthState().attach(Downgraded).value
       const dispatch = useDispatch()
-      if (state.isLoggedIn) dispatch(StoredLocalAction.storedLocal({ authData: state }))
+      if (state.isLoggedIn)
+        dispatch(
+          StoredLocalAction.storedLocal({
+            authData: {
+              authUser: state.authUser,
+              identityProvider: state.identityProvider
+            }
+          })
+        )
     }
   })
 }))

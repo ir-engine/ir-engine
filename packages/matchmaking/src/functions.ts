@@ -6,7 +6,8 @@ import {
   OpenMatchTicketAssignmentResponse
 } from './interfaces'
 import axios from 'axios'
-import nodeFetch from 'node-fetch'
+import fetch from 'node-fetch'
+import AbortController from 'abort-controller'
 
 export const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
@@ -70,10 +71,30 @@ function readStreamFirstData(stream: NodeJS.ReadableStream) {
 }
 
 // TicketAssignmentsResponse
-async function getTicketsAssignment(ticketId: string): Promise<OpenMatchTicketAssignment> {
-  const response = await nodeFetch(`${FRONTEND_SERVICE_URL}/tickets/${ticketId}/assignments`)
+async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<OpenMatchTicketAssignment> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => {
+    controller.abort()
+  }, timeout)
 
-  const data = await readStreamFirstData(response.body)
+  let data
+  try {
+    const response = await fetch(`${FRONTEND_SERVICE_URL}/tickets/${ticketId}/assignments`, {
+      signal: controller.signal
+    })
+
+    data = await readStreamFirstData(response.body)
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      // no assignment yet
+      return {
+        connection: ''
+      }
+    }
+    throw error
+  } finally {
+    clearTimeout(timeoutId)
+  }
   checkForApiErrorResponse(data)
   if (!isOpenMatchTicketAssignmentResponse(data)) {
     console.error('Invalid result:')

@@ -1,5 +1,5 @@
 module.exports = {
-  'fail-zero': true,
+  'fail-zero': false,
   parallel: false,
   spec: ['tests/**/*.test.ts'],
   require: [

@@ -56,7 +56,7 @@ const App = (): any => {
 
   useEffect(() => {
     ProjectService.fetchProjects()
-    !clientSetting && ClientSettingService.fetchedClientSettings()
+    !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
 
   useEffect(() => {

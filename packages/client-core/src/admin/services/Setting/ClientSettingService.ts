@@ -4,6 +4,7 @@ import { useDispatch, store } from '../../../store'
 import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
 import { createState, useState } from '@hookstate/core'
 import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 //State
 const state = createState({
@@ -28,9 +29,10 @@ export const useClientSettingState = () => useState(state) as any as typeof stat
 
 //Service
 export const ClientSettingService = {
-  fetchedClientSettings: async (inDec?: 'increment' | 'decrement') => {
+  fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     try {
+      await waitForClientAuthenticated()
       const clientSettings = await client.service('client-setting').find()
       dispatch(ClientSettingAction.fetchedClient(clientSettings))
     } catch (error) {

@@ -1,9 +1,7 @@
 {
   "version": 4,
-  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
   "entities": {
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
-      "name": "apartment",
       "components": [
         {
           "name": "mtdata",
@@ -15,7 +13,11 @@
           "name": "fog",
           "props": {
             "type": "linear",
-            "color": "#ffffff",
+            "color": {
+              "r": 1,
+              "g": 1,
+              "b": 1
+            },
             "near": 1,
             "far": 200,
             "density": 0.040000000000000036
@@ -39,12 +41,6 @@
           }
         },
         {
-          "name": "simple-materials",
-          "props": {
-            "simpleMaterials": false
-          }
-        },
-        {
           "name": "renderer-settings",
           "props": {
             "LODs": {
@@ -63,15 +59,16 @@
           "name": "envmap",
           "props": {
             "type": 1,
-            "envMapIntensity": 1,
             "envMapTextureType": 1,
-            "envMapSourceURL": "/hdr/city.jpg"
+            "envMapSourceColor": {},
+            "envMapSourceURL": "/hdr/city.jpg",
+            "envMapIntensity": 1
           }
         }
-      ]
+      ],
+      "name": "apartment"
     },
     "1463EAC0-883F-493A-9A33-6757CC8FF48B": {
-      "name": "scene preview camera",
       "components": [
         {
           "name": "transform",
@@ -83,7 +80,7 @@
             },
             "rotation": {
               "x": -2.7229010822088258,
-              "y": -0.38088155772670557,
+              "y": -0.3808815577267056,
               "z": -2.9776519604320537
             },
             "scale": {
@@ -95,9 +92,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "scene-preview-camera",
@@ -105,10 +100,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 0
+      "index": 0,
+      "name": "scene preview camera"
     },
     "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
-      "name": "skybox",
       "components": [
         {
           "name": "transform",
@@ -132,14 +127,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "skybox",
           "props": {
-            "backgroundColor": "#000000",
+            "backgroundColor": 0,
             "equirectangularPath": "/hdr/city.jpg",
             "cubemapPath": "/cubemap/",
             "backgroundType": 2,
@@ -156,10 +149,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 1
+      "index": 1,
+      "name": "skybox"
     },
     "1B698482-C15A-4CEC-9247-03873520DF70": {
-      "name": "ground plane",
       "components": [
         {
           "name": "transform",
@@ -183,14 +176,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": false
-          }
+          "props": {}
         },
         {
           "name": "ground-plane",
           "props": {
-            "color": "#3658e3"
+            "color": 3561699
           }
         },
         {
@@ -201,10 +192,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 2
+      "index": 2,
+      "name": "ground plane"
     },
     "1B698483-C15A-4CEC-9247-03873520DF70": {
-      "name": "spawn point",
       "components": [
         {
           "name": "transform",
@@ -215,9 +206,9 @@
               "z": 7.5
             },
             "rotation": {
-              "x": 0,
-              "y": 3.141592653589793,
-              "z": 0
+              "x": -3.141592653589793,
+              "y": 1.2246467991473532e-16,
+              "z": -3.141592653589793
             },
             "scale": {
               "x": 4.6,
@@ -228,9 +219,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "spawn-point",
@@ -238,10 +227,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 3
+      "index": 3,
+      "name": "spawn point"
     },
     "1B698484-C15A-4CEC-9247-03873520DF70": {
-      "name": "hemisphere light",
       "components": [
         {
           "name": "transform",
@@ -265,24 +254,22 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "hemisphere-light",
           "props": {
-            "skyColor": "#ffffff",
-            "groundColor": "#ffffff",
+            "skyColor": 16777215,
+            "groundColor": 16777215,
             "intensity": 1
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 4
+      "index": 4,
+      "name": "hemisphere light"
     },
     "42F3C84A-D663-492F-90C5-1DED5011996A": {
-      "name": "post processing",
       "components": [
         {
           "name": "transform",
@@ -306,9 +293,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "postprocessing",
@@ -395,10 +380,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 5
+      "index": 5,
+      "name": "post processing"
     },
     "D87BB8F8-EFB7-493F-849E-6F856D00CD8C": {
-      "name": "directional light",
       "components": [
         {
           "name": "transform",
@@ -409,8 +394,8 @@
               "z": 0.5
             },
             "rotation": {
-              "x": -1.202531854624093,
-              "y": -0.45727626402251437,
+              "x": -1.2025318546240928,
+              "y": -0.4572762640225144,
               "z": 0
             },
             "scale": {
@@ -422,14 +407,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "directional-light",
           "props": {
-            "color": "#ffffff",
+            "color": 16777215,
             "intensity": 0.6699999999999999,
             "castShadow": true,
             "shadowMapResolution": [
@@ -444,10 +427,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 6
+      "index": 6,
+      "name": "directional light"
     },
     "EB3079AD-F42D-4394-9C0B-59D7074CCB47": {
-      "name": "model",
       "components": [
         {
           "name": "transform",
@@ -471,9 +454,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "gltf-model",
@@ -496,10 +477,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7
+      "index": 7,
+      "name": "model"
     },
     "93F97944-66C4-4ACE-9553-D8603176D0B7": {
-      "name": "Box Collider 25",
       "components": [
         {
           "name": "transform",
@@ -523,9 +504,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -535,10 +514,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 8
+      "index": 8,
+      "name": "Box Collider 25"
     },
     "30D1329E-F0D0-41F3-AC26-EA7BBCE2DBD6": {
-      "name": "Box Collider 26",
       "components": [
         {
           "name": "transform",
@@ -562,9 +541,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -574,10 +551,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 9
+      "index": 9,
+      "name": "Box Collider 26"
     },
     "1C59264B-035F-476E-8EF9-24E26F4C8FB4": {
-      "name": "Box Collider 27",
       "components": [
         {
           "name": "transform",
@@ -601,9 +578,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -613,10 +588,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 10
+      "index": 10,
+      "name": "Box Collider 27"
     },
     "ABD3CDC7-1AF2-4249-8A0F-5A0B5FD7B7F2": {
-      "name": "Box Collider 28",
       "components": [
         {
           "name": "transform",
@@ -640,9 +615,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -652,10 +625,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 11
+      "index": 11,
+      "name": "Box Collider 28"
     },
     "5288EC35-7802-49CC-A10D-9B29BF3CD6BA": {
-      "name": "Box Collider 29",
       "components": [
         {
           "name": "transform",
@@ -679,9 +652,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -691,10 +662,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 12
+      "index": 12,
+      "name": "Box Collider 29"
     },
     "8837F148-5777-4074-827A-497D35F8B813": {
-      "name": "Box Collider 30",
       "components": [
         {
           "name": "transform",
@@ -718,9 +689,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -730,10 +699,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 13
+      "index": 13,
+      "name": "Box Collider 30"
     },
     "EE2EA46D-AFF8-4044-AB89-1FFF24D7D729": {
-      "name": "Box Collider 31",
       "components": [
         {
           "name": "transform",
@@ -744,7 +713,7 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.836515972906817e-18,
+              "x": -5.836515972906815e-18,
               "y": 0.057595865315813045,
               "z": 2.7795419234960425e-16
             },
@@ -757,9 +726,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -769,10 +736,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 14
+      "index": 14,
+      "name": "Box Collider 31"
     },
     "2DC31FBC-83F2-4B61-8AED-2318ABB348AF": {
-      "name": "Box Collider 32",
       "components": [
         {
           "name": "transform",
@@ -796,9 +763,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "box-collider",
@@ -808,10 +773,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 15
+      "index": 15,
+      "name": "Box Collider 32"
     },
     "BF989CD9-DEFB-41D0-B536-0F723D5A8DBD": {
-      "name": "Portal",
       "components": [
         {
           "name": "transform",
@@ -835,47 +800,29 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "portal",
           "props": {
-            "locationName": "sky-station",
             "linkedPortalId": "A4B9313F-C244-4A83-813D-281C43B671BE",
-            "modelUrl": "__$project$__/default-project/assets/portal_frame.glb",
-            "displayText": "Sky Station",
             "spawnPosition": {
-              "x": -11.5,
+              "x": 0,
               "y": 0,
-              "z": 15
+              "z": 0
             },
             "spawnRotation": {
               "x": 0,
-              "y": 3.141592653589793,
-              "z": 0
-            },
-            "triggerPosition": {
-              "x": 0,
-              "y": 1.2000000000000002,
-              "z": 0
-            },
-            "triggerRotation": {
-              "x": 0,
               "y": 0,
               "z": 0
-            },
-            "triggerScale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
             }
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 16
+      "index": 16,
+      "name": "Portal"
     }
-  }
+  },
+  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
 }
