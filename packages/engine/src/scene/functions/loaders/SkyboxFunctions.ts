@@ -53,7 +53,11 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
 ) => {
   if (isClient) {
     json.props.backgroundColor = new Color(json.props.backgroundColor)
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
+    var obj3D = getComponent(entity, Object3DComponent)
+    if (obj3D == null) {
+      obj3D = new Object3D()
+      addComponent(entity, Object3DComponent, { value: obj3D })
+    }
     addComponent(entity, SkyboxComponent, json.props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
