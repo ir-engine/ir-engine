@@ -31,6 +31,7 @@ import isHLS from '../isHLS'
 import Hls from 'hls.js'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
+export const VIDEO_MESH_NAME = 'VideoMesh'
 export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
   videoSource: '',
   elementId: 'video-' + Date.now()
@@ -141,7 +142,7 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_VIDEO,
     props: {
-      src: component.videoSource,
+      videoSource: component.videoSource,
       elementId: component.elementId
     }
   }
@@ -189,4 +190,17 @@ const setupHLS = (url: string): Hls => {
   })
 
   return hls
+}
+
+export const toggleVideo = (entity: Entity) => {
+  const data = getComponent(entity, Object3DComponent)?.value.userData
+  if (!data) return
+
+  if (data.videoEl.paused) {
+    data.audioEl.play()
+    data.videoEl.play()
+  } else {
+    data.audioEl.stop()
+    data.videoEl.pause()
+  }
 }

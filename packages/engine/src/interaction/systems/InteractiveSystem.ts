@@ -15,9 +15,7 @@ import { HighlightComponent } from '../../renderer/components/HighlightComponent
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
-import AudioSource from '../../scene/classes/AudioSource'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import {
@@ -33,6 +31,12 @@ import { EquippedComponent } from '../components/EquippedComponent'
 import { Not } from 'bitecs'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { AudioComponent } from '../../audio/components/AudioComponent'
+import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 
 export default async function InteractiveSystem(world: World): Promise<System> {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -116,9 +120,12 @@ export default async function InteractiveSystem(world: World): Promise<System> {
 
     for (const entity of interactedQuery.enter()) {
       const interactiveComponent = getComponent(entity, InteractableComponent)
-      if (hasComponent(entity, AudioTagComponent)) {
-        const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
-        mediaObject?.toggle()
+      if (hasComponent(entity, AudioComponent)) {
+        toggleAudio(entity)
+      } else if (hasComponent(entity, VideoComponent)) {
+        toggleVideo(entity)
+      } else if (hasComponent(entity, VolumetricComponent)) {
+        toggleVolumetric(entity)
       } else {
         dispatchLocal(EngineActions.objectActivation(interactiveComponent))
       }

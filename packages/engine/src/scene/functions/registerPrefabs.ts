@@ -72,6 +72,12 @@ import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './l
 import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
 import { SCENE_COMPONENT_WATER, SCENE_COMPONENT_WATER_DEFAULT_VALUES } from './loaders/WaterFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
+import { SCENE_COMPONENT_SYSTEM, SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES } from './loaders/SystemFunctions'
+import { SCENE_COMPONENT_SPLINE, SCENE_COMPONENT_SPLINE_DEFAULT_VALUES } from './loaders/SplineFunctions'
+import {
+  SCENE_COMPONENT_CUBEMAP_BAKE,
+  SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES
+} from './loaders/CubemapBakeFunctions'
 
 export const ScenePrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -100,7 +106,10 @@ export const ScenePrefabs = {
   cloud: 'Cloud' as const,
   water: 'Water' as const,
   ocean: 'Ocean' as const,
-  interior: 'Interior' as const
+  interior: 'Interior' as const,
+  system: 'System' as const,
+  spline: 'Spline' as const,
+  cubemapbake: 'CubemapBake' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -264,5 +273,20 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.interior, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_INTERIOR, props: SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.system, [
+    { name: SCENE_COMPONENT_SYSTEM, props: SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES }
+  ])
+
+  // world.scenePrefabRegistry.set(ScenePrefabs.spline, [
+  //   ...defaultSpatialComponents,
+  //   { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
+  // ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.cubemapbake, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_CUBEMAP_BAKE, props: SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES }
   ])
 }

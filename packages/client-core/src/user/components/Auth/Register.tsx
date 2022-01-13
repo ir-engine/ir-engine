@@ -7,14 +7,12 @@ import Typography from '@mui/material/Typography'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import { AuthService } from '../../services/AuthService'
 import React, { useState } from 'react'
-import { useDispatch } from '../../../store'
 import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
 const SignUp = (props: Props): any => {
-  const dispatch = useDispatch()
   const initialState = {
     email: '',
     password: '',
@@ -30,12 +28,10 @@ const SignUp = (props: Props): any => {
 
   const handleRegister = (e: any): void => {
     e.preventDefault()
-    dispatch(
-      AuthService.registerUserByEmail({
-        email: state.email,
-        password: state.password
-      })
-    )
+    AuthService.registerUserByEmail({
+      email: state.email,
+      password: state.password
+    })
   }
 
   return (

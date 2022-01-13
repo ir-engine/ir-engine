@@ -11,7 +11,6 @@ import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { loadComponent } from './SceneLoading'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { UserdataComponent } from '../components/UserdataComponent'
 import { FogType } from '../constants/FogType'
 import { FogComponent } from '../components/FogComponent'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
@@ -83,30 +82,6 @@ describe.skip('SceneLoading.test', () => {
       assert.equal((getComponent(entity, Object3DComponent).value as any)._data, testData)
       assert(hasComponent(entity, InteractableComponent))
       assert.equal(getComponent(entity, InteractableComponent).action, '_metadata')
-
-    })
-
-    it('userdata', async () => {
-
-      const world = createWorld()
-      Engine.currentWorld = world
-      Engine.currentWorld = world
-
-      const entity = createEntity()
-
-      const testData = MathUtils.generateUUID()
-      const sceneComponentData = {
-        testData
-      }
-      const sceneComponent: ComponentJson = {
-        name: 'userdata',
-        props: sceneComponentData
-      }
-
-      loadComponent(entity, sceneComponent)
-
-      assert(hasComponent(entity, UserdataComponent))
-      assert.deepEqual(getComponent(entity, UserdataComponent).data, { testData })
 
     })
 

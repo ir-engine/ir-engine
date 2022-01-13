@@ -43,16 +43,7 @@ store.receptors.push((action: LocationActionType): any => {
       case 'ADMIN_LOCATION_CREATED':
         return s.merge({ updateNeeded: true, created: true })
       case 'ADMIN_LOCATION_PATCHED':
-        const locationsList = state.locations.value
-        for (let i = 0; i < locationsList.length; i++) {
-          if (locationsList[i].id === action.location.id) {
-            locationsList[i] = action.location
-          } else if (action.location.isLobby && locationsList[i].isLobby) {
-            // if updated location is lobby then remove old lobby.
-            locationsList[i].isLobby = false
-          }
-        }
-        return s.merge({ locations: locationsList })
+        return s.merge({ updateNeeded: true })
 
       case 'ADMIN_LOCATION_REMOVED':
         return s.merge({ updateNeeded: true })
@@ -104,7 +95,7 @@ export const LocationService = {
       }
     }
   },
-  fetchAdminLocations: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminLocations: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       try {
@@ -115,10 +106,33 @@ export const LocationService = {
             },
             $skip: accessLocationState().skip.value,
             $limit: accessLocationState().limit.value,
-            adminnedLocations: true
+            adminnedLocations: true,
+            search: value
           }
         })
         dispatch(LocationAction.locationsRetrieved(locations))
+      } catch (error) {
+        console.error(error)
+        dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
+      }
+    }
+  },
+  searchAdminLocations: async (value) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        const result = await client.service('location').find({
+          query: {
+            search: value,
+            $sort: {
+              name: 1
+            },
+            $skip: accessLocationState().skip.value,
+            $limit: accessLocationState().limit.value,
+            adminnedLocations: true
+          }
+        })
+        dispatch(LocationAction.locationsRetrieved(result))
       } catch (error) {
         console.error(error)
         dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))

@@ -74,11 +74,6 @@ export class ControlManager {
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
     Engine.camera.layers.disable(1)
     this.playModeControls.enable()
-    Engine.scene.traverse((node: any) => {
-      if (node.isNode) {
-        node.onPlay()
-      }
-    })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 
@@ -91,11 +86,6 @@ export class ControlManager {
     this.isInPlayMode = false
     Engine.camera.layers.enable(ObjectLayers.Scene)
     this.playModeControls.disable()
-    Engine.scene.traverse((node: any) => {
-      if (node.isNode) {
-        node.onPause()
-      }
-    })
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }
 
