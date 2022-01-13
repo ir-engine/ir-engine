@@ -67,7 +67,7 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
 export const saveScene = async (
   projectName: string,
   sceneName: string,
-  thumbnailBlob: Blob | undefined,
+  thumbnailBlob: Blob | null,
   signal: AbortSignal
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))

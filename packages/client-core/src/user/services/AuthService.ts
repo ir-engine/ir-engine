@@ -32,7 +32,7 @@ import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInte
 import { userPatched } from '../functions/userPatched'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { SocketWebRTCClientTransport } from 'src/transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 type AuthStrategies = {
   jwt: Boolean

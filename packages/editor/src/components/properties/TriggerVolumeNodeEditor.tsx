@@ -5,11 +5,13 @@ import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
 import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorComponentType, updateProperty } from './Util'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
   //initializing props and state
@@ -18,10 +20,13 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const options: any[] = []
-    const sceneNode = Engine.scene
-    sceneNode.traverse((o: any) => {
-      if (o.isNode && o !== sceneNode) {
-        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName })
+    const entityTree = useWorld().entityTree
+
+    entityTree.traverse((o) => {
+      if (o === entityTree.rootNode) return
+
+      if (hasComponent(o.entity, Object3DComponent)) {
+        options.push({ label: getComponent(o.entity, NameComponent)?.name, value: o.uuid })
       }
     })
     setOptions(options)

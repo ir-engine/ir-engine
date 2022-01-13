@@ -127,3 +127,17 @@ const getFileExtension = (url): string => {
     return ''
   }
 }
+
+export const toggleVolumetric = (entity: Entity): boolean => {
+  const obj3d = getComponent(entity, Object3DComponent)?.value
+  if (!obj3d) return false
+
+  if (obj3d.userData.player.hasPlayed) {
+    obj3d.userData.player.stopOnNextFrame = true
+    return false
+  } else {
+    obj3d.userData.player.stopOnNextFrame = false
+    obj3d.userData.player.play()
+    return true
+  }
+}

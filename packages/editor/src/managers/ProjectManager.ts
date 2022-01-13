@@ -1,6 +1,5 @@
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
-import { loadEnvironmentMap } from '../components/EnvironmentMap'
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -40,12 +39,7 @@ export class ProjectManager {
 
     this.initializing = true
 
-    const tasks = [
-      loadEnvironmentMap(),
-      ErrorIcon.load(),
-      TransformGizmo.load(),
-      AnimationManager.instance.getAnimations()
-    ]
+    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getAnimations()]
 
     await Promise.all(tasks)
 
