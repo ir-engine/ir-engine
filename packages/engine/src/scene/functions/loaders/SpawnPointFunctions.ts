@@ -22,8 +22,11 @@ const GLTF_PATH = '/static/editor/spawn-point.glb' // Static
 export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity: Entity) => {
   addComponent(entity, SpawnPointComponent, {})
 
-  const obj3d = new Object3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
+  var obj3d = getComponent(entity, Object3DComponent)
+  if (obj3d == null) {
+    obj3d = new Object3D()
+    addComponent(entity, Object3DComponent, { value: obj3d })
+  }
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
