@@ -42,12 +42,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
   })
 
-  const animations = loopAnimationComponent.hasAvatarAnimations
+  const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
     : obj3d.animations
 
   const animationOptions = [{ label: 'None', value: -1 }]
-  if (animations.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+  if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
@@ -88,13 +88,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           options={animationOptions}
-          value={loopAnimationComponent.activeClipIndex}
+          value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations}
+          value={loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
