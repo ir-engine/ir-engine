@@ -21,7 +21,7 @@ echo "Current tag: $tag"
 # Wait until correct image tag is used.
 until [[ $tag = $expectedTag ]]
 do
-    sleep 10
+    sleep 15
 
     imageName=$(kubectl get pods $podName --no-headers -o custom-columns="IMAGE:.spec.containers[*].image")
     tag=$(echo $imageName | cut -d ":" -f2)
@@ -35,7 +35,7 @@ echo "Pod status: $podStatus"
 # Wait until correct status of testbot.
 until [[ $podStatus == "Succeeded" || $podStatus == "Failed" ]]
 do
-    sleep 10
+    sleep 15
 
     podStatus=$(kubectl get pods $podName --no-headers -o custom-columns=":status.phase")
     echo "Pod status: $podStatus"
