@@ -1,14 +1,6 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-
-interface SystemProps {
-  filePath: string
-  systemUpdateType: keyof typeof SystemUpdateType
-  enableClient: boolean
-  enableServer: boolean
-  args: any
-}
+import { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
 
 export const getSystemsFromSceneData = async (
   project: string,
@@ -19,7 +11,7 @@ export const getSystemsFromSceneData = async (
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
-        const data: SystemProps = component.props
+        const data: SystemComponentType = component.props
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
           systems.push(await importSystem(project, data))
         }
@@ -29,7 +21,7 @@ export const getSystemsFromSceneData = async (
   return systems
 }
 
-export const importSystem = async (project: string, data: SystemProps): Promise<SystemModuleType<any>> => {
+export const importSystem = async (project: string, data: SystemComponentType): Promise<SystemModuleType<any>> => {
   console.info(`Loading Project ${project} with data`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')

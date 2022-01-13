@@ -1,11 +1,8 @@
-import React from 'react'
-import i18n from 'i18next'
-import { useTranslation, withTranslation } from 'react-i18next'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import InputGroup from '../inputs/InputGroup'
-import Systemnode from '../../nodes/SystemNode'
 import { CommandManager } from '../../managers/CommandManager'
 import NodeEditor from './NodeEditor'
-import EditorEvents from '../../constants/EditorEvents'
 import ExtensionIcon from '@mui/icons-material/Extension'
 import { validatePath } from '@xrengine/common/src/utils/validatePath'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
@@ -13,6 +10,9 @@ import { SelectInput } from '../inputs/SelectInput'
 import BooleanInput from '../inputs/BooleanInput'
 import StringInput from '../inputs/StringInput'
 import ScriptInput from '../inputs/ScriptInput'
+import { EditorComponentType, updateProperty } from './Util'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
 
 /**
  * Define properties for Script component.
@@ -20,11 +20,6 @@ import ScriptInput from '../inputs/ScriptInput'
  * @author Hanzla Mateen
  * @type {Object}
  */
-
-type SystemNodeEditorProps = {
-  node?: Systemnode
-  t: Function
-}
 
 const systemUpdateTypes = [
   {
@@ -56,6 +51,7 @@ const systemUpdateTypes = [
     value: SystemUpdateType.POST_RENDER
   }
 ]
+
 /**
  * For Scripts
  *
@@ -63,57 +59,55 @@ const systemUpdateTypes = [
  * @param       {Object} props
  * @constructor
  */
-
-export const SystemnodeEditor = (props: SystemNodeEditorProps) => {
-  const { node } = props
+export const SystemNodeEditor: EditorComponentType = (props) => {
+  const [isPathValid, setPathValid] = useState(true)
   const { t } = useTranslation()
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      CommandManager.instance.setPropertyOnSelection('filePath', path)
+      CommandManager.instance.setPropertyOnSelectionEntities({
+        component: SystemComponent,
+        properties: { filePath: path }
+      })
+
+      setPathValid(true)
+    } else {
+      setPathValid(false)
     }
-    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, [node])
   }
 
-  const onChangeSystemUpdateType = (systemUpdateType) => {
-    CommandManager.instance.setPropertyOnSelection('systemUpdateType', systemUpdateType)
-  }
-
-  const onChangeEnableClient = (enableClient) => {
-    CommandManager.instance.setPropertyOnSelection('enableClient', enableClient)
-  }
-
-  const onChangeEnableServer = (enableServer) => {
-    CommandManager.instance.setPropertyOnSelection('enableServer', enableServer)
-  }
-
-  const onChangeArgs = (args) => {
-    CommandManager.instance.setPropertyOnSelection('args', args)
-  }
+  const systemComponent = getComponent(props.node.entity, SystemComponent)
 
   return (
-    <NodeEditor description={SystemnodeEditor.description} {...props}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.systemnode.name')}
+      description={t('editor:properties.systemnode.description')}
+    >
       <InputGroup name="Script" label={t('editor:properties.systemnode.lbl-filePath')}>
-        <ScriptInput value={node.filePath} onChange={onChangePath} />
-        {!node.isValidURL && <div>{t('editor:properties.systemnode.error-url')}</div>}
+        <ScriptInput value={systemComponent.filePath} onChange={onChangePath} />
+        {!isPathValid && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
       <InputGroup name="systemUpdateType" label={t('editor:properties.systemnode.lbl-systemUpdateType')}>
-        <SelectInput options={systemUpdateTypes} onChange={onChangeSystemUpdateType} value={node.systemUpdateType} />
+        <SelectInput
+          options={systemUpdateTypes}
+          onChange={updateProperty(SystemComponent, 'systemUpdateType')}
+          value={systemComponent.systemUpdateType}
+        />
       </InputGroup>
       <InputGroup name="enableClient" label={t('editor:properties.systemnode.lbl-enableClient')}>
-        <BooleanInput onChange={onChangeEnableClient} value={node.enableClient} />
+        <BooleanInput onChange={updateProperty(SystemComponent, 'enableClient')} value={systemComponent.enableClient} />
       </InputGroup>
       <InputGroup name="enableServer" label={t('editor:properties.systemnode.lbl-enableServer')}>
-        <BooleanInput onChange={onChangeEnableServer} value={node.enableServer} />
+        <BooleanInput onChange={updateProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
-        <StringInput onChange={onChangeArgs} value={node.args} />
+        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args} />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-SystemnodeEditor.iconComponent = ExtensionIcon
-SystemnodeEditor.description = i18n.t('editor:properties.systemnode.description')
+SystemNodeEditor.iconComponent = ExtensionIcon
 
-export default withTranslation()(SystemnodeEditor)
+export default SystemNodeEditor

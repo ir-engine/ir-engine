@@ -32,7 +32,6 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<CloudComponentType>
 ) => {
-  console.debug(json)
   if (!isClient) return
 
   const obj3d = new Clouds()

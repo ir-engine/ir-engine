@@ -11,10 +11,10 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import ImageSourceProperties from './ImageSourceProperties'
 import { PropertiesPanelButton } from '../inputs/Button'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import MediaSourceProperties from './MediaSourceProperties'
 import BooleanInput from '../inputs/BooleanInput'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
 
 /**
  * VideoNodeEditor used to render editor view for property customization.
@@ -25,18 +25,6 @@ import { InteractableComponent } from '@xrengine/engine/src/interaction/componen
  */
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-
-  const toggleAudio = () => {
-    const data = getComponent(props.node.entity, Object3DComponent).value.userData
-
-    if (data.videoEl.paused) {
-      data.audioEl.play()
-      data.videoEl.play()
-    } else {
-      data.audioEl.stop()
-      data.videoEl.pause()
-    }
-  }
 
   const videoComponent = getComponent(props.node.entity, VideoComponent)
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
@@ -65,7 +53,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(InteractableComponent, 'interactable')}
         />
       </InputGroup>
-      <PropertiesPanelButton onClick={toggleAudio}>{t('editor:properties.video.lbl-test')}</PropertiesPanelButton>
+      <PropertiesPanelButton onClick={() => toggleVideo(props.node.entity)}>
+        {t('editor:properties.video.lbl-test')}
+      </PropertiesPanelButton>
     </NodeEditor>
   )
 }

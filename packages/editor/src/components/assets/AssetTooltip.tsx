@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { FileDataType } from './FileDataType'
 
 /**
  * TooltipContainer used as container tooltip.
@@ -48,7 +49,7 @@ const TooltipContent = (styled as any).div`
  * @param       {any} item
  * @constructor
  */
-export class AssetTooltip extends React.Component {
+export class AssetTooltip extends React.Component<{ item: FileDataType }, {}> {
   render() {
     let { item } = this.props
 
@@ -58,16 +59,17 @@ export class AssetTooltip extends React.Component {
     // else creating thumbnail if there is videoUrl
     // then check if item contains iconComponent then initializing using IconComponent
     //else initialize thumbnail using src from item object
-    if (item.thumbnailUrl) {
-      thumbnail = <img src={item.thumbnailUrl} />
-    } else if (item.videoUrl) {
-      thumbnail = <video src={item.videoUrl} autoPlay muted />
-    } else if (item.iconComponent) {
-      const IconComponent = item.iconComponent
-      thumbnail = <IconComponent size={50} />
-    } else {
-      thumbnail = <img src={item.src} />
-    }
+    // if (item.thumbnailUrl) {
+    //   thumbnail = <img src={item.thumbnailUrl} />
+    // } else if (item.videoUrl) {
+    //   thumbnail = <video src={item.videoUrl} autoPlay muted />
+    // } else if (item.iconComponent) {
+    //   const IconComponent = item.iconComponent
+    //   thumbnail = <IconComponent size={50} />
+    // } else {
+    // }
+
+    thumbnail = <img src={item.url} />
 
     //creating tooltip view
     return (
