@@ -200,7 +200,7 @@ const Projects = () => {
     <div>
       <Paper className={styles.adminRoot}>
         <Grid container spacing={3} className={styles.marginBottom}>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Button
               className={styles['open-modal']}
               type="button"
@@ -211,7 +211,7 @@ const Projects = () => {
               {'Add Project'}
             </Button>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Button
               className={styles['open-modal']}
               type="button"
@@ -222,7 +222,7 @@ const Projects = () => {
               {'Rebuild'}
             </Button>
           </Grid>
-          <Grid item xs={4}>
+          {/* <Grid item xs={4}>
             <Button
               className={styles['open-modal']}
               type="button"
@@ -232,7 +232,7 @@ const Projects = () => {
             >
               {'Spawn Bots'}
             </Button>
-          </Grid>
+          </Grid> */}
         </Grid>
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
