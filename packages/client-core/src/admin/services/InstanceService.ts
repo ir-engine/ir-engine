@@ -52,7 +52,7 @@ export const useInstanceState = () => useState(state) as any as typeof state
 
 //Service
 export const InstanceService = {
-  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string = '') => {
+  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
     const dispatch = useDispatch()
     {
       const skip = 0
