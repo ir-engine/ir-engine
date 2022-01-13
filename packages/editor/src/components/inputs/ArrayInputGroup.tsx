@@ -91,7 +91,7 @@ export function ArrayInputGroup({
                   <FileBrowserInput
                     value={value}
                     acceptFileTypes={acceptFileTypes}
-                    acceptDropItems={itemType}
+                    acceptDropItems={itemType || []}
                     onChange={(text) => {
                       onChangeText(text, index, values, onChange)
                     }}

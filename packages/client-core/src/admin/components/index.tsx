@@ -18,7 +18,6 @@ import FormControl from '@mui/material/FormControl'
 import { Theme } from '@mui/material/styles'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
-import { Config } from '@xrengine/common/src/config'
 import { useHistory } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../store'
@@ -254,7 +253,7 @@ const AdminConsole = (props: Props) => {
       gsId: instance?.gameserver_subdomain_provision?.gs_id,
       serverAddress:
         instance.gameserver_subdomain_provision != null
-          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}`
+          ? `https://${instance.gameserver_subdomain_provision.gs_number}.${globalThis.process.env['VITE_GAMESERVER_HOST']}`
           : ''
     }
   })

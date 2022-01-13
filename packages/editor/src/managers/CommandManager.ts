@@ -1,6 +1,5 @@
 import EventEmitter from 'events'
-import { fetchContentType } from '@xrengine/common/src/utils/fetchContentType'
-import { guessContentType } from '@xrengine/common/src/utils/guessContentType'
+import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import History from '../classes/History'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
@@ -16,20 +15,24 @@ import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
 import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
 import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
-import RotateOnAxisCommand, { RotateOnAxisCommandParams } from '../commands/RotateOnAxisCommand'
 import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/RotateAroundCommand'
 import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
-import LoadMaterialSlotCommand, { LoadMaterialSlotCommandParams } from '../commands/LoadMaterialSlotMultipleCommand'
 import isInputSelected from '../functions/isInputSelected'
-import ModelNode from '../nodes/ModelNode'
-import VideoNode from '../nodes/VideoNode'
-import ImageNode from '../nodes/ImageNode'
-import VolumetricNode from '../nodes/VolumetricNode'
-import LinkNode from '../nodes/LinkNode'
 import { SceneManager } from './SceneManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import SceneNode from '../nodes/SceneNode'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -41,9 +44,8 @@ export type CommandParamsType =
   | PositionCommandParams
   | RotationCommandParams
   | ScaleCommandParams
-  | RotateOnAxisCommandParams
   | RotateAroundCommandParams
-  | LoadMaterialSlotCommandParams
+  | TagComponentCommandParams
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager = new CommandManager()
@@ -52,8 +54,8 @@ export class CommandManager extends EventEmitter {
     [key: string]: typeof Command
   }
 
-  selected: any[] = []
-  selectedTransformRoots: any[] = []
+  selected: EntityTreeNode[] = []
+  selectedTransformRoots: EntityTreeNode[] = []
   history: History
 
   constructor() {
@@ -73,44 +75,57 @@ export class CommandManager extends EventEmitter {
       [EditorCommands.GROUP]: GroupCommand,
       [EditorCommands.POSITION]: PositionCommand,
       [EditorCommands.ROTATION]: RotationCommand,
-      [EditorCommands.ROTATE_ON_AXIS]: RotateOnAxisCommand,
       [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
       [EditorCommands.SCALE]: ScaleCommand,
       [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
-      [EditorCommands.LOAD_MATERIAL_SLOT]: LoadMaterialSlotCommand
+      [EditorCommands.TAG_COMPONENT]: TagComponentCommand
     }
 
     window.addEventListener('copy', this.onCopy)
     window.addEventListener('paste', this.onPaste)
   }
 
-  executeCommand = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
+  executeCommand = (
+    command: EditorCommandsType,
+    object: EntityTreeNode | EntityTreeNode[],
+    params: CommandParamsType = {}
+  ) => {
     if (!params) params = {}
-
-    new this.commands[command](affectedObject, params).execute()
+    new this.commands[command](!Array.isArray(object) ? [object] : object, params).execute()
   }
 
-  executeCommandWithHistory = (command: EditorCommandsType, affectedObject?: any, params?: CommandParamsType) => {
-    if (!params) params = {}
-
-    this.history.execute(new this.commands[command](affectedObject, params))
+  executeCommandWithHistory = (
+    command: EditorCommandsType,
+    object: EntityTreeNode | EntityTreeNode[],
+    params: CommandParamsType = {}
+  ) => {
+    params.keepHistory = true
+    this.history.execute(new this.commands[command](!Array.isArray(object) ? [object] : object, params))
   }
 
-  executeCommandOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
+  executeCommandOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
     new this.commands[command](this.selected, params).execute()
   }
 
-  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params?: CommandParamsType) => {
+  executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
+    params.keepHistory = true
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setPropertyOnSelection(name: string, value: any, withHistory = true) {
-    const properties = { [name]: value }
+  setProperty(affectedEntityNodes: EntityTreeNode[], params: ModifyPropertyCommandParams, withHistory = true) {
     if (withHistory) {
-      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, this.selected, { properties })
+      this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     } else {
-      this.executeCommand(EditorCommands.MODIFY_PROPERTY, this.selected, { properties })
+      this.executeCommand(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     }
+  }
+
+  setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
+    this.setProperty(this.selected, params, withHistory)
+  }
+
+  setPropertyOnEntityNode(node: EntityTreeNode, params: ModifyPropertyCommandParams, withHistory = true) {
+    this.setProperty([node], params, withHistory)
   }
 
   emitEvent = (event: EditorEvents, ...args: any[]): void => {
@@ -127,30 +142,29 @@ export class CommandManager extends EventEmitter {
    * @param  {Boolean} [filterUntransformable=false]
    * @return {any}
    */
-  getRootObjects(objects, target = [], filterUnremovable = true, filterUntransformable = false) {
+  getRootObjects(objects, target: EntityTreeNode[] = [], filterUnremovable = true, filterUntransformable = false) {
     target.length = 0
 
     // Recursively find the nodes in the tree with the lowest depth
-    const traverse = (curObject) => {
+    const traverse = (curObject: EntityTreeNode) => {
       if (
         objects.indexOf(curObject) !== -1 &&
-        !(filterUnremovable && !curObject.parent) &&
-        !(filterUntransformable && curObject.disableTransform)
+        !(filterUnremovable && !curObject.parentNode) &&
+        !(filterUntransformable && hasComponent(curObject.entity, DisableTransformTagComponent))
       ) {
         target.push(curObject)
         return
       }
 
-      const children = curObject.children
-
-      for (let i = 0; i < children.length; i++) {
-        if (children[i].isNode) {
-          traverse(children[i])
+      if (curObject.children) {
+        for (let i = 0; i < curObject.children.length; i++) {
+          traverse(curObject.children[i])
         }
       }
     }
 
-    traverse(Engine.scene)
+    const world = useWorld()
+    traverse(world.entityTree.rootNode)
 
     return target
   }
@@ -163,7 +177,7 @@ export class CommandManager extends EventEmitter {
    * @param target
    * @returns
    */
-  getTransformRoots(objects, target = []) {
+  getTransformRoots(objects, target: EntityTreeNode[] = []) {
     return this.getRootObjects(objects, target, true, true)
   }
 
@@ -205,46 +219,38 @@ export class CommandManager extends EventEmitter {
   }
 
   onCopy = (event) => {
-    if (isInputSelected()) {
-      return
-    }
-
+    if (isInputSelected()) return
     event.preventDefault()
 
     // TODO: Prevent copying objects with a disabled transform
     if (this.selected.length > 0) {
       event.clipboardData.setData(
         'application/vnd.editor.nodes',
-        JSON.stringify({ nodeUUIDs: this.selected.map((node) => node.uuid) })
+        JSON.stringify({ entities: this.selected.map((node) => node.entity) })
       )
     }
   }
 
   onPaste = (event) => {
-    if (isInputSelected()) {
-      return
-    }
-
+    if (isInputSelected()) return
     event.preventDefault()
 
     let data
 
     if ((data = event.clipboardData.getData('application/vnd.editor.nodes')) !== '') {
-      const { nodeUUIDs } = JSON.parse(data)
+      const { entities } = JSON.parse(data)
 
-      if (!Array.isArray(nodeUUIDs)) {
-        return
+      if (!Array.isArray(entities)) return
+      const nodes = entities
+        .map((entity) => useWorld().entityTree.findNodeFromEid(entity))
+        .filter((entity) => entity) as EntityTreeNode[]
+
+      if (nodes) {
+        CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
       }
-
-      const nodes = nodeUUIDs
-        .map((uuid) => (Engine.scene as any as SceneNode).getObjectByUUID(uuid))
-        .filter((uuid) => uuid !== undefined)
-
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, nodes)
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-
         this.addMedia({ url: url.href }).catch((error) => this.emitEvent(EditorEvents.ERROR, error))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
@@ -252,47 +258,96 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia({ url }, parent?: any, before?: any) {
-    let contentType = ''
+  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode, updatePosition = true) {
+    let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
-    try {
-      contentType = (await guessContentType(url)) || (await fetchContentType(url)) || ''
-    } catch (error) {
-      console.warn(`Couldn't fetch content type for url ${url}. Using LinkNode instead.`)
-    }
-
-    let node
+    let node = new EntityTreeNode(createEntity())
+    let prefabType = '' as ScenePrefabTypes
+    let updateFunc = null! as Function
 
     if (contentType.startsWith('model/gltf')) {
-      node = new ModelNode()
-      node.initialScale = 'fit'
-      await node.load(url)
-    }
-
-    // else if (contentType.startsWith('shopify/gltf')) {
-    //   node = new ShopifyNode()
-    //   node.initialScale = 'fit'
-    //   await node.load(url)
-    // }
-    else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
-      node = new VideoNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.model
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: ModelComponent,
+            properties: { src: url, initialScale: 'fit' }
+          },
+          false
+        )
+    } else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
+      prefabType = ScenePrefabs.video
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: VideoComponent,
+            properties: { videoSource: url }
+          },
+          false
+        )
     } else if (contentType.startsWith('image/')) {
-      node = new ImageNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.image
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: ImageComponent,
+            properties: { imageSource: url }
+          },
+          false
+        )
     } else if (contentType.startsWith('audio/')) {
-      node = new AudioNode()
-      await node.load(url)
+      prefabType = ScenePrefabs.audio
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: AudioComponent,
+            properties: { audioSource: url }
+          },
+          false
+        )
     } else if (url.contains('.uvol')) {
-      node = new VolumetricNode()
+      prefabType = ScenePrefabs.volumetric
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: AudioComponent,
+            properties: { paths: [url] }
+          },
+          false
+        )
     } else {
-      node = new LinkNode()
-      node.href = url
+      prefabType = ScenePrefabs.link
+      updateFunc = () =>
+        this.setPropertyOnEntityNode(
+          node,
+          {
+            component: LinkComponent,
+            properties: { href: url }
+          },
+          false
+        )
     }
 
-    SceneManager.instance.getSpawnPosition(node.position)
-    this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, { parents: parent, befores: before })
+    if (prefabType) {
+      this.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+        prefabTypes: prefabType,
+        parents: parent,
+        befores: before
+      })
+
+      updateFunc()
+
+      if (updatePosition) {
+        const transformComponent = getComponent(node.entity, TransformComponent)
+        if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+      }
+    }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node

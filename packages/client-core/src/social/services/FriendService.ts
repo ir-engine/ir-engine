@@ -1,7 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -194,7 +193,7 @@ export const FriendService = {
     return FriendService.removeFriend(relatedUserId)
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('user-relationship').on('created', (params) => {
     if (params.userRelationship.userRelationshipType === 'friend') {
       store.dispatch(FriendAction.createdFriend(params.userRelationship))

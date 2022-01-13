@@ -1,5 +1,4 @@
 import { createState, Downgraded, useState } from '@hookstate/core'
-import { Config } from '@xrengine/common/src/config'
 import { store } from '../store'
 
 const state = createState({
@@ -12,7 +11,9 @@ export const accessStoredLocalState = () => state
 export const useStoredLocalState = () => useState(state) as any as typeof state
 
 if (typeof window !== 'undefined') {
-  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey)
+  const rawState = localStorage.getItem(
+    globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1'
+  )
   if (rawState) {
     const newState = JSON.parse(rawState)
     console.log(newState)
@@ -25,7 +26,10 @@ store.receptors.push((action: StoredLocalActionType): void => {
     switch (action.type) {
       case 'STORE_LOCAL':
         s.merge(action.newState)
-        localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(s.attach(Downgraded).value))
+        localStorage.setItem(
+          globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1',
+          JSON.stringify(s.attach(Downgraded).value)
+        )
         return
     }
   })

@@ -114,6 +114,18 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   }
 }
 
+export const cleanXRInputs = (entity) => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
+
+  controllersGrip.forEach((controller) => {
+    if (controller.userData.mesh) {
+      controller.remove(controller.userData.mesh)
+      controller.userData.mesh = null
+    }
+  })
+}
+
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createController = (inputSource) => {
   let geometry, material

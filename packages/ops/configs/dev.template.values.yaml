@@ -1,34 +1,4 @@
 client:
-  config:
-    publicRuntimeConfig:
-      apiServer: https://api-dev.<domain>
-      appServer: https://dev.<domain>
-      gameserver: https://gameserver-dev.<domain>
-      gameserverDomain: gameserver-dev.<domain>
-      dev: true
-      gaMeasurementId: '<GOOGLE_ANALYTICS_MEASUREMENT_ID>'
-      feathersStoreKey: TheOverlay-Auth-Store
-      localStorageKey: theoverlay-client-store-key-v1
-      loginDisabled: true
-      logo: "./logo.svg"
-      rootRedirect: false
-      siteDescription: Connected Worlds for Everyone
-      siteTitle: XREngine
-      title: "The Overlay"
-      auth:
-        enableSmsMagicLink: true
-        enableEmailMagicLink: true
-        enableUserPassword: true
-        enableGithubSocial: true
-        enableFacebookSocial: true
-        enableGoogleSocial: true
-        enableLinkedInSocial: true
-        enableTwitterSocial: true
-      alert:
-        timeout: 10000
-      offlineMode: false
-      staticPages:
-        termsOfService: "/terms-of-service"
   extraEnv:
     API_ASSETS_ROUTE: /static-resource
     API_ASSETS_ACTION: assets

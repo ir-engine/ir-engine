@@ -8,12 +8,10 @@ import {
   RawShaderMaterial,
   UniformsUtils,
   Vector2,
-  Color,
-  Texture,
-  TextureLoader
+  Color
 } from 'three'
 import SimplexNoise from 'simplex-noise'
-import { TGALoader } from '../../assets/loaders/tga/TGALoader'
+import loadTexture from '../../assets/functions/loadTexture'
 
 const vertexShader = `
 precision highp float;
@@ -57,14 +55,7 @@ void main() {
 }
 `
 
-function loadTexture(src): Promise<Texture> {
-  const loader = src.endsWith('tga') ? new TGALoader() : new TextureLoader()
-  return new Promise((resolve, reject) => {
-    loader.load(src, resolve, null, (error) => reject(error))
-  })
-}
-
-export class Clouds extends Mesh {
+export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   private _worldScale: Vector3
   private _texture: string
   private _dimensions: Vector3 // Number of particles (x,y,z)
@@ -170,11 +161,11 @@ export class Clouds extends Mesh {
     geometry.setAttribute('particles', new InstancedBufferAttribute(new Float32Array(particleArray), particleItemSize))
     geometry.setAttribute('particleAngle', new InstancedBufferAttribute(new Float32Array(zRotationArray), 1))
     this.geometry = geometry
-    ;(this.material as any).uniforms.fogColor.value = this.fogColor
-    ;(this.material as any).uniforms.fogRange.value = this.fogRange
+    this.material.uniforms.fogColor.value = this.fogColor
+    this.material.uniforms.fogRange.value = this.fogRange
   }
 
-  update(dt: number) {
+  update() {
     if (this.needsUpdate) {
       this.needsUpdate = false
       this.updateParticles()
@@ -184,8 +175,8 @@ export class Clouds extends Mesh {
   copy(source: this, recursive = true) {
     super.copy(source, recursive)
 
-    const material = (this as any).material as RawShaderMaterial
-    const sourceMaterial = (source as any).material as RawShaderMaterial
+    const material = this.material as RawShaderMaterial
+    const sourceMaterial = source.material as RawShaderMaterial
 
     material.uniforms.map.value = sourceMaterial.uniforms.map.value
 
@@ -206,10 +197,9 @@ export class Clouds extends Mesh {
 
   set texture(path: string) {
     this._texture = path
-
     loadTexture(path)
       .then((texture) => {
-        ;(this.material as any).uniforms.map.value = texture
+        this.material.uniforms.map.value = texture
       })
       .catch(console.error)
   }

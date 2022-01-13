@@ -67,7 +67,7 @@ const ColorInputPopover = (styled as any).div`
 
 interface ColorInputProp {
   value: any
-  onChange?: Function
+  onChange: Function
   disabled?: boolean
   isValueAsInteger?: boolean
 }
@@ -114,11 +114,9 @@ export function ColorInput({ value, onChange, disabled, isValueAsInteger = false
         <ColorText>{hexColor.toUpperCase()}</ColorText>
       </StyledColorInput>
       <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handlePopoverClose}>
-        <div>
-          <ColorInputPopover>
-            <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={onChangePicker} />
-          </ColorInputPopover>
-        </div>
+        <ColorInputPopover>
+          <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={onChangePicker} />
+        </ColorInputPopover>
       </Popover>
     </ColorInputContainer>
   )

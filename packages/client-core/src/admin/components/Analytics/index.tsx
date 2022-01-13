@@ -10,7 +10,6 @@ import createStyles from '@mui/styles/createStyles'
 import Paper from '@mui/material/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
@@ -74,7 +73,6 @@ const useStyles = makeStyles((theme: Theme) =>
  */
 
 const Analytics = (props: Props) => {
-  const dispatch = useDispatch()
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
   let isDataAvailable = false

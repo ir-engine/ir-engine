@@ -1,11 +1,9 @@
-import { Config } from '@xrengine/common/src/config'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
@@ -267,7 +265,6 @@ export const GroupService = {
       dispatch(GroupAction.fetchingInvitableGroups())
       const groupActionState = accessGroupState().value
       try {
-        await waitForClientAuthenticated()
         const groupResults = await client.service('group').find({
           query: {
             invitable: true,
@@ -283,7 +280,7 @@ export const GroupService = {
     }
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('group-user').on('created', (params) => {
     const newGroupUser = params.groupUser
     const selfUser = accessAuthState().user

@@ -76,10 +76,21 @@ const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const mat = (obj as SkinnedMesh).material as Material
-    if (!mat) return
-    mat.opacity = opacity
-    mat.transparent = opacity < 0.95
+    const material = (obj as SkinnedMesh).material as Material
+    if (!material.userData.shader) return
+    const shader = material.userData.shader
+    shader.uniforms.boneOpacity.value = opacity
+  })
+}
+
+const getAvatarBonePosition = (entity: Entity, name: string, position: Vector3): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.traverse((obj) => {
+    const bone = obj as any
+    // TODO: Cache the neck bone reference
+    if (!bone.isBone || !bone.name.toLowerCase().includes(name)) return
+    const el = bone.matrixWorld.elements
+    position.set(el[12], el[13], el[14])
   })
 }
 
@@ -98,6 +109,8 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   const target = getComponent(entity, TargetCameraRotationComponent)
   const epsilon = 0.001
 
+  target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
+
   if (Math.abs(target.phi - followCamera.phi) < epsilon && Math.abs(target.theta - followCamera.theta) < epsilon) {
     removeComponent(entity, TargetCameraRotationComponent)
     return
@@ -109,9 +122,9 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
 
 const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
-  if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
-    return camRayCastCache
-  }
+  // if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
+  //   return camRayCastCache
+  // }
 
   camRayCastClock.start()
 
@@ -122,6 +135,7 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.activeCameraEntity, TransformComponent)
   const targetToCamVec = tempVec1.subVectors(cameraTransform.position, target)
+  // followCamera.raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 
   createConeOfVectors(targetToCamVec, cameraRays, rayConeAngle)
 
@@ -164,18 +178,18 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
-  const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
   const side = followCamera.shoulderSide ? -1 : 1
   const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
-  const heightOffset = lerp(0, 0.25, minDistanceRatio)
+  //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
-  target.set(shoulderOffset, avatar.avatarHeight + heightOffset, 0)
+  target.set(shoulderOffset, 0.1, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
-  target.add(avatarTransform.position)
+  getAvatarBonePosition(entity, 'neck', tempVec1)
+  target.add(tempVec1)
 }
 
 const updateFollowCamera = (entity: Entity, delta: number) => {
@@ -184,7 +198,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   // Limit the pitch
-  followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+  followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
 
   calculateCameraTarget(entity, tempVec)
 
@@ -208,7 +222,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   // }
 
   // Zoom smoothing
-  let smoothingSpeed = isInsideWall ? 0.06 : 0.3
+  let smoothingSpeed = isInsideWall ? 0.01 : 0.3
 
   followCamera.distance = smoothDamp(
     followCamera.distance,

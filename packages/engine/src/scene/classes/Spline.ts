@@ -1,5 +1,6 @@
 import { Vector3, BufferGeometry, BufferAttribute, CatmullRomCurve3, Line, LineBasicMaterial, Object3D } from 'three'
 import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
+import SplineHelper from './SplineHelper'
 
 export default class Spline extends Object3D {
   ARC_SEGMENTS = 200
@@ -12,26 +13,11 @@ export default class Spline extends Object3D {
 
   _splines = {} as any
 
-  helperNode: any
-
-  constructor(helperNode) {
-    super()
-    this.helperNode = helperNode
-  }
-
-  init(loadedSplinePositions: any = null) {
-    /*******
-     * Curves
-     *********/
-
-    console.log('Spline Init')
-
-    if (loadedSplinePositions != null) {
-      this._splinePointsLength = loadedSplinePositions.length
-    }
+  init(loadedSplinePositions: Vector3[] = []) {
+    this._splinePointsLength = loadedSplinePositions.length
 
     for (let i = 0; i < this._splinePointsLength; i++) {
-      this.addSplineObject(this._positions[i] as any)
+      this.addSplineObject(this._positions[i])
     }
 
     this._positions.length = 0
@@ -95,12 +81,12 @@ export default class Spline extends Object3D {
     }
   }
 
-  getCurrentSplineHelperObjects() {
+  getCurrentSplineHelperObjects(): Object3D[] {
     return this._splineHelperObjects
   }
 
-  addSplineObject(position = null) {
-    const splineHelperNode = new this.helperNode(this)
+  addSplineObject(position?: Vector3): SplineHelper {
+    const splineHelperNode = new SplineHelper()
     const object = splineHelperNode
 
     if (position) {
@@ -118,7 +104,7 @@ export default class Spline extends Object3D {
     return object
   }
 
-  addPoint() {
+  addPoint(): SplineHelper {
     this._splinePointsLength++
 
     const newSplineObject = this.addSplineObject()
@@ -129,7 +115,7 @@ export default class Spline extends Object3D {
     return newSplineObject
   }
 
-  removeLastPoint() {
+  removeLastPoint(): void {
     if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
       return
     }
@@ -143,7 +129,7 @@ export default class Spline extends Object3D {
     this.updateSplineOutline()
   }
 
-  removePoint(splineHelperNode) {
+  removePoint(splineHelperNode?: SplineHelper): void {
     if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
       return
     }
@@ -151,7 +137,7 @@ export default class Spline extends Object3D {
     removeElementFromArray(this._splineHelperObjects, splineHelperNode)
     this._splinePointsLength--
 
-    removeElementFromArray(this._positions, splineHelperNode.position)
+    if (splineHelperNode) removeElementFromArray(this._positions, splineHelperNode.position)
 
     // This is done from onRemove of editor
     // super.remove( splineHelperNode );
@@ -159,7 +145,7 @@ export default class Spline extends Object3D {
     this.updateSplineOutline()
   }
 
-  updateSplineOutline() {
+  updateSplineOutline(): void {
     for (const k in this._splines) {
       const spline = this._splines[k]
 
@@ -178,7 +164,7 @@ export default class Spline extends Object3D {
     }
   }
 
-  exportSpline() {
+  exportSpline(): Vector3[] {
     const strplace: Vector3[] = []
 
     for (let i = 0; i < this._splinePointsLength; i++) {
@@ -189,7 +175,7 @@ export default class Spline extends Object3D {
     return strplace
   }
 
-  load(new_positions) {
+  load(new_positions: Vector3[]): void {
     while (new_positions.length > this._positions.length) {
       this.addPoint()
     }

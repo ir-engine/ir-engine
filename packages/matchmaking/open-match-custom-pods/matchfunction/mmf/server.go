@@ -18,8 +18,10 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	"google.golang.org/grpc"
+	"github.com/heptiolabs/healthcheck"
 	"open-match.dev/open-match/pkg/pb"
 )
 
@@ -31,10 +33,21 @@ type MatchFunctionService struct {
 	port               int
 }
 
+
+func runReadiness() {
+    health := healthcheck.NewHandler()
+    health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+    health.AddReadinessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+    log.Printf("About to run liveness listener")
+    go http.ListenAndServe("0.0.0.0:8086", health)
+    log.Printf("Liveness listener running")
+}
+
 // Start creates and starts the Match Function server and also connects to Open
 // Match's queryService service. This connection is used at runtime to fetch tickets
 // for pools specified in MatchProfile.
 func Start(queryServiceAddr string, serverPort int) {
+    runReadiness()
 	// Connect to QueryService.
 	conn, err := grpc.Dial(queryServiceAddr, grpc.WithInsecure())
 	if err != nil {

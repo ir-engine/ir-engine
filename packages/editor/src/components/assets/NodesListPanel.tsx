@@ -5,9 +5,13 @@ import { TransformMode } from '@xrengine/engine/src/scene/constants/transformCon
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { setTransformMode, setTransformPivot } from '../../systems/EditorControlSystem'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { setTransformMode } from '../../systems/EditorControlSystem'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../../classes/EditorControlComponent'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 
 /**
  * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
@@ -17,39 +21,45 @@ import { EditorControlComponent } from '../../classes/EditorControlComponent'
  * @constructor
  */
 export function NodesListPanel() {
-  const spawnGrabbedObject = useCallback((object) => {
+  const spawnGrabbedObject = useCallback((object: EntityTreeNode) => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (editorControlComponent.transformMode === TransformMode.Placement) {
       CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS)
     }
 
-    if (!object.disableTransform) {
-      SceneManager.instance.getSpawnPosition(object.position)
+    // if entity
+    if (object.entity) {
+      const transform = getComponent(object.entity, TransformComponent)
+      if (transform) SceneManager.instance.getSpawnPosition(transform.position)
+    } else {
+      if (!hasComponent(object.entity, DisableTransformTagComponent)) {
+        SceneManager.instance.getSpawnPosition(getComponent(object.entity, TransformComponent).position)
+      }
     }
 
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, object)
-
-    if (!object.disableTransform) {
-      setTransformMode(TransformMode.Placement, object.useMultiplePlacementMode, editorControlComponent)
+    if (
+      object.entity &&
+      hasComponent(object.entity, TransformComponent) &&
+      !hasComponent(object.entity, DisableTransformTagComponent)
+    ) {
+      setTransformMode(TransformMode.Placement, false, editorControlComponent)
     }
   }, [])
 
   //callback function to handle select on media source
   const onSelect = (item) => {
-    const { nodeClass, initialProps } = item
-    const node = new nodeClass()
+    let node
 
-    if (initialProps) {
-      Object.assign(node, initialProps)
+    // if ECS
+    if (typeof item.nodeClass === 'string') {
+      node = new EntityTreeNode(createEntity())
+
+      CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+        prefabTypes: item.nodeClass
+      })
+    } else {
+      node = new item.nodeClass()
     }
-
-    const transformPivot = item.transformPivot
-
-    if (transformPivot) {
-      setTransformPivot(transformPivot)
-    }
-
-    spawnGrabbedObject(node)
   }
 
   return (

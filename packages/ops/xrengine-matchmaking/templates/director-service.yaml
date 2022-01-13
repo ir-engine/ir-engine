@@ -1,0 +1,18 @@
+{{- if .Values.director.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xrengine.director.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
+  labels:
+    {{- include "xrengine.director.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.director.service.type }}
+  ports:
+    - port: {{ .Values.director.service.port }}
+      targetPort: {{ .Values.director.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xrengine.director.selectorLabels" . | nindent 4 }}
+{{- end -}}

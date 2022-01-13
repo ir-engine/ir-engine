@@ -87,10 +87,10 @@ export const addGenericAssetToS3AndStaticResources = async (
 export default (app: Application): void => {
   app.use(
     'upload-asset',
-    multipartMiddleware.single('files'),
+    multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (req?.feathers && req.method !== 'GET') {
-        req.feathers.files = (req as any).files
+        req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
         req.feathers.args = (req as any).args
       }
       next()
@@ -110,8 +110,11 @@ export default (app: Application): void => {
           )
         } else if (data.type === 'admin-file-upload') {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
+          const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           return Promise.all(
-            data.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, data.args[i]))
+            params?.files.map((file, i) =>
+              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
+            )
           )
         }
       }

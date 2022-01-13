@@ -1,7 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { Config } from '@xrengine/common/src/config'
 import { accessAuthState } from '../../user/services/AuthService'
 
 import { createState, useState } from '@hookstate/core'
@@ -53,7 +52,7 @@ export const useInstanceState = () => useState(state) as any as typeof state
 
 //Service
 export const InstanceService = {
-  fetchAdminInstances: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string = '') => {
     const dispatch = useDispatch()
     {
       const skip = accessInstanceState().skip.value
@@ -68,7 +67,8 @@ export const InstanceService = {
               },
               $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
               $limit: limit,
-              action: 'admin'
+              action: 'admin',
+              search: search
             }
           })
           dispatch(InstanceAction.instancesRetrievedAction(instances))
@@ -89,7 +89,7 @@ export const InstanceService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance').on('removed', (params) => {
     store.dispatch(InstanceAction.instanceRemovedAction(params.instance))
   })

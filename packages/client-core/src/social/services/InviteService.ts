@@ -2,9 +2,7 @@ import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/services/AuthService'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 import { createState, useState } from '@hookstate/core'
 
@@ -180,7 +178,6 @@ export const InviteService = {
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'received',
@@ -202,7 +199,6 @@ export const InviteService = {
       const skip = inviteState.sentInvites.skip
       const limit = inviteState.sentInvites.limit
       try {
-        await waitForClientAuthenticated()
         const inviteResult = await client.service('invite').find({
           query: {
             type: 'sent',
@@ -261,7 +257,7 @@ export const InviteService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('invite').on('created', (params) => {
     const invite = params.invite
     const selfUser = accessAuthState().user

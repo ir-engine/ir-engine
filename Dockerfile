@@ -20,6 +20,7 @@ COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/common/package.json ./packages/common/
 COPY packages/editor/package.json ./packages/editor/
 COPY packages/engine/package.json ./packages/engine/
+COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
@@ -32,6 +33,17 @@ RUN npm install --production=false --loglevel notice --legacy-peer-deps
 COPY . .
 
 # copy then compile the code
+
+ARG MYSQL_HOST
+ARG MYSQL_PORT
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+ARG MYSQL_DATABASE
+ENV MYSQL_HOST=$MYSQL_HOST
+ENV MYSQL_PORT=$MYSQL_PORT
+ENV MYSQL_USER=$MYSQL_USER
+ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
+ENV MYSQL_DATABASE=$MYSQL_DATABASE
 
 RUN npm run build-client
 

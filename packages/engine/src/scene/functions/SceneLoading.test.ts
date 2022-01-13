@@ -9,9 +9,8 @@ import assert from 'assert'
 import { createWorld } from "../../ecs/classes/World"
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { loadComponent, SceneDataComponent } from './SceneLoading'
+import { loadComponent } from './SceneLoading'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import { UserdataComponent } from '../components/UserdataComponent'
 import { FogType } from '../constants/FogType'
 import { FogComponent } from '../components/FogComponent'
 import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
@@ -20,12 +19,13 @@ import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
-import { BodyOptions } from '../../physics/functions/createCollider'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 const EPSILON = 10e-9
 
-describe('SceneLoading.test', () => {
+// these need to be rewritten into the new format
+describe.skip('SceneLoading.test', () => {
 
   describe('can load scene data from json', () => {
 
@@ -41,9 +41,8 @@ describe('SceneLoading.test', () => {
       const sceneComponentData = {
         meta_data: testData
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'mtdata',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -71,9 +70,8 @@ describe('SceneLoading.test', () => {
       const sceneComponentData = {
         _data: testData
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: '_metadata',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -83,32 +81,7 @@ describe('SceneLoading.test', () => {
       assert(hasComponent(entity, Object3DComponent))
       assert.equal((getComponent(entity, Object3DComponent).value as any)._data, testData)
       assert(hasComponent(entity, InteractableComponent))
-      assert.equal(getComponent(entity, InteractableComponent).data.action, '_metadata')
-
-    })
-
-    it('userdata', async () => {
-
-      const world = createWorld()
-      Engine.currentWorld = world
-      Engine.currentWorld = world
-
-      const entity = createEntity()
-
-      const testData = MathUtils.generateUUID()
-      const sceneComponentData = {
-        testData
-      }
-      const sceneComponent: SceneDataComponent = {
-        name: 'userdata',
-        data: sceneComponentData,
-        props: sceneComponentData
-      }
-
-      loadComponent(entity, sceneComponent)
-
-      assert(hasComponent(entity, UserdataComponent))
-      assert.deepEqual(getComponent(entity, UserdataComponent).data, { testData })
+      assert.equal(getComponent(entity, InteractableComponent).action, '_metadata')
 
     })
 
@@ -125,9 +98,8 @@ describe('SceneLoading.test', () => {
         color: color.clone(),
         intensity: 5
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'ambient-light',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -167,9 +139,8 @@ describe('SceneLoading.test', () => {
           shadowRadius: 10,
           cameraFar: 123
         }
-        const sceneComponent: SceneDataComponent = {
+        const sceneComponent: ComponentJson = {
           name: 'directional-light',
-          data: sceneComponentData,
           props: sceneComponentData
         }
 
@@ -209,9 +180,8 @@ describe('SceneLoading.test', () => {
           shadowRadius: 20,
           cameraFar: 256
         }
-        const sceneComponent: SceneDataComponent = {
+        const sceneComponent: ComponentJson = {
           name: 'directional-light',
-          data: sceneComponentData,
           props: sceneComponentData
         }
 
@@ -245,9 +215,8 @@ describe('SceneLoading.test', () => {
         color: color.clone(),
         intensity: 5
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'hemisphere-light',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -274,9 +243,8 @@ describe('SceneLoading.test', () => {
         color: color.clone(),
         intensity: 5
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'point-light',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -303,9 +271,8 @@ describe('SceneLoading.test', () => {
         color: color.clone(),
         intensity: 5
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'spot-light',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -330,9 +297,8 @@ describe('SceneLoading.test', () => {
       const sceneComponentData = {
         simpleMaterials: true
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'simple-materials',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -347,11 +313,6 @@ describe('SceneLoading.test', () => {
 
     // TODO: this is kinda hard to test as it is async and can be covered in other tests
     it.skip('gltf-model', async () => {
-
-    })
-
-    // TODO: this will be refactored to be composed of multiple other components rather than it's own thing
-    it.skip('shopify', async () => {
 
     })
 
@@ -379,9 +340,8 @@ describe('SceneLoading.test', () => {
         interactionUrls: [],
         interactionModels: []
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'interact',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -389,15 +349,15 @@ describe('SceneLoading.test', () => {
 
 
       assert(hasComponent(entity, InteractableComponent))
-      assert(getComponent(entity, InteractableComponent).data.interactable)
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionType, 'interaction type')
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionText, 'interaction text')
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionName, 'interaction name')
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionDescription, 'interaction description')
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionImages, [])
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionVideos, [])
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionUrls, [])
-      assert.deepEqual(getComponent(entity, InteractableComponent).data.interactionModels, [])
+      assert(getComponent(entity, InteractableComponent).interactable)
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionType, 'interaction type')
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionText, 'interaction text')
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionName, 'interaction name')
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionDescription, 'interaction description')
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionImages, [])
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionVideos, [])
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionUrls, [])
+      assert.deepEqual(getComponent(entity, InteractableComponent).interactionModels, [])
 
     })
 
@@ -425,9 +385,8 @@ describe('SceneLoading.test', () => {
         rotation: { x: euler.x, y: euler.y, z: euler.z },
         scale: { x: 0.1, y: 0.2, z: 0.3 },
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'transform',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -467,9 +426,8 @@ describe('SceneLoading.test', () => {
         near: 0.1,
         far: 1000
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'fog',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -516,9 +474,8 @@ describe('SceneLoading.test', () => {
         mediaVolume: Math.random(),
         usePositionalAudio: true
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'audio-settings',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -554,9 +511,8 @@ describe('SceneLoading.test', () => {
       const sceneComponentData = {
         csm: true
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'renderer-settings',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -578,9 +534,8 @@ describe('SceneLoading.test', () => {
       const entity = createEntity()
 
       const sceneComponentData = {}
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'spawn-point',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -604,9 +559,8 @@ describe('SceneLoading.test', () => {
         cast: true,
         receive: true
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'shadow',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -634,7 +588,7 @@ describe('SceneLoading.test', () => {
       const bodyOptions = {
         type,
         bodyType: BodyType.DYNAMIC
-      } as BodyOptions
+      }
       mesh.userData = bodyOptions
 
       addComponent(entity, Object3DComponent, {
@@ -648,9 +602,8 @@ describe('SceneLoading.test', () => {
       })
 
       const sceneComponentData = bodyOptions
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'collider',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -688,7 +641,7 @@ describe('SceneLoading.test', () => {
       const bodyOptions = {
         type,
         bodyType: BodyType.STATIC
-      } as BodyOptions
+      }
       mesh.userData = bodyOptions
 
       addComponent(entity, Object3DComponent, {
@@ -702,9 +655,8 @@ describe('SceneLoading.test', () => {
       })
 
       const sceneComponentData = bodyOptions
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'box-collider',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -752,16 +704,15 @@ describe('SceneLoading.test', () => {
         onExit: 'myExit',
         showHelper: false
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'trigger-volume',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
       loadComponent(entity, sceneComponent)
 
       assert(hasComponent(entity, TriggerVolumeComponent))
-      assert.deepEqual(getComponent(entity, TriggerVolumeComponent).args, { ...sceneComponentData })
+      assert.deepEqual(getComponent(entity, TriggerVolumeComponent), { ...sceneComponentData })
       assert.equal(getComponent(entity, TriggerVolumeComponent).target, target)
       assert(hasComponent(entity, ColliderComponent))
       assert(hasComponent(entity, CollisionComponent))
@@ -781,9 +732,8 @@ describe('SceneLoading.test', () => {
       const sceneComponentData = {
         href: 'https://google.com/'
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'link',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 
@@ -794,7 +744,7 @@ describe('SceneLoading.test', () => {
       assert((getComponent(entity, Object3DComponent).value as any).href, 'https://google.com/')
 
       assert(hasComponent(entity, InteractableComponent))
-      assert.deepStrictEqual(getComponent(entity, InteractableComponent).data, { action: 'link' })
+      assert.deepStrictEqual(getComponent(entity, InteractableComponent), { action: 'link' })
 
       // clean up physx
       delete (globalThis as any).PhysX
@@ -841,9 +791,8 @@ describe('SceneLoading.test', () => {
         triggerRotation,
         triggerScale: { x: 1, y: 1, z: 1 }
       }
-      const sceneComponent: SceneDataComponent = {
+      const sceneComponent: ComponentJson = {
         name: 'portal',
-        data: sceneComponentData,
         props: sceneComponentData
       }
 

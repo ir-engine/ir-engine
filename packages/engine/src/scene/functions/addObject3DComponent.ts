@@ -15,7 +15,7 @@ import { applyArgsToObject3d } from './applyArgsToObject3d'
  */
 
 export const addObject3DComponent = <T extends Object3D>(entity: Entity, object3d: T, objArgs?: any) => {
-  applyArgsToObject3d(entity, object3d, objArgs)
+  if (objArgs) applyArgsToObject3d(entity, object3d, objArgs)
 
   addComponent(entity, Object3DComponent, { value: object3d })
 
