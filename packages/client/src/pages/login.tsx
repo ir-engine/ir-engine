@@ -16,14 +16,13 @@ export const IndexPage = (): any => {
   return (
     <EmptyLayout pageTitle={t('login.pageTitle')}>
       <style>
-        {' '}
         {`
-                [class*=menuPanel] {
-                    top: 75px;
-                    bottom: initial;
-                    pointer-events: auto;
-                }
-            `}
+          [class*=menuPanel] {
+              top: 75px;
+              bottom: initial;
+              pointer-events: auto;
+          }
+        `}
       </style>
       <ProfileMenu />
     </EmptyLayout>

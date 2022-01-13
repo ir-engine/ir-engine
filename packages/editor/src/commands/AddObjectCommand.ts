@@ -106,7 +106,7 @@ export default class AddObjectCommand extends Command {
   ): void {
     const rootObjects = getDetachedObjectsRoots(objects) as EntityTreeNode[]
     const world = useWorld()
-
+    console.log(objects, prefabTypes, sceneData)
     for (let i = 0; i < rootObjects.length; i++) {
       const object = rootObjects[i]
 
