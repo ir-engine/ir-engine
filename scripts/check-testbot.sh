@@ -1,4 +1,3 @@
-set -e
 set -x
 
 STAGE=$1
