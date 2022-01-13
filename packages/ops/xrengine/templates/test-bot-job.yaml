@@ -13,7 +13,7 @@ spec:
       labels:
         {{- include "xrengine.testbot.selectorLabels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/testbot-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/test-bot-configmap.yaml") . | sha256sum }}
     spec:
       restartPolicy: Never
     {{- with .Values.testbot.imagePullSecrets }}
