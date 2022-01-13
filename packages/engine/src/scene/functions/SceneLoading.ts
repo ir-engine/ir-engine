@@ -39,9 +39,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
-  world.sceneLoadingRegistry.clear()
-  registerDefaultSceneFunctions(world)
-
   Object.keys(sceneData.entities).forEach((key) => {
     entityMap[key] = new EntityTreeNode(createEntity(), key)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
