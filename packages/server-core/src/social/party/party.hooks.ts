@@ -53,7 +53,7 @@ export default {
       }
     ],
     update: [disallow()],
-    patch: [partyPermissionAuthenticate()],
+    patch: [iff(isProvider('external'), partyPermissionAuthenticate() as any)],
     // TODO: Need to ask if we allow user to remove party or not
     remove: [partyPermissionAuthenticate(), removePartyUsers()]
   },

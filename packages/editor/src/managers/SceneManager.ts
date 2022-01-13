@@ -51,7 +51,6 @@ import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functi
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
-import { computeAndSetStaticModes, isStatic } from '../functions/StaticMode'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
@@ -76,11 +75,10 @@ export class SceneManager {
   raycaster: Raycaster
   raycastTargets: Intersection<Object3D>[] = []
   centerScreenSpace: Vector2
-  thumbnailRenderer = new ThumbnailRenderer()
   transformGizmo: TransformGizmo
   gizmoEntity: Entity
   editorEntity: Entity
-  onUpdateStats: (info: WebGLInfo) => void
+  onUpdateStats?: (info: WebGLInfo) => void
   screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
 
@@ -156,6 +154,8 @@ export class SceneManager {
 
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
       EngineRenderer.instance.disableUpdate = false
+
+      ThumbnailRenderer.instance = new ThumbnailRenderer()
     } catch (error) {
       console.error(error)
     }
@@ -268,7 +268,7 @@ export class SceneManager {
     if (fileName.endsWith('.glb')) {
       const { scene } = await LoadGLTF(url)
 
-      blob = await this.thumbnailRenderer.generateThumbnail(scene, width, height)
+      blob = await ThumbnailRenderer.instance.generateThumbnail(scene, width, height)
     } else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].some((ext) => fileName.endsWith(ext))) {
       blob = await generateImageFileThumbnail(file)
     } else if (file.name.toLowerCase().endsWith('.mp4')) {
@@ -368,8 +368,6 @@ export class SceneManager {
   }
 
   removeUnusedObjects = (object3d: Object3D) => {
-    computeAndSetStaticModes(object3d)
-
     function hasExtrasOrExtensions(object) {
       const userData = object.userData
       const keys = Object.keys(userData)
@@ -397,7 +395,6 @@ export class SceneManager {
         canBeRemoved &&
         object.children.length === 0 &&
         (object.constructor === Object3D || object.constructor === Scene || object.constructor === Group) &&
-        isStatic(object) &&
         !hasExtrasOrExtensions(object)
       ) {
         object.parent?.remove(object)
@@ -513,5 +510,13 @@ export default async function EditorRendererSystem(world: World, props: EngineRe
     if (!accessEditorState().sceneName.value || !EngineRenderer.instance || EngineRenderer.instance.disableUpdate)
       return
     EngineRenderer.instance.execute(world.delta)
+
+    if (SceneManager.instance.onUpdateStats) {
+      Engine.renderer.info.reset()
+      const renderStat = Engine.renderer.info.render as any
+      renderStat.fps = 1 / world.delta
+      renderStat.frameTime = world.delta * 1000
+      SceneManager.instance.onUpdateStats(Engine.renderer.info)
+    }
   }
 }

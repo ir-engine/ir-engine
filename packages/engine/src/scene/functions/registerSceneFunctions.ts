@@ -180,6 +180,15 @@ import {
   serializeInterior,
   updateInterior
 } from './loaders/InteriorFunctions'
+import { deserializeSystem, SCENE_COMPONENT_SYSTEM, serializeSystem, updateSystem } from './loaders/SystemFunctions'
+import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline, updateSpline } from './loaders/SplineFunctions'
+import {
+  deserializeCubemapBake,
+  SCENE_COMPONENT_CUBEMAP_BAKE,
+  serializeCubemapBake,
+  shouldDeserializeCubemapBake,
+  updateCubemapBake
+} from './loaders/CubemapBakeFunctions'
 
 // TODO: split this into respective modules when we modularise the engine content
 
@@ -439,5 +448,24 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeInterior,
     serialize: serializeInterior,
     update: updateInterior
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {
+    deserialize: deserializeSystem,
+    serialize: serializeSystem,
+    update: updateSystem
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
+    deserialize: deserializeSpline,
+    serialize: serializeSpline,
+    update: updateSpline
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
+    deserialize: deserializeCubemapBake,
+    serialize: serializeCubemapBake,
+    update: updateCubemapBake,
+    shouldDeserialize: shouldDeserializeCubemapBake
   })
 }

@@ -1,5 +1,9 @@
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import StoreIcon from '@mui/icons-material/Store'
+import StorefrontIcon from '@mui/icons-material/Storefront'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -180,7 +184,7 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setUserIdState({ ...userIdState, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
   const handleClose = () => {
@@ -298,13 +302,67 @@ const ProfileMenu = (props: Props): any => {
               </Grid>
               <Grid item container xs={6} alignItems="flex-start" direction="column">
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
               </Grid>
             </Grid>
+            {selfUser?.userRole.value !== 'guest' && (
+              <Grid
+                display="grid"
+                gridTemplateColumns="1fr 1.5fr"
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1.5fr',
 
+                  '@media(max-width: 600px)': {
+                    gridTemplateColumns: '1fr'
+                  },
+
+                  button: {
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    color: 'white',
+                    display: 'grid',
+                    fontSize: '14px',
+                    textAlign: 'left',
+                    justifyContent: 'flex-start',
+                    gridTemplateColumns: 'max-content auto',
+
+                    svg: {
+                      marginRight: '10px'
+                    }
+                  }
+                }}
+              >
+                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
+                  <InventoryIcon />
+                  <Typography component="div" variant="button">
+                    My Inventory
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
+                  <StoreIcon />
+                  <Typography component="div" variant="button">
+                    My Trading
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
+                  <AccountBalanceWalletIcon />
+                  <Typography component="div" variant="button">
+                    My Wallet
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToEthNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+              </Grid>
+            )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
                 <div className={styles.logout} onClick={handleLogout}>
@@ -316,22 +374,6 @@ const ProfileMenu = (props: Props): any => {
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
-            )}
-            {selfUser?.userRole.value !== 'guest' && (
-              <>
-                <button onClick={() => changeActiveMenu(Views.Inventory)} className={styles.walletBtn}>
-                  My Inventory
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Trading)} className={styles.walletBtn}>
-                  My Trading
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
-                  My Wallet
-                </button>
-                <button onClick={() => goToEthNFT()} className={styles.walletBtn}>
-                  Open ETH NFT Marketplace
-                </button>
-              </>
             )}
           </div>
         </section>

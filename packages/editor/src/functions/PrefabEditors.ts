@@ -12,7 +12,6 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import LinkNodeEditor from '../components/properties/LinkNodeEditor'
-import MetadataNodeEditor from '../components/properties/MetadataNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
@@ -29,13 +28,10 @@ import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeE
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import CubemapBakeNode from '../nodes/CubemapBakeNode'
-import MetadataNode from '../nodes/MetadataNode'
-import SystemNode from '../nodes/SystemNode'
+import SplineNodeEditor from '../components/properties/SplineNodeEditor'
 import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import EditorNodeMixin from '../nodes/EditorNodeMixin'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { EditorComponentType } from '../components/properties/Util'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
@@ -65,39 +61,9 @@ import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
 import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/loaders/WaterFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
-
-export class NodeManager {
-  static instance: NodeManager = new NodeManager()
-
-  nodeTypes: Set<ReturnType<typeof EditorNodeMixin>>
-  nodeEditors: Map<any, any>
-
-  constructor() {
-    this.nodeTypes = new Set()
-    this.nodeEditors = new Map()
-  }
-
-  /**
-   * Function registerNode used to add new object to the scene.
-   *
-   * @author Robert Long
-   * @param  {any} nodeConstructor contains constructor properties
-   * @param  {any} nodeEditor      contains editor properties
-   */
-  registerNode(nodeConstructor: ReturnType<typeof EditorNodeMixin>, nodeEditor) {
-    this.nodeTypes.add(nodeConstructor)
-    this.nodeEditors.set(nodeConstructor, nodeEditor)
-  }
-}
-
-const registerPredefinedNodes = () => {
-  NodeManager.instance.registerNode(CubemapBakeNode, CubemapBakeNodeEditor)
-  NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
-  // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
-  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
-  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-}
+import { SCENE_COMPONENT_SYSTEM } from '@xrengine/engine/src/scene/functions/loaders/SystemFunctions'
+import { SCENE_COMPONENT_SPLINE } from '@xrengine/engine/src/scene/functions/loaders/SplineFunctions'
+import { SCENE_COMPONENT_CUBEMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {
   const entityNode = getComponent(entity, EntityNodeComponent)
@@ -140,7 +106,10 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_CLOUD]: CloudsNodeEditor,
   [SCENE_COMPONENT_OCEAN]: OceanNodeEditor,
   [SCENE_COMPONENT_WATER]: WaterNodeEditor,
-  [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor
+  [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
+  [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
+  [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
+  [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor
 }
 
 export const prefabIcons = {
@@ -169,5 +138,8 @@ export const prefabIcons = {
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
   [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
   [ScenePrefabs.water]: WaterNodeEditor.iconComponent,
-  [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent
+  [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
+  [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
+  [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
+  [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent
 }
