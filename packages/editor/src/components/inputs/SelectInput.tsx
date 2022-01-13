@@ -3,8 +3,9 @@ import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import { useStyle } from './style'
+import { useStyle, useStyles } from './style'
 
 /**
  * @author Robert Long
@@ -41,21 +42,53 @@ interface SelectInputProp {
  * @param {any} rest
  * @returns
  */
-export function SelectInput({ value, options, placeholder, disabled, creatable }: SelectInputProp) {
+export function SelectInput({
+  value,
+  options,
+  placeholder,
+  disabled,
+  creatable,
+  isSearchable,
+  onChange
+}: SelectInputProp) {
   const classx = useStyle()
+  const classesx = useStyle()
 
-  const [valueSelected, setValue] = React.useState(value)
-  const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as string)
+  let v
+  if (isSearchable) {
+    v = options.find((el) => el.value === value).label
   }
 
-  const Component = creatable ? (
+  const [valueSelected, setValue] = React.useState(value)
+  const [valueAutoSelected, setAutoValue] = React.useState(v)
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value)
+    onChange?.(event.target.value)
+  }
+
+  const onValueChanged = (event, values) => {
+    setAutoValue(values.label)
+    onChange?.(values.value)
+  }
+
+  const Component = isSearchable ? (
     <Autocomplete
       options={options}
+      onChange={onValueChanged}
+      freeSolo={creatable}
       disablePortal
-      value={value}
-      classes={{ root: classx.autoSelect, inputRoot: classx.inputRoot, listbox: classx.paper }}
-      renderInput={(params) => <TextField {...params} disabled={disabled} />}
+      value={valueAutoSelected}
+      classes={{
+        root: classx.autoSelect,
+        input: classx.input,
+        listbox: classx.autoSelectPaper,
+        hasClearIcon: classx.icon,
+        popper: classx.popper
+      }}
+      renderInput={(params) => (
+        <TextField variant="standard" {...params} disabled={disabled} classes={{ root: classx.txtRoot }} />
+      )}
     />
   ) : (
     <React.Fragment>
@@ -66,9 +99,10 @@ export function SelectInput({ value, options, placeholder, disabled, creatable }
           value={valueSelected}
           onChange={handleChange}
           placeholder={placeholder}
-          classes={{ select: classx.select }}
+          classes={{ select: classx.select, icon: classx.icon }}
           disabled={disabled}
           MenuProps={{ classes: { paper: classx.paper } }}
+          IconComponent={ExpandMoreIcon}
         >
           {options.map((el, index) => (
             <MenuItem value={el.value} key={`${el + index}`} classes={{ root: classx.root }}>

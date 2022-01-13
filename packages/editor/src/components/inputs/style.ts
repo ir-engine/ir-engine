@@ -7,49 +7,61 @@ export const useStyles = makeStyles((theme: Theme) => createStyles({}))
 
 export const useStyle = makeStyles((theme: Theme) =>
   createStyles({
-    autoSelect: {
-      backgroundColor: '#3A4048',
-      border: '1px solid #5D646C',
-      cursor: 'pointer',
-      fontSize: '0.8rem',
-      color: '#f2f2f2',
-      padding: '0px',
-      width: '130px'
+    popper: {
+      fontSize: '0.8rem'
     },
-    inputRoot: {
-      padding: '0px'
-    },
-    select: {
-      backgroundColor: '#3A4048',
-      border: '1px solid #5D646C',
-      cursor: 'pointer',
-      padding: '5px',
+    input: {
       fontSize: '0.8rem',
       color: '#f2f2f2'
     },
-    paper: {
+    autoSelectPaper: {
       borderRadius: '4px',
-      backgroundColor: '#3F4048',
-      padding: '0',
+      backgroundColor: '#282C31',
+      padding: '-9px',
       color: 'white',
       maxHeight: '120px',
       overflow: 'auto',
-      '&::-webkit-scrollbar': {
-        width: '5px'
-      },
-      '&::-webkit-scrollbar-track': {
-        background: '#f1f1f1'
-      },
-      '&::-webkit-scrollbar-thumb': {
-        background: '#888'
-      },
-      '&::-webkit-scrollbar-thumb:hover': {
-        background: '#555'
-      }
+      fontSize: '0.8rem'
+    },
+    autoSelect: {
+      backgroundColor: '#3A4048',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      color: '#f2f2f2',
+      fontSize: '0.8rem',
+      padding: '0px !important'
+    },
+    select: {
+      backgroundColor: '#3A4048',
+      borderRadius: '4px',
+      borderWidth: 0,
+      cursor: 'pointer',
+      padding: '5px 8px 2px 12px',
+      fontSize: '0.8rem',
+      width: '70px',
+      color: '#f2f2f2',
+      height: '25px !important'
+    },
+    paper: {
+      borderRadius: '4px',
+      backgroundColor: '#282C31',
+      padding: '0',
+      color: 'white',
+      maxHeight: '120px',
+      overflow: 'auto'
     },
     root: {
       padding: '5px',
-      fontSize: '0.8rem'
+      fontSize: '0.8rem',
+      '&:hover': {
+        background: '#006EFF'
+      }
+    },
+    icon: {
+      color: '#f1f1f1'
+    },
+    txtRoot: {
+      padding: '5px 8px 2px 12px'
     }
   })
 )
