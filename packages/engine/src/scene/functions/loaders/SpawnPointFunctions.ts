@@ -9,7 +9,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { Object3DComponent, Object3DComponentType } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
 
 export const SCENE_COMPONENT_SPAWN_POINT = 'spawn-point'
@@ -21,10 +21,9 @@ const GLTF_PATH = '/static/editor/spawn-point.glb' // Static
 
 export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity: Entity) => {
   addComponent(entity, SpawnPointComponent, {})
-
-  var obj3d = getComponent(entity, Object3DComponent)
-  if (obj3d == null) {
-    obj3d = new Object3D()
+  const hasObj3D = hasComponent(entity, Object3DComponent)
+  const obj3d = hasObj3D ? getComponent<Object3DComponentType, {}>(entity, Object3DComponent).value : new Object3D()
+  if (!hasObj3D) {
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
 
