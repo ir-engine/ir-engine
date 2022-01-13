@@ -12,6 +12,8 @@ export class DRACOLoader extends Loader {
   setDecoderPath(path: string): DRACOLoader
   setDecoderConfig(config: object): DRACOLoader
   setWorkerLimit(workerLimit: number): DRACOLoader
+  getDecoderModule(): Promise<any>
+  getEncoderModule(): Promise<any>
   preload(): DRACOLoader
   dispose(): DRACOLoader
 }

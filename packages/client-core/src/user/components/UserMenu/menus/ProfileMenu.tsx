@@ -1,27 +1,30 @@
-import Button from '@mui/material/Button'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import { useAuthState } from '../../../services/AuthService'
-import { AuthService } from '../../../services/AuthService'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import StoreIcon from '@mui/icons-material/Store'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import InputAdornment from '@mui/material/InputAdornment'
+import Snackbar from '@mui/material/Snackbar'
+import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { getAvatarURLForUser, Views } from '../util'
-import { Config, validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Tooltip from '@mui/material/Tooltip'
-import Grid from '@mui/material/Grid'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Snackbar from '@mui/material/Snackbar'
-import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
   changeActiveMenu?: any
@@ -33,6 +36,7 @@ interface Props {
 const initialState = {
   jwt: true,
   local: false,
+  discord: false,
   facebook: false,
   github: false,
   google: false,
@@ -78,7 +82,7 @@ const ProfileMenu = (props: Props): any => {
 
   const loadCredentialHandler = async () => {
     try {
-      const mediator = `${Config.publicRuntimeConfig.mediatorServer}/mediator?origin=${encodeURIComponent(
+      const mediator = `${globalThis.process.env['VITE_MEDIATOR_SERVER']}/mediator?origin=${encodeURIComponent(
         window.location.origin
       )}`
 
@@ -178,7 +182,7 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setUserIdState({ ...userIdState, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
   const handleClose = () => {
@@ -221,8 +225,21 @@ const ProfileMenu = (props: Props): any => {
     }
   }
 
+  const goToEthNFT = () => {
+    let token = JSON.stringify(localStorage.getItem('TheOverlay-Auth-Store'))
+    if (selfUser.id.value && token)
+      window.open(
+        `${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${selfUser.id.value}&token=${token}`,
+        '_blank'
+      )
+  }
   const enableSocial =
-    authState?.facebook || authState?.github || authState?.google || authState?.linkedin || authState?.twitter
+    authState?.discord ||
+    authState?.facebook ||
+    authState?.github ||
+    authState?.google ||
+    authState?.linkedin ||
+    authState?.twitter
 
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
@@ -283,13 +300,67 @@ const ProfileMenu = (props: Props): any => {
               </Grid>
               <Grid item container xs={6} alignItems="flex-start" direction="column">
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
               </Grid>
             </Grid>
+            {selfUser?.userRole.value !== 'guest' && (
+              <Grid
+                display="grid"
+                gridTemplateColumns="1fr 1.5fr"
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1.5fr',
 
+                  '@media(max-width: 600px)': {
+                    gridTemplateColumns: '1fr'
+                  },
+
+                  button: {
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    color: 'white',
+                    display: 'grid',
+                    fontSize: '14px',
+                    textAlign: 'left',
+                    justifyContent: 'flex-start',
+                    gridTemplateColumns: 'max-content auto',
+
+                    svg: {
+                      marginRight: '10px'
+                    }
+                  }
+                }}
+              >
+                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
+                  <InventoryIcon />
+                  <Typography component="div" variant="button">
+                    My Inventory
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
+                  <StoreIcon />
+                  <Typography component="div" variant="button">
+                    My Trading
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
+                  <AccountBalanceWalletIcon />
+                  <Typography component="div" variant="button">
+                    My Wallet
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToEthNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+              </Grid>
+            )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
                 <div className={styles.logout} onClick={handleLogout}>
@@ -301,19 +372,6 @@ const ProfileMenu = (props: Props): any => {
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
-            )}
-            {selfUser?.userRole.value !== 'guest' && (
-              <>
-                <button onClick={() => changeActiveMenu(Views.Inventory)} className={styles.walletBtn}>
-                  My Inventory
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Trading)} className={styles.walletBtn}>
-                  My Trading
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
-                  My Wallet
-                </button>
-              </>
             )}
           </div>
         </section>
@@ -405,6 +463,11 @@ const ProfileMenu = (props: Props): any => {
                   {t('user:usermenu.profile.connectSocial')}
                 </Typography>
                 <div className={styles.socialContainer}>
+                  {authState?.discord && (
+                    <a href="#" id="discord" onClick={handleOAuthServiceClick}>
+                      <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
                   {authState?.google && (
                     <a href="#" id="google" onClick={handleOAuthServiceClick}>
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />

@@ -14,6 +14,7 @@ interface Props {}
 const initialState = {
   jwt: true,
   local: false,
+  discord: false,
   facebook: false,
   github: false,
   google: false,
@@ -24,6 +25,7 @@ const initialState = {
 }
 
 const OAUTH_TYPES = {
+  DISCORD: 'discord',
   FACEBOOK: 'facebook',
   GITHUB: 'github',
   GOOGLE: 'google',
@@ -39,6 +41,7 @@ const Account = (props: Props) => {
   const [state, setState] = useState(initialState)
   const [holdAuth, setHoldAuth] = useState(initialState)
   const [keySecret, setKeySecret] = useState({
+    discord: authSetting?.oauth.discord,
     github: authSetting?.oauth.github,
     google: authSetting?.oauth.google,
     twitter: authSetting?.oauth.twitter,
@@ -46,6 +49,10 @@ const Account = (props: Props) => {
     facebook: authSetting?.oauth.facebook
   })
   const [showPassword, setShowPassword] = useState({
+    discord: {
+      key: false,
+      secret: false
+    },
     facebook: {
       key: false,
       secret: false
@@ -104,6 +111,7 @@ const Account = (props: Props) => {
 
       let tempKeySecret = JSON.parse(
         JSON.stringify({
+          discord: authSetting?.oauth.discord,
           github: authSetting?.oauth.github,
           google: authSetting?.oauth.google,
           twitter: authSetting?.oauth.twitter,
@@ -140,6 +148,7 @@ const Account = (props: Props) => {
 
     let tempKeySecret = JSON.parse(
       JSON.stringify({
+        discord: authSetting?.oauth.discord,
         github: authSetting?.oauth.github,
         google: authSetting?.oauth.google,
         twitter: authSetting?.oauth.twitter,
@@ -298,6 +307,55 @@ const Account = (props: Props) => {
                 className={classes.input}
               />
             </Paper>
+            {holdAuth?.discord && (
+              <Paper className={classes.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>Discord</label>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Key:</label>
+                  <InputBase
+                    value={keySecret?.discord?.key || ''}
+                    name="key"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.key ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-key')} size="large">
+                    <Icon
+                      icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Secret:</label>
+                  <InputBase
+                    value={keySecret?.discord?.secret || ''}
+                    name="secret"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.secret ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-secret')} size="large">
+                    <Icon
+                      icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Callback:</label>
+                  <InputBase
+                    value={authSetting?.callback?.discord || ''}
+                    name="callbackGithub"
+                    style={{ color: '#fff' }}
+                    disabled
+                    className={classes.input}
+                  />
+                </Paper>
+              </Paper>
+            )}
             {holdAuth?.facebook && (
               <Paper className={classes.Paper} elevation={0}>
                 <label style={{ color: '#fff' }}>Facebook</label>

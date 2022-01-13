@@ -12,7 +12,7 @@ export default async function ParticleSystem(world: World): Promise<System> {
     for (const entity of emitterQuery(world)) {
       const emitter = getComponent(entity, ParticleEmitterComponent)
       applyTransform(entity, emitter)
-      emitter.particleEmitterMesh?.update(delta)
+      emitter?.update(delta)
     }
   }
 }

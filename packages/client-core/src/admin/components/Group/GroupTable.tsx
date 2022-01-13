@@ -17,6 +17,7 @@ import { columns, Data } from './Variables'
 import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
 import { GROUP_PAGE_LIMIT } from '../../services/GroupService'
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 interface Props {}
 
@@ -27,7 +28,7 @@ const GroupTable = (props: Props) => {
 
   const user = useAuthState().user
   const [viewModel, setViewModel] = React.useState(false)
-  const [singleGroup, setSingleGroup] = React.useState('')
+  const [singleGroup, setSingleGroup] = React.useState<Group>(null!)
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = React.useState('')
@@ -50,7 +51,7 @@ const GroupTable = (props: Props) => {
   const handleViewGroup = (id: string) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
-      setSingleGroup(group)
+      setSingleGroup(group!)
       setViewModel(true)
     }
   }
@@ -97,7 +98,7 @@ const GroupTable = (props: Props) => {
   }
 
   const rows = adminGroups.value.map((el) => {
-    return createData(el.id, el.name, el.description)
+    return createData(el.id, el.name, el.description!)
   })
 
   return (

@@ -1,32 +1,30 @@
-import { WebIO } from '@gltf-transform/core'
+import { Document, NodeIO, WebIO } from '@gltf-transform/core'
 import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
-import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
+import { getLoader } from './LoadGLTF'
+import { isClient } from '../../common/functions/isClient'
 
-async function instanceGLTF(url) {
-  let dracoLoader: any = new DRACOLoader()
-  dracoLoader.setDecoderPath('/loader_decoders/')
-  // @ts-ignore
-  const io = new WebIO().registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
+export async function instanceGLTF(url) {
+  const dracoLoader = getLoader().dracoLoader!
 
-  let dracoDecoderModule = null
-  await dracoLoader.getDecoderModule().then(function (module) {
-    dracoDecoderModule = module.decoder
-  })
+  console.log('instanceGLTF', url)
 
-  let dracoEncoderModule = null
-  await dracoLoader.getEncoderModule().then(function (module) {
-    dracoEncoderModule = module.encoder
-  })
+  let io: WebIO | NodeIO
 
+  if (isClient) {
+    io = new WebIO()
+  } else {
+    const { default: fetch } = await import('node-fetch')
+    io = new NodeIO(fetch)
+    io.setAllowHTTP(true)
+  }
+  io.registerExtensions([DracoMeshCompression, ...KHRONOS_EXTENSIONS])
   io.registerDependencies({
-    'draco3d.decoder': dracoDecoderModule,
-    'draco3d.encoder': dracoEncoderModule
+    'draco3d.decoder': (await dracoLoader.getDecoderModule()).decoder,
+    'draco3d.encoder': (await dracoLoader.getEncoderModule()).encoder
   })
 
-  const doc = await io.read(url)
-
-  // @ts-ignore
+  const doc = (await io.read(url)) as Document
   await doc.transform(instance())
 
   // Remove draco mesh compression after transformation, as the output file is not going to be writtren to file
@@ -38,8 +36,6 @@ async function instanceGLTF(url) {
     }
   }
 
-  let buffer = await io.writeBinary(doc)
-  return buffer
+  const { json } = await io.writeJSON(doc)
+  return JSON.stringify(json)
 }
-
-export { instanceGLTF }

@@ -11,7 +11,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 const RenderModeTool = () => {
   const [renderMode, setRenderMode] = useState<RenderModesType>(RenderModes.UNLIT)
 
-  const options = []
+  const options = [] as { label: string; value: string }[]
 
   for (let key of Object.keys(RenderModes)) {
     options.push({

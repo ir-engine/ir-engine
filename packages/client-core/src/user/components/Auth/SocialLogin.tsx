@@ -2,6 +2,7 @@ import React from 'react'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Container from '@mui/material/Container'
+import ChatBubble from '@mui/icons-material/ChatBubble'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import FacebookIcon from '@mui/icons-material/Facebook'
 import LinkedinIcon from '@mui/icons-material/LinkedIn'
@@ -17,11 +18,18 @@ interface Props {
   enableGoogleSocial?: boolean
   enableLinkedInSocial?: boolean
   enableTwitterSocial?: boolean
+  enableDiscordSocial?: boolean
 }
 
 const SocialLogin = (props: Props): any => {
-  const { enableFacebookSocial, enableGithubSocial, enableGoogleSocial, enableLinkedInSocial, enableTwitterSocial } =
-    props
+  const {
+    enableDiscordSocial,
+    enableFacebookSocial,
+    enableGithubSocial,
+    enableGoogleSocial,
+    enableLinkedInSocial,
+    enableTwitterSocial
+  } = props
   const { t } = useTranslation()
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
@@ -46,6 +54,11 @@ const SocialLogin = (props: Props): any => {
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault()
     AuthService.loginUserByOAuth('twitter')
+  }
+
+  const handleDiscordLogin = (e: any): void => {
+    e.preventDefaule()
+    AuthService.loginUserByOAuth('discord')
   }
 
   const githubButton = enableGithubSocial ? (
@@ -119,10 +132,28 @@ const SocialLogin = (props: Props): any => {
   ) : (
     ''
   )
+
+  const discordButton = enableDiscordSocial ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleDiscordLogin(e)}
+        startIcon={<ChatBubble />}
+        variant="contained"
+        className={styles.discord}
+        fullWidth={true}
+      >
+        {t('user:auth.social.discord')}
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  )
+
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
         <Grid container justifyContent="center" spacing={2}>
+          {discordButton}
           {githubButton}
           {facebookButton}
           {googleButton}
