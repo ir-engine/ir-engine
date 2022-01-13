@@ -16,13 +16,13 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
 import querystring from 'querystring'
-import { SocketWebRTCClientTransport } from 'src/transports/SocketWebRTCClientTransport'
 import { v1 } from 'uuid'
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
 import { userPatched } from '../functions/userPatched'
 
