@@ -167,10 +167,15 @@ export class AnimationGraph {
       vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
       const speedSqr = vector2.lengthSq()
       if (speedSqr > this.EPSILON) {
-        newStateName =
-          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
-            ? AvatarStates.WALK
-            : AvatarStates.RUN
+        // TODO: The transition between walk and run animations is not smooth
+        // Most probably because they're not in sync with each other and a very short transition time
+
+        // newStateName =
+        //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
+        //     ? AvatarStates.WALK
+        //     : AvatarStates.RUN
+
+        newStateName = AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }

@@ -130,7 +130,7 @@ const Avatars = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminAvatars.value.map((n) => n.name)
+      const newSelecteds = adminAvatars.value.map((n) => n.name!)
       setSelected(newSelecteds)
       return
     }

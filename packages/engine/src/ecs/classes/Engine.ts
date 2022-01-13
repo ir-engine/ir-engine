@@ -44,7 +44,6 @@ export class Engine {
 
   /**
    * Reference to the three.js renderer object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null!
   static effectComposer: EffectComposerWithSchema = null!
@@ -55,7 +54,6 @@ export class Engine {
   static directionalLights: DirectionalLight[] = []
   /**
    * Reference to the three.js scene object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null!
   static sceneLoaded = false
@@ -70,7 +68,6 @@ export class Engine {
 
   /**
    * Reference to the three.js perspective camera object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera | OrthographicCamera = null!
   static activeCameraEntity: Entity
@@ -98,4 +95,6 @@ export class Engine {
   static keyboardInputEnabled = true
 
   static xrFrame: XRFrame
+
+  static isEditor = false
 }

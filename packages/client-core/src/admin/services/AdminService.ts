@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { Config } from '@xrengine/common/src/config'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { PublicVideo, VideoAction } from '../../media/services/VideoService'
@@ -39,7 +38,7 @@ export const AdminService = {
     const dispatch = useDispatch()
     const token = useAuthState().authUser.accessToken.value
     try {
-      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/video`, data, {
+      const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/video`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token

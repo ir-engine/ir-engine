@@ -22,7 +22,10 @@ import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 type SystemInstanceType = {
   name: string
@@ -133,6 +136,15 @@ export class World {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
+  /** Tree of entity holding parent child relation between entities. */
+  entityTree: EntityTree
+
+  /** Registry map of scene loader components  */
+  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Registry map of prefabs  */
+  scenePrefabRegistry = new Map<string, ComponentJson[]>()
+
   /**
    * Get the network objects owned by a given user
    * @param ownerId
@@ -192,7 +204,7 @@ export class World {
   }
 
   async initSystems(systemModulesToLoad: SystemModuleType<any>[] = this._pipeline) {
-    const loadSystem = async (s: SystemFactoryType<any>) => {
+    const loadSystemInjection = async (s: SystemFactoryType<any>) => {
       const system = await s.systemModule.default(this, s.args)
       return {
         name: s.systemModule.default.name,
@@ -217,7 +229,7 @@ export class World {
         }
       })
     )
-    const systems = await Promise.all(systemModule.map(loadSystem))
+    const systems = await Promise.all(systemModule.map(loadSystemInjection))
     systems.forEach((s) => {
       this.pipelines[s.type].push(s)
       console.log(`${s.type} ${s.name}`)

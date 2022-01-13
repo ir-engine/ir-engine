@@ -1,5 +1,5 @@
 import { Chain } from '../classes/Chain'
-import Pose, { PoseBoneTransform } from '../classes/Pose'
+import Pose, { BoneTransform } from '../classes/Pose'
 import { Quaternion, Vector3, Matrix4 } from 'three'
 import { Axis } from '../classes/Axis'
 import { cosSSS } from './IKFunctions'
@@ -16,7 +16,7 @@ export type IKSolverFunction = (
   pose: Pose,
   axis: Axis,
   cLen: number,
-  p_wt: PoseBoneTransform
+  p_wt: BoneTransform
 ) => void
 
 const vec3 = new Vector3()
@@ -37,7 +37,7 @@ const tempVec3 = new Vector3()
  * @param cLen IKPose.target.len
  * @param p_wt parent world transform
  */
-export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: PoseBoneTransform) {
+export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: BoneTransform) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Using law of cos SSS, we need the length of all sides of the triangle
   let bindA = tpose.bones[chain.chainBones[0].index], // Bone Reference from Bind
@@ -120,14 +120,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   }
 }
 
-export function solveThreeBone(
-  chain: Chain,
-  tpose: Pose,
-  pose: Pose,
-  axis: Axis,
-  cLen: number,
-  p_wt: PoseBoneTransform
-) {
+export function solveThreeBone(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: BoneTransform) {
   //------------------------------------
   // Get the length of the bones, the calculate the ratio length for the bones based on the chain length
   // The 3 bones when placed in a zig-zag pattern creates a Parallelogram shape. We can break the shape down into two triangles
@@ -212,7 +205,7 @@ export function solveThreeBone(
  * @param target target transform (will be modified)
  * @param source source transform
  */
-export function transformAdd(target: PoseBoneTransform, source: PoseBoneTransform) {
+export function transformAdd(target: BoneTransform, source: BoneTransform) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
   // pos.add( Vec3.mul( this.scl, cp ).transform_quat( this.rot ) );
@@ -232,7 +225,7 @@ export function transformAdd(target: PoseBoneTransform, source: PoseBoneTransfor
 const rot = new Quaternion()
 const rot2 = new Quaternion()
 const rotationMatrix = new Matrix4()
-function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: PoseBoneTransform, out: Quaternion) {
+function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: BoneTransform, out: Quaternion) {
   const bone = tpose.bones[chain.first()].bone
   rotationMatrix.extractRotation(bone.matrixWorld)
 

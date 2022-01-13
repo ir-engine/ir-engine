@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
-import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import React, { useEffect, useState } from 'react'
+import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 type GameServerWarningsProps = {
   instanceId: string

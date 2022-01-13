@@ -13,13 +13,22 @@ import {
 
 export class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket
-  cacheDomain = config.aws.cloudfront.domain
+  cacheDomain =
+    config.server.storageProvider === 'aws'
+      ? config.aws.cloudfront.domain
+      : `${config.aws.cloudfront.domain}/${this.bucket}/`
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
+    endpoint: config.aws.s3.endpoint,
     region: config.aws.s3.region,
     s3ForcePathStyle: true
   })
+
+  bucketAssetURL =
+    config.server.storageProvider === 'aws'
+      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
+      : `https://${this.cacheDomain}/${this.bucket}/`
 
   blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
@@ -154,6 +163,8 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
+    // for non-standard s3 setups, we don't use cloudfront
+    if (config.server.storageProvider !== 'aws') return
     return new Promise((resolve, reject) => {
       this.cloudfront.createInvalidation(
         {
@@ -230,31 +241,31 @@ export class S3Provider implements StorageProviderInterface {
     const promises: Promise<FileContentType>[] = []
     // Files
     for (let i = 0; i < folderContent.Contents.length; i++) {
-      promises.push(
-        new Promise(async (resolve) => {
-          const key = folderContent.Contents[i].Key
-          const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-          const query = regexx.exec(key)
-          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
-          const cont: FileContentType = {
-            key,
-            url,
-            name: query!.groups!.name,
-            type: query!.groups!.extension
-          }
-          resolve(cont)
-        })
-      )
+      const key = folderContent.Contents[i].Key
+      const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
+      const query = regexx.exec(key)
+      if (query) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const cont: FileContentType = {
+              key,
+              url: `${this.bucketAssetURL}/${key}`,
+              name: query!.groups!.name,
+              type: query!.groups!.extension
+            }
+            resolve(cont)
+          })
+        )
+      }
     }
     // Folders
     for (let i = 0; i < folderContent.CommonPrefixes!.length; i++) {
       promises.push(
         new Promise(async (resolve) => {
           const key = folderContent.CommonPrefixes![i].Prefix.slice(0, -1)
-          const url = `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/${key}`
           const cont: FileContentType = {
             key,
-            url,
+            url: `${this.bucketAssetURL}/${key}`,
             name: key.split('/').pop()!,
             type: 'folder'
           }

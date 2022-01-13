@@ -1,3 +1,8 @@
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+
 const namePattern = new RegExp('(.*) \\d+$')
 
 function getNameWithoutIndex(name) {
@@ -9,18 +14,19 @@ function getNameWithoutIndex(name) {
   return cacheName
 }
 
-export default function makeUniqueName(scene, object) {
+export default function makeUniqueName(node: EntityTreeNode, world = useWorld()) {
   let counter = 0
-  const nameWithoutIndex = getNameWithoutIndex(object.name)
 
-  scene.traverse((child) => {
-    if (!child.isNode) return
+  const nodeNameComp = getComponent(node.entity, NameComponent)
+  const nameWithoutIndex = getNameWithoutIndex(nodeNameComp.name)
 
-    if (child === object) return
+  world.entityTree.traverse((child) => {
+    if (child.entity === node.entity) return
 
-    if (!child.name.startsWith(nameWithoutIndex)) return
+    const nameComponent = getComponent(child.entity, NameComponent)
+    if (!nameComponent.name.startsWith(nameWithoutIndex)) return
 
-    const parts = child.name.split(nameWithoutIndex)
+    const parts = nameComponent.name.split(nameWithoutIndex)
 
     if (parts[0]) return // if child's name starts with given object's name then first part will be empty string ('')
 
@@ -32,5 +38,5 @@ export default function makeUniqueName(scene, object) {
     }
   })
 
-  object.name = nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : '')
+  nodeNameComp.name = nameWithoutIndex + (counter > 0 ? ' ' + (counter + 1) : '')
 }
