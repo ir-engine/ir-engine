@@ -33,17 +33,24 @@ export class Instance extends Service {
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
-      let q = search ? { ended: false, ipAddress: { [Op.like]: `%${search}%` } } : { ended: false }
+      let ip = {}
+      let name = {}
+      if (!isNaN(search)) {
+        ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
+      } else {
+        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+      }
 
       const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include: {
           model: (this.app.service('location') as any).Model,
-          required: false
+          required: true,
+          where: { ...name }
         },
         nest: false,
-        where: { ...q }
+        where: { ended: false, ...ip }
       })
 
       return {
