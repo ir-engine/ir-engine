@@ -95,19 +95,17 @@ const InstanceTable = (props: Props) => {
       locationId: locationId?.name || '',
       channelId,
       action: (
-        <>
-          <a
-            href="#h"
-            className={classes.actionStyle}
-            onClick={() => {
-              setPopConfirmOpen(true)
-              setInstanceId(id)
-              setInstanceName(ipAddress)
-            }}
-          >
-            <span className={classes.spanDange}>Delete</span>
-          </a>
-        </>
+        <a
+          href="#h"
+          className={classes.actionStyle}
+          onClick={() => {
+            setPopConfirmOpen(true)
+            setInstanceId(id)
+            setInstanceName(ipAddress)
+          }}
+        >
+          <span className={classes.spanDange}>Delete</span>
+        </a>
       )
     }
   }
