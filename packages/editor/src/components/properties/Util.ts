@@ -11,7 +11,7 @@ export type EditorComponentType = React.FC<EditorPropType> & {
   iconComponent?: any
 }
 
-export const updateProperty = (component: ComponentConstructor<any, any>, propName: string) => {
+export const updateProperty = <T>(component: ComponentConstructor<T, any>, propName: keyof T) => {
   return (value) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
       component,

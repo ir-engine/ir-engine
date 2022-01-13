@@ -4,6 +4,7 @@ import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 
 export const ComponentMap = new Map<string, ComponentType<any>>()
+globalThis.ComponentMap = ComponentMap
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
