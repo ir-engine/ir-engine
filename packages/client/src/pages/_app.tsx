@@ -4,17 +4,17 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { theme } from '@xrengine/client-core/src/theme'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
+import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { BrowserRouter } from 'react-router-dom'
 import RouterComp from '../route/public'
 import './styles.scss'
-import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
-import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -29,7 +29,7 @@ declare module '@mui/styles/defaultTheme' {
 const App = (): any => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
-  const [ctitle, setTitle] = useState(clientSetting?.title)
+  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)

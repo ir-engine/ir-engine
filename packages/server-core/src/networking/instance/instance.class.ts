@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
+import Sequelize, { Op } from 'sequelize'
 
 /**
  * A class for Intance service
@@ -23,6 +23,7 @@ export class Instance extends Service {
    */
   async find(params: Params): Promise<any> {
     const action = params.query?.action
+    const search = params.query?.search
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
 
@@ -32,6 +33,16 @@ export class Instance extends Service {
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
+      let q = {}
+      if (search) {
+        q = {
+          [Op.or]: [
+            Sequelize.where(Sequelize.fn('lower', Sequelize.col('ipAddress')), {
+              [Op.like]: '%' + search.toLowerCase() + '%'
+            })
+          ]
+        }
+      }
 
       const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
         offset: skip,
@@ -41,7 +52,7 @@ export class Instance extends Service {
           required: false
         },
         nest: false,
-        where: { ended: { [Op.not]: true } }
+        where: { ended: { [Op.not]: true }, ...q }
       })
       return {
         skip: skip,
