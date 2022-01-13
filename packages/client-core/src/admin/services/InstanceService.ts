@@ -37,11 +37,7 @@ store.receptors.push((action: InstanceActionType): any => {
           lastFetched: Date.now()
         })
       case 'INSTANCE_REMOVED_ROW':
-        let instance = state.instances.value
-        let instanceList = instance
-        instanceList = instanceList.filter((instance) => instance.id !== action.instance.id)
-        instance = instanceList
-        s.merge({ instances: instance })
+        s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
