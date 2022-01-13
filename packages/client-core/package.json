@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
-    "@google/model-viewer": "1.9.2",
+    "@google/model-viewer": "1.10.0",
     "@hookstate/core": "3.0.13",
     "@mui/icons-material": "5.2.5",
     "@mui/material": "5.2.8",
