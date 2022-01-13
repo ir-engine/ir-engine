@@ -1,6 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Object3D } from 'three'
-import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
+import { Mesh, Object3D } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -12,7 +11,7 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { loadGLTFModel, parseGLTFModel } from '../loadGLTFModel'
+import { loadGLTFModel, overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
@@ -34,28 +33,26 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
 
-  registerSceneLoadPromise(updateModel(entity) as any as Promise<void>)
+  registerSceneLoadPromise(updateModel(entity, component.props) as any as Promise<void>)
 }
 
-export const updateModel: ComponentUpdateFunction = async (entity: Entity): Promise<void> => {
+export const updateModel: ComponentUpdateFunction = async (
+  entity: Entity,
+  properties: ModelComponentType
+): Promise<void> => {
   const component = getComponent(entity, ModelComponent)
+  const obj3d = getComponent(entity, Object3DComponent).value as Mesh
 
-  // TODO: refactor this
-  let gltf
-  if (component.curScr !== component.src) {
-    gltf = await loadGLTFModel(entity).catch<Error>((error) => {
-      return error
-    })
-    if (gltf instanceof Error) return
+  if (properties.src) {
+    const gltf = await loadGLTFModel(entity)
+    if (gltf && gltf.scene) {
+      parseGLTFModel(entity, component, gltf.scene)
+    }
   }
 
-  let obj3d = (gltf as GLTF).scene
-
-  component.curScr = component.src
-
-  if (!obj3d) obj3d = getComponent(entity, Object3DComponent).value
-
-  parseGLTFModel(entity, component, obj3d)
+  if (Object.hasOwnProperty.call(properties, 'textureOverride')) {
+    overrideTexture(entity, obj3d)
+  }
 }
 
 export const serializeModel: ComponentSerializeFunction = (entity) => {
