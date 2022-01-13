@@ -294,5 +294,5 @@ testbot:
   extraEnv:
     APP_HOST: local.theoverlay.io
   image:
-    repository: xrengine-test-bot
+    repository: xrengine-testbot
     pullPolicy: IfNotPresent

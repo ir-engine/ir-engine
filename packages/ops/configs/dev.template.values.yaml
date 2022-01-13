@@ -340,6 +340,13 @@ gameserver:
                 values:
                   - ng-gameservers-1
 
+testbot:
+  extraEnv:
+    APP_HOST: dev.<domain>
+  image:
+    repository: <repository_name>
+    pullPolicy: IfNotPresent
+
 editor:
   enabled: false
   extraEnv:
