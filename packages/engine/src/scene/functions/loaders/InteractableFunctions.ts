@@ -38,7 +38,19 @@ export const serializeInteractable: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_INTERACTABLE,
     props: {
-      interactable: component.interactable
+      interactable: component.interactable,
+      interactionType: component.interactionType,
+      interactionText: component.interactionText,
+      interactionDistance: component.interactionDistance,
+      interactionThemeIndex: component.interactionThemeIndex,
+      interactionName: component.interactionName,
+      interactionDescription: component.interactionDescription,
+      interactionImages: component.interactionImages,
+      interactionVideos: component.interactionVideos,
+      interactionUrls: component.interactionUrls,
+      interactionModels: component.interactionModels,
+      mediaIndex: component.mediaIndex,
+      intensity: component.intensity
     }
   }
 }
