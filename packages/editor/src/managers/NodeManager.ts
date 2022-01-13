@@ -95,8 +95,6 @@ const registerPredefinedNodes = () => {
   NodeManager.instance.registerNode(MetadataNode, MetadataNodeEditor)
   // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
   NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
-  // NodeManager.instance.registerNode(SplineNode, SplineNodeEditor) // TODO
-  NodeManager.instance.registerNode(SystemNode, SystemNodeEditor)
 }
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {
