@@ -322,11 +322,11 @@ gameserver:
 
 testbot:
   enabled: true
-  name: xrengine-test-bot
+  name: xrengine-testbot
+  suspend: true
 
-  replicaCount: 0
   image:
-    repository: lagunalabs/xrengine-test-bot
+    repository: lagunalabs/xrengine-testbot
     tag: latest
     pullPolicy: IfNotPresent
 

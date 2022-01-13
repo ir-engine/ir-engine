@@ -27,4 +27,4 @@ COPY . .
 
 ENV APP_ENV=production
 
-CMD ["scripts/start-test-bot.sh"]
+CMD ["scripts/start-testbot.sh"]
