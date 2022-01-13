@@ -13,7 +13,7 @@ import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { VolumetricPlayMode } from '@xrengine/engine/src/scene/constants/VolumetricPlayMode'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { toggleVolumetric } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
 
 const PlayModeOptions = [
   {
@@ -46,16 +46,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
   const [isPlaying, setPlaying] = useState(false)
 
   const toggle = () => {
-    const obj3d = getComponent(props.node.entity, Object3DComponent).value
-
-    if (isPlaying) {
-      obj3d.userData.player.stopOnNextFrame = true
-    } else {
-      obj3d.userData.player.stopOnNextFrame = false
-      obj3d.userData.player.play()
-    }
-
-    setPlaying(!isPlaying)
+    setPlaying(toggleVolumetric(props.node.entity))
   }
 
   const volumetricComponent = getComponent(props.node.entity, VolumetricComponent)

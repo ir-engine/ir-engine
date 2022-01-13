@@ -120,10 +120,6 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  setPropertyOnSelection(name: string, value: any, withHistory = true) {
-    this.setProperty(this.selected, name, value, withHistory)
-  }
-
   setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
     this.setProperty(this.selected, params, withHistory)
   }
