@@ -7,7 +7,7 @@ import Container from '@mui/material/Container'
 import DialogTitle from '@mui/material/DialogTitle'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
-import { useLocationStyles, useLocationStyle } from './styles'
+import { useStyles } from '../../styles/ui'
 import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
@@ -36,8 +36,7 @@ interface Props {
 
 const CreateLocation = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-  const classesx = useLocationStyle()
-  const classes = useLocationStyles()
+  const classes = useStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({
@@ -168,7 +167,7 @@ const CreateLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: classesx.paper }} open={open} onClose={handleClose(false)}>
+      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
             Create New Location
@@ -216,7 +215,7 @@ const CreateLocation = (props: Props) => {
                 onChange={handleChange}
                 className={classes.select}
                 name="scene"
-                MenuProps={{ classes: { paper: classesx.selectPaper } }}
+                MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
                 <MenuItem value="" disabled>
                   <em>Select scene</em>
@@ -241,7 +240,7 @@ const CreateLocation = (props: Props) => {
                 onChange={handleChange}
                 className={classes.select}
                 name="type"
-                MenuProps={{ classes: { paper: classesx.selectPaper } }}
+                MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
                 <MenuItem value="" disabled>
                   <em>Select type</em>

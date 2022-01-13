@@ -182,7 +182,7 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setUserIdState({ ...userIdState, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
   const handleClose = () => {

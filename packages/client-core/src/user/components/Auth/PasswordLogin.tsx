@@ -39,23 +39,19 @@ export const PasswordLogin = (props: Props): any => {
       const user = auth.user
       const userId = user ? user.id.value : ''
 
-      dispatch(
-        AuthService.addConnectionByPassword(
-          {
-            email: state.email,
-            password: state.password
-          },
-          userId
-        )
+      AuthService.addConnectionByPassword(
+        {
+          email: state.email,
+          password: state.password
+        },
+        userId as string
       )
       dispatch(DialogAction.dialogClose())
     } else {
-      dispatch(
-        AuthService.loginUserByPassword({
-          email: state.email,
-          password: state.password
-        })
-      )
+      AuthService.loginUserByPassword({
+        email: state.email,
+        password: state.password
+      })
     }
   }
 
@@ -101,7 +97,7 @@ export const PasswordLogin = (props: Props): any => {
             <Grid item xs={12}>
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
-                label={t('user:auth.passwordLogin.lbl-rememberMe')}
+                label={t('user:auth.passwordLogin.lbl-rememberMe') as string}
               />
             </Grid>
             <Grid item xs={12}>

@@ -135,7 +135,7 @@ export function SelectInput({
       placeholder={placeholder}
       options={options}
       menuPlacement="auto"
-      onChange={(option) => onChange(option && option.value, option)}
+      onChange={(option) => onChange?.(option && option.value, option)}
       isDisabled={disabled}
     />
   )
