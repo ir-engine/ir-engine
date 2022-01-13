@@ -100,7 +100,6 @@ const registerPredefinedNodes = () => {
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {
   const entityNode = getComponent(entity, EntityNodeComponent)
   if (!entityNode) return DefaultNodeEditor
-  console.log(entityNode?.components)
 
   let editor = null
 

@@ -34,6 +34,7 @@ import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { applyIncomingActions } from './networking/systems/IncomingNetworkSystem'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -280,6 +281,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
+  registerDefaultSceneFunctions(sceneWorld)
   registerPrefabs(sceneWorld)
 
   Engine.currentWorld = sceneWorld
