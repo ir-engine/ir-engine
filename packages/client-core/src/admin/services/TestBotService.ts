@@ -35,7 +35,7 @@ export const TestBotService = {
   createTestBot: async () => {
     // const dispatch = useDispatch()
     try {
-      const bot = await client.service('test-bot').create()
+      const bot = await client.service('testbot').create()
       // dispatch(TestBotAction.botCreated(bot))
     } catch (error) {
       console.error(error)

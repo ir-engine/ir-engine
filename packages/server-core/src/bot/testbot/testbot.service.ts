@@ -1,7 +1,7 @@
 import { Application } from '../../../declarations'
 
 export default (app: Application): void => {
-  app.use('test-bot', {
+  app.use('testbot', {
     create: () => {
       return { name: 'Hello' }
     }
