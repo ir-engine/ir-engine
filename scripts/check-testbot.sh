@@ -1,17 +1,19 @@
-# set -e
-# set -x
+set -e
+set -x
 
-# STAGE=$1
-# TAG=$2
+STAGE=$1
+TAG=$2
 
-podName="local-xrengine-test-bot"
+# Get name of pod from job
+jobName="${STAGE}-xrengine-testbot"
+podName=$(kubectl get pods --selector=job-name=$jobName --output=jsonpath='{.items[*].metadata.name}')
+echo "Pod Name: $podName"
 
 # The expected tag should start with this. So adding * at end for starts with.
-expectedTag="lat"
-expectedTag="$expectedTag*"
+expectedTag="$TAG*"
 echo "Expected tag: $expectedTag"
 
-# Get the current image tag of test-bot pod.
+# Get the current image tag of testbot pod.
 imageName=$(kubectl get pods $podName --no-headers -o custom-columns="IMAGE:.spec.containers[*].image")
 tag=$(echo $imageName | cut -d ":" -f2)
 echo "Current tag: $tag"
@@ -26,11 +28,11 @@ do
     echo "Current tag: $tag"
 done
 
-# Get the current status of test-bot pod.
+# Get the current status of testbot pod.
 podStatus=$(kubectl get pods $podName --no-headers -o custom-columns=":status.phase")
 echo "Pod status: $podStatus"
 
-# Wait until correct status of test-bot.
+# Wait until correct status of testbot.
 until [[ $podStatus == "Succeeded" || $podStatus == "Failed" ]]
 do
     sleep 5
