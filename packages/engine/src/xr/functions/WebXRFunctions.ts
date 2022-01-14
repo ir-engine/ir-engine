@@ -58,55 +58,55 @@ const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) 
 
   // todo: make isomorphic
 
-  proxifyVector3((XRHandsInputComponent as unknown as any).head.position, entity, head.position)
-  proxifyVector3((XRHandsInputComponent as unknown as any).container.position, entity, container.position)
+  proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
+  proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
   proxifyVector3(
-    (XRHandsInputComponent as unknown as any).controllerLeft.position,
+    XRInputSourceComponent.controllerLeft.position,
     entity,
     isClient ? controllerLeft.parent!.position : controllerLeft.position
   )
   proxifyVector3(
-    (XRHandsInputComponent as unknown as any).controllerRight.position,
+    XRInputSourceComponent.controllerRight.position,
     entity,
     isClient ? controllerRight.parent!.position : controllerRight.position
   )
   proxifyVector3(
-    (XRHandsInputComponent as unknown as any).controllerGripLeft.position,
+    XRInputSourceComponent.controllerGripLeft.position,
     entity,
     isClient ? controllerGripLeft.parent!.position : controllerGripLeft.position
   )
   proxifyVector3(
-    (XRHandsInputComponent as unknown as any).controllerGripRight.position,
+    XRInputSourceComponent.controllerGripRight.position,
     entity,
     isClient ? controllerGripRight.parent!.position : controllerGripRight.position
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).head.quaternion,
+    XRInputSourceComponent.head.quaternion,
     entity,
     isClient ? head.parent!.quaternion : head.quaternion
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).container.quaternion,
+    XRInputSourceComponent.container.quaternion,
     entity,
     isClient ? container.parent!.quaternion : container.quaternion
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).controllerLeft.quaternion,
+    XRInputSourceComponent.controllerLeft.quaternion,
     entity,
     isClient ? controllerLeft.parent!.quaternion : controllerLeft.quaternion
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).controllerRight.quaternion,
+    XRInputSourceComponent.controllerRight.quaternion,
     entity,
     isClient ? controllerRight.parent!.quaternion : controllerRight.quaternion
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).controllerGripLeft.quaternion,
+    XRInputSourceComponent.controllerGripLeft.quaternion,
     entity,
     isClient ? controllerGripLeft.parent!.quaternion : controllerGripLeft.quaternion
   )
   proxifyQuaternion(
-    (XRHandsInputComponent as unknown as any).controllerGripRight.quaternion,
+    XRInputSourceComponent.controllerGripRight.quaternion,
     entity,
     isClient ? controllerGripRight.parent!.quaternion : controllerGripRight.quaternion
   )
