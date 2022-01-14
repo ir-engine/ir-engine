@@ -25,8 +25,6 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<AmbientLightComponentType>
 ) => {
-  if (!isClient || !json) return
-
   const light = new AmbientLight()
 
   addComponent(entity, Object3DComponent, { value: light })
