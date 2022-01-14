@@ -2,8 +2,8 @@ import { Vector3, Quaternion } from 'three'
 
 const { defineProperties } = Object
 
-export const createVector3Proxy = (store, entity) =>
-  defineProperties(new Vector3(), {
+export const proxifyVector3 = (store, entity, vector3) =>
+  defineProperties(vector3, {
     _eid: { value: entity },
     _store: { value: store },
     x: {
@@ -32,8 +32,10 @@ export const createVector3Proxy = (store, entity) =>
     }
   })
 
-export const createQuaternionProxy = (store, entity) =>
-  defineProperties(new Quaternion(), {
+export const createVector3Proxy = (store, entity) => proxifyVector3(store, entity, new Vector3())
+
+export const proxifyQuaternion = (store, entity, quaternion) =>
+  defineProperties(quaternion, {
     _eid: { value: entity },
     _store: { value: store },
     _x: {
@@ -69,3 +71,5 @@ export const createQuaternionProxy = (store, entity) =>
       }
     }
   })
+
+export const createQuaternionProxy = (store, entity) => proxifyQuaternion(store, entity, new Quaternion())

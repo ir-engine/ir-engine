@@ -4,6 +4,12 @@ export type Vector3SoA = {
   z: Float32Array
 }
 
+export type Vector4SoA = {
+  x: Float32Array
+  y: Float32Array
+  z: Float32Array
+}
+
 /**
  * Creates an internal cache of inputs to outputs for idemponent functions
  *

@@ -114,6 +114,7 @@ export default async function AvatarSystem(world: World): Promise<System> {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
+      // todo: make isomorphic
       xrInputSourceComponent.container.add(
         xrInputSourceComponent.controllerLeft.parent || xrInputSourceComponent.controllerLeft,
         xrInputSourceComponent.controllerGripLeft.parent || xrInputSourceComponent.controllerGripLeft,
