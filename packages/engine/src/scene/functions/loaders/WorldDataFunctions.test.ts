@@ -1,7 +1,6 @@
 import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
 import { MathUtils, Quaternion, Vector3 } from "three"
 import { createEntity } from "../../../ecs/functions/EntityFunctions"
-import { deserializeMetaData } from "./MetaDataFunctions"
 import assert from 'assert'
 import { createWorld } from "../../../ecs/classes/World"
 import { Engine } from "../../../ecs/classes/Engine"
@@ -11,7 +10,7 @@ import { TransformComponent } from "../../../transform/components/TransformCompo
 import { Object3DComponent } from "../../components/Object3DComponent"
 import { InteractableComponent } from "../../../interaction/components/InteractableComponent"
 
-describe('MetadataFunctions', () => {
+describe('WorldDataFunctions', () => {
   describe('deserializeWorldData', () => {
     const world = createWorld()
     Engine.currentWorld = world

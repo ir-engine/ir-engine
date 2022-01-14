@@ -21,22 +21,21 @@ export const deserializeWorldData: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<WorldDataComponentType>
 ) => {
-  addComponent(entity, Object3DComponent, { value: new Object3D() })
-  const { data } = json.props
+  const obj3d = new Object3D()
+  const data = json.props.data
+  addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteractableComponent, { action: '_metadata', interactionUserData: data })
-  const transform = getComponent(entity, TransformComponent)
-  const { x, y, z } = transform.position
-  useWorld().worldMetadata[data] = x + ',' + y + ',' + z
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WORLDDATA)
 
-  updateWorldData(entity)
+  updateWorldData(entity, json.props)
 }
 
 export const updateWorldData: ComponentUpdateFunction = (entity: Entity, props: any) => {
   const { data } = props
   if (!data) return
   getComponent(entity, InteractableComponent).interactionUserData = data
+  ;(getComponent(entity, Object3DComponent).value as any)._data = data
   const transform = getComponent(entity, TransformComponent)
   const { x, y, z } = transform.position
   useWorld().worldMetadata[data] = x + ',' + y + ',' + z
