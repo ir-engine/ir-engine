@@ -2,106 +2,121 @@ import Command, { CommandParams } from './Command'
 import { serializeProperties, serializeObject3DArray } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type PropertyType = {
   [key: string]: any
 }
 
 export interface ModifyPropertyCommandParams extends CommandParams {
-  properties?: PropertyType
+  properties: PropertyType
+  component: ComponentConstructor<any, any>
 }
 
 export default class ModifyPropertyCommand extends Command {
-  newProperties: PropertyType
+  properties: PropertyType = {}
 
-  oldProperties: PropertyType[]
+  component: ComponentConstructor<any, any>
 
-  constructor(objects?: any | any[], params?: ModifyPropertyCommandParams) {
+  oldProperties?: PropertyType[]
+
+  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
+    this.component = params.component
 
-    this.affectedObjects = objects.slice(0)
-    this.newProperties = {}
-    this.oldProperties = []
-
-    for (const propertyName in params.properties) {
-      if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
-
+    const propertyNames = Object.keys(params.properties)
+    for (const propertyName of propertyNames) {
       const value = params.properties[propertyName]
-      this.newProperties[propertyName] = value && value.clone ? value.clone() : value
+      this.properties[propertyName] = value && value.clone ? value.clone() : value
     }
 
-    for (let i = 0; i < objects.length; i++) {
-      const object = objects[i]
-      const objectOldProperties = {}
+    if (this.keepHistory && this.component) {
+      this.oldProperties = []
+      for (let i = 0; i < objects.length; i++) {
+        const comp = getComponent(objects[i].entity, this.component)
+        const oldProps = {}
 
-      for (const propertyName in params.properties) {
-        if (!Object.prototype.hasOwnProperty.call(params.properties, propertyName)) continue
+        for (const propertyName of propertyNames) {
+          const { result, finalProp } = this.getNestedObject(comp, propertyName)
+          const oldValue = result[finalProp]
+          oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
+        }
 
-        const res = this.getNestedObject(object, propertyName)
-        const oldValue = res[propertyName]
-
-        objectOldProperties[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
+        this.oldProperties.push(oldProps)
       }
-
-      this.oldProperties.push(objectOldProperties)
     }
   }
 
   execute() {
-    this.updateProperties(this.affectedObjects, this.newProperties)
+    this.updateProperties(this.affectedObjects, this.properties, this.component)
+  }
+
+  shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
+    return (
+      this.component === newCommand.component &&
+      arrayShallowEqual(Object.keys(this.properties), Object.keys(newCommand.properties)) &&
+      arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
+    )
+  }
+
+  update(command: ModifyPropertyCommand) {
+    this.properties = command.properties
+    this.updateProperties(this.affectedObjects, command.properties, this.component)
   }
 
   undo() {
+    if (!this.oldProperties) return
+
     for (let i = 0; i < this.oldProperties.length; i++) {
-      this.updateProperties(this.affectedObjects, this.oldProperties[i])
+      this.updateProperties(this.affectedObjects, this.oldProperties[i], this.component)
     }
   }
 
   toString() {
     return `SetPropertiesMultipleCommand id: ${this.id} objects: ${serializeObject3DArray(
       this.affectedObjects
-    )} properties: ${serializeProperties(this.newProperties)}`
+    )} properties: ${serializeProperties(this.properties)}`
   }
 
-  emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects)
-    }
-  }
+  updateProperties(nodes: EntityTreeNode[], properties: PropertyType, component: ComponentConstructor<any, any>): void {
+    const propertyNames = Object.keys(properties)
 
-  updateProperties(objects?: any[], properties?: PropertyType): void {
-    for (const propertyName in properties) {
-      if (!Object.prototype.hasOwnProperty.call(properties, propertyName)) continue
+    for (let i = 0; i < nodes.length; i++) {
+      const entity = nodes[i].entity
+      if (component) {
+        const comp = getComponent(entity, component)
+        if (comp) {
+          for (const propertyName of propertyNames) {
+            const value = properties[propertyName]
+            const { result, finalProp } = this.getNestedObject(comp, propertyName)
 
-      const finalProp = propertyName.split('.').pop()
-
-      for (let i = 0; i < objects.length; i++) {
-        const object = objects[i]
-
-        const value = properties[propertyName]
-
-        const res = this.getNestedObject(object, propertyName)
-
-        if (value && value.copy) {
-          res[finalProp].copy(value)
-        } else {
-          res[finalProp] = value
-        }
-
-        if (object.onChange) {
-          object.onChange(propertyName)
+            if (value && value.copy) {
+              if (!result[finalProp]) result[finalProp] = new value.constructor()
+              result[finalProp].copy(value)
+            } else {
+              result[finalProp] = value
+            }
+          }
         }
       }
+      const nodeComponent = getComponent(entity, EntityNodeComponent)
+      for (const component of nodeComponent.components) {
+        const update = useWorld().sceneLoadingRegistry.get(component)?.update
+        if (update) update(nodes[i].entity, properties)
+      }
+    }
 
+    for (const propertyName of propertyNames) {
       CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
     }
   }
 
-  getNestedObject(object: any, propertyName?: string): any {
+  getNestedObject(object: any, propertyName: string): { result: any; finalProp: string } {
     const props = propertyName.split('.')
     let result = object
 
@@ -109,6 +124,6 @@ export default class ModifyPropertyCommand extends Command {
       result = result[props[i]]
     }
 
-    return result
+    return { result, finalProp: props[props.length - 1] }
   }
 }

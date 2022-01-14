@@ -24,7 +24,7 @@ interface PopoverProp {
  * @returns
  */
 export function Popover({ children, padding, position, renderContent, disabled, ...rest }: PopoverProp) {
-  const popoverTriggerRef = useRef()
+  const popoverTriggerRef = useRef(null)
   const state = useHookstate({
     isOpen: false
   })

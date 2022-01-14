@@ -24,7 +24,7 @@ void main()
     vec3 vBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );
 
     mat3 mTBN = transpose(mat3(vTangent, vBitangent, vNormal));
-    
+
     vec4 mvPos = modelViewMatrix * vec4( position, 1.0 );
     vec3 viewDir = -mvPos.xyz;
     vViewDirTangent = mTBN * viewDir;
@@ -52,7 +52,7 @@ void main()
     vec3 viewInv = 1. / sampleDir;
 
     vec3 pos = vec3(uv * 2.0 - 1.0, -1.0);
-    
+
     float fmin = min3(abs(viewInv) - viewInv * pos);
     sampleDir = sampleDir * fmin + pos;
 
@@ -78,18 +78,14 @@ function loadDDS(path): Promise<Texture> {
 
     loader.load(
       path,
-      (data) => {
-        resolve(data)
-      },
+      (data) => resolve(data),
       null!,
-      (error) => {
-        reject(error)
-      }
+      (error) => reject(error)
     )
   })
 }
 
-export class Interior extends Mesh {
+export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
   _cubePath: string
   _size: Vector2
 
@@ -112,7 +108,7 @@ export class Interior extends Mesh {
   }
 
   get _material(): ShaderMaterial {
-    return this.material as ShaderMaterial
+    return this.material
   }
 
   get cubeMap(): string {

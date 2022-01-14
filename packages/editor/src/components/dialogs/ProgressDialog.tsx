@@ -43,7 +43,7 @@ const ProgressMessage = (styled as any).div`
  * @constructor
  */
 export function ProgressDialog(props) {
-  if (!props) return
+  if (!props) return null
   return (
     <Dialog onCancel={props.cancelable ? props.onCancel : null} {...props}>
       <ProgressContainer>

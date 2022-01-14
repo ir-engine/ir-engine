@@ -60,8 +60,8 @@ export function incomingNetworkReceptor(action) {
         if (networkObject) {
           entity = networkObject
         } else if (params?.sceneEntityId) {
-          entity = (Engine.scene.children.find((child) => (child as any).sceneEntityId === params.sceneEntityId) as any)
-            .entity
+          const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
+          if (node) entity = node.entity
         } else {
           entity = createEntity()
         }

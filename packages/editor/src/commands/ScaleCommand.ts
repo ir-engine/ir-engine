@@ -1,17 +1,21 @@
-import Command, { CommandParams } from './Command'
+import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export interface ScaleCommandParams extends CommandParams {
-  scales?: Vector3 | Vector3[]
+  scales: Vector3 | Vector3[]
 
   space?: TransformSpace
 
-  overrideScale: boolean
+  overrideScale?: boolean
 }
 
 export default class ScaleCommand extends Command {
@@ -19,31 +23,20 @@ export default class ScaleCommand extends Command {
 
   space: TransformSpace
 
-  oldScales: Vector3[]
+  oldScales?: Vector3[]
 
   overrideScale: boolean
 
-  constructor(objects?: any | any[], params?: ScaleCommandParams) {
+  constructor(objects: EntityTreeNode[], params: ScaleCommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = objects.slice(0)
     this.space = params.space ?? TransformSpace.Local
-    this.overrideScale = params.overrideScale
+    this.overrideScale = params.overrideScale ?? false
+    this.scales = Array.isArray(params.scales) ? params.scales : [params.scales]
 
-    if (!params.scales) {
-      params.scales = [new Vector3(1, 1, 1)]
+    if (this.keepHistory) {
+      this.oldScales = objects.map((o) => getComponent(o.entity, Object3DComponent).value.scale.clone())
     }
-
-    if (!Array.isArray(params.scales)) {
-      params.scales = [params.scales]
-    }
-
-    this.scales = params.scales.map((s) => s.clone())
-    this.oldScales = objects.map((o) => o.scale.clone())
   }
 
   execute() {
@@ -51,13 +44,13 @@ export default class ScaleCommand extends Command {
     this.emitAfterExecuteEvent()
   }
 
-  shouldUpdate(newCommand: ScaleCommand) {
+  shouldUpdate(newCommand: ScaleCommand): boolean {
     return this.space === newCommand.space && arrayShallowEqual(this.affectedObjects, newCommand.affectedObjects)
   }
 
   update(command) {
     if (this.overrideScale) {
-      this.scales = command.scales.map((s) => s.clone())
+      this.scales = command.scales
     } else {
       this.scales.forEach((s: Vector3, index: number) => s.multiply(command.scales[index]))
     }
@@ -67,6 +60,8 @@ export default class ScaleCommand extends Command {
   }
 
   undo() {
+    if (!this.oldScales) return
+
     this.updateScale(this.affectedObjects, this.oldScales, TransformSpace.Local, true)
     this.emitAfterExecuteEvent()
   }
@@ -83,7 +78,7 @@ export default class ScaleCommand extends Command {
     }
   }
 
-  updateScale(objects: any[], scales: Vector3[], space: any, overrideScale?: boolean): void {
+  updateScale(objects: EntityTreeNode[], scales: Vector3[], space: TransformSpace, overrideScale?: boolean): void {
     if (!overrideScale) {
       for (let i = 0; i < objects.length; i++) {
         const object = objects[i]
@@ -93,11 +88,7 @@ export default class ScaleCommand extends Command {
           console.warn('Scaling an object in world space with a non-uniform scale is not supported')
         }
 
-        object.scale.multiply(scale)
-
-        object.updateMatrixWorld(true)
-
-        object.onChange('scale')
+        getComponent(object.entity, TransformComponent).scale.multiply(scale)
       }
 
       return
@@ -106,15 +97,14 @@ export default class ScaleCommand extends Command {
     const tempMatrix = new Matrix4()
     const tempVector = new Vector3()
 
-    let spaceMatrix
+    let spaceMatrix = IDENTITY_MAT_4
 
     if (space === TransformSpace.LocalSelection) {
       if (CommandManager.instance.selected.length > 0) {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        lastSelectedObject.updateMatrixWorld()
-        spaceMatrix = lastSelectedObject.parent.matrixWorld
-      } else {
-        spaceMatrix = tempMatrix.identity()
+        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+        lastSelectedObj3d.updateMatrixWorld()
+        spaceMatrix = lastSelectedObj3d.parent!.matrixWorld
       }
     }
 
@@ -122,6 +112,8 @@ export default class ScaleCommand extends Command {
       const object = objects[i]
 
       const scale = scales[i] ?? scales[0]
+      let obj3d = getComponent(object.entity, Object3DComponent).value
+      let transformComponent = getComponent(object.entity, TransformComponent)
 
       if (space === TransformSpace.Local) {
         tempVector.set(
@@ -130,13 +122,13 @@ export default class ScaleCommand extends Command {
           scale.z === 0 ? Number.EPSILON : scale.z
         )
 
-        object.scale.copy(tempVector)
+        transformComponent.scale.copy(tempVector)
       } else {
-        object.updateMatrixWorld() // Update parent world matrices
+        obj3d.updateMatrixWorld() // Update parent world matrices
 
         tempVector.copy(scale)
 
-        let _spaceMatrix = space === TransformSpace.World ? object.parent.matrixWorld : spaceMatrix
+        let _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : spaceMatrix
 
         tempMatrix.copy(_spaceMatrix).invert()
         tempVector.applyMatrix4(tempMatrix)
@@ -147,12 +139,8 @@ export default class ScaleCommand extends Command {
           tempVector.z === 0 ? Number.EPSILON : tempVector.z
         )
 
-        object.scale.copy(tempVector)
+        transformComponent.scale.copy(tempVector)
       }
-
-      object.updateMatrixWorld(true)
-
-      object.onChange('scale')
     }
   }
 }

@@ -12,7 +12,7 @@ const Logo = (props: Props): any => {
   const [logo, setLogo] = useState(clientSetting?.logo)
 
   useEffect(() => {
-    !clientSetting && ClientSettingService.fetchedClientSettings()
+    !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
 
   useEffect(() => {

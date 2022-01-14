@@ -563,7 +563,9 @@ configuration values, and then letting the deployment process fill in the rest.
 ### Fill in Helm config file with variables
 Template Helm config files for dev and prod deployments can be found at packages/ops/configs/<dev/prod>.template.values.yaml.
 Before filling them in, make a copy elsewhere, call that '<dev/prod>.values.yaml', and edit that copy.
-There's also a <dev/prod>.builder.template.values.yaml template, which should also be filled in.
+Both the builder and main deployments should use the same config file. When the builder seeds the database,
+it needs a number of values that only need to be configured for the other services, so all of the values
+need to be defined in one config file.
 
 There are many fields to fill in, most marked with <>. Not all are necessary for all situations - if you're not
 using social login, for instance, you don't need credentials for Github/Google/Facebook/etc.
@@ -601,11 +603,11 @@ You'll need to replace every <repository_name> with the full ECR_URL of your non
 Each services has to have the proper `-<service>` suffix on it, e.g. `-api`, `-client`, etc.
 
 ### Run Helm install
-Run ```helm install -f </path/to/*.builder.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
+Run ```helm install -f </path/to/*.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
 and the run ```helm install -f </path/to/*.values.yaml> <stage_name> xrengine/xrengine```
 
-This will spin up the main and builder deployments using their respective Helm config files, <dev/prod>.builder.values.yaml and
-<dev/prod>.values.yaml. Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
+This will spin up the main and builder deployments using the Helm config file, <dev/prod>.values.yaml.
+Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
 Actions and builder processes will make those images and update the deployments with the tags of the images they've built
 so that they can pull down and use those images.
 

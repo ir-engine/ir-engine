@@ -3,7 +3,7 @@ import config from '../../appconfig'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
-import path from 'path'
+import path from 'path/posix'
 import {
   BlobStore,
   StorageListObjectInterface,
@@ -14,18 +14,25 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 import { getContentType } from '../../util/fileUtils'
 
 export class LocalStorage implements StorageProviderInterface {
-  path = './upload'
+  STORAGE_DIR = 'server/upload'
+  PATH_PREFIX: string
+
   cacheDomain = config.server.localStorageProvider
-  _store = fsStore(path.join(appRootPath.path, 'packages', 'server', this.path))
+  _store: fsStore
 
   constructor() {
+    this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this.STORAGE_DIR)
+
     // make upload folder if it doesnt already exist
-    if (!fs.existsSync(path.join(appRootPath.path, 'packages/server/upload')))
-      fs.mkdirSync(path.join(appRootPath.path, 'packages/server/upload'))
+    if (!fs.existsSync(this.PATH_PREFIX)) fs.mkdirSync(this.PATH_PREFIX)
+
+    // Add '/' to end to simplify many operations
+    this.PATH_PREFIX += path.sep
+    this._store = fsStore(this.PATH_PREFIX)
   }
 
   getObject = async (key: string): Promise<StorageObjectInterface> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
+    const filePath = path.join(this.PATH_PREFIX, key)
     const result = await fs.promises.readFile(filePath)
     return {
       Body: result,
@@ -39,18 +46,18 @@ export class LocalStorage implements StorageProviderInterface {
     recursive = false,
     continuationToken: string
   ): Promise<StorageListObjectInterface> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, prefix)
+    const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     const globResult = glob.sync(path.join(filePath, '**/*.*'))
     return {
       Contents: globResult.map((result) => {
-        return { Key: result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '') }
+        return { Key: result.replace(path.join(this.PATH_PREFIX), '') }
       })
     }
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, params.Key!)
+    const filePath = path.join(this.PATH_PREFIX, params.Key!)
     const pathWithoutFile = path.dirname(filePath)
     if (filePath.substr(-1) === '/') {
       if (!fs.existsSync(filePath)) {
@@ -72,38 +79,36 @@ export class LocalStorage implements StorageProviderInterface {
 
   checkObjectExistence = (key: string): Promise<any> => {
     return new Promise((resolve, reject) => {
-      const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, key)
+      const filePath = path.join(this.PATH_PREFIX, key)
       const exists = fs.existsSync(filePath)
       if (exists) reject(new Error('Object already exists'))
       else resolve(null)
     })
   }
 
-  getSignedUrl = (key: string, expiresAfter: number, conditions): any => {
+  getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
-      fields: {
-        Key: key
-      },
+      fields: { Key: key },
       url: `https://${this.cacheDomain}`,
       local: true,
       cacheDomain: this.cacheDomain
     }
   }
 
-  deleteResources(keys: string[]): Promise<any> {
+  deleteResources(keys: string[]) {
     //Currently Not able to delete dir
     const blobs = this.getStorage()
 
-    return Promise.all(
+    return Promise.all<boolean>(
       keys.map((key) => {
-        return new Promise((resolve) => {
+        return new Promise<boolean>((resolve) => {
           blobs.exists(key, (err, exists) => {
             if (err) {
               console.error(err)
               resolve(false)
               return
             }
-            if (exists)
+            if (exists) {
               blobs.remove(key, (err) => {
                 if (err) {
                   console.error(err)
@@ -112,48 +117,49 @@ export class LocalStorage implements StorageProviderInterface {
                 }
                 resolve(true)
               })
+            } else {
+              resolve(true)
+            }
           })
         })
       })
     )
   }
 
+  processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
+    const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
+    const signedUrl = this.getSignedUrl(res.key, 3600, null)
+
+    if (isDir) {
+      res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
+      res.type = 'folder'
+      res.url = this.getSignedUrl(res.key, 3600, null).url
+    } else {
+      // const regex = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
+      // const query = regex.exec(res.key)
+
+      res.type = path.extname(res.key).substring(1) // remove '.' from extension
+      res.name = path.basename(res.key, '.' + res.type)
+
+      res.url = signedUrl.url + path.sep + signedUrl.fields.Key
+    }
+
+    return res
+  }
+
   /**
    * @author Abhishek Pathak
-   * @param folderName
+   * @param relativeDirPath
    * @returns
    */
+  listFolderContent = async (relativeDirPath: string): Promise<FileContentType[]> => {
+    const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
 
-  listFolderContent = async (folderName: string): Promise<any> => {
-    const filePath = path.join(appRootPath.path, 'packages', 'server', this.path, folderName)
-    const files = glob.sync(path.join(filePath, '*.*')).map((result) => {
-      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const regexx = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
-      const query = regexx.exec(key)
-      const signedUrl = this.getSignedUrl(key, 3600, null)
-      const url = signedUrl.url + signedUrl.fields.Key
-      const res: FileContentType = {
-        key,
-        name: query!.groups!.name,
-        type: query!.groups!.extension,
-        url
-      }
-      return res
-    })
-    const folder = glob.sync(path.join(filePath, '*/')).map((result) => {
-      const key = result.replace(path.join(appRootPath.path, 'packages', 'server', this.path), '')
-      const name = key.replace(`${folderName}`, '').split('/')[0]
-      const url = this.getSignedUrl(key, 3600, null).url
-      const res: FileContentType = {
-        key,
-        name,
-        type: 'folder',
-        url
-      }
-      return res
-    })
-    files.push(...folder)
-    return files
+    const folder = glob.sync(path.join(absoluteDirPath, '*/')).map((p) => this.processContent(relativeDirPath, p, true))
+    const files = glob.sync(path.join(absoluteDirPath, '*.*')).map((p) => this.processContent(relativeDirPath, p))
+
+    folder.push(...files)
+    return folder
   }
 
   /**
@@ -170,7 +176,7 @@ export class LocalStorage implements StorageProviderInterface {
     isCopy = false,
     renameTo: string = null!
   ): Promise<boolean> => {
-    const contentpath = path.join(appRootPath.path, 'packages', 'server', this.path)
+    const contentpath = path.join(this.PATH_PREFIX)
     let fileName = renameTo != null ? renameTo : path.basename(current)
     let fileCount = 1
     const file = fileName.split('.')

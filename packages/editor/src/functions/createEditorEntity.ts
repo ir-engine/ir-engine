@@ -28,15 +28,16 @@ export const createEditorEntity = (): Entity => {
     snapMode: SnapMode.Grid,
     transformPivot: TransformPivot.Selection,
     transformSpace: TransformSpace.World,
-    selectStartPosition: new Vector2()
+    selectStartPosition: new Vector2(),
+    transformModeOnCancel: TransformMode.Translate
   })
 
   addComponent(entity, InputComponent, {
     mappings: new Map(),
-    activeMapping: null,
-    actionState: null,
-    defaultState: null,
-    resetKeys: null
+    activeMapping: null!,
+    actionState: null!,
+    defaultState: null!,
+    resetKeys: null!
   })
 
   SceneManager.instance.transformGizmo.setTransformMode(TransformMode.Translate)
