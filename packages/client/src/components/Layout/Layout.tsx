@@ -45,7 +45,7 @@ const Layout = (props: Props): any => {
   const [clientSetting] = clientSettingState?.client?.value || []
   const [fullScreenActive, setFullScreenActive] = useState(false)
   const handle = useFullScreenHandle()
-  const [ctitle, setTitle] = useState(clientSetting?.title)
+  const [ctitle, setTitle] = useState<string>(clientSetting?.title || '')
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
@@ -63,7 +63,7 @@ const Layout = (props: Props): any => {
       window.addEventListener('click', initialClickListener)
       window.addEventListener('touchend', initialClickListener)
     }
-    !clientSetting && ClientSettingService.fetchedClientSettings()
+    !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
 
   useEffect(() => {

@@ -24,7 +24,7 @@ import { DefaultInitializationOptions, EngineSystemPresets, InitializeOptions } 
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
-import { createWorld } from './ecs/classes/World'
+import { createWorld, World } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
@@ -32,7 +32,9 @@ import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { applyIncomingActions } from './networking/systems/IncomingNetworkSystem'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -212,6 +214,15 @@ const registerClientSystems = async (options: Required<InitializeOptions>, canva
 const registerEditorSystems = async (options: Required<InitializeOptions>) => {
   registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), { tickRate: 60 })
 
+  registerSystem(
+    SystemUpdateType.FIXED,
+    new Promise((resolve) =>
+      resolve({
+        default: async (world: World) => () => applyIncomingActions(world)
+      })
+    )
+  )
+
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))
 
@@ -253,12 +264,24 @@ const registerServerSystems = async (options: Required<InitializeOptions>) => {
 
 const registerMediaServerSystems = async (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.UPDATE, import('./networking/systems/MediaStreamSystem'))
+  registerSystemWithArgs(SystemUpdateType.UPDATE, import('./ecs/functions/FixedPipelineSystem'), {
+    tickRate: 60
+  })
+  registerSystem(
+    SystemUpdateType.FIXED,
+    new Promise((resolve) =>
+      resolve({
+        default: async (world: World) => () => applyIncomingActions(world)
+      })
+    )
+  )
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   Engine.isLoading = true
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   const sceneWorld = createWorld()
+  registerDefaultSceneFunctions(sceneWorld)
   registerPrefabs(sceneWorld)
 
   Engine.currentWorld = sceneWorld

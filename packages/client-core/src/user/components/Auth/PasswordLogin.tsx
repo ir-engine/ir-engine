@@ -32,23 +32,23 @@ export const PasswordLogin = (props: Props): any => {
 
   const handleInput = (e: any): void => setState({ ...state, [e.target.name]: e.target.value })
 
-  const handleEmailLogin = async (e: any): Promise<void> => {
+  const handleEmailLogin = (e: any): void => {
     e.preventDefault()
 
     if (isAddConnection) {
       const user = auth.user
       const userId = user ? user.id.value : ''
 
-      await AuthService.addConnectionByPassword(
+      AuthService.addConnectionByPassword(
         {
           email: state.email,
           password: state.password
         },
-        userId!
+        userId as string
       )
       dispatch(DialogAction.dialogClose())
     } else {
-      await AuthService.loginUserByPassword({
+      AuthService.loginUserByPassword({
         email: state.email,
         password: state.password
       })

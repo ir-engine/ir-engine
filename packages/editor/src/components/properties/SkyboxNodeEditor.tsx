@@ -92,7 +92,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
         convertFrom={radiansToHours}
         convertTo={hoursToRadians}
         value={skyboxProps.azimuth}
-        onChange={updateProperty(SkyboxComponent, 'azimuth')}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.azimuth' as any)}
         unit="h"
       />
       <RadianNumericInputGroup
@@ -104,7 +104,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
         mediumStep={0.5}
         largeStep={1}
         value={skyboxProps.inclination}
-        onChange={updateProperty(SkyboxComponent, 'inclination')}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
       />
       <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')}>
         <CompoundNumericInput
@@ -112,7 +112,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={1.189}
           step={0.001}
           value={skyboxProps.luminance}
-          onChange={updateProperty(SkyboxComponent, 'luminance')}
+          onChange={updateProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
         />
       </InputGroup>
       <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')}>
@@ -121,7 +121,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={0.1}
           step={0.001}
           value={skyboxProps.mieCoefficient}
-          onChange={updateProperty(SkyboxComponent, 'mieCoefficient')}
+          onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
         />
       </InputGroup>
       <InputGroup name="Scattering Distance" label={t('editor:properties.skybox.lbl-scatteringDistance')}>
@@ -130,7 +130,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           max={1}
           step={0.001}
           value={skyboxProps.mieDirectionalG}
-          onChange={updateProperty(SkyboxComponent, 'mieDirectionalG')}
+          onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
         />
       </InputGroup>
       <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')}>
@@ -138,7 +138,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           min={1}
           max={20}
           value={skyboxProps.turbidity}
-          onChange={updateProperty(SkyboxComponent, 'turbidity')}
+          onChange={updateProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
         />
       </InputGroup>
       <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')}>
@@ -146,7 +146,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           min={0}
           max={4}
           value={skyboxProps.rayleigh}
-          onChange={updateProperty(SkyboxComponent, 'rayleigh')}
+          onChange={updateProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
         />
       </InputGroup>
     </>
