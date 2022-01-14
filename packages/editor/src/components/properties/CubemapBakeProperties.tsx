@@ -72,7 +72,7 @@ export const CubemapBakeProperties = (props: CubemapBakePropertyEditorProps) => 
   let renderVal = <></>
   const label = props.element.label
   const propertyName = props.element.propertyName
-  const changehandler = updateProperty(CubemapBakeComponent, `options.${propertyName}`)
+  const changehandler = updateProperty(CubemapBakeComponent, `options.${propertyName}` as any)
 
   switch (props.element.type) {
     case BakePropertyTypes.Boolean:
