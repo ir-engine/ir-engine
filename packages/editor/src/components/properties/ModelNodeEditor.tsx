@@ -17,6 +17,10 @@ import { InteractableComponent } from '@xrengine/engine/src/interaction/componen
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import {
+  deserializeInteractable,
+  SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
+} from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -29,7 +33,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const modelComponent = getComponent(props.node.entity, ModelComponent)
   const obj3d = getComponent(props.node.entity, Object3DComponent).value
+
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+
+  // TODO: - Nayan - Fix below
+  if (!interactableComponent)
+    deserializeInteractable(props.node.entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
+
   const loopAnimationComponent = getComponent(props.node.entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
@@ -42,12 +52,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
   })
 
-  const animations = loopAnimationComponent.hasAvatarAnimations
+  const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
-    : obj3d.animations
+    : obj3d.animations ?? []
 
   const animationOptions = [{ label: 'None', value: -1 }]
-  if (animations.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+  if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
@@ -88,19 +98,19 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           options={animationOptions}
-          value={loopAnimationComponent.activeClipIndex}
+          value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations}
+          value={loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
       <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
         <BooleanInput
-          value={(interactableComponent && interactableComponent.interactable) || false}
+          value={interactableComponent.interactable || false}
           onChange={updateProperty(InteractableComponent, 'interactable')}
         />
       </InputGroup>

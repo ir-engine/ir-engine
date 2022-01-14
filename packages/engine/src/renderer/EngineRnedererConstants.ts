@@ -3,7 +3,7 @@ export enum RENDERER_SETTINGS {
   PBR = 'usePBR',
   POST_PROCESSING = 'usePostProcessing',
   USE_SHADOWS = 'shadowQuality',
-  SCALE_FACTOR = 'scaleFactor'
+  QUALITY_LEVEL = 'qualityLevel'
 }
 
 export const databasePrefix = 'graphics-settings-'

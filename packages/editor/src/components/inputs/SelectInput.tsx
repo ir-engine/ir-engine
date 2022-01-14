@@ -64,7 +64,7 @@ const staticStyle = {
 
 interface SelectInputProp {
   value: any
-  options: any
+  options: Array<{ label: string; value: any }>
   onChange?: Function
   placeholder?: string
   disabled?: boolean
