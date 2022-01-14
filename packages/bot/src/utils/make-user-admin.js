@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 const Sequelize = require('sequelize');
-const { scopeTypeSeed } = require('../../../../packages/server-core/src/scope/scope-type/scope-type.seed')
+const { scopeTypeSeed } = require('@xrengine/server-core/src/scope/scope-type/scope-type.seed')
 
 dotenv.config();
 const db = {
