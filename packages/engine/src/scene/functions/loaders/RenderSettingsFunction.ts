@@ -21,13 +21,17 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<RenderSettingComponentType>
 ) => {
-  if (!isClient) return
+  const LODs = new Vector3()
+  if (json.props.LODs) {
+    LODs.set(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z)
+  }
   addComponent(entity, RenderSettingComponent, {
     ...json.props,
-    LODs: new Vector3(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z),
-    csm: json.props.csm
+    LODs,
+    csm: !!json.props.csm
   })
 
+  Engine.isCSMEnabled = !!json.props.csm
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity)
@@ -38,13 +42,14 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   const component = getComponent(entity, RenderSettingComponent)
 
   if (component.LODs)
-    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.y }
+    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
   if (!component.overrideRendererSettings) {
     resetEngineRenderer()
     return
   }
 
+  Engine.isCSMEnabled = component.csm
   Engine.renderer.toneMapping = component.toneMapping
   Engine.renderer.toneMappingExposure = component.toneMappingExposure
 
