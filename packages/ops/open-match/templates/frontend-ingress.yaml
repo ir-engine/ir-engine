@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   namespace: open-match
   name: open-match-frontend
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
   rules:
     - host: {{ .Values.frontend.host | quote }}
