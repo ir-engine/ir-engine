@@ -21,6 +21,7 @@ COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/projects/package.json ./packages/projects/
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
+RUN npm run install-test-e2e
 
 # copy then compile the code
 COPY . .
