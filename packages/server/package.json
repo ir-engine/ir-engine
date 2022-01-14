@@ -50,7 +50,7 @@
     "@feathersjs/socketio": "5.0.0-pre.10",
     "@feathersjs/transport-commons": "5.0.0-pre.10",
     "@xrengine/server-core": "^0.4.13",
-    "aws-sdk": "2.1057.0",
+    "aws-sdk": "2.1058.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
