@@ -878,8 +878,7 @@ spec:
     app: open-match
     component: frontend
     release: open-match
-  clusterIP: None
-  type: ClusterIP
+  type: NodePort
   ports:
   - name: grpc
     protocol: TCP
