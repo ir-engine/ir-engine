@@ -28,24 +28,18 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 register()
 
 export const createApp = (): Application => {
-  console.log('createApp')
   const emitter = new EventEmitter()
 
-  console.log('emitter', emitter)
   // Don't remove this comment. It's needed to format import lines nicely.
 
   // @ts-ignore
   const app = express(feathers()) as Application
-  console.log('app', app)
   const agonesSDK = new AgonesSDK()
-  console.log('agonesSDK', agonesSDK)
 
   app.set('nextReadyEmitter', emitter)
 
-  console.log('config.gameserver.enabled', config.gameserver.enabled)
   if (config.gameserver.enabled) {
     try {
-      console.log('configuring swagger')
       app.configure(
         swagger({
           docsPath: '/openapi',
@@ -71,15 +65,11 @@ export const createApp = (): Application => {
         })
       )
 
-      console.log('setting paginate', config.server.paginate)
       app.set('paginate', config.server.paginate)
-      console.log('setting authentication', config.authentication)
       app.set('authentication', config.authentication)
 
-      console.log('configuring sequelize')
       app.configure(sequelize)
 
-      console.log('using helmet')
       // Enable security, CORS, compression, favicon and body parsing
       app.use(helmet())
       app.use(
