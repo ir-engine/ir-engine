@@ -51,7 +51,7 @@ export const InstanceService = {
   fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
     const dispatch = useDispatch()
     {
-      const skip = 0
+      const skip = accessInstanceState().skip.value
       const limit = accessInstanceState().limit.value
       const user = accessAuthState().user
       try {
