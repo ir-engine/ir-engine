@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -16,6 +16,7 @@ import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
 
 interface Props {
   fetchAdminState?: any
+  search: any
 }
 
 /**
@@ -26,6 +27,7 @@ interface Props {
  * @author KIMENYI Kevin
  */
 const InstanceTable = (props: Props) => {
+  const { search } = props
   const dispatch = useDispatch()
   const classes = useInstanceStyle()
   const classex = useInstanceStyles()
@@ -45,20 +47,29 @@ const InstanceTable = (props: Props) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
+  const isMounted = useRef(false)
 
   const fetchTick = () => {
     setTimeout(() => {
+      if (!isMounted.current) return
       setRefetch(true)
       fetchTick()
     }, 5000)
   }
 
   useEffect(() => {
+    isMounted.current = true
     fetchTick()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   React.useEffect(() => {
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) InstanceService.fetchAdminInstances()
+    if (!isMounted.current) return
+    if ((user.id.value && adminInstances.updateNeeded.value) || refetch === true) {
+      InstanceService.fetchAdminInstances('increment', search)
+    }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
 

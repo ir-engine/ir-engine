@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  analytics:
+    image: ${LABEL}-analytics
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/analytics/Dockerfile-analytics
+  api:
+    image: ${LABEL}-api
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/api/Dockerfile-api
+  client:
+    image: ${LABEL}-client
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/client/Dockerfile-client
+      args:
+        MYSQL_HOST: $MYSQL_HOST
+        MYSQL_PORT: $MYSQL_PORT
+        MYSQL_PASSWORD: $MYSQL_PASSWORD
+        MYSQL_DATABASE: $MYSQL_DATABASE
+        MYSQL_USER: $MYSQL_USER
+  gameserver:
+    image: ${LABEL}-gameserver
+    build:
+      context: ..
+      dockerfile: ./dockerfiles/gameserver/Dockerfile-gameserver

@@ -1,25 +1,26 @@
-import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
-import { initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { initNetwork, loadLocation } from './LocationLoadHelper'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import matches from 'ts-matches'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import {
+  LocationAction,
+  LocationService,
+  useLocationState
+} from '@xrengine/client-core/src/social/services/LocationService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import matches from 'ts-matches'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -40,8 +41,9 @@ const canvasStyle = {
   zIndex: 0,
   width: '100%',
   height: '100%',
-  position: 'absolute',
+  position: 'fixed',
   WebkitUserSelect: 'none',
+  pointerEvents: 'auto',
   userSelect: 'none'
 } as React.CSSProperties
 
@@ -57,11 +59,24 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const projectState = useProjectState()
 
+  /**
+   * Fetch projects so we know what we need to load into the engine
+   */
   useEffect(() => {
-    const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-    if (!Engine.isInitialized)
-      initEngine(engineInitializeOptions).then(() => {
+    initNetwork()
+  }, [])
+
+  /**
+   * Once we know what projects we need, initialise the engine.
+   */
+  useEffect(() => {
+    // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
+    if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
+      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
+      engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
+      initializeEngine(engineInitializeOptions).then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
             .when(NetworkWorldAction.createClient.matches, () => {
@@ -76,47 +91,50 @@ export const LoadEngineWithScene = (props: Props) => {
             })
         })
       })
-
-    addUIEvents()
-  }, [])
+    }
+  }, [projectState.projects.value])
 
   /**
-   * Once we have the scene ID, initialise the engine
+   * Once we have the scene and the engine is loaded, load the location
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value && engineState.isInitialised.value) {
+    if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
       loadLocation(locationState.currentLocation.location.sceneId.value)
     }
-  }, [locationState.currentLocation.location.sceneId.value, engineState.isInitialised.value])
+  }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-    dispatchLocal(EngineActions.setTeleporting(portalComponent))
-    dispatch(LocationAction.fetchingCurrentSocialLocation())
+  const canTeleport = useRef(true)
+  useEffect(() => {
+    if (engineState.isTeleporting.value === null) {
+      canTeleport.current = true
+      return
+    } else {
+      if (!canTeleport.current) return
+      dispatch(LocationAction.fetchingCurrentSocialLocation())
 
-    // TODO: this needs to be implemented on the server too
-    // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-    //   teleportPlayer(
-    //     useWorld().localClientEntity,
-    //     portalComponent.remoteSpawnPosition,
-    //     portalComponent.remoteSpawnRotation
-    //   )
-    //   return
-    // }
+      // TODO: this needs to be implemented on the server too
+      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
+      //   teleportPlayer(
+      //     useWorld().localClientEntity,
+      //     portalComponent.remoteSpawnPosition,
+      //     portalComponent.remoteSpawnRotation
+      //   )
+      //   return
+      // }
 
-    // shut down connection with existing GS
-    console.log('reseting connection for portal teleport')
-    leave(getWorldTransport())
-    InstanceConnectionService.resetInstanceServer()
-
-    await teleportToScene(portalComponent, async () => {
-      history.push('/location/' + portalComponent.location)
-      LocationService.getLocationByName(portalComponent.location)
-    })
-  }
-
-  const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-  }
+      // shut down connection with existing GS
+      console.log('reseting connection for portal teleport')
+      leave(getWorldTransport())
+      InstanceConnectionService.resetInstanceServer()
+      const portalComponent = engineState.isTeleporting.value
+      teleportToScene(portalComponent, async () => {
+        history.push('/location/' + portalComponent.location)
+        LocationService.getLocationByName(portalComponent.location)
+        //canTeleport.current=true
+      })
+      canTeleport.current = false
+    }
+  }, [engineState.isTeleporting.value])
 
   return canvas
 }

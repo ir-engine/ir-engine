@@ -24,18 +24,22 @@ For simplicity, we recommend running a MariaDB server on your local machine outs
 Later instructions will set up minikube so that it can access this server
 
 If you run `docker-compose up` from the top-level `/scripts` directory in the XREngine repo, it will
-start up a MariaDB docker image (as well as a redis server, which is not needed). Once the
-MariaDB Docker image is stopped, you can start it again by running `docker start xrengine_db`. 
+start up multiple MariaDB docker images (as well as a redis server, which is not needed). One, intended
+for local development, runs on port 3306; another, intended for automated testing purposes, runs on 
+port 3305; and the last one, intended for minikube testing, runs on port 3304. Once the
+minikube MariaDB Docker image is stopped, you can start it again by running 
+`docker start xrengine_minikube_db`. 
 
 Alternatively, if you want to just run MariaDB on its own without Docker, that's fine too.
-You'll just have to configure the Helm config file to have the appropriate SQL server configuration.
+You'll just have to configure the Helm config file to have the appropriate SQL server configuration,
+and possibly change the script `./scripts/build_minikube.sh`.
 
 ## Start local file server
 If you're going to have the minikube deployment use a local storage provider, rather than a cloud
 storage provider like AWS S3, you'll need to have the local file server running on your machine
 outside of minikube.
 
-Tun `npm install` (or `yarn install` if `npm install` isn't working right;
+Run `npm install` (or `yarn install` if `npm install` isn't working right;
 you'd need to install yarn in that case) from the root of the XREngine repo. When that's finished,
 go to packages/server and run `npm run serve-local-files`. This will start a local file server
 on port 8642, and will create and serve those files from packages/server/upload.
@@ -103,30 +107,45 @@ and `helm install local-redis redis/redis` to install redis.
 You can run `kubectl get pods -A` to list all of the pods running in minikube. After a minute or so,
 all of these pods should be in the Running state.
 
-## Point Docker to minikube environment and build Docker file
-When minikube is running, run the following command
-`eval $(minikube docker-env)`
+## Build .env.production file locally
+vite, the package that is used to build the front-end client, can only pass environment variables in the form
+`VITE_*` to the files it builds, and in a production build, these variables must be passed into the build process.
+In an actual deployment, the builder service will generate the file `.env.production` from the environment variables
+that are set on its context. When building for minikube, the builder service is not run, so you need to build
+`.env.production` manually.
+
+In a separate terminal tab, go to `packages/client` and run 
+`VITE_SERVER_HOST=api-local.theoverlay.io VITE_GAMESERVER_HOST=gameserver-local.theoverlay.io npm run buildenv`.
+This will write those two environment variables to `.env.production` at the repo root. If you need to set other
+variables, just define them alongside the existing variables when calling `npm run buildenv`.
+
+## Run build_minikube.sh
+When minikube is running, run the following command from the root of the XREngine repo:
+`./scripts/build_minikube.sh`
 
 This points Docker *in the current terminal* to minikube's Docker environment. Anything that Docker builds
-will be locally accessible to minikube; if you didn't run that command, Docker would build to your machine's
-Docker environment, and minikube would not have access to it.
+will be locally accessible to minikube; if the first main command in the script were not run, Docker would build to your
+machine's Docker environment, and minikube would not have access to it.
 
-If you close that tab, or switch to another one, you have to run this command again. If you try to
-install XREngine and kubernetes complains about not being able to find the `xrengine` image, make
-sure you've build the Docker image to minikube's Docker environment.
+The script also builds the full-repo Docker image using several of build arguments. Vite, which builds
+the client files, uses some information from the MariaDB database created for minikube deployments
+to fill in some variables, and needs database credentials. The script will supply default values
+for all of the MYSQL_* variables if they are not provided to the script.
 
-Next, from the root of the XREngine repo, run this: `DOCKER_BUILDKIT=1 docker build -t xrengine .`
 This will build an image of the entire XREngine repo into a single Docker file. When deployed for
 different services, it will only run the parts needed for that service. This may take up to 15 minutes,
 though later builds should take less time as things are cached.
 
 ## Deploy XREngine Helm chart
-Run the following command: `helm install -f </path/to/local.values.yaml> local xrengine/xrengine`.
+Run the following command: `helm install -f </path/to/local.values.yaml> --set api.extraEnv.FORCE_DB_REFRESH=true local xrengine/xrengine`.
 This will use a Helm config file titled 'local.values.yaml' to configure the deployment. There is
 a [template](../packages/ops/configs/local.template.values.yaml) for this file in packages/ops/configs
 
 After a minute or so, running `kubectl get pods` should show one or more gameservers, one or more api
-servers, and one client server in the Running state.
+servers, and one client server in the Running state. Setting `FORCE_DB_REFRESH=true` made the api servers
+(re)initialize the database. Since you don't want that to happen every time a new api pod starts, run
+`helm upgrade --reuse-values --set api.extraEnv.FORCE_DB_REFRESH=false local xrengine/xrengine`.
+The API pods will restart and will now not attempt to reinit the database on boot.
 
 ## Accept invalid certs
 Since there are no valid certificates for this domain, you'll have to tell your browser to ignore the

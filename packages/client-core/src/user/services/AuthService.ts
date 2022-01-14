@@ -12,7 +12,7 @@ import querystring from 'querystring'
 import { store, useDispatch } from '../../store'
 import { v1 } from 'uuid'
 import { client } from '../../feathers'
-import { validateEmail, validatePhoneNumber, Config } from '@xrengine/common/src/config'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
@@ -32,7 +32,7 @@ import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInte
 import { userPatched } from '../functions/userPatched'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { SocketWebRTCClientTransport } from 'src/transports/SocketWebRTCClientTransport'
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 
 type AuthStrategies = {
   jwt: Boolean
@@ -142,7 +142,15 @@ accessAuthState().attach(() => ({
     onSet(arg) {
       const state = accessAuthState().attach(Downgraded).value
       const dispatch = useDispatch()
-      if (state.isLoggedIn) dispatch(StoredLocalAction.storedLocal({ authData: state }))
+      if (state.isLoggedIn)
+        dispatch(
+          StoredLocalAction.storedLocal({
+            authData: {
+              authUser: state.authUser,
+              identityProvider: state.identityProvider
+            }
+          })
+        )
     }
   })
 }))
@@ -323,6 +331,12 @@ export const AuthService = {
   },
   loginUserByOAuth: async (service: string) => {
     const dispatch = useDispatch()
+    const serverHost =
+      process.env.APP_ENV === 'development'
+        ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${
+            (globalThis as any).process.env['VITE_SERVER_PORT']
+          }`
+        : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
     {
       dispatch(AuthAction.actionProcessing(true))
       const token = accessAuthState().authUser.accessToken.value
@@ -333,11 +347,9 @@ export const AuthService = {
       } as any
       if (queryString.instanceId && queryString.instanceId.length > 0)
         redirectObject.instanceId = queryString.instanceId
-      let redirectUrl = `${
-        Config.publicRuntimeConfig.apiServer
-      }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
-
-      window.location.href = redirectUrl
+      window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
+        redirectObject
+      )}`
     }
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
@@ -624,7 +636,10 @@ export const AuthService = {
   addConnectionByOauth: async (oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter', userId: string) => {
     const dispatch = useDispatch()
     {
-      window.open(`${Config.publicRuntimeConfig.apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
+      window.open(
+        `https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`,
+        '_blank'
+      )
     }
   },
   removeConnection: async (identityProviderId: number, userId: string) => {
@@ -657,7 +672,7 @@ export const AuthService = {
     {
       const token = accessAuthState().authUser.accessToken.value
       const selfUser = accessAuthState().user
-      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/upload`, data, {
+      const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: 'Bearer ' + token
@@ -806,7 +821,7 @@ const parseUserWalletCredentials = (wallet) => {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
   client.service('location-ban').on('created', async (params) => {
     const selfUser = accessAuthState().user
@@ -953,7 +968,6 @@ export const AuthAction = {
     }
   },
   avatarUpdated: (result: any) => {
-    debugger
     const url = result.url
     return {
       type: 'AVATAR_UPDATED' as const,

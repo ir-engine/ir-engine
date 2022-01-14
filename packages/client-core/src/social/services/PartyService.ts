@@ -2,7 +2,6 @@
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -12,7 +11,7 @@ import { accessInstanceConnectionState } from '../../common/services/InstanceCon
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import _ from 'lodash'
 
 //State
@@ -207,7 +206,7 @@ export const PartyService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('party-user').on('created', async (params) => {
     const selfUser = accessAuthState().user
     if (accessPartyState().party == null) {

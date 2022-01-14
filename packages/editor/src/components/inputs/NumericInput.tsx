@@ -1,4 +1,4 @@
-import React, { Component, createRef } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { getStepSize, toPrecision } from '../../functions/utils'
@@ -94,7 +94,7 @@ interface NumericInputProp {
   displayPrecision?: any
   value?: any
   convertFrom?: any
-  precision?: any
+  precision?: number
   mediumStep?: number
   onChange?: Function
   onCommit?: Function
@@ -109,31 +109,31 @@ interface NumericInputProp {
  * @author Robert Long
  */
 const NumericInput = (props: NumericInputProp) => {
-  const [tempValue, setTempValue] = useState(null)
+  const [tempValue, setTempValue] = useState<string | null>(null)
   const [focused, setFocused] = useState(false)
-  const inputEl = useRef(null)
+  const inputEl = useRef<HTMLInputElement>(null)
 
   const handleStep = (event, direction, focus = true) => {
     const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = props
 
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
-    const nextValue = parseFloat(inputEl?.current?.value ?? 0) + stepSize * direction
-    const clampedValue = clamp(nextValue, min, max)
+    const nextValue = parseFloat(inputEl?.current?.value ?? '0') + stepSize * direction
+    const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
     const roundedValue = precision ? toPrecision(clampedValue, precision) : nextValue
     const finalValue = convertTo(roundedValue)
 
     if (onCommit) {
       onCommit(finalValue)
     } else {
-      onChange(finalValue)
+      onChange?.(finalValue)
     }
 
     setTempValue(
       roundedValue.toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
-        maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
+        maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
       })
     )
     setFocused(focus)
@@ -180,10 +180,10 @@ const NumericInput = (props: NumericInputProp) => {
     const parsedValue = parseFloat(tempValue)
 
     if (!Number.isNaN(parsedValue)) {
-      const clampedValue = clamp(parsedValue, min, max)
+      const clampedValue = min != null && max != null ? clamp(parsedValue, min, max) : parsedValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
-      onChange(finalValue)
+      onChange?.(finalValue)
     }
   }
 
@@ -194,7 +194,7 @@ const NumericInput = (props: NumericInputProp) => {
       convertFrom(value).toLocaleString('fullwide', {
         useGrouping: false,
         minimumFractionDigits: 0,
-        maximumFractionDigits: Math.abs(Math.log10(precision)) + 1
+        maximumFractionDigits: Math.abs(Math.log10(precision || 0)) + 1
       })
     )
     setFocused(true)
@@ -211,7 +211,7 @@ const NumericInput = (props: NumericInputProp) => {
     if (onCommit) {
       onCommit(value)
     } else {
-      onChange(value)
+      onChange?.(value)
     }
   }
 

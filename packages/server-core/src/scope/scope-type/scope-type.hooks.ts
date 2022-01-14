@@ -6,13 +6,13 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate('jwt'), iff(isProvider('external'), restrictUserRole('admin') as any)],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    patch: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    remove: [iff(isProvider('external'), restrictUserRole('admin') as any)]
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   },
 
   after: {

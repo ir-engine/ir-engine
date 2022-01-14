@@ -64,7 +64,7 @@ const staticStyle = {
 
 interface SelectInputProp {
   value: any
-  options: any
+  options: Array<{ label: string; value: any }>
   onChange?: Function
   placeholder?: string
   disabled?: boolean
@@ -135,7 +135,7 @@ export function SelectInput({
       placeholder={placeholder}
       options={options}
       menuPlacement="auto"
-      onChange={(option) => onChange(option && option.value, option)}
+      onChange={(option) => onChange?.(option && option.value, option)}
       isDisabled={disabled}
     />
   )

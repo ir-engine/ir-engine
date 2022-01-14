@@ -2,7 +2,6 @@
 // https://www.youtube.com/watch?v=OMmXo3Jejxk&list=PLMinhigDWz6emRKVkVIEAaePW7vtIkaIF&index=135
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
 
-// @ts-nocheck
 import { IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { Object3D, Quaternion, Vector3, Matrix4 } from 'three'
 import {
@@ -48,9 +47,6 @@ export function cosSSS(aLen: number, bLen: number, cLen: number): number {
  * @param rig
  */
 export function setupMixamoIKRig(rig: IKRigComponentType): void {
-  rig.points = {}
-  rig.chains = {}
-
   addPoint(rig, 'hip', 'Hips')
   addPoint(rig, 'head', 'Head')
   addPoint(rig, 'neck', 'Neck')
@@ -78,8 +74,6 @@ export function setupMixamoIKRig(rig: IKRigComponentType): void {
  * @param rig
  */
 export function setupTRexIKRig(rig: IKRigComponentType): void {
-  rig.points = {}
-  rig.chains = {}
   // TODO:Fix
 
   addPoint(rig, 'hip', 'hip')
@@ -179,7 +173,7 @@ export function computeHip(rig: IKRigComponentType, ikPose: IKPoseComponentType)
   // default direction of the hip, we want to say all hips bones point
   // at the FORWARD axis and the tail of the bone points UP.
 
-  const quatInverse = bindBoneInfo.world.invQuaternion
+  const quatInverse = (bindBoneInfo.world as any).invQuaternion
   const altForward = tempVec1.copy(FORWARD).applyQuaternion(quatInverse)
   const altUp = tempVec2.copy(UP).applyQuaternion(quatInverse)
   const poseForward = tempVec3.copy(altForward).applyQuaternion(poseBoneInfo.world.quaternion)
@@ -268,7 +262,7 @@ export function computeLookTwist(
   // But there are times we need the directions to be different depending
   // on how we view the bone in certain situations.
 
-  const invQuat = bind.world.invQuaternion
+  const invQuat = (bind.world as any).invQuaternion
   const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(invQuat),
     altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(invQuat)
 
@@ -307,7 +301,7 @@ export function computeSpine(
     // Create Quat Inverse Direction
     // Transform the Inv Dir by the Animated Pose to get their direction
 
-    const quatInverse = bindBone.world.invQuaternion
+    const quatInverse = (bindBone.world as any).invQuaternion
     lookDir.copy(lookDirection).applyQuaternion(quatInverse).applyQuaternion(poseBone.world.quaternion)
     twistDir.copy(twistDirection).applyQuaternion(quatInverse).applyQuaternion(poseBone.world.quaternion)
 
@@ -442,7 +436,7 @@ export function applyLimb(
   //bindBone.parent.matrixWorld.decompose(parentTransform.position, parentTransform.quaternion, parentTransform.scale)
   //bindBone.matrixWorld.decompose(childTransform.position, childTransform.quaternion, childTransform.scale)
 
-  rig.pose.get_parent_world(chain.first(), parentTransform, childTransform)
+  rig.pose.getParentWorld(chain.first(), parentTransform, childTransform)
 
   // How much of the Chain length to use to calc End Effector
   // let len = (rig.leg_len_lmt || chain.len) * limb.len_scale
@@ -526,7 +520,7 @@ export function applyLookTwist(
   // Next we need to get the Foot's Quaternion Inverse Direction
   // Which matches up with the same Directions used to calculate the IK
   // information.
-  const bindInverseRot = bindBone.world.invQuaternion
+  const bindInverseRot = (bindBone.world as any).invQuaternion
 
   const altLookDirection = tempVec1.copy(lookDirection).applyQuaternion(bindInverseRot),
     altTwistDirection = tempVec2.copy(twistDirection).applyQuaternion(bindInverseRot)
@@ -645,7 +639,7 @@ export function applySpine(
     ikPose.spineChildQuaternion.copy(ikPose.spineParentQuaternion).multiply(boneBind.local.quaternion)
 
     // Compute our Quat Inverse Direction, using the Defined Look&Twist Direction
-    const invQuat = boneBind.world.invQuaternion
+    const invQuat = (boneBind.world as any).invQuaternion
     const altLook = tempVec3.copy(lookDirection).applyQuaternion(invQuat)
     const altTwist = tempVec4.copy(twistDirection).applyQuaternion(invQuat)
 
@@ -699,8 +693,12 @@ export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
   const aEnd = boneNames.length - 1 // End Index
 
   for (let i = 0; i <= aEnd; i++) {
-    let bone: Object3D = pose.skeleton.bones.find((bone) => (bone.name = boneNames[i])) // Bone Reference
+    let bone = pose.skeleton.bones.find((bone) => (bone.name = boneNames[i])) // Bone Reference
 
+    if (!bone) {
+      console.warn('Could not find skeleton bone', boneNames[i], pose)
+      continue
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Up direction is where we need the bone to point to.
     // We then get the bone's current forward direction, use it
@@ -710,10 +708,10 @@ export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
     const childWorldQ = tempQuat1
     bone.getWorldQuaternion(childWorldQ)
 
+    const upDir = tempVec3.copy(dir)
     const forwardDir = tempVec1.copy(FORWARD).applyQuaternion(childWorldQ) // Find Bone's Forward World Direction
     const leftDir = tempVec2.crossVectors(upDir, forwardDir).normalize() // Get World Left
     forwardDir.crossVectors(leftDir, upDir).normalize() // Realign Forward
-    const upDir = tempVec3.copy(dir)
 
     const finalRotation = tempQuat2
     tempMat.makeBasis(leftDir, upDir, forwardDir)
@@ -751,10 +749,16 @@ export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
       const parentWorldP = tempVec2
       bone.getWorldPosition(parentWorldP)
 
-      bone = pose.bones.find((bone) => (bone.name = boneNames[i + 1])).bone as Object3D // Bone Reference
-      bone.position.copy(parentWorldP)
-      bone.quaternion.copy(parentWorldQ)
-      bone.scale.copy(parentWorldS)
+      const boneLocal = pose.bones.find((bone) => (bone.name = boneNames[i + 1]))?.bone // Bone Reference
+
+      if (!boneLocal) {
+        console.warn('Could not find pose bone', boneNames[i + 1], pose)
+        continue
+      }
+
+      boneLocal.position.copy(parentWorldP)
+      boneLocal.quaternion.copy(parentWorldQ)
+      boneLocal.scale.copy(parentWorldS)
     }
   }
   pose.skeleton.update()
@@ -799,21 +803,27 @@ export function negateQuat(q: Quaternion): Quaternion {
   return q
 }
 
-export function spinBoneForward(pose: Pose, foot: string) {
+export function spinBoneForward(pose: Pose, boneName: string) {
   // TODO: check if this function is used
   console.warn('spin_bone_forward is not tested')
   const v = tempVec1,
     q = tempQuat1,
-    boneState = pose.getBone(foot)
+    boneState = pose.getBone(boneName)
+
+  if (!boneState) {
+    console.warn('Could not find pose bone', boneName, pose)
+    return
+  }
+
   const b = boneState.bone
 
-  const parentWorldQuaternion = tempQuat2
-  b.parent.getWorldQuaternion(parentWorldQuaternion)
+  const parentWorldQuaternion = tempQuat2.identity()
+  b.parent?.getWorldQuaternion(parentWorldQuaternion)
 
   b.position.copy(v).add(tempVec2.set(0, boneState.length, 0))
 
-  v.multiply(scl)
-  v.applyQuaternion(rot)
+  //v.multiply(scl) ??
+  v.applyQuaternion(parentWorldQuaternion)
 
   // v.sub( b.position );							// Get The direction to the tail
   v.x = 0 // Flatten vector to 2D by removing Y Position
@@ -843,16 +853,22 @@ export function pmulAxisAngle(out, axis, angle) {
   out.w = aw * bw - ax * bx - ay * by - az * bz
 }
 
-export function alignBoneForward(pose: Pose, b_name: string) {
+export function alignBoneForward(pose: Pose, boneName: string) {
   // TODO: check if this function is used
   console.warn('spin_bone_forward is not tested')
   const v = tempVec1,
     q = tempQuat1,
-    boneState = pose.getBone(b_name)
+    boneState = pose.getBone(boneName)
+
+  if (!boneState) {
+    console.warn('Could not find pose bone', boneName, pose)
+    return
+  }
+
   const b = boneState.bone
 
-  const parentWorldQuaternion = tempQuat2
-  b.parent.getWorldQuaternion(parentWorldQuaternion)
+  const parentWorldQuaternion = tempQuat2.identity()
+  b.parent?.getWorldQuaternion(parentWorldQuaternion)
 
   fromQuat(v, b.quaternion, UP) // Get Bone's WS UP Direction
 

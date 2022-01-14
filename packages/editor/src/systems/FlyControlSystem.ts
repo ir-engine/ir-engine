@@ -36,8 +36,8 @@ export default async function FlyControlSystem(world: World): Promise<System> {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
 
       if (getInput(EditorActionSet.disableFlyMode)) {
-        const cameraComponent = getComponent(SceneManager.instance.cameraEntity, EditorCameraComponent)
-        const cameraObject = getComponent(SceneManager.instance.cameraEntity, Object3DComponent)
+        const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
+        const cameraObject = getComponent(Engine.activeCameraEntity, Object3DComponent)
 
         flyControlComponent.enable = false
         removeInputActionMapping(ActionSets.FLY)

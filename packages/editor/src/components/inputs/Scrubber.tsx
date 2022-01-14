@@ -1,4 +1,4 @@
-import React, { useRef, ReactNode, useCallback } from 'react'
+import React, { useRef, ReactNode } from 'react'
 import Portal from '../layout/Portal'
 import { getStepSize, toPrecision } from '../../functions/utils'
 import styled from 'styled-components'
@@ -62,13 +62,13 @@ type ScrubberProp = {
 const Scrubber = (props: ScrubberProp) => {
   const state = useHookstate({
     isDragging: false,
-    startValue: null,
-    delta: null,
+    startValue: null as number | null,
+    delta: null as number | null,
     mouseX: null,
     mouseY: null
   })
 
-  const scrubberEl = useRef(null)
+  const scrubberEl = useRef<HTMLElement>(null)
 
   const handleMouseMove = (event) => {
     const { smallStep, mediumStep, largeStep, sensitivity, min, max, precision, convertTo, onChange } = props
@@ -78,8 +78,8 @@ const Scrubber = (props: ScrubberProp) => {
       const mY = state.mouseY.value + event.movementY
       const nextDelta = state.delta.value + event.movementX
       const stepSize = getStepSize(event, smallStep, mediumStep, largeStep)
-      const nextValue = state.startValue.value + Math.round(nextDelta / sensitivity) * stepSize
-      const clampedValue = clamp(nextValue, min, max)
+      const nextValue = (state.startValue.value as number) + Math.round(nextDelta / (sensitivity || 1)) * stepSize
+      const clampedValue = min != null && max != null ? clamp(nextValue, min, max) : nextValue
       const roundedValue = precision ? toPrecision(clampedValue, precision) : clampedValue
       const finalValue = convertTo(roundedValue)
       onChange(finalValue)

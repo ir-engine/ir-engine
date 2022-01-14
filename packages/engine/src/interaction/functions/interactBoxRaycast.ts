@@ -2,7 +2,6 @@ import { Box3, Frustum, Matrix4, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
@@ -85,7 +84,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   )[0]
 
   const interactable = getComponent(entityInteractable, InteractableComponent)
-  const distance = interactable.data?.interactionDistance ?? interactiveReachDistance
+  const distance = interactable?.interactionDistance ?? interactiveReachDistance
 
   const resultIsCloseEnough = distanceToPlayer! < distance
   if (resultIsCloseEnough) {

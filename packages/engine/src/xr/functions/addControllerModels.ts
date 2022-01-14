@@ -2,10 +2,6 @@ import {
   AdditiveBlending,
   BoxGeometry,
   BufferAttribute,
-  BufferGeometry,
-  Float32BufferAttribute,
-  Line,
-  LineBasicMaterial,
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
@@ -116,6 +112,18 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   if (gltf?.animations?.length) {
     controller.userData.animations = gltf.animations
   }
+}
+
+export const cleanXRInputs = (entity) => {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
+
+  controllersGrip.forEach((controller) => {
+    if (controller.userData.mesh) {
+      controller.remove(controller.userData.mesh)
+      controller.userData.mesh = null
+    }
+  })
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

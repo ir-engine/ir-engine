@@ -1,6 +1,4 @@
-import { BadRequest } from '@feathersjs/errors'
-import { OpenAPIErrorResponse, OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
-import { getTicket } from '@xrengine/matchmaking/src/functions'
+import { OpenMatchTicket, OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
 async function waitAndGetMatchUser(app, ticketId, userId, timeout) {
   return new Promise<any>((resolve, reject) => {

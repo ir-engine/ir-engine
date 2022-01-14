@@ -6,6 +6,7 @@
 const EVENTS = {
   // TODO: add doc formatting to these
   SCENE_LOADED: 'CORE_SCENE_LOADED' as const, // { }
+  SCENE_LOADING: 'CORE_SCENE_LOADING' as const, // { }
   LOADING_PROGRESS: 'ENGINE_LOADING_PROGRESS' as const,
   SET_TELEPORTING: 'ENGINE_SET_TELEPORTING' as const,
   // INITALIZATION
@@ -21,8 +22,6 @@ const EVENTS = {
   ENABLE_SCENE: 'CORE_ENABLE_SCENE' as const, // { renderer: boolean, physics: boolean }
 
   // MISC
-  WINDOW_FOCUS: 'CORE_WINDOW_FOCUS' as const, //  { focused: boolean }
-  ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA' as const, // TODO: to pipe offscreen entity data to UI
 
   USER_AVATAR_TAPPED: 'USER_AVATAR_TAPPED' as const,
 
@@ -36,7 +35,6 @@ const EVENTS = {
   XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END' as const,
 
   CONNECT: 'NETWORK_CONNECT' as const,
-  CONNECTION_LOST: 'CORE_CONNECTION_LOST' as const,
 
   AVATAR_DEBUG: 'CORE_AVATAR_DEBUG' as const,
   PHYSICS_DEBUG: 'CORE_PHYSICS_DEBUG' as const,

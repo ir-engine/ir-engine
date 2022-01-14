@@ -2,97 +2,78 @@ import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
-import AudioNode from '../../nodes/AudioNode'
-import ImageNode from '../../nodes/ImageNode'
-import ModelNode from '../../nodes/ModelNode'
-import VideoNode from '../../nodes/VideoNode'
-import { NodeManager } from '../../managers/NodeManager'
+import { prefabIcons } from '../../functions/PrefabEditors'
 import FileBrowserGrid from './FileBrowserGrid'
 import { useTranslation } from 'react-i18next'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import useElementResize from 'element-resize-event'
 import { Downgraded } from '@hookstate/core'
 import { FileDataType } from './FileDataType'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 /**
  * @author Abhishek Pathak
  */
-
-export const UploadFileType = {
-  gltf: ModelNode,
-  'gltf-binary': ModelNode,
-  glb: ModelNode,
-  png: ImageNode,
-  jpeg: ImageNode,
-  mp4: VideoNode,
-  mpeg: AudioNode,
-  mp3: AudioNode,
-  'model/gltf-binary': ModelNode,
-  'model/gltf': ModelNode,
-  'model/glb': ModelNode,
-  'image/png': ImageNode,
-  'image/jpeg': ImageNode,
+export const PrefabFileType = {
+  gltf: ScenePrefabs.model,
+  'gltf-binary': ScenePrefabs.model,
+  glb: ScenePrefabs.model,
+  png: ScenePrefabs.image,
+  jpeg: ScenePrefabs.image,
+  mp4: ScenePrefabs.video,
+  mpeg: ScenePrefabs.audio,
+  mp3: ScenePrefabs.audio,
+  'model/gltf-binary': ScenePrefabs.model,
+  'model/gltf': ScenePrefabs.model,
+  'model/glb': ScenePrefabs.model,
+  'image/png': ScenePrefabs.image,
+  'image/jpeg': ScenePrefabs.image,
   'application/pdf': null,
-  'video/mp4': VideoNode,
-  'audio/mpeg': AudioNode,
-  'audio/mp3': AudioNode
+  'video/mp4': ScenePrefabs.video,
+  'audio/mpeg': ScenePrefabs.audio,
+  'audio/mp3': ScenePrefabs.audio
 }
+
+type FileBrowserContentPanelProps = {
+  onSelectionChanged: (AssetSelectionChangePropsType) => void
+}
+
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
  * @author Abhishek Pathak
  * @constructor
  */
-
-export default function FileBrowserContentPanel({ onSelectionChanged }) {
+const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
-  const panelRef = useRef(null)
-  // const [scrollWindowWidth, setScrollWindowWidth] = useState(0)
-  const [scrollWindowHeight, setScrollWindowHeight] = useState(750)
   const [isLoading, setLoading] = useState(true)
   const [selectedDirectory, setSelectedDirectory] = useState('/projects/')
   const fileState = useFileBrowserState()
   const filesValue = fileState.files.attach(Downgraded).value
 
-  useEffect(() => {
-    useElementResize(panelRef.current, () => {
-      // setScrollWindowWidth(panelRef.current.clientWidth)
-      setScrollWindowHeight(panelRef.current.clientHeight)
-    })
-  }, [panelRef.current])
-
-  const onSelect = (props) => {
-    if (props.type !== 'folder') {
-      onSelectionChanged({ resourceUrl: props.description, name: props.label, contentType: props.type })
+  const onSelect = (params: FileDataType) => {
+    if (params.type !== 'folder') {
+      props.onSelectionChanged({ resourceUrl: params.description, name: params.label, contentType: params.type })
     } else {
-      const newPath = `${selectedDirectory}${props.label}/`
-      console.log('New Path for the DIrectory is:' + newPath)
+      const newPath = `${selectedDirectory}${params.label}/`
       setSelectedDirectory(newPath)
     }
   }
 
-  const files = fileState.files.value.map((file): FileDataType => {
-    const nodeClass = UploadFileType[file.type]
-    const nodeEditor = NodeManager.instance.getEditorFromClass(nodeClass)
-    const iconComponent = nodeEditor
-      ? nodeEditor.WrappedComponent
-        ? nodeEditor.WrappedComponent.iconComponent
-        : nodeEditor.iconComponent
-      : InsertDriveFileIcon
-    const url = file.url
+  const files: FileDataType[] = fileState.files.value.map((file) => {
+    const prefabType = PrefabFileType[file.type]
+
     return {
-      description: url,
+      description: file.url,
       id: file.key,
       label: file.name,
-      nodeClass: nodeClass,
-      url: url,
+      nodeClass: prefabType,
+      url: file.url,
       type: file.type,
-      initialProps: { src: new URL(url) },
-      iconComponent
+      initialProps: { src: new URL(file.url) },
+      iconComponent: prefabIcons[prefabType]
     }
   })
 
@@ -126,14 +107,14 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     setSelectedDirectory(newPath)
   }
 
-  const moveContent = async (from, to, isCopy = false, renameTo = null) => {
+  const moveContent = async (from: string, to: string, isCopy = false, renameTo = null! as string): Promise<void> => {
     if (isLoading) return
     setLoading(true)
     await FileBrowserService.moveContent(from, to, isCopy, renameTo)
     onRefreshDirectory()
   }
 
-  const deleteContent = async ({ contentPath, type }) => {
+  const deleteContent = async (contentPath: string, type: string): Promise<void> => {
     if (isLoading) return
     setLoading(true)
     await FileBrowserService.deleteContent(contentPath, type)
@@ -151,7 +132,7 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     onRefreshDirectory()
   }
 
-  let currentContent = null
+  let currentContent = null! as any
   const currentContentRef = useRef(currentContent)
 
   const headGrid = { display: 'grid', gridTemplateColumns: '1fr auto', gridGap: '20px' }
@@ -163,11 +144,10 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
-        <AssetsPanelContainer ref={panelRef} id="file-browser-panel" className={styles.assetsPanel}>
+        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
           <AssetPanelContentContainer>
             <FileBrowserGrid
               items={files}
-              scrollWindowHeight={scrollWindowHeight}
               onSelect={onSelect}
               isLoading={isLoading}
               moveContent={moveContent}
@@ -185,3 +165,5 @@ export default function FileBrowserContentPanel({ onSelectionChanged }) {
     </>
   )
 }
+
+export default FileBrowserContentPanel

@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useState, useRef, useEffect, Children, cloneElement } from 'react'
+import React, { useRef, useEffect, Children, cloneElement } from 'react'
 import styled from 'styled-components'
 
 /**

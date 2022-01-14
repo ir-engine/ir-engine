@@ -1,13 +1,12 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { Config } from '@xrengine/common/src/config'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState, none } from '@hookstate/core'
 import _ from 'lodash'
 
 //State
@@ -194,7 +193,7 @@ export const FriendService = {
     return FriendService.removeFriend(relatedUserId)
   }
 }
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('user-relationship').on('created', (params) => {
     if (params.userRelationship.userRelationshipType === 'friend') {
       store.dispatch(FriendAction.createdFriend(params.userRelationship))
