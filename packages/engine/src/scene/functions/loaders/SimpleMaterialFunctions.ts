@@ -13,11 +13,12 @@ export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 
 export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<{ simpleMaterials: {} }>
+  json: ComponentJson<{ simpleMaterials: boolean }>
 ) => {
   if (!json.props.simpleMaterials) return
 
   addComponent(entity, SimpleMaterialTagComponent, {})
+  Engine.simpleMaterials = json.props.simpleMaterials
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
 }

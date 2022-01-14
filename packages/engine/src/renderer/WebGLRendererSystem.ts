@@ -261,15 +261,15 @@ export class EngineRenderer {
   }
 
   async loadGraphicsSettingsFromStorage() {
-    const [automatic, scaleFactor, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
+    const [automatic, qualityLevel, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as Promise<boolean>,
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as Promise<number>,
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.QUALITY_LEVEL) as Promise<number>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS) as Promise<boolean>,
       // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
     ])
     dispatchLocal(EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchLocal(EngineRendererAction.setQualityLevel(scaleFactor ?? 1))
+    dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
     dispatchLocal(EngineRendererAction.setShadows(useShadows ?? true))
     // dispatchLocal(EngineRendererAction.setPBR(pbr ?? true))
     dispatchLocal(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))

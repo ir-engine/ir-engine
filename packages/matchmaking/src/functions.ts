@@ -9,7 +9,7 @@ import axios from 'axios'
 import fetch from 'node-fetch'
 import AbortController from 'abort-controller'
 
-export const FRONTEND_SERVICE_URL = 'http://localhost:51504/v1/frontendservice'
+export const FRONTEND_SERVICE_URL = process.env.FRONTEND_SERVICE_URL || 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
   baseURL: FRONTEND_SERVICE_URL
 })
