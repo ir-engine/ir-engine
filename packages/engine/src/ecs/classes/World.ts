@@ -40,9 +40,13 @@ export class World {
   private constructor() {
     bitecs.createWorld(this)
     Engine.worlds.push(this)
+
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+    this.networkIdMap = new Map<NetworkId, Entity>()
+
     if (!Engine.currentWorld) Engine.currentWorld = this
+
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -88,6 +92,8 @@ export class World {
 
   outgoingNetworkState: WorldStateInterface
   previousNetworkState: WorldStateInterface
+
+  networkIdMap: Map<NetworkId, Entity>
 
   /**
    * Check if this user is hosting the world.

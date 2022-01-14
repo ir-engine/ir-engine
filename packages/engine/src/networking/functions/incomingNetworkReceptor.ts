@@ -74,6 +74,8 @@ export function incomingNetworkReceptor(action) {
         prefab: a.prefab,
         parameters: a.parameters
       })
+
+      world.networkIdMap.set(a.networkId, entity)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {
