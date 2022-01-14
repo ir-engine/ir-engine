@@ -21,7 +21,7 @@
     "test": "exit 0",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
-  "peerDependencies": {
+  "dependencies": {
     "puppeteer": "^13.0.0"
   },
   "devDependencies": {
