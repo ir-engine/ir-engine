@@ -5,7 +5,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import React from 'react'
 import { withTranslation } from 'react-i18next'
@@ -144,7 +144,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
             this.state.avatarUrl.length
           )
           gltf.scene.name = 'avatar'
-          loadExtentions(gltf)
+          loadExtensions(gltf)
           this.scene.add(gltf.scene)
           this.renderScene()
           const error = this.validate(gltf.scene)
