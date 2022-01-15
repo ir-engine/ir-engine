@@ -53,7 +53,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "pretest": "cross-env TEST=true npm run dev-reinit",
     "test": "cross-env TEST=true lerna run test",
-    "install-test-e2e": "npm i puppeteer@^13.0.0",
+    "install-test-e2e": "npm i puppeteer@^13.0.0 sequelize@6.12.3",
     "test-e2e": "mocha --config .mocharc.js",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
@@ -117,6 +117,7 @@
     "typescript": "4.5.2"
   },
   "dependencies": {
-    "@xrengine/engine": "^0.4.13"
+    "@xrengine/engine": "^0.4.13",
+    "dotenv": "^11.0.0"
   }
 }
