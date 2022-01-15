@@ -18,6 +18,7 @@ const state = createState({
   socketInstance: false,
   connectionTimeoutInstance: false,
   avatarTappedId: null! as string,
+  userHasInteracted: false,
   interactionData: null! as InteractableComponentType
 })
 
@@ -74,6 +75,8 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({
           isTeleporting: action.portalComponent
         })
+      case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
+        return s.merge({ userHasInteracted: true })
     }
   }, action.type)
 }
@@ -223,6 +226,11 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.AVATAR_DEBUG,
       isAvatarDebug
+    }
+  },
+  setUserHasInteracted: () => {
+    return {
+      type: EngineEvents.EVENTS.SET_USER_HAS_INTERACTED
     }
   }
 }

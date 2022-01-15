@@ -30,6 +30,7 @@ import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWe
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
@@ -67,7 +68,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
 
-  const userHasInteracted = useAppState().userHasInteracted
+  const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
   const currentLocation = useLocationState().currentLocation.location
   const enableGlobalMute =
