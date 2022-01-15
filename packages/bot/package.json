@@ -16,7 +16,6 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "validate": "npm run test",
-    "dev": "node -r ts-node/register src/run-bot.ts",
     "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production rollup -c",
     "test": "exit 0",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
