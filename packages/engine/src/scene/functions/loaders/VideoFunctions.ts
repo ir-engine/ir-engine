@@ -27,8 +27,12 @@ import { ImageComponent } from '../../components/ImageComponent'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { resizeImageMesh } from './ImageFunctions'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { MediaComponent } from '../../components/MediaComponent'
 import isHLS from '../isHLS'
 import Hls from 'hls.js'
+import { accessEngineState } from '../../../ecs/classes/EngineService'
+import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
@@ -46,8 +50,11 @@ export const deserializeVideo: ComponentDeserializeFunction = (
     return
   }
 
+  const mediaComponent = getComponent(entity, MediaComponent)
+
   const obj3d = new Object3D()
   const video = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+  video.name = VIDEO_MESH_NAME
 
   obj3d.add(video)
   obj3d.userData.mesh = video
@@ -112,7 +119,17 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         'loadeddata',
         () => {
           obj3d.userData.videoEl.muted = false
-          if (!obj3d.userData.videoEl.autoplay) obj3d.userData.videoEl.pause()
+          console.log(obj3d.userData.videoEl, obj3d.userData.videoEl.autoplay)
+
+          if (obj3d.userData.videoEl.autoplay) {
+            if (accessEngineState().userHasInteracted.value) {
+              obj3d.userData.videoEl.play()
+            } else {
+              receiveActionOnce(EngineEvents.EVENTS.SET_USER_HAS_INTERACTED, () => {
+                obj3d.userData.videoEl.play()
+              })
+            }
+          }
 
           mesh.material.map.image.height = mesh.material.map.image.videoHeight
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
@@ -125,8 +142,6 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         },
         { once: true }
       )
-
-      obj3d.userData.videoEl.play()
     } catch (error) {
       console.error(error)
     }
