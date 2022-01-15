@@ -22,7 +22,6 @@ const Search = (props: Props) => {
       <InputBase
         className={classes.input}
         onChange={handleChange}
-        // value={searchInput}
         placeholder="search..."
         endAdornment={<SearchIcon className={classes.iconButton} />}
       />

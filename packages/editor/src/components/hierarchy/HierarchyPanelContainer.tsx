@@ -66,14 +66,16 @@ export default function HierarchyPanel() {
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
+  let nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const { searchHie } = useContext(AppContext)
 
-  // let res;
-  // if(searchHie.length > 0){
-  //   const condition = new RegExp(searchHie)
-  //   res = nodes.filter((node) => condition.test(node.entityNode.uuid))
-  // }
+  if (searchHie.length > 0) {
+    const condition = new RegExp(searchHie.toLowerCase())
+    nodeSearch = nodes.filter((node) =>
+      condition.test(getComponent(node.entityNode.entity, NameComponent).name.toLowerCase())
+    )
+  }
 
   const updateNodeHierarchy = useCallback(
     (world = useWorld()) => {
@@ -316,8 +318,6 @@ export default function HierarchyPanel() {
     }
   })
 
-  // const renderedItems = res?.length > 0 ? res: nodes
-
   return (
     <>
       <div className={styles.panelContainer}>
@@ -328,10 +328,10 @@ export default function HierarchyPanel() {
                 height={height}
                 width={width}
                 itemSize={32}
-                itemCount={nodes.length}
+                itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
                 itemData={{
                   renamingNode,
-                  nodes,
+                  nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
                   onKeyDown,
                   onChangeName,
                   onRenameSubmit,
