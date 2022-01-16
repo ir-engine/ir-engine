@@ -56,7 +56,7 @@ export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAt
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (equipperComponent) {
     const equippedEntity = equipperComponent.equippedEntity
-    const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+    const equippedComponent = getComponent(equippedEntity, EquippedComponent)
     equippedComponent.attachmentPoint = attachmentPoint
   } else {
     console.warn(`changeHand for equippable called on entity with id ${equipperEntity} without equipperComponent!.`)
