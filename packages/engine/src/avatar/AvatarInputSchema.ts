@@ -42,6 +42,7 @@ import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { EquippedComponent } from '../interaction/components/EquippedComponent'
+import { Engine } from '../ecs/classes/Engine'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -105,8 +106,15 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // TODO: Define interaction types in some enum?
   if (interactiveComponent.interactionType === 'equippable') {
-    const attachmentPoint = getAttachmentPoint(parityValue)
-    equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+    if (
+      !interactiveComponent.validUserId ||
+      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.userId)
+    ) {
+      const attachmentPoint = getAttachmentPoint(parityValue)
+      equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+    } else {
+      console.warn('Invalid user is trying to equip.')
+    }
   } else {
     addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
   }
