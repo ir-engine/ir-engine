@@ -37,11 +37,7 @@ store.receptors.push((action: InstanceActionType): any => {
           lastFetched: Date.now()
         })
       case 'INSTANCE_REMOVED_ROW':
-        let instance = state.instances.value
-        let instanceList = instance
-        instanceList = instanceList.filter((instance) => instance.id !== action.instance.id)
-        instance = instanceList
-        s.merge({ instances: instance })
+        s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -52,7 +48,7 @@ export const useInstanceState = () => useState(state) as any as typeof state
 
 //Service
 export const InstanceService = {
-  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string = '') => {
+  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
     const dispatch = useDispatch()
     {
       const skip = accessInstanceState().skip.value
@@ -65,7 +61,7 @@ export const InstanceService = {
               $sort: {
                 createdAt: -1
               },
-              $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+              $skip: skip,
               $limit: limit,
               action: 'admin',
               search: search
