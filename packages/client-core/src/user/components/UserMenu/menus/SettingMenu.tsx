@@ -86,7 +86,7 @@ const SettingMenu = (props: Props): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
-              label={t('user:usermenu.setting.lbl-pp')}
+              label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
                 dispatchLocal(EngineRendererAction.setPostProcessing(value))
                 dispatchLocal(EngineRendererAction.setAutomatic(false))
@@ -105,7 +105,7 @@ const SettingMenu = (props: Props): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
-              label={t('user:usermenu.setting.lbl-shadow')}
+              label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
                 dispatchLocal(EngineRendererAction.setShadows(value))
                 dispatchLocal(EngineRendererAction.setAutomatic(false))
@@ -116,7 +116,7 @@ const SettingMenu = (props: Props): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.automatic.value} size="small" />}
-              label={t('user:usermenu.setting.lbl-automatic')}
+              label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
                 dispatchLocal(EngineRendererAction.setAutomatic(value))
