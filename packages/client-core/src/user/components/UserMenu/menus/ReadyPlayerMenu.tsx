@@ -7,12 +7,14 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React from 'react'
 import { withTranslation } from 'react-i18next'
 import * as THREE from 'three'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { AuthService } from '../../../services/AuthService'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 interface State {
   selectedFile: any
@@ -31,18 +33,18 @@ interface Props {
 
 export class ReadyPlayerMenu extends React.Component<Props, State> {
   t: any
-  scene = null
-  renderer = null
+  scene: Scene = null!
+  renderer: WebGLRenderer = null!
   maxBB = new THREE.Vector3(2, 2, 2)
-  camera = null
-  controls = null
+  camera: PerspectiveCamera = null!
+  controls: OrbitControls = null!
 
   constructor(props) {
     super(props)
 
     this.state = {
       selectedFile: null,
-      avatarName: null,
+      avatarName: null!,
       avatarUrl: '',
       error: '',
       obj: null
@@ -52,8 +54,8 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const container = document.getElementById('stage')
-    const bounds = container.getBoundingClientRect()
+    const container = document.getElementById('stage')!
+    const bounds = container?.getBoundingClientRect()!
 
     this.camera = new THREE.PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
     this.camera.position.set(0, 1.25, 1.25)
@@ -99,7 +101,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
 
   onWindowResize = () => {
     const container = document.getElementById('stage')
-    const bounds = container.getBoundingClientRect()
+    const bounds = container?.getBoundingClientRect()!
     this.camera.aspect = bounds.width / bounds.height
     this.camera.updateProjectionMatrix()
 
@@ -201,7 +203,7 @@ export class ReadyPlayerMenu extends React.Component<Props, State> {
     ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
 
     const newContext = canvas.getContext('2d')
-    newContext.drawImage(this.renderer.domElement, THUMBNAIL_WIDTH / 2 - THUMBNAIL_WIDTH, 0)
+    newContext?.drawImage(this.renderer.domElement, THUMBNAIL_WIDTH / 2 - THUMBNAIL_WIDTH, 0)
 
     var thumbnailName = this.state.avatarUrl.substring(0, this.state.avatarUrl.lastIndexOf('.')) + '.png'
 

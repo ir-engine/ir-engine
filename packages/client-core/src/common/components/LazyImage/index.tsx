@@ -8,7 +8,7 @@ const placeHolder =
 
 export const LazyImage = ({ src, alt }) => {
   const [imageSrc, setImageSrc] = useState(placeHolder)
-  const [imageRef, setImageRef] = useState<HTMLImageElement>(null)
+  const [imageRef, setImageRef] = useState<HTMLImageElement>(null!)
   const [isLoadedImage, setIsLoadedImage] = useState(true)
 
   const onLoad = (event) => {
@@ -57,6 +57,7 @@ export const LazyImage = ({ src, alt }) => {
     <CardMedia
       component="img"
       alt={alt}
+      //@ts-ignore
       ref={setImageRef}
       height="145"
       onLoad={onLoad}
