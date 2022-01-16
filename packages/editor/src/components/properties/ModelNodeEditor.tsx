@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import ModelInput from '../inputs/ModelInput'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import { EditorComponentType, updateProperty } from './Util'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -19,8 +19,10 @@ import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
   deserializeInteractable,
+  SCENE_COMPONENT_INTERACTABLE,
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -30,16 +32,23 @@ import {
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [isInteractable, setInteractable] = useState(false)
 
   const modelComponent = getComponent(props.node.entity, ModelComponent)
   const obj3d = getComponent(props.node.entity, Object3DComponent).value
 
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
 
-  // TODO: - Nayan - Fix below
-  if (!interactableComponent)
-    deserializeInteractable(props.node.entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
-
+  const onChangeInteractable = (interact) => {
+    setInteractable(interact)
+    if (interact) {
+      deserializeInteractable(props.node.entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
+    } else {
+      const editorComponent = getComponent(props.node.entity, EntityNodeComponent).components
+      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_INTERACTABLE), 1)
+      removeComponent(props.node.entity, InteractableComponent)
+    }
+  }
   const loopAnimationComponent = getComponent(props.node.entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
@@ -109,14 +118,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput
-          value={interactableComponent.interactable || false}
-          onChange={updateProperty(InteractableComponent, 'interactable')}
-        />
+        <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
-      {interactableComponent && interactableComponent.interactable && (
-        <InteractableGroup node={props.node}></InteractableGroup>
-      )}
+      {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

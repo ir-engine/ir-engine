@@ -1,9 +1,8 @@
-import React, { Fragment, Suspense, useEffect } from 'react'
-import { Switch, Redirect } from 'react-router-dom'
-import PrivateRoute from '../Private'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useAuthState } from '../user/services/AuthService'
-import { AuthService } from '../user/services/AuthService'
+import React, { Fragment, Suspense, useEffect } from 'react'
+import { Redirect, Switch } from 'react-router-dom'
+import PrivateRoute from '../Private'
+import { AuthService, useAuthState } from '../user/services/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
@@ -56,7 +55,7 @@ const ProtectedRoutes = (props: Props) => {
   })
 
   if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to="/login" />
+    return <Redirect to={{ pathname: '/login', state: { from: '/admin' } }} />
   }
 
   return (

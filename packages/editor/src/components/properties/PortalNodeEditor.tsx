@@ -35,7 +35,7 @@ const euler = new Euler()
  * @type {class component}
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
-  const [portals, setPortals] = useState<Array<{ value: string; name: string }>>([])
+  const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
 
@@ -58,7 +58,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       portalsDetail
         .filter((portal) => portal.portalEntityId !== props.node.uuid)
         .map(({ portalEntityId, sceneName }) => {
-          return { value: portalEntityId, name: sceneName }
+          return { value: portalEntityId, label: sceneName }
         })
     )
   }

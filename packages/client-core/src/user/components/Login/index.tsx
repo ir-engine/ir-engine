@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import CardMedia from '@mui/material/CardMedia'
-import GoogleIcon from '@mui/icons-material/Google'
-import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
-import Fab from '@mui/material/Fab'
-import styles from './Login.module.scss'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
+import GoogleIcon from '@mui/icons-material/Google'
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Fab from '@mui/material/Fab'
+import Typography from '@mui/material/Typography'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import styles from './Login.module.scss'
 
 const initialState = {
   jwt: true,
@@ -40,6 +40,7 @@ const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
 
   const { t } = useTranslation()
+  const location: any = useLocation()
 
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
@@ -73,12 +74,12 @@ const FlatSignIn = (props: Props) => {
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('google')
+    AuthService.loginUserByOAuth('google', location)
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('facebook')
+    AuthService.loginUserByOAuth('facebook', location)
   }
 
   const handleResetPassword = (token: string, password: string): any => {

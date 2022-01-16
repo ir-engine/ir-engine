@@ -58,7 +58,9 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   addComponent(entity, SpotLightComponent, {
     ...json.props,
     color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution as any)
+    shadowMapResolution: new Vector2().fromArray(
+      (json.props.shadowMapResolution as any) || SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.shadowMapResolution
+    )
   })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)

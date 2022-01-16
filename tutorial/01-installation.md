@@ -9,7 +9,9 @@ Getting up and running requires just a few steps, but this can be tricky, depend
 
 You **must** have Node 16 or above installed.
 
-NVM can be a useful tool for this https://github.com/nvm-sh/nvm
+A version manager can be helpful for this:
+ - NodeJS only: [NVM](https://github.com/nvm-sh/nvm)
+ - Polyglot: [ASDF](https://github.com/asdf-vm/asdf)
 
 Before running the engine, please check `node --version`
 If you are using a node version below 16, please update or nothing will work. You will know you are having issues if you try to install at root and are getting dependency errors.
@@ -209,7 +211,7 @@ The default username is 'server', the default password is 'password', the defaul
    At this point, the database has been seeded.
 
 ### 5. Local file server configuration
-   If the .env.local file y ou have has the line 
+   If the .env.local file you have has the line 
    ```STORAGE_PROVIDER=local```
    then the scene editor will save components, models, scenes, etc. locally 
    (as opposed to storing them on S3). You will need to start a local server
@@ -221,7 +223,7 @@ The default username is 'server', the default password is 'password', the defaul
    You may have to accept the invalid self-signed certificate for it in the browser;
    see 'Allow local file http-server connection with invalid certificate' below.
 
-### 6. Open two/three separate tabs and start the API server, gameserverand client
+### 6. Open two/three separate tabs and start the API server, gameserver and client
    In /packages/server, run ```npm run dev``` which will launch the api server, game server and file server.
    If you are not using gameservers, you can instead run ```npm run dev-api-server``` in the api server.
    In the final tab, go to /packages/client and run ```npm run dev```.
@@ -240,7 +242,7 @@ How to make a user an admin:
 Create a user at `/login`
 
 To locate your User ID:
-In Chrome Dev Tools, write `UserId`. This will display your User ID (As shown in attached screenshot). Copy this user Id as string run it as following command in shell:
+In Chrome Dev Tools console, write `copy(userId)`. This will copy your User ID (As shown in attached screenshot). Paste it in and run the following command in a 'nix shell (e.g. Bash, ZSH):
 
 `npm run make-user-admin -- --id={COPIED_USER_ID}`
 
@@ -249,13 +251,9 @@ Example:
 
 ![image](https://user-images.githubusercontent.com/43248658/142813912-35f450e1-f012-4bdf-adfa-f0fa2816160f.png)
 
-
-Method 1: 
-
-1. Run `npm run make-user-admin -- --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
-Method 2: 
+Alternate Method: 
 1. Look up in User table and change userRole to 'admin' 
 2. Dev DB credentials can be found here: packages/ops/docker-compose-local.yml#L42
 3. Suggested: beekeeperstudio.io
