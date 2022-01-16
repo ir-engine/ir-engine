@@ -146,7 +146,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
 export const overrideTexture = (entity: Entity, object3d?: Object3D, world = useWorld()): void => {
   const state = accessEngineState()
 
-  if (state.sceneLoaded) {
+  if (state.sceneLoaded.value) {
     const modelComponent = getComponent(entity, ModelComponent)
     const node = world.entityTree.findNodeFromUUID(modelComponent.textureOverride)
 

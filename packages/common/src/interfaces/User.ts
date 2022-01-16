@@ -1,6 +1,7 @@
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
+import { Party } from './Party'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
 
@@ -13,6 +14,7 @@ export interface UserSetting {
 
 export interface UserScope {
   type: string
+  id: string
 }
 
 export interface User {
@@ -31,6 +33,7 @@ export interface User {
   locationBans?: LocationBan[]
   user_setting?: UserSetting
   inviteCode?: string
+  party?: Party
   scopes?: UserScope[]
 }
 

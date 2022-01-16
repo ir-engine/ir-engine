@@ -47,9 +47,14 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
     light.userData.cameraHelper = cameraHelper
   }
 
-  addComponent(entity, Object3DComponent, { value: light })
+  if (Engine.isCSMEnabled) {
+    Engine.directionalLights.push(light)
+  } else {
+    addComponent(entity, Object3DComponent, { value: light })
+  }
   addComponent(entity, DirectionalLightComponent, {
     ...json.props,
+    light,
     color: new Color(json.props.color),
     shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution as any)
   })
@@ -61,7 +66,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
 
 export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, DirectionalLightComponent)
-  const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
+  const light = component.light
 
   light.color.set(component.color)
   light.intensity = component.intensity

@@ -15,11 +15,11 @@ import { useSceneStyles, useSceneStyle } from './styles'
 import { sceneColumns, SceneData } from './variables'
 import TablePagination from '@mui/material/TablePagination'
 import { SceneService } from '../../services/SceneService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useSceneState } from '../../services/SceneService'
 import ViewScene from './ViewScene'
 import { SCENE_PAGE_LIMIT } from '../../services/SceneService'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 interface Props {}
 
@@ -32,13 +32,12 @@ const SceneTable = (props: Props) => {
   const scene = useSceneState()
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
-  const [singleScene, setSingleScene] = React.useState(null)
+  const [singleScene, setSingleScene] = React.useState<SceneDetailInterface>(null!)
   const [open, setOpen] = React.useState(false)
   const [showWarning, setShowWarning] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
-  const dispatch = useDispatch()
 
   React.useEffect(() => {
     if (user.id.value && scene.updateNeeded.value) {
@@ -84,9 +83,9 @@ const SceneTable = (props: Props) => {
 
   const createData = (
     id: string,
-    name: string,
-    type: string,
-    description: string,
+    name: string | JSX.Element,
+    type: string | JSX.Element,
+    description: string | JSX.Element,
     entity: any,
     version: any
   ): SceneData => {
@@ -115,7 +114,7 @@ const SceneTable = (props: Props) => {
 
   const rows = sceneData?.value.map((el) => {
     return createData(
-      el.id,
+      el.id!,
       el.name || <span className={classes.spanNone}>None</span>,
       el.type || <span className={classes.spanNone}>None</span>,
       el.description || <span className={classes.spanNone}>None</span>,

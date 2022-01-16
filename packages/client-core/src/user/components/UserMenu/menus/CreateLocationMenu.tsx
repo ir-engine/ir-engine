@@ -24,7 +24,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
   const dispatch = useDispatch()
   const [scenes, setScenes] = useState<{ sid: string; name: string }[]>([])
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [locationTypes, setLocationTypes] = useState([])
+  const [locationTypes, setLocationTypes] = useState<any>([])
   const [error, setError] = useState({
     name: '',
     maxUsersPerInstance: ''
@@ -211,7 +211,7 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
               name="videoEnabled"
             />
           }
-          label={t('user:usermenu.newLocation.lbl-ve')}
+          label={t('user:usermenu.newLocation.lbl-ve') as string}
         />
         <FormControlLabel
           className={styles.formControl}
@@ -224,14 +224,14 @@ const CreateLocationMenu = ({ location, changeActiveMenu, updateLocationDetail }
               name="instanceMediaChatEnabled"
             />
           }
-          label={t('user:usermenu.newLocation.lbl-gme')}
+          label={t('user:usermenu.newLocation.lbl-gme') as string}
         />
         <Button type="submit" className={styles.savebtn} onClick={saveDetails}>
           {location.id ? t('user:usermenu.newLocation.lbl-update') : t('user:usermenu.newLocation.lbl-create')}
         </Button>
         {location.id && (
           <Tooltip
-            title={location.isLobby ? t('user:usermenu.newLocation.tooltipCanNotBeDeleted') : ''}
+            title={location.isLobby ? (t('user:usermenu.newLocation.tooltipCanNotBeDeleted') as string) : ''}
             arrow
             placement="bottom"
             className={styles.tooltip}

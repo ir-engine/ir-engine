@@ -123,8 +123,7 @@ const LocationTable = (props: LocationProps) => {
               setLocationName(name)
             }}
           >
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
+            <span className={classes.spanDange}>Delete</span>
           </a>
         </>
       )

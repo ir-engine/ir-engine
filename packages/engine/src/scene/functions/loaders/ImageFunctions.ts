@@ -26,6 +26,7 @@ import { ImageComponent, ImageComponentType } from '../../components/ImageCompon
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import loadTexture from '../../../assets/functions/loadTexture'
+import { isClient } from '../../../common/functions/isClient'
 
 export const SCENE_COMPONENT_IMAGE = 'image'
 export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
@@ -60,6 +61,7 @@ export const deserializeImage: ComponentDeserializeFunction = (
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity, properties: ImageComponentType) => {
+  if (!isClient) return
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
   const mesh = obj3d.userData.mesh
   const component = getComponent(entity, ImageComponent)

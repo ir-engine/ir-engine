@@ -24,7 +24,7 @@ const AuthMagicLink = (props: Props): any => {
     } else if (type === 'connection') {
       const user = useAuthState().user
       if (user !== null) {
-        AuthService.refreshConnections(user.id.value)
+        AuthService.refreshConnections(user.id.value!)
       }
       window.location.href = '/profile-connections'
     }

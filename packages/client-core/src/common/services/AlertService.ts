@@ -1,9 +1,9 @@
 import { store, useDispatch } from '../../store'
 import { createState, useState } from '@hookstate/core'
-
+import { AlertColor } from '@mui/material/Alert'
 //State
 const state = createState({
-  type: 'none',
+  type: 'none' as AlertType,
   message: ''
 })
 
@@ -85,7 +85,7 @@ export const AlertService = {
   }
 }
 //Action
-export type AlertType = 'error' | 'success' | 'warning' | 'none'
+export type AlertType = AlertColor | 'none'
 
 export const AlertAction = {
   showAlert: (type: AlertType, message: string) => {
@@ -98,7 +98,7 @@ export const AlertAction = {
   hideAlert: () => {
     return {
       type: 'HIDE_NOTIFICATION' as const,
-      alertType: 'none',
+      alertType: 'none' as AlertType,
       message: ''
     }
   }
