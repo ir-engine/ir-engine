@@ -134,8 +134,8 @@ type EditorContainerProps = {
 const EditorContainer = (props) => {
   const projectName = useEditorState().projectName.value
   const sceneName = useEditorState().sceneName.value
-  const [searchEl, setSearchEl] = React.useState('')
-  const [searchHie, setSearchHei] = React.useState('')
+  const [searchElement, setSearchElement] = React.useState('')
+  const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
@@ -170,10 +170,10 @@ const EditorContainer = (props) => {
   }
 
   const handleInputChangeHierarchy = (searchInput) => {
-    setSearchHei(searchInput)
+    setSearchHierarchy(searchInput)
   }
   const handleInputChangeElement = (searchInput) => {
-    setSearchEl(searchInput)
+    setSearchElement(searchInput)
   }
 
   useEffect(() => {
@@ -689,7 +689,7 @@ const EditorContainer = (props) => {
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
           <WorkspaceContainer>
             <ViewportPanelContainer />
-            <AppContext.Provider value={{ searchEl, searchHie }}>
+            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}

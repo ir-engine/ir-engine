@@ -177,13 +177,15 @@ const MemoAssetGridItem = memo(AssetGridItem)
 export function AssetGrid({ onSelect, tooltip }) {
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
-  const { searchEl } = useContext(AppContext)
+  const { searchElement } = useContext(AppContext)
 
   const items = getPrefabs()
-  let res
-  if (searchEl.length > 0) {
-    const condition = new RegExp(searchEl.toLowerCase())
-    res = items.filter((el) => condition.test(el.label.toLowerCase()))
+  const res = [] as FileDataType[]
+  if (searchElement.length > 0) {
+    const condition = new RegExp(searchElement.toLowerCase())
+    items.forEach((el) => {
+      if (condition.test(el.label.toLowerCase())) res.push(el)
+    })
   }
 
   const renderedItems = res?.length > 0 ? res : items

@@ -66,15 +66,15 @@ export default function HierarchyPanel() {
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
-  let nodeSearch: HeirarchyTreeNodeType[] = []
+  const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const { searchHie } = useContext(AppContext)
+  const { searchHierarchy } = useContext(AppContext)
 
-  if (searchHie.length > 0) {
-    const condition = new RegExp(searchHie.toLowerCase())
-    nodeSearch = nodes.filter((node) =>
-      condition.test(getComponent(node.entityNode.entity, NameComponent).name.toLowerCase())
-    )
+  if (searchHierarchy.length > 0) {
+    const condition = new RegExp(searchHierarchy.toLowerCase())
+    nodes.forEach((node) => {
+      if (condition.test(getComponent(node.entityNode.entity, NameComponent).name.toLowerCase())) nodeSearch.push(node)
+    })
   }
 
   const updateNodeHierarchy = useCallback(
