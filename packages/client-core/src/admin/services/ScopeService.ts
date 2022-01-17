@@ -27,6 +27,7 @@ store.receptors.push((action: ScopeActionType): any => {
         return s.merge({ fetching: true })
       case 'SCOPE_ADMIN_RETRIEVED':
         return s.merge({
+          //@ts-ignore
           scope: action.adminScopeResult.data,
           skip: action.adminScopeResult.skip,
           limit: action.adminScopeResult.limit,

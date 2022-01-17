@@ -46,7 +46,7 @@ const Aws = (props: Props) => {
 
   const handleUpdateSms = (event, type) => {
     setSms({
-      ...sms,
+      ...sms!,
       [type]: event.target.value
     })
   }

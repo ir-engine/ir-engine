@@ -80,13 +80,13 @@ export const matchesWeightsParameters = matches.partial({
 
 export type WeightsParameterType = {
   /** Movement of the avatar in the frame */
-  movement: MovementType
+  movement?: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */
-  resetAnimation: boolean
+  resetAnimation?: boolean
 
   /** Skip validation check and force state transition */
-  forceTransition: boolean
+  forceTransition?: boolean
 
   /** Other data to be passed with */
   [key: string]: any

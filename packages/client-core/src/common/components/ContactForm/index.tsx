@@ -33,8 +33,8 @@ export const ContactForm = () => {
 
     emailjs
       .send(
-        globalThis.process.env['VITE_EMAILJS_SERVICE_ID'],
-        globalThis.process.env['VITE_EMAILJS_TEMPLATE_ID'],
+        globalThis.process.env['VITE_EMAILJS_SERVICE_ID']!,
+        globalThis.process.env['VITE_EMAILJS_TEMPLATE_ID']!,
         templateParams,
         globalThis.process.env['VITE_EMAILJS_USER_ID']
       )

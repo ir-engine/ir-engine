@@ -18,7 +18,7 @@ interface Props {
 const ShareMenu = (props: Props): any => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
-  const refLink = useRef(null)
+  const refLink = useRef<any>(null!)
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
   const dispatch = useDispatch()

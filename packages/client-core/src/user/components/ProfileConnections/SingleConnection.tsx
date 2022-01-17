@@ -39,7 +39,7 @@ const SingleConnection = (props: Props): any => {
 
     setState({
       ...state,
-      identityProvider: user.identityProviders.find((v) => v.type === connectionType) || IdentityProviderSeed
+      identityProvider: user.identityProviders?.find((v) => v.type === connectionType) || IdentityProviderSeed
     })
   }, [])
 
