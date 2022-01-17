@@ -36,9 +36,9 @@ export const sceneColumns: SceneColumn[] = [
 
 export interface SceneData {
   id: string
-  name: string
-  description: string
-  type: string
+  name: string | JSX.Element
+  description: string | JSX.Element
+  type: string | JSX.Element
   entity: any
   version: any
   action: any

@@ -33,15 +33,12 @@ export class Instance extends Service {
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
-      let q = {}
-      if (search) {
-        q = {
-          [Op.or]: [
-            Sequelize.where(Sequelize.fn('lower', Sequelize.col('ipAddress')), {
-              [Op.like]: '%' + search.toLowerCase() + '%'
-            })
-          ]
-        }
+      let ip = {}
+      let name = {}
+      if (!isNaN(search)) {
+        ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
+      } else {
+        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
       }
 
       const foundLocation = await (this.app.service('instance') as any).Model.findAndCountAll({
@@ -49,11 +46,13 @@ export class Instance extends Service {
         limit: limit,
         include: {
           model: (this.app.service('location') as any).Model,
-          required: false
+          required: true,
+          where: { ...name }
         },
         nest: false,
-        where: { ended: { [Op.not]: true }, ...q }
+        where: { ended: false, ...ip }
       })
+
       return {
         skip: skip,
         limit: limit,

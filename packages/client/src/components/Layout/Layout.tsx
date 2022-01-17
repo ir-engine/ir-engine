@@ -13,6 +13,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
@@ -39,7 +40,6 @@ interface Props {
 const Layout = (props: Props): any => {
   const path = useLocation().pathname
   const { pageTitle, children, login } = props
-  const userHasInteracted = useAppState().userHasInteracted
   const authUser = useAuthState().authUser
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -50,19 +50,7 @@ const Layout = (props: Props): any => {
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
 
-  const dispatch = useDispatch()
-
-  const initialClickListener = () => {
-    dispatch(AppAction.setUserHasInteracted())
-    window.removeEventListener('click', initialClickListener)
-    window.removeEventListener('touchend', initialClickListener)
-  }
-
   useEffect(() => {
-    if (userHasInteracted.value === false) {
-      window.addEventListener('click', initialClickListener)
-      window.addEventListener('touchend', initialClickListener)
-    }
     !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
 

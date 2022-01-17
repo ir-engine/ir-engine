@@ -28,7 +28,7 @@ import { createWorld, World } from './ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { accessEngineState, EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
@@ -344,6 +344,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.engineTimer.start()
 
   if (options.type === EngineSystemPresets.CLIENT) {
+    setupInitialClickListener()
     receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
       Engine.userId = action.id
     })
@@ -353,6 +354,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   } else if (options.type === EngineSystemPresets.MEDIA) {
     Engine.userId = 'media' as UserId
   } else if (options.type === EngineSystemPresets.EDITOR) {
+    setupInitialClickListener()
     Engine.userId = 'editor' as UserId
     Engine.isEditor = true
   }
@@ -374,4 +376,14 @@ export const shutdownEngine = async () => {
   Engine.engineTimer = null!
 
   await reset()
+}
+
+const setupInitialClickListener = () => {
+  const initialClickListener = () => {
+    dispatchLocal(EngineActions.setUserHasInteracted())
+    window.removeEventListener('click', initialClickListener)
+    window.removeEventListener('touchend', initialClickListener)
+  }
+  window.addEventListener('click', initialClickListener)
+  window.addEventListener('touchend', initialClickListener)
 }

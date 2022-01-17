@@ -17,7 +17,8 @@ const state = createState({
   retrieving: false,
   fetched: false,
   updateNeeded: true,
-  skipGuests: false
+  skipGuests: false,
+  lastFetched: 0
 })
 
 store.receptors.push((action: UserActionType): any => {
@@ -85,7 +86,8 @@ export const UserService = {
               },
               $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
               $limit: limit,
-              action: 'admin'
+              action: 'admin',
+              userRole: null! as {}
             }
           }
           if (skipGuests) {
