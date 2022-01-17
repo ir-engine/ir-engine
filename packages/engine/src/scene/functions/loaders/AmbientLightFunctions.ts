@@ -1,25 +1,25 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Color, AmbientLight } from 'three'
+import { AmbientLight } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponentCountOfType, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
+import {
+  AmbientLightComponent,
+  AmbientLightComponentType,
+  AmbientLightSchema
+} from '../../components/AmbientLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { parseProperties } from '../../../common/functions/deserializers'
 
 export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'
-export const SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES = {
-  color: '#ffffff',
-  intensity: 1
-}
 
 export const deserializeAmbientLight: ComponentDeserializeFunction = (
   entity: Entity,
@@ -29,10 +29,7 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DisableTransformTagComponent, {})
-  addComponent(entity, AmbientLightComponent, {
-    ...json.props,
-    color: new Color(json.props.color)
-  })
+  addComponent(entity, AmbientLightComponent, parseProperties(json.props, AmbientLightSchema))
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
 

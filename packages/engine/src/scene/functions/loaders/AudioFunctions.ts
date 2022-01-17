@@ -21,26 +21,15 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
-import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
+import { AudioType } from '../../../audio/constants/AudioConstants'
+import { AudioComponent, AudioComponentType, AudioSchema } from '../../../audio/components/AudioComponent'
 import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { parseProperties } from '../../../common/functions/deserializers'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
-export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
-  audioSource: '',
-  volume: 0.5,
-  audioType: AudioType.Positional as AudioTypeType,
-  distanceModel: 'linear' as DistanceModelType,
-  rolloffFactor: 1,
-  refDistance: 20,
-  maxDistance: 1000,
-  coneInnerAngle: 120,
-  coneOuterAngle: 180,
-  coneOuterGain: 0
-}
 
 let audioTexture: Texture = null!
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
@@ -54,7 +43,8 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
   if (!isClient) return
 
-  addComponent(entity, AudioComponent, { ...json.props })
+  const props = parseProperties(json.props, AudioSchema)
+  addComponent(entity, AudioComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
@@ -77,7 +67,7 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
     }
   }
 
-  updateAudio(entity, json.props)
+  updateAudio(entity, props)
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {

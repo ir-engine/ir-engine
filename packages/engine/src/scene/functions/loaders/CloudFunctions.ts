@@ -1,5 +1,4 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector3, Vector2, Color } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -10,23 +9,14 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
+import { CloudComponent, CloudComponentType, CloudSchema } from '../../components/CloudComponent'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { isClient } from '../../../common/functions/isClient'
 import { Clouds } from '../../classes/Clouds'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { parseProperties } from '../../../common/functions/deserializers'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
-export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
-  texture: '/clouds/cloud.png',
-  worldScale: new Vector3(1000, 150, 1000),
-  dimensions: new Vector3(8, 4, 8),
-  noiseZoom: new Vector3(7, 11, 7),
-  noiseOffset: new Vector3(0, 4000, 3137),
-  spriteScaleRange: new Vector2(50, 100),
-  fogColor: 0x4584b4,
-  fogRange: new Vector2(-100, 3000)
-}
 
 export const deserializeCloud: ComponentDeserializeFunction = (
   entity: Entity,
@@ -35,9 +25,10 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Clouds()
+  const props = parseProperties(json.props, CloudSchema)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, CloudComponent, { ...json.props, fogColor: new Color(json.props.fogColor) })
+  addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
   if (Engine.isEditor) {
@@ -46,7 +37,7 @@ export const deserializeCloud: ComponentDeserializeFunction = (
     obj3d.userData.disableOutline = true
   }
 
-  updateCloud(entity, json.props)
+  updateCloud(entity, props)
 }
 
 export const updateCloud: ComponentUpdateFunction = async (entity: Entity, properties: CloudComponentType) => {

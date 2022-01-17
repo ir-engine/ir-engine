@@ -1,9 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { World } from '../../ecs/classes/World'
-import {
-  SCENE_COMPONENT_AMBIENT_LIGHT,
-  SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
-} from './loaders/AmbientLightFunctions'
+import { SCENE_COMPONENT_AMBIENT_LIGHT } from './loaders/AmbientLightFunctions'
 import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
@@ -60,7 +57,7 @@ import {
   SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
 } from './loaders/BoxColliderFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
-import { SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './loaders/AudioFunctions'
+import { SCENE_COMPONENT_AUDIO } from './loaders/AudioFunctions'
 import { SCENE_COMPONENT_VIDEO, SCENE_COMPONENT_VIDEO_DEFAULT_VALUES } from './loaders/VideoFunctions'
 import { SCENE_COMPONENT_MEDIA, SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from './loaders/MediaFunctions'
 import {
@@ -68,7 +65,7 @@ import {
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from './loaders/InteractableFunctions'
 import { SCENE_COMPONENT_VOLUMETRIC, SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES } from './loaders/VolumetricFunctions'
-import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './loaders/CloudFunctions'
+import { SCENE_COMPONENT_CLOUD } from './loaders/CloudFunctions'
 import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
 import { SCENE_COMPONENT_WATER, SCENE_COMPONENT_WATER_DEFAULT_VALUES } from './loaders/WaterFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
@@ -134,7 +131,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.ambientLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: {} }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.pointLight, [
@@ -233,7 +230,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.audio, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_AUDIO, props: {} },
     { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_INTERACTABLE, props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES }
   ])
@@ -241,7 +238,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.video, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_VIDEO, props: SCENE_COMPONENT_VIDEO_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_AUDIO, props: {} },
     { name: SCENE_COMPONENT_IMAGE, props: SCENE_COMPONENT_IMAGE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_INTERACTABLE, props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES }
@@ -250,14 +247,14 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.volumetric, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_VOLUMETRIC, props: SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_AUDIO, props: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_AUDIO, props: {} },
     { name: SCENE_COMPONENT_MEDIA, props: SCENE_COMPONENT_MEDIA_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_INTERACTABLE, props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.cloud, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_CLOUD, props: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_CLOUD, props: {} }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.ocean, [
