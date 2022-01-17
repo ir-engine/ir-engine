@@ -8,6 +8,6 @@ import { getToken } from './getToken'
  */
 
 export const getAccountId = (): string => {
-  const token = getToken()?.authData?.authUser?.accessToken
+  const token = getToken()
   return (jwtDecode(token) as any).sub
 }
