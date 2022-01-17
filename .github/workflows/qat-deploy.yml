@@ -2,7 +2,7 @@ name: qat-deploy
 on:
   push:
     branches:
-      [qat]
+      [bot-deploy-e2e-tests]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
