@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react'
+import React, { useState, useEffect, useCallback, memo, useContext } from 'react'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrop } from 'react-dnd'
 import { FixedSizeList, areEqual } from 'react-window'
@@ -21,6 +21,7 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
+import { AppContext } from '../Search/context'
 import styles from './styles.module.scss'
 
 /**
@@ -65,7 +66,16 @@ export default function HierarchyPanel() {
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
+  const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
+  const { searchHierarchy } = useContext(AppContext)
+
+  if (searchHierarchy.length > 0) {
+    const condition = new RegExp(searchHierarchy.toLowerCase())
+    nodes.forEach((node) => {
+      if (condition.test(getComponent(node.entityNode.entity, NameComponent).name.toLowerCase())) nodeSearch.push(node)
+    })
+  }
 
   const updateNodeHierarchy = useCallback(
     (world = useWorld()) => {
@@ -318,10 +328,10 @@ export default function HierarchyPanel() {
                 height={height}
                 width={width}
                 itemSize={32}
-                itemCount={nodes.length}
+                itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
                 itemData={{
                   renamingNode,
-                  nodes,
+                  nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
                   onKeyDown,
                   onChangeName,
                   onRenameSubmit,
