@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useStyles } from './styles'
 import { Grid, Paper, Typography } from '@mui/material'
 import { InputBase } from '@mui/material'
 import Switch from '@mui/material/Switch'
-import { useDispatch } from '../../../store'
 import { useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
 import { SettingAnalyticsService } from '../../services/Setting/SettingAnalyticsService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -19,14 +18,22 @@ const Analytics = (props: AnalyticsProps) => {
     checkedA: true,
     checkedB: true
   })
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const handleEnable = (event) => {
     setEnabled({ ...enabled, [event.target.name]: event.target.checked })
   }
+  const isMounted = useRef(false)
 
   useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted.current) return
     if (user?.id?.value != null && settingAnalyticsState?.updateNeeded?.value === true) {
       SettingAnalyticsService.fetchSettingsAnalytics()
     }

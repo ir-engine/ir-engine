@@ -1,15 +1,11 @@
-import { Object3D } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
-import { UserdataComponent } from '../components/UserdataComponent'
-import { addObject3DComponent } from '../functions/addObject3DComponent'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
@@ -42,9 +38,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
-
-  world.sceneLoadingRegistry.clear()
-  registerDefaultSceneFunctions(world)
 
   Object.keys(sceneData.entities).forEach((key) => {
     entityMap[key] = new EntityTreeNode(createEntity(), key)
@@ -104,28 +97,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
   if (deserializer) {
     deserializer(entity, component)
-  }
-
-  return
-  switch (name) {
-    case '_metadata':
-      {
-        addObject3DComponent(entity, new Object3D(), component.props)
-        addComponent(entity, InteractableComponent, { action: '_metadata' })
-        const transform = getComponent(entity, TransformComponent)
-
-        // if (isClient && Engine.isBot) {
-        const { _data } = component.props
-        const { x, y, z } = transform.position
-        world.worldMetadata[_data] = x + ',' + y + ',' + z
-        console.log('metadata|' + x + ',' + y + ',' + z + '|' + _data)
-        // }
-      }
-      break
-
-    case 'userdata':
-      addComponent(entity, UserdataComponent, { data: component.props })
-      break
   }
 }
 

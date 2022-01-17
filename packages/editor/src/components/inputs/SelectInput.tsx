@@ -13,7 +13,7 @@ import { useStyle, useStyles } from './style'
 
 interface SelectInputProp {
   value: any
-  options: any
+  options: Array<{ label: string; value: any }>
   onChange?: Function
   placeholder?: string
   disabled?: boolean
@@ -56,7 +56,7 @@ export function SelectInput({
 
   let v
   if (isSearchable) {
-    v = options.find((el) => el.value === value).label
+    v = options.find((el) => el.value === value)?.label
   }
 
   const [valueSelected, setValue] = React.useState(value)
@@ -105,7 +105,7 @@ export function SelectInput({
           IconComponent={ExpandMoreIcon}
         >
           {options.map((el, index) => (
-            <MenuItem value={el.value} key={`${el + index}`} classes={{ root: classx.root }}>
+            <MenuItem value={el.value} key={el.value + index} classes={{ root: classx.root }}>
               {el.label}
             </MenuItem>
           ))}

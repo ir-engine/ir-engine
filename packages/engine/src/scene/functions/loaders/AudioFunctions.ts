@@ -165,3 +165,11 @@ export const prepareAudioForGLTFExport: ComponentPrepareForGLTFExportFunction = 
     delete audio.userData.textureMesh
   }
 }
+
+export const toggleAudio = (entity: Entity) => {
+  const audioEl = getComponent(entity, Object3DComponent)?.value.userData.audioEl as Audio
+  if (!audioEl) return
+
+  if (audioEl.isPlaying) audioEl.stop()
+  else audioEl.play()
+}

@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import ModelInput from '../inputs/ModelInput'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import { EditorComponentType, updateProperty } from './Util'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -17,6 +17,12 @@ import { InteractableComponent } from '@xrengine/engine/src/interaction/componen
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import {
+  deserializeInteractable,
+  SCENE_COMPONENT_INTERACTABLE,
+  SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
+} from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -26,10 +32,23 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [isInteractable, setInteractable] = useState(false)
 
   const modelComponent = getComponent(props.node.entity, ModelComponent)
   const obj3d = getComponent(props.node.entity, Object3DComponent).value
+
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+
+  const onChangeInteractable = (interact) => {
+    setInteractable(interact)
+    if (interact) {
+      deserializeInteractable(props.node.entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
+    } else {
+      const editorComponent = getComponent(props.node.entity, EntityNodeComponent).components
+      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_INTERACTABLE), 1)
+      removeComponent(props.node.entity, InteractableComponent)
+    }
+  }
   const loopAnimationComponent = getComponent(props.node.entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
@@ -42,12 +61,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
   })
 
-  const animations = loopAnimationComponent.hasAvatarAnimations
+  const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
-    : obj3d.animations
+    : obj3d.animations ?? []
 
   const animationOptions = [{ label: 'None', value: -1 }]
-  if (animations.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+  if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
@@ -88,25 +107,20 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           options={animationOptions}
-          value={loopAnimationComponent.activeClipIndex}
+          value={loopAnimationComponent?.activeClipIndex}
           onChange={updateProperty(LoopAnimationComponent, 'activeClipIndex')}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations}
+          value={loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
       <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput
-          value={(interactableComponent && interactableComponent.interactable) || false}
-          onChange={updateProperty(InteractableComponent, 'interactable')}
-        />
+        <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
-      {interactableComponent && interactableComponent.interactable && (
-        <InteractableGroup node={props.node}></InteractableGroup>
-      )}
+      {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
       <ShadowProperties node={props.node} />
     </NodeEditor>
   )

@@ -2,7 +2,7 @@ import React from 'react'
 import * as THREE from 'three'
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@mui/icons-material'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { Views } from '../util'
@@ -144,9 +144,9 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
       try {
         if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
           const loader = getLoader()
-          loader.parse(fileData.target!.result, '', (gltf) => {
+          loader.parse(fileData.target?.result!, '', (gltf) => {
             gltf.scene.name = 'avatar'
-            loadExtentions(gltf)
+            loadExtensions(gltf)
             this.scene.add(gltf.scene)
             this.renderScene()
             const error = this.validate(gltf.scene)

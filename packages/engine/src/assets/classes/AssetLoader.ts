@@ -1,5 +1,5 @@
 import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
-import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLTF'
+import { getLoader as getGLTFLoader, loadExtensions } from '../functions/LoadGLTF'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
@@ -139,20 +139,21 @@ type AssetLoaderParamType = {
   [key: string]: any
 }
 
-const assetLoadCallback = (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => (asset) => {
-  if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-    loadExtentions(asset)
+const assetLoadCallback =
+  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
+    if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+      await loadExtensions(asset)
+    }
+
+    const assetClass = getAssetClass(url)
+    if (assetClass === AssetClass.Model) {
+      processModelAsset(asset.scene, params)
+    }
+
+    AssetLoader.Cache.set(url, asset)
+
+    onLoad(asset)
   }
-
-  const assetClass = getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    processModelAsset(asset.scene, params)
-  }
-
-  AssetLoader.Cache.set(url, asset)
-
-  onLoad(asset)
-}
 
 const load = async (
   params: AssetLoaderParamType,

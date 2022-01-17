@@ -39,7 +39,7 @@ export default async function EntityNodeEventSystem(_: World): Promise<System> {
     for (const entity of directionalLightSelectQuery.enter()) {
       const component = getComponent(entity, DirectionalLightComponent)
       const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
-      light.userData.cameraHelper.visible = component.showCameraHelper
+      if (light) light.userData.cameraHelper.visible = component.showCameraHelper
     }
 
     for (let entity of scenePreviewCameraSelectQuery.enter()) {

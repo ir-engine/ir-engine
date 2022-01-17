@@ -1,6 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
-import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { GLTF, GLTFLoader, GLTFParser } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 
 /**
@@ -31,13 +31,12 @@ export async function LoadGLTF(url: string): Promise<GLTF> {
   return await new Promise<GLTF>((resolve, reject) => {
     getLoader().load(
       url,
-      (gltf) => {
+      async (gltf) => {
         // TODO: Remove me when we add retargeting
         gltf.scene.traverse((o) => {
           o.name = o.name.replace('mixamorig', '')
         })
-
-        loadExtentions(gltf)
+        await loadExtensions(gltf)
         resolve(gltf)
       },
       null!,
@@ -49,12 +48,18 @@ export async function LoadGLTF(url: string): Promise<GLTF> {
   })
 }
 
-export const loadExtentions = (gltf) => {
-  loadLightmaps(gltf.parser)
+export const loadExtensions = async (gltf: GLTF) => {
+  await loadLightmaps(gltf)
   loadLights(gltf)
 }
 
-const loadLightmaps = (parser) => {
+const loadLightmaps = async (gltf: GLTF) => {
+  const parser = gltf.parser
+
+  const lightmapRegistry = {}
+
+  const combine = (name, index) => `${name}:${index}`
+
   const loadLightmap = async (materialIndex) => {
     const lightmapDef = parser.json.materials[materialIndex].extensions.MOZ_lightmap
     const [material, lightMap] = await Promise.all([
@@ -64,17 +69,22 @@ const loadLightmaps = (parser) => {
     material.lightMap = lightMap
     material.lightMapIntensity = lightmapDef.intensity !== undefined ? lightmapDef.intensity : 1
     material.needsUpdate = true
+    lightmapRegistry[combine(material.name, lightmapDef.index)] = lightMap
     return lightMap
   }
-  for (let i = 0; i < parser.json.materials?.length; i++) {
-    const materialNode = parser.json.materials[i]
 
-    if (!materialNode.extensions) continue
-
-    if (materialNode.extensions.MOZ_lightmap) {
-      loadLightmap(i)
-    }
-  }
+  const lightmapPromises = parser.json.materials
+    .map((materialNode, i) => [materialNode, i])
+    .filter((pair) => pair[0].extensions && pair[0].extensions.MOZ_lightmap)
+    .map((pair) => loadLightmap(pair[1]))
+  return Promise.all(lightmapPromises).then(() => {
+    gltf.scene.traverse((obj) => {
+      if (obj.type.toString() == 'Mesh' && obj.material.userData.gltfExtensions?.MOZ_lightmap) {
+        obj.material.lightMap =
+          lightmapRegistry[combine(obj.material.name, obj.material.userData.gltfExtensions.MOZ_lightmap.index)]
+      }
+    })
+  })
 }
 
 // this isn't the best solution. instead we should expose the plugin/extension register in GLTFLoader.js

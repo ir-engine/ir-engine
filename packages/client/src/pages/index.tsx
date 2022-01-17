@@ -24,6 +24,13 @@ export const HomePage = (): any => {
   } else
     return (
       <div className="lander">
+        <style>
+          {`
+            [class*=lander] {
+                pointer-events: auto;
+            }
+          `}
+        </style>
         <Helmet>
           <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap"
