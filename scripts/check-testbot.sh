@@ -14,6 +14,14 @@ imageName=$(kubectl get job $jobName -o=jsonpath='{$.spec.template.spec.containe
 tag=$(echo $imageName | cut -d ":" -f2)
 echo "Current tag: $tag"
 
+# This is incase pipeline failed. So force helm to redeploy testbot.
+if [[ $tag = $expectedTag ]]
+then
+    kubectl delete job $STAGE-xrengine-testbot
+
+    helm upgrade --reuse-values $STAGE xrengine/xrengine
+fi
+
 # Wait until correct image tag is used.
 until [[ $tag = $expectedTag ]]
 do
