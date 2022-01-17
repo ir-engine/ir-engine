@@ -125,7 +125,8 @@ SelectInput.defaultProps = {
   styles: {},
   error: false,
   disabled: false,
-  creatable: false
+  creatable: false,
+  isSearchable: false
 }
 
 export default SelectInput

@@ -5,8 +5,9 @@ import makeStyles from '@mui/styles/makeStyles'
 
 export const useStyles = makeStyles((theme: Theme) => createStyles({}))
 
-export const useStyle = makeStyles((theme: Theme) =>
-  createStyles({
+export const useStyle = makeStyles((theme: Theme) => {
+  console.debug(theme)
+  return createStyles({
     popper: {
       fontSize: '0.8rem'
     },
@@ -32,15 +33,13 @@ export const useStyle = makeStyles((theme: Theme) =>
       padding: '0px !important'
     },
     select: {
-      backgroundColor: '#3A4048',
+      backgroundColor: theme.inputBackground,
       borderRadius: '4px',
       borderWidth: 0,
       cursor: 'pointer',
-      padding: '5px 8px 2px 12px',
-      fontSize: '0.8rem',
-      width: '70px',
-      color: '#f2f2f2',
-      height: '25px !important'
+      padding: '2px 7px',
+      fontSize: '12px',
+      color: '#f2f2f2'
     },
     paper: {
       borderRadius: '4px',
@@ -64,4 +63,4 @@ export const useStyle = makeStyles((theme: Theme) =>
       padding: '5px 8px 2px 12px'
     }
   })
-)
+})
