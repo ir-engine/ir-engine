@@ -6,7 +6,6 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
@@ -27,27 +26,27 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   json: ComponentJson<HemisphereLightComponentType>
 ) => {
   const light = new HemisphereLight()
+  const props = parseHemisphereLightProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DisableTransformTagComponent, {})
-  addComponent(entity, HemisphereLightComponent, {
-    ...json.props,
-    skyColor: new Color(json.props.skyColor),
-    groundColor: new Color(json.props.groundColor)
-  })
+  addComponent(entity, HemisphereLightComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 
-  updateHemisphereLight(entity)
+  updateHemisphereLight(entity, props)
 }
 
-export const updateHemisphereLight: ComponentUpdateFunction = (entity: Entity) => {
+export const updateHemisphereLight: ComponentUpdateFunction = (
+  entity: Entity,
+  properties: HemisphereLightComponentType
+) => {
   const component = getComponent(entity, HemisphereLightComponent)
   const light = getComponent(entity, Object3DComponent)?.value as HemisphereLight
 
-  light.groundColor = component.groundColor
-  light.color = component.skyColor
-  light.intensity = component.intensity
+  if (properties.hasOwnProperty('groundColor')) light.groundColor = component.groundColor
+  if (properties.hasOwnProperty('skyColor')) light.color = component.skyColor
+  if (properties.hasOwnProperty('intensity')) light.intensity = component.intensity
 }
 
 export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => {
@@ -66,4 +65,12 @@ export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => 
 
 export const shouldDeserializeHemisphereLight: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(HemisphereLightComponent) <= 0
+}
+
+const parseHemisphereLightProperties = (props): HemisphereLightComponentType => {
+  return {
+    skyColor: new Color(props.skyColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.skyColor),
+    groundColor: new Color(props.groundColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.groundColor),
+    intensity: props.intensity ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.intensity
+  }
 }

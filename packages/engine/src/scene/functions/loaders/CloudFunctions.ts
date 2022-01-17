@@ -9,14 +9,24 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { CloudComponent, CloudComponentType, CloudSchema } from '../../components/CloudComponent'
+import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { isClient } from '../../../common/functions/isClient'
 import { Clouds } from '../../classes/Clouds'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { parseProperties } from '../../../common/functions/deserializers'
+import { Color, Vector2, Vector3 } from 'three'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
+export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
+  texture: '/clouds/cloud.png',
+  worldScale: { x: 1000, y: 150, z: 1000 },
+  dimensions: { x: 8, y: 4, z: 8 },
+  noiseZoom: { x: 7, y: 11, z: 7 },
+  noiseOffset: { x: 0, y: 4000, z: 3137 },
+  spriteScaleRange: { x: 50, y: 100 },
+  fogColor: 0x4584b4,
+  fogRange: { x: -100, y: 3000 }
+}
 
 export const deserializeCloud: ComponentDeserializeFunction = (
   entity: Entity,
@@ -25,7 +35,7 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Clouds()
-  const props = parseProperties(json.props, CloudSchema)
+  const props = parseCloudeProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
@@ -79,4 +89,31 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
       fogRange: component.fogRange
     }
   }
+}
+
+const parseCloudeProperties = (props: any): CloudComponentType => {
+  const result = {
+    texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
+    fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)
+  } as CloudComponentType
+
+  let tempV3 = props.worldScale ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.worldScale
+  result.worldScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.dimensions ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.dimensions
+  result.dimensions = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.noiseZoom ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseZoom
+  result.noiseZoom = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.noiseOffset ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseOffset
+  result.noiseOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  let tempV2 = props.spriteScaleRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.spriteScaleRange
+  result.spriteScaleRange = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.fogRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange
+  result.fogRange = new Vector2(tempV2.x, tempV2.y)
+
+  return result
 }

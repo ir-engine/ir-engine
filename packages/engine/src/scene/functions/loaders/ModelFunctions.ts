@@ -28,12 +28,13 @@ export const deserializeModel: ComponentDeserializeFunction = (
   entity: Entity,
   component: ComponentJson<ModelComponentType>
 ) => {
+  const props = parseModelProperties(component.props)
   addComponent(entity, Object3DComponent, { value: new Object3D() }) // Temperarily hold a value
-  addComponent(entity, ModelComponent, { ...component.props })
+  addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
 
-  registerSceneLoadPromise(updateModel(entity, component.props) as any as Promise<void>)
+  registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
 export const updateModel: ComponentUpdateFunction = async (
@@ -44,9 +45,13 @@ export const updateModel: ComponentUpdateFunction = async (
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh
 
   if (properties.src) {
-    const gltf = await loadGLTFModel(entity)
-    if (gltf && gltf.scene) {
-      parseGLTFModel(entity, component, gltf.scene)
+    try {
+      const gltf = await loadGLTFModel(entity)
+      if (gltf && gltf.scene) {
+        parseGLTFModel(entity, component, gltf.scene)
+      }
+    } catch (err) {
+      Promise.reject(err)
     }
   }
 
@@ -68,5 +73,16 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject
     }
+  }
+}
+
+const parseModelProperties = (props): ModelComponentType => {
+  return {
+    src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
+    envMapOverride: props.envMapOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.envMapOverride,
+    textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
+    matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
+    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
+    isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
   }
 }

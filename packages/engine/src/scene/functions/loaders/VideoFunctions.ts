@@ -31,7 +31,7 @@ import { MediaComponent } from '../../components/MediaComponent'
 import isHLS from '../isHLS'
 import Hls from 'hls.js'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
-import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
@@ -73,12 +73,14 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   document.body.appendChild(el)
   obj3d.userData.videoEl = el
 
+  const props = parseVideoProperties(json.props)
+
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, VideoComponent, { ...json.props })
+  addComponent(entity, VideoComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
-  updateVideo(entity, json.props)
+  updateVideo(entity, props)
 }
 
 export const updateVideo: ComponentUpdateFunction = async (entity: Entity, properties: VideoComponentType) => {
@@ -92,7 +94,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
 
       if (isHLS(url, contentType)) {
         component.hls = setupHLS(url)
-        component.hls.attachMedia(obj3d.userData.videoEl)
+        component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
       //   const { MediaPlayer } = await import('dashjs')
@@ -217,5 +219,12 @@ export const toggleVideo = (entity: Entity) => {
   } else {
     data.audioEl.stop()
     data.videoEl.pause()
+  }
+}
+
+const parseVideoProperties = (props): VideoComponentType => {
+  return {
+    videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
+    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
   }
 }

@@ -31,6 +31,8 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   json: ComponentJson<DirectionalLightComponentType>
 ) => {
   const light = new DirectionalLight()
+  const props = parseDirectionalLightProperties(json.props)
+  props.light = light
 
   light.target.position.set(0, 0, 1)
   light.target.name = 'light-target'
@@ -52,35 +54,36 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   } else {
     addComponent(entity, Object3DComponent, { value: light })
   }
-  addComponent(entity, DirectionalLightComponent, {
-    ...json.props,
-    light,
-    color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(json.props.shadowMapResolution as any)
-  })
+
+  addComponent(entity, DirectionalLightComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
-  updateDirectionalLight(entity)
+  updateDirectionalLight(entity, props)
 }
 
-export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) => {
+export const updateDirectionalLight: ComponentUpdateFunction = (
+  entity: Entity,
+  properties: DirectionalLightComponentType
+) => {
   const component = getComponent(entity, DirectionalLightComponent)
   const light = component.light
 
-  light.color.set(component.color)
-  light.intensity = component.intensity
-  light.shadow.camera.far = component.cameraFar
-  light.shadow.bias = component.shadowBias
-  light.shadow.radius = component.shadowRadius
-  light.castShadow = component.castShadow
+  if (Object.hasOwnProperty.call(properties, 'color')) light.color.set(component.color)
+  if (Object.hasOwnProperty.call(properties, 'intensity')) light.intensity = component.intensity
+  if (Object.hasOwnProperty.call(properties, 'cameraFar')) light.shadow.camera.far = component.cameraFar
+  if (Object.hasOwnProperty.call(properties, 'shadowBias')) light.shadow.bias = component.shadowBias
+  if (Object.hasOwnProperty.call(properties, 'shadowRadius')) light.shadow.radius = component.shadowRadius
+  if (Object.hasOwnProperty.call(properties, 'castShadow')) light.castShadow = component.castShadow
 
-  light.shadow.mapSize.copy(component.shadowMapResolution)
-  light.shadow.map?.dispose()
-  light.shadow.map = null as any
+  if (Object.hasOwnProperty.call(properties, 'shadowMapResolution')) {
+    light.shadow.mapSize.copy(component.shadowMapResolution)
+    light.shadow.map?.dispose()
+    light.shadow.map = null as any
 
-  light.shadow.camera.updateProjectionMatrix()
-  light.shadow.needsUpdate = true
+    light.shadow.camera.updateProjectionMatrix()
+    light.shadow.needsUpdate = true
+  }
 
   if (Engine.isEditor) {
     light.userData.helper.update()
@@ -125,4 +128,19 @@ export const prepareDirectionalLightForGLTFExport: ComponentPrepareForGLTFExport
     if (light.userData.cameraHelper.parent) light.userData.cameraHelper.removeFromParent()
     delete light.userData.cameraHelper
   }
+}
+
+const parseDirectionalLightProperties = (props): DirectionalLightComponentType => {
+  return {
+    color: new Color(props.color ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.color),
+    intensity: props.intensity ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.intensity,
+    castShadow: props.castShadow ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.castShadow,
+    shadowBias: props.shadowBias ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.shadowBias,
+    shadowRadius: props.shadowRadius ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.shadowRadius,
+    shadowMapResolution: new Vector2().fromArray(
+      props.shadowMapResolution ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.shadowMapResolution
+    ),
+    cameraFar: props.cameraFar ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.cameraFar,
+    showCameraHelper: props.showCameraHelper ?? SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES.showCameraHelper
+  } as DirectionalLightComponentType
 }

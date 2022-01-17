@@ -28,8 +28,17 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { parseCubemapBakeProperties } from './CubemapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
+export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
+  type: 1,
+  envMapTextureType: 0,
+  envMapSourceColor: '#000000',
+  envMapSourceURL: '/hdr/cubemap/Bridge2/',
+  envMapIntensity: 1,
+  envMapCubemapBake: {}
+}
 
 const tempVector = new Vector3()
 const tempColor = new Color()
@@ -40,11 +49,8 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  addComponent(entity, EnvmapComponent, {
-    ...json.props,
-    envMapSourceColor: new Color(json.props.envMapSourceColor),
-    envMapTextureType: json.props.envMapTextureType ?? EnvMapTextureType.Cubemap
-  })
+  const props = parseEnvMapProperties(json.props)
+  addComponent(entity, EnvmapComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
 
@@ -181,5 +187,18 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
       envMapIntensity: component.envMapIntensity,
       envMapCubemapBake: component.envMapCubemapBake
     }
+  }
+}
+
+const parseEnvMapProperties = (props): EnvmapComponentType => {
+  return {
+    type: props.type ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.type,
+    envMapTextureType: props.envMapTextureType ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapTextureType,
+    envMapSourceColor: new Color(props.envMapSourceColor ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceColor),
+    envMapSourceURL: props.envMapSourceURL ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceURL,
+    envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
+    envMapCubemapBake: parseCubemapBakeProperties({
+      options: props.envMapCubemapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapCubemapBake
+    }).options
   }
 }

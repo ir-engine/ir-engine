@@ -496,7 +496,27 @@ export class SceneManager {
     if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
     if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)
     if (this.editorEntity) removeEntity(this.editorEntity, true)
-    if (this.grid) Engine.scene?.remove(this.grid)
+
+    if (Engine.scene) {
+      if (this.grid) Engine.scene.remove(this.grid)
+
+      // Empty existing scene
+      Engine.scene.traverse((child: any) => {
+        if (child.geometry) child.geometry.dispose()
+
+        if (child.material) {
+          if (child.material.length) {
+            for (let i = 0; i < child.material.length; ++i) {
+              child.material[i].dispose()
+            }
+          } else {
+            child.material.dispose()
+          }
+        }
+      })
+
+      Engine.scene.clear()
+    }
 
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false

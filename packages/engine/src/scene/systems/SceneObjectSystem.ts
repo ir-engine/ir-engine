@@ -16,6 +16,7 @@ import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/Sim
 import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { reparentObject3D } from '../functions/ReparentFunction'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -81,11 +82,18 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      // Add to scene
-      if (!Engine.scene.children.includes(obj3d)) {
-        Engine.scene.add(obj3d)
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        reparentObject3D(node, node.parentNode)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d)
+        let found = false
+        Engine.scene.traverse((obj) => {
+          if (obj === obj3d) {
+            found = true
+          }
+        })
+
+        if (!found) Engine.scene.add(obj3d)
       }
 
       processObject3d(entity)
@@ -99,7 +107,6 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       obj3d.removeFromParent()
     }
 
-    // TODO: refactor this
     for (const entity of objectReplaceQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent)
       const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
@@ -114,6 +121,11 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
       obj3d.value.parent = null
       obj3d.value = replacementObj
+
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        node.children?.forEach((child) => reparentObject3D(child, node))
+      }
 
       processObject3d(entity)
       removeComponent(entity, ReplaceObject3DComponent)

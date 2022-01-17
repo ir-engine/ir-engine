@@ -175,12 +175,16 @@ const load = async (
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 
-  // TODO: fix instancing for GLTFs
-  // if (params.instanced) {
-  //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
-  // } else {
-  loader.load(url, callback, onProgress, onError)
-  // }
+  try {
+    // TODO: fix instancing for GLTFs
+    // if (params.instanced) {
+    //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
+    // } else {
+    loader.load(url, callback, onProgress, onError)
+    // }
+  } catch (error) {
+    onError(error)
+  }
 }
 
 export class AssetLoader {

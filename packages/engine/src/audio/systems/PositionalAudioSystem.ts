@@ -12,12 +12,16 @@ import {
   PositionalAudioSettingsComponentType
 } from '../../scene/components/AudioSettingsComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
-import { AudioComponentType, AudioSchema } from '../components/AudioComponent'
+import { AudioComponentType } from '../components/AudioComponent'
 import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { deserializeAudio, SCENE_COMPONENT_AUDIO } from '../../scene/functions/loaders/AudioFunctions'
+import {
+  deserializeAudio,
+  SCENE_COMPONENT_AUDIO,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+} from '../../scene/functions/loaders/AudioFunctions'
 import { AudioType } from '../constants/AudioConstants'
 import { parseProperties } from '../../common/functions/deserializers'
 
@@ -38,7 +42,6 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
   const audioQuery = defineQuery([AudioTagComponent])
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
 
-  const defaultAudioProps = parseProperties({}, AudioSchema)
   const avatarAudioStream: Map<Entity, any> = new Map()
 
   let audioContextSuspended = true
@@ -110,7 +113,7 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
         }
       }
 
-      const props = applyMediaAudioSettings(defaultAudioProps)
+      const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
       deserializeAudio(entity, { name: SCENE_COMPONENT_AUDIO, props })
     }
 

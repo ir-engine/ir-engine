@@ -30,6 +30,7 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   json: ComponentJson<PointLightComponentType>
 ) => {
   const light = new PointLight()
+  const props = parsePointLightProperties(json.props)
 
   if (Engine.isEditor) {
     const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
@@ -46,37 +47,33 @@ export const deserializePointLight: ComponentDeserializeFunction = (
   }
 
   addComponent(entity, Object3DComponent, { value: light })
-  addComponent(entity, PointLightComponent, {
-    ...json.props,
-    color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(
-      (json.props.shadowMapResolution as any) || SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.shadowMapResolution
-    )
-  })
+  addComponent(entity, PointLightComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
-  updatePointLight(entity)
+  updatePointLight(entity, props)
 }
 
-export const updatePointLight: ComponentUpdateFunction = (entity: Entity) => {
+export const updatePointLight: ComponentUpdateFunction = (entity: Entity, properties: PointLightComponentType) => {
   const component = getComponent(entity, PointLightComponent)
   const light = getComponent(entity, Object3DComponent)?.value as PointLight
 
-  light.color.set(component.color)
-  light.intensity = component.intensity
-  light.distance = component.range
-  light.decay = component.decay
-  light.shadow.bias = component.shadowBias
-  light.shadow.radius = component.shadowRadius
-  // light.castShadow = component.castShadow
+  if (Object.hasOwnProperty.call(properties, 'color')) light.color.set(component.color)
+  if (Object.hasOwnProperty.call(properties, 'intensity')) light.intensity = component.intensity
+  if (Object.hasOwnProperty.call(properties, 'range')) light.distance = component.range
+  if (Object.hasOwnProperty.call(properties, 'decay')) light.decay = component.decay
+  if (Object.hasOwnProperty.call(properties, 'shadowBias')) light.shadow.bias = component.shadowBias
+  if (Object.hasOwnProperty.call(properties, 'shadowRadius')) light.shadow.radius = component.shadowRadius
+  // if (Object.hasOwnProperty.call(properties, 'castShadow')) light.castShadow = component.castShadow
 
-  light.shadow.mapSize.copy(component.shadowMapResolution)
-  light.shadow.map?.dispose()
-  light.shadow.map = null as any
+  if (Object.hasOwnProperty.call(properties, 'shadowMapResolution')) {
+    light.shadow.mapSize.copy(component.shadowMapResolution)
+    light.shadow.map?.dispose()
+    light.shadow.map = null as any
 
-  light.shadow.camera.updateProjectionMatrix()
-  light.shadow.needsUpdate = true
+    light.shadow.camera.updateProjectionMatrix()
+    light.shadow.needsUpdate = true
+  }
 
   if (Engine.isEditor) {
     light.userData.ball.material.color = component.color
@@ -112,5 +109,20 @@ export const preparePointLightForGLTFExport: ComponentPrepareForGLTFExportFuncti
   if (light.userData.rangeBall) {
     if (light.userData.rangeBall.parent) light.userData.rangeBall.removeFromParent()
     delete light.userData.rangeBall
+  }
+}
+
+const parsePointLightProperties = (props): PointLightComponentType => {
+  return {
+    color: new Color(props.color ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.color),
+    intensity: props.intensity ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.intensity,
+    range: props.range ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.range,
+    decay: props.decay ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.decay,
+    castShadow: props.castShadow ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.castShadow,
+    shadowBias: props.shadowBias ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.shadowBias,
+    shadowRadius: props.shadowRadius ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.shadowRadius,
+    shadowMapResolution: new Vector2().fromArray(
+      props.shadowMapResolution ?? SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES.shadowMapResolution
+    )
   }
 }

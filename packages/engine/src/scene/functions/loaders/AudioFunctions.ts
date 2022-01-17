@@ -21,15 +21,26 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { AudioType } from '../../../audio/constants/AudioConstants'
-import { AudioComponent, AudioComponentType, AudioSchema } from '../../../audio/components/AudioComponent'
+import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
+import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
-import { parseProperties } from '../../../common/functions/deserializers'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
+export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
+  audioSource: '',
+  volume: 0.5,
+  audioType: AudioType.Positional as AudioTypeType,
+  distanceModel: 'linear' as DistanceModelType,
+  rolloffFactor: 1,
+  refDistance: 20,
+  maxDistance: 1000,
+  coneInnerAngle: 120,
+  coneOuterAngle: 180,
+  coneOuterGain: 0
+}
 
 let audioTexture: Texture = null!
 const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
@@ -43,7 +54,7 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
   if (!isClient) return
 
-  const props = parseProperties(json.props, AudioSchema)
+  const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
 
   if (Engine.isEditor) {
@@ -162,4 +173,19 @@ export const toggleAudio = (entity: Entity) => {
 
   if (audioEl.isPlaying) audioEl.stop()
   else audioEl.play()
+}
+
+const parseAudioProperties = (props): AudioComponentType => {
+  return {
+    audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
+    volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
+    audioType: props.audioType ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType,
+    distanceModel: props.distanceModel ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel,
+    rolloffFactor: props.rolloffFactor ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.rolloffFactor,
+    refDistance: props.refDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.refDistance,
+    maxDistance: props.maxDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.maxDistance,
+    coneInnerAngle: props.coneInnerAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneInnerAngle,
+    coneOuterAngle: props.coneOuterAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterAngle,
+    coneOuterGain: props.coneOuterGain ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterGain
+  }
 }

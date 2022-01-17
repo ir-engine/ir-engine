@@ -15,7 +15,7 @@ import { SpotLightComponent, SpotLightComponentType } from '../../components/Spo
 
 export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'
 export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
-  color: '#ffffff',
+  color: 0xffffff,
   intensity: 10,
   range: 0,
   decay: 2,
@@ -32,6 +32,7 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   json: ComponentJson<SpotLightComponentType>
 ) => {
   const light = new SpotLight()
+  const props = parseSpotLightProperties(json.props)
 
   light.target.position.set(0, -1, 0)
   light.target.name = 'light-target'
@@ -55,39 +56,35 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   }
 
   addComponent(entity, Object3DComponent, { value: light })
-  addComponent(entity, SpotLightComponent, {
-    ...json.props,
-    color: new Color(json.props.color),
-    shadowMapResolution: new Vector2().fromArray(
-      (json.props.shadowMapResolution as any) || SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.shadowMapResolution
-    )
-  })
+  addComponent(entity, SpotLightComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
-  updateSpotLight(entity)
+  updateSpotLight(entity, props)
 }
 
-export const updateSpotLight: ComponentUpdateFunction = (entity: Entity) => {
+export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, properties: SpotLightComponentType) => {
   const component = getComponent(entity, SpotLightComponent)
   const light = getComponent(entity, Object3DComponent)?.value as SpotLight
 
-  light.color.set(component.color)
-  light.intensity = component.intensity
-  light.distance = component.range
-  light.decay = component.decay
-  light.penumbra = component.penumbra
-  light.angle = component.angle
-  light.shadow.bias = component.shadowBias
-  light.shadow.radius = component.shadowRadius
-  // light.castShadow = component.castShadow
+  if (Object.hasOwnProperty.call(properties, 'color')) light.color.set(component.color)
+  if (Object.hasOwnProperty.call(properties, 'intensity')) light.intensity = component.intensity
+  if (Object.hasOwnProperty.call(properties, 'range')) light.distance = component.range
+  if (Object.hasOwnProperty.call(properties, 'decay')) light.decay = component.decay
+  if (Object.hasOwnProperty.call(properties, 'penumbra')) light.penumbra = component.penumbra
+  if (Object.hasOwnProperty.call(properties, 'angle')) light.angle = component.angle
+  if (Object.hasOwnProperty.call(properties, 'shadowBias')) light.shadow.bias = component.shadowBias
+  if (Object.hasOwnProperty.call(properties, 'shadowRadius')) light.shadow.radius = component.shadowRadius
+  // if (Object.hasOwnProperty.call(properties, 'castShadow')) light.castShadow = component.castShadow
 
-  light.shadow.mapSize.copy(component.shadowMapResolution)
-  light.shadow.map?.dispose()
-  light.shadow.map = null as any
+  if (Object.hasOwnProperty.call(properties, 'shadowMapResolution')) {
+    light.shadow.mapSize.copy(component.shadowMapResolution)
+    light.shadow.map?.dispose()
+    light.shadow.map = null as any
 
-  light.shadow.camera.updateProjectionMatrix()
-  light.shadow.needsUpdate = true
+    light.shadow.camera.updateProjectionMatrix()
+    light.shadow.needsUpdate = true
+  }
 
   if (Engine.isEditor) {
     light.userData.ring.material.color = component.color
@@ -125,5 +122,22 @@ export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunctio
   if (light.userData.cone) {
     if (light.userData.cone.parent) light.userData.cone.removeFromParent()
     delete light.userData.cone
+  }
+}
+
+const parseSpotLightProperties = (props): SpotLightComponentType => {
+  return {
+    color: new Color(props.color ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.color),
+    intensity: props.intensity ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.intensity,
+    range: props.range ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.range,
+    decay: props.decay ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.decay,
+    angle: props.angle ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.angle,
+    penumbra: props.penumbra ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.penumbra,
+    castShadow: props.castShadow ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.castShadow,
+    shadowBias: props.shadowBias ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.shadowBias,
+    shadowRadius: props.shadowRadius ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.shadowRadius,
+    shadowMapResolution: new Vector2().fromArray(
+      props.shadowMapResolution ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.shadowMapResolution
+    )
   }
 }

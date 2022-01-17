@@ -23,11 +23,12 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<MediaComponentType>
 ) => {
-  addComponent(entity, MediaComponent, { ...json.props })
+  const props = parseMediaProperties(json.props)
+  addComponent(entity, MediaComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
 
-  updateMedia(entity, json.props)
+  updateMedia(entity, props)
 }
 
 export const updateMedia: ComponentUpdateFunction = async (entity: Entity, properties: MediaComponentType) => {
@@ -103,5 +104,14 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
     const offset = (-timeDiff / 1000) % obj3d.userData.audioEl.buffer.duration
     obj3d.userData.audioEl.offset = offset
     obj3d.userData.audioEl.play()
+  }
+}
+
+const parseMediaProperties = (props): MediaComponentType => {
+  return {
+    controls: props.controls ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.controls,
+    autoplay: props.autoplay ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoplay,
+    autoStartTime: props.autoStartTime ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoStartTime,
+    loop: props.loop ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.loop
   }
 }

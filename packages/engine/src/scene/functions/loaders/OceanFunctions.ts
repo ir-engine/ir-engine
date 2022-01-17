@@ -21,24 +21,24 @@ export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
   normalMap: '/ocean/water_normal.tga',
   distortionMap: '/ocean/water_distortion.tga',
   envMap: '/hdr/equirectangular/texture222.jpg',
-  color: new Color(0.158628, 0.465673, 0.869792),
-  opacityRange: new Vector2(0.6, 0.9),
+  color: 0x2876dd,
+  opacityRange: { x: 0.6, y: 0.9 },
   opacityFadeDistance: 0.12,
   shallowToDeepDistance: 0.1,
-  shallowWaterColor: new Color(0.190569, 0.765519, 0.869792),
-  waveScale: new Vector2(0.25, 0.25),
-  waveSpeed: new Vector2(0.08, 0.0),
+  shallowWaterColor: 0x30c3dd,
+  waveScale: { x: 0.25, y: 0.25 },
+  waveSpeed: { x: 0.08, y: 0.0 },
   waveTiling: 12.0,
   waveDistortionTiling: 7.0,
-  waveDistortionSpeed: new Vector2(0.08, 0.08),
+  waveDistortionSpeed: { x: 0.08, y: 0.08 },
   shininess: 40,
   reflectivity: 0.25,
   bigWaveHeight: 0.7,
-  bigWaveTiling: new Vector2(1.5, 1.5),
-  bigWaveSpeed: new Vector2(0.02, 0.0),
-  foamSpeed: new Vector2(0.05, 0.0),
+  bigWaveTiling: { x: 1.5, y: 1.5 },
+  bigWaveSpeed: { x: 0.02, y: 0.0 },
+  foamSpeed: { x: 0.05, y: 0.0 },
   foamTiling: 2.0,
-  foamColor: new Color()
+  foamColor: 0xffffff
 }
 
 export const deserializeOcean: ComponentDeserializeFunction = (
@@ -48,14 +48,10 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Ocean()
+  const props = parseOceanProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, OceanComponent, {
-    ...json.props,
-    color: new Color(json.props.color),
-    shallowWaterColor: new Color(json.props.shallowWaterColor),
-    foamColor: new Color(json.props.foamColor)
-  })
+  addComponent(entity, OceanComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
   if (Engine.isEditor) {
@@ -64,7 +60,7 @@ export const deserializeOcean: ComponentDeserializeFunction = (
     obj3d.userData.disableOutline = true
   }
 
-  updateOcean(entity, json.props)
+  updateOcean(entity, props)
 }
 
 export const updateOcean: ComponentUpdateFunction = async (entity: Entity, properties: OceanComponentType) => {
@@ -148,4 +144,46 @@ export const serializeOcean: ComponentSerializeFunction = (entity) => {
       foamColor: component.foamColor?.getHex()
     }
   }
+}
+
+const parseOceanProperties = (props): OceanComponentType => {
+  const result = {
+    normalMap: props.normalMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.normalMap,
+    distortionMap: props.distortionMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.distortionMap,
+    envMap: props.envMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.envMap,
+    color: new Color(props.color ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.color),
+    opacityFadeDistance: props.opacityFadeDistance ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityFadeDistance,
+    shallowToDeepDistance: props.shallowToDeepDistance ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowToDeepDistance,
+    shallowWaterColor: new Color(props.shallowWaterColor ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowWaterColor),
+    waveTiling: props.waveTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveTiling,
+    waveDistortionTiling: props.waveDistortionTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionTiling,
+    shininess: props.shininess ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shininess,
+    reflectivity: props.reflectivity ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.reflectivity,
+    bigWaveHeight: props.bigWaveHeight ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveHeight,
+    foamTiling: props.foamTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamTiling,
+    foamColor: new Color(props.foamColor ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamColor)
+  } as OceanComponentType
+
+  let tempV2 = props.opacityRange ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityRange
+  result.opacityRange = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.waveScale ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveScale
+  result.waveScale = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.waveSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveSpeed
+  result.waveSpeed = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.waveDistortionSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionSpeed
+  result.waveDistortionSpeed = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.bigWaveTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveTiling
+  result.bigWaveTiling = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.bigWaveSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveSpeed
+  result.bigWaveSpeed = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.foamSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamSpeed
+  result.foamSpeed = new Vector2(tempV2.x, tempV2.y)
+
+  return result
 }
