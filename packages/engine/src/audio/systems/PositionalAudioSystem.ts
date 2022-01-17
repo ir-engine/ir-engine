@@ -23,7 +23,6 @@ import {
   SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
 } from '../../scene/functions/loaders/AudioFunctions'
 import { AudioType } from '../constants/AudioConstants'
-import { parseProperties } from '../../common/functions/deserializers'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
