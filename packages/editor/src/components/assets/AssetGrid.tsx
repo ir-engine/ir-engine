@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, memo } from 'react'
+import React, { useCallback, useRef, useEffect, memo, useContext } from 'react'
 import PropTypes from 'prop-types'
 import { VerticalScrollContainer } from '../layout/Flex'
 import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from '../layout/MediaGrid'
@@ -22,6 +22,7 @@ import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerP
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { FileDataType } from './FileDataType'
+import { AppContext } from '../Search/context'
 
 const getPrefabs = () => {
   const arr = [] as FileDataType[]
@@ -176,8 +177,18 @@ const MemoAssetGridItem = memo(AssetGridItem)
 export function AssetGrid({ onSelect, tooltip }) {
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
+  const { searchElement } = useContext(AppContext)
 
   const items = getPrefabs()
+  const res = [] as FileDataType[]
+  if (searchElement.length > 0) {
+    const condition = new RegExp(searchElement.toLowerCase())
+    items.forEach((el) => {
+      if (condition.test(el.label.toLowerCase())) res.push(el)
+    })
+  }
+
+  const renderedItems = res?.length > 0 ? res : items
 
   // incrementig lastId
   useEffect(() => {
@@ -205,7 +216,7 @@ export function AssetGrid({ onSelect, tooltip }) {
     <>
       <VerticalScrollContainer flex>
         <MediaGrid>
-          {unique<any>(items, (item) => item.id).map((item: any) => (
+          {unique<any>(renderedItems, (item) => item.id).map((item: any) => (
             <MemoAssetGridItem
               key={item.id}
               tooltipComponent={tooltip}
