@@ -1,15 +1,4 @@
-import {
-  ArrowHelper,
-  Clock,
-  Material,
-  MathUtils,
-  Matrix4,
-  Object3D,
-  Quaternion,
-  Raycaster,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -22,11 +11,12 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
 import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { avatarCameraOffset, getAvatarCameraPosition } from '../../avatar/functions/moveAvatar'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -72,35 +62,13 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-const setAvatarOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData.shader) return
-    const shader = material.userData.shader
-    shader.uniforms.boneOpacity.value = opacity
-  })
-}
-
-const getAvatarBonePosition = (entity: Entity, name: string, position: Vector3): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    const bone = obj as any
-    // TODO: Cache the neck bone reference
-    if (!bone.isBone || !bone.name.toLowerCase().includes(name)) return
-    const el = bone.matrixWorld.elements
-    position.set(el[12], el[13], el[14])
-  })
-}
-
-const updateAvatarOpacity = (entity: Entity) => {
+const updateAvatarHeadOpacity = (entity: Entity) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
   const distanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
 
-  setAvatarOpacity(entity, distanceRatio)
+  setAvatarHeadOpacity(entity, distanceRatio)
 }
 
 const updateCameraTargetRotation = (entity: Entity, delta: number) => {
@@ -178,7 +146,6 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
-  const avatarTransform = getComponent(entity, TransformComponent)
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
@@ -186,10 +153,8 @@ const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
   //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
-  target.set(shoulderOffset, 0.1, 0.2)
-  target.applyQuaternion(avatarTransform.rotation)
-  getAvatarBonePosition(entity, 'neck', tempVec1)
-  target.add(tempVec1)
+  tempVec1.copy(avatarCameraOffset).setX(shoulderOffset)
+  getAvatarCameraPosition(entity, tempVec1, target)
 }
 
 const updateFollowCamera = (entity: Entity, delta: number) => {
@@ -297,14 +262,14 @@ export default async function CameraSystem(world: World): Promise<System> {
     }
 
     for (const entity of followCameraQuery.exit()) {
-      setAvatarOpacity(entity, 1)
+      setAvatarHeadOpacity(entity, 1)
       Engine.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
     }
 
     for (const entity of followCameraQuery(world)) {
       updateFollowCamera(entity, delta)
-      updateAvatarOpacity(entity)
+      updateAvatarHeadOpacity(entity)
     }
 
     for (const entity of targetCameraRotationQuery(world)) {

@@ -137,5 +137,4 @@ export default async function XRSystem(world: World): Promise<System> {
       xrInputSourceComponent.head.position.copy(vector3)
     }
   }
-  // TODO: add and remove controller models from grips
 }

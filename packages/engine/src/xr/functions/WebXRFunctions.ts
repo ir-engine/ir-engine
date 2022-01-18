@@ -57,17 +57,17 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
 
 export const startWebXR = (): void => {
   const container = new Group()
-
-  Engine.scene.remove(Engine.camera)
-  container.add(Engine.camera)
-  const head = new Group()
+  //container.add()
+  const cameraContainer = new Group()
+  cameraContainer.add(Engine.camera)
+  Engine.scene.add(cameraContainer)
 
   const world = useWorld()
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
 
   const inputData = {
-    head,
+    head: new Group(),
     container,
     controllerLeft: new Group(),
     controllerRight: new Group(),
@@ -100,6 +100,7 @@ export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null!
   Engine.xrManager.setSession(null)
+  Engine.camera.parent?.removeFromParent()
   Engine.scene.add(Engine.camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)

@@ -4,6 +4,7 @@ import {
   Bone,
   DoubleSide,
   Group,
+  Material,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -11,7 +12,8 @@ import {
   RGBAFormat,
   Skeleton,
   SkinnedMesh,
-  sRGBEncoding
+  sRGBEncoding,
+  Vector3
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -33,6 +35,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
@@ -267,4 +270,29 @@ const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
 
     material.userData.shader = shader
   }
+}
+
+export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.traverse((obj) => {
+    if (!(obj as SkinnedMesh).isSkinnedMesh) return
+    const material = (obj as SkinnedMesh).material as Material
+    if (!material.userData.shader) return
+    const shader = material.userData.shader
+    shader.uniforms.boneOpacity.value = opacity
+  })
+}
+
+export const getAvatarBoneWorldPosition = (entity: Entity, name: string, position: Vector3): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  let found = false
+  object3DComponent?.value.traverse((obj) => {
+    const bone = obj as Bone
+    // TODO: Cache the neck bone reference
+    if (found || !bone.isBone || !bone.name.toLowerCase().includes(name)) return
+    bone.updateWorldMatrix(true, false)
+    const el = bone.matrixWorld.elements
+    position.set(el[12], el[13], el[14])
+    found = true
+  })
 }
