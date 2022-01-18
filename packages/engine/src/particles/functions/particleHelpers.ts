@@ -1,9 +1,8 @@
-import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { ParticleEmitterMesh } from './ParticleEmitterMesh'
-import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 
 export const DEG2RAD = 0.0174533
 
@@ -43,17 +42,8 @@ export const fragmentShader = `
   }
 `
 
-export const createParticleEmitterObject = (entity, configs): void => {
+export const applyTransform = (entity: Entity, mesh: ParticleEmitterMesh): void => {
   if (!isClient) return
-  ParticleEmitterMesh.fromArgs(configs).then((mesh) => {
-    addComponent(entity, ParticleEmitterComponent, { particleEmitterMesh: mesh })
-    Engine.scene.add(mesh)
-  })
-}
-
-export const applyTransform = (entity, emitter): void => {
-  if (!isClient) return
-  const mesh = emitter.particleEmitterMesh
   if (mesh) {
     const transform = getComponent(entity, TransformComponent)
     mesh.position.set(transform.position.x, transform.position.y, transform.position.z)

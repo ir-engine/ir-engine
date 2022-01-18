@@ -33,7 +33,7 @@ const MenuListComposition = (props: Props): any => {
     setModalOpen(true)
     setOpen(false)
   }
-  const handleClose = (event: MouseEvent<EventTarget>): any => {
+  const handleClose = (event: globalThis.MouseEvent | TouchEvent): void => {
     if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
       return
     }
@@ -65,7 +65,7 @@ const MenuListComposition = (props: Props): any => {
   const prevOpen = useRef(open)
   useEffect(() => {
     if (prevOpen.current && !open) {
-      anchorRef.current.focus()
+      anchorRef.current?.focus()
     }
 
     prevOpen.current = open

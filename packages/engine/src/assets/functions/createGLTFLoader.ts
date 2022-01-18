@@ -19,7 +19,6 @@ export const createGLTFLoader = (keepMaterials = false) => {
   if (isClient) {
     dracoLoader.setDecoderPath('/loader_decoders/')
   } else {
-    ;(dracoLoader as any).getDecoderModule = () => {}
     ;(dracoLoader as any).preload = () => {}
   }
   ;(loader as any).setDRACOLoader(dracoLoader)

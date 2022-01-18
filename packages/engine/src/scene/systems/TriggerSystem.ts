@@ -27,22 +27,20 @@ export default async function TriggerSystem(world: World): Promise<System> {
       }
 
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
+      const onEnter = triggerComponent.onEnter
+      if (!onEnter) continue
 
-      const args = triggerComponent.args
-      if (!args) continue
-      const onEnter = args.onEnter
-
-      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == args.target)
+      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)
       let targetObj: any
       console.log(filtered)
       if (filtered.length > 0) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
-            target: args.target,
+            target: triggerComponent.target,
             object: targetObj
           })
         }
@@ -61,21 +59,18 @@ export default async function TriggerSystem(world: World): Promise<System> {
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
       if (!triggerCollidedQuery) continue
-      const args = triggerComponent.args
-      if (!args) continue
-      const onExit = args.onExit
+      const onExit = triggerComponent.onExit
 
-      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == args.target)
-      console.log(filtered)
+      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)
       let targetObj: any
       if (filtered.length > 0) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = Engine.scene.getObjectByProperty('sceneEntityId', args.target) as any
+        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
-            target: args.target,
+            target: triggerComponent.target,
             object: targetObj
           })
         }

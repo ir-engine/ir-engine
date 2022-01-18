@@ -3,9 +3,9 @@ import { createState } from '@hookstate/core'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-import { InteractionData } from '@xrengine/engine/src/interaction/types/InteractionTypes'
+import { InteractableComponentType } from '../components/InteractableComponent'
 
-export function createInteractiveModalView(data: InteractionData) {
+export function createInteractiveModalView(data: InteractableComponentType) {
   return createXRUI(
     () => <InteractiveModalView callback={data.callback}></InteractiveModalView>,
     createInteractiveModalState(data)
@@ -63,7 +63,7 @@ const renderMedia = (detailState) => {
   )
 }
 
-function createInteractiveModalState(data: InteractionData) {
+function createInteractiveModalState(data: InteractableComponentType) {
   const totalMediaUrls: any[] = []
   if (data.interactionImages)
     for (let url of data.interactionImages) {

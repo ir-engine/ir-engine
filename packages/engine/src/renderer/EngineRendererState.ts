@@ -26,7 +26,7 @@ function setQualityLevel(s: StateType, qualityLevel) {
   EngineRenderer.instance.scaleFactor = qualityLevel / EngineRenderer.instance.maxQualityLevel
   Engine.renderer.setPixelRatio(window.devicePixelRatio * EngineRenderer.instance.scaleFactor)
   EngineRenderer.instance.needsResize = true
-  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, EngineRenderer.instance.scaleFactor)
+  ClientStorage.set(databasePrefix + RENDERER_SETTINGS.QUALITY_LEVEL, qualityLevel)
   s.merge({ qualityLevel })
 }
 

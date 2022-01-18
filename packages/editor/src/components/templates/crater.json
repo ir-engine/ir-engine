@@ -196,16 +196,6 @@
           "props": {
             "color": "#7ed321"
           }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "receive": true
-          }
-        },
-        {
-          "name": "walkable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",

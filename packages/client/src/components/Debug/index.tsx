@@ -1,12 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
-import { getEntityComponents } from 'bitecs'
-import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -18,8 +18,10 @@ export const Debug = () => {
     console.log('setup keypress')
     window.addEventListener('keypress', (ev) => {
       if (ev.key === 'p') {
-        togglePhysicsDebug()
-        toggleAvatarDebug()
+        if (document.activeElement?.querySelector('canvas')) {
+          togglePhysicsDebug()
+          toggleAvatarDebug()
+        }
       }
     })
   }
@@ -59,7 +61,7 @@ export const Debug = () => {
       ...Object.fromEntries(
         [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
           return [
-            key,
+            key + '(' + value + ')',
             Object.fromEntries(
               getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
                 if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])

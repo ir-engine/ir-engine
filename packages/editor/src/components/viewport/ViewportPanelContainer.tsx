@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Vector2 } from 'three'
+import { useState as useHookstate } from '@hookstate/core'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import AssetDropZone from '../assets/AssetDropZone'
-import { addAssetAtCursorPositionOnDrop } from '../dnd'
+import { addItemAtCursorPosition } from '../dnd'
 import * as styles from './Viewport.module.scss'
 import editorTheme from '@xrengine/client-core/src/util/theme'
 import EditorEvents from '../../constants/EditorEvents'
@@ -12,6 +14,7 @@ import { SceneManager } from '../../managers/SceneManager'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import { accessEditorState } from '../../services/EditorServices'
 
 /**
  * ViewportPanelContainer used to render viewport.
@@ -23,7 +26,7 @@ export function ViewportPanelContainer() {
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
-  // const [showStats, setShowStats] = useState(false);
+  const sceneLoaded = useHookstate(accessEditorState().sceneName)
   const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
@@ -57,8 +60,6 @@ export function ViewportPanelContainer() {
       CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
       CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
-
-      SceneManager.instance.dispose()
     }
   }, [])
 
@@ -76,7 +77,8 @@ export function ViewportPanelContainer() {
 
         return
       }
-      addAssetAtCursorPositionOnDrop(item, mousePos)
+
+      addItemAtCursorPosition(item, mousePos as Vector2)
     },
     collect: (monitor) => ({
       canDrop: monitor.canDrop(),
@@ -136,10 +138,14 @@ export function ViewportPanelContainer() {
     <div
       className={styles.viewportContainer}
       style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent'
+        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
+        backgroundColor: sceneLoaded.value ? undefined! : 'grey'
       }}
       ref={dropRef}
     >
+      {!sceneLoaded.value && (
+        <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
+      )}
       <div className={styles.controlsText}>{controlsText}</div>
       <AssetDropZone afterUpload={onAfterUploadAssets} />
     </div>

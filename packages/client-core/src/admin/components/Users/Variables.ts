@@ -44,11 +44,11 @@ export interface UserData {
   id: string
   user: any
   name: string
-  avatar: string
-  status: string
-  location: string
-  inviteCode: string
-  instanceId: string
+  avatar: string | JSX.Element
+  status: string | JSX.Element
+  location: string | JSX.Element
+  inviteCode: string | JSX.Element
+  instanceId: string | JSX.Element
   action: any
 }
 export interface UserProps {

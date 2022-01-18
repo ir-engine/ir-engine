@@ -52,6 +52,17 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   ).cache()
 }
 
+export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {
+  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
+  if (equipperComponent) {
+    const equippedEntity = equipperComponent.equippedEntity
+    const equippedComponent = getComponent(equippedEntity, EquippedComponent)
+    equippedComponent.attachmentPoint = attachmentPoint
+  } else {
+    console.warn(`changeHand for equippable called on entity with id ${equipperEntity} without equipperComponent!.`)
+  }
+}
+
 export const getAttachmentPoint = (parityValue: ParityValue): EquippableAttachmentPoint => {
   let attachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
   if (parityValue === ParityValue.LEFT) attachmentPoint = EquippableAttachmentPoint.LEFT_HAND

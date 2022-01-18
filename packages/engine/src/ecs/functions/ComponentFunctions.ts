@@ -4,6 +4,7 @@ import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 
 export const ComponentMap = new Map<string, ComponentType<any>>()
+globalThis.ComponentMap = ComponentMap
 
 // TODO: benchmark map vs array for componentMap
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
@@ -152,6 +153,18 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   bitECS.removeComponent(world, component, entity)
 }
 
+export const getAllComponents = (entity: Entity, world = useWorld()): ComponentConstructor<any, any>[] => {
+  return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
+}
+
+export const getComponentCountOfType = <T, S extends bitECS.ISchema>(
+  component: MappedComponent<T, S>,
+  world = useWorld()
+): number => {
+  const query = defineQuery([component])
+  return query(world).length
+}
+
 export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
@@ -163,17 +176,13 @@ export const getAllComponentsOfType = <T, S extends bitECS.ISchema>(
   })
 }
 
-export const getAllEntitiesWithComponent = <T, S extends bitECS.ISchema>(
-  component: MappedComponent<T, S>,
-  world = useWorld()
-): Entity[] => {
-  const query = defineQuery([component])
-  return query(world)
-}
-
 export const removeAllComponents = (entity: Entity, world = useWorld()) => {
-  for (const component of bitECS.getEntityComponents(world, entity)) {
-    removeComponent(entity, component as MappedComponent<any, any>, world)
+  try {
+    for (const component of bitECS.getEntityComponents(world, entity)) {
+      removeComponent(entity, component as MappedComponent<any, any>, world)
+    }
+  } catch (_) {
+    console.warn('Components of entity already removed')
   }
 }
 

@@ -1,43 +1,6 @@
 client:
-  config:
-    publicRuntimeConfig:
-      apiServer: https://api-local.theoverlay.io
-      appServer: https://local.theoverlay.io
-      gameserver: https://gameserver-local.theoverlay.io
-      gameserverDomain: gameserver-local.theoverlay.io
-      dev: true
-      local: true
-      feathersStoreKey: TheOverlay-Auth-Store
-      localStorageKey: theoverlay-client-store-key-v1
-      loginDisabled: true
-      logo: "./logo.svg"
-      siteDescription: Connected Worlds for Everyone
-      siteTitle: XR3ngine
-      title: "The Overlay"
-      auth:
-        enableSmsMagicLink: true
-        enableEmailMagicLink: true
-        enableUserPassword: true
-        enableGithubSocial: true
-        enableFacebookSocial: true
-        enableGoogleSocial: true
-        enableLinkedInSocial: true
-        enableTwitterSocial: true
-      alert:
-        timeout: 10000
-      offlineMode: false
-      staticPages:
-        termsOfService: "/terms-of-service"
   extraEnv:
-    API_ASSETS_ROUTE: /static-resource
     API_ASSETS_ACTION: assets
-    API_MEDIA_ROUTE: /media
-    API_MEDIA_SEARCH_ROUTE: "-search"
-    API_META_ROUTE: /meta
-    API_PROJECTS_ROUTE: /project
-    API_RESOLVE_MEDIA_ROUTE: /resolve-media
-    API_PROJECT_PUBLISH_ACTION: /publish-project
-    API_SCENES_ROUTE: /collection
     API_SERVER_ADDRESS: api-local.theoverlay.io
     API_SOCKET_ENDPOINT: /socket
     API_SERVER: https://api-local.theoverlay.io

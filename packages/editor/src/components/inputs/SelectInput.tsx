@@ -1,70 +1,19 @@
 import React from 'react'
-import Select from 'react-select'
-import CreatableSelect from 'react-select/creatable'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
+import styles from './selectInput.module.scss'
 
 /**
  * @author Robert Long
  */
-const staticStyle = {
-  container: (base) => ({
-    ...base,
-    width: '100%',
-    maxWidth: '200px'
-  }),
-  control: (base, { isDisabled }) => ({
-    ...base,
-    backgroundColor: isDisabled ? '#222222' : 'black',
-    minHeight: '24px',
-    border: '1px solid #5D646C',
-    cursor: 'pointer'
-  }),
-  input: (base, { isDisabled }) => ({
-    ...base,
-    margin: '0px',
-    color: isDisabled ? 'grey' : 'white'
-  }),
-  dropdownIndicator: (base) => ({
-    ...base,
-    padding: '0 4px 0 0'
-  }),
-  clearIndicator: (base) => ({
-    ...base,
-    padding: '0',
-    width: '16px',
-    height: '16px',
-    alignItems: 'center',
-    paddingTop: '1px'
-  }),
-  menu: (base, { isDisabled }) => ({
-    ...base,
-    borderRadius: '4px',
-    border: '1px solid black',
-    backgroundColor: 'black',
-    outline: 'none',
-    padding: '0',
-    position: 'absolute',
-    color: isDisabled ? 'grey' : 'white',
-    top: '20px'
-  }),
-  menuList: (base) => ({
-    ...base,
-    padding: '0',
-    maxHeight: '120px'
-  }),
-  option: (base, { isFocused }) => ({
-    ...base,
-    backgroundColor: isFocused ? '#006EFF' : 'black',
-    cursor: 'pointer'
-  }),
-  singleValue: (base, { isDisabled }) => ({
-    ...base,
-    color: isDisabled ? 'grey' : 'white'
-  })
-}
 
 interface SelectInputProp {
   value: any
-  options: any
+  options: Array<{ label: string; value: any }>
   onChange?: Function
   placeholder?: string
   disabled?: boolean
@@ -96,49 +45,90 @@ interface SelectInputProp {
 export function SelectInput({
   value,
   options,
-  onChange,
   placeholder,
   disabled,
-  error,
-  styles,
   creatable,
-  ...rest
+  isSearchable,
+  onChange
 }: SelectInputProp) {
-  const selectedOption =
-    options.find((o) => {
-      if (o === null) {
-        return o
-      } else if (o.value && o.value.equals) {
-        return o.value.equals(value)
-      } else {
-        return o.value === value
-      }
-    }) || null
-
-  const dynamicStyle = {
-    ...staticStyle,
-    placeholder: (base, { isDisabled }) => ({
-      ...base,
-      color: isDisabled ? 'grey' : error ? 'red' : 'white'
-    }),
-    ...styles
+  let v
+  if (isSearchable) {
+    v = options.find((el) => el.value === value)?.label
   }
 
-  const Component = creatable ? CreatableSelect : Select
+  const [valueSelected, setValue] = React.useState(value)
+  const [valueAutoSelected, setAutoValue] = React.useState(v)
 
-  return (
-    <Component
-      {...rest}
-      styles={dynamicStyle}
-      value={selectedOption}
-      components={{ IndicatorSeparator: () => null }}
-      placeholder={placeholder}
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value)
+    onChange?.(event.target.value)
+  }
+
+  const onValueChanged = (event, values) => {
+    setAutoValue(values.label)
+    onChange?.(values.value)
+  }
+
+  const Component = isSearchable ? (
+    <Autocomplete
       options={options}
-      menuPlacement="auto"
-      onChange={(option) => onChange(option && option.value, option)}
-      isDisabled={disabled}
+      onChange={onValueChanged}
+      freeSolo={creatable}
+      disablePortal
+      value={valueAutoSelected}
+      fullWidth
+      size="small"
+      classes={{
+        root: styles.autoComplete,
+        input: styles.inputfield,
+        inputRoot: styles.inputWrapper,
+        endAdornment: styles.adornmentContainer,
+        popupIndicator: styles.adornment,
+        clearIndicator: styles.adornment,
+        popper: styles.popper,
+        paper: styles.paper,
+        option: styles.option
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="outlined"
+          disabled={disabled}
+          classes={{
+            root: styles.inputfieldContainer
+          }}
+        />
+      )}
     />
+  ) : (
+    <React.Fragment>
+      <FormControl fullWidth>
+        <Select
+          labelId="select-label"
+          id="select"
+          value={valueSelected}
+          onChange={handleChange}
+          placeholder={placeholder}
+          size="small"
+          classes={{
+            select: styles.select,
+            icon: styles.icon
+          }}
+          disabled={disabled}
+          MenuProps={{ classes: { paper: styles.paper } }}
+          IconComponent={ExpandMoreIcon}
+        >
+          {options.map((el, index) => (
+            <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
+              {el.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </React.Fragment>
   )
+
+  return <>{Component}</>
 }
 
 SelectInput.defaultProps = {
@@ -149,7 +139,8 @@ SelectInput.defaultProps = {
   styles: {},
   error: false,
   disabled: false,
-  creatable: false
+  creatable: false,
+  isSearchable: false
 }
 
 export default SelectInput

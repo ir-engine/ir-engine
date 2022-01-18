@@ -62,12 +62,10 @@ const CreateParty = (props: PartyProps) => {
 
   const submitParty = async (e) => {
     e.preventDefault()
-    await dispatch(
-      PartyService.createAdminParty({
-        locationId: location,
-        instanceId: instance
-      })
-    )
+    await PartyService.createAdminParty({
+      locationId: location,
+      instanceId: instance
+    })
     setLocation('')
     setInstance('')
     handleClose()
@@ -98,7 +96,6 @@ const CreateParty = (props: PartyProps) => {
                 onChange={(e, newValue) => setLocation(newValue.id as string)}
                 {...defaultProps}
                 id="debug"
-                debug
                 renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
               />
 
@@ -106,7 +103,6 @@ const CreateParty = (props: PartyProps) => {
                 onChange={(e, newValue) => setInstance(newValue.id as string)}
                 {...InstanceProps}
                 id="debug"
-                debug
                 renderInput={(params) => <TextField {...params} label="Instance" className={classes.marginBottm} />}
               />
 

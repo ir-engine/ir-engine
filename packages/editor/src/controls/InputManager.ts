@@ -37,7 +37,8 @@ export default class InputManager {
     let eventKey = (event.key ?? String.fromCharCode(event.which || parseInt(event.code))).toLowerCase()
     let preventDefault = false
 
-    for (const actionName in inputMapping) {
+    const actionNames = Object.keys(inputMapping)
+    for (const actionName of actionNames) {
       if (!Object.prototype.hasOwnProperty.call(inputMapping, actionName)) continue
 
       const key = inputMapping[actionName].key
@@ -174,7 +175,8 @@ export default class InputManager {
     const mouseMove = mouseMapping.move
     if (!mouseMove) return
 
-    for (const actionName in mouseMove) {
+    const actionNames = Object.keys(mouseMove)
+    for (const actionName of actionNames) {
       if (!Object.prototype.hasOwnProperty.call(mouseMove, actionName)) continue
 
       const key = mouseMove[actionName].key
@@ -205,7 +207,8 @@ export default class InputManager {
     const mouseWheel = mouseMapping.wheel
     if (!mouseWheel) return false
 
-    for (const actionName in mouseWheel) {
+    const actionNames = Object.keys(mouseWheel)
+    for (const actionName of actionNames) {
       if (!Object.prototype.hasOwnProperty.call(mouseWheel, actionName)) continue
 
       const key = mouseWheel[actionName].key
@@ -261,7 +264,8 @@ export default class InputManager {
     this.inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
     const defaultState = this.inputComponent.defaultState
 
-    for (const key in defaultState) {
+    const keys = Object.keys(defaultState)
+    for (const key of keys) {
       if (Object.prototype.hasOwnProperty.call(defaultState, key)) {
         this.inputComponent.actionState[key] = defaultState[key]
       }

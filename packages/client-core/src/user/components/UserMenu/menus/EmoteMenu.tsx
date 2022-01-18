@@ -127,7 +127,7 @@ const EmoteMenu = (props: any): any => {
   }
 
   const renderEmoteList = () => {
-    const itemList = []
+    const itemList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
     const endIndex = Math.min(startIndex + imgPerPage, items.length)
     let angle = 360 / imgPerPage

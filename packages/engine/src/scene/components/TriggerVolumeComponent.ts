@@ -1,7 +1,8 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TriggerVolumeComponentType = {
-  args: any
+  onEnter: string
+  onExit: string
   target: any
   active: boolean
 }

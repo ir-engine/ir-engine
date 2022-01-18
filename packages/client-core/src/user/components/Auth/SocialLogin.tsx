@@ -1,14 +1,16 @@
-import React from 'react'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import Container from '@mui/material/Container'
-import GitHubIcon from '@mui/icons-material/GitHub'
+import ChatBubble from '@mui/icons-material/ChatBubble'
 import FacebookIcon from '@mui/icons-material/Facebook'
+import GitHubIcon from '@mui/icons-material/GitHub'
 import LinkedinIcon from '@mui/icons-material/LinkedIn'
 import TwitterIcon from '@mui/icons-material/Twitter'
-import styles from './Auth.module.scss'
-import { AuthService } from '../../services/AuthService'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+import { AuthService } from '../../services/AuthService'
+import styles from './Auth.module.scss'
 
 interface Props {
   auth?: any
@@ -17,35 +19,49 @@ interface Props {
   enableGoogleSocial?: boolean
   enableLinkedInSocial?: boolean
   enableTwitterSocial?: boolean
+  enableDiscordSocial?: boolean
 }
 
 const SocialLogin = (props: Props): any => {
-  const { enableFacebookSocial, enableGithubSocial, enableGoogleSocial, enableLinkedInSocial, enableTwitterSocial } =
-    props
+  const {
+    enableDiscordSocial,
+    enableFacebookSocial,
+    enableGithubSocial,
+    enableGoogleSocial,
+    enableLinkedInSocial,
+    enableTwitterSocial
+  } = props
   const { t } = useTranslation()
+  const location: any = useLocation()
+
   const handleGithubLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('github')
+    AuthService.loginUserByOAuth('github', location)
   }
 
   const handleGoogleLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('google')
+    AuthService.loginUserByOAuth('google', location)
   }
 
   const handleFacebookLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('facebook')
+    AuthService.loginUserByOAuth('facebook', location)
   }
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('linkedin2')
+    AuthService.loginUserByOAuth('linkedin2', location)
   }
 
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('twitter')
+    AuthService.loginUserByOAuth('twitter', location)
+  }
+
+  const handleDiscordLogin = (e: any): void => {
+    e.preventDefaule()
+    AuthService.loginUserByOAuth('discord', location)
   }
 
   const githubButton = enableGithubSocial ? (
@@ -119,10 +135,28 @@ const SocialLogin = (props: Props): any => {
   ) : (
     ''
   )
+
+  const discordButton = enableDiscordSocial ? (
+    <Grid item xs={12}>
+      <Button
+        onClick={(e) => handleDiscordLogin(e)}
+        startIcon={<ChatBubble />}
+        variant="contained"
+        className={styles.discord}
+        fullWidth={true}
+      >
+        {t('user:auth.social.discord')}
+      </Button>
+    </Grid>
+  ) : (
+    ''
+  )
+
   return (
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
         <Grid container justifyContent="center" spacing={2}>
+          {discordButton}
           {githubButton}
           {facebookButton}
           {googleButton}

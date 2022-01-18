@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Object3D, SkinnedMesh } from 'three'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'
@@ -54,8 +53,8 @@ function _addRig(
     rootParent: rootObject,
     tpose: new Pose(rootObject, true), // If Passing a TPose, it must have its world space computed.
     pose: new Pose(rootObject, false),
-    chains: null, // will be populated later in setup rig
-    points: null // will be populated later in setup rig
+    chains: {}, // will be populated later in setup rig
+    points: {} // will be populated later in setup rig
   })
 
   //

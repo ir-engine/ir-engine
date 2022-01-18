@@ -95,4 +95,6 @@ export class Engine {
   static keyboardInputEnabled = true
 
   static xrFrame: XRFrame
+
+  static isEditor = false
 }

@@ -12,8 +12,8 @@ import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import Paper from '@mui/material/Paper'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PROJECT_PAGE_LIMIT, useProjectState } from '../../services/ProjectService'
-import { ProjectService } from '../../services/ProjectService'
+import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
+import { ProjectService } from '../../../common/services/ProjectService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
@@ -141,7 +141,7 @@ const Projects = () => {
 
   // const handlePageChange = (event: unknown, newPage: number) => {
   //   const incDec = page < newPage ? 'increment' : 'decrement'
-  //   fetchAdminProjects(incDec)
+  //   fetchProjects(incDec)
   //   setPage(newPage)
   // }
 
@@ -176,7 +176,7 @@ const Projects = () => {
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchAdminProjects()
+      ProjectService.fetchProjects()
     }
   }, [adminProjectState.updateNeeded.value])
 

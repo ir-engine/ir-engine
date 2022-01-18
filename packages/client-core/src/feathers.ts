@@ -9,7 +9,6 @@ const serverHost =
         (globalThis as any).process.env['VITE_SERVER_PORT']
       }`
     : `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}`
-console.log('serverHost', serverHost)
 
 const socket = io(serverHost, {
   withCredentials: true
@@ -17,7 +16,7 @@ const socket = io(serverHost, {
 feathersClient.configure(feathers.socketio(socket, { timeout: 10000 }))
 feathersClient.configure(
   feathers.authentication({
-    storageKey: process.env.FEATHERS_STORE_KEY
+    storageKey: globalThis.process.env['VITE_FEATHERS_STORE_KEY']
   })
 )
 

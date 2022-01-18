@@ -5,7 +5,7 @@ import appRootPath from 'app-root-path'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
 import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
 import { useStorageProvider } from './media/storageprovider/storageprovider'
-import { parseSceneDataCacheURLs } from './world/scene/scene-parser'
+import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
 import _ from 'lodash'
 
 const storageProvider = useStorageProvider()

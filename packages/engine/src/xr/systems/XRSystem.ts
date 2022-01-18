@@ -13,7 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { initializeXRInputs } from '../functions/addControllerModels'
+import { initializeXRInputs, cleanXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -33,7 +33,6 @@ const startXRSession = async () => {
     Engine.xrManager.getCamera().layers.enableAll()
 
     Engine.xrManager.addEventListener('sessionend', async () => {
-      endXR()
       dispatchLocal(EngineActions.xrEnd() as any)
     })
 
@@ -67,6 +66,12 @@ export default async function XRSystem(world: World): Promise<System> {
       case EngineEvents.EVENTS.XR_START:
         startXRSession()
         break
+      case EngineEvents.EVENTS.XR_END:
+        for (const entity of localXRControllerQuery()) {
+          cleanXRInputs(entity)
+        }
+        endXR()
+        break
     }
   })
 
@@ -91,19 +96,22 @@ export default async function XRSystem(world: World): Promise<System> {
                 : LifecycleValue.Ended
             })
           })
-          if (source.gamepad?.axes.length > 2) {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.Started
-            })
-          } else {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.Started
-            })
+          const inputData =
+            source.gamepad?.axes.length > 2
+              ? [source.gamepad.axes[2], source.gamepad.axes[3]]
+              : [source.gamepad.axes[0], source.gamepad.axes[1]]
+          if (Math.abs(inputData[0]) < 0.05) {
+            inputData[0] = 0
           }
+          if (Math.abs(inputData[1]) < 0.05) {
+            inputData[1] = 0
+          }
+          console.log(inputData)
+          Engine.inputState.set(mapping.axes, {
+            type: InputType.TWODIM,
+            value: inputData,
+            lifecycleState: LifecycleValue.Started
+          })
         }
       }
     }

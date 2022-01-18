@@ -9,7 +9,7 @@
   },
   "description": "Shared types for other XREngine packages",
   "scripts": {
-    "check-errors": "exit 0",
+    "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 APP_ENV=production vite build --config vite.build.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
@@ -19,13 +19,13 @@
   "devDependencies": {
     "@rollup/plugin-alias": "3.1.8",
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.0.6",
+    "@rollup/plugin-node-resolve": "13.1.1",
     "@rollup/plugin-replace": "3.0.0",
-    "create-ts-index": "1.13.6",
+    "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
-    "rollup": "2.60.1",
+    "rollup": "2.62.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-sass": "1.2.9",

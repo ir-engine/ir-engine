@@ -1,0 +1,3 @@
+Thank you for installing XREngine-Matchmaking
+
+This service will set up a director and matchfunction to facilitate matchmaking.
