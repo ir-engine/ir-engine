@@ -5,7 +5,7 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import { useStyle, useStyles } from './style'
+import styles from './selectInput.module.scss'
 
 /**
  * @author Robert Long
@@ -51,9 +51,6 @@ export function SelectInput({
   isSearchable,
   onChange
 }: SelectInputProp) {
-  const classx = useStyle()
-  const classesx = useStyle()
-
   let v
   if (isSearchable) {
     v = options.find((el) => el.value === value)?.label
@@ -79,15 +76,28 @@ export function SelectInput({
       freeSolo={creatable}
       disablePortal
       value={valueAutoSelected}
+      fullWidth
+      size="small"
       classes={{
-        root: classx.autoSelect,
-        input: classx.input,
-        listbox: classx.autoSelectPaper,
-        hasClearIcon: classx.icon,
-        popper: classx.popper
+        root: styles.autoComplete,
+        input: styles.inputfield,
+        inputRoot: styles.inputWrapper,
+        endAdornment: styles.adornmentContainer,
+        popupIndicator: styles.adornment,
+        clearIndicator: styles.adornment,
+        popper: styles.popper,
+        paper: styles.paper,
+        option: styles.option
       }}
       renderInput={(params) => (
-        <TextField variant="standard" {...params} disabled={disabled} classes={{ root: classx.txtRoot }} />
+        <TextField
+          {...params}
+          variant="outlined"
+          disabled={disabled}
+          classes={{
+            root: styles.inputfieldContainer
+          }}
+        />
       )}
     />
   ) : (
@@ -99,13 +109,17 @@ export function SelectInput({
           value={valueSelected}
           onChange={handleChange}
           placeholder={placeholder}
-          classes={{ select: classx.select, icon: classx.icon }}
+          size="small"
+          classes={{
+            select: styles.select,
+            icon: styles.icon
+          }}
           disabled={disabled}
-          MenuProps={{ classes: { paper: classx.paper } }}
+          MenuProps={{ classes: { paper: styles.paper } }}
           IconComponent={ExpandMoreIcon}
         >
           {options.map((el, index) => (
-            <MenuItem value={el.value} key={el.value + index} classes={{ root: classx.root }}>
+            <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
               {el.label}
             </MenuItem>
           ))}
