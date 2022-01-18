@@ -5,13 +5,9 @@ import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory } from 'react-router-dom'
-import { CreatorService } from '../../../social/services/CreatorService'
-import { useCreatorState } from '../../../social/services/CreatorService'
 import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 
 const initialState = { email: '', password: '' }
@@ -20,24 +16,7 @@ interface Props {}
 
 export const PasswordLoginApp = (props: Props): any => {
   const {} = props
-  const auth = useAuthState()
-  const history = useHistory()
   const { t } = useTranslation()
-  const creatorsState = useCreatorState()
-  useEffect(() => {
-    if (auth) {
-      const user = auth.user
-      const userId = user ? user.id.value : null
-
-      if (userId) {
-        CreatorService.createCreator()
-      }
-    }
-  }, [auth])
-
-  useEffect(() => {
-    creatorsState.creators?.value?.currentCreator && history.push('/')
-  }, [creatorsState.creators?.value?.currentCreator])
 
   const [state, setState] = useState(initialState)
 

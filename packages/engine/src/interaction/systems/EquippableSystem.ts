@@ -47,11 +47,14 @@ function equippableActionReceptor(action) {
 }
 
 export function equippableQueryEnter(entity) {
-  const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
-  const collider = getComponent(equippedEntity, ColliderComponent)
-  if (collider) {
-    let phsyxRigidbody = collider.body as PhysX.PxRigidBody
-    useWorld().physics.changeRigidbodyType(phsyxRigidbody, BodyType.KINEMATIC)
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if (equipperComponent) {
+    const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
+    const collider = getComponent(equippedEntity, ColliderComponent)
+    if (collider) {
+      let phsyxRigidbody = collider.body as PhysX.PxRigidBody
+      useWorld().physics.changeRigidbodyType(phsyxRigidbody, BodyType.KINEMATIC)
+    }
   }
 }
 

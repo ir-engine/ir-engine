@@ -26,7 +26,13 @@ import { InputAlias } from '../input/types/InputAlias'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { equipEntity, getAttachmentPoint, unequipEntity } from '../interaction/functions/equippableFunctions'
+import {
+  changeHand,
+  equipEntity,
+  getAttachmentPoint,
+  getParity,
+  unequipEntity
+} from '../interaction/functions/equippableFunctions'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -35,6 +41,8 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { EquippedComponent } from '../interaction/components/EquippedComponent'
+import { Engine } from '../ecs/classes/Engine'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -79,14 +87,34 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if (equipperComponent?.equippedEntity) {
+    const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+    const attachmentPoint = equippedComponent.attachmentPoint
+    const currentParity = getParity(attachmentPoint)
+    if (currentParity !== parityValue) {
+      changeHand(entity, getAttachmentPoint(parityValue))
+    } else {
+      drop(entity, inputKey, inputValue, delta)
+    }
+    return
+  }
+
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // TODO: Define interaction types in some enum?
   if (interactiveComponent.interactionType === 'equippable') {
-    const attachmentPoint = getAttachmentPoint(parityValue)
-    equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+    if (
+      !interactiveComponent.validUserId ||
+      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.userId)
+    ) {
+      const attachmentPoint = getAttachmentPoint(parityValue)
+      equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+    } else {
+      console.warn('Invalid user is trying to equip.')
+    }
   } else {
     addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
   }
