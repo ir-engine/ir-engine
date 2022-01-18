@@ -17,13 +17,14 @@ const PartyTable = (props: PartyPropsTable) => {
   const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [partyName, setPartyName] = React.useState('')
+  const [partyId, setPartyId] = React.useState('')
 
   const authState = useAuthState()
   const user = authState.user
   const adminPartyState = usePartyState()
   const adminParty = adminPartyState
   const adminPartyData = adminParty.parties?.value || []
-  const adminPartyCount = adminParty.total
+  const adminPartyCount = adminPartyData.length
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -36,6 +37,7 @@ const PartyTable = (props: PartyPropsTable) => {
   }
 
   const submitRemoveParty = async () => {
+    await PartyService.removeParty(partyId)
     setPopConfirmOpen(false)
   }
 
@@ -61,6 +63,7 @@ const PartyTable = (props: PartyPropsTable) => {
             onClick={() => {
               setPopConfirmOpen(true)
               setPartyName(instance)
+              setPartyId(id)
             }}
           >
             <span className={classes.spanDange}>Delete</span>
@@ -90,11 +93,10 @@ const PartyTable = (props: PartyPropsTable) => {
         column={partyColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminPartyCount.value}
+        count={adminPartyCount}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-
       <ConfirmModel
         popConfirmOpen={popConfirmOpen}
         handleCloseModel={handleCloseModel}

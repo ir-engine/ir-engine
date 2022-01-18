@@ -29,6 +29,8 @@ store.receptors.push((action: PartyActionType): any => {
         return s.merge({ parties: action.data.data, updateNeeded: false })
       case 'PARTY_ADMIN_CREATED':
         return s.merge({ updateNeeded: true })
+      case 'ADMIN_PARTY_REMOVED':
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -74,6 +76,13 @@ export const PartyService = {
         AlertService.dispatchAlertError(err)
       }
     }
+  },
+  removeParty: async (id: string) => {
+    const dispatch = useDispatch()
+    {
+      const result = await client.service('party').remove(id)
+      dispatch(PartyAction.partyRemoved(result))
+    }
   }
 }
 
@@ -90,6 +99,12 @@ export const PartyAction = {
     return {
       type: 'PARTY_ADMIN_DISPLAYED' as const,
       data: data
+    }
+  },
+  partyRemoved: (party: AdminParty) => {
+    return {
+      type: 'ADMIN_PARTY_REMOVED' as const,
+      party: party
     }
   }
 }
