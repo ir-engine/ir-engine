@@ -229,9 +229,13 @@ export const getHandTransform = (
       }
     }
   }
+  const mul = hand === ParityValue.RIGHT ? -1 : 1
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-    position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
+    position: vec3
+      .set(mul * 0.35, 1, 0)
+      .applyQuaternion(transform.rotation)
+      .add(transform.position),
     rotation: quat.copy(transform.rotation).multiply(rotate180onY)
   }
 }
