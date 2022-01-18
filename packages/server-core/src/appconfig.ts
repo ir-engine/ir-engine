@@ -108,6 +108,7 @@ const client = {
 // TODO: rename to 'instanceserver'
 const gameserver = {
   clientHost: process.env.APP_HOST!,
+  hostname: process.env.GAMESERVER_HOST,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
   rtc_start_port: parseInt(process.env.RTC_START_PORT!),
   rtc_end_port: parseInt(process.env.RTC_END_PORT!),
