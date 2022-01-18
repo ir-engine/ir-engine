@@ -9,7 +9,7 @@
   },
   "description": "Shared types for other XREngine packages",
   "scripts": {
-    "check-errors": "exit 0",
+    "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 APP_ENV=production vite build --config vite.build.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
