@@ -273,7 +273,6 @@ const ViewUser = (props: Props) => {
                   }}
                   {...defaultProps}
                   id="debug"
-                  debug="true"
                   renderInput={(params) => <TextField {...params} label="User Role" />}
                 />
               </DialogContent>
