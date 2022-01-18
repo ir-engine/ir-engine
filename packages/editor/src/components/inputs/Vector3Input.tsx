@@ -11,15 +11,20 @@ export const Vector3InputContainer = (styled as any).div`
   display: flex;
   flex-direction: row;
   flex: 1 1 auto;
-  width: 70%;
   justify-content: flex-start;
 `
 
 export const Vector3Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
-  padding: 0 8px;
   color: ${(props) => props.theme.text2};
+
+  &:not(:first-child) {
+    padding: 0 6px;
+}
+&:first-child {
+  padding-right: 6px;
+}
 `
 
 const UniformButtonContainer = (styled as any).div`

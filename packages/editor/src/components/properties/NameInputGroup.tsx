@@ -19,7 +19,6 @@ import { EditorComponentType } from './Util'
 const StyledNameInputGroup = (styled as any)(InputGroup)`
   label {
     width: auto !important;
-    padding-right: 8px;
   }
 `
 

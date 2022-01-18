@@ -29,7 +29,6 @@ const StyledBooleanInput = (styled as any).input`
 const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
   width: 18px;
   height: 18px;
-  margin: 4px;
   cursor: pointer;
   display: block;
   position: relative;
@@ -43,8 +42,9 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
  */
 const BooleanCheck = (styled as any)(CheckIcon)`
   position: absolute;
-  top: 3px;
-  left: 2px;
+  width: 0.8em;
+  top: -6px;
+  left: -1.8px;
   color: ${(props) => props.theme.blue};
 `
 

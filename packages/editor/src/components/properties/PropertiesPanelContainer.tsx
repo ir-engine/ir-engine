@@ -25,9 +25,6 @@ import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTa
  * @type {styled component}
  */
 const StyledNodeEditor = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
 `
 
 /**
@@ -48,10 +45,6 @@ const PropertiesHeader = (styled as any).div`
  *  @type {Styled Component}
  */
 const NameInputGroupContainer = (styled as any).div`
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  padding: 8px 0;
 `
 /**
  * Styled component used to provide styles for visiblity checkbox.
@@ -59,12 +52,8 @@ const NameInputGroupContainer = (styled as any).div`
  * @author Robert Long
  */
 const VisibleInputGroup = (styled as any)(InputGroup)`
-  display: flex;
-  flex: 0;
-
   & > label {
     width: auto !important;
-    padding-right: 8px;
   }
 `
 
@@ -74,12 +63,8 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
  * @author Robert Long
  */
 const PersistInputGroup = (styled as any)(InputGroup)`
- display: flex;
- flex: 0;
-
  & > label {
    width: auto !important;
-   padding-right: 8px;
  }
 `
 
@@ -90,9 +75,6 @@ const PersistInputGroup = (styled as any)(InputGroup)`
  * @type {Styled Component}
  */
 const PropertiesPanelContent = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
   overflow-y: auto;
   height: 100%;
 `
@@ -104,9 +86,6 @@ const PropertiesPanelContent = (styled as any).div`
  * @type {Styled component}
  */
 const NoNodeSelectedMessage = (styled as any).div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100%;
 `
 
