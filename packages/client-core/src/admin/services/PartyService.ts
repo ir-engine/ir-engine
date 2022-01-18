@@ -26,7 +26,14 @@ store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        return s.merge({ parties: action.data.data, updateNeeded: false })
+        return s.merge({
+          parties: action.data.data,
+          updateNeeded: false,
+          skip: action.data.skip,
+          limit: action.data.limit,
+          total: action.data.total,
+          lastFetched: Date.now()
+        })
       case 'PARTY_ADMIN_CREATED':
         return s.merge({ updateNeeded: true })
       case 'ADMIN_PARTY_REMOVED':
@@ -52,7 +59,7 @@ export const PartyService = {
       }
     }
   },
-  fetchAdminParty: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminParty: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       const user = accessAuthState().user
@@ -63,13 +70,16 @@ export const PartyService = {
         if (user.userRole.value === 'admin') {
           const parties = await client.service('party').find({
             query: {
-              $sort: {
-                createdAt: -1
-              },
-              $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-              $limit: limit
+              // $sort: {
+              //   createdAt: -1
+              // },
+              $skip: skip,
+              $limit: limit,
+              action: 'admin',
+              search: value
             }
           })
+          console.log(parties)
           dispatch(PartyAction.partyRetrievedAction(parties))
         }
       } catch (err) {

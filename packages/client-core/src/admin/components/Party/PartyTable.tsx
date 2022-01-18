@@ -8,8 +8,10 @@ import { usePartyState } from '../../services/PartyService'
 import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
 import TableComponent from '../../common/Table'
 import ConfirmModel from '../../common/ConfirmModel'
+import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 
 const PartyTable = (props: PartyPropsTable) => {
+  const { search } = props
   const classes = useStyles()
   const dispatch = useDispatch()
 
@@ -24,7 +26,10 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyState = usePartyState()
   const adminParty = adminPartyState
   const adminPartyData = adminParty.parties?.value || []
-  const adminPartyCount = adminPartyData.length
+  const adminPartyCount = adminParty.total.value
+
+  //Call custom hooks
+  useFetchAdminParty(user, adminParty, adminPartyState, PartyService, search)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -40,12 +45,6 @@ const PartyTable = (props: PartyPropsTable) => {
     await PartyService.removeParty(partyId)
     setPopConfirmOpen(false)
   }
-
-  React.useEffect(() => {
-    if (user?.id?.value && adminParty.updateNeeded.value === true) {
-      PartyService.fetchAdminParty()
-    }
-  }, [authState.user?.id?.value, adminPartyState.updateNeeded.value])
 
   const createData = (id: string, instance: string, location: string): PartyData => {
     return {

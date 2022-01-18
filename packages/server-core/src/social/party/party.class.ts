@@ -3,6 +3,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
+import { Op } from 'sequelize'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 // import { Forbidden } from '@feathersjs/errors'
 
@@ -20,36 +21,54 @@ export class Party extends Service {
     this.app = app
   }
 
-  // async find(params: Params): Promise<any> {
-  //   console.log('params.query', params.query)
-  //
-  //   const { action, $skip, $limit, ...query} = params.query
-  //   const skip = $skip ? params.query.$skip : 0
-  //   const limit = $limit ? params.query.$limit : 10
-  //   const party = await (this.app.service('party') as any).Model.findAndCountAll({
-  //     offset: skip,
-  //     limit: limit,
-  //     include: [
-  //       {
-  //         model: (this.app.service('location') as any).Model,
-  //         required: false
-  //       },
-  //       {
-  //         model: (this.app.service('instance') as any).Model,
-  //         required: false
-  //       }
-  //     ],
-  //     where: query,
-  //     raw: true,
-  //     nest: true
-  //   })
-  //   return {
-  //     skip: skip,
-  //     limit: limit,
-  //     total: party.count,
-  //     data: party.rows
-  //   }
-  // }
+  async find(params: Params): Promise<any> {
+    const { action, $skip, $limit, search, ...query } = params.query!
+    const skip = $skip ? $skip : 0
+    const limit = $limit ? $limit : 10
+    if (action === 'admin') {
+      let ip = {}
+      let name = {}
+      if (!isNaN(search)) {
+        ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
+      } else {
+        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+      }
+
+      const party = await (this.app.service('party') as any).Model.findAndCountAll({
+        offset: skip,
+        limit: limit,
+        include: [
+          {
+            model: (this.app.service('location') as any).Model,
+            required: true,
+            where: { ...name }
+          },
+          {
+            model: (this.app.service('instance') as any).Model,
+            required: true,
+            where: { ...ip }
+          },
+          {
+            model: (this.app.service('party-user') as any).Model,
+            required: false
+          }
+        ],
+        where: query,
+        raw: true,
+        nest: true
+      })
+
+      return {
+        skip: skip,
+        limit: limit,
+        total: party.count,
+        data: party.rows
+      }
+    } else {
+      return super.find(params)
+    }
+  }
+
   /**
    * A function which used to get specific party
    *
