@@ -12,6 +12,7 @@ export interface PartyPropsTable {
   fetchAdminParty?: any
   authState?: any
   adminPartyState?: any
+  search: string
 }
 
 export interface PartyColumn {

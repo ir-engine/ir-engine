@@ -1,26 +1,22 @@
 import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
 import { PartyService } from '../../services/PartyService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PartyPropsTable, partyColumns, PartyData } from './variables'
-import { usePartyStyles, usePartyStyle } from './style'
+import { PartyPropsTable, partyColumns, PartyData } from '../../common/variables/party'
+import { useStyles } from '../../styles/ui'
 import { usePartyState } from '../../services/PartyService'
 import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
+import TableComponent from '../../common/Table'
+import ConfirmModel from '../../common/ConfirmModel'
 
 const PartyTable = (props: PartyPropsTable) => {
-  const classes = usePartyStyle()
-  const classex = usePartyStyles()
+  const classes = useStyles()
   const dispatch = useDispatch()
 
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
+  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
+  const [partyName, setPartyName] = React.useState('')
 
   const authState = useAuthState()
   const user = authState.user
@@ -33,6 +29,14 @@ const PartyTable = (props: PartyPropsTable) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     PartyService.fetchAdminParty(incDec)
     setPage(newPage)
+  }
+
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
+  }
+
+  const submitRemoveParty = async () => {
+    setPopConfirmOpen(false)
   }
 
   React.useEffect(() => {
@@ -49,10 +53,16 @@ const PartyTable = (props: PartyPropsTable) => {
       action: (
         <>
           <a href="#h" className={classes.actionStyle}>
-            {' '}
-            <span className={classes.spanWhite}>View</span>{' '}
+            <span className={classes.spanWhite}>View</span>
           </a>
-          <a href="#h" className={classes.actionStyle}>
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setPopConfirmOpen(true)
+              setPartyName(instance)
+            }}
+          >
             <span className={classes.spanDange}>Delete</span>
           </a>
         </>
@@ -74,52 +84,25 @@ const PartyTable = (props: PartyPropsTable) => {
   })
 
   return (
-    <div className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {partyColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classex.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {partyColumns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[PARTY_PAGE_LIMIT]}
-        component="div"
-        count={adminPartyCount.value}
-        rowsPerPage={rowsPerPage}
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={partyColumns}
         page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classex.tableFooter}
+        rowsPerPage={rowsPerPage}
+        count={adminPartyCount.value}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
       />
-    </div>
+
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveParty}
+        name={partyName}
+        label={'party with instance of '}
+      />
+    </React.Fragment>
   )
 }
 
