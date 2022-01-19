@@ -17,6 +17,8 @@ import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { reparentObject3D } from '../functions/ReparentFunction'
+import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { ModelComponent } from '../components/ModelComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -109,6 +111,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
 
     for (const entity of objectReplaceQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent)
+      const modelComponent = getComponent(entity, ModelComponent)
       const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
 
       if (!obj3d || !replacementObj) continue
@@ -128,6 +131,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       }
 
       processObject3d(entity)
+      parseGLTFModel(entity, modelComponent, obj3d.value)
       removeComponent(entity, ReplaceObject3DComponent)
     }
 

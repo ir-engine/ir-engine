@@ -46,16 +46,13 @@ export const updateModel: ComponentUpdateFunction = async (
 
   if (properties.src) {
     try {
-      const gltf = await loadGLTFModel(entity)
-      if (gltf && gltf.scene) {
-        parseGLTFModel(entity, component, gltf.scene)
-      }
+      await loadGLTFModel(entity)
     } catch (err) {
       Promise.reject(err)
     }
   }
 
-  if (Object.hasOwnProperty.call(properties, 'textureOverride')) {
+  if (typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity, obj3d)
   }
 }
