@@ -207,11 +207,6 @@ export class SceneManager {
 
   enableShadows(status: boolean): void {
     Engine.renderer.shadowMap.enabled = status
-    Engine.scene.traverse((object: any) => {
-      if (object.setShadowsEnabled) {
-        object.setShadowsEnabled(this.enableShadows)
-      }
-    })
   }
 
   changeRenderMode(mode: RenderModesType) {

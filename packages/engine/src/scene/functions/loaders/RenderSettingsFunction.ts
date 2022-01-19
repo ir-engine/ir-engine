@@ -10,8 +10,11 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineEvents } from '../../../ecs/classes/EngineEvents'
+import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
@@ -40,14 +43,15 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
 export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
   if (!isClient) return
   const component = getComponent(entity, RenderSettingComponent)
+  console.log('updateRenderSetting', component)
+  resetEngineRenderer()
+  if (typeof component.overrideRendererSettings !== 'undefined' && !component.overrideRendererSettings) {
+    initializeCSM()
+    return
+  }
 
   if (component.LODs)
     AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
-
-  if (!component.overrideRendererSettings) {
-    resetEngineRenderer()
-    return
-  }
 
   Engine.isCSMEnabled = component.csm
   Engine.renderer.toneMapping = component.toneMapping
@@ -61,26 +65,31 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
     Engine.renderer.shadowMap.enabled = false
   }
 
-  if (component.csm && !Engine.csm && !Engine.isHMD && Engine.renderer.shadowMap.enabled) {
-    const directionalLights = [] as DirectionalLight[]
-    Engine.scene.traverseVisible((o: DirectionalLight) => {
-      if (o.isDirectionalLight) directionalLights.push(o)
-    })
-
-    if (directionalLights.length > 0) {
-      // This can not be done while traversing since traverse visible will skip traversing decendents of the not visible objects
-      directionalLights.forEach((d) => {
-        d.userData.prevVisile = d.visible
-        d.visible = false
-      })
-
-      Engine.csm = new CSM({
-        camera: Engine.camera as PerspectiveCamera,
-        parent: Engine.scene,
-        lights: directionalLights
-      })
-    }
+  if (component.csm && !Engine.isHMD && Engine.renderer.shadowMap.enabled) {
+    console.log('accessEngineState().sceneLoaded', accessEngineState().sceneLoaded.value)
+    if (accessEngineState().sceneLoaded.value) initializeCSM()
+    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
   }
+}
+
+export const initializeCSM = () => {
+  const directionalLights = [] as DirectionalLight[]
+  Engine.scene.traverseVisible((o: DirectionalLight) => {
+    if (o.isDirectionalLight) directionalLights.push(o)
+  })
+
+  // This can not be done while traversing since traverse visible will skip traversing decendents of the not visible objects
+  directionalLights.forEach((d) => {
+    d.userData.prevVisible = d.visible
+    d.visible = false
+  })
+
+  console.log('\n\ndirectionalLights', directionalLights, Engine.directionalLights, '\n\n')
+  Engine.csm = new CSM({
+    camera: Engine.camera as PerspectiveCamera,
+    parent: Engine.scene,
+    lights: Engine.directionalLights
+  })
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {
