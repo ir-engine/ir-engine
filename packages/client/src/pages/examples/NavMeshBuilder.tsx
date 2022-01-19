@@ -17,7 +17,6 @@ import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
 import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
 import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
 import { defineQuery } from 'bitecs'
-import { MultiPolygon, Polygon, Position } from 'geojson'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
@@ -71,26 +70,6 @@ const width = 100,
 const cellsX = 100,
   cellsY = 1,
   cellsZ = 100
-
-function scaleAndTranslatePosition(position: Position, llCenter: Position) {
-  return [(position[0] - llCenter[0]) * 1000, (position[1] - llCenter[1]) * 1000]
-}
-
-function scaleAndTranslatePolygon(coords: Position[][], llCenter: Position) {
-  return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter))]
-}
-function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: Position) {
-  switch (geometry.type) {
-    case 'MultiPolygon':
-      geometry.coordinates = geometry.coordinates.map((coords) => scaleAndTranslatePolygon(coords, llCenter))
-      break
-    case 'Polygon':
-      geometry.coordinates = scaleAndTranslatePolygon(geometry.coordinates, llCenter)
-      break
-  }
-
-  return geometry
-}
 
 const loadNavMeshFromMapBox = async (navigationComponent) => {
   // const builder = new NavMeshBuilder()
