@@ -24,7 +24,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { Engine } from '../../ecs/classes/Engine'
+import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 
 export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -69,12 +69,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D):
 
 export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
-  const transform = getComponent(entity, TransformComponent)
   const meshesToProcess: Mesh[] = []
-
-  obj3d.position.copy(transform.position)
-  obj3d.quaternion.copy(transform.rotation)
-  obj3d.scale.copy(transform.scale)
 
   obj3d.traverse((mesh: Mesh) => {
     if ('xrengine.entity' in mesh.userData || 'realitypack.entity' in mesh.userData) {
@@ -103,7 +98,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
-    // applyTransformToMeshWorld(entity, mesh)
+    applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
@@ -111,7 +106,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     })
 
     mesh.removeFromParent()
-    mesh.parent = Engine.scene
     addComponent(e, Object3DComponent, { value: mesh })
 
     createObjectEntityFromGLTF(e)

@@ -16,12 +16,8 @@ import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Object3D } from 'three'
 import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
-
-const position = new Vector3()
-const scale = new Vector3()
-const rotation = new Quaternion()
 
 export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
 export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
@@ -64,31 +60,21 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
     }
   }
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
-
-  updateBoxCollider(entity, boxColliderProps)
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
   const component = getComponent(entity, ColliderComponent)
-  const obj3d = getComponent(entity, Object3DComponent)?.value
+  const transform = getComponent(entity, TransformComponent)
 
-  obj3d.matrixWorld.decompose(position, rotation, scale)
   const pose = component.body.getGlobalPose()
-
-  pose.translation.x = position.x
-  pose.translation.y = position.y
-  pose.translation.z = position.z
-
-  pose.rotation.x = rotation.x
-  pose.rotation.y = rotation.y
-  pose.rotation.z = rotation.z
-  pose.rotation.w = rotation.w
-
-  component.body.setGlobalPose(pose, true)
-
-  const boxShape = useWorld().physics.getRigidbodyShapes(component.body)[0]
-  setTriggerShape(boxShape, props.isTrigger)
+  pose.translation = transform.position
+  pose.rotation = transform.rotation
+  component.body.setGlobalPose(pose, false)
   component.body._debugNeedsUpdate = true
+
+  const world = useWorld()
+  const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
+  setTriggerShape(boxShape, props.isTrigger)
   boxShape._debugNeedsUpdate = true
 }
 
