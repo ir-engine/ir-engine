@@ -94,6 +94,11 @@ const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.audioListener = new PositionalAudioListener()
   Engine.camera.add(Engine.audioListener)
 
+  globalThis.botHooks = BotHookFunctions
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
+
   await registerEditorSystems(options)
 }
 
@@ -222,6 +227,9 @@ const registerEditorSystems = async (options: Required<InitializeOptions>) => {
       })
     )
   )
+
+  // Bot
+  registerSystem(SystemUpdateType.FIXED, import('./bot/systems/BotHookSystem'))
 
   registerSystem(SystemUpdateType.FIXED_LATE, import('./scene/systems/SceneObjectSystem'))
   registerSystem(SystemUpdateType.FIXED_LATE, import('./transform/systems/TransformSystem'))

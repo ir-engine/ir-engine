@@ -289,3 +289,10 @@ gameserver:
 
 redis:
     enabled: false
+
+testbot:
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+  image:
+    repository: xrengine-testbot
+    pullPolicy: IfNotPresent
