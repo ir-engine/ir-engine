@@ -232,7 +232,7 @@ export class SceneManager {
       case RenderModes.UNLIT:
         Engine.renderer.shadowMap.enabled = false
         Engine.scene.traverse((obj: Light) => {
-          if (obj.isLight) {
+          if (obj.isLight && obj.visible) {
             obj.userData.editor_disabled = true
             obj.visible = false
           }
