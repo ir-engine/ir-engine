@@ -43,7 +43,7 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
 export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
   if (!isClient) return
   const component = getComponent(entity, RenderSettingComponent)
-  console.log('updateRenderSetting', component)
+
   resetEngineRenderer()
   if (typeof component.overrideRendererSettings !== 'undefined' && !component.overrideRendererSettings) {
     initializeCSM()
@@ -66,25 +66,12 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   }
 
   if (component.csm && !Engine.isHMD && Engine.renderer.shadowMap.enabled) {
-    console.log('accessEngineState().sceneLoaded', accessEngineState().sceneLoaded.value)
     if (accessEngineState().sceneLoaded.value) initializeCSM()
     else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
   }
 }
 
 export const initializeCSM = () => {
-  const directionalLights = [] as DirectionalLight[]
-  Engine.scene.traverseVisible((o: DirectionalLight) => {
-    if (o.isDirectionalLight) directionalLights.push(o)
-  })
-
-  // This can not be done while traversing since traverse visible will skip traversing decendents of the not visible objects
-  directionalLights.forEach((d) => {
-    d.userData.prevVisible = d.visible
-    d.visible = false
-  })
-
-  console.log('\n\ndirectionalLights', directionalLights, Engine.directionalLights, '\n\n')
   Engine.csm = new CSM({
     camera: Engine.camera as PerspectiveCamera,
     parent: Engine.scene,
@@ -109,13 +96,6 @@ export const resetEngineRenderer = (resetLODs = false) => {
   Engine.csm.remove()
   Engine.csm.dispose()
   Engine.csm = undefined!
-
-  Engine.scene.traverse((o: DirectionalLight) => {
-    if (o.isDirectionalLight) {
-      o.visible = o.userData.prevVisible ?? false
-      delete o.userData.prevVisible
-    }
-  })
 }
 
 export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
