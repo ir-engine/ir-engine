@@ -118,6 +118,6 @@
   },
   "dependencies": {
     "@xrengine/engine": "^0.4.13",
-    "dotenv": "^11.0.0"
+    "dotenv": "11.0.0"
   }
 }
