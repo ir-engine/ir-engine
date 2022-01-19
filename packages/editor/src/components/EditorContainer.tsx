@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import Modal from 'react-modal'
+import Dialog from '@mui/material/Dialog'
 import styled from 'styled-components'
 import { getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
@@ -38,35 +38,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Search from './Search/Search'
 import { AppContext } from './Search/context'
-
-/**
- * StyledEditorContainer component is used as root element of new project page.
- * On this page we have an editor to create a new or modifing an existing project.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const StyledEditorContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-`
-
-/**
- *Styled component used as workspace container.
- *
- * @author Robert Long
- * @type {type}
- */
-const WorkspaceContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  margin: 0px;
-`
+import * as styles from './styles.module.scss'
 
 /**
  *Styled component used as dock container.
@@ -682,12 +654,12 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
+    <div className={styles.editorContainer} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndProvider backend={HTML5Backend}>
           <DragLayer />
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <WorkspaceContainer>
+          <div className={styles.workspaceContainer}>
             <ViewportPanelContainer />
             <AppContext.Provider value={{ searchElement, searchHierarchy }}>
               <DockContainer>
@@ -698,20 +670,17 @@ const EditorContainer = (props) => {
                 />
               </DockContainer>
             </AppContext.Provider>
-          </WorkspaceContainer>
-          <Modal
-            ariaHideApp={false}
-            isOpen={!!DialogComponent}
-            onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={true}
-            className="Modal"
-            overlayClassName="Overlay"
+          </div>
+          <Dialog
+            open={!!DialogComponent}
+            onClose={() => setDialogComponent(null)}
+            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
           >
             {DialogComponent}
-          </Modal>
+          </Dialog>
         </DndProvider>
       </DialogContext.Provider>
-    </StyledEditorContainer>
+    </div>
   )
 }
 

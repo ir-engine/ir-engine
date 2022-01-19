@@ -131,7 +131,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       }
 
       processObject3d(entity)
-      parseGLTFModel(entity, modelComponent, obj3d.value)
+      if (modelComponent) parseGLTFModel(entity, modelComponent, obj3d.value)
       removeComponent(entity, ReplaceObject3DComponent)
     }
 
