@@ -11,7 +11,8 @@ import {
   Object3D,
   PerspectiveCamera,
   Scene,
-  Group
+  Group,
+  Light
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
@@ -205,16 +206,21 @@ export class SceneManager {
     return blob
   }
 
-  enableShadows(status: boolean): void {
-    Engine.renderer.shadowMap.enabled = status
-    Engine.scene.traverse((object: any) => {
-      if (object.setShadowsEnabled) {
-        object.setShadowsEnabled(this.enableShadows)
-      }
-    })
-  }
-
   changeRenderMode(mode: RenderModesType) {
+    // revert any changes made by a render mode
+    switch (this.renderMode) {
+      case RenderModes.UNLIT:
+        Engine.scene.traverse((obj: Light) => {
+          if (obj.isLight && obj.userData.editor_disabled) {
+            delete obj.userData.editor_disabled
+            obj.visible = true
+          }
+        })
+        break
+      default:
+        break
+    }
+
     this.renderMode = mode
 
     const passes = Engine.effectComposer?.passes.filter((p) => p.name === 'RenderPass')
@@ -224,28 +230,35 @@ export class SceneManager {
 
     switch (mode) {
       case RenderModes.UNLIT:
-        this.enableShadows(false)
+        Engine.renderer.shadowMap.enabled = false
+        Engine.scene.traverse((obj: Light) => {
+          if (obj.isLight && obj.visible) {
+            obj.userData.editor_disabled = true
+            obj.visible = false
+          }
+        })
         renderPass.overrideMaterial = null
         break
       case RenderModes.LIT:
-        this.enableShadows(false)
+        Engine.renderer.shadowMap.enabled = false
         renderPass.overrideMaterial = null
         break
       case RenderModes.SHADOW:
-        this.enableShadows(true)
+        Engine.renderer.shadowMap.enabled = true
         renderPass.overrideMaterial = null
         break
       case RenderModes.WIREFRAME:
-        this.enableShadows(false)
+        Engine.renderer.shadowMap.enabled = false
         renderPass.overrideMaterial = new MeshBasicMaterial({
           wireframe: true
         })
         break
       case RenderModes.NORMALS:
-        this.enableShadows(false)
+        Engine.renderer.shadowMap.enabled = false
         renderPass.overrideMaterial = new MeshNormalMaterial()
         break
     }
+    Engine.renderer.shadowMap.needsUpdate = true
 
     CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
   }
