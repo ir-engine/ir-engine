@@ -149,7 +149,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('elementId')) obj3d.userData.videoEl.id = component.elementId
+  if (typeof properties.elementId !== 'undefined') obj3d.userData.videoEl.id = component.elementId
 }
 
 export const serializeVideo: ComponentSerializeFunction = (entity) => {

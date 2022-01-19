@@ -37,16 +37,16 @@ export const updateMedia: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (!Engine.isEditor) {
     if (obj3d.userData.player) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.player.autoplay = component.autoplay
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
     } else if (obj3d.userData.videoEl) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.videoEl.autoplay = component.autoplay
-      if (properties.hasOwnProperty('controls')) obj3d.userData.videoEl.controls = component.controls
-      if (properties.hasOwnProperty('loop')) obj3d.userData.videoEl.loop = component.loop
-      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.videoEl.autoplay = component.autoplay
+      if (typeof properties.controls !== 'undefined') obj3d.userData.videoEl.controls = component.controls
+      if (typeof properties.loop !== 'undefined') obj3d.userData.videoEl.loop = component.loop
+      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
     } else if (obj3d.userData.audioEl) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.audioEl.autoplay = component.autoplay
-      if (properties.hasOwnProperty('loop')) obj3d.userData.audioEl.setLoop(component.loop)
-      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.audioEl.autoplay = component.autoplay
+      if (typeof properties.loop !== 'undefined') obj3d.userData.audioEl.setLoop(component.loop)
+      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
     }
   }
 }

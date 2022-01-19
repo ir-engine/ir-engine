@@ -56,7 +56,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
   const obj3d = getComponent(entity, Object3DComponent).value as UpdateableObject3D
   const component = getComponent(entity, VolumetricComponent)
 
-  if (properties.hasOwnProperty('paths')) {
+  if (typeof properties.paths !== 'undefined') {
     try {
       if (component.paths.length <= 0) return
 
@@ -98,7 +98,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
     }
   }
 
-  if (properties.hasOwnProperty('playMode')) obj3d.userData.player.playMode = component.playMode as any
+  if (typeof properties.playMode !== 'undefined') obj3d.userData.player.playMode = component.playMode as any
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {

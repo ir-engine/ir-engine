@@ -372,7 +372,7 @@ export class SceneManager {
       const userData = object.userData
       const keys = Object.keys(userData)
       for (const key of keys) {
-        if (Object.prototype.hasOwnProperty.call(userData, key)) {
+        if (typeof userData[key] !== 'undefined') {
           return true
         }
       }

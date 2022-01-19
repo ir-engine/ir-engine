@@ -84,7 +84,7 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('projection')) {
+  if (typeof properties.projection !== 'undefined') {
     if (component.projection === ImageProjection.Equirectangular360) {
       mesh.geometry = new SphereBufferGeometry(1, 64, 32)
       mesh.scale.set(1, 1, 1)
@@ -94,16 +94,16 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('alphaMode')) {
+  if (typeof properties.alphaMode !== 'undefined') {
     mesh.material.transparent = component.alphaMode === ImageAlphaMode.Blend
     mesh.material.alphaTest = component.alphaMode === ImageAlphaMode.Mask ? component.alphaCutoff : 0
   }
 
-  if (properties.hasOwnProperty('alphaCutoff')) {
+  if (typeof properties.alphaCutoff !== 'undefined') {
     mesh.material.alphaTest = component.alphaCutoff
   }
 
-  if (properties.hasOwnProperty('side')) mesh.material.side = component.side
+  if (typeof properties.side !== 'undefined') mesh.material.side = component.side
 
   mesh.material.needsUpdate = true
 }

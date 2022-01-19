@@ -40,8 +40,8 @@ export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity, prop
   const component = getComponent(entity, AmbientLightComponent)
   const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
 
-  if (Object.hasOwnProperty.call(properties, 'color')) light.color = component.color
-  if (Object.hasOwnProperty.call(properties, 'intensity')) light.intensity = component.intensity
+  if (typeof properties.color !== 'undefined') light.color = component.color
+  if (typeof properties.intensity !== 'undefined') light.intensity = component.intensity
 }
 
 export const serializeAmbientLight: ComponentSerializeFunction = (entity) => {

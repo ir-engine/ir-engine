@@ -56,8 +56,8 @@ export const updateInterior: ComponentUpdateFunction = async (entity: Entity, pr
     }
   }
 
-  if (properties.hasOwnProperty('tiling')) obj3d.tiling = component.tiling
-  if (properties.hasOwnProperty('size')) obj3d.size = component.size
+  if (typeof properties.tiling !== 'undefined') obj3d.tiling = component.tiling
+  if (typeof properties.size !== 'undefined') obj3d.size = component.size
 }
 
 export const serializeInterior: ComponentSerializeFunction = (entity) => {

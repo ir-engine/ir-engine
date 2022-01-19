@@ -35,7 +35,7 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Clouds()
-  const props = parseCloudeProperties(json.props)
+  const props = parseCloudProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
@@ -63,13 +63,13 @@ export const updateCloud: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('worldScale')) obj3d.worldScale = component.worldScale
-  if (properties.hasOwnProperty('dimensions')) obj3d.dimensions = component.dimensions
-  if (properties.hasOwnProperty('noiseZoom')) obj3d.noiseZoom = component.noiseZoom
-  if (properties.hasOwnProperty('noiseOffset')) obj3d.noiseOffset = component.noiseOffset
-  if (properties.hasOwnProperty('spriteScaleRange')) obj3d.spriteScaleRange = component.spriteScaleRange
-  if (properties.hasOwnProperty('fogRange')) obj3d.fogRange = component.fogRange
-  if (properties.hasOwnProperty('fogColor')) obj3d.fogColor = component.fogColor
+  if (typeof properties.worldScale !== 'undefined') obj3d.worldScale = component.worldScale
+  if (typeof properties.dimensions !== 'undefined') obj3d.dimensions = component.dimensions
+  if (typeof properties.noiseZoom !== 'undefined') obj3d.noiseZoom = component.noiseZoom
+  if (typeof properties.noiseOffset !== 'undefined') obj3d.noiseOffset = component.noiseOffset
+  if (typeof properties.spriteScaleRange !== 'undefined') obj3d.spriteScaleRange = component.spriteScaleRange
+  if (typeof properties.fogRange !== 'undefined') obj3d.fogRange = component.fogRange
+  if (typeof properties.fogColor !== 'undefined') obj3d.fogColor = component.fogColor
 }
 
 export const serializeCloud: ComponentSerializeFunction = (entity) => {
@@ -91,7 +91,7 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseCloudeProperties = (props: any): CloudComponentType => {
+const parseCloudProperties = (props: any): CloudComponentType => {
   const result = {
     texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
     fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)

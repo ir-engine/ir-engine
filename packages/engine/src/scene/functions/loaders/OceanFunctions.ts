@@ -94,24 +94,26 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('color')) obj3d.color = component.color
-  if (properties.hasOwnProperty('opacityRange')) obj3d.opacityRange = component.opacityRange
-  if (properties.hasOwnProperty('opacityFadeDistance')) obj3d.opacityFadeDistance = component.opacityFadeDistance
-  if (properties.hasOwnProperty('shallowToDeepDistance')) obj3d.shallowToDeepDistance = component.shallowToDeepDistance
-  if (properties.hasOwnProperty('shallowWaterColor')) obj3d.shallowWaterColor = component.shallowWaterColor
-  if (properties.hasOwnProperty('waveScale')) obj3d.waveScale = component.waveScale
-  if (properties.hasOwnProperty('waveSpeed')) obj3d.waveSpeed = component.waveSpeed
-  if (properties.hasOwnProperty('waveTiling')) obj3d.waveTiling = component.waveTiling
-  if (properties.hasOwnProperty('waveDistortionTiling')) obj3d.waveDistortionTiling = component.waveDistortionTiling
-  if (properties.hasOwnProperty('waveDistortionSpeed')) obj3d.waveDistortionSpeed = component.waveDistortionSpeed
-  if (properties.hasOwnProperty('shininess')) obj3d.shininess = component.shininess
-  if (properties.hasOwnProperty('reflectivity')) obj3d.reflectivity = component.reflectivity
-  if (properties.hasOwnProperty('bigWaveHeight')) obj3d.bigWaveHeight = component.bigWaveHeight
-  if (properties.hasOwnProperty('bigWaveTiling')) obj3d.bigWaveTiling = component.bigWaveTiling
-  if (properties.hasOwnProperty('bigWaveSpeed')) obj3d.bigWaveSpeed = component.bigWaveSpeed
-  if (properties.hasOwnProperty('foamSpeed')) obj3d.foamSpeed = component.foamSpeed
-  if (properties.hasOwnProperty('foamTiling')) obj3d.foamTiling = component.foamTiling
-  if (properties.hasOwnProperty('foamColor')) obj3d.foamColor = component.foamColor
+  if (typeof properties.color !== 'undefined') obj3d.color = component.color
+  if (typeof properties.opacityRange !== 'undefined') obj3d.opacityRange = component.opacityRange
+  if (typeof properties.opacityFadeDistance !== 'undefined') obj3d.opacityFadeDistance = component.opacityFadeDistance
+  if (typeof properties.shallowToDeepDistance !== 'undefined')
+    obj3d.shallowToDeepDistance = component.shallowToDeepDistance
+  if (typeof properties.shallowWaterColor !== 'undefined') obj3d.shallowWaterColor = component.shallowWaterColor
+  if (typeof properties.waveScale !== 'undefined') obj3d.waveScale = component.waveScale
+  if (typeof properties.waveSpeed !== 'undefined') obj3d.waveSpeed = component.waveSpeed
+  if (typeof properties.waveTiling !== 'undefined') obj3d.waveTiling = component.waveTiling
+  if (typeof properties.waveDistortionTiling !== 'undefined')
+    obj3d.waveDistortionTiling = component.waveDistortionTiling
+  if (typeof properties.waveDistortionSpeed !== 'undefined') obj3d.waveDistortionSpeed = component.waveDistortionSpeed
+  if (typeof properties.shininess !== 'undefined') obj3d.shininess = component.shininess
+  if (typeof properties.reflectivity !== 'undefined') obj3d.reflectivity = component.reflectivity
+  if (typeof properties.bigWaveHeight !== 'undefined') obj3d.bigWaveHeight = component.bigWaveHeight
+  if (typeof properties.bigWaveTiling !== 'undefined') obj3d.bigWaveTiling = component.bigWaveTiling
+  if (typeof properties.bigWaveSpeed !== 'undefined') obj3d.bigWaveSpeed = component.bigWaveSpeed
+  if (typeof properties.foamSpeed !== 'undefined') obj3d.foamSpeed = component.foamSpeed
+  if (typeof properties.foamTiling !== 'undefined') obj3d.foamTiling = component.foamTiling
+  if (typeof properties.foamColor !== 'undefined') obj3d.foamColor = component.foamColor
 }
 
 export const serializeOcean: ComponentSerializeFunction = (entity) => {

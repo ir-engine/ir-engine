@@ -66,7 +66,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity, prope
   const component = getComponent(entity, GroundPlaneComponent)
   const groundPlane = getComponent(entity, Object3DComponent)?.value
 
-  if (properties.hasOwnProperty('color')) {
+  if (typeof properties.color !== 'undefined') {
     ;(groundPlane.userData.mesh.material as MeshStandardMaterial).color.set(component.color)
   }
 

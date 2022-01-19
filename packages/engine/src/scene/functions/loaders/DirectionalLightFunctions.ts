@@ -69,14 +69,14 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
   const component = getComponent(entity, DirectionalLightComponent)
   const light = component.light
 
-  if (Object.hasOwnProperty.call(properties, 'color')) light.color.set(component.color)
-  if (Object.hasOwnProperty.call(properties, 'intensity')) light.intensity = component.intensity
-  if (Object.hasOwnProperty.call(properties, 'cameraFar')) light.shadow.camera.far = component.cameraFar
-  if (Object.hasOwnProperty.call(properties, 'shadowBias')) light.shadow.bias = component.shadowBias
-  if (Object.hasOwnProperty.call(properties, 'shadowRadius')) light.shadow.radius = component.shadowRadius
-  if (Object.hasOwnProperty.call(properties, 'castShadow')) light.castShadow = component.castShadow
+  if (typeof properties.color !== 'undefined') light.color.set(component.color)
+  if (typeof properties.intensity !== 'undefined') light.intensity = component.intensity
+  if (typeof properties.cameraFar !== 'undefined') light.shadow.camera.far = component.cameraFar
+  if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
+  if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
+  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
 
-  if (Object.hasOwnProperty.call(properties, 'shadowMapResolution')) {
+  if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
     light.shadow.map?.dispose()
     light.shadow.map = null as any

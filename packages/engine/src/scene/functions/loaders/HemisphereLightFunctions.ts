@@ -44,9 +44,9 @@ export const updateHemisphereLight: ComponentUpdateFunction = (
   const component = getComponent(entity, HemisphereLightComponent)
   const light = getComponent(entity, Object3DComponent)?.value as HemisphereLight
 
-  if (properties.hasOwnProperty('groundColor')) light.groundColor = component.groundColor
-  if (properties.hasOwnProperty('skyColor')) light.color = component.skyColor
-  if (properties.hasOwnProperty('intensity')) light.intensity = component.intensity
+  if (typeof properties.groundColor !== 'undefined') light.groundColor = component.groundColor
+  if (typeof properties.skyColor !== 'undefined') light.color = component.skyColor
+  if (typeof properties.intensity !== 'undefined') light.intensity = component.intensity
 }
 
 export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => {
