@@ -385,3 +385,10 @@ builder:
                 values:
                   - ng-<RELEASE_NAME>-builder-1
   replicaCount: 1
+  
+testbot:
+  extraEnv:
+    APP_HOST: <domain>
+  image:
+    repository: <repository_name>
+    pullPolicy: IfNotPresent
