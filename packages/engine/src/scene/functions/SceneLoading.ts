@@ -98,8 +98,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
   if (deserializer) {
     deserializer(entity, component)
   }
-
-  return
 }
 
 export const registerSceneLoadPromise = (promise: Promise<any>) => {

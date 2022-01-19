@@ -96,19 +96,22 @@ export default async function XRSystem(world: World): Promise<System> {
                 : LifecycleValue.Ended
             })
           })
-          if (source.gamepad?.axes.length > 2) {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.Started
-            })
-          } else {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.Started
-            })
+          const inputData =
+            source.gamepad?.axes.length > 2
+              ? [source.gamepad.axes[2], source.gamepad.axes[3]]
+              : [source.gamepad.axes[0], source.gamepad.axes[1]]
+          if (Math.abs(inputData[0]) < 0.05) {
+            inputData[0] = 0
           }
+          if (Math.abs(inputData[1]) < 0.05) {
+            inputData[1] = 0
+          }
+          console.log(inputData)
+          Engine.inputState.set(mapping.axes, {
+            type: InputType.TWODIM,
+            value: inputData,
+            lifecycleState: LifecycleValue.Started
+          })
         }
       }
     }

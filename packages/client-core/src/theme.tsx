@@ -392,6 +392,7 @@ const theme = createTheme({
           cursor: 'pointer',
           fontSize: 16
         },
+        //@ts-ignore // TODO
         label: {
           textTransform: 'capitalize'
         },

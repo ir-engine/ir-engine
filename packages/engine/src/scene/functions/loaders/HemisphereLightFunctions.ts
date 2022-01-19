@@ -26,8 +26,6 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<HemisphereLightComponentType>
 ) => {
-  if (!isClient || !json) return
-
   const light = new HemisphereLight()
 
   addComponent(entity, Object3DComponent, { value: light })

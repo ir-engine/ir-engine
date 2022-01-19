@@ -21,7 +21,7 @@ const GoogleCallbackComponent = (props): any => {
     if (!error) {
       if (type === 'connection') {
         const user = useAuthState().user
-        AuthService.refreshConnections(user.id.value)
+        AuthService.refreshConnections(user.id.value!)
       } else {
         let redirectSuccess = `${path}`
         if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`

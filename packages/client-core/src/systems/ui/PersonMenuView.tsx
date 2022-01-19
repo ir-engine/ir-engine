@@ -100,11 +100,11 @@ const AvatarContextMenu = () => {
 
   return user && userState.selectedLayerUser.value === user.id.value ? (
     <div style={styles.root}>
-      <img style={styles.ownerImage} src={getAvatarURLForUser(user?.id?.value)} />
+      <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
         <section style={styles.buttonSection}>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Invite to Party')
             }}
@@ -112,7 +112,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.inviteToParty')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Add as a friend')
             }}
@@ -120,7 +120,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.addAsFriend')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Trade')
             }}
@@ -128,7 +128,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.trade')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Pay')
             }}
@@ -136,7 +136,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.pay')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Mute')
             }}
@@ -144,7 +144,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.mute')}
           </Button>
           <Button
-            style={styles.buttonRed}
+            style={styles.buttonRed as {}}
             onClick={() => {
               console.log('Block')
             }}

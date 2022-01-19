@@ -9,6 +9,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
+import { useWorld } from '../../../ecs/functions/SystemHooks'
 
 export const SCENE_COMPONENT_METADATA = 'mtdata'
 
@@ -25,7 +26,10 @@ export const deserializeMetaData: ComponentDeserializeFunction = (
   updateMetaData(entity)
 }
 
-export const updateMetaData: ComponentUpdateFunction = (_: Entity) => {}
+export const updateMetaData: ComponentUpdateFunction = (entity: Entity) => {
+  console.log('updateMetaData', getComponent(entity, MetaDataComponent))
+  if (!Engine.isEditor) useWorld().sceneMetadata = getComponent(entity, MetaDataComponent).meta_data
+}
 
 export const serializeMetaData: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, MetaDataComponent) as MetaDataComponentType

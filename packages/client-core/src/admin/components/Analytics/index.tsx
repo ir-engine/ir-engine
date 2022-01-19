@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Card from './CardNumber'
 
 import clsx from 'clsx'
@@ -87,8 +87,10 @@ const Analytics = (props: Props) => {
   const dailyUsers = analyticsState.dailyUsers.value
   const dailyNewUsers = analyticsState.dailyNewUsers.value
 
+  const isMounted = useRef(false)
   const fetchTick = () => {
     setTimeout(() => {
+      if (!isMounted.current) return
       setRefetch(true)
       fetchTick()
     }, 5000)
@@ -163,7 +165,11 @@ const Analytics = (props: Props) => {
   }, [authState.isLoggedIn.value])
 
   useEffect(() => {
+    isMounted.current = true
     fetchTick()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   const classes = useStyles()

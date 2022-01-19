@@ -3,7 +3,7 @@ import fs from 'fs'
 import appRootPath from 'app-root-path'
 
 const prefixRegex = /^VITE_/
-const lowercaseEnv = process.env.APP_ENV.toLowerCase()
+const lowercaseEnv = process.env.APP_ENV!.toLowerCase()
 const envPath = appRootPath.path + `/.env.${lowercaseEnv}`
 
 cli.main(async () => {

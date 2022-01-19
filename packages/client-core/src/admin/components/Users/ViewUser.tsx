@@ -35,6 +35,7 @@ import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeSer
 import { useUserRoleState, UserROleService } from '../../services/UserRoleService'
 import { useSingleUserState, SingleUserService } from '../../services/SingleUserService'
 import { useStaticResourceState, staticResourceService } from '../../services/StaticResourceService'
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 
 interface Props {
   openView: boolean
@@ -66,7 +67,7 @@ const ViewUser = (props: Props) => {
   const [state, setState] = React.useState({
     name: '',
     avatar: '',
-    scopeTypes: [],
+    scopeTypes: [] as AdminScopeType[],
     formErrors: {
       name: '',
       avatar: '',
@@ -272,7 +273,6 @@ const ViewUser = (props: Props) => {
                   }}
                   {...defaultProps}
                   id="debug"
-                  debug
                   renderInput={(params) => <TextField {...params} label="User Role" />}
                 />
               </DialogContent>
