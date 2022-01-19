@@ -87,6 +87,10 @@ const PropertiesPanelContent = (styled as any).div`
  */
 const NoNodeSelectedMessage = (styled as any).div`
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
 `
 
 const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
