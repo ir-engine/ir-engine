@@ -67,7 +67,9 @@
     "socket.io-client": "4.4.1",
     "styled-components": "5.3.3",
     "uuid": "8.3.2",
-    "yup": "0.32.11"
+    "yup": "0.32.11",
+    "node-vibrant": "3.2.1-alpha.1",
+    "image-palette-core": "0.2.2"
   },
   "devDependencies": {
     "@iconify/react": "3.1.2",

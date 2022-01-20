@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react'
 import { useHistory } from 'react-router'
 import { initNetwork, loadLocation } from './LocationLoadHelper'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Downgraded } from '@hookstate/core'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import {
@@ -32,6 +34,10 @@ const defaultEngineInitializeOptions = {
   systems: [
     {
       type: 'FIXED',
+      systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
+    },
+    {
+      type: 'FIXED',
       systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
     }
   ]
@@ -59,6 +65,7 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const sceneState = useSceneState()
   const projectState = useProjectState()
 
   /**
@@ -99,9 +106,21 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
-      loadLocation(locationState.currentLocation.location.sceneId.value)
+      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+      SceneService.getSceneData(project, scene)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
+
+  /**
+   * Once we have the scene data, initialise the engine
+   */
+  useEffect(() => {
+    if (locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
+      dispatch(EngineActions.setTeleporting(null!))
+      const [project] = locationState.currentLocation.location.sceneId.value.split('/')
+      loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
+    }
+  }, [locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 
   const canTeleport = useRef(true)
   useEffect(() => {
