@@ -1,13 +1,19 @@
 import React, { useEffect } from 'react'
-import { useHookstate } from '@hookstate/core'
+import { useHookstate, createState } from '@hookstate/core'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import ProgressBar from './SimpleProgressBar'
 import { useSceneState } from '../../world/services/SceneService'
 import getImagePalette from 'image-palette-core'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+interface LoadingUIState {
+  imageWidth: number
+  imageHeight: number
+}
 
 export function createLoaderDetailView(id: string) {
-  return createXRUI(LoadingDetailView)
+  return createXRUI(LoadingDetailView, createState({ imageWidth: 1, imageHeight: 1 }))
 }
 
 function setDefaultPalette(colors) {
@@ -17,6 +23,7 @@ function setDefaultPalette(colors) {
 }
 
 const LoadingDetailView = () => {
+  const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
@@ -37,6 +44,8 @@ const LoadingDetailView = () => {
       colors.alternate.set('')
       img.crossOrigin = 'Anonymous'
       img.onload = function () {
+        uiState.imageWidth.set(img.naturalWidth)
+        uiState.imageHeight.set(img.naturalHeight)
         const palette = getImagePalette(img)
         if (palette) {
           colors.main.set(palette.color)

@@ -13,6 +13,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 
 export default async function XRUISystem(world: World): Promise<System> {
   const hitColor = new Color(0x00e6e6)
@@ -28,6 +29,14 @@ export default async function XRUISystem(world: World): Promise<System> {
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(Engine.renderer)
+  // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
+  //   astcSupported: false,
+  //   etc1Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc1' ),
+  //   etc2Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc' ),
+  //   dxtSupported: renderer.extensions.has( 'WEBGL_compressed_texture_s3tc' ),
+  //   bptcSupported: renderer.extensions.has( 'EXT_texture_compression_bptc' ),
+  //   pvrtcSupported: false
+  // }
 
   const screenRaycaster = new Raycaster()
   xrui.interactionRays = [screenRaycaster.ray]

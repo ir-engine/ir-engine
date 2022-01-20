@@ -7,7 +7,6 @@ export type PortalComponentType = {
   linkedPortalId: string
   isPlayerInPortal: boolean
   displayText: string
-  previewMesh: Mesh
   helper: Entity
   // todo: refactor these
   spawnPosition?: Vector3

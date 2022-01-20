@@ -37,7 +37,7 @@ export const createInteractUI = (entity: Entity) => {
   interactiveComponent.interactionUserData.entity = entity
   const ui = createInteractiveModalView(interactiveComponent)
   InteractiveUI.set(entity, ui)
-  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + interactiveComponent.data.interactionName })
+  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + interactiveComponent.interactionName })
 
   //set transform
   const transform = getComponent(entity, TransformComponent)

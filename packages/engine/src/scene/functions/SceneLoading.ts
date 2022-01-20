@@ -48,11 +48,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   if (!world.entityTree) world.entityTree = new EntityTree()
   const tree = world.entityTree
 
-  let sceneProgress = 0
-  const currentProgress = 30
-  const progressLeft = 100 - currentProgress
-  const progressCounter = progressLeft / Object.keys(sceneData.entities).length
-
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]

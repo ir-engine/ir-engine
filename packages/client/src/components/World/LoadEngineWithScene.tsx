@@ -122,21 +122,6 @@ export const LoadEngineWithScene = (props: Props) => {
     }
   }, [locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 
-  // const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
-  //   dispatchLocal(EngineActions.setTeleporting(portalComponent))
-  //   dispatch(LocationAction.fetchingCurrentSocialLocation())
-  // }
-
-  // TODO: this needs to be implemented on the server too
-  // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-  //   teleportPlayer(
-  //     useWorld().localClientEntity,
-  //     portalComponent.remoteSpawnPosition,
-  //     portalComponent.remoteSpawnRotation
-  //   )
-  //   return
-  // }
-
   const canTeleport = useRef(true)
   useEffect(() => {
     if (engineState.isTeleporting.value === null) {
