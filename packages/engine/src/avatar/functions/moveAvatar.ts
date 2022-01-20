@@ -1,4 +1,4 @@
-import { Vector3, Matrix4, Quaternion, PerspectiveCamera, OrthographicCamera, Vector } from 'three'
+import { Vector3, Matrix4, Quaternion, PerspectiveCamera, OrthographicCamera, Vector, Euler } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -169,16 +169,18 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   ]
 }
 
-export const rotateXRAvatar = (
-  world: World,
-  entity: Entity,
-  camera: PerspectiveCamera | OrthographicCamera,
-  position: Vector3
-) => {
+/**
+ * Rotates the avatar horizontally using HMD rotation
+ *
+ * @param world
+ * @param entity
+ * @param camera
+ */
+export const rotateXRAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const avatarTransform = getComponent(entity, TransformComponent)
 
   const avatarFwd = tempVec1.set(0, 0, 1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
-  const camFwd = camera.getWorldDirection(tempVec2).setY(0).normalize()
+  const camFwd = tempVec2.set(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize()
 
   const angle = Math.acos(avatarFwd.dot(camFwd))
   const clamp = Math.PI * 0.5
@@ -232,12 +234,25 @@ export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, positio
  * @param entity
  * @param camera
  */
-export const alignXRCameraWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
+export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const cameraContainerPos = camera.parent!.position
   tempVec1.subVectors(cameraContainerPos, camera.position)
   tempVec2.copy(avatarCameraOffset)
   getAvatarCameraPosition(entity, tempVec2, cameraContainerPos)
   cameraContainerPos.add(tempVec1)
+}
+
+/**
+ * Aligns the XR camra rotation with the avatar's forward vector
+ * @param entity
+ * @param camera
+ */
+export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
+  const avatarTransform = getComponent(entity, TransformComponent)
+  const camParentRot = camera.parent!.quaternion
+  tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation)
+  quat.copy(camera.quaternion).invert()
+  camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
 const moveAvatarControllerHorizontally = (world: World, entity: Entity, displacement: any) => {
@@ -271,6 +286,14 @@ const moveAvatarControllerHorizontally = (world: World, entity: Entity, displace
   ]
 }
 
+/**
+ * Moves the avatar using camera displacement
+ * @param world
+ * @param entity
+ * @param camera
+ * @param lastCameraPos Out, last frame camera position
+ * @returns
+ */
 export const moveXRAvatar = (
   world: World,
   entity: Entity,
@@ -283,7 +306,7 @@ export const moveXRAvatar = (
   if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.25) {
     tempVec3.subVectors(Engine.camera.position, Engine.camera.parent!.position)
 
-    alignXRCameraWithAvatar(entity, camera)
+    alignXRCameraPositionWithAvatar(entity, camera)
 
     // Calculate new camera world position
     tempVec3.add(Engine.camera.parent!.position)
