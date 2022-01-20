@@ -386,6 +386,7 @@ const ProfileMenu = (props: Props): any => {
 
             <form>
               <TextField
+                id="user-id"
                 className={styles.emailField}
                 size="small"
                 placeholder={'user id'}

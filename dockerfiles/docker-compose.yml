@@ -26,3 +26,8 @@ services:
     build:
       context: ..
       dockerfile: ./dockerfiles/gameserver/Dockerfile-gameserver
+  testbot:
+    image: ${LABEL}-testbot
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/testbot/Dockerfile-testbot
