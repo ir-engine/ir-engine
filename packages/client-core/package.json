@@ -44,7 +44,7 @@
     "apexcharts": "^3.28.3",
     "axios": "0.25.0",
     "classnames": "2.3.1",
-    "credential-handler-polyfill": "2.2.1",
+    "credential-handler-polyfill": "2.3.0",
     "emailjs-com": "3.2.0",
     "esbuild-plugin-sass": "1.0.1",
     "i18next": "21.6.6",
