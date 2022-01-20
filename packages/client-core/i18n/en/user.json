@@ -201,6 +201,7 @@
       "projects": "Projects",
       "scenes": "Scenes",
       "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
       "bots": "Bots"
     }
   },
@@ -228,6 +229,7 @@
     "content": "Content Packs",
     "scenes": "Scenes",
     "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings"
   },
