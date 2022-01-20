@@ -45,7 +45,7 @@ export class Party extends Service {
           },
           {
             model: (this.app.service('instance') as any).Model,
-            required: true,
+            required: false,
             where: { ...ip }
           },
           {

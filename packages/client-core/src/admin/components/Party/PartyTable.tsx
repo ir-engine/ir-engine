@@ -9,6 +9,7 @@ import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
 import TableComponent from '../../common/Table'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchAdminParty } from '../../common/hooks/party.hooks'
+import ViewParty from './ViewParty'
 
 const PartyTable = (props: PartyPropsTable) => {
   const { search } = props
@@ -20,6 +21,8 @@ const PartyTable = (props: PartyPropsTable) => {
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [partyName, setPartyName] = React.useState('')
   const [partyId, setPartyId] = React.useState('')
+  const [viewModel, setViewModel] = React.useState(false)
+  const [partyAdmin, setPartyAdmin] = React.useState('')
 
   const authState = useAuthState()
   const user = authState.user
@@ -46,14 +49,30 @@ const PartyTable = (props: PartyPropsTable) => {
     setPopConfirmOpen(false)
   }
 
-  const createData = (id: string, instance: string, location: string): PartyData => {
+  const openViewModel = (open: boolean, party: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
+    setPartyAdmin(party)
+    setViewModel(open)
+  }
+
+  const closeViewModel = () => {
+    setViewModel(false)
+  }
+
+  const createData = (el: any, id: string, instance: any, location: any): PartyData => {
     return {
+      el,
       id,
       instance,
       location,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
+          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
             <span className={classes.spanWhite}>View</span>
           </a>
           <a
@@ -79,9 +98,10 @@ const PartyTable = (props: PartyPropsTable) => {
 
   const rows = adminPartyData?.map((el) => {
     return createData(
+      el,
       el.id,
-      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
-      el.location?.name || `<span className={classes.spanNone}>None</span>`
+      el?.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
+      el.location?.name || <span className={classes.spanNone}>None</span>
     )
   })
 
@@ -103,6 +123,7 @@ const PartyTable = (props: PartyPropsTable) => {
         name={partyName}
         label={'party with instance of '}
       />
+      <ViewParty openView={viewModel} closeViewModel={closeViewModel} partyAdmin={partyAdmin} />
     </React.Fragment>
   )
 }

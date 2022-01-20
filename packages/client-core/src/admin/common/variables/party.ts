@@ -34,6 +34,7 @@ export const partyColumns: PartyColumn[] = [
 ]
 
 export interface PartyData {
+  el: any
   id: string
   instance: string
   location: string
