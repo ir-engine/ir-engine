@@ -2,54 +2,53 @@ import { useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { createState, useState } from '@hookstate/core'
 import { store } from '../../store'
+import { TestBot } from '@xrengine/common/src/interfaces/TestBot'
 
 //State
-// export const TEST_BOT_PAGE_LIMIT = 100
+const state = createState({
+  bots: [] as Array<TestBot>,
+  fetched: false,
+  lastFetched: Date.now()
+})
 
-// const state = createState({
-//   bots: [] as Array<AdminBot>,
-//   skip: 0,
-//   limit: TEST_BOT_PAGE_LIMIT,
-//   total: 0,
-//   retrieving: false,
-//   fetched: false,
-//   updateNeeded: true,
-//   lastFetched: Date.now()
-// })
+store.receptors.push((action: TestBotActionType): void => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'TEST_BOT_FETCHED':
+        return s.merge({
+          bots: action.bots,
+          fetched: true,
+          lastFetched: Date.now()
+        })
+    }
+  }, action.type)
+})
 
-// store.receptors.push((action: TestBotActionType): void => {
-//   state.batch((s) => {
-//     switch (action.type) {
-//       case 'TEST_BOT_CREATE':
-//         return s.merge({ updateNeeded: true })
-//     }
-//   }, action.type)
-// })
+export const accessTestBotState = () => state
 
-// export const accessTestBotState = () => state
-
-// export const useTestBotState = () => useState(state) as any as typeof state
+export const useTestBotState = () => useState(state) as any as typeof state
 
 //Service
 export const TestBotService = {
-  createTestBot: async () => {
-    // const dispatch = useDispatch()
+  fetchTestBot: async () => {
+    const dispatch = useDispatch()
     try {
-      const bot = await client.service('testbot').create()
-      // dispatch(TestBotAction.botCreated(bot))
+      const bots = await client.service('testbot').get()
+      dispatch(TestBotAction.fetchedBots(bots))
     } catch (error) {
       console.error(error)
     }
   }
 }
-//Action
-// export const TestBotAction = {
-//   botCreated: (bot: AdminBot) => {
-//     return {
-//       type: 'TEST_BOT_CREATE' as const,
-//       bot: bot
-//     }
-//   },
-// }
 
-// export type TestBotActionType = ReturnType<typeof TestBotAction[keyof typeof TestBotAction]>
+//Action
+export const TestBotAction = {
+  fetchedBots: (bots: Array<TestBot>) => {
+    return {
+      type: 'TEST_BOT_FETCHED' as const,
+      bots: bots
+    }
+  }
+}
+
+export type TestBotActionType = ReturnType<typeof TestBotAction[keyof typeof TestBotAction]>
