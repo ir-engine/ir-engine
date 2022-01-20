@@ -9,7 +9,8 @@ const state = createState({
   sceneLoading: false,
   sceneLoaded: false,
   joinedWorld: false,
-  loadingProgress: -1,
+  loadingProgress: 0,
+  loadingDetails: 'loading background assests...',
   connectedWorld: false,
   isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
   isPhysicsDebug: false,
@@ -52,8 +53,6 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({ sceneLoaded: action.sceneLoaded, sceneLoading: false })
       case EngineEvents.EVENTS.JOINED_WORLD:
         return s.merge({ joinedWorld: action.joinedWorld })
-      case EngineEvents.EVENTS.LOADING_PROGRESS:
-        return s.merge({ loadingProgress: action.count })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
@@ -75,6 +74,10 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({
           isTeleporting: action.portalComponent
         })
+      case EngineEvents.EVENTS.LOADING_STATE_CHANGED:
+        s.loadingProgress.set(action.loadingProgress)
+        s.loadingDetails.set(action.loadingDetails)
+        return
       case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
         return s.merge({ userHasInteracted: true })
     }
@@ -90,14 +93,6 @@ export const EngineActions = {
       userId
     }
   },
-
-  loadingProgress: (count: number) => {
-    return {
-      type: EngineEvents.EVENTS.LOADING_PROGRESS,
-      count
-    }
-  },
-
   setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
     return {
       type: EngineEvents.EVENTS.SET_TELEPORTING,
@@ -226,6 +221,13 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.AVATAR_DEBUG,
       isAvatarDebug
+    }
+  },
+  loadingStateChanged: (loadingProgress: number, loadingDetails: string) => {
+    return {
+      type: EngineEvents.EVENTS.LOADING_STATE_CHANGED,
+      loadingProgress,
+      loadingDetails
     }
   },
   setUserHasInteracted: () => {
