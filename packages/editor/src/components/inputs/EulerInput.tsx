@@ -1,7 +1,7 @@
 import React from 'react'
 import NumericInput from './NumericInput'
 import { MathUtils as _Math, Euler } from 'three'
-import { Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
+import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 const { RAD2DEG, DEG2RAD } = _Math
 
 /**
@@ -52,6 +52,7 @@ export const EulerInput = (props: EulerInputProps) => {
         Z:
       </Vector3Scrubber>
       <NumericInput {...rest} value={vz} onChange={(z) => onChange(vx, vy, z)} />
+      <UniformButtonContainer />
     </Vector3InputContainer>
   )
 }
