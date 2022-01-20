@@ -3,14 +3,15 @@ import Projects from '@xrengine/editor/src/pages/projects'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import EditorContainer from '../components/EditorContainer'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -36,8 +37,6 @@ const EditorProtectedRoutes = () => {
   const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
   const initializationOptions: InitializeOptions = {
-    type: EngineSystemPresets.EDITOR,
-    publicPath: location.origin,
     systems: [
       {
         systemModulePromise: import('../managers/SceneManager'),
@@ -91,7 +90,9 @@ const EditorProtectedRoutes = () => {
   useEffect(() => {
     if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
       initializationOptions.projects = projectState.projects.value.map((project) => project.name)
-      initializeEngine(initializationOptions)
+      Engine.userId = 'editor' as UserId
+      Engine.isEditor = true
+      createEngine()
     }
   }, [projectState.projects.value])
 

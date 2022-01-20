@@ -21,35 +21,35 @@ const sceneData = parseSceneDataCacheURLs(sceneJson, process.env.LOCAL_STORAGE_P
 
 describe.skip('Portal', () => {
 
-  before(async () => {
-    await initializeEngine(engineTestSetup)
-  })
+  // before(async () => {
+  //   await initializeEngine(engineTestSetup)
+  // })
 
-  it('Can load scene', async () => {
-    const world = useWorld()
-    await loadSceneFromJSON(sceneData)
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entityQuery().length, 10)
-    // TODO: test scene actor removal directly
-    assert.equal(world.physics.bodies.size, 1)
-  })
+  // it('Can load scene', async () => {
+  //   const world = useWorld()
+  //   await loadSceneFromJSON(sceneData)
+  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+  //   assert.equal(world.entityQuery().length, 10)
+  //   // TODO: test scene actor removal directly
+  //   assert.equal(world.physics.bodies.size, 1)
+  // })
 
-  it('Can unload scene', async () => {
-    // unload  
-    await unloadScene()
+  // it('Can unload scene', async () => {
+  //   // unload  
+  //   await unloadScene()
 
-    // test
-    const world = useWorld()
-    assert.equal(world.entityQuery().length, 1) // world entity
-    assert.equal(world.physics.bodies.size, 0)
-  })
+  //   // test
+  //   const world = useWorld()
+  //   assert.equal(world.entityQuery().length, 1) // world entity
+  //   assert.equal(world.physics.bodies.size, 0)
+  // })
 
-  it('Can load new scene', async () => {
-    await loadSceneFromJSON(sceneData)
-    const world = useWorld()
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
-    assert.equal(world.entityQuery().length, 10)
-    assert.equal(world.physics.bodies.size, 1)
-  })
+  // it('Can load new scene', async () => {
+  //   await loadSceneFromJSON(sceneData)
+  //   const world = useWorld()
+  //   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
+  //   assert.equal(world.entityQuery().length, 10)
+  //   assert.equal(world.physics.bodies.size, 1)
+  // })
 
 })

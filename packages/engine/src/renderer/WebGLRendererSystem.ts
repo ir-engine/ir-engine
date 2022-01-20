@@ -66,11 +66,6 @@ export interface EffectComposerWithSchema extends EffectComposer {
 
 let lastRenderTime = 0
 
-export type EngineRendererProps = {
-  canvas: HTMLCanvasElement
-  enabled: boolean
-}
-
 export class EngineRenderer {
   static instance: EngineRenderer
 
@@ -106,7 +101,7 @@ export class EngineRenderer {
   disableUpdate = false
 
   /** Constructs WebGL Renderer System. */
-  constructor(attributes: EngineRendererProps) {
+  constructor() {
     EngineRenderer.instance = this
     this.onResize = this.onResize.bind(this)
 
@@ -116,7 +111,7 @@ export class EngineRenderer {
       WebGL.dispatchWebGLDisconnectedEvent()
     }
 
-    const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
+    const canvas: HTMLCanvasElement = document.querySelector('canvas')!
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     if (!context) {
@@ -276,14 +271,14 @@ export class EngineRenderer {
   }
 }
 
-export default async function WebGLRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  new EngineRenderer(props)
+export default async function WebGLRendererSystem(world: World): Promise<System> {
+  new EngineRenderer()
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   world.receptors.push(EngineRendererReceptor)
 
   return () => {
-    if (props.enabled) EngineRenderer.instance.execute(world.delta)
+    EngineRenderer.instance.execute(world.delta)
   }
 }
 

@@ -20,14 +20,13 @@ import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import matches from 'ts-matches'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const defaultEngineInitializeOptions = {
-  publicPath: location.origin,
   physics: {
     simulationEnabled: false
   },
@@ -83,7 +82,7 @@ export const LoadEngineWithScene = (props: Props) => {
     if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
       const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
       engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
-      initializeEngine(engineInitializeOptions).then(() => {
+      createEngine().then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
             .when(NetworkWorldAction.createClient.matches, () => {

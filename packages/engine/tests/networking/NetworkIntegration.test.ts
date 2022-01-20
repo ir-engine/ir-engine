@@ -6,17 +6,17 @@ import { EngineSystemPresets } from '../../src/initializationOptions'
 
 describe('Network Integration Tests', async () => {
 
-  before(async () => {
-    /* hoist */
-    Network.instance = new TestNetwork()
-    await initializeEngine({
-      type: EngineSystemPresets.SERVER,
-      systems: [],
-    })
-  })
+  // before(async () => {
+  //   /* hoist */
+  //   Network.instance = new TestNetwork()
+  //   await initializeEngine({
+  //     type: EngineSystemPresets.SERVER,
+  //     systems: [],
+  //   })
+  // })
 
-  it('should', () => {
+  // it('should', () => {
 
-  })
+  // })
 
 })
