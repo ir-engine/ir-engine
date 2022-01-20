@@ -34,6 +34,7 @@ const DashboardMenuItem = (props: Props) => {
     instance: false,
     invite: false,
     globalAvatars: false,
+    benchmarking: false,
     projects: false
   }
 
