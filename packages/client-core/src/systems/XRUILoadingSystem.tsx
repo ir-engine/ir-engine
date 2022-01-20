@@ -6,10 +6,23 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { PerspectiveCamera, MathUtils } from 'three'
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+
+type TransitionType = 'IN' | 'OUT' | 'NONE'
 
 export default async function XRUILoadingSystem(world: World): Promise<System> {
   const ui = createLoaderDetailView('')
+  const transitionPeriodSeconds = 1
+  let currentState = 'NONE' as TransitionType
+  let alpha = 0 // alpha is a number between 0 and 1
+
+  function setState(state: TransitionType) {
+    currentState = state
+    alpha = 0
+  }
+
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setState('OUT'))
 
   return () => {
     if (Engine.activeCameraEntity) {
@@ -42,23 +55,19 @@ export default async function XRUILoadingSystem(world: World): Promise<System> {
 
         xrui.container.scale.x = xrui.container.scale.y = scale
 
-        const ready = !Engine.isLoading && Engine.hasJoinedWorld
-        xrui.container.rootLayer.traverseLayersPreOrder(ready ? transitionOut : transitionIn)
+        const setOpacity = (opacity) =>
+          xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+            // console.log('setOpacity', opacity)
+            layer.contentMesh.material.opacity = opacity
+            layer.contentMesh.material.visible = opacity > 0
+          })
+
+        if (currentState !== 'NONE') {
+          alpha += world.delta / transitionPeriodSeconds
+          setOpacity(currentState === 'IN' ? alpha : 1 - alpha)
+          if (alpha > 1) setState('NONE')
+        }
       }
     }
   }
-}
-
-function transitionIn(layer: WebLayer3D) {
-  const world = useWorld()
-  const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-  mat.opacity = MathUtils.lerp(mat.opacity, 1, world.delta * 10)
-  mat.visible = true
-}
-
-function transitionOut(layer: WebLayer3D) {
-  const world = useWorld()
-  const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-  mat.opacity = MathUtils.lerp(mat.opacity, 0, world.delta * 10)
-  if (mat.opacity < 0.01) mat.visible = false
 }

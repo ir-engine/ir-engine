@@ -65,7 +65,7 @@ const LoadingDetailView = () => {
     }
   }, [sceneState?.currentScene?.thumbnailUrl?.value])
 
-  console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
+  // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
 
   return (
     <>

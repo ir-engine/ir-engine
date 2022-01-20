@@ -11,9 +11,10 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Quaternion, Vector3 } from 'three'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -79,20 +80,34 @@ export const initNetwork = () => {
 }
 
 export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
-  dispatchLocal(EngineActions.loadingStateChanged(5, 'fetching systems...'))
+  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
   const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  dispatchLocal(EngineActions.loadingStateChanged(10, 'loading systems into the world...'))
   await Engine.currentWorld.initSystems(packs)
   const dispatch = useDispatch()
 
-  dispatchLocal(EngineActions.loadingStateChanged(30, 'loading scene into the world...'))
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
+  let entitiesToLoad = 0
 
-  await loadSceneFromJSON(sceneData)
-  dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
+        const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
+        dispatchLocal(
+          EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), 'Loading Complete!')
+        )
+        break
+    }
+  }
+  Engine.currentWorld.receptors.push(receptor)
 
-  getPortalDetails()
-  dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  loadSceneFromJSON(sceneData).then(() => {
+    dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
+
+    getPortalDetails()
+    dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  })
+
+  entitiesToLoad = Engine.sceneLoadPromises.length
 }
