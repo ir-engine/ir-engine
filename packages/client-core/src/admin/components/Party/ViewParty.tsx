@@ -7,6 +7,20 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
+import { Save } from '@mui/icons-material'
+import FormControl from '@mui/material/FormControl'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import { useLocationState } from '../../services/LocationService'
+import { useInstanceState } from '../../services/InstanceService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { InstanceService } from '../../services/InstanceService'
+import { LocationService } from '../../services/LocationService'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { validateForm } from '../../common/Validation/formValidation'
+import { PartyService } from '../../services/PartyService'
 
 interface Props {
   openView: boolean
@@ -17,7 +31,79 @@ interface Props {
 export default function ViewParty(props: Props) {
   const { openView, closeViewModel, partyAdmin } = props
   const classes = useStyles()
-  console.log(partyAdmin)
+  const [editMode, setEditMode] = React.useState(false)
+  const [state, setState] = React.useState({
+    location: '',
+    instance: '',
+    formErrors: {
+      location: '',
+      instance: ''
+    }
+  })
+  const authState = useAuthState()
+  const user = authState.user
+  const adminLocationState = useLocationState()
+  const adminInstanceState = useInstanceState()
+  const adminInstances = adminInstanceState
+  const instanceData = adminInstances.instances
+  const locationData = adminLocationState.locations
+
+  //Call custom hooks
+  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+  useFetchAdminLocations(user, adminLocationState, LocationService)
+
+  React.useEffect(() => {
+    if (partyAdmin.instance?.ipAddress) {
+      setState({ ...state, instance: partyAdmin.instance?.id })
+    }
+
+    if (partyAdmin?.location?.name) {
+      setState({ ...state, location: partyAdmin.location?.id })
+    }
+  }, [partyAdmin])
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    let temp = state.formErrors
+    switch (name) {
+      case 'location':
+        temp.location = value.length < 2 ? 'Location is required' : ''
+        break
+      case 'instance':
+        temp.instance = value.length < 2 ? 'Instance is required' : ''
+        break
+      default:
+        break
+    }
+    setState({ ...state, [name]: value, formErrors: temp })
+  }
+
+  const data: Instance[] = []
+  instanceData.value.forEach((element) => {
+    data.push(element)
+  })
+
+  const handleSubmit = async () => {
+    const data = {
+      locationId: state.location,
+      instanceId: state.instance
+    }
+    let temp = state.formErrors
+    if (!state.location) {
+      temp.location = "Location can't be empty"
+    }
+    if (!state.instance) {
+      temp.instance = "Instance can't be empty"
+    }
+    setState({ ...state, formErrors: temp })
+
+    if (validateForm(state, state.formErrors)) {
+      await PartyService.patchParty(partyAdmin.id, data)
+      setState({ ...state, location: '', instance: '' })
+      closeViewModel()
+    }
+  }
+
   return (
     <ViewDrawer openView={openView} handleCloseDrawe={() => closeViewModel()}>
       <Paper elevation={0} className={classes.rootPaper}>
@@ -31,85 +117,174 @@ export default function ViewParty(props: Props) {
           </Container>
         )}
       </Paper>
-      <Typography
-        variant="h4"
-        component="h4"
-        className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
-      >
-        Instance
-      </Typography>
-      <Grid container spacing={2} className={classes.pdlarge}>
-        <Grid item xs={6}>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            Ip Address:
-          </Typography>
-          {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            User:
-          </Typography>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            Active:
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            {partyAdmin?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
-          </Typography>
-          <Typography variant="h5" component="h5" className={classes.mb10}>
-            {partyAdmin?.instance?.currentUsers}
-          </Typography>
-          <Typography variant="h5" component="h5" className={classes.mb10}>
-            <span className={classes.spanNone}>{partyAdmin?.instance?.ended === 1 ? 'No' : 'Yes'}</span>
-          </Typography>
-        </Grid>
-      </Grid>
+      {editMode ? (
+        <Container maxWidth="sm">
+          <div className={classes.mt10}>
+            <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
+              Update party
+            </Typography>
 
-      <Typography
-        variant="h4"
-        component="h4"
-        className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
-      >
-        Location
-      </Typography>
-      <Grid container spacing={2} className={classes.pdlarge}>
-        <Grid item xs={6}>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            Name:
-          </Typography>
-          {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            Maximum user:
-          </Typography>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            scene:
-          </Typography>
-        </Grid>
-        <Grid item xs={6}>
-          <Typography variant="h6" component="h6" className={classes.mb10}>
-            {partyAdmin?.location?.name || <span className={classes.spanNone}>None</span>}
-          </Typography>
-          <Typography variant="h5" component="h5" className={classes.mb10}>
-            {partyAdmin?.location?.maxUsersPerInstance}
-          </Typography>
-          <Typography variant="h5" component="h5" className={classes.mb10}>
-            {partyAdmin?.location?.sceneId || <span className={classes.spanNone}>None</span>}
-          </Typography>
-        </Grid>
-      </Grid>
-      <DialogActions className={classes.mb10}>
-        <div className={classes.marginTpM}>
-          <Button
-            className={classes.saveBtn}
-            // onClick={() => {
-            //   setEditMode(true)
-            // }}
+            <label>Instance</label>
+            <Paper
+              component="div"
+              className={state.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
+            >
+              <FormControl fullWidth>
+                <Select
+                  labelId="demo-controlled-open-select-label"
+                  id="demo-controlled-open-select"
+                  value={state.instance}
+                  fullWidth
+                  displayEmpty
+                  onChange={handleChange}
+                  className={classes.select}
+                  name="instance"
+                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select instance</em>
+                  </MenuItem>
+                  {data.map((el) => (
+                    <MenuItem value={el?.id} key={el?.id}>
+                      {el?.ipAddress}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Paper>
+
+            <label>Location</label>
+            <Paper
+              component="div"
+              className={state.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+            >
+              <FormControl fullWidth>
+                <Select
+                  labelId="demo-controlled-open-select-label"
+                  id="demo-controlled-open-select"
+                  value={state.location}
+                  fullWidth
+                  displayEmpty
+                  onChange={handleChange}
+                  className={classes.select}
+                  name="location"
+                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                >
+                  <MenuItem value="" disabled>
+                    <em>Select location</em>
+                  </MenuItem>
+                  {locationData.value.map((el) => (
+                    <MenuItem value={el?.id} key={el?.id}>
+                      {el?.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Paper>
+          </div>
+        </Container>
+      ) : (
+        <div>
+          <Typography
+            variant="h4"
+            component="h4"
+            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
           >
-            EDIT
-          </Button>
-          <Button onClick={() => closeViewModel()} className={classes.saveBtn}>
-            CANCEL
-          </Button>
+            Instance
+          </Typography>
+          <Grid container spacing={2} className={classes.pdlarge}>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                Ip Address:
+              </Typography>
+              {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                User:
+              </Typography>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                Active:
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                {partyAdmin?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
+              </Typography>
+              <Typography variant="h5" component="h5" className={classes.mb10}>
+                {partyAdmin?.instance?.currentUsers}
+              </Typography>
+              <Typography variant="h5" component="h5" className={classes.mb10}>
+                <span className={classes.spanNone}>{partyAdmin?.instance?.ended === 1 ? 'No' : 'Yes'}</span>
+              </Typography>
+            </Grid>
+          </Grid>
+
+          <Typography
+            variant="h4"
+            component="h4"
+            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
+          >
+            Location
+          </Typography>
+          <Grid container spacing={2} className={classes.pdlarge}>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                Name:
+              </Typography>
+              {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                Maximum user:
+              </Typography>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                scene:
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={classes.mb10}>
+                {partyAdmin?.location?.name || <span className={classes.spanNone}>None</span>}
+              </Typography>
+              <Typography variant="h5" component="h5" className={classes.mb10}>
+                {partyAdmin?.location?.maxUsersPerInstance}
+              </Typography>
+              <Typography variant="h5" component="h5" className={classes.mb10}>
+                {partyAdmin?.location?.sceneId || <span className={classes.spanNone}>None</span>}
+              </Typography>
+            </Grid>
+          </Grid>
         </div>
+      )}
+      <DialogActions className={classes.mb10}>
+        {editMode ? (
+          <div className={classes.marginTpM}>
+            <Button onClick={handleSubmit} className={classes.saveBtn}>
+              <span style={{ marginRight: '15px' }}>
+                <Save />
+              </span>{' '}
+              Submit
+            </Button>
+            <Button
+              className={classes.saveBtn}
+              onClick={() => {
+                setEditMode(false)
+              }}
+            >
+              CANCEL
+            </Button>
+          </div>
+        ) : (
+          <div className={classes.marginTpM}>
+            <Button
+              className={classes.saveBtn}
+              onClick={() => {
+                setEditMode(true)
+              }}
+            >
+              EDIT
+            </Button>
+            <Button onClick={() => closeViewModel()} className={classes.saveBtn}>
+              CANCEL
+            </Button>
+          </div>
+        )}
       </DialogActions>
     </ViewDrawer>
   )

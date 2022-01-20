@@ -38,6 +38,8 @@ store.receptors.push((action: PartyActionType): any => {
         return s.merge({ updateNeeded: true })
       case 'ADMIN_PARTY_REMOVED':
         return s.merge({ updateNeeded: true })
+      case 'ADMIN_PARTY_PATCHED':
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -93,6 +95,17 @@ export const PartyService = {
       const result = await client.service('party').remove(id)
       dispatch(PartyAction.partyRemoved(result))
     }
+  },
+  patchParty: async (id: string, party: any) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        const result = await client.service('party').patch(id, party)
+        dispatch(PartyAction.partyPatched(result))
+      } catch (error) {
+        AlertService.dispatchAlertError(error)
+      }
+    }
   }
 }
 
@@ -114,6 +127,12 @@ export const PartyAction = {
   partyRemoved: (party: AdminParty) => {
     return {
       type: 'ADMIN_PARTY_REMOVED' as const,
+      party: party
+    }
+  },
+  partyPatched: (party: AdminParty) => {
+    return {
+      type: 'ADMIN_PARTY_PATCHED' as const,
       party: party
     }
   }
