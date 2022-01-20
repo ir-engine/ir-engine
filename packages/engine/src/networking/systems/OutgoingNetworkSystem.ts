@@ -96,7 +96,7 @@ export const queueEntityTransform = (world: World, entity: Entity) => {
 
   if (!clients.has(networkObject.ownerId)) {
     // cleanup network objects whose owners are no longer present
-    removeEntity(entity, world)
+    removeEntity(entity, false, world)
     return world
   }
 
