@@ -1,15 +1,4 @@
-import {
-  AnimationClip,
-  AnimationMixer,
-  Euler,
-  Matrix4,
-  Quaternion,
-  QuaternionKeyframeTrack,
-  SkeletonHelper,
-  Vector2,
-  Vector3,
-  VectorKeyframeTrack
-} from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 const _getTailBones = (skeleton) => {
   const result = []
@@ -377,292 +366,311 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
   })
 }
 
-export default function AvatarBoneMatching(model) {
-  const targetSkinnedMeshes = []
-  model.traverse((o) => {
-    if (o.isSkinnedMesh) {
-      targetSkinnedMeshes.push(o)
-    }
-  })
-  const skeletonSkinnedMesh = targetSkinnedMeshes.find((o) => o.skeleton.bones[0].parent) || null
-  const skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton
-
-  // const bones = []
-  // model.traverse((o) => {
-  //   if (o.type = 'Bone') {
-  //     bones.push(o)
-  //   }
-  // })
-  // const skeleton = {bones}
-
-  const tailBones = _getTailBones(skeleton)
-  const Eye_L = _findEye(tailBones, true)
-  const Eye_R = _findEye(tailBones, false)
-  const Head = _findHead(tailBones)
-  const Neck = Head.parent
-  const Chest = Neck.parent
-  const Spine1 = Chest.parent
-  const Hips = _findHips(skeleton)
-  const armature = _findArmature(Hips)
-  const Spine = _findSpine(Chest, Hips)
-  const Left_shoulder = _findShoulder(tailBones, true)
-  const Left_wrist = _findHand(Left_shoulder)
-  const Left_elbow = Left_wrist.parent
-  const Left_arm = Left_elbow.parent
-  const Right_shoulder = _findShoulder(tailBones, false)
-  const Right_wrist = _findHand(Right_shoulder)
-  const Right_elbow = Right_wrist.parent
-  const Right_arm = Right_elbow.parent
-  const Left_ankle = _findFoot(tailBones, true)
-  const Left_knee = Left_ankle.parent
-  const Left_leg = Left_knee.parent
-  const Right_ankle = _findFoot(tailBones, false)
-  const Right_knee = Right_ankle.parent
-  const Right_leg = Right_knee.parent
-
-  const fingerParentBones = {
-    tailBones,
-    Left_wrist,
-    Right_wrist
-  }
-
-  const fingerBones = {
-    left: {
-      thumb: _findFinger(/thumb/gi, true, fingerParentBones),
-      index: _findFinger(/index/gi, true, fingerParentBones),
-      middle: _findFinger(/middle/gi, true, fingerParentBones),
-      ring: _findFinger(/ring/gi, true, fingerParentBones),
-      little: _findFinger(/little/gi, true, fingerParentBones) || _findFinger(/pinky/gi, true, fingerParentBones)
-    },
-    right: {
-      thumb: _findFinger(/thumb/gi, false, fingerParentBones),
-      index: _findFinger(/index/gi, false, fingerParentBones),
-      middle: _findFinger(/middle/gi, false, fingerParentBones),
-      ring: _findFinger(/ring/gi, false, fingerParentBones),
-      little: _findFinger(/little/gi, false, fingerParentBones) || _findFinger(/pinky/gi, false, fingerParentBones)
-    }
-  }
-
-  const modelBones = {
-    Hips,
-    Spine,
-    Chest,
-    Neck,
-    Head,
-    /* Eye_L,
-    Eye_R, */
-
-    Left_shoulder,
-    Left_arm,
-    Left_elbow,
-    Left_wrist,
-    Left_leg,
-    Left_knee,
-    Left_ankle,
-
-    Right_shoulder,
-    Right_arm,
-    Right_elbow,
-    Right_wrist,
-    Right_leg,
-    Right_knee,
-    Right_ankle
-  }
-
-  //get flip state
-  const leftArmDirection = Left_wrist.getWorldPosition(new Vector3()).sub(Head.getWorldPosition(new Vector3()))
-  const flipZ = leftArmDirection.x < 0 //eyeDirection.z < 0;
-  const armatureDirection = new Vector3(0, 1, 0).applyQuaternion(armature.quaternion)
-  const flipY = armatureDirection.z < -0.5
-  const legDirection = new Vector3(0, 0, -1).applyQuaternion(
-    Left_leg.getWorldQuaternion(new Quaternion()).premultiply(armature.quaternion.clone().inverse())
-  )
-  const flipLeg = legDirection.y < 0.5
-  console.log('flip', flipZ, flipY, flipLeg)
-
-  const armatureQuaternion = armature.quaternion.clone()
-  const armatureMatrixInverse = new Matrix4().getInverse(armature.matrixWorld)
-  armature.position.set(0, 0, 0)
-  armature.quaternion.set(0, 0, 0, 1)
-  armature.scale.set(1, 1, 1)
-  armature.updateMatrix()
-
-  const preRotations = {}
-  const _ensurePrerotation = (k) => {
-    const boneName = modelBones[k].name
-    if (!preRotations[boneName]) {
-      preRotations[boneName] = new Quaternion()
-    }
-    return preRotations[boneName]
-  }
-
-  if (flipY) {
-    ;['Hips'].forEach((k) => {
-      _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
-    })
-  }
-  if (flipZ) {
-    ;['Hips'].forEach((k) => {
-      _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
-    })
-  }
-  if (flipLeg) {
-    ;['Left_leg', 'Right_leg'].forEach((k) => {
-      _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2))
-    })
-  }
-
-  const qrArm = flipZ ? Left_arm : Right_arm
-  const qrElbow = flipZ ? Left_elbow : Right_elbow
-  const qrWrist = flipZ ? Left_wrist : Right_wrist
-  const qr = new Quaternion()
-    .setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
-    .premultiply(
-      new Quaternion().setFromRotationMatrix(
-        new Matrix4().lookAt(
-          new Vector3(0, 0, 0),
-          qrElbow
-            .getWorldPosition(new Vector3())
-            .applyMatrix4(armatureMatrixInverse)
-            .sub(qrArm.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
-            .applyQuaternion(armatureQuaternion),
-          new Vector3(0, 1, 0)
-        )
-      )
-    )
-  const qr2 = new Quaternion()
-    .setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
-    .premultiply(
-      new Quaternion().setFromRotationMatrix(
-        new Matrix4().lookAt(
-          new Vector3(0, 0, 0),
-          qrWrist
-            .getWorldPosition(new Vector3())
-            .applyMatrix4(armatureMatrixInverse)
-            .sub(qrElbow.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
-            .applyQuaternion(armatureQuaternion),
-          new Vector3(0, 1, 0)
-        )
-      )
-    )
-  const qlArm = flipZ ? Right_arm : Left_arm
-  const qlElbow = flipZ ? Right_elbow : Left_elbow
-  const qlWrist = flipZ ? Right_wrist : Left_wrist
-  const ql = new Quaternion()
-    .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-    .premultiply(
-      new Quaternion().setFromRotationMatrix(
-        new Matrix4().lookAt(
-          new Vector3(0, 0, 0),
-          qlElbow
-            .getWorldPosition(new Vector3())
-            .applyMatrix4(armatureMatrixInverse)
-            .sub(qlArm.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
-            .applyQuaternion(armatureQuaternion),
-          new Vector3(0, 1, 0)
-        )
-      )
-    )
-  const ql2 = new Quaternion()
-    .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-    .premultiply(
-      new Quaternion().setFromRotationMatrix(
-        new Matrix4().lookAt(
-          new Vector3(0, 0, 0),
-          qlWrist
-            .getWorldPosition(new Vector3())
-            .applyMatrix4(armatureMatrixInverse)
-            .sub(qlElbow.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
-            .applyQuaternion(armatureQuaternion),
-          new Vector3(0, 1, 0)
-        )
-      )
-    )
-
-  _ensurePrerotation('Right_arm').multiply(qr.clone().inverse())
-  _ensurePrerotation('Right_elbow').multiply(qr.clone()).premultiply(qr2.clone().inverse())
-  _ensurePrerotation('Left_arm').multiply(ql.clone().inverse())
-  _ensurePrerotation('Left_elbow').multiply(ql.clone()).premultiply(ql2.clone().inverse())
-
-  _ensurePrerotation('Left_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
-  _ensurePrerotation('Right_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
-
-  for (const k in preRotations) {
-    preRotations[k].inverse()
-  }
-
-  fixSkeletonZForward(armature.children[0], {
-    preRotations
-  })
-
-  fixSkeletonZForward(armature.children[0], {
-    preRotations
-  })
-
-  model.traverse((o) => {
-    if (o.isSkinnedMesh) {
-      o.bind(
-        o.skeleton.bones.length === skeleton.bones.length &&
-          o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
-          ? skeleton
-          : o.skeleton
-      )
-    }
-  })
-  if (flipY) {
-    modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
-  }
-  if (!flipZ) {
-    /* ['Left_arm', 'Right_arm'].forEach((name, i) => {
-      const bone = modelBones[name];
-      if (bone) {
-        bone.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), (i === 0 ? 1 : -1) * Math.PI*0.25));
+function getSkeleton(model, isSeparated) {
+  let skeleton
+  if (!isSeparated) {
+    const targetSkinnedMeshes = []
+    model.traverse((o) => {
+      if (o.isSkinnedMesh) {
+        targetSkinnedMeshes.push(o)
       }
-    }); */
+    })
+    const skeletonSkinnedMesh = targetSkinnedMeshes.find((o) => o.skeleton.bones[0].parent) || null
+    skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton
   } else {
-    modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
+    //TODO: need update for not original structure models
+    // const bones = []
+    // model.traverse((o) => {
+    //   if (o.isSkinnedMesh && o.skeleton && o.skeleton.bones) {
+    //     o.skeleton.bones.forEach(bone => {
+    //       bones.push(bone);
+    //     });
+    //   }
+    // })
+    // skeleton = {bones}
   }
-  modelBones.Right_arm.quaternion.premultiply(qr.clone().inverse())
-  modelBones.Right_elbow.quaternion.premultiply(qr).premultiply(qr2.clone().inverse())
-  modelBones.Left_arm.quaternion.premultiply(ql.clone().inverse())
-  modelBones.Left_elbow.quaternion.premultiply(ql).premultiply(ql2.clone().inverse())
-  model.updateMatrixWorld(true)
+  return skeleton
+}
+export default function AvatarBoneMatching(model) {
+  try {
+    const skeleton = getSkeleton(model, false)
+    const Hips = _findHips(skeleton)
+    const armature = _findArmature(Hips)
+    const tailBones = _getTailBones(skeleton)
+    const Eye_L = _findEye(tailBones, true)
+    const Eye_R = _findEye(tailBones, false)
+    const Head = _findHead(tailBones)
+    const Neck = Head.parent
+    const Chest = Neck.parent
+    const Spine1 = Chest.parent
+    const Spine = _findSpine(Chest, Hips)
+    const Left_shoulder = _findShoulder(tailBones, true)
+    const Left_wrist = _findHand(Left_shoulder)
+    const Left_elbow = Left_wrist.parent
+    const Left_arm = Left_elbow.parent
+    const Right_shoulder = _findShoulder(tailBones, false)
+    const Right_wrist = _findHand(Right_shoulder)
+    const Right_elbow = Right_wrist.parent
+    const Right_arm = Right_elbow.parent
+    const Left_ankle = _findFoot(tailBones, true)
+    const Left_knee = Left_ankle.parent
+    const Left_leg = Left_knee.parent
+    const Right_ankle = _findFoot(tailBones, false)
+    const Right_knee = Right_ankle.parent
+    const Right_leg = Right_knee.parent
 
-  Hips.traverse((bone) => {
-    bone.initialQuaternion = bone.quaternion.clone()
-  })
+    const fingerParentBones = {
+      tailBones,
+      Left_wrist,
+      Right_wrist
+    }
 
-  const targetModelBones = {
-    Hips,
-    Spine,
-    Spine1,
-    Spine2: Chest,
-    Neck,
-    Head,
-    LeftEye: Eye_L,
-    RightEye: Eye_R,
+    const fingerBones = {
+      left: {
+        thumb: _findFinger(/thumb/gi, true, fingerParentBones),
+        index: _findFinger(/index/gi, true, fingerParentBones),
+        middle: _findFinger(/middle/gi, true, fingerParentBones),
+        ring: _findFinger(/ring/gi, true, fingerParentBones),
+        little: _findFinger(/little/gi, true, fingerParentBones) || _findFinger(/pinky/gi, true, fingerParentBones)
+      },
+      right: {
+        thumb: _findFinger(/thumb/gi, false, fingerParentBones),
+        index: _findFinger(/index/gi, false, fingerParentBones),
+        middle: _findFinger(/middle/gi, false, fingerParentBones),
+        ring: _findFinger(/ring/gi, false, fingerParentBones),
+        little: _findFinger(/little/gi, false, fingerParentBones) || _findFinger(/pinky/gi, false, fingerParentBones)
+      }
+    }
 
-    LeftShoulder: Left_shoulder,
-    LeftArm: Left_arm,
-    LeftForeArm: Left_elbow,
-    LeftHand: Left_wrist,
-    LeftUpLeg: Left_leg,
-    LeftLeg: Left_knee,
-    LeftFoot: Left_ankle,
+    const modelBones = {
+      Hips,
+      Spine,
+      Chest,
+      Neck,
+      Head,
+      /* Eye_L,
+      Eye_R, */
 
-    RightShoulder: Right_shoulder,
-    RightArm: Right_arm,
-    RightForeArm: Right_elbow,
-    RightHand: Right_wrist,
-    RightUpLeg: Right_leg,
-    RightLeg: Right_knee,
-    RightFoot: Right_ankle
+      Left_shoulder,
+      Left_arm,
+      Left_elbow,
+      Left_wrist,
+      Left_leg,
+      Left_knee,
+      Left_ankle,
+
+      Right_shoulder,
+      Right_arm,
+      Right_elbow,
+      Right_wrist,
+      Right_leg,
+      Right_knee,
+      Right_ankle
+    }
+
+    //get flip state
+    const leftArmDirection = Left_wrist.getWorldPosition(new Vector3()).sub(Head.getWorldPosition(new Vector3()))
+    const flipZ = leftArmDirection.x < 0 //eyeDirection.z < 0;
+    const armatureDirection = new Vector3(0, 1, 0).applyQuaternion(armature.quaternion)
+    const flipY = armatureDirection.z < -0.5
+    const legDirection = new Vector3(0, 0, -1).applyQuaternion(
+      Left_leg.getWorldQuaternion(new Quaternion()).premultiply(armature.quaternion.clone().inverse())
+    )
+    const flipLeg = legDirection.y < 0.5
+    console.log('flip', flipZ, flipY, flipLeg)
+
+    const armatureQuaternion = armature.quaternion.clone()
+    const armatureMatrixInverse = new Matrix4().getInverse(armature.matrixWorld)
+    armature.position.set(0, 0, 0)
+    armature.quaternion.set(0, 0, 0, 1)
+    armature.scale.set(1, 1, 1)
+    armature.updateMatrix()
+
+    const preRotations = {}
+    const _ensurePrerotation = (k) => {
+      const boneName = modelBones[k].name
+      if (!preRotations[boneName]) {
+        preRotations[boneName] = new Quaternion()
+      }
+      return preRotations[boneName]
+    }
+
+    if (flipY) {
+      ;['Hips'].forEach((k) => {
+        _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
+      })
+    }
+    if (flipZ) {
+      ;['Hips'].forEach((k) => {
+        _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
+      })
+    }
+    if (flipLeg) {
+      ;['Left_leg', 'Right_leg'].forEach((k) => {
+        _ensurePrerotation(k).premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2))
+      })
+    }
+
+    const qrArm = flipZ ? Left_arm : Right_arm
+    const qrElbow = flipZ ? Left_elbow : Right_elbow
+    const qrWrist = flipZ ? Left_wrist : Right_wrist
+    const qr = new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+      .premultiply(
+        new Quaternion().setFromRotationMatrix(
+          new Matrix4().lookAt(
+            new Vector3(0, 0, 0),
+            qrElbow
+              .getWorldPosition(new Vector3())
+              .applyMatrix4(armatureMatrixInverse)
+              .sub(qrArm.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
+              .applyQuaternion(armatureQuaternion),
+            new Vector3(0, 1, 0)
+          )
+        )
+      )
+    const qr2 = new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+      .premultiply(
+        new Quaternion().setFromRotationMatrix(
+          new Matrix4().lookAt(
+            new Vector3(0, 0, 0),
+            qrWrist
+              .getWorldPosition(new Vector3())
+              .applyMatrix4(armatureMatrixInverse)
+              .sub(qrElbow.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
+              .applyQuaternion(armatureQuaternion),
+            new Vector3(0, 1, 0)
+          )
+        )
+      )
+    const qlArm = flipZ ? Right_arm : Left_arm
+    const qlElbow = flipZ ? Right_elbow : Left_elbow
+    const qlWrist = flipZ ? Right_wrist : Left_wrist
+    const ql = new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
+      .premultiply(
+        new Quaternion().setFromRotationMatrix(
+          new Matrix4().lookAt(
+            new Vector3(0, 0, 0),
+            qlElbow
+              .getWorldPosition(new Vector3())
+              .applyMatrix4(armatureMatrixInverse)
+              .sub(qlArm.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
+              .applyQuaternion(armatureQuaternion),
+            new Vector3(0, 1, 0)
+          )
+        )
+      )
+    const ql2 = new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
+      .premultiply(
+        new Quaternion().setFromRotationMatrix(
+          new Matrix4().lookAt(
+            new Vector3(0, 0, 0),
+            qlWrist
+              .getWorldPosition(new Vector3())
+              .applyMatrix4(armatureMatrixInverse)
+              .sub(qlElbow.getWorldPosition(new Vector3()).applyMatrix4(armatureMatrixInverse))
+              .applyQuaternion(armatureQuaternion),
+            new Vector3(0, 1, 0)
+          )
+        )
+      )
+
+    _ensurePrerotation('Right_arm').multiply(qr.clone().inverse())
+    _ensurePrerotation('Right_elbow').multiply(qr.clone()).premultiply(qr2.clone().inverse())
+    _ensurePrerotation('Left_arm').multiply(ql.clone().inverse())
+    _ensurePrerotation('Left_elbow').multiply(ql.clone()).premultiply(ql2.clone().inverse())
+
+    _ensurePrerotation('Left_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
+    _ensurePrerotation('Right_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
+
+    for (const k in preRotations) {
+      preRotations[k].inverse()
+    }
+
+    fixSkeletonZForward(armature.children[0], {
+      preRotations
+    })
+
+    fixSkeletonZForward(armature.children[0], {
+      preRotations
+    })
+
+    model.traverse((o) => {
+      if (o.isSkinnedMesh) {
+        try {
+          o.bind(
+            o.skeleton.bones.length === skeleton.bones.length &&
+              o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
+              ? skeleton
+              : o.skeleton
+          )
+        } catch (error) {
+          console.error(error)
+        }
+      }
+    })
+    if (flipY) {
+      modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
+    }
+    if (!flipZ) {
+      /* ['Left_arm', 'Right_arm'].forEach((name, i) => {
+        const bone = modelBones[name];
+        if (bone) {
+          bone.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), (i === 0 ? 1 : -1) * Math.PI*0.25));
+        }
+      }); */
+    } else {
+      modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
+    }
+    modelBones.Right_arm.quaternion.premultiply(qr.clone().inverse())
+    modelBones.Right_elbow.quaternion.premultiply(qr).premultiply(qr2.clone().inverse())
+    modelBones.Left_arm.quaternion.premultiply(ql.clone().inverse())
+    modelBones.Left_elbow.quaternion.premultiply(ql).premultiply(ql2.clone().inverse())
+    model.updateMatrixWorld(true)
+
+    Hips.traverse((bone) => {
+      bone.initialQuaternion = bone.quaternion.clone()
+    })
+
+    const targetModelBones = {
+      Root: armature,
+      Hips,
+      Spine,
+      Spine1,
+      Spine2: Chest,
+      Neck,
+      Head,
+      LeftEye: Eye_L,
+      RightEye: Eye_R,
+
+      LeftShoulder: Left_shoulder,
+      LeftArm: Left_arm,
+      LeftForeArm: Left_elbow,
+      LeftHand: Left_wrist,
+      LeftUpLeg: Left_leg,
+      LeftLeg: Left_knee,
+      LeftFoot: Left_ankle,
+
+      RightShoulder: Right_shoulder,
+      RightArm: Right_arm,
+      RightForeArm: Right_elbow,
+      RightHand: Right_wrist,
+      RightUpLeg: Right_leg,
+      RightLeg: Right_knee,
+      RightFoot: Right_ankle
+    }
+
+    //rename
+    Object.keys(targetModelBones).forEach((key) => {
+      if (targetModelBones[key]) targetModelBones[key].name = key
+    })
+
+    return targetModelBones
+  } catch (error) {
+    console.error(error)
+    return null
   }
-
-  //rename
-  Object.keys(targetModelBones).forEach((key) => {
-    targetModelBones[key].name = key
-  })
-
-  return targetModelBones
 }

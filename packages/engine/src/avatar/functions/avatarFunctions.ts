@@ -62,7 +62,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  //avatar retargeting
+  //Todo: retargeting
   AvatarBoneMatching(model)
 
   let hips = model
