@@ -216,6 +216,9 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   parseObjectComponentsFromGLTF(entity, obj3d)
+
+  const modelComponent = getComponent(entity, ModelComponent)
+  if (modelComponent) modelComponent.parsed = true
 }
 
 export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {

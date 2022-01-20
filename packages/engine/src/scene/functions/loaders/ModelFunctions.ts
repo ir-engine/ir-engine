@@ -11,7 +11,7 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { loadGLTFModel, overrideTexture, parseGLTFModel } from '../loadGLTFModel'
+import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
@@ -52,7 +52,7 @@ export const updateModel: ComponentUpdateFunction = async (
     }
   }
 
-  if (typeof properties.textureOverride !== 'undefined') {
+  if (component.parsed && typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity, obj3d)
   }
 }

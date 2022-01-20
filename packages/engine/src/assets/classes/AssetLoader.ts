@@ -150,7 +150,7 @@ const assetLoadCallback =
       processModelAsset(asset.scene, params)
     }
 
-    AssetLoader.Cache.set(url, asset)
+    // AssetLoader.Cache.set(url, asset)
 
     onLoad(asset)
   }
@@ -167,9 +167,9 @@ const load = async (
   }
   const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
-  if (AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
-  }
+  // if (AssetLoader.Cache.has(url)) {
+  //   onLoad(AssetLoader.Cache.get(url))
+  // }
 
   const assetType = getAssetType(url)
   const loader = getLoader(assetType)
