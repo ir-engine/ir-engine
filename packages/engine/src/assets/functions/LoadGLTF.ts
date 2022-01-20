@@ -32,10 +32,6 @@ export async function LoadGLTF(url: string): Promise<GLTF> {
     getLoader().load(
       url,
       async (gltf) => {
-        // TODO: Remove me when we add retargeting
-        gltf.scene.traverse((o) => {
-          o.name = o.name.replace('mixamorig', '')
-        })
         await loadExtensions(gltf)
         resolve(gltf)
       },
