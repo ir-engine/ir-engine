@@ -13,10 +13,7 @@ const TimerConfig = {
   MAX_DELTA: 1 / 10
 }
 
-export function Timer(
-  update: TimerUpdateCallback,
-  _config: Partial<typeof TimerConfig> = {}
-): { start: Function; stop: Function; clear: Function } {
+export function Timer(update: TimerUpdateCallback, _config: Partial<typeof TimerConfig> = {}) {
   const config = Object.assign({}, TimerConfig, _config)
 
   let lastTime = null
