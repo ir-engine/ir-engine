@@ -1,5 +1,4 @@
 import { createState, useState } from '@hookstate/core'
-import { number } from 'ts-matches/lib/mjs/parsers'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
