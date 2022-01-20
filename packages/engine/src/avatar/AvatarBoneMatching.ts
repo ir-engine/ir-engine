@@ -92,7 +92,7 @@ const _countCharacters = (name, regex) => {
   }
   return result
 }
-const _findHips = (skeleton) => skeleton.bones.find((bone) => /hip/i.test(bone.name))
+const _findHips = (skeleton) => skeleton.bones.find((bone) => /hip|pelvis/i.test(bone.name))
 const _findHead = (tailBones) => {
   const headBones = tailBones
     .map((tailBone) => {
@@ -127,9 +127,9 @@ const _findEye = (tailBones, left) => {
     })
     .filter((spec) => spec)
     .sort((a, b) => {
-      const aName = a.name.replace(/shoulder/gi, '')
+      const aName = a.name.replace(/shoulder|clavicle/gi, '')
       const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
-      const bName = b.name.replace(/shoulder/gi, '')
+      const bName = b.name.replace(/shoulder|clavicle/gi, '')
       const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
       if (!left) {
         return aLeftBalance - bLeftBalance
@@ -158,7 +158,7 @@ const _findShoulder = (tailBones, left) => {
     .map((tailBone) => {
       const shoulderBone = _findClosestParentBone(
         tailBone,
-        (bone) => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, ''))
+        (bone) => /shoulder|clavicle/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder|clavicle/gi, ''))
       )
       if (shoulderBone) {
         const distance = _distanceToParentBone(tailBone, shoulderBone)
@@ -180,9 +180,9 @@ const _findShoulder = (tailBones, left) => {
       if (diff !== 0) {
         return diff
       } else {
-        const aName = a.bone.name.replace(/shoulder/gi, '')
+        const aName = a.bone.name.replace(/shoulder|clavicle/gi, '')
         const aLeftBalance = _countCharacters(aName, /l/i) - _countCharacters(aName, /r/i)
-        const bName = b.bone.name.replace(/shoulder/gi, '')
+        const bName = b.bone.name.replace(/shoulder|clavicle/gi, '')
         const bLeftBalance = _countCharacters(bName, /l/i) - _countCharacters(bName, /r/i)
         if (!left) {
           return aLeftBalance - bLeftBalance
@@ -387,6 +387,14 @@ export default function AvatarBoneMatching(model) {
   const skeletonSkinnedMesh = targetSkinnedMeshes.find((o) => o.skeleton.bones[0].parent) || null
   const skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton
 
+  // const bones = []
+  // model.traverse((o) => {
+  //   if (o.type = 'Bone') {
+  //     bones.push(o)
+  //   }
+  // })
+  // const skeleton = {bones}
+
   const tailBones = _getTailBones(skeleton)
   const Eye_L = _findEye(tailBones, true)
   const Eye_R = _findEye(tailBones, false)
@@ -460,8 +468,6 @@ export default function AvatarBoneMatching(model) {
     Right_knee,
     Right_ankle
   }
-
-  debugger
 
   //get flip state
   const leftArmDirection = Left_wrist.getWorldPosition(new Vector3()).sub(Head.getWorldPosition(new Vector3()))

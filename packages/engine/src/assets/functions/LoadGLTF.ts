@@ -69,17 +69,19 @@ const loadLightmaps = async (gltf: GLTF) => {
     return lightMap
   }
 
-  const lightmapPromises = parser.json.materials
-    .map((materialNode, i) => [materialNode, i])
-    .filter((pair) => pair[0].extensions && pair[0].extensions.MOZ_lightmap)
-    .map((pair) => loadLightmap(pair[1]))
-  return Promise.all(lightmapPromises).then(() => {
-    gltf.scene.traverse((obj) => {
-      if (obj.type.toString() == 'Mesh' && obj.material.userData.gltfExtensions?.MOZ_lightmap) {
-        obj.material.lightMap =
-          lightmapRegistry[combine(obj.material.name, obj.material.userData.gltfExtensions.MOZ_lightmap.index)]
-      }
-    })
+  if (parser.json.materials) {
+    const lightmapPromises = parser.json.materials
+      .map((materialNode, i) => [materialNode, i])
+      .filter((pair) => pair[0].extensions && pair[0].extensions.MOZ_lightmap)
+      .map((pair) => loadLightmap(pair[1]))
+    await Promise.all(lightmapPromises)
+  }
+
+  gltf.scene.traverse((obj) => {
+    if (obj.type.toString() == 'Mesh' && obj.material.userData.gltfExtensions?.MOZ_lightmap) {
+      obj.material.lightMap =
+        lightmapRegistry[combine(obj.material.name, obj.material.userData.gltfExtensions.MOZ_lightmap.index)]
+    }
   })
 }
 

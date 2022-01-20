@@ -33,6 +33,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
@@ -61,13 +62,11 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  let hips = model
+  //avatar retargeting
+  AvatarBoneMatching(model)
 
+  let hips = model
   model.traverse((o) => {
-    // TODO: Remove me when we add retargeting
-    if (o.name?.includes('mixamorig')) {
-      o.name = o.name.replace('mixamorig', '')
-    }
     if (o.name?.toLowerCase().includes('hips')) hips = o
   })
 
@@ -82,7 +81,6 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   model.traverse((object) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
-
     if (object.material) {
       // Transparency fix
       object.material.format = RGBAFormat
