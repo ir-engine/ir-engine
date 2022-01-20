@@ -23,7 +23,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
-    "test": "mocha",
+    "test": "mocha --config .mocharc.json",
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
