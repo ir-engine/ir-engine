@@ -45,3 +45,5 @@ export const LoadLocationScene = (props: Props) => {
 
   return <> </>
 }
+
+export default LoadLocationScene

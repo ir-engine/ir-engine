@@ -58,8 +58,9 @@ export default async function XRUILoadingSystem(world: World): Promise<System> {
         const setOpacity = (opacity) =>
           xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
             // console.log('setOpacity', opacity)
-            layer.contentMesh.material.opacity = opacity
-            layer.contentMesh.material.visible = opacity > 0
+            const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+            mat.opacity = opacity
+            mat.visible = opacity > 0
           })
 
         if (currentState !== 'NONE') {
