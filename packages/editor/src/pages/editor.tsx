@@ -14,18 +14,6 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const canvasStyle = {
-  zIndex: -1,
-  width: '100%',
-  height: '100%',
-  position: 'fixed',
-  WebkitUserSelect: 'none',
-  pointerEvents: 'auto',
-  userSelect: 'none'
-} as React.CSSProperties
-
-const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
-
 const EditorProtectedRoutes = () => {
   const authState = useAuthState()
   const authUser = authState.authUser
@@ -33,6 +21,19 @@ const EditorProtectedRoutes = () => {
   const editorState = useEditorState()
   const engineState = useEngineState()
   const projectState = useProjectState()
+
+  const canvasStyle = {
+    zIndex: -1,
+    width: '100%',
+    height: '100%',
+    position: 'fixed',
+    WebkitUserSelect: 'none',
+    pointerEvents: 'auto',
+    userSelect: 'none',
+    visibility: editorState.projectName.value ? 'visible' : 'hidden'
+  } as React.CSSProperties
+
+  const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
   const initializationOptions: InitializeOptions = {
     type: EngineSystemPresets.EDITOR,

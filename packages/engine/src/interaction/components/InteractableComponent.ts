@@ -1,3 +1,4 @@
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type InteractableComponentType = {
@@ -17,6 +18,7 @@ export type InteractableComponentType = {
   callback?: any
   action?: any
   intensity?: number
+  validUserId?: UserId
 }
 
 export const InteractableComponent = createMappedComponent<InteractableComponentType>('InteractableComponent')

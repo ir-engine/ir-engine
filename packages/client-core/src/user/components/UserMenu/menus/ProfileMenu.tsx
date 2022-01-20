@@ -16,6 +16,7 @@ import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
 import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
@@ -49,6 +50,7 @@ const initialState = {
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
+  const location: any = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -143,7 +145,7 @@ const ProfileMenu = (props: Props): any => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleLogout = async (e) => {
@@ -384,6 +386,7 @@ const ProfileMenu = (props: Props): any => {
 
             <form>
               <TextField
+                id="user-id"
                 className={styles.emailField}
                 size="small"
                 placeholder={'user id'}

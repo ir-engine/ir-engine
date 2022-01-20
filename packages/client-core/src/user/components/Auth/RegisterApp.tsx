@@ -34,12 +34,11 @@ const SignUp = (props: Props): any => {
       email: state.email,
       password: state.password
     })
-    dispatch(
-      AuthService.registerUserByEmail({
-        email: state.email,
-        password: state.password
-      })
-    )
+
+    AuthService.registerUserByEmail({
+      email: state.email,
+      password: state.password
+    })
   }
 
   const [values, setValues] = useState({ showPassword: false, showPasswordConfirm: false })
@@ -54,12 +53,12 @@ const SignUp = (props: Props): any => {
     event.preventDefault()
   }
   const password = useRef<HTMLInputElement>()
-  const confirm_password = useRef<HTMLInputElement>()
+  const confirm_password = useRef<HTMLInputElement>(null!)
   function validatePassword() {
-    if (password.current.value != confirm_password.current.value) {
-      confirm_password.current.setCustomValidity(t('user:auth.register.passwordNotMatch'))
+    if (password?.current?.value != confirm_password?.current.value) {
+      confirm_password?.current.setCustomValidity(t('user:auth.register.passwordNotMatch'))
     } else {
-      confirm_password.current.setCustomValidity('')
+      confirm_password?.current.setCustomValidity('')
     }
   }
 

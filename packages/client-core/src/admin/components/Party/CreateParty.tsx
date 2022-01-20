@@ -96,7 +96,6 @@ const CreateParty = (props: PartyProps) => {
                 onChange={(e, newValue) => setLocation(newValue.id as string)}
                 {...defaultProps}
                 id="debug"
-                debug="true"
                 renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
               />
 
@@ -104,7 +103,6 @@ const CreateParty = (props: PartyProps) => {
                 onChange={(e, newValue) => setInstance(newValue.id as string)}
                 {...InstanceProps}
                 id="debug"
-                debug="true"
                 renderInput={(params) => <TextField {...params} label="Instance" className={classes.marginBottm} />}
               />
 
