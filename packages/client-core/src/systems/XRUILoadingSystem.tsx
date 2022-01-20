@@ -22,12 +22,12 @@ export default async function XRUILoadingSystem(world: World): Promise<System> {
         if (xrui) {
           const camera = Engine.camera as PerspectiveCamera
           const dist = 0.1
-          xrui.layer.parent = camera
-          xrui.layer.position.z = -dist
+          xrui.container.parent = camera
+          xrui.container.position.z = -dist
           const vFOV = MathUtils.degToRad(camera.fov)
           const height = Math.tan(vFOV / 2) * dist * 2
           const scale = height * camera.aspect
-          xrui.layer.scale.x = xrui.layer.scale.y = scale
+          xrui.container.scale.x = xrui.container.scale.y = scale
         }
       }
     }

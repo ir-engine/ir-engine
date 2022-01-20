@@ -1,5 +1,5 @@
 import React from 'react'
-import { createState, State } from '@hookstate/core'
+import { State } from '@hookstate/core'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { XRUIComponent } from '../components/XRUIComponent'
@@ -9,16 +9,17 @@ import { XRUIStateContext } from '../XRUIStateContext'
 import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { sRGBEncoding } from 'three'
+import { WebLayerManager } from '@etherealjs/web-layer/three'
 
-let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
+let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
 async function createUIRootLayer<S extends State<any> | null>(
   UI: React.FC,
   state: S,
-  options: import('ethereal').WebLayer3DOptions
+  options: import('@etherealjs/web-layer/three').WebContainer3DOptions
 ) {
-  const [Ethereal, ReactDOM] = await (depsLoaded = depsLoaded || Promise.all([import('ethereal'), import('react-dom')]))
+  const [Ethereal, ReactDOM] = await (depsLoaded =
+    depsLoaded || Promise.all([import('@etherealjs/web-layer/three'), import('react-dom')]))
 
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
@@ -32,16 +33,16 @@ async function createUIRootLayer<S extends State<any> | null>(
   )
 
   options.autoRefresh = options.autoRefresh ?? true
-  options.textureEncoding = options.textureEncoding ?? sRGBEncoding
-  return new Ethereal.WebLayer3D(containerElement, options)
+  return new Ethereal.WebContainer3D(containerElement, options)
 }
 
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   const entity = createEntity()
 
   createUIRootLayer(UIFunc, state, {
+    manager: WebLayerManager.instance,
     onLayerPaint: (layer) => {
-      layer.contentMesh.material.toneMapped = false
+      ;(layer.contentMesh.material as THREE.MeshBasicMaterial).toneMapped = false
     }
   }).then((uiRoot) => {
     // Make sure entity still exists, since we are adding these components asynchronously,
@@ -53,7 +54,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     }
     addComponent(entity, Object3DComponent, { value: uiRoot })
     setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
-    addComponent(entity, XRUIComponent, { layer: uiRoot })
+    addComponent(entity, XRUIComponent, { container: uiRoot })
   })
   return { entity, state }
 }

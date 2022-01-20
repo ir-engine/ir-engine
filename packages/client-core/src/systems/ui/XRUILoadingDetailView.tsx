@@ -122,33 +122,29 @@ const LoadingDetailView = () => {
       
     `}</style>
       <div id="loading-container" xr-layer="true">
-        {thumbnailUrl != '' && (
-          <div id="thumbnail">
-            <img xr-layer="true" xr-pixel-ratio="0.5" src={thumbnailUrl} />
+        <div id="thumbnail">
+          <img xr-layer="true" xr-pixel-ratio="0.5" src={thumbnailUrl} />
+        </div>
+        <div id="loading-ui" xr-layer="true">
+          <div id="loading-text" xr-layer="true" xr-pixel-ratio="2">
+            loading
           </div>
-        )}
-        {colors.main.value && (
-          <div id="loading-ui" xr-layer="true">
-            <div id="loading-text" xr-layer="true">
-              loading
-            </div>
-            <div id="progress-text" xr-layer="true">
-              {engineState.loadingProgress.value}%
-            </div>
-            <div id="progress-container" xr-layer="true">
-              <ProgressBar
-                bgColor={colors.alternate.value}
-                completed={engineState.loadingProgress.value}
-                height="1px"
-                baseBgColor="#000000"
-                isLabelVisible={false}
-              />
-            </div>
-            <div id="loading-details" xr-layer="true">
-              {engineState.loadingDetails.value}
-            </div>
+          <div id="progress-text" xr-layer="true" xr-pixel-ratio="2">
+            {engineState.loadingProgress.value}%
           </div>
-        )}
+          <div id="progress-container" xr-layer="true">
+            <ProgressBar
+              bgColor={colors.alternate.value}
+              completed={engineState.loadingProgress.value}
+              height="1px"
+              baseBgColor="#000000"
+              isLabelVisible={false}
+            />
+          </div>
+          <div id="loading-details" xr-layer="true" xr-pixel-ratio="2">
+            {engineState.loadingDetails.value}
+          </div>
+        </div>
       </div>
     </>
   )

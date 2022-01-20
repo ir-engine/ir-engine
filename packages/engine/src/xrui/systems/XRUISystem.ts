@@ -26,7 +26,9 @@ export default async function XRUISystem(world: World): Promise<System> {
   hoverAudio.src = hoverSfxPath
   let idCounter = 0
 
-  const xrui = (XRUIManager.instance = new XRUIManager(await import('ethereal')))
+  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
+  xrui.WebLayerModule.WebLayerManager.initialize(Engine.renderer)
+
   const screenRaycaster = new Raycaster()
   xrui.interactionRays = [screenRaycaster.ray]
 
@@ -35,7 +37,7 @@ export default async function XRUISystem(world: World): Promise<System> {
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
@@ -60,7 +62,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
 
       for (const [i, controller] of controllers.entries()) {
         const hit = layer.hitTest(controller)
@@ -127,7 +129,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     for (const entity of xruiQuery.enter()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
       layer.interactionRays = xrui.interactionRays
     }
 
@@ -146,12 +148,12 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
-      if (!xrui.layoutSystem.nodeAdapters.has(layer)) layer.update()
+      const layer = getComponent(entity, XRUIComponent).container
+      layer.update()
     }
 
-    xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
-    Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
-    xrui.layoutSystem.update(world.delta, world.elapsedTime)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
+    // Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
+    // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
 }
