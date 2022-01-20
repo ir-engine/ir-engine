@@ -1,5 +1,6 @@
 import { Application } from '../../../declarations'
 import { getTestbotPod } from './testbot-helper'
+import hooks from './testbot.hooks'
 
 export default (app: Application): void => {
   app.use('testbot', {
@@ -19,5 +20,7 @@ export default (app: Application): void => {
     }
   })
 
-  // TODO: Need to put authenticate hooks
+  const service = app.service('testbot')
+
+  service.hooks(hooks)
 }
