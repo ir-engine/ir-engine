@@ -32,6 +32,12 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     Engine.userId = world.hostId
     Engine.hasJoinedWorld = true
 
+    world.clients.set(Engine.userId, {
+      userId: Engine.userId,
+      name: Engine.userId,
+      subscribedChatUpdates: []
+    })
+
 		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {
 			position: new Vector3(1,2,3),

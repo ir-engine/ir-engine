@@ -353,6 +353,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     queueAllOutgoingPoses(world)
 
     // side effect - network IO
+    world.outgoingNetworkState.time = Date.now()
     const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
     sendData(data)
   }

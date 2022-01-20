@@ -102,7 +102,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
-          ownerId: i as unknown as UserId,
+          ownerId: userId,
           networkId: i as NetworkId,
           prefab: '',
           parameters: {},
@@ -140,6 +140,13 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         handsPose: []
       }
 
+      world.clients.set('0' as UserId, {
+        userId: '0' as UserId,
+        name: '0',
+        subscribedChatUpdates: []
+      })
+
+
       const entity = createEntity()
 
       const transform = addComponent(entity, TransformComponent, {
@@ -169,12 +176,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       /* mock */
       const world = createWorld()
       Engine.currentWorld = world
-
-      world.clients.set('1' as UserId, {
-        userId: '0' as UserId,
-        name: '0',
-        subscribedChatUpdates: []
-      })
 
       world.outgoingNetworkState = {
         tick: 0,

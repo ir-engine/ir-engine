@@ -105,7 +105,6 @@ export class WorldStateModel {
   static model: Model = new Model(networkSchema)
 
   static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
-    worldState.time = Date.now()
     return WorldStateModel.model.toBuffer(worldState as any)
   }
 
