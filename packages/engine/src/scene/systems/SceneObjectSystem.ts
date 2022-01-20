@@ -9,7 +9,6 @@ import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
@@ -73,7 +72,7 @@ const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
-export default async function SceneObjectSystem(world: World): Promise<System> {
+export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
 
   return () => {

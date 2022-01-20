@@ -81,9 +81,10 @@ export const initNetwork = () => {
 
 export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
-  const packs = await getSystemsFromSceneData(project, sceneData, true)
 
-  await Engine.currentWorld.initSystems(packs)
+  // const packs = await getSystemsFromSceneData(project, sceneData, true)
+  // await Engine.currentWorld.initSystems(packs)
+
   const dispatch = useDispatch()
 
   // 4. Start scene loading

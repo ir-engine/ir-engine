@@ -12,8 +12,15 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import {
+  configureServer,
+  createEngine,
+  initializeCoreSystems,
+  initializeMediaServerSystems,
+  initializeNode,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
@@ -38,7 +45,13 @@ const loadScene = async (app: Application, scene: string) => {
     //   projects: projects.data.map((project) => project.name),
     //   systems
     // }
-    await createEngine()
+    createEngine()
+    initializeNode()
+    configureServer()
+    await initializeCoreSystems()
+    await initializeSceneSystems()
+    await initializeRealtimeSystems()
+
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
   }
@@ -199,7 +212,10 @@ const loadEngine = async (app: Application, sceneId: string) => {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
     Engine.publicPath = config.client.url
     Engine.userId = 'media' as UserId
-    await createEngine()
+    createEngine()
+    initializeNode()
+    configureServer()
+    await initializeMediaServerSystems()
     Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded(true) as any)
     dispatchLocal(EngineActions.joinedWorld(true) as any)

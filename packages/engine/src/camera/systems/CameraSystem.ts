@@ -20,7 +20,6 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -258,7 +257,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   }
 }
 
-export default async function CameraSystem(world: World): Promise<System> {
+export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
 

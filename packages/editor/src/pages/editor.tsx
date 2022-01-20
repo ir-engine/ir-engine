@@ -4,7 +4,6 @@ import { AuthService } from '@xrengine/client-core/src/user/services/AuthService
 import EditorContainer from '../components/EditorContainer'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
@@ -36,52 +35,50 @@ const EditorProtectedRoutes = () => {
 
   const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
-  const initializationOptions: InitializeOptions = {
-    systems: [
-      {
-        systemModulePromise: import('../managers/SceneManager'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true, canvas: document.getElementById(engineRendererCanvasId) }
-      },
-      {
-        systemModulePromise: import('../systems/InputSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      },
-      {
-        systemModulePromise: import('../systems/FlyControlSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      },
-      {
-        systemModulePromise: import('../systems/EditorControlSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      },
-      {
-        systemModulePromise: import('../systems/EditorCameraSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      },
-      {
-        systemModulePromise: import('../systems/ResetInputSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      },
-      {
-        systemModulePromise: import('../systems/GizmoSystem'),
-        type: SystemUpdateType.PRE_RENDER,
-        sceneSystem: true,
-        args: { enabled: true }
-      }
-    ]
-  }
+  const systems = [
+    {
+      systemModulePromise: import('../managers/SceneManager'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true, canvas: document.getElementById(engineRendererCanvasId) }
+    },
+    {
+      systemModulePromise: import('../systems/InputSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    },
+    {
+      systemModulePromise: import('../systems/FlyControlSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    },
+    {
+      systemModulePromise: import('../systems/EditorControlSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    },
+    {
+      systemModulePromise: import('../systems/EditorCameraSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    },
+    {
+      systemModulePromise: import('../systems/ResetInputSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    },
+    {
+      systemModulePromise: import('../systems/GizmoSystem'),
+      type: SystemUpdateType.PRE_RENDER,
+      sceneSystem: true,
+      args: { enabled: true }
+    }
+  ]
 
   useEffect(() => {
     AuthService.doLoginAuto(false)
@@ -89,10 +86,11 @@ const EditorProtectedRoutes = () => {
 
   useEffect(() => {
     if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
-      initializationOptions.projects = projectState.projects.value.map((project) => project.name)
       Engine.userId = 'editor' as UserId
       Engine.isEditor = true
       createEngine()
+      // TODO
+      const projects = projectState.projects.value.map((project) => project.name)
     }
   }, [projectState.projects.value])
 

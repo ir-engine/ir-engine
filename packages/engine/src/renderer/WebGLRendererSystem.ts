@@ -16,7 +16,6 @@ import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System } from '../ecs/classes/System'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
@@ -271,7 +270,7 @@ export class EngineRenderer {
   }
 }
 
-export default async function WebGLRendererSystem(world: World): Promise<System> {
+export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()

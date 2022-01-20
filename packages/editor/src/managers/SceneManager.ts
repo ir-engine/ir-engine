@@ -34,7 +34,6 @@ import makeRenderer from '../renderer/makeRenderer'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { EngineRenderer, EngineRendererProps } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createGizmoEntity } from '../functions/createGizmoEntity'
@@ -516,7 +515,7 @@ export class SceneManager {
   }
 }
 
-export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
+export default async function EditorRendererSystem(world: World, props: EngineRendererProps) {
   new EngineRenderer({ canvas: props.canvas, enabled: true })
 
   return () => {

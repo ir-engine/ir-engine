@@ -16,31 +16,33 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import {
+  configureClient,
+  createEngine,
+  initializeBrowser,
+  initializeCoreSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import matches from 'ts-matches'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-const defaultEngineInitializeOptions = {
-  physics: {
-    simulationEnabled: false
+const injectedSystems: SystemModuleType<any>[] = [
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
   },
-  systems: [
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
-    },
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-    }
-  ]
-}
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
+  }
+]
 
 const canvasStyle = {
   zIndex: 0,
@@ -55,8 +57,16 @@ const canvasStyle = {
 const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
-  engineInitializeOptions?: InitializeOptions
   setLoadingItemCount?: any
+}
+
+const initClient = async () => {
+  createEngine()
+  initializeBrowser()
+  configureClient()
+  await initializeCoreSystems(injectedSystems)
+  await initializeSceneSystems()
+  await initializeRealtimeSystems()
 }
 
 export const LoadEngineWithScene = (props: Props) => {
@@ -80,9 +90,8 @@ export const LoadEngineWithScene = (props: Props) => {
   useEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
     if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
-      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-      engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
-      createEngine().then(() => {
+      const projects = projectState.projects.value.map((project) => project.name)
+      initClient().then(() => {
         useWorld().receptors.push((action) => {
           matches(action)
             .when(NetworkWorldAction.createClient.matches, () => {

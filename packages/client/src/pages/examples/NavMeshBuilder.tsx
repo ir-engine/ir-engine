@@ -1,6 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
@@ -47,7 +46,7 @@ type NavigationComponentType = {
 
 const NavigationComponent = createMappedComponent<NavigationComponentType>('NavigationComponent')
 
-const RenderSystem = async (world: World): Promise<System> => {
+const RenderSystem = async (world: World) => {
   return () => {
     Engine.renderer.render(Engine.scene, Engine.camera)
     return world
@@ -142,7 +141,7 @@ async function startDemo(entity) {
   }
 }
 
-export const NavigationSystem = async (world: World): Promise<System> => {
+export const NavigationSystem = async (world: World) => {
   const entity = createEntity()
   addComponent(entity, NavigationComponent, {
     pathPlanner: new PathPlanner(),

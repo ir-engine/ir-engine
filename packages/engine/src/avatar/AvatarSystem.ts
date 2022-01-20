@@ -14,7 +14,6 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { World } from '../ecs/classes/World'
-import { System } from '../ecs/classes/System'
 import matches from 'ts-matches'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
@@ -98,7 +97,7 @@ function avatarActionReceptor(action) {
     })
 }
 
-export default async function AvatarSystem(world: World): Promise<System> {
+export default async function AvatarSystem(world: World) {
   world.receptors.push(avatarActionReceptor)
 
   const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)

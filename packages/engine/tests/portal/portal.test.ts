@@ -1,7 +1,5 @@
 import assert from 'assert'
 import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
-import { initializeEngine } from '../../src/initializeEngine'
-import { engineTestSetup } from '../util/setupEngine'
 import sceneJson from '@xrengine/projects/default-project/empty.scene.json'
 import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
@@ -19,6 +17,7 @@ dotenv.config({
 
 const sceneData = parseSceneDataCacheURLs(sceneJson, process.env.LOCAL_STORAGE_PROVIDER!)
 
+// TODO replace with inidivudal unit tests for relevant functions
 describe.skip('Portal', () => {
 
   // before(async () => {
