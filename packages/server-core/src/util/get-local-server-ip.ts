@@ -7,7 +7,7 @@ interface ServerAddress {
 }
 
 export default async (isChannelInstance: boolean): Promise<ServerAddress> => {
-  const ip = configFile.gameserver.hostname
+  const ip = configFile.gameserver.hostname === 'localhost' ? await internalIp.v4() : configFile.gameserver.hostname
   return {
     ipAddress: ip!,
     port: isChannelInstance ? '3032' : '3031'
