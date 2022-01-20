@@ -1,14 +1,6 @@
 client:
   extraEnv:
-    API_ASSETS_ROUTE: /static-resource
     API_ASSETS_ACTION: assets
-    API_MEDIA_ROUTE: /media
-    API_MEDIA_SEARCH_ROUTE: "-search"
-    API_META_ROUTE: /meta
-    API_PROJECTS_ROUTE: /project
-    API_RESOLVE_MEDIA_ROUTE: /resolve-media
-    API_PROJECT_PUBLISH_ACTION: /publish-project
-    API_SCENES_ROUTE: /collection
     API_SERVER_ADDRESS: api-local.theoverlay.io
     API_SOCKET_ENDPOINT: /socket
     API_SERVER: https://api-local.theoverlay.io
@@ -297,3 +289,10 @@ gameserver:
 
 redis:
     enabled: false
+
+testbot:
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+  image:
+    repository: xrengine-testbot
+    pullPolicy: IfNotPresent

@@ -10,7 +10,7 @@ import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
-  const leftContainer = useRef<HTMLDivElement>()
+  const leftContainer = useRef<HTMLDivElement>(null!)
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
     const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
@@ -57,13 +57,15 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     })
 
     if (document.getElementById('joystick')?.childNodes[0]) {
-      document.getElementById('joystick').childNodes[0].lastChild.style.opacity = 1
-      document.getElementById('joystick').childNodes[0].lastChild.style.background = 'rgba(255, 255, 255, 0.8)'
-      document.getElementById('joystick').childNodes[0].lastChild.style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
-
-      document.getElementById('joystick').childNodes[0].firstChild.style.opacity = 1
-      document.getElementById('joystick').childNodes[0].firstChild.style.background = 'rgba(255, 255, 255, 0.5)'
-      document.getElementById('joystick').childNodes[0].firstChild.style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+      const style = (document?.getElementById('joystick')?.childNodes[0]?.lastChild as any).style
+      if (style) {
+        style.opacity = 1
+        style.background! = 'rgba(255, 255, 255, 0.8)'
+        style.boxShadow! = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+        style.opacity! = 1
+        style.background = 'rgba(255, 255, 255, 0.5)'
+        style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+      }
     }
 
     const targetElement = stickLeft[0].ui.el
@@ -77,6 +79,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     stickLeft.on('move', (e, data) => {
       const canvasElement = EngineRenderer.instance?.canvas
       if (!canvasElement) return
+      //@ts-ignore
       if (canvasElement.addEventListener) {
         addClientInputListeners(canvasElement)
       } else {

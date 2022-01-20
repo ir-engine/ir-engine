@@ -1,6 +1,5 @@
 import { createState, useState } from '@hookstate/core'
-import { number } from 'ts-matches/lib/mjs/parsers'
-import { InteractionData } from '../../interaction/types/InteractionTypes'
+import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 
@@ -19,7 +18,8 @@ const state = createState({
   socketInstance: false,
   connectionTimeoutInstance: false,
   avatarTappedId: null! as string,
-  interactionData: null! as InteractionData
+  userHasInteracted: false,
+  interactionData: null! as InteractableComponentType
 })
 
 export function EngineEventReceptor(action: EngineActionType) {
@@ -75,6 +75,8 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({
           isTeleporting: action.portalComponent
         })
+      case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
+        return s.merge({ userHasInteracted: true })
     }
   }, action.type)
 }
@@ -163,7 +165,7 @@ export const EngineActions = {
     }
   },
 
-  objectActivation: (interactionData: InteractionData) => {
+  objectActivation: (interactionData: InteractableComponentType) => {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData
@@ -224,6 +226,11 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.AVATAR_DEBUG,
       isAvatarDebug
+    }
+  },
+  setUserHasInteracted: () => {
+    return {
+      type: EngineEvents.EVENTS.SET_USER_HAS_INTERACTED
     }
   }
 }

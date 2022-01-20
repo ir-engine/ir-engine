@@ -11,6 +11,7 @@ interface Props {
   completeAction?: any
   resetPassword: any
   token: string
+  type?: string
 }
 
 export default (props: Props): any => {

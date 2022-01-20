@@ -44,8 +44,8 @@ export class IdentityProvider extends Service {
         { accessToken: params.authentication.accessToken },
         {}
       )
-      if (authResult) {
-        user = await this.app.service('user').get(authResult['identity-provider'].userId)
+      if (authResult[config.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
       }
     }
     if (

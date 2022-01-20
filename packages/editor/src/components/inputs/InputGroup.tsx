@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import Grid from '@mui/material/Grid'
 import { InfoTooltip } from '../layout/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 
@@ -38,10 +39,6 @@ export const InputGroupContainer = (styled as any).div`
  * @type {Styled component}
  */
 export const InputGroupContent = (styled as any).div`
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  padding-left: 8px;
   
   & > label {
     display: block;
@@ -53,10 +50,6 @@ export const InputGroupContent = (styled as any).div`
 `
 
 export const InputGroupVerticalContainer = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  padding: 4px 8px;
-  flex: 1;
 
   ${(props) =>
     props.disabled &&
@@ -146,11 +139,17 @@ interface InputGroupProp {
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProp) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <label>{label}:</label>
-      <InputGroupContent>
-        {children}
-        {info && <InputGroupInfo info={info} />}
-      </InputGroupContent>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <label style={{ color: '#9FA4B5' }}>{label}:</label>
+        </Grid>
+        <Grid item xs={8}>
+          <InputGroupContent>
+            {children}
+            {info && <InputGroupInfo info={info} />}
+          </InputGroupContent>
+        </Grid>
+      </Grid>
     </InputGroupContainer>
   )
 }

@@ -11,7 +11,6 @@ export interface MeshColliderProps {
   type: ColliderTypes
   mass: number
   isTrigger: boolean
-  sceneEntityId: string
   collisionLayer: string | number
   collisionMask: string | number
 }

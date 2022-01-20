@@ -41,21 +41,20 @@
     "start": "npm run dev",
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true concurrently npm:dev-agones \"cd packages/server && npm run start\" \"cd packages/gameserver && npm run start\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "dev": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones npm:dev-server npm:dev-client",
-    "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones npm:dev-server-windows npm:dev-client",
+    "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones npm:dev-server npm:dev-client",
     "golf": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-golf npm:dev-client",
     "starter": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server-starter npm:dev-client",
     "dev-docker": "cd scripts && docker-compose up -d",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-server": "cd packages/server && npm run dev",
-    "dev-server-windows": "cd packages/server && npm run dev-windows",
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
-    "dev-reinit-windows": "cd packages/server && npm run dev-reinit-db-windows",
     "dev-nginx": "",
     "cleanup-tests": "node tests/cleanup-tests.js",
     "pretest": "cross-env TEST=true npm run dev-reinit",
     "test": "cross-env TEST=true lerna run test",
-    "test:e2e": "mocha",
+    "install-test-e2e": "npm i puppeteer@^13.0.0 sequelize@6.12.3",
+    "test-e2e": "mocha --config .mocharc.js",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "lint": "prettier --check \"packages/**/*.{ts,tsx}\"",
@@ -98,7 +97,6 @@
   "devDependencies": {
     "@types/mocha": "9.0.0",
     "cli": "1.0.1",
-    "c8": "7.10.0",
     "concurrently": "6.5.1",
     "depcheck": "1.4.2",
     "kill-port": "1.6.1",
@@ -115,6 +113,11 @@
     "supertest": "6.1.6",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0",
-    "ts-node-dev": "1.1.8"
+    "ts-node-dev": "1.1.8",
+    "typescript": "4.5.2"
+  },
+  "dependencies": {
+    "@xrengine/engine": "^0.4.13",
+    "dotenv": "^11.0.0"
   }
 }

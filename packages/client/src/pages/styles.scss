@@ -312,3 +312,7 @@ body{
     }
   }
 }
+
+[class*=MuiModal-root] {
+  pointer-events: auto
+}

@@ -20,7 +20,7 @@
     "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
   "scripts": {
-    "check-errors": "exit 0",
+    "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
     "test": "mocha",
@@ -31,6 +31,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "axios": "0.24.0",
     "node-fetch": "^2.6.1"
   },

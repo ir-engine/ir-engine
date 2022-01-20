@@ -1,6 +1,5 @@
-import React, { useCallback, useRef, useEffect, memo } from 'react'
+import React, { useCallback, useRef, useEffect, memo, useContext } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
 import { VerticalScrollContainer } from '../layout/Flex'
 import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
@@ -13,26 +12,37 @@ import { useTranslation } from 'react-i18next'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
 import { SceneManager } from '../../managers/SceneManager'
-import { NodeManager } from '../../managers/NodeManager'
+import { prefabIcons } from '../../functions/PrefabEditors'
 import { ItemTypes } from '../../constants/AssetTypes'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
+import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { FileDataType } from './FileDataType'
+import { AppContext } from '../Search/context'
 
-const getNodes = (params?) => {
-  return Array.from<any>(NodeManager.instance.nodeTypes).reduce((acc: any, nodeType: any) => {
-    if (nodeType.hideInElementsPanel) {
-      return acc
+const getPrefabs = () => {
+  const arr = [] as FileDataType[]
+
+  useWorld().scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
+    if (shouldPrefabDeserialize(prefabType)) {
+      arr.push({
+        id: prefabType,
+        iconComponent: prefabIcons[prefabType] || null,
+        label: prefabType, // todo
+        description: '', // todo
+        type: ItemTypes.Element,
+        nodeClass: prefabType,
+        initialProps: null,
+        url: ''
+      })
     }
-    const nodeEditor = NodeManager.instance.getEditorFromClass(nodeType)
-    acc.push({
-      id: nodeType.nodeName,
-      iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent,
-      label: nodeType.nodeName,
-      description: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.description : nodeEditor.description,
-      type: ItemTypes.Element,
-      nodeClass: nodeType,
-      initialProps: nodeType.initialElementProps
-    })
-    return acc
-  }, [])
+  })
+
+  return arr
 }
 
 /**
@@ -111,20 +121,6 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   )
 }
 
-// styled component fpr showing loading in AssetGrid container
-const LoadingItem = (styled as any).div`
-  display: flex;
-  flex-direction: column;
-  height: 100px;
-  border-radius: 6px;
-  background-color: rgba(128, 128, 128, 0.5);
-  border: 2px solid transparent;
-  overflow: hidden;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-`
-
 //declaring propTypes for AssetGridItem
 AssetGridItem.propTypes = {
   tooltipComponent: PropTypes.func,
@@ -181,49 +177,46 @@ const MemoAssetGridItem = memo(AssetGridItem)
 export function AssetGrid({ onSelect, tooltip }) {
   const uniqueId = useRef(`AssetGrid${lastId}`)
   const { t } = useTranslation()
+  const { searchElement } = useContext(AppContext)
 
-  const items = getNodes()
-  console.log(items)
+  const items = getPrefabs()
+  const res = [] as FileDataType[]
+  if (searchElement.length > 0) {
+    const condition = new RegExp(searchElement.toLowerCase())
+    items.forEach((el) => {
+      if (condition.test(el.label.toLowerCase())) res.push(el)
+    })
+  }
+
+  const renderedItems = res?.length > 0 ? res : items
 
   // incrementig lastId
   useEffect(() => {
     lastId++
   }, [])
 
-  // creating callback function used if object get placed on viewport
   const placeObject = useCallback((_, trigger) => {
-    const item = trigger.item
+    const node = new EntityTreeNode(createEntity())
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+      prefabTypes: trigger.item.nodeClass
+    })
 
-    const node = new item.nodeClass()
-
-    if (item.initialProps) {
-      Object.assign(node, item.initialProps)
-    }
-
-    SceneManager.instance.getSpawnPosition(node.position)
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
   }, [])
 
-  //creating callback function used when we choose placeObjectAtOrigin option from context menu of AssetGridItem
   const placeObjectAtOrigin = useCallback((_, trigger) => {
-    const item = trigger.item
-
-    const node = new item.nodeClass()
-
-    if (item.initialProps) {
-      Object.assign(node, item.initialProps)
-    }
-
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node)
+    const node = new EntityTreeNode(createEntity())
+    CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+      prefabTypes: trigger.item.nodeClass
+    })
   }, [])
 
-  //returning view of AssetGridItems
   return (
     <>
       <VerticalScrollContainer flex>
         <MediaGrid>
-          {unique(items, 'id').map((item) => (
+          {unique<any>(renderedItems, (item) => item.id).map((item: any) => (
             <MemoAssetGridItem
               key={item.id}
               tooltipComponent={tooltip}
