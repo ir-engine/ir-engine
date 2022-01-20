@@ -1,3 +1,7 @@
+//TODO:
+// This retargeting logic is based exokitxr retargeting system
+// https://github.com/exokitxr/avatars
+
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 const _getTailBones = (skeleton) => {
