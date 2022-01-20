@@ -22,6 +22,12 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const world = createWorld()
       Engine.currentWorld = world
 
+      world.clients.set('1' as UserId, {
+        userId: '1' as UserId,
+        name: '1',
+        subscribedChatUpdates: []
+      })
+
       world.outgoingNetworkState = {
         tick: 0,
         time: Date.now(),
@@ -76,6 +82,13 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       for (let i = 0; i < 8; i++) {
         const entity = createEntity()
+
+        const userId = String(i) as UserId
+        world.clients.set(userId, {
+          userId: userId,
+          name: userId,
+          subscribedChatUpdates: []
+        })
 
         // make every other entity owned by this instance
         if (i % 2) {
@@ -157,6 +170,12 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const world = createWorld()
       Engine.currentWorld = world
 
+      world.clients.set('1' as UserId, {
+        userId: '0' as UserId,
+        name: '0',
+        subscribedChatUpdates: []
+      })
+
       world.outgoingNetworkState = {
         tick: 0,
         time: Date.now(),
@@ -196,6 +215,12 @@ describe('outgoingNetworkState', () => {
 
     strictEqual(world.fixedTick >= 0, true)
     world.fixedTick = 42
+
+    world.clients.set('id' as UserId, {
+      userId: 'id' as UserId,
+      name: 'id',
+      subscribedChatUpdates: []
+    })
 
     world.previousNetworkState = {
       tick: world.fixedTick,
