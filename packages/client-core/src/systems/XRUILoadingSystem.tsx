@@ -22,7 +22,7 @@ export default async function XRUILoadingSystem(world: World): Promise<System> {
     alpha = 0
   }
 
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setState('OUT'))
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => setState('OUT'), 1000))
 
   return () => {
     if (Engine.activeCameraEntity) {
