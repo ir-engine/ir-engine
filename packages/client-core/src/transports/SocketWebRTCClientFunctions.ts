@@ -15,6 +15,7 @@ import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessChannelConnectionState()
@@ -261,6 +262,7 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
     channelId: channelId
   })
 
+  if (process.env.NODE_ENV === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
   if (direction === 'recv') transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions)
   else if (direction === 'send')
     transport = await networkTransport.mediasoupDevice.createSendTransport(transportOptions)
