@@ -5,7 +5,7 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 const _getTailBones = (skeleton) => {
-  const result = []
+  const result: any[] = []
   const _recurse = (bones) => {
     for (let i = 0; i < bones.length; i++) {
       const bone = bones[i]
@@ -373,7 +373,7 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
 function getSkeleton(model, isSeparated) {
   let skeleton
   if (!isSeparated) {
-    const targetSkinnedMeshes = []
+    const targetSkinnedMeshes: any[] = []
     model.traverse((o) => {
       if (o.isSkinnedMesh) {
         targetSkinnedMeshes.push(o)
