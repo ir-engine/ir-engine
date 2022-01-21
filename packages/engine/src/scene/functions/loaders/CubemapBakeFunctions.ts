@@ -1,6 +1,7 @@
 import {
   BoxBufferGeometry,
   BoxHelper,
+  EquirectangularRefractionMapping,
   Mesh,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -32,6 +33,8 @@ import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { CubemapBakeRefreshTypes } from '../../types/CubemapBakeRefreshTypes'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
+import { textureLoader } from '../../constants/Util'
+import { CubemapBakeSettings } from '../../types/CubemapBakeSettings'
 
 const quat = new Quaternion(0)
 export const SCENE_COMPONENT_CUBEMAP_BAKE = 'cubemapbake'
@@ -67,7 +70,7 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
     json.props.options.bakePositionOffset = new Vector3().copy(json.props.options.bakePositionOffset)
   }
 
-  addComponent(entity, CubemapBakeComponent, { ...json.props })
+  const bakeComponent = addComponent(entity, CubemapBakeComponent, { ...json.props })
   addComponent(entity, PreventBakeTagComponent, {})
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
 
@@ -82,13 +85,21 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   obj3d.userData.gizmo.userData.disableOutline = true
   obj3d.add(obj3d.userData.gizmo)
 
-  updateCubemapBake(entity, json.props)
+  updateCubemapBake(entity)
+  updateCubemapBakeTexture(bakeComponent.options)
 }
 
-export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity, _: CubemapBakeComponentType) => {
+export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const bakeComponent = getComponent(entity, CubemapBakeComponent)
   obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
+}
+
+export const updateCubemapBakeTexture = (options: CubemapBakeSettings) => {
+  textureLoader.load(options.envMapOrigin, (texture) => {
+    Engine.scene.environment = texture
+    texture.mapping = EquirectangularRefractionMapping
+  })
 }
 
 export const serializeCubemapBake: ComponentSerializeFunction = (entity) => {
