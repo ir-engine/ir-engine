@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react'
 import { useStyles } from './styles'
 import Switch from '@mui/material/Switch'
-import { Grid, Paper, Button, Typography } from '@mui/material'
+import { Grid, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { GameServerSettingService } from '../../services/Setting/GameServerSettingService'
 import { useGameServerSettingState } from '../../services/Setting/GameServerSettingService'
@@ -14,23 +13,14 @@ const GameServer = (props: gameServerProps) => {
   const classes = useStyles()
   const gameServerSettingState = useGameServerSettingState()
   const gameServerSettings = gameServerSettingState?.gameserver?.value || []
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
-  const [enabled, setEnabled] = React.useState({
-    checkedA: true,
-    checkedB: true
-  })
   const [local, setLocal] = React.useState({
     checkedA: true,
     checkedB: true
   })
   const handleLocal = (event) => {
     setLocal({ ...local, [event.target.name]: event.target.checked })
-  }
-
-  const handleEnable = (event) => {
-    setEnabled({ ...enabled, [event.target.name]: event.target.checked })
   }
 
   useEffect(() => {
@@ -57,17 +47,6 @@ const GameServer = (props: gameServerProps) => {
                     disabled
                     style={{ color: '#fff' }}
                     value={el?.clientHost || ''}
-                  />
-                </Paper>
-                <label>Enabled</label>
-                <Paper component="div" className={classes.createInput}>
-                  <Switch
-                    disabled
-                    checked={enabled.checkedB}
-                    onChange={handleEnable}
-                    color="primary"
-                    name="checkedB"
-                    inputProps={{ 'aria-label': 'primary checkbox' }}
                   />
                 </Paper>
                 <label>rtc_start_port</label>

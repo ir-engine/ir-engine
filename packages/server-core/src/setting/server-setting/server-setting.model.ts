@@ -16,10 +16,6 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      enabled: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-      },
       mode: {
         type: DataTypes.STRING,
         allowNull: true
