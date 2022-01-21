@@ -2,8 +2,8 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Vector3, Quaternion } from 'three'
 import matches, { Validator } from 'ts-matches'
-import { Engine } from '../../ecs/classes/Engine'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Engine } from '../classes/Engine'
+import { useWorld } from './SystemHooks'
 
 export type Action = {
   type: string

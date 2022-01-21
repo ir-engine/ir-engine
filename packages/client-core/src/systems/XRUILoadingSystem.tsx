@@ -1,7 +1,6 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { PerspectiveCamera, MathUtils } from 'three'
@@ -11,7 +10,7 @@ import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/mat
 
 type TransitionType = 'IN' | 'OUT' | 'NONE'
 
-export default async function XRUILoadingSystem(world: World): Promise<System> {
+export default async function XRUILoadingSystem(world: World) {
   const ui = createLoaderDetailView('')
   const transitionPeriodSeconds = 1
   let currentState = 'NONE' as TransitionType

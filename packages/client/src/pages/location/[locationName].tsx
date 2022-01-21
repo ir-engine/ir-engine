@@ -1,11 +1,13 @@
 import React, { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import Layout from '../../components/Layout/Layout'
-import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
+import Layout from '@xrengine/client-core/src/components/Layout/Layout'
+import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 
-const DefaultLayoutView = lazy(() => import('../../components/World/DefaultLayoutView'))
-const LoadLocationScene = lazy(() => import('../../components/World/LoadLocationScene'))
-const NetworkInstanceProvisioning = lazy(() => import('../../components/World/NetworkInstanceProvisioning'))
+const DefaultLayoutView = lazy(() => import('@xrengine/client-core/src/components/World/DefaultLayoutView'))
+const LoadLocationScene = lazy(() => import('@xrengine/client-core/src/components/World/LoadLocationScene'))
+const NetworkInstanceProvisioning = lazy(
+  () => import('@xrengine/client-core/src/components/World/NetworkInstanceProvisioning')
+)
 interface Props {
   match?: any
 }

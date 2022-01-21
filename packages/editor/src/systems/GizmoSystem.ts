@@ -1,5 +1,4 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -11,7 +10,7 @@ const GIZMO_SIZE = 10
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function GizmoSystem(_: World): Promise<System> {
+export default async function GizmoSystem(_: World) {
   const gizmoQuery = defineQuery([TransformGizmoComponent])
 
   return () => {

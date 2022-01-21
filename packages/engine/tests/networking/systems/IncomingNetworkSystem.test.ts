@@ -6,13 +6,14 @@ import { addComponent } from '../../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { Network } from '../../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../../src/networking/components/NetworkObjectComponent'
-import IncomingNetworkSystem, { applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
+import IncomingNetworkSystem from '../../../src/networking/systems/IncomingNetworkSystem'
 import { Quaternion, Vector3 } from 'three'
 import { TransformComponent } from '../../../src/transform/components/TransformComponent'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
+import ActionDispatchSystem from '../../../src/ecs/functions/ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
 	
@@ -23,6 +24,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		Network.instance = new TestNetwork()
 		world = createWorld()
 		Engine.currentWorld = world
+		Engine.isInitialized = true
 	})
 
 	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
