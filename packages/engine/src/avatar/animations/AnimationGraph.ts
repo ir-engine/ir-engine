@@ -162,26 +162,37 @@ export class AnimationGraph {
       }
       // else, idle fall
     } else {
-      let newStateName = ''
-      vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
-      const speedSqr = vector2.lengthSq()
-      if (speedSqr > this.EPSILON) {
-        // TODO: The transition between walk and run animations is not smooth
-        // Most probably because they're not in sync with each other and a very short transition time
+      let canSwitch = true
 
-        // newStateName =
-        //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
-        //     ? AvatarStates.WALK
-        //     : AvatarStates.RUN
-
-        newStateName = AvatarStates.RUN
-      } else {
-        newStateName = AvatarStates.IDLE
+      if (avatarAnimationComponent.currentState.name === AvatarStates.JUMP) {
+        const jumpAction = avatarAnimationComponent.currentState.animations[0].action
+        if (jumpAction.time < jumpAction.getClip().duration - 0.01) {
+          canSwitch = false
+        }
       }
 
-      // If new state is different than current state then transit
-      if (avatarAnimationComponent.currentState.name !== newStateName) {
-        avatarAnimationComponent.animationGraph.transitionState(entity, newStateName, params)
+      if (canSwitch) {
+        let newStateName = ''
+        vector2.set(movement.velocity.x, movement.velocity.z).multiplyScalar(1 / delta)
+        const speedSqr = vector2.lengthSq()
+        if (speedSqr > this.EPSILON) {
+          // TODO: The transition between walk and run animations is not smooth
+          // Most probably because they're not in sync with each other and a very short transition time
+
+          // newStateName =
+          //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
+          //     ? AvatarStates.WALK
+          //     : AvatarStates.RUN
+
+          newStateName = AvatarStates.RUN
+        } else {
+          newStateName = AvatarStates.IDLE
+        }
+
+        // If new state is different than current state then transit
+        if (avatarAnimationComponent.currentState.name !== newStateName) {
+          avatarAnimationComponent.animationGraph.transitionState(entity, newStateName, params)
+        }
       }
     }
 

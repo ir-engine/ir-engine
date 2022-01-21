@@ -220,6 +220,7 @@ export class JumpState extends AnimationState {
       weight: 1,
       timeScale: 1,
       loopType: LoopOnce,
+      loopCount: 1,
       decorateAction: function (action: AnimationAction) {
         action.reset()
         action.setLoop(this.loopType, this.loopCount)
