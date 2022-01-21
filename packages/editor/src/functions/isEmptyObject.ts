@@ -1,6 +1,6 @@
 export default function isEmptyObject(object) {
   for (const key in object) {
-    if (Object.prototype.hasOwnProperty.call(object, key)) {
+    if (typeof object[key] !== 'undefined') {
       return false
     }
   }

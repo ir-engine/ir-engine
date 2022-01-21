@@ -11,7 +11,7 @@ export default async function ResetInputSystem(_: World) {
   return () => {
     for (const entity of inputQuery()) {
       const inputComponent = getComponent(entity, InputComponent)
-      inputComponent.resetKeys.forEach((key: ActionKey) => {
+      inputComponent.resetKeys?.forEach((key: ActionKey) => {
         const actionState = inputComponent.actionState[key]
         const initialActionState = inputComponent.defaultState[key]
         // BUG: this.defaultState might not be correct

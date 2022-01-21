@@ -4,7 +4,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 export type VideoComponentType = {
   videoSource: string
   elementId: string
-  hls: Hls
+  hls?: Hls
 }
 
 export const VideoComponent = createMappedComponent<VideoComponentType>('VideoComponent')

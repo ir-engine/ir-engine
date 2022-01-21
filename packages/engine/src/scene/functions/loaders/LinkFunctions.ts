@@ -1,11 +1,10 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
+  ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -47,7 +46,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
   }
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LINK)
-  addComponent(entity, LinkComponent, { href: json.props.href })
+  addComponent(entity, LinkComponent, { href: json.props.href ?? SCENE_COMPONENT_LINK_DEFAULT_VALUES.href })
 }
 
 export const serializeLink: ComponentSerializeFunction = (entity) => {

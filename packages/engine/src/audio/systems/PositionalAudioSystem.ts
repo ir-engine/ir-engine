@@ -111,7 +111,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       }
 
-      const props = applyMediaAudioSettings({ ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
+      const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
       deserializeAudio(entity, { name: SCENE_COMPONENT_AUDIO, props })
     }
 

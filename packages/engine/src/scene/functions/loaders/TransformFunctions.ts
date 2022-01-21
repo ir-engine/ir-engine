@@ -21,12 +21,8 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<TransformComponentType>
 ) => {
-  const { position, rotation, scale } = json.props
-  addComponent(entity, TransformComponent, {
-    position: new Vector3(position.x, position.y, position.z),
-    rotation: new Quaternion().setFromEuler(euler.setFromVector3(v3.set(rotation.x, rotation.y, rotation.z), 'XYZ')),
-    scale: new Vector3(scale.x, scale.y, scale.z)
-  })
+  const props = parseTransformProperties(json.props)
+  addComponent(entity, TransformComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
@@ -43,4 +39,19 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
       scale: component.scale
     }
   }
+}
+
+const parseTransformProperties = (props: any): TransformComponentType => {
+  const result = {} as TransformComponentType
+
+  let tempV3 = props.position ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position
+  result.position = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.scale ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.scale
+  result.scale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.rotation ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation
+  result.rotation = new Quaternion().setFromEuler(euler.setFromVector3(v3.set(tempV3.x, tempV3.y, tempV3.z), 'XYZ'))
+
+  return result
 }

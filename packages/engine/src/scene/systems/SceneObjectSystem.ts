@@ -15,6 +15,9 @@ import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/Sim
 import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { reparentObject3D } from '../functions/ReparentFunction'
+import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { ModelComponent } from '../components/ModelComponent'
 import { isNode } from '../../common/functions/getEnvironment'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 
@@ -86,11 +89,18 @@ export default async function SceneObjectSystem(world: World) {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      // Add to scene
-      if (!Engine.scene.children.includes(obj3d)) {
-        Engine.scene.add(obj3d)
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        reparentObject3D(node, node.parentNode)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d.name)
+        let found = false
+        Engine.scene.traverse((obj) => {
+          if (obj === obj3d) {
+            found = true
+          }
+        })
+
+        if (!found) Engine.scene.add(obj3d)
       }
 
       processObject3d(entity)
@@ -104,9 +114,9 @@ export default async function SceneObjectSystem(world: World) {
       obj3d.removeFromParent()
     }
 
-    // TODO: refactor this
     for (const entity of objectReplaceQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent)
+      const modelComponent = getComponent(entity, ModelComponent)
       const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
 
       if (!obj3d || !replacementObj) continue
@@ -120,7 +130,13 @@ export default async function SceneObjectSystem(world: World) {
       obj3d.value.parent = null
       obj3d.value = replacementObj
 
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        node.children?.forEach((child) => reparentObject3D(child, node))
+      }
+
       processObject3d(entity)
+      if (modelComponent) parseGLTFModel(entity, modelComponent, obj3d.value)
       removeComponent(entity, ReplaceObject3DComponent)
     }
 
