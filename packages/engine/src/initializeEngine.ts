@@ -33,6 +33,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
+import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
 
 /**
  * GETTING STARTED
@@ -72,19 +73,19 @@ export const initializeBrowser = () => {
   Engine.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
 
   const joinedWorld = () => {
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl')!
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
-    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-    const enableRenderer = !/SwiftShader/.test(renderer)
-    canvas.remove()
-    if (!enableRenderer)
-      dispatchLocal(
-        EngineActions.browserNotSupported(
-          'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-        ) as any
-      )
-    dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
+    // const canvas = document.createElement('canvas')
+    // const gl = canvas.getContext('webgl')!
+    // const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
+    // const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+    // const enableRenderer = !/SwiftShader/.test(renderer)
+    // canvas.remove()
+    // if (!enableRenderer)
+    //   dispatchLocal(
+    //     EngineActions.browserNotSupported(
+    //       'Your brower does not support webgl,or it disable webgl,Please enable webgl'
+    //     ) as any
+    //   )
+    // dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
   }
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
@@ -162,8 +163,7 @@ export const configureServer = async (isMediaServer = false) => {
 }
 
 export const createEngine = () => {
-  Engine.isLoading = true
-
+  console.log('createEngine')
   const world = createWorld()
   Engine.currentWorld = world
   Engine.scene = new Scene()
@@ -176,13 +176,10 @@ export const createEngine = () => {
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
-
-  Engine.isLoading = false
-  Engine.isInitialized = true
-  dispatchLocal(EngineActions.initializeEngine(true) as any)
 }
 
 export const initializeMediaServerSystems = async () => {
+  console.log('initializeMediaServerSystems')
   const coreSystems: SystemModuleType<any>[] = []
   coreSystems.push(
     {
@@ -207,9 +204,13 @@ export const initializeMediaServerSystems = async () => {
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
+
+  Engine.isInitialized = true
+  dispatchLocal(EngineActions.initializeEngine(true) as any)
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
+  console.log('initializeCoreSystems')
   const coreSystems: SystemModuleType<any>[] = []
   coreSystems.push(
     {
@@ -270,6 +271,9 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
+
+  Engine.isInitialized = true
+  dispatchLocal(EngineActions.initializeEngine(true) as any)
 }
 
 /**
@@ -278,6 +282,9 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   console.log('initializeSceneSystems')
+
+  const world = useWorld()
+  world.receptors.push(incomingNetworkReceptor)
 
   const coreSystems: SystemModuleType<any>[] = []
 
@@ -362,14 +369,13 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./renderer/HighlightSystem')
       }
     )
-  } else {
   }
 
-  const world = useWorld()
   await initSystems(world, coreSystems)
 }
 
 export const initializeRealtimeSystems = async (media = true, pose = true) => {
+  console.log('initializeRealtimeSystems')
   const coreSystems: SystemModuleType<any>[] = []
 
   if (media) {

@@ -84,7 +84,7 @@ export default async function SceneObjectSystem(world: World) {
       if (!Engine.scene.children.includes(obj3d)) {
         Engine.scene.add(obj3d)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d)
+        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d.name)
       }
 
       processObject3d(entity)

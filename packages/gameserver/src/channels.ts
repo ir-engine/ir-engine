@@ -36,9 +36,9 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
-  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
+    const systems = await getSystemsFromSceneData(projectName, sceneData, false)
     const projects = await app.service('project').find(null!)
     Engine.publicPath = config.client.url
     // const options: InitializeOptions = {
@@ -49,8 +49,8 @@ const loadScene = async (app: Application, scene: string) => {
     initializeNode()
     configureServer()
     await initializeCoreSystems()
-    await initializeSceneSystems()
     await initializeRealtimeSystems()
+    await initializeSceneSystems()
 
     Engine.userId = 'server' as UserId
     Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)

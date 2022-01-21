@@ -184,8 +184,6 @@ export default async function IncomingNetworkSystem(world: World) {
     applyUnreliableQueue(Network.instance),
   )
 
-  world.receptors.push(incomingNetworkReceptor)
-
   const VALIDATE_NETWORK_INTERVAL = 300 // TODO: /** world.tickRate * 5 */
 
   return () => {

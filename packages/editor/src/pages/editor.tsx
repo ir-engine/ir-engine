@@ -85,7 +85,7 @@ const EditorProtectedRoutes = () => {
   }, [])
 
   useEffect(() => {
-    if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
+    if (Engine.isInitialized && projectState.projects.value.length > 0) {
       Engine.userId = 'editor' as UserId
       Engine.isEditor = true
       createEngine()

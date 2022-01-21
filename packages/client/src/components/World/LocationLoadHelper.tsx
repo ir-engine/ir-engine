@@ -15,6 +15,18 @@ import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classe
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Quaternion, Vector3 } from 'three'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import {
+  configureClient,
+  createEngine,
+  initializeBrowser,
+  initializeCoreSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import matches from 'ts-matches'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -74,9 +86,44 @@ const createOfflineUser = (sceneData: SceneJson) => {
   dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
-export const initNetwork = () => {
+const injectedSystems: SystemModuleType<any>[] = [
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
+  },
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
+  }
+]
+
+export const initEngine = async () => {
+  if (Engine.isInitialized) return
   Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
+  createEngine()
+  initializeBrowser()
+  configureClient()
+  await initializeCoreSystems(injectedSystems)
+}
+
+export const initClient = async () => {
+  await initializeRealtimeSystems()
+  await initializeSceneSystems()
+
+  // add extraneous receptors
+  useWorld().receptors.push((action) => {
+    matches(action)
+      .when(NetworkWorldAction.createClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      })
+      .when(NetworkWorldAction.destroyClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      })
+  })
+  Engine.isReady = true
 }
 
 export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
@@ -104,7 +151,7 @@ export const loadLocation = async (project: string, sceneData: SceneJson): Promi
   Engine.currentWorld.receptors.push(receptor)
 
   loadSceneFromJSON(sceneData).then(() => {
-    dispatchLocal(EngineActions.loadingStateChanged(100, 'Loading Complete!'))
+    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining world...'))
 
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
