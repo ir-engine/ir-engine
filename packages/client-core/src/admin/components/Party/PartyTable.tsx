@@ -72,7 +72,7 @@ const PartyTable = (props: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
+          <a href="#h" className={classes.actionStyle} onClick={() => openViewModel(true, el)}>
             <span className={classes.spanWhite}>View</span>
           </a>
           <a

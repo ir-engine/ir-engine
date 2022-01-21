@@ -53,12 +53,9 @@ export default function ViewParty(props: Props) {
   useFetchAdminLocations(user, adminLocationState, LocationService)
 
   useEffect(() => {
-    if (partyAdmin.instance?.ipAddress) {
-      setUpdateParty({ ...updateParty, instance: partyAdmin.instance?.id })
-    }
-
-    if (partyAdmin?.location?.name) {
-      setUpdateParty({ ...updateParty, location: partyAdmin.location?.id })
+    if (partyAdmin.instance?.id || partyAdmin?.location?.name) {
+      console.log(partyAdmin.instance?.id)
+      setUpdateParty({ ...updateParty, instance: partyAdmin.instance?.id, location: partyAdmin.location?.id })
     }
   }, [partyAdmin])
 
