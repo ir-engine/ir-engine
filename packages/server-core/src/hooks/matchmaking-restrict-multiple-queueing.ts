@@ -11,7 +11,7 @@ export default (): Hook => {
     const loggedInUser = extractLoggedInUserFromParams(context.params)
     const matchUserResult = await app.service('match-user').find({
       query: {
-        userId: loggedInUser.userId,
+        userId: loggedInUser.id,
         $limit: 1
       }
     })

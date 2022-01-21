@@ -17,6 +17,7 @@ import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/Scen
 import { reparentObject3D } from './ReparentFunction'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { delay } from '../../common/functions/delay'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -60,6 +61,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   }
 
   await Promise.all(Engine.sceneLoadPromises)
+
+  await delay(1000)
   Engine.sceneLoaded = true
 
   // Configure CSM

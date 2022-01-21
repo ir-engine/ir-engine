@@ -1,8 +1,8 @@
-import { WebLayer3D } from 'ethereal'
+import { WebContainer3D } from '@etherealjs/web-layer/three'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type XRUIComponentType = {
-  layer: WebLayer3D
+  container: WebContainer3D
 }
 
 export const XRUIComponent = createMappedComponent<XRUIComponentType>('XRUIComponent')

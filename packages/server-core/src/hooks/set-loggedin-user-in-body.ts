@@ -11,17 +11,17 @@ export default (propertyName: string) => {
       context.data = context.data.map((item: any) => {
         return {
           ...item,
-          [propertyName]: loggedInUser.userId
+          [propertyName]: loggedInUser.id
         }
       })
     } else {
       context.data = {
         ...context.data,
-        [propertyName]: loggedInUser.userId
+        [propertyName]: loggedInUser.id
       }
       context.params.body = {
         ...context.params.body,
-        [propertyName]: loggedInUser.userId
+        [propertyName]: loggedInUser.id
       }
     }
 
