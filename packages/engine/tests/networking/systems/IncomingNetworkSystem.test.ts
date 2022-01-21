@@ -13,6 +13,7 @@ import { VelocityComponent } from '../../../src/physics/components/VelocityCompo
 import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
+import ActionDispatchSystem from '../../../src/ecs/functions/ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
 	
@@ -23,6 +24,7 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		Network.instance = new TestNetwork()
 		world = createWorld()
 		Engine.currentWorld = world
+		Engine.isInitialized = true
 	})
 
 	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
