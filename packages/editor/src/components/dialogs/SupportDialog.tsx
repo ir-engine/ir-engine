@@ -30,7 +30,7 @@ export function SupportDialog({ onCancel, ...props }) {
         <p>
           <Trans t={t} i18nKey="editor:dialog.support.discord">
             You can also find us on&nbsp;
-            <a href="https://discord.gg/mQ3D4FE" target="_blank" rel="noopener noreferrer">
+            <a href="https://discord.gg/xrf" target="_blank" rel="noopener noreferrer">
               Discord
             </a>
           </Trans>

@@ -64,7 +64,7 @@ export class World {
 
   physics = new Physics()
 
-  #entityQuery = bitecs.defineQuery([])
+  #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
 
   #entityRemovedQuery = bitecs.defineQuery([EntityRemovedComponent])

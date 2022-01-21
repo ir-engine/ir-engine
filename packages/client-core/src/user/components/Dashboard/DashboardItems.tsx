@@ -11,6 +11,7 @@ import {
   Settings,
   SupervisorAccount,
   Toys,
+  Timeline,
   Shuffle
 } from '@mui/icons-material'
 import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue'
@@ -67,6 +68,11 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.avatars',
     path: '/admin/avatars',
     icon: <Accessibility style={{ color: 'white' }} />
+  },
+  allowedRoutes.benchmarking && {
+    name: 'user:dashboard.benchmarking',
+    path: '/admin/benchmarking',
+    icon: <Timeline style={{ color: 'white' }} />
   },
   {
     name: 'user:dashboard.setting',
