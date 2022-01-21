@@ -1,15 +1,15 @@
-import React from 'react'
+import { Icon } from '@iconify/react'
+import LockIcon from '@mui/icons-material/Lock'
+import MailOutlineIcon from '@mui/icons-material/MailOutline'
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
+import ViewCompactIcon from '@mui/icons-material/ViewCompact'
+import Avatar from '@mui/material/Avatar'
+import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Divider from '@mui/material/Divider'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
-import Avatar from '@mui/material/Avatar'
-import ViewCompactIcon from '@mui/icons-material/ViewCompact'
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
-import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import LockIcon from '@mui/icons-material/Lock'
-import { Icon } from '@iconify/react'
+import ListItemText from '@mui/material/ListItemText'
+import React from 'react'
 import { useStyles } from './styles'
 
 const settings = ({
@@ -37,7 +37,7 @@ const settings = ({
   return (
     <div>
       <List>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleAnalytics}
@@ -50,7 +50,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Analytics" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleServer}
@@ -63,7 +63,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Server" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleClient}
@@ -76,7 +76,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Client" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleGameServer}
@@ -89,7 +89,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Game Server" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleEmail}
@@ -102,7 +102,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Email" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem button onClick={handleAuth} className={authFocused ? `${classes.focused}` : `${classes.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -111,7 +111,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Authentication" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem button onClick={handleAws} className={awsFocused ? `${classes.focused}` : `${classes.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d' }}>
@@ -120,7 +120,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Aws" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleChargebee}
@@ -133,7 +133,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Chargebee" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
           onClick={handleRedis}
@@ -146,7 +146,7 @@ const settings = ({
           </ListItemAvatar>
           <ListItemText primary="Redis" />
         </ListItem>
-        <Divider variant="inset" component="li" />
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
       </List>
     </div>
   )

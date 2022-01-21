@@ -5,8 +5,6 @@ import { AssetPanelContentContainer } from './AssetsPanel'
 import { useTranslation } from 'react-i18next'
 import { ProjectGrid } from '../projects/ProjectGrid'
 import { getScenes } from '../../functions/sceneFunctions'
-import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 /**
@@ -26,7 +24,6 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
     setLoading(true)
     try {
       const data = await getScenes(projectName)
-      console.log(data)
       setScenes(data ?? [])
       setLoading(false)
     } catch (error) {
@@ -40,11 +37,6 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
   }, [toggleRefetchScenes])
 
   const onClickExisting = async (scene) => {
-    if (Engine.sceneLoaded)
-      await unloadScene({
-        removePersisted: true,
-        keepSystems: true
-      })
     loadScene(scene.name)
   }
 

@@ -13,6 +13,7 @@ import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()
+const NEW_SCENE_NAME = 'New Scene'
 
 export const getSceneData = (projectName, sceneName, metadataOnly) => {
   const newSceneJsonPath = path.resolve(
@@ -90,6 +91,46 @@ export class Scene implements ServiceMethods<any> {
     return {
       data: sceneData
     }
+  }
+
+  async create(data: any, params: any): Promise<any> {
+    const { projectName } = data
+    console.log('[scene.create]:', projectName)
+
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const projectPath = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
+
+    let newSceneName = NEW_SCENE_NAME
+    let counter = 1
+
+    while (true) {
+      if (counter > 1) newSceneName = NEW_SCENE_NAME + ' ' + counter
+      if (!fs.existsSync(projectPath + newSceneName + '.scene.json')) break
+
+      counter++
+    }
+
+    fs.copyFileSync(
+      path.resolve(appRootPath.path, `packages/projects/default-project/empty.thumbnail.jpeg`),
+      path.resolve(projectPath + newSceneName + '.thumbnail.jpeg')
+    )
+
+    fs.copyFileSync(
+      path.resolve(appRootPath.path, `packages/projects/default-project/empty.scene.json`),
+      path.resolve(projectPath + newSceneName + '.scene.json')
+    )
+
+    /**
+     * For local development flow only
+     * Updates the local storage provider with the project's current files
+     */
+    if (isDev) {
+      await uploadLocalProjectToProvider(projectName)
+    }
+
+    return { projectName, sceneName: newSceneName }
   }
 
   async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {

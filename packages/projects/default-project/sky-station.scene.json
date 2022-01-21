@@ -413,7 +413,24 @@
         {
           "name": "interactable",
           "props": {
-            "interactable": true
+            "interactable": true,
+            "interactionType": "infoBox",
+            "interactionText": "Laptop",
+            "interactionName": "ThinkPad X1 Carbon Gen 9 Intel (14\")",
+            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+            "interactionImages": [
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508"
+            ],
+            "interactionVideos": [
+              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
+            ],
+            "interactionUrls": [
+              "https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpade/e15-g2/20td001jus"
+            ],
+            "interactionModels": [
+              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
+            ]
           }
         }
       ],
@@ -669,7 +686,24 @@
         {
           "name": "interactable",
           "props": {
-            "interactable": true
+            "interactable": true,
+            "interactionType": "infoBox",
+            "interactionText": "Laptop",
+            "interactionName": "ThinkPad X1 Carbon Gen 9 Intel (14\")",
+            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+            "interactionImages": [
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508"
+            ],
+            "interactionVideos": [
+              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
+            ],
+            "interactionUrls": [
+              "https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpade/e15-g2/20td001jus"
+            ],
+            "interactionModels": [
+              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
+            ]
           }
         }
       ],

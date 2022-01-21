@@ -6,7 +6,7 @@ import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { accessChannelConnectionState, ChannelConnectionAction } from '../common/services/ChannelConnectionService'
@@ -15,6 +15,7 @@ import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessChannelConnectionState()
@@ -261,6 +262,7 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
     channelId: channelId
   })
 
+  if (process.env.NODE_ENV === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
   if (direction === 'recv') transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions)
   else if (direction === 'send')
     transport = await networkTransport.mediasoupDevice.createSendTransport(transportOptions)

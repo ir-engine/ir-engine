@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
 import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
 import { HookContext } from '@feathersjs/feathers'
@@ -10,11 +10,9 @@ import logger from '../../logger'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [iff(isProvider('external'), partyUserPermissionAuthenticate() as any)],
     get: [],
     create: [
@@ -22,10 +20,10 @@ export default {
         try {
           const { app, params, data } = context
           const loggedInUser = extractLoggedInUserFromParams(params)
-          const user = await app.service('user').get(loggedInUser.userId)
+          const user = await app.service('user').get(loggedInUser.id)
           const partyUserResult = await app.service('party-user').find({
             query: {
-              userId: loggedInUser.userId
+              userId: loggedInUser.id
             }
           })
 
@@ -36,7 +34,7 @@ export default {
           )
 
           if (data.userId == null) {
-            data.userId = loggedInUser.userId
+            data.userId = loggedInUser.id
           }
           context.params.oldInstanceId = user.instanceId
           return context

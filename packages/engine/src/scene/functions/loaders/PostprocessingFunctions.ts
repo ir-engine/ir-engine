@@ -19,7 +19,9 @@ import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComp
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 
 export const SCENE_COMPONENT_POSTPROCESSING = 'postprocessing'
-export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = defaultPostProcessingSchema
+export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = {
+  options: defaultPostProcessingSchema
+}
 
 export const deserializePostprocessing: ComponentDeserializeFunction = async function (
   entity: Entity,

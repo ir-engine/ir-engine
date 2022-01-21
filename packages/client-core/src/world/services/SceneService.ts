@@ -1,5 +1,7 @@
-import { store } from '../../store'
+import { store, useDispatch } from '../../store'
+import { client } from '../../feathers'
 import { createState, useState } from '@hookstate/core'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 //State
 export interface PublicScenesState {
@@ -15,20 +17,14 @@ export interface PublicScene {
 }
 
 const state = createState({
-  scenes: [] as PublicScene[],
-  currentScene: null! as PublicScene,
-  error: ''
+  currentScene: null! as SceneDetailInterface
 })
 
 store.receptors.push((action: SceneActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'SCENES_FETCHED_SUCCESS':
-        return s.merge({ scenes: action.scenes })
-      case 'SCENES_FETCHED_ERROR':
-        return s.merge({ error: action.message })
-      case 'SET_CURRENT_SCENE':
-        return s.merge({ currentScene: action.scene })
+      case 'LOCATION_SCENE_LOADED':
+        return s.merge({ currentScene: action.sceneData })
     }
   }, action.type)
 })
@@ -37,27 +33,19 @@ export const accessSceneState = () => state
 
 export const useSceneState = () => useState(state) as any as typeof state
 
-//Service
-export const ScenesService = {}
+export const SceneService = {
+  getSceneData: async (projectName: string, sceneName: string) => {
+    const sceneData = await client.service('scene').get({ projectName, sceneName })
+    const dispatch = useDispatch()
+    dispatch(SceneAction.sceneLoaded(sceneData.data))
+  }
+}
 
-//Action
 export const SceneAction = {
-  scenesFetchedSuccess: (scenes: PublicScene[]) => {
+  sceneLoaded: (sceneData: SceneDetailInterface) => {
     return {
-      type: 'SCENES_FETCHED_SUCCESS' as const,
-      scenes: scenes
-    }
-  },
-  scenesFetchedError: (err: string) => {
-    return {
-      type: 'SCENES_FETCHED_ERROR' as const,
-      message: err
-    }
-  },
-  setCurrentScene: (scene: PublicScene) => {
-    return {
-      type: 'SET_CURRENT_SCENE' as const,
-      scene: scene
+      type: 'LOCATION_SCENE_LOADED' as const,
+      sceneData
     }
   }
 }

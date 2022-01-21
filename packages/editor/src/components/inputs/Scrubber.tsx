@@ -165,6 +165,7 @@ const Scrubber = (props: ScrubberProp) => {
 
 Scrubber.defaultProps = {
   tag: 'label',
+  style: {},
   smallStep: 0.025,
   mediumStep: 0.1,
   largeStep: 0.25,

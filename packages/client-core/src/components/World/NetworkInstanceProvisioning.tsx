@@ -156,3 +156,5 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   return <></>
 }
+
+export default NetworkInstanceProvisioning
