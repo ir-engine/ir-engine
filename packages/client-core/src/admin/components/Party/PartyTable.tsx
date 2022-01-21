@@ -49,13 +49,7 @@ const PartyTable = (props: PartyPropsTable) => {
     setPopConfirmOpen(false)
   }
 
-  const openViewModel = (open: boolean, party: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
+  const openViewModel = (open: boolean, party: any) => {
     setPartyAdmin(party)
     setViewModel(open)
   }
