@@ -1,4 +1,3 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { InputComponent } from '../classes/InputComponent'
@@ -6,12 +5,12 @@ import { InputComponent } from '../classes/InputComponent'
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function InputSystem(_: World): Promise<System> {
+export default async function InputSystem(_: World) {
   const inputQuery = defineQuery([InputComponent])
   return () => {
     for (const entity of inputQuery()) {
       const inputComponent = getComponent(entity, InputComponent)
-      const computed = inputComponent.activeMapping.computed
+      const computed = inputComponent.activeMapping?.computed
 
       if (!computed) return
 

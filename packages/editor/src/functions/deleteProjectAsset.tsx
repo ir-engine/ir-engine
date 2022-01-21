@@ -11,7 +11,7 @@ import { client } from '@xrengine/client-core/src/feathers'
  */
 export const deleteProjectAsset = async (projectId, assetId): Promise<any> => {
   try {
-    const response = await (client.service('scene') as any).remove({
+    const response = await client.service('scene').remove({
       projectId,
       assetId
     })

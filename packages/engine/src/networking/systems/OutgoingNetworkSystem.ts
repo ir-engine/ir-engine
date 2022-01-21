@@ -8,7 +8,6 @@ import { WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
@@ -337,7 +336,7 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
   }
 }
 
-export default async function OutgoingNetworkSystem(world: World): Promise<System> {
+export default async function OutgoingNetworkSystem(world: World) {
   const worldTransport = Network.instance.transportHandler.getWorldTransport()
   const sendActions = sendActionsOnTransport(worldTransport)
   const sendData = sendDataOnTransport(worldTransport)

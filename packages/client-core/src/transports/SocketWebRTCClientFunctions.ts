@@ -6,7 +6,7 @@ import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { accessChannelConnectionState, ChannelConnectionAction } from '../common/services/ChannelConnectionService'

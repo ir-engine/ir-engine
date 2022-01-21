@@ -1,6 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
@@ -8,9 +7,10 @@ import {
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
@@ -47,7 +47,7 @@ type NavigationComponentType = {
 
 const NavigationComponent = createMappedComponent<NavigationComponentType>('NavigationComponent')
 
-const RenderSystem = async (world: World): Promise<System> => {
+const RenderSystem = async (world: World) => {
   return () => {
     Engine.renderer.render(Engine.scene, Engine.camera)
   }
@@ -131,7 +131,7 @@ async function startDemo(entity) {
   }
 }
 
-export const NavigationSystem = async (world: World): Promise<System> => {
+export const NavigationSystem = async (world: World) => {
   const entity = createEntity()
   addComponent(entity, NavigationComponent, {
     pathPlanner: new PathPlanner(),
@@ -208,10 +208,17 @@ const Page = () => {
     ;(async function () {
       // Register our systems to do stuff
 
-      await initializeEngine()
-      registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
-      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
-      await Engine.currentWorld.initSystems()
+      createEngine()
+      await initSystems(useWorld(), [
+        {
+          type: SystemUpdateType.FIXED,
+          systemModulePromise: Promise.resolve({ default: NavigationSystem })
+        },
+        {
+          type: SystemUpdateType.UPDATE,
+          systemModulePromise: Promise.resolve({ default: RenderSystem })
+        }
+      ])
 
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')
