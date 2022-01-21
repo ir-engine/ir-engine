@@ -59,8 +59,11 @@ export default async function InteractiveSystem(world: World) {
     }
 
     for (const entity of interactiveQuery.exit(world)) {
-      // TODO: Does the Box3 object need to be destroyed before this?
-      removeComponent(entity, BoundingBoxComponent)
+      // this getComponent check is required for handling cases when multiple setEquippedObject cached network action are received
+      // and this exit query could get called with EquippedComponent not being present on the entity
+      if (getComponent(entity, EquippedComponent)) {
+        removeComponent(entity, BoundingBoxComponent)
+      }
       removeComponent(entity, InteractiveFocusedComponent)
       removeComponent(entity, SubFocusedComponent)
     }
