@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@mui/material'
+import { Button, Grid, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import { useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
-import { AwsSettingService } from '../../services/Setting/AwsSettingService'
-import { useStyles } from './styles'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
+import { AwsSettingService, useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
+import { useStyles } from './styles'
 
 interface Props {}
 
@@ -266,11 +265,11 @@ const Aws = (props: Props) => {
             </Grid>
           </Grid>
         </div>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp;&nbsp;
-        <Button variant="contained" type="submit" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
           Save
         </Button>
       </form>
