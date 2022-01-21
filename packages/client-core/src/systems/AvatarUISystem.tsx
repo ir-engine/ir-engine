@@ -6,7 +6,6 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createAvatarContextMenuView } from './ui/PersonMenuView'
@@ -14,7 +13,7 @@ import { createAvatarContextMenuView } from './ui/PersonMenuView'
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
 export const AvatarContextMenuUI = new Map<Entity, ReturnType<typeof createAvatarContextMenuView>>()
 
-export default async function AvatarUISystem(world: World): Promise<System> {
+export default async function AvatarUISystem(world: World) {
   const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent])
 
   return () => {

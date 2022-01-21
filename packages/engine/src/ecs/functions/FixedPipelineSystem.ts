@@ -1,6 +1,5 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import { System } from '../classes/System'
 import { SystemUpdateType } from './SystemUpdateType'
 import { accessEngineState } from '../classes/EngineService'
 
@@ -9,7 +8,7 @@ import { accessEngineState } from '../classes/EngineService'
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function FixedPipelineSystem(world: World, args: { tickRate: number }): Promise<System> {
+export default async function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   let accumulator = 0
 
   const timestep = 1 / args.tickRate

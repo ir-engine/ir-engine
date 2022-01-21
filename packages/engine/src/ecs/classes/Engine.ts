@@ -57,7 +57,6 @@ export class Engine {
    */
   static scene: Scene = null!
   static sceneLoaded = false
-  static isLoading = false
   static sceneLoadPromises: Promise<void>[] = []
 
   /**
@@ -83,6 +82,7 @@ export class Engine {
   static prevInputState = new Map<any, InputValue>()
 
   static isInitialized = false
+  static isReady = false
 
   static hasJoinedWorld = false
 

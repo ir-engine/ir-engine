@@ -1,7 +1,6 @@
 import { Color, Mesh, Raycaster } from 'three'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -15,7 +14,7 @@ import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 
-export default async function XRUISystem(world: World): Promise<System> {
+export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])

@@ -1,4 +1,3 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -13,7 +12,7 @@ const ORBIT_SPEED = 5
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function GizmoSystem(world: World): Promise<System> {
+export default async function GizmoSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()

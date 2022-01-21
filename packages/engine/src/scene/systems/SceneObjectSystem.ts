@@ -9,13 +9,14 @@ import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { isNode } from '../../common/functions/getEnvironment'
+import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -73,8 +74,12 @@ const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
-export default async function SceneObjectSystem(world: World): Promise<System> {
+export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
+
+  if (isNode) {
+    await loadDRACODecoder()
+  }
 
   return () => {
     for (const entity of sceneObjectQuery.enter()) {
@@ -85,7 +90,7 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       if (!Engine.scene.children.includes(obj3d)) {
         Engine.scene.add(obj3d)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d)
+        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d.name)
       }
 
       processObject3d(entity)
