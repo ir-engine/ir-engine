@@ -8,6 +8,8 @@ import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { World } from '../../ecs/classes/World'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarStates } from '../animations/Util'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -34,6 +36,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
+  const avatarAnim = getComponent(entity, AvatarAnimationComponent)
 
   if (!controller.movementEnabled) return
 
@@ -103,7 +106,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       // and we are on the ground
       velocity.velocity.y <= onGroundVelocity.y &&
       // and we are not already jumping
-      !controller.isJumping
+      !controller.isJumping &&
+      avatarAnim.currentState.name !== AvatarStates.JUMP
     ) {
       // jump
       velocity.velocity.y = (AvatarSettings.instance.jumpHeight * 1) / 60
