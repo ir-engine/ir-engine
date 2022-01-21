@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
-import { initNetwork, loadLocation } from './LocationLoadHelper'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Downgraded } from '@hookstate/core'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import {
   LocationAction,
   LocationService,
@@ -13,29 +14,10 @@ import {
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import matches from 'ts-matches'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
-
-const defaultEngineInitializeOptions = {
-  publicPath: location.origin,
-  physics: {
-    simulationEnabled: false
-  },
-  systems: [
-    {
-      type: 'FIXED',
-      systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
-    }
-  ]
-}
 
 const canvasStyle = {
   zIndex: 0,
@@ -50,7 +32,6 @@ const canvasStyle = {
 const canvas = <canvas id={engineRendererCanvasId} style={canvasStyle} />
 
 interface Props {
-  engineInitializeOptions?: InitializeOptions
   setLoadingItemCount?: any
 }
 
@@ -59,13 +40,13 @@ export const LoadEngineWithScene = (props: Props) => {
   const history = useHistory()
   const dispatch = useDispatch()
   const engineState = useEngineState()
+  const sceneState = useSceneState()
   const projectState = useProjectState()
+  const [clientInitialized, setClientInitialized] = useState(false)
+  const [clientReady, setClientReady] = useState(false)
 
-  /**
-   * Fetch projects so we know what we need to load into the engine
-   */
   useEffect(() => {
-    initNetwork()
+    initEngine()
   }, [])
 
   /**
@@ -73,23 +54,11 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
-    if (!Engine.isInitialized && !Engine.isLoading && projectState.projects.value.length > 0) {
-      const engineInitializeOptions = Object.assign({}, defaultEngineInitializeOptions, props.engineInitializeOptions)
-      engineInitializeOptions.projects = projectState.projects.value.map((project) => project.name)
-      initializeEngine(engineInitializeOptions).then(() => {
-        useWorld().receptors.push((action) => {
-          matches(action)
-            .when(NetworkWorldAction.createClient.matches, () => {
-              console.log('CLIENT RECEPTORS', action)
-              updateNearbyAvatars()
-              MediaStreamService.triggerUpdateNearbyLayerUsers()
-            })
-            .when(NetworkWorldAction.destroyClient.matches, () => {
-              console.log('CLIENT RECEPTORS', action)
-              updateNearbyAvatars()
-              MediaStreamService.triggerUpdateNearbyLayerUsers()
-            })
-        })
+    if (!clientInitialized && Engine.isInitialized && projectState.projects.value.length > 0) {
+      setClientInitialized(true)
+      const [project] = locationState.currentLocation.location.sceneId.value.split('/')
+      initClient(project).then(() => {
+        setClientReady(true)
       })
     }
   }, [projectState.projects.value])
@@ -99,9 +68,20 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
-      loadLocation(locationState.currentLocation.location.sceneId.value)
+      const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+      SceneService.getSceneData(project, scene)
     }
   }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
+
+  /**
+   * Once we have the scene data, initialise the engine
+   */
+  useEffect(() => {
+    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
+      dispatch(EngineActions.setTeleporting(null!))
+      loadLocation()
+    }
+  }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 
   const canTeleport = useRef(true)
   useEffect(() => {

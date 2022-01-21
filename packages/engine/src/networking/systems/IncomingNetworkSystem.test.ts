@@ -1,10 +1,10 @@
 import assert, { strictEqual } from 'assert'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createWorld } from '../../../src/ecs/classes/World'
-import { applyIncomingActions } from '../../../src/networking/systems/IncomingNetworkSystem'
 import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
-import { ActionRecipients } from '../../../src/networking/interfaces/Action'
+import { ActionRecipients } from '../../ecs/functions/Action'
 import matches from 'ts-matches'
+import { applyIncomingActions } from '../../ecs/functions/ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
 	

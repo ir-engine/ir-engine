@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import matchmakingRestrictMultipleQueueing from '@xrengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
 import matchmakingSaveTicket from '@xrengine/server-core/src/hooks/matchmaking-save-ticket'
@@ -7,15 +7,13 @@ import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
     all: [],
     find: [],
-    get: [iff(isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any)],
+    get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any)],
     create: [
-      iff(isProvider('external'), authenticate('jwt') as any, setLoggedInUser('userId') as any),
+      iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing()
       // addUUID()
     ],

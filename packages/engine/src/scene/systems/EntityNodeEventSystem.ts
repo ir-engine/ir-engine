@@ -1,7 +1,6 @@
 import { Color, DirectionalLight } from 'three'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
@@ -21,7 +20,7 @@ import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCa
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function EntityNodeEventSystem(_: World): Promise<System> {
+export default async function EntityNodeEventSystem(_: World) {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const fogQuery = defineQuery([FogComponent])
   const renderSettingQuery = defineQuery([RenderSettingComponent])

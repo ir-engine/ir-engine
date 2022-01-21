@@ -29,7 +29,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isStaticBody } from '../../physics/classes/Physics'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -44,7 +43,7 @@ const quat = new Quaternion()
 const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
-export default async function DebugHelpersSystem(world: World): Promise<System> {
+export default async function DebugHelpersSystem(world: World) {
   const helpersByEntity: Record<ComponentHelpers, Map<Entity, any>> = {
     viewVector: new Map(),
     ikExtents: new Map(),

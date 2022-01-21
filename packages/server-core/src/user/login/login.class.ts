@@ -61,6 +61,24 @@ export class Login implements ServiceMethods<Data> {
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
+      const adminCount = await (this.app.service('user') as any).Model.count({
+        where: {
+          userRole: 'admin'
+        }
+      })
+      if (adminCount === 0)
+        await this.app.service('user').patch(identityProvider.userId, {
+          userRole: 'admin'
+        })
+      const apiKey = await this.app.service('user-api-key').find({
+        query: {
+          userId: identityProvider.userId
+        }
+      })
+      if ((apiKey as any).total === 0)
+        await this.app.service('user-api-key').create({
+          userId: identityProvider.userId
+        })
       const token = await (this.app.service('authentication') as any).createAccessToken(
         {},
         { subject: identityProvider.id.toString() }

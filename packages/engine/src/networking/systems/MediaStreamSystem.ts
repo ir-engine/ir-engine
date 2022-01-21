@@ -4,7 +4,6 @@ import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { Engine } from '../../ecs/classes/Engine'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 
@@ -316,7 +315,7 @@ export const updateNearbyAvatars = () => {
 // every 5 seconds
 const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
 
-export default async function MediaStreamSystem(world: World): Promise<System> {
+export default async function MediaStreamSystem(world: World) {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 

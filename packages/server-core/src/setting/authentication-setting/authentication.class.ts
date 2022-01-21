@@ -14,9 +14,8 @@ export class Authentication extends Service {
   async find(params: Params): Promise<any> {
     const auth = (await super.find()) as any
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const user = await this.app.service('user').get(loggedInUser.userId)
     const data = auth.data.map((el) => {
-      if (user.userRole !== 'admin')
+      if (loggedInUser.userRole !== 'admin')
         return {
           id: el.id,
           entity: el.entity,

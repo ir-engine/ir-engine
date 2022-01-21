@@ -1,4 +1,4 @@
-import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
+// import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import { usePartyState } from '@xrengine/client-core/src/social/services/PartyService'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -25,7 +25,7 @@ const DefaultLayoutView = (props: Props) => {
 
   return (
     <>
-      <LoadingScreen />
+      {/* <LoadingScreen /> */}
       {props.allowDebug && <Debug />}
       {isTouchAvailable ? (
         <Suspense fallback={<></>}>

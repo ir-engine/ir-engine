@@ -16,6 +16,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { NameComponent } from '../../scene/components/NameComponent'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>
@@ -36,6 +37,7 @@ export const createInteractUI = (entity: Entity) => {
   interactiveComponent.interactionUserData.entity = entity
   const ui = createInteractiveModalView(interactiveComponent)
   InteractiveUI.set(entity, ui)
+  addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + interactiveComponent.interactionName })
 
   //set transform
   const transform = getComponent(entity, TransformComponent)
@@ -60,7 +62,7 @@ export const createInteractUI = (entity: Entity) => {
         // refresh video element
         if (videoElement && videoElement.element) {
           //TODO: sometimes the video rendering does not work, set resize for refreshing
-          videoElement.element.style.height = 0
+          // videoElement.element.style.height = 0
           if (mediaData[mediaIndex].type == 'video') {
             const path = mediaData[mediaIndex].path
             if (isHLS(path)) {
@@ -74,7 +76,7 @@ export const createInteractUI = (entity: Entity) => {
             videoElement.element.addEventListener(
               'loadeddata',
               function () {
-                videoElement.element.style.height = 'auto'
+                // videoElement.element.style.height = 'auto'
                 videoElement.element.play()
               },
               false
@@ -125,7 +127,7 @@ export const createInteractUI = (entity: Entity) => {
 
 export const setUserDataInteractUI = (xrEntity: Entity) => {
   const xrComponent = getComponent(xrEntity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent || !xrComponent.layer) return
   //create text
   const parentEntity = getParentInteractUI(xrEntity)
   const interactiveComponent = getComponent(parentEntity, InteractableComponent)
@@ -170,7 +172,7 @@ export const showInteractUI = (entity: Entity) => {
   const ui = getInteractUI(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
   const object3D = getComponent(ui.entity, Object3DComponent) as any
   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 
@@ -205,7 +207,7 @@ export const hideInteractUI = (entity: Entity) => {
   const ui = getInteractUI(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrComponent && !xrComponent.layer) return
+  if (!xrComponent) return
 
   const object3D = getComponent(ui.entity, Object3DComponent) as any
   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
