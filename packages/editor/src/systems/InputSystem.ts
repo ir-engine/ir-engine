@@ -10,7 +10,7 @@ export default async function InputSystem(_: World) {
   return () => {
     for (const entity of inputQuery()) {
       const inputComponent = getComponent(entity, InputComponent)
-      const computed = inputComponent.activeMapping.computed
+      const computed = inputComponent.activeMapping?.computed
 
       if (!computed) return
 

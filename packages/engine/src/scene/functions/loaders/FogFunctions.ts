@@ -13,19 +13,24 @@ import { FogComponent, FogComponentType } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
 
 export const SCENE_COMPONENT_FOG = 'fog'
+export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
+  type: FogType.Linear,
+  color: '#FFFFFF',
+  density: 0.000025,
+  near: 1,
+  far: 1000
+}
 
 export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<FogComponentType>) => {
-  addComponent(entity, FogComponent, {
-    ...json.props,
-    color: new Color(json.props.color)
-  })
+  const props = parseFogProperties(json.props)
+  addComponent(entity, FogComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_FOG)
 
-  updateFog(entity)
+  updateFog(entity, props)
 }
 
-export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
+export const updateFog: ComponentUpdateFunction = (entity: Entity, _properties: FogComponentType) => {
   const component = getComponent(entity, FogComponent)
 
   switch (component.type) {
@@ -67,5 +72,15 @@ export const serializeFog: ComponentSerializeFunction = (entity) => {
       far: component.far,
       density: component.density
     }
+  }
+}
+
+const parseFogProperties = (props): FogComponentType => {
+  return {
+    type: props.type ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.type,
+    color: new Color(props.color ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.color),
+    density: props.density ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.density,
+    near: props.near ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.near,
+    far: props.far ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.far
   }
 }

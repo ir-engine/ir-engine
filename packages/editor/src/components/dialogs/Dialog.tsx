@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import { Button, SecondaryButton } from '../inputs/Button'
 import styled from 'styled-components'
-import i18n from 'i18next'
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
@@ -12,7 +11,6 @@ import i18n from 'i18next'
 const DialogContainer = (styled as any).form`
   display: flex;
   flex-direction: column;
-  flex: 1;
   border-radius: 4px;
   background-color: #282c31;
   max-width: 800px;

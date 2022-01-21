@@ -54,7 +54,8 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
   if (!isClient) return
 
-  addComponent(entity, AudioComponent, { ...json.props })
+  const props = parseAudioProperties(json.props)
+  addComponent(entity, AudioComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
@@ -77,7 +78,7 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
     }
   }
 
-  updateAudio(entity, json.props)
+  updateAudio(entity, props)
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
@@ -85,7 +86,7 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
   const component = getComponent(entity, AudioComponent)
   let audioTypeChanged = false
 
-  if (properties.hasOwnProperty('audioType')) {
+  if (typeof properties.audioType !== 'undefined') {
     if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
     obj3d.userData.audioEl =
       component.audioType === AudioType.Stereo
@@ -112,23 +113,23 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('volume')) {
+  if (typeof properties.volume !== 'undefined') {
     obj3d.userData.audioEl.setVolume(component.volume)
   }
 
   if (component.audioType === AudioType.Positional) {
     const audioEl = obj3d.userData.audioEl as PositionalAudio
-    if (audioTypeChanged || properties.hasOwnProperty('distanceModel'))
+    if (audioTypeChanged || typeof properties.distanceModel !== 'undefined')
       audioEl.setDistanceModel(component.distanceModel)
-    if (audioTypeChanged || properties.hasOwnProperty('rolloffFactor'))
+    if (audioTypeChanged || typeof properties.rolloffFactor !== 'undefined')
       audioEl.setRolloffFactor(component.rolloffFactor)
-    if (audioTypeChanged || properties.hasOwnProperty('refDistance')) audioEl.setRefDistance(component.refDistance)
-    if (audioTypeChanged || properties.hasOwnProperty('maxDistance')) audioEl.setMaxDistance(component.maxDistance)
-    if (audioTypeChanged || properties.hasOwnProperty('coneInnerAngle'))
+    if (audioTypeChanged || typeof properties.refDistance !== 'undefined') audioEl.setRefDistance(component.refDistance)
+    if (audioTypeChanged || typeof properties.maxDistance !== 'undefined') audioEl.setMaxDistance(component.maxDistance)
+    if (audioTypeChanged || typeof properties.coneInnerAngle !== 'undefined')
       audioEl.panner.coneInnerAngle = component.coneInnerAngle
-    if (audioTypeChanged || properties.hasOwnProperty('coneOuterAngle'))
+    if (audioTypeChanged || typeof properties.coneOuterAngle !== 'undefined')
       audioEl.panner.coneOuterAngle = component.coneOuterAngle
-    if (audioTypeChanged || properties.hasOwnProperty('coneOuterGain'))
+    if (audioTypeChanged || typeof properties.coneOuterGain !== 'undefined')
       audioEl.panner.coneOuterGain = component.coneOuterGain
   }
 }
@@ -172,4 +173,19 @@ export const toggleAudio = (entity: Entity) => {
 
   if (audioEl.isPlaying) audioEl.stop()
   else audioEl.play()
+}
+
+const parseAudioProperties = (props): AudioComponentType => {
+  return {
+    audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
+    volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
+    audioType: props.audioType ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType,
+    distanceModel: props.distanceModel ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel,
+    rolloffFactor: props.rolloffFactor ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.rolloffFactor,
+    refDistance: props.refDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.refDistance,
+    maxDistance: props.maxDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.maxDistance,
+    coneInnerAngle: props.coneInnerAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneInnerAngle,
+    coneOuterAngle: props.coneOuterAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterAngle,
+    coneOuterGain: props.coneOuterGain ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterGain
+  }
 }
