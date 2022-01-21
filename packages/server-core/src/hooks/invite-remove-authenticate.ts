@@ -25,9 +25,9 @@ export default () => {
       }
     }
     if (
-      invite.userId !== loggedInUser?.userId &&
-      invite.inviteeId !== loggedInUser?.userId &&
-      inviteIdentityProviderUser !== loggedInUser?.userId
+      invite.userId !== loggedInUser?.id &&
+      invite.inviteeId !== loggedInUser?.id &&
+      inviteIdentityProviderUser !== loggedInUser?.id
     ) {
       throw new BadRequest('Not the sender or recipient of this invite')
     }

@@ -90,7 +90,6 @@ export default () => {
       const { app, result, params } = context
 
       let token = ''
-      let identityProvider
       if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
         token = result.token
       } else {
@@ -99,8 +98,7 @@ export default () => {
       const inviteType = result.inviteType
       const targetObjectId = result.targetObjectId
 
-      const authProvider = extractLoggedInUserFromParams(params)
-      const authUser = await app.service('user').get(authProvider.userId)
+      const authUser = extractLoggedInUserFromParams(params)
 
       if (result.identityProviderType === 'email') {
         await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
