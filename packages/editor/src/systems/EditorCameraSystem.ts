@@ -48,12 +48,18 @@ export default async function GizmoSystem(world: World): Promise<System> {
           distance = 10
         } else {
           box.makeEmpty()
-          for (const object of cameraComponent.focusedObjects) box.expandByObject(object)
+          for (const object of cameraComponent.focusedObjects) {
+            const obj3d = getComponent(object.entity, Object3DComponent)?.value
+            if (obj3d) box.expandByObject(obj3d)
+          }
 
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
-            cameraComponent.center.setFromMatrixPosition(cameraComponent.focusedObjects[0].matrixWorld)
-            distance = 0.1
+            const obj3d = getComponent(cameraComponent.focusedObjects[0].entity, Object3DComponent)?.value
+            if (obj3d) {
+              cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
+              distance = 0.1
+            }
           } else {
             box.getCenter(cameraComponent.center)
             distance = box.getBoundingSphere(sphere).radius

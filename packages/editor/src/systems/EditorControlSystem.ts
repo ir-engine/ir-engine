@@ -415,10 +415,12 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           if (editorControlComponent.selectStartPosition.distanceTo(selectEndPosition) < SELECT_SENSITIVITY) {
             const result = getIntersectingNodeOnScreen(raycaster, selectEndPosition)
             if (result) {
-              CommandManager.instance.executeCommandWithHistory(
-                shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                result.node!
-              )
+              if (result.node) {
+                CommandManager.instance.executeCommandWithHistory(
+                  shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
+                  result.node
+                )
+              }
             } else if (!shift) {
               CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
             }
@@ -493,7 +495,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
-        if (result) {
+        if (result && result.node) {
           cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true
