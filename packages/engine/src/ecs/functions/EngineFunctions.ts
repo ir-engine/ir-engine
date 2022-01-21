@@ -53,7 +53,6 @@ export async function reset(): Promise<void> {
     Engine.scene = null!
   }
   Engine.sceneLoaded = false
-  Engine.isLoading = false
 
   Engine.camera = null!
 
@@ -78,7 +77,6 @@ export type UnloadSceneParams = {
 export const unloadScene = async (params: UnloadSceneParams = {}): Promise<void> => {
   Engine.engineTimer.stop()
   Engine.sceneLoaded = false
-  Engine.isLoading = false
 
   const world = useWorld()
   const entitiesToRemove = [] as Entity[]

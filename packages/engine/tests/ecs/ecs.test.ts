@@ -1,6 +1,6 @@
 import assert from 'assert'
 import { Engine } from '../../src/ecs/classes/Engine'
-import { System } from '../../src/ecs/classes/System'
+
 import { createWorld, World } from '../../src/ecs/classes/World'
 import { addComponent, createMappedComponent, defineQuery, getComponent, removeComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { registerSystem, SystemModulePromise } from '../../src/ecs/functions/SystemFunctions'
@@ -27,7 +27,7 @@ const MockSystemModulePromise = async () => {
 
 const MockSystemState = new Map<World, Array<number>>()
 
-async function MockSystemInitialiser(world: World, args: {}): Promise<System> {
+async function MockSystemInitialiser(world: World, args: {}) {
   const mockQuery = defineQuery([MockComponent])
   MockSystemState.set(world, [])
 

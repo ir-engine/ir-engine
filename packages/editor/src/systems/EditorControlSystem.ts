@@ -1,5 +1,4 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -47,7 +46,7 @@ const SELECT_SENSITIVITY = 0.001
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function EditorControlSystem(_: World): Promise<System> {
+export default async function EditorControlSystem(_: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
 
   const raycaster = new Raycaster()
