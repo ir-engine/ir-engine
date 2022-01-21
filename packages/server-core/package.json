@@ -108,7 +108,7 @@
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.31.1",
-    "simple-git": "2.48.0",
+    "simple-git": "3.0.3",
     "trace-unhandled": "2.0.1",
     "typescript": "4.5.4"
   },
