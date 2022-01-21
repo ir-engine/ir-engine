@@ -27,7 +27,7 @@ export class Channel extends Service {
     const skip = query?.skip || 0
     const limit = query?.limit || 10
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
+    const userId = loggedInUser.id
     const Model = (this.app.service('channel') as any).Model
     try {
       const subParams = {

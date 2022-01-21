@@ -1,14 +1,12 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import { disallow } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [],
     get: [],
     create: [
@@ -18,7 +16,7 @@ export default {
         const locationAdmins = await app.service('location-admin').find({
           query: {
             locationId: data.locationId,
-            userId: loggedInUser.userId
+            userId: loggedInUser.id
           }
         })
         if (locationAdmins.total === 0) {

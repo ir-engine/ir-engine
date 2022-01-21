@@ -63,7 +63,7 @@ export class Party extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params)
       const partyUserResult = await this.app.service('party-user').find({
         query: {
-          userId: loggedInUser.userId
+          userId: loggedInUser.id
         }
       })
 

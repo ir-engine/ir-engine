@@ -26,7 +26,7 @@ export default () => {
         if (params.query == null) params.query = {}
         params.query.partyId = partyId
       }
-      const userId = path === 'party' ? loggedInUser?.userId : params.query?.userId || loggedInUser?.userId || partyId
+      const userId = path === 'party' ? loggedInUser?.id : params.query?.userId || loggedInUser?.id || partyId
       const paramsCopy = _.cloneDeep(params)
       const partyResult = await app.service('party').find(paramsCopy.query)
       const party = partyResult.data[0]
@@ -36,7 +36,7 @@ export default () => {
         if (isAdmin != null) {
           data.isOwner = 1
         }
-        await app.service('user').patch(loggedInUser.userId, {
+        await app.service('user').patch(loggedInUser.id, {
           partyId: data.partyId
         })
       } else {
@@ -62,7 +62,7 @@ export default () => {
               params.partyUsersRemoved !== true &&
               partyUser.isOwner !== true &&
               partyUser.isOwner !== 1 &&
-              partyUser.userId !== loggedInUser.userId
+              partyUser.userId !== loggedInUser.id
             ) {
               throw new Forbidden('You must be the owner of this party to perform that action')
             }
