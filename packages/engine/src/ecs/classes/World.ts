@@ -129,7 +129,7 @@ export class World {
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
   /** Tree of entity holding parent child relation between entities. */
-  entityTree: EntityTree
+  entityTree = new EntityTree()
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
