@@ -15,6 +15,8 @@ import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/Sim
 import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { isNode } from '../../common/functions/getEnvironment'
+import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -74,6 +76,10 @@ const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
+
+  if (isNode) {
+    await loadDRACODecoder()
+  }
 
   return () => {
     for (const entity of sceneObjectQuery.enter()) {

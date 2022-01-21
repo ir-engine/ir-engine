@@ -16,10 +16,10 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Quaternion, Vector3 } from 'three'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import {
-  configureClient,
   createEngine,
   initializeBrowser,
   initializeCoreSystems,
+  initializeProjectSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
@@ -27,6 +27,9 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 import matches from 'ts-matches'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Downgraded } from '@hookstate/core'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -103,13 +106,17 @@ export const initEngine = async () => {
   Network.instance.transportHandler = new ClientTransportHandler()
   createEngine()
   initializeBrowser()
-  configureClient()
   await initializeCoreSystems(injectedSystems)
 }
 
-export const initClient = async () => {
+export const initClient = async (project) => {
   await initializeRealtimeSystems()
   await initializeSceneSystems()
+
+  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
+  const systems = await getSystemsFromSceneData(project, sceneData, true)
+  const projects = accessProjectState().projects.value.map((project) => project.name)
+  await initializeProjectSystems(projects, systems)
 
   // add extraneous receptors
   useWorld().receptors.push((action) => {
@@ -126,11 +133,8 @@ export const initClient = async () => {
   Engine.isReady = true
 }
 
-export const loadLocation = async (project: string, sceneData: SceneJson): Promise<any> => {
+export const loadLocation = async (): Promise<any> => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
-
-  // const packs = await getSystemsFromSceneData(project, sceneData, true)
-  // await Engine.currentWorld.initSystems(packs)
 
   const dispatch = useDispatch()
 
@@ -150,6 +154,7 @@ export const loadLocation = async (project: string, sceneData: SceneJson): Promi
   }
   Engine.currentWorld.receptors.push(receptor)
 
+  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
   loadSceneFromJSON(sceneData).then(() => {
     dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining world...'))
 

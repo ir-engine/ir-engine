@@ -16,7 +16,6 @@ import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFu
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -57,8 +56,8 @@ export const LoadEngineWithScene = (props: Props) => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
     if (!clientInitialized && Engine.isInitialized && projectState.projects.value.length > 0) {
       setClientInitialized(true)
-      const projects = projectState.projects.value.map((project) => project.name)
-      initClient().then(() => {
+      const [project] = locationState.currentLocation.location.sceneId.value.split('/')
+      initClient(project).then(() => {
         setClientReady(true)
       })
     }
@@ -80,8 +79,7 @@ export const LoadEngineWithScene = (props: Props) => {
   useEffect(() => {
     if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
       dispatch(EngineActions.setTeleporting(null!))
-      const [project] = locationState.currentLocation.location.sceneId.value.split('/')
-      loadLocation(project, sceneState.currentScene.scene.attach(Downgraded).value!)
+      loadLocation()
     }
   }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
 

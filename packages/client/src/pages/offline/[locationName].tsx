@@ -1,6 +1,6 @@
 import React from 'react'
-import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
-import { LoadLocationScene } from '../../components/World/LoadLocationScene'
+import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
+import { LoadLocationScene } from '@xrengine/client-core/src/components/World/LoadLocationScene'
 
 const LocationPage = (props) => {
   return (

@@ -195,6 +195,8 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.updateWorldMatrix(false, true)
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))

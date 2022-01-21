@@ -34,21 +34,21 @@ import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFu
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
 import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+// threejs overrides
 
-/**
- * GETTING STARTED
- *
- * default init pipeline:
- *  browser:
- *    createEngine()
- *    initializeBrowser()
- *    initializeCoreSystems()
- *    initializeSceneSystems()
- *    initializeWorldSystems()
- *
- *
- *
- */
+// @ts-ignore
+Quaternion.prototype.toJSON = function () {
+  return { x: this._x, y: this._y, z: this._z, w: this._w }
+}
+
+// @ts-ignore
+Euler.prototype.toJSON = function () {
+  return { x: this._x, y: this._y, z: this._z, order: this._order }
+}
+
+Mesh.prototype.raycast = acceleratedRaycast
+BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
+BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
 /**
  * initializeBrowser
@@ -56,9 +56,12 @@ import { incomingNetworkReceptor } from './networking/functions/incomingNetworkR
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=1106389
-  Engine.audioListener = new AudioListener()
   Engine.publicPath = location.origin
+  Engine.audioListener = new PositionalAudioListener()
+  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  Engine.camera.layers.set(ObjectLayers.Render)
+  Engine.camera.add(Engine.audioListener)
+  Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -72,20 +75,9 @@ export const initializeBrowser = () => {
 
   Engine.isHMD = /Oculus/i.test(navigator.userAgent) // TODO: more HMDs;
 
+  globalThis.botHooks = BotHookFunctions
+
   const joinedWorld = () => {
-    // const canvas = document.createElement('canvas')
-    // const gl = canvas.getContext('webgl')!
-    // const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
-    // const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-    // const enableRenderer = !/SwiftShader/.test(renderer)
-    // canvas.remove()
-    // if (!enableRenderer)
-    //   dispatchLocal(
-    //     EngineActions.browserNotSupported(
-    //       'Your brower does not support webgl,or it disable webgl,Please enable webgl'
-    //     ) as any
-    //   )
-    // dispatchLocal(EngineActions.enableScene({ renderer: enableRenderer, physics: true }) as any)
     Engine.hasJoinedWorld = true
   }
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
@@ -97,6 +89,10 @@ export const initializeBrowser = () => {
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
+
+  receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+    Engine.userId = action.id
+  })
 }
 
 const setupInitialClickListener = () => {
@@ -122,48 +118,7 @@ export const initializeNode = () => {
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 }
 
-/**
- * configures engine for a realtime networked location
- */
-export const configureClient = async () => {
-  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.set(ObjectLayers.Render)
-  Engine.scene.add(Engine.camera)
-  Engine.camera.add(Engine.audioListener)
-  receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
-    Engine.userId = action.id
-  })
-
-  globalThis.botHooks = BotHookFunctions
-
-  // await registerClientSystems()
-}
-
-/**
- * configures engine for a non-realtime editor
- */
-export const configureEditor = async () => {
-  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.enable(ObjectLayers.Scene)
-  Engine.camera.name = 'Camera'
-  Engine.audioListener = new PositionalAudioListener()
-  Engine.camera.add(Engine.audioListener)
-
-  // await registerEditorSystems()
-}
-
-export const configureServer = async (isMediaServer = false) => {
-  if (!isMediaServer) {
-    await loadDRACODecoder()
-
-    // await registerServerSystems()
-  } else {
-    // await registerMediaServerSystems()
-  }
-}
-
 export const createEngine = () => {
-  console.log('createEngine')
   const world = createWorld()
   Engine.currentWorld = world
   Engine.scene = new Scene()
@@ -179,7 +134,6 @@ export const createEngine = () => {
 }
 
 export const initializeMediaServerSystems = async () => {
-  console.log('initializeMediaServerSystems')
   const coreSystems: SystemModuleType<any>[] = []
   coreSystems.push(
     {
@@ -210,9 +164,8 @@ export const initializeMediaServerSystems = async () => {
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
-  console.log('initializeCoreSystems')
-  const coreSystems: SystemModuleType<any>[] = []
-  coreSystems.push(
+  const systemsToLoad: SystemModuleType<any>[] = []
+  systemsToLoad.push(
     {
       type: SystemUpdateType.UPDATE,
       systemModulePromise: import('./ecs/functions/FixedPipelineSystem'),
@@ -237,7 +190,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   )
 
   if (isClient) {
-    coreSystems.push(
+    systemsToLoad.push(
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./xrui/systems/XRUISystem')
@@ -257,11 +210,11 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  coreSystems.push(...systems)
+  systemsToLoad.push(...systems)
 
   const world = useWorld()
   await world.physics.createScene()
-  await initSystems(world, coreSystems)
+  await initSystems(world, systemsToLoad)
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
@@ -281,14 +234,12 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
  */
 
 export const initializeSceneSystems = async () => {
-  console.log('initializeSceneSystems')
-
   const world = useWorld()
   world.receptors.push(incomingNetworkReceptor)
 
-  const coreSystems: SystemModuleType<any>[] = []
+  const systemsToLoad: SystemModuleType<any>[] = []
 
-  coreSystems.push(
+  systemsToLoad.push(
     {
       type: SystemUpdateType.FIXED,
       systemModulePromise: import('./avatar/AvatarSpawnSystem')
@@ -311,7 +262,7 @@ export const initializeSceneSystems = async () => {
     }
   )
   if (isClient) {
-    coreSystems.push(
+    systemsToLoad.push(
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./navigation/systems/AutopilotSystem')
@@ -371,22 +322,21 @@ export const initializeSceneSystems = async () => {
     )
   }
 
-  await initSystems(world, coreSystems)
+  await initSystems(world, systemsToLoad)
 }
 
 export const initializeRealtimeSystems = async (media = true, pose = true) => {
-  console.log('initializeRealtimeSystems')
-  const coreSystems: SystemModuleType<any>[] = []
+  const systemsToLoad: SystemModuleType<any>[] = []
 
   if (media) {
-    coreSystems.push({
+    systemsToLoad.push({
       type: SystemUpdateType.PRE_RENDER,
       systemModulePromise: import('./networking/systems/MediaStreamSystem')
     })
   }
 
   if (pose) {
-    coreSystems.push(
+    systemsToLoad.push(
       {
         type: SystemUpdateType.FIXED_EARLY,
         systemModulePromise: import('./networking/systems/IncomingNetworkSystem')
@@ -399,14 +349,14 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
   }
 
   const world = useWorld()
-  await initSystems(world, coreSystems)
+  await initSystems(world, systemsToLoad)
 }
 
-// for (const system of initOptions.systems || []) {
-//   registerSystemWithArgs(system.type, system.systemModulePromise, system.args, system.sceneSystem)
-// }
-// const world = useWorld()
-// await loadEngineInjection(world, initOptions.projects ?? [])
+export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
+  const world = useWorld()
+  await initSystems(world, systems)
+  await loadEngineInjection(world, projects)
+}
 
 export const shutdownEngine = async () => {
   removeClientInputListeners()
@@ -416,19 +366,3 @@ export const shutdownEngine = async () => {
 
   await reset()
 }
-
-// threejs overrides
-
-// @ts-ignore
-Quaternion.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z, w: this._w }
-}
-
-// @ts-ignore
-Euler.prototype.toJSON = function () {
-  return { x: this._x, y: this._y, z: this._z, order: this._order }
-}
-
-Mesh.prototype.raycast = acceleratedRaycast
-BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
-BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
