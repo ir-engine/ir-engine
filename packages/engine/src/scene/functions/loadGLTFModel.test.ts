@@ -27,8 +27,6 @@ describe('loadGLTFModel', () => {
     const mockComponentData = { src: 'https://mock.site/asset.glb' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
 
-    // await initializeEngine(engineTestSetup)
-
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1, 1, 1), })
     const entityName = 'entity name'

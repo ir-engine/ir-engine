@@ -5,9 +5,7 @@ import createModel from './project.model'
 import projectDocs from './project.docs'
 import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
-import * as authentication from '@feathersjs/authentication'
-
-const { authenticate } = authentication.hooks
+import authenticate from '../../hooks/authenticate'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -40,7 +38,7 @@ export default (app: Application): void => {
 
   app.service('project-build').hooks({
     before: {
-      patch: [authenticate('jwt'), restrictUserRole('admin')]
+      patch: [authenticate(), restrictUserRole('admin')]
     }
   })
 

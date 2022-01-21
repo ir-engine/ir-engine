@@ -6,7 +6,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { createBody } from '../../../physics/functions/createCollider'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -21,7 +21,10 @@ import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physic
 
 export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
 export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
-  isTrigger: false
+  isTrigger: false,
+  removeMesh: false,
+  collisionLayer: DefaultCollisionMask,
+  collisionMask: CollisionGroups.Default
 }
 
 export const deserializeBoxCollider: ComponentDeserializeFunction = (
@@ -29,26 +32,21 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   json: ComponentJson<BoxColliderProps>
 ): void => {
   const world = useWorld()
-  const boxColliderProps = json.props
+  const boxColliderProps = parseBoxColliderProperties(json.props)
   const transform = getComponent(entity, TransformComponent)
 
   const shape = world.physics.createShape(
     new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
     undefined,
-    {
-      ...(boxColliderProps as any),
-      collisionLayer: DefaultCollisionMask,
-      collisionMask: CollisionGroups.Default
-    }
+    boxColliderProps as any
   )
 
   const body = createBody(entity, { bodyType: 0 }, [shape])
-  console.log('body', body)
   addComponent(entity, ColliderComponent, { body })
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
+    if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
   } else {
     if (
       boxColliderProps.removeMesh === 'true' ||
@@ -64,7 +62,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 }
 
-export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: any) => {
+export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
   const component = getComponent(entity, ColliderComponent)
   const transform = getComponent(entity, TransformComponent)
 
@@ -97,5 +95,14 @@ export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
       // collisionLayer: string | number
       // collisionMask: string | number
     }
+  }
+}
+
+const parseBoxColliderProperties = (props): BoxColliderProps => {
+  return {
+    isTrigger: props.isTrigger ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.isTrigger,
+    removeMesh: props.removeMesh ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.removeMesh,
+    collisionLayer: props.collisionLayer ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.collisionLayer,
+    collisionMask: props.collisionMask ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.collisionMask
   }
 }

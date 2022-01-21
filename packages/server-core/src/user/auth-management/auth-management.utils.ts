@@ -75,5 +75,5 @@ export const sendSms = async (app: Application, sms: any): Promise<void> => {
  * @author Vyacheslav Solovjov
  */
 export const extractLoggedInUserFromParams = (params: Params): any => {
-  return params[config.authentication.entity]
+  return params.user
 }

@@ -24,6 +24,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     Network.instance.transportHandler = new TestNetworkTransportHandler()
 		world = createWorld()
 		Engine.currentWorld = world
+		Engine.isInitialized = true
 	})
 
   it('should serialize and send poses', async () => {

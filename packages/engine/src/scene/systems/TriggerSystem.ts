@@ -3,7 +3,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
-import { System } from '../../ecs/classes/System'
 import { PortalComponent } from '../components/PortalComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
@@ -12,7 +11,7 @@ import { EngineActions } from '../../ecs/classes/EngineService'
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 
-export default async function TriggerSystem(world: World): Promise<System> {
+export default async function TriggerSystem(world: World) {
   const triggerCollidedQuery = defineQuery([TriggerDetectedComponent])
   const sceneEntityCaches: any = []
 
