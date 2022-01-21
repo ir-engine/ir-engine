@@ -8,7 +8,7 @@ export default () => {
     const { params, app } = context
     console.log(params.query)
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
+    const userId = loggedInUser.id
     if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')
     }

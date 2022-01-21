@@ -4,6 +4,7 @@ import { LocationBan } from './LocationBan'
 import { Party } from './Party'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
+import { UserApiKey } from './UserApiKey'
 
 export interface UserSetting {
   id: string
@@ -35,6 +36,7 @@ export interface User {
   inviteCode?: string
   party?: Party
   scopes?: UserScope[]
+  apiKey: UserApiKey
 }
 
 export const UserSeed: User = {
@@ -42,6 +44,11 @@ export const UserSeed: User = {
   name: '',
   userRole: '',
   avatarId: '',
+  apiKey: {
+    id: '',
+    token: '',
+    userId: '' as UserId
+  },
   identityProviders: [],
   locationAdmins: []
 }
@@ -66,6 +73,12 @@ export function resolveUser(user: any): User {
       locationBans: user.location_bans
     }
   }
+  if (user?.user_api_key && user.user_api_key.id) {
+    returned = {
+      ...returned,
+      apiKey: user.user_api_key
+    }
+  }
 
   // console.log('Returned user:')
   // console.log(returned)
@@ -81,7 +94,8 @@ export function resolveWalletUser(credentials: any): User {
     avatarId: credentials.user.id,
     identityProviders: [],
     locationAdmins: [],
-    avatarUrl: credentials.user.icon
+    avatarUrl: credentials.user.icon,
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
   }
 
   return returned
