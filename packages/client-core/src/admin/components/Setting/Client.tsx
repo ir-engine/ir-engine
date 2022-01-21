@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { useStyles } from './styles'
-import { Paper, Button, Typography } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import { useClientSettingState } from '../../services/Setting/ClientSettingService'
-import { ClientSettingService } from '../../services/Setting/ClientSettingService'
+import Switch from '@mui/material/Switch'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
+import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
+import { useStyles } from './styles'
 
 interface clientProps {}
 
@@ -190,11 +189,11 @@ const Client = (props: clientProps) => {
             value={clientSetting?.releaseName || ''}
           />
         </Paper>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp;&nbsp;
-        <Button variant="contained" type="submit" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
           Save
         </Button>
       </form>

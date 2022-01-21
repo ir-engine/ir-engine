@@ -1,5 +1,4 @@
 import { Theme } from '@mui/material/styles'
-
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
@@ -34,9 +33,19 @@ export const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'center',
       background: '#43484F',
       color: '#FFF',
-      width: '310px',
-      // height: '80vh',
+      maxWidth: '310px',
       position: 'fixed',
+      padding: '2px 18px 2px 18px'
+    },
+    hoverSettings: {
+      display: 'flex',
+      zIndex: 1,
+      flexDirection: 'column',
+      textAlign: 'center',
+      background: '#43484F',
+      color: '#FFF',
+      maxWidth: '310px',
+      position: 'absolute',
       padding: '2px 18px 2px 18px'
     },
     settingsHeading: {
@@ -45,8 +54,14 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginBottom: '10px',
       fontWeight: 300,
       lineHeight: 1.7,
-      fontSize: '20px',
-      Border: '2px solid #FFF'
+      fontSize: '20px'
+    },
+    hoverSettingsHeading: {
+      color: 'orange',
+      textAlign: 'center',
+      fontWeight: 300,
+      lineHeight: 1.7,
+      fontSize: '20px'
     },
     settingContainer: {
       background: '#343b41',
@@ -61,9 +76,11 @@ export const useStyles = makeStyles((theme: Theme) =>
     input: {
       marginLeft: theme.spacing(1),
       flex: 1,
+      width: '100%',
       color: '#f1f1f1'
     },
     createInput: {
+      width: '100%',
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
@@ -85,7 +102,11 @@ export const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: theme.spacing(4)
     },
     clientSettingsContainer: {
-      padding: '50px'
+      padding: '50px',
+
+      [theme.breakpoints.down('lg')]: {
+        padding: '5px'
+      }
     },
     Paper: {
       padding: '0px 10px 6px 10px',
