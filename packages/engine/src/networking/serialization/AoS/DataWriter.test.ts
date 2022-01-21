@@ -1,13 +1,23 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { strictEqual } from 'assert'
 import { Entity } from '../../../ecs/classes/Entity'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { TransformComponent, Vector3Schema } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
 import { createDataWriter, writeComponent, writeEntities, writeEntity, writePosition, writeRotation, writeTransform, writeVector3 } from "./DataWriter"
 import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor } from '../ViewCursor'
 import { Vector3SoA } from '../Utils'
+import { createWorld } from '../../../ecs/classes/World'
+import { addComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Quaternion, Vector3 } from 'three'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { Engine } from '../../../ecs/classes/Engine'
+import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
 
 describe('AoS DataWriter', () => {
+
+  before(() => {
+    Engine.currentWorld = createWorld()
+  })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
@@ -60,7 +70,7 @@ describe('AoS DataWriter', () => {
     TransformComponent.position.y[entity] = y
     TransformComponent.position.z[entity] = z
     
-    writeVector3(TransformComponent.position as unknown as Vector3SoA)(writeView, entity)
+    writeVector3(TransformComponent.position)(writeView, entity)
 
     const testView = createViewCursor(writeView.buffer)
 
@@ -78,7 +88,7 @@ describe('AoS DataWriter', () => {
     TransformComponent.position.x[entity]++
     TransformComponent.position.z[entity]++
 
-    writeVector3(TransformComponent.position as unknown as Vector3SoA)(writeView, entity)
+    writeVector3(TransformComponent.position)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
 
@@ -118,10 +128,11 @@ describe('AoS DataWriter', () => {
     const writeView = createViewCursor()
     const entity = 1234 as Entity
     
-    const [x, y, z] = [1.5, 2.5, 3.5]
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     TransformComponent.rotation.x[entity] = x
     TransformComponent.rotation.y[entity] = y
     TransformComponent.rotation.z[entity] = z
+    TransformComponent.rotation.w[entity] = w
     
     writeRotation(writeView, entity)
 
@@ -129,25 +140,26 @@ describe('AoS DataWriter', () => {
 
     strictEqual(writeView.cursor, 
       (1 * Uint8Array.BYTES_PER_ELEMENT) + 
-      (3 * Float32Array.BYTES_PER_ELEMENT))
+      (4 * Float32Array.BYTES_PER_ELEMENT))
 
-    strictEqual(readUint8(readView), 0b111)
+    strictEqual(readUint8(readView), 0b1111)
     strictEqual(readFloat32(readView), x)
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat32(readView), w)
   })
   
   it('should writeTransform', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
-    
-    const [x, y, z] = [1.5, 2.5, 3.5]
-    TransformComponent.position.x[entity] = x
-    TransformComponent.position.y[entity] = y
-    TransformComponent.position.z[entity] = z
-    TransformComponent.rotation.x[entity] = x
-    TransformComponent.rotation.y[entity] = y
-    TransformComponent.rotation.z[entity] = z
+    const entity = createEntity()
+
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
+      scale: new Vector3(1,1,1)
+    })
     
     writeTransform(writeView, entity)
 
@@ -155,33 +167,36 @@ describe('AoS DataWriter', () => {
 
     strictEqual(writeView.cursor, 
       (3 * Uint8Array.BYTES_PER_ELEMENT) + 
-      (6 * Float32Array.BYTES_PER_ELEMENT))
+      (7 * Float32Array.BYTES_PER_ELEMENT))
     
     strictEqual(readUint8(readView), 0b11)
 
     strictEqual(readUint8(readView), 0b111)
+
     strictEqual(readFloat32(readView), x)
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
   
-    strictEqual(readUint8(readView), 0b111)
+    strictEqual(readUint8(readView), 0b1111)
     strictEqual(readFloat32(readView), x)
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat32(readView), w)
       
   })
   
-  it('should writeEntity', () => {
+  it('should writeEntity with only TransformComponent', () => {
     const writeView = createViewCursor()
-    const entity = 1234 as Entity
+    const entity = createEntity()
     
-    const [x, y, z] = [1.5, 2.5, 3.5]
-    TransformComponent.position.x[entity] = x
-    TransformComponent.position.y[entity] = y
-    TransformComponent.position.z[entity] = z
-    TransformComponent.rotation.x[entity] = x
-    TransformComponent.rotation.y[entity] = y
-    TransformComponent.rotation.z[entity] = z
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
+      scale: new Vector3(1,1,1)
+    })
+    
     NetworkObjectComponent.networkId[entity] = 999
     
     writeEntity(writeView, entity)
@@ -190,49 +205,62 @@ describe('AoS DataWriter', () => {
 
     strictEqual(writeView.cursor, 
       (1 * Uint32Array.BYTES_PER_ELEMENT) + 
-      (3 * Uint8Array.BYTES_PER_ELEMENT) + 
-      (6 * Float32Array.BYTES_PER_ELEMENT))
+      (4 * Uint8Array.BYTES_PER_ELEMENT) + 
+      (7 * Float32Array.BYTES_PER_ELEMENT))
     
+    // read networkId
     strictEqual(readUint32(readView), 999)
 
+    // read writeEntity changeMask (only reading TransformComponent)
+    strictEqual(readUint8(readView), 0b01)
+
+    // read writeTransform changeMask
     strictEqual(readUint8(readView), 0b11)
 
+    // read writePosition changeMask
     strictEqual(readUint8(readView), 0b111)
+
+    // read position values
     strictEqual(readFloat32(readView), x)
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
   
-    strictEqual(readUint8(readView), 0b111)
+    // read writeRotation changeMask
+    strictEqual(readUint8(readView), 0b1111)
+
+    // read rotation values
     strictEqual(readFloat32(readView), x)
     strictEqual(readFloat32(readView), y)
     strictEqual(readFloat32(readView), z)
+    strictEqual(readFloat32(readView), w)
   })
   
   it('should writeEntities', () => {
     const writeView = createViewCursor()
 
     const n = 5
-    const entities: Entity[] = Array(n).fill(0).map((_,i)=>i as Entity)
+    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
 
-    const [x, y, z] = [1.5, 2.5, 3.5]
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     entities.forEach(entity => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
-      TransformComponent.position.x[entity] = x
-      TransformComponent.position.y[entity] = y
-      TransformComponent.position.z[entity] = z
-      TransformComponent.rotation.x[entity] = x
-      TransformComponent.rotation.y[entity] = y
-      TransformComponent.rotation.z[entity] = z
+      addComponent(entity, TransformComponent, {
+        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
+        scale: new Vector3(1,1,1)
+      })
     })
 
-    const packet = writeEntities(writeView, entities)
+    writeEntities(writeView, entities)
+    const packet = sliceViewCursor(writeView)
+    
     const expectedBytes = (1 * Uint32Array.BYTES_PER_ELEMENT) +
       n * (
         (1 * Uint32Array.BYTES_PER_ELEMENT) +
-        (3 * Uint8Array.BYTES_PER_ELEMENT) + 
-        (6 * Float32Array.BYTES_PER_ELEMENT)
+        (4 * Uint8Array.BYTES_PER_ELEMENT) + 
+        (7 * Float32Array.BYTES_PER_ELEMENT)
       )
 
     strictEqual(writeView.cursor, 0)
@@ -245,74 +273,102 @@ describe('AoS DataWriter', () => {
 
     for (let i = 0; i < count; i++) {
 
-      strictEqual(readUint32(readView), i)
+      // read networkId
+      strictEqual(readUint32(readView), entities[i])
 
+      // read writeEntity changeMask (only reading TransformComponent)
+      strictEqual(readUint8(readView), 0b01)
+
+      // read writeTransform changeMask
       strictEqual(readUint8(readView), 0b11)
 
+      // read writePosition changeMask
       strictEqual(readUint8(readView), 0b111)
+
+      // read position values
       strictEqual(readFloat32(readView), x)
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
     
-      strictEqual(readUint8(readView), 0b111)
+      // read writeRotation changeMask
+      strictEqual(readUint8(readView), 0b1111)
+
+      // read rotation values
       strictEqual(readFloat32(readView), x)
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
+      strictEqual(readFloat32(readView), w)
 
     }
 
   })
   
   it('should createDataWriter', () => {
+    const world = createWorld()
+
     const write = createDataWriter()
 
     const n = 50
-    const entities: Entity[] = Array(n).fill(0).map((_,i)=>i as Entity)
+    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
 
-    const [x, y, z] = [1.5, 2.5, 3.5]
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     entities.forEach(entity => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
-      TransformComponent.position.x[entity] = x
-      TransformComponent.position.y[entity] = y
-      TransformComponent.position.z[entity] = z
-      TransformComponent.rotation.x[entity] = x
-      TransformComponent.rotation.y[entity] = y
-      TransformComponent.rotation.z[entity] = z
+      addComponent(entity, TransformComponent, {
+        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
+        scale: new Vector3(1,1,1)
+      })
     })
 
-    const packet = write(entities)
+    const packet = write(world, entities)
 
-    const expectedBytes = (1 * Uint32Array.BYTES_PER_ELEMENT) +
+    const expectedBytes = (
+      2 * Uint32Array.BYTES_PER_ELEMENT) +
       n * (
         (1 * Uint32Array.BYTES_PER_ELEMENT) +
-        (3 * Uint8Array.BYTES_PER_ELEMENT) + 
-        (6 * Float32Array.BYTES_PER_ELEMENT)
+        (4 * Uint8Array.BYTES_PER_ELEMENT) + 
+        (7 * Float32Array.BYTES_PER_ELEMENT)
       )
 
     strictEqual(packet.byteLength, expectedBytes)
     
     const readView = createViewCursor(packet)
 
+    const tick = readUint32(readView)
+
     const count = readUint32(readView)
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
 
-      strictEqual(readUint32(readView), i)
+      // read networkId
+      strictEqual(readUint32(readView), entities[i])
 
+      // read writeEntity changeMask (only reading TransformComponent)
+      strictEqual(readUint8(readView), 0b01)
+
+      // read writeTransform changeMask
       strictEqual(readUint8(readView), 0b11)
 
+      // read writePosition changeMask
       strictEqual(readUint8(readView), 0b111)
+
+      // read position values
       strictEqual(readFloat32(readView), x)
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
     
-      strictEqual(readUint8(readView), 0b111)
+      // read writeRotation changeMask
+      strictEqual(readUint8(readView), 0b1111)
+
+      // read rotation values
       strictEqual(readFloat32(readView), x)
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
+      strictEqual(readFloat32(readView), w)
 
     }
 

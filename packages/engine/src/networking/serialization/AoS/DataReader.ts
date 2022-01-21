@@ -1,11 +1,13 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
+import { World } from '../../../ecs/classes/World'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { flatten, Vector3SoA } from '../Utils'
+import { XRInputSourceComponent } from '../../../xr/components/XRInputSourceComponent'
+import { flatten, Vector3SoA, Vector4SoA } from '../Utils'
 import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8 } from '../ViewCursor'
 
-export const checkBitflag = (changeMask: number, flag: number) => (changeMask & flag) === flag
+export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
 /**
  * Reads a component dynamically
@@ -38,34 +40,92 @@ export const readComponent = (component: any) => {
 }
 
 export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
-  prop[entity] = readProp(v, prop)
+  if (entity !== undefined) prop[entity] = readProp(v, prop)
+  else readProp(v, prop)
 }
 
 export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
-  if (checkBitflag(changeMask, 0b001)) readComponentProp(v, vector3.x, entity)
-  if (checkBitflag(changeMask, 0b010)) readComponentProp(v, vector3.y, entity)
-  if (checkBitflag(changeMask, 0b100)) readComponentProp(v, vector3.z, entity)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.x, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.y, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.z, entity)
 }
 
-export const readPosition = readVector3(TransformComponent.position as unknown as Vector3SoA)
-export const readRotation = readVector3(TransformComponent.rotation as unknown as Vector3SoA)
+export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
+  const changeMask = readUint8(v)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.x, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.y, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.z, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.w, entity)
+}
+
+export const readPosition = readVector3(TransformComponent.position)
+export const readRotation = readVector4(TransformComponent.rotation)
 
 // export const readTransform = readComponent(TransformComponent)
 export const readTransform = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
-  if (checkBitflag(changeMask, 0b01)) readPosition(v, entity)
-  if (checkBitflag(changeMask, 0b10)) readRotation(v, entity)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
+}
+
+export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
+export const readXRContainerRotation = readVector4(XRInputSourceComponent.container.quaternion)
+
+export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
+export const readXRHeadRotation = readVector4(XRInputSourceComponent.head.quaternion)
+
+export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeft.position)
+export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeft.quaternion)
+
+export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeft.position)
+export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeft.quaternion)
+
+export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRight.position)
+export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRight.quaternion)
+
+export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRight.position)
+export const readXRControllerGripRightRotation = readVector4(XRInputSourceComponent.controllerGripRight.quaternion)
+
+export const readXRInputs = (v: ViewCursor, entity: Entity) => {
+  const changeMask = readUint16(v)
+  let b = 0
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRContainerPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRContainerRotation(v, entity)
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRHeadPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRHeadRotation(v, entity)
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerLeftRotation(v, entity)
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripLeftPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripLeftRotation(v, entity)
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerRightRotation(v, entity)
+
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightPosition(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
 export const readEntity = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>) => {
   const netId = readUint32(v) as NetworkId
   const entity = netIdMap.get(netId)!
-  readTransform(v, entity)
+
+  const changeMask = readUint8(v)
+
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 }
 
-export const readEntities = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>, packet: ArrayBuffer) => {
-  while (v.cursor < packet.byteLength) {
+export const readEntities = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>, byteLength: number) => {
+  while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
       readEntity(v, netIdMap)
@@ -73,9 +133,15 @@ export const readEntities = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>, pa
   }
 }
 
+export const readMetadata = (v: ViewCursor, world: World) => {
+  world.fixedTick = readUint32(v)
+  // const time = readUint32(v)
+}
+
 export const createDataReader = () => {
-  return (packet: ArrayBuffer, netIdMap: Map<NetworkId, Entity>) => {
+  return (world: World, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
-    return readEntities(view, netIdMap, packet)
+    readMetadata(view, world)
+    readEntities(view, world.networkIdMap, packet.byteLength)
   }
 }

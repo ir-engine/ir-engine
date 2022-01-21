@@ -8,6 +8,7 @@ export type Vector4SoA = {
   x: Float32Array
   y: Float32Array
   z: Float32Array
+  w: Float32Array
 }
 
 /**
