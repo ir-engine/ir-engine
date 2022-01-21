@@ -23,7 +23,7 @@ import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function
-  uploadAvatarModel: Function
+  uploadAvatarModel?: Function
   isPublicAvatar?: boolean
 }
 
