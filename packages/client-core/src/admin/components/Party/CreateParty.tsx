@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -24,7 +24,7 @@ const CreateParty = (props: PartyProps) => {
   CreateParty
   const { open, handleClose } = props
 
-  const [state, setState] = useState({
+  const [newParty, setNewParty] = useState({
     location: '',
     instance: '',
     formErrors: {
@@ -47,7 +47,7 @@ const CreateParty = (props: PartyProps) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+    let temp = newParty.formErrors
     switch (name) {
       case 'location':
         temp.location = value.length < 2 ? 'Location is required' : ''
@@ -59,7 +59,7 @@ const CreateParty = (props: PartyProps) => {
       default:
         break
     }
-    setState({ ...state, [name]: value, formErrors: temp })
+    setNewParty({ ...newParty, [name]: value, formErrors: temp })
   }
 
   const data: Instance[] = []
@@ -69,33 +69,36 @@ const CreateParty = (props: PartyProps) => {
 
   const submitParty = async () => {
     const data = {
-      locationId: state.location,
-      instanceId: state.instance
+      locationId: newParty.location,
+      instanceId: newParty.instance
     }
-    let temp = state.formErrors
-    if (!state.location) {
+    let temp = newParty.formErrors
+    if (!newParty.location) {
       temp.location = "Location can't be empty"
     }
-    if (!state.instance) {
+    if (!newParty.instance) {
       temp.instance = "Instance can't be empty"
     }
-    setState({ ...state, formErrors: temp })
+    setNewParty({ ...newParty, formErrors: temp })
 
-    if (validateForm(state, state.formErrors)) {
+    if (validateForm(newParty, newParty.formErrors)) {
       await PartyService.createAdminParty(data)
-      setState({ ...state, location: '', instance: '' })
+      setNewParty({ ...newParty, location: '', instance: '' })
       handleClose()
     }
   }
   return (
     <CreateModel open={open} action="Create" text="party" handleClose={handleClose} submit={submitParty}>
       <label>Instance</label>
-      <Paper component="div" className={state.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}>
+      <Paper
+        component="div"
+        className={newParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
+      >
         <FormControl fullWidth>
           <Select
             labelId="demo-controlled-open-select-label"
             id="demo-controlled-open-select"
-            value={state.instance}
+            value={newParty.instance}
             fullWidth
             displayEmpty
             onChange={handleChange}
@@ -116,12 +119,15 @@ const CreateParty = (props: PartyProps) => {
       </Paper>
 
       <label>Location</label>
-      <Paper component="div" className={state.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}>
+      <Paper
+        component="div"
+        className={newParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+      >
         <FormControl fullWidth>
           <Select
             labelId="demo-controlled-open-select-label"
             id="demo-controlled-open-select"
-            value={state.location}
+            value={newParty.location}
             fullWidth
             displayEmpty
             onChange={handleChange}

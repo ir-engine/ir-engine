@@ -12,7 +12,6 @@ interface Props {
 export default function ViewDrawer(props: Props) {
   const { openView, handleCloseDrawe, children } = props
   const classes = useStyles()
-  console.log(openView)
   return (
     <React.Fragment>
       <Drawer

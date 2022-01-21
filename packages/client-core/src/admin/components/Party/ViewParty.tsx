@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ViewDrawer from '../../common/ViewDrawer'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
@@ -31,8 +31,8 @@ interface Props {
 export default function ViewParty(props: Props) {
   const { openView, closeViewModel, partyAdmin } = props
   const classes = useStyles()
-  const [editMode, setEditMode] = React.useState(false)
-  const [state, setState] = React.useState({
+  const [editMode, setEditMode] = useState(false)
+  const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',
     formErrors: {
@@ -52,19 +52,19 @@ export default function ViewParty(props: Props) {
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
   useFetchAdminLocations(user, adminLocationState, LocationService)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (partyAdmin.instance?.ipAddress) {
-      setState({ ...state, instance: partyAdmin.instance?.id })
+      setUpdateParty({ ...updateParty, instance: partyAdmin.instance?.id })
     }
 
     if (partyAdmin?.location?.name) {
-      setState({ ...state, location: partyAdmin.location?.id })
+      setUpdateParty({ ...updateParty, location: partyAdmin.location?.id })
     }
   }, [partyAdmin])
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+    let temp = updateParty.formErrors
     switch (name) {
       case 'location':
         temp.location = value.length < 2 ? 'Location is required' : ''
@@ -75,7 +75,7 @@ export default function ViewParty(props: Props) {
       default:
         break
     }
-    setState({ ...state, [name]: value, formErrors: temp })
+    setUpdateParty({ ...updateParty, [name]: value, formErrors: temp })
   }
 
   const data: Instance[] = []
@@ -85,21 +85,21 @@ export default function ViewParty(props: Props) {
 
   const handleSubmit = async () => {
     const data = {
-      locationId: state.location,
-      instanceId: state.instance
+      locationId: updateParty.location,
+      instanceId: updateParty.instance
     }
-    let temp = state.formErrors
-    if (!state.location) {
+    let temp = updateParty.formErrors
+    if (!updateParty.location) {
       temp.location = "Location can't be empty"
     }
-    if (!state.instance) {
+    if (!updateParty.instance) {
       temp.instance = "Instance can't be empty"
     }
-    setState({ ...state, formErrors: temp })
+    setUpdateParty({ ...updateParty, formErrors: temp })
 
-    if (validateForm(state, state.formErrors)) {
+    if (validateForm(updateParty, updateParty.formErrors)) {
       await PartyService.patchParty(partyAdmin.id, data)
-      setState({ ...state, location: '', instance: '' })
+      setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModel()
     }
   }
@@ -127,13 +127,13 @@ export default function ViewParty(props: Props) {
             <label>Instance</label>
             <Paper
               component="div"
-              className={state.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
+              className={updateParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
-                  value={state.instance}
+                  value={updateParty.instance}
                   fullWidth
                   displayEmpty
                   onChange={handleChange}
@@ -156,13 +156,13 @@ export default function ViewParty(props: Props) {
             <label>Location</label>
             <Paper
               component="div"
-              className={state.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+              className={updateParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
             >
               <FormControl fullWidth>
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
-                  value={state.location}
+                  value={updateParty.location}
                   fullWidth
                   displayEmpty
                   onChange={handleChange}
