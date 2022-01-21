@@ -114,7 +114,7 @@
     "trace-unhandled": "2.0.1",
     "ts-node": "10.4.0",
     "ts-node-dev": "1.1.8",
-    "typescript": "4.5.2"
+    "typescript": "4.5.5"
   },
   "dependencies": {
     "@xrengine/engine": "^0.4.13",

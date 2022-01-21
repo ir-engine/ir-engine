@@ -110,7 +110,7 @@
     "rollup-plugin-typescript2": "0.31.1",
     "simple-git": "3.0.3",
     "trace-unhandled": "2.0.1",
-    "typescript": "4.5.4"
+    "typescript": "4.5.5"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
