@@ -27,14 +27,6 @@ interface Props {
   isPublicAvatar?: boolean
 }
 
-interface State {
-  selectedFile: any
-  selectedThumbnail: any
-  avatarName: string
-  error: string
-  obj: any
-}
-
 export const AvatarSelectMenu = (props: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
