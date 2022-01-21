@@ -1,4 +1,3 @@
-import { useState } from '@hookstate/core'
 import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
 import TextField from '@mui/material/TextField'
 import {
@@ -13,7 +12,7 @@ import {
 import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as THREE from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
