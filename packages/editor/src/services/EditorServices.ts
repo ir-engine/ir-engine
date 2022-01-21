@@ -14,9 +14,9 @@ const state = createState<EditorServiceStateType>({
 store.receptors.push((action: EditorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'SCENE_LOADED':
+      case 'EDITOR_SCENE_LOADED':
         return s.merge({ sceneName: action.sceneName })
-      case 'PROJECT_LOADED':
+      case 'EDITOR_PROJECT_LOADED':
         return s.merge({ projectName: action.projectName })
     }
   }, action.type)
@@ -33,13 +33,13 @@ export const EditorService = {}
 export const EditorAction = {
   sceneLoaded: (sceneName: string | null) => {
     return {
-      type: 'SCENE_LOADED' as const,
+      type: 'EDITOR_SCENE_LOADED' as const,
       sceneName
     }
   },
   projectLoaded: (projectName: string | null) => {
     return {
-      type: 'PROJECT_LOADED' as const,
+      type: 'EDITOR_PROJECT_LOADED' as const,
       projectName
     }
   }

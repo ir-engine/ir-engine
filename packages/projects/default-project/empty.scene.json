@@ -392,7 +392,7 @@
             "rotation": {
               "x": -0.5235987755982988,
               "y": 0.2617993877991494,
-              "z": -7.183671577107885e-17
+              "z": -8.620405892529462e-17
             },
             "scale": {
               "x": 1,
@@ -425,6 +425,86 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6,
       "name": "directional light"
+    },
+    "92259A14-DC6D-4F92-9F9B-F26DBC0298EF": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0.5,
+              "z": 2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        },
+        {
+          "name": "interactable",
+          "props": {
+            "interactable": false,
+            "interactionType": "infoBox",
+            "interactionText": "Laptop",
+            "interactionThemeIndex": 0,
+            "interactionName": "ThinkPad X1 Carbon Gen 9 Intel (14)",
+            "interactionDescription": "With the Intel® Evo™ platform, the ThinkPad X1 Carbon Gen 9 laptop delivers a powerhouse combination of performance, responsiveness, battery life, and stunning visuals. With up to 11th Gen Intel® Core™ i7 vPro® processors, you can count on an exceptional experience, anywhere.",
+            "interactionImages": [
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/image.jpg?v=1636577558",
+              "https://cdn.shopify.com/s/files/1/0549/6399/4647/products/hqdefault.jpg?v=1636657508"
+            ],
+            "interactionVideos": [
+              "https://cdn.shopify.com/videos/c/vp/5cb590daf49b40e19f3f19ec900c2df6/5cb590daf49b40e19f3f19ec900c2df6.m3u8"
+            ],
+            "interactionUrls": [
+              "https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpade/e15-g2/20td001jus"
+            ],
+            "interactionModels": [
+              "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb"
+            ],
+            "intensity": 5
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7,
+      "name": "Interactable Laptop"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
