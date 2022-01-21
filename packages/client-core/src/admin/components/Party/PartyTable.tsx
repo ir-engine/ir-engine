@@ -56,6 +56,7 @@ const PartyTable = (props: PartyPropsTable) => {
 
   const closeViewModel = () => {
     setViewModel(false)
+    setPartyAdmin('')
   }
 
   const createData = (el: any, id: string, instance: any, location: any): PartyData => {
