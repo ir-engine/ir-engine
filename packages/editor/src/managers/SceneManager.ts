@@ -32,9 +32,8 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import makeRenderer from '../renderer/makeRenderer'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { EngineRenderer, EngineRendererProps } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createGizmoEntity } from '../functions/createGizmoEntity'
@@ -54,8 +53,8 @@ import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLT
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
 import { accessEditorState } from '../services/EditorServices'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -136,15 +135,14 @@ export class SceneManager {
     console.log('initializeRenderer')
     try {
       ControlManager.instance.initControls()
-      applyAndArchiveIncomingAction(
-        useWorld(),
+      dispatchLocal(
         EngineActions.enableScene({
           renderer: true,
           physics: true
         }) as any
       )
 
-      applyAndArchiveIncomingAction(useWorld(), EngineActions.setPhysicsDebug(true) as any)
+      dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
@@ -536,8 +534,8 @@ export class SceneManager {
   }
 }
 
-export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  new EngineRenderer({ canvas: props.canvas, enabled: true })
+export default async function EditorRendererSystem(world: World) {
+  new EngineRenderer()
 
   return () => {
     if (!accessEditorState().sceneName.value || !EngineRenderer.instance || EngineRenderer.instance.disableUpdate)

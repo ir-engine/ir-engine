@@ -1,4 +1,4 @@
-import { Action } from './Action'
+import { Action } from '../../ecs/functions/Action'
 
 /** Interface for the Transport. */
 export interface NetworkTransport {

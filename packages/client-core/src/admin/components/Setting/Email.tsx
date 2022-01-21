@@ -233,11 +233,17 @@ const Email = (props: emailProps) => {
             </Paper>
           </Grid>
         </Grid>
-        <Button variant="outlined" type="submit" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button
+          sx={{ maxWidth: '100%' }}
+          variant="outlined"
+          type="submit"
+          style={{ color: '#fff' }}
+          onClick={handleCancel}
+        >
           Cancel
         </Button>{' '}
         &nbsp;&nbsp;
-        <Button variant="contained" type="submit" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
           save
         </Button>
       </form>

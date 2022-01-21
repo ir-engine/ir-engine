@@ -28,7 +28,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
-import { parseCubemapBakeProperties } from './CubemapBakeFunctions'
+import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
@@ -133,10 +133,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
-            textureLoader.load(options.envMapOrigin, (texture) => {
-              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
-              texture.dispose()
-            })
+            updateCubemapBakeTexture(options)
 
             break
           case CubemapBakeTypes.Realtime:

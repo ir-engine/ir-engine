@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { useStyles } from './styles'
+import { Icon } from '@iconify/react'
+import ExpandLess from '@mui/icons-material/ExpandLess'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { Button, Grid, Paper, Typography } from '@mui/material'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import Collapse from '@mui/material/Collapse'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
 import Switch from '@mui/material/Switch'
-import { Grid, Paper, Button, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
-import IconButton from '@mui/material/IconButton'
-import { Icon } from '@iconify/react'
-import { useServerSettingState } from '../../services/Setting/ServerSettingService'
-import { ServerSettingService } from '../../services/Setting/ServerSettingService'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
+import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
+import { useStyles } from './styles'
 
 interface serverProps {
   fetchServerSettings?: any
@@ -315,11 +314,11 @@ const Server = (props: serverProps) => {
           </Paper>
         </Grid>
       </Grid>
-      <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+      <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
         Cancel
       </Button>
       &nbsp; &nbsp;
-      <Button variant="contained" type="submit">
+      <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit">
         Save
       </Button>
     </form>

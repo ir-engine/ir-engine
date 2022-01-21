@@ -62,7 +62,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   await Promise.all(Engine.sceneLoadPromises)
 
-  await delay(1000)
   Engine.sceneLoaded = true
 
   // Configure CSM

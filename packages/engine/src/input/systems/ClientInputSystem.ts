@@ -6,7 +6,6 @@ import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
@@ -14,7 +13,7 @@ export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: b
   if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
 }
 
-export default async function ClientInputSystem(world: World): Promise<System> {
+export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
   return () => {

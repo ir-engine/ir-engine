@@ -13,7 +13,6 @@ import {
 } from '../../scene/components/AudioSettingsComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioComponentType } from '../components/AudioComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -36,7 +35,7 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 
-export default async function PositionalAudioSystem(world: World): Promise<System> {
+export default async function PositionalAudioSystem(world: World) {
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
   const audioQuery = defineQuery([AudioTagComponent])
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])

@@ -12,7 +12,6 @@ import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
 import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 
@@ -24,7 +23,7 @@ const lightOpacity = (y, r) => {
   return Math.min(1, Math.max(0, 1 - (y - r) * 0.5))
 }
 
-export default async function AvatarLoadingSystem(world: World): Promise<System> {
+export default async function AvatarLoadingSystem(world: World) {
   // precache dissolve effects
   AssetLoader.loadAsync({ url: '/itemLight.png' })
   AssetLoader.loadAsync({ url: '/itemPlate.png' })
