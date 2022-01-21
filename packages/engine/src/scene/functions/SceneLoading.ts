@@ -45,8 +45,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
-  // Create Entity Tree
-  if (!world.entityTree) world.entityTree = new EntityTree()
   const tree = world.entityTree
 
   Object.keys(sceneData.entities).forEach((key) => {
