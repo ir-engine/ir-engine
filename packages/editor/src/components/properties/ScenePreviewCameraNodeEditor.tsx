@@ -1,12 +1,11 @@
 import React from 'react'
 import NodeEditor from './NodeEditor'
+import * as THREE from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { useTranslation } from 'react-i18next'
-import { updateScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import { updateCameraTransform } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import { EditorComponentType } from './Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { CommandManager } from '../../managers/CommandManager'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -20,12 +19,16 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    const obj3d = getComponent(props.node.entity, Object3DComponent).value
+    const updatedTransform = updateCameraTransform(props.node.entity)
+    const position = new THREE.Vector3()
+    const rotation = new THREE.Quaternion()
+    const scale = new THREE.Vector3()
+
+    updatedTransform.decompose(position, rotation, scale)
     CommandManager.instance.setProperty([props.node], {
       component: NameComponent,
-      properties: { position: obj3d.position, rotation: obj3d.rotation }
+      properties: { position, rotation }
     })
-    updateScenePreviewCamera(props.node.entity)
   }
 
   return (
