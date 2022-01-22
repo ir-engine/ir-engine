@@ -23,7 +23,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const position = new Vector3()
     const rotation = new Quaternion()
     const scale = new Vector3()
-    console.log(position, rotation, scale)
+
     updatedTransform.decompose(position, rotation, scale)
     CommandManager.instance.setProperty([props.node], {
       component: TransformComponent,
