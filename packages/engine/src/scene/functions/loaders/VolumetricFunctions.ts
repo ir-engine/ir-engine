@@ -12,10 +12,8 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricVideoComponentType } from '../../components/VolumetricComponent'
 import { isClient } from '../../../common/functions/isClient'
-
 import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { UpdatableComponent } from '../../components/UpdatableComponent'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
@@ -31,13 +29,13 @@ if (isClient) {
   })
 }
 
-const VolumetricsExtensions = ['drcs', 'uvol']
+export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
   paths: [],
   playMode: VolumetricPlayMode.Single
 }
-//https://192.168.0.17:8642/projects/default-project/assets/liam.mp4
+
 export const deserializeVolumetric: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<VolumetricVideoComponentType>
@@ -58,21 +56,9 @@ export const updateVolumetric: ComponentUpdateFunction = async (
 ) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
-  console.log(properties, component)
-  if (typeof properties.paths !== 'undefined') {
+
+  if (typeof properties.paths !== 'undefined' && component.paths.length) {
     try {
-      if (component.paths.length <= 0) return
-
-      // const validPaths = [] as string[]
-      // for (let i = 0; i < component.paths.length; i++) {
-      //   const path = new URL(component.paths[i], window.location.origin).href
-      //   if (path && VolumetricsExtensions.includes(getFileExtension(path))) {
-      //     validPaths.push(path)
-      //   }
-      // }
-
-      // if (validPaths.length <= 0) return
-
       if (obj3d.userData.player) {
         obj3d.userData.player.mesh.removeFromParent()
         obj3d.userData.player.dispose()
@@ -87,8 +73,10 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         onMeshBuffering: (_progress) => {},
         onFrameShow: () => {}
       })
+      console.log(obj3d.userData.player)
 
       obj3d.update = () => {
+        console.log(obj3d.userData.player.hasPlayed)
         if (obj3d.userData.player.hasPlayed) {
           obj3d.userData.player?.handleRender(() => {})
         }
@@ -121,14 +109,6 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
   if (video.userData.player) {
     video.userData.player.dispose()
     delete video.userData.player
-  }
-}
-
-const getFileExtension = (url): string => {
-  try {
-    return new URL(url).pathname.split('.').pop()!
-  } catch (error) {
-    return ''
   }
 }
 
