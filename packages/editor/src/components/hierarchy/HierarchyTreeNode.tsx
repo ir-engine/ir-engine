@@ -193,7 +193,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editor = getNodeEditorsForEntity(node.entityNode.entity)
+  const editors = getNodeEditorsForEntity(node.entityNode.entity)
+  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
@@ -229,7 +230,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             )}
 
             <div className={styles.selectTarget}>
-              {editor ? <editor.iconComponent className={styles.nodeIcon} /> : null}
+              {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
               <div className={styles.labelContainer}>
                 {renaming ? (
                   <div className={styles.renameInputContainer}>
