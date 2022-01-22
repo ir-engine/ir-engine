@@ -370,34 +370,21 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
   })
 }
 
-function getSkeleton(model, isSeparated) {
-  let skeleton
-  if (!isSeparated) {
-    const targetSkinnedMeshes: any[] = []
-    model.traverse((o) => {
-      if (o.isSkinnedMesh) {
-        targetSkinnedMeshes.push(o)
-      }
-    })
-    const skeletonSkinnedMesh = targetSkinnedMeshes.find((o) => o.skeleton.bones[0].parent) || null
-    skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton
-  } else {
-    //TODO: need update for not original structure models
-    // const bones = []
-    // model.traverse((o) => {
-    //   if (o.isSkinnedMesh && o.skeleton && o.skeleton.bones) {
-    //     o.skeleton.bones.forEach(bone => {
-    //       bones.push(bone);
-    //     });
-    //   }
-    // })
-    // skeleton = {bones}
-  }
+function getSkeleton(model) {
+  let skeletonSkinnedMesh
+  model.traverse((o) => {
+    if (o.isSkinnedMesh && o.skeleton && o.skeleton.bones) {
+      const hips = _findHips(o.skeleton)
+      if (hips) skeletonSkinnedMesh = o
+    }
+  })
+  const skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton
   return skeleton
 }
+
 export default function AvatarBoneMatching(model) {
   try {
-    const skeleton = getSkeleton(model, false)
+    const skeleton = getSkeleton(model)
     const Hips = _findHips(skeleton)
     const armature = _findArmature(Hips)
     const tailBones = _getTailBones(skeleton)
@@ -640,7 +627,7 @@ export default function AvatarBoneMatching(model) {
     })
 
     const targetModelBones = {
-      Root: armature,
+      Root: Hips.parent ? Hips.parent : Hips,
       Hips,
       Spine,
       Spine1,

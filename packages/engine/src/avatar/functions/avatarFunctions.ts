@@ -63,7 +63,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
   //Todo: retargeting
-  AvatarBoneMatching(model)
+  const retargeted = AvatarBoneMatching(model)
 
   let hips = model
   model.traverse((o) => {
@@ -99,9 +99,9 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   model.children.forEach((child) => avatar.modelContainer.add(child))
 
   // TODO: find skinned mesh in avatar.modelContainer
-  const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-  const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent!.type !== 'Bone')
-
+  // const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+  // const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent!.type !== 'Bone')
+  const rootBone = retargeted?.Root
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
