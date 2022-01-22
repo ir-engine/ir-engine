@@ -10,10 +10,6 @@ export default (app: Application) => {
       allowNull: false,
       primaryKey: true
     },
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     port: {
       type: DataTypes.STRING,
       allowNull: true
