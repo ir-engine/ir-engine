@@ -188,8 +188,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
-    { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE },
-    { name: SCENE_COMPONENT_INTERACTABLE, props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_LOOP_ANIMATION, props: SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.link, [
