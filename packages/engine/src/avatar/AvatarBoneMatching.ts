@@ -465,13 +465,13 @@ export default function AvatarBoneMatching(model) {
     const armatureDirection = new Vector3(0, 1, 0).applyQuaternion(armature.quaternion)
     const flipY = armatureDirection.z < -0.5
     const legDirection = new Vector3(0, 0, -1).applyQuaternion(
-      Left_leg.getWorldQuaternion(new Quaternion()).premultiply(armature.quaternion.clone().inverse())
+      Left_leg.getWorldQuaternion(new Quaternion()).premultiply(armature.quaternion.clone().invert())
     )
     const flipLeg = legDirection.y < 0.5
-    console.log('flip', flipZ, flipY, flipLeg)
+    // console.log('flip', flipZ, flipY, flipLeg)
 
     const armatureQuaternion = armature.quaternion.clone()
-    const armatureMatrixInverse = new Matrix4().getInverse(armature.matrixWorld)
+    const armatureMatrixInverse = new Matrix4().copy(armature.matrixWorld).invert()
     armature.position.set(0, 0, 0)
     armature.quaternion.set(0, 0, 0, 1)
     armature.scale.set(1, 1, 1)
@@ -569,16 +569,16 @@ export default function AvatarBoneMatching(model) {
         )
       )
 
-    _ensurePrerotation('Right_arm').multiply(qr.clone().inverse())
-    _ensurePrerotation('Right_elbow').multiply(qr.clone()).premultiply(qr2.clone().inverse())
-    _ensurePrerotation('Left_arm').multiply(ql.clone().inverse())
-    _ensurePrerotation('Left_elbow').multiply(ql.clone()).premultiply(ql2.clone().inverse())
+    _ensurePrerotation('Right_arm').multiply(qr.clone().invert())
+    _ensurePrerotation('Right_elbow').multiply(qr.clone()).premultiply(qr2.clone().invert())
+    _ensurePrerotation('Left_arm').multiply(ql.clone().invert())
+    _ensurePrerotation('Left_elbow').multiply(ql.clone()).premultiply(ql2.clone().invert())
 
     _ensurePrerotation('Left_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
     _ensurePrerotation('Right_leg').premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
 
     for (const k in preRotations) {
-      preRotations[k].inverse()
+      preRotations[k].invert()
     }
 
     fixSkeletonZForward(armature.children[0], {
@@ -616,10 +616,10 @@ export default function AvatarBoneMatching(model) {
     } else {
       modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
     }
-    modelBones.Right_arm.quaternion.premultiply(qr.clone().inverse())
-    modelBones.Right_elbow.quaternion.premultiply(qr).premultiply(qr2.clone().inverse())
-    modelBones.Left_arm.quaternion.premultiply(ql.clone().inverse())
-    modelBones.Left_elbow.quaternion.premultiply(ql).premultiply(ql2.clone().inverse())
+    modelBones.Right_arm.quaternion.premultiply(qr.clone().invert())
+    modelBones.Right_elbow.quaternion.premultiply(qr).premultiply(qr2.clone().invert())
+    modelBones.Left_arm.quaternion.premultiply(ql.clone().invert())
+    modelBones.Left_elbow.quaternion.premultiply(ql).premultiply(ql2.clone().invert())
     model.updateMatrixWorld(true)
 
     Hips.traverse((bone) => {

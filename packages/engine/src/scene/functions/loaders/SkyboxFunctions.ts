@@ -126,7 +126,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_SKYBOX,
     props: {
-      backgroundColor: component.backgroundColor?.getHex(),
+      backgroundColor: component.backgroundColor.getHex(),
       equirectangularPath: component.equirectangularPath,
       cubemapPath: component.cubemapPath,
       backgroundType: component.backgroundType,
