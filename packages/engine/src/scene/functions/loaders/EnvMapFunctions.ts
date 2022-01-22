@@ -179,7 +179,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
     props: {
       type: component.type,
       envMapTextureType: component.envMapTextureType,
-      envMapSourceColor: component.envMapSourceColor,
+      envMapSourceColor: component.envMapSourceColor.getHex(),
       envMapSourceURL: component.envMapSourceURL,
       envMapIntensity: component.envMapIntensity,
       envMapCubemapBake: component.envMapCubemapBake

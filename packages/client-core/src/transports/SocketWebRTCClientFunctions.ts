@@ -99,7 +99,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   // Get information for how to consume data from server and init a data consumer
   networkTransport.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
-    console.log('WebRTCConsumeData', options)
+    // console.log('WebRTCConsumeData', options)
     const dataConsumer = await networkTransport.recvTransport.consumeData(options)
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
@@ -124,7 +124,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   networkTransport.socket.on(
     MessageTypes.WebRTCCreateProducer.toString(),
     async (socketId, mediaTag, producerId, channelType: ChannelType, channelId) => {
-      console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
+      // console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
       const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
       const channelConnectionState = accessChannelConnectionState()
       if (
@@ -157,7 +157,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
     networkTransport.reconnecting = true
-    console.log('socket reconnect')
+    // console.log('socket reconnect')
   })
 
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
@@ -253,7 +253,7 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
   // us back the info we need to create a client-side transport
   let transport: MediaSoupTransport
 
-  console.log('Requesting transport creation', direction, channelType, channelId)
+  // console.log('Requesting transport creation', direction, channelType, channelId)
 
   const { transportOptions } = await networkTransport.request(MessageTypes.WebRTCTransportCreate.toString(), {
     direction,
@@ -268,13 +268,11 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
     transport = await networkTransport.mediasoupDevice.createSendTransport(transportOptions)
   else throw new Error(`bad transport 'direction': ${direction}`)
 
-  console.log(transport)
-
   // mediasoup-client will emit a connect event when media needs to
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
   transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-    console.log('\n\n\n\nWebRTCTransportConnect', direction, dtlsParameters, transportOptions, '\n\n\n')
+    // console.log('\n\n\n\nWebRTCTransportConnect', direction, dtlsParameters, transportOptions, '\n\n\n')
     const connectResult = await networkTransport.request(MessageTypes.WebRTCTransportConnect.toString(), {
       transportId: transportOptions.id,
       dtlsParameters
@@ -318,7 +316,6 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
     )
 
     transport.on('producedata', async (parameters: any, callback: (arg0: { id: any }) => void, errback: () => void) => {
-      console.log('producedata', parameters)
       const { sctpStreamParameters, label, protocol, appData } = parameters
       const { error, id } = await networkTransport.request(MessageTypes.WebRTCProduceData, {
         transportId: transport.id,

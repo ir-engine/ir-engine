@@ -549,7 +549,7 @@
               "z": 0
             },
             "rotation": {
-              "x": 0,
+              "x": -1.5707963267948966,
               "y": 0,
               "z": 0
             },
@@ -575,9 +575,9 @@
           "name": "particle-emitter",
           "props": {
             "src": "/static/editor/dot.png",
-            "startColor": {},
-            "middleColor": {},
-            "endColor": {},
+            "startColor": 16711680,
+            "middleColor": 65280,
+            "endColor": 255,
             "startOpacity": 1,
             "middleOpacity": 1,
             "endOpacity": 1,

@@ -22,7 +22,6 @@ const gameserverAddress =
         (globalThis as any).process.env['VITE_GAMESERVER_PORT']
       }`
     : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
-console.log('gameserverAddress', gameserverAddress)
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -116,7 +115,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
     console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
-    console.log(process.env)
     const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()

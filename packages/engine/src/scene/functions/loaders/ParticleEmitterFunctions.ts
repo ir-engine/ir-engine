@@ -15,6 +15,7 @@ import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitte
 import { RenderedComponent } from '../../components/RenderedComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -49,13 +50,20 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const props = parseParticleEmitterProperties(json.props)
-  const mesh = new ParticleEmitterMesh(props)
+
+  registerSceneLoadPromise(
+    new Promise<void>((resolve) => {
+      AssetLoader.load({ url: props.src }, (texture) => {
+        const mesh = new ParticleEmitterMesh(props, texture)
+        addComponent(entity, ParticleEmitterComponent, mesh)
+        addComponent(entity, Object3DComponent, { value: mesh })
+        addComponent(entity, RenderedComponent, {})
+        resolve()
+      })
+    })
+  )
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
-
-  addComponent(entity, ParticleEmitterComponent, mesh)
-  addComponent(entity, Object3DComponent, { value: mesh })
-  addComponent(entity, RenderedComponent, {})
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
@@ -74,9 +82,9 @@ export const serializeParticleEmitter: ComponentSerializeFunction = (entity) => 
     name: SCENE_COMPONENT_PARTICLE_EMITTER,
     props: {
       src: particleEmitterComponent.src,
-      startColor: particleEmitterComponent.startColor,
-      middleColor: particleEmitterComponent.middleColor,
-      endColor: particleEmitterComponent.endColor,
+      startColor: particleEmitterComponent.startColor.getHex(),
+      middleColor: particleEmitterComponent.middleColor.getHex(),
+      endColor: particleEmitterComponent.endColor.getHex(),
       startOpacity: particleEmitterComponent.startOpacity,
       middleOpacity: particleEmitterComponent.middleOpacity,
       endOpacity: particleEmitterComponent.endOpacity,
