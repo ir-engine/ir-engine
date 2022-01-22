@@ -65,18 +65,17 @@ import { SCENE_COMPONENT_SYSTEM } from '@xrengine/engine/src/scene/functions/loa
 import { SCENE_COMPONENT_SPLINE } from '@xrengine/engine/src/scene/functions/loaders/SplineFunctions'
 import { SCENE_COMPONENT_CUBEMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 
-export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType => {
+export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
   const entityNode = getComponent(entity, EntityNodeComponent)
-  if (!entityNode) return DefaultNodeEditor
+  if (!entityNode) return [DefaultNodeEditor]
 
-  let editor = null
+  const editors = [] as EditorComponentType[]
 
   for (let i = 0; i < entityNode.components.length; i++) {
-    editor = EntityNodeEditor[entityNode.components[i]]
-    if (editor) break
+    if (EntityNodeEditor[entityNode.components[i]]) editors.push(EntityNodeEditor[entityNode.components[i]])
   }
 
-  return editor || DefaultNodeEditor
+  return editors.length ? editors : [DefaultNodeEditor]
 }
 
 export const EntityNodeEditor = {
