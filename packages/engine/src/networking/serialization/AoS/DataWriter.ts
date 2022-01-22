@@ -179,7 +179,7 @@ export const writeMetadata = (v: ViewCursor, world: World) => {
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world, entities: Entity[]) => {
+  return (world: World, entities: Entity[]) => {
     writeMetadata(view, world)
     writeEntities(view, entities)
     return sliceViewCursor(view)

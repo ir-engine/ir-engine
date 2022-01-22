@@ -308,6 +308,26 @@ export const queueAllOutgoingPoses = pipe(
  * DATA SENDING *
  ***************/
 
+const serializeAndSend = (world: World, sendData: Function) => {
+  queueAllOutgoingPoses(world)
+  const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+  sendData(data)
+}
+
+const serializeAndSendFast = (world: World, serialize: Function, sendData: Function) => {
+  const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
+  if (ents.length > 0) {
+    const data = serialize(world, ents)
+
+    // todo: insert historian logic here
+
+    if (data.byteLength > 0) {
+      // side effect - network IO
+      sendData(data)
+    }
+  }
+}
+
 const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
   const { outgoingActions } = world
 
@@ -347,17 +367,7 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
     // side effect - network IO
     sendActions(world)
 
-    // queueAllOutgoingPoses(world)
-    // const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-    // sendData(data)
-
-    const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
-    if (ents.length > 0) {
-      const data = serialize(world, ents)
-      if (data.byteLength > 0) {
-        // side effect - network IO
-        sendData(data)
-      }
-    }
+    // serializeAndSend(world, sendData)
+    serializeAndSendFast(world, serialize, sendData)
   }
 }
