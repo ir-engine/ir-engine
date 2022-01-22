@@ -796,7 +796,9 @@
         {
           "name": "interactable",
           "props": {
-            "interactable": true
+            "interactable": true,
+            "interactionType": "equippable",
+            "intensity": 5
           }
         }
       ],
