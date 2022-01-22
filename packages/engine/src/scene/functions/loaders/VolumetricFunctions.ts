@@ -15,8 +15,15 @@ import { isClient } from '../../../common/functions/isClient'
 
 import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { UpdatableComponent } from '../../components/UpdatableComponent'
 
-let DracosisPlayer = null as any
+type VolumetricObject3D = UpdateableObject3D & {
+  userData: {
+    player: typeof import('volumetric/player').default.prototype
+  }
+}
+
+let DracosisPlayer = null! as typeof import('volumetric/player').default
 
 if (isClient) {
   Promise.all([import('volumetric/player')]).then(([module1]) => {
@@ -30,15 +37,11 @@ export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
   paths: [],
   playMode: VolumetricPlayMode.Single
 }
-
+//https://192.168.0.17:8642/projects/default-project/assets/liam.mp4
 export const deserializeVolumetric: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<VolumetricVideoComponentType>
 ) => {
-  const obj3d = new UpdateableObject3D()
-  obj3d.name = 'Volumetric'
-  addComponent(entity, Object3DComponent, { value: obj3d })
-
   if (!isClient) return
 
   const props = parseVolumetricProperties(json.props)
@@ -53,43 +56,43 @@ export const updateVolumetric: ComponentUpdateFunction = async (
   entity: Entity,
   properties: VolumetricVideoComponentType
 ) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as UpdateableObject3D
+  const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
-
+  console.log(properties, component)
   if (typeof properties.paths !== 'undefined') {
     try {
       if (component.paths.length <= 0) return
 
-      const validPaths = [] as string[]
-      for (let i = 0; i < component.paths.length; i++) {
-        const path = new URL(component.paths[i], window.location.origin).href
-        if (path && VolumetricsExtensions.includes(getFileExtension(path))) {
-          validPaths.push(path)
-        }
-      }
+      // const validPaths = [] as string[]
+      // for (let i = 0; i < component.paths.length; i++) {
+      //   const path = new URL(component.paths[i], window.location.origin).href
+      //   if (path && VolumetricsExtensions.includes(getFileExtension(path))) {
+      //     validPaths.push(path)
+      //   }
+      // }
 
-      if (validPaths.length <= 0) return
+      // if (validPaths.length <= 0) return
 
       if (obj3d.userData.player) {
         obj3d.userData.player.mesh.removeFromParent()
         obj3d.userData.player.dispose()
       }
 
-      obj3d.update = () => {
-        if (obj3d.userData.player.hasPlayed) {
-          obj3d.userData.player?.handleRender(() => {})
-        }
-      }
-
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
         renderer: Engine.renderer,
-        paths: validPaths,
+        paths: component.paths,
         playMode: component.playMode as any,
         autoplay: true,
         onMeshBuffering: (_progress) => {},
         onFrameShow: () => {}
       })
+
+      obj3d.update = () => {
+        if (obj3d.userData.player.hasPlayed) {
+          obj3d.userData.player?.handleRender(() => {})
+        }
+      }
 
       const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
       obj3d.userData.audioEl.setNodeSource(audioSource)
@@ -130,7 +133,7 @@ const getFileExtension = (url): string => {
 }
 
 export const toggleVolumetric = (entity: Entity): boolean => {
-  const obj3d = getComponent(entity, Object3DComponent)?.value
+  const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
   if (!obj3d) return false
 
   if (obj3d.userData.player.hasPlayed) {
