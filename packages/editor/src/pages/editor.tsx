@@ -81,10 +81,10 @@ const EditorProtectedRoutes = () => {
       systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
       type: SystemUpdateType.PRE_RENDER
     },
-    // {
-    //   type: SystemUpdateType.PRE_RENDER,
-    //   systemModulePromise: import('@xrengine/engine/src/debug/systems/DebugHelpersSystem')
-    // },
+    {
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('@xrengine/engine/src/debug/systems/DebugHelpersSystem')
+    },
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('@xrengine/engine/src/physics/systems/PhysicsSystem')

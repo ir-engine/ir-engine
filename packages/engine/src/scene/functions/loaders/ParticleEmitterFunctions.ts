@@ -50,7 +50,6 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 
   const props = parseParticleEmitterProperties(json.props)
   const mesh = new ParticleEmitterMesh(props)
-  console.log(mesh)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 
