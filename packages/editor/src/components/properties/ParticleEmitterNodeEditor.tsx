@@ -24,7 +24,7 @@ const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
 export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const particleComponent = getComponent(props.node.entity, ParticleEmitterComponent)
-
+  console.log(particleComponent)
   return (
     <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <NumericInputGroup
