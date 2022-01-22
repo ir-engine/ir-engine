@@ -74,7 +74,7 @@
     "multer": "^1.4.2",
     "mysql2": "2.3.3",
     "nanoid": "3.1.31",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.6",
     "nodemailer-smtp-transport": "^2.4.2",
     "pug": "^3.0.0",
     "request": "2.88.2",
