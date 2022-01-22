@@ -19,7 +19,7 @@ export const SCENE_COMPONENT_INTERIOR = 'interior'
 export const SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES = {
   cubeMap: '',
   tiling: 1,
-  size: new Vector2(1, 1)
+  size: { x: 1, y: 1 }
 }
 
 export const deserializeInterior: ComponentDeserializeFunction = (
@@ -29,9 +29,10 @@ export const deserializeInterior: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Interior()
+  const props = parseInteriorProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, InteriorComponent, { ...json.props })
+  addComponent(entity, InteriorComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERIOR)
@@ -39,7 +40,7 @@ export const deserializeInterior: ComponentDeserializeFunction = (
     obj3d.userData.disableOutline = true
   }
 
-  updateInterior(entity, json.props)
+  updateInterior(entity, props)
 }
 
 export const updateInterior: ComponentUpdateFunction = async (entity: Entity, properties: InteriorComponentType) => {
@@ -55,8 +56,8 @@ export const updateInterior: ComponentUpdateFunction = async (entity: Entity, pr
     }
   }
 
-  if (properties.hasOwnProperty('tiling')) obj3d.tiling = component.tiling
-  if (properties.hasOwnProperty('size')) obj3d.size = component.size
+  if (typeof properties.tiling !== 'undefined') obj3d.tiling = component.tiling
+  if (typeof properties.size !== 'undefined') obj3d.size = component.size
 }
 
 export const serializeInterior: ComponentSerializeFunction = (entity) => {
@@ -71,4 +72,16 @@ export const serializeInterior: ComponentSerializeFunction = (entity) => {
       size: component.size
     }
   }
+}
+
+const parseInteriorProperties = (props): InteriorComponentType => {
+  const result = {
+    cubeMap: props.cubeMap ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.cubeMap,
+    tiling: props.tiling ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.tiling
+  } as InteriorComponentType
+
+  const tempV2 = result.size ?? SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES.size
+  result.size = new Vector2(tempV2.x, tempV2.y)
+
+  return result
 }

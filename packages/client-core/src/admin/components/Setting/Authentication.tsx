@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
-import { useStyles } from './styles'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
-import { AuthSettingService } from '../../services/Setting/AuthSettingService'
-import Switch from '@mui/material/Switch'
-import IconButton from '@mui/material/IconButton'
 import { Icon } from '@iconify/react'
+import { Button, Grid, Paper, Typography } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
+import React, { useEffect, useState } from 'react'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { useStyles } from './styles'
 
 interface Props {}
 
@@ -201,7 +200,7 @@ const Account = (props: Props) => {
       </Typography>
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={6} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label> Service</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
@@ -253,7 +252,7 @@ const Account = (props: Props) => {
               </React.Fragment>
             ))}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label>Local</label>
             <Paper component="div" className={classes.createInput}>
               <label>User Name:</label>
@@ -473,7 +472,7 @@ const Account = (props: Props) => {
               </Paper>
             )}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>Google</label>
@@ -626,11 +625,11 @@ const Account = (props: Props) => {
             )}
           </Grid>
         </Grid>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp; &nbsp;
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
           Save
         </Button>
       </form>

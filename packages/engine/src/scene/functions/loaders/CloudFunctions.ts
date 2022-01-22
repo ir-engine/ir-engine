@@ -1,5 +1,4 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector3, Vector2, Color } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -15,17 +14,18 @@ import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { isClient } from '../../../common/functions/isClient'
 import { Clouds } from '../../classes/Clouds'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
+import { Color, Vector2, Vector3 } from 'three'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
 export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
   texture: '/clouds/cloud.png',
-  worldScale: new Vector3(1000, 150, 1000),
-  dimensions: new Vector3(8, 4, 8),
-  noiseZoom: new Vector3(7, 11, 7),
-  noiseOffset: new Vector3(0, 4000, 3137),
-  spriteScaleRange: new Vector2(50, 100),
+  worldScale: { x: 1000, y: 150, z: 1000 },
+  dimensions: { x: 8, y: 4, z: 8 },
+  noiseZoom: { x: 7, y: 11, z: 7 },
+  noiseOffset: { x: 0, y: 4000, z: 3137 },
+  spriteScaleRange: { x: 50, y: 100 },
   fogColor: 0x4584b4,
-  fogRange: new Vector2(-100, 3000)
+  fogRange: { x: -100, y: 3000 }
 }
 
 export const deserializeCloud: ComponentDeserializeFunction = (
@@ -35,9 +35,10 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Clouds()
+  const props = parseCloudProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, CloudComponent, { ...json.props, fogColor: new Color(json.props.fogColor) })
+  addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, {})
 
   if (Engine.isEditor) {
@@ -46,7 +47,7 @@ export const deserializeCloud: ComponentDeserializeFunction = (
     obj3d.userData.disableOutline = true
   }
 
-  updateCloud(entity, json.props)
+  updateCloud(entity, props)
 }
 
 export const updateCloud: ComponentUpdateFunction = async (entity: Entity, properties: CloudComponentType) => {
@@ -62,13 +63,13 @@ export const updateCloud: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('worldScale')) obj3d.worldScale = component.worldScale
-  if (properties.hasOwnProperty('dimensions')) obj3d.dimensions = component.dimensions
-  if (properties.hasOwnProperty('noiseZoom')) obj3d.noiseZoom = component.noiseZoom
-  if (properties.hasOwnProperty('noiseOffset')) obj3d.noiseOffset = component.noiseOffset
-  if (properties.hasOwnProperty('spriteScaleRange')) obj3d.spriteScaleRange = component.spriteScaleRange
-  if (properties.hasOwnProperty('fogRange')) obj3d.fogRange = component.fogRange
-  if (properties.hasOwnProperty('fogColor')) obj3d.fogColor = component.fogColor
+  if (typeof properties.worldScale !== 'undefined') obj3d.worldScale = component.worldScale
+  if (typeof properties.dimensions !== 'undefined') obj3d.dimensions = component.dimensions
+  if (typeof properties.noiseZoom !== 'undefined') obj3d.noiseZoom = component.noiseZoom
+  if (typeof properties.noiseOffset !== 'undefined') obj3d.noiseOffset = component.noiseOffset
+  if (typeof properties.spriteScaleRange !== 'undefined') obj3d.spriteScaleRange = component.spriteScaleRange
+  if (typeof properties.fogRange !== 'undefined') obj3d.fogRange = component.fogRange
+  if (typeof properties.fogColor !== 'undefined') obj3d.fogColor = component.fogColor
 }
 
 export const serializeCloud: ComponentSerializeFunction = (entity) => {
@@ -88,4 +89,31 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
       fogRange: component.fogRange
     }
   }
+}
+
+const parseCloudProperties = (props: any): CloudComponentType => {
+  const result = {
+    texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
+    fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)
+  } as CloudComponentType
+
+  let tempV3 = props.worldScale ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.worldScale
+  result.worldScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.dimensions ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.dimensions
+  result.dimensions = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.noiseZoom ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseZoom
+  result.noiseZoom = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  tempV3 = props.noiseOffset ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseOffset
+  result.noiseOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  let tempV2 = props.spriteScaleRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.spriteScaleRange
+  result.spriteScaleRange = new Vector2(tempV2.x, tempV2.y)
+
+  tempV2 = props.fogRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange
+  result.fogRange = new Vector2(tempV2.x, tempV2.y)
+
+  return result
 }

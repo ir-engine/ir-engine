@@ -10,6 +10,7 @@ import LoginToken from './login-token/login-token.service'
 import MagicLink from './magic-link/magic-link.service'
 import SMS from './sms/sms.service'
 import User from './user/user.service'
+import UserApiKey from './user-api-key/user-api-key.service'
 import UserRelationship from './user-relationship/user-relationship.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import UserRole from './user-role/user-role.service'
@@ -19,6 +20,7 @@ import UserTrade from './user-trade/user-trade.service'
 
 export default [
   UserRole,
+  UserApiKey,
   User,
   UserSettings,
   IdentityProvider,

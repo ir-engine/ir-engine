@@ -133,6 +133,7 @@ const getLoader = (assetType: AssetType) => {
 
 type AssetLoaderParamType = {
   url: string
+  cache?: boolean
   castShadow?: boolean
   receiveShadow?: boolean
   instanced?: boolean
@@ -150,7 +151,7 @@ const assetLoadCallback =
       processModelAsset(asset.scene, params)
     }
 
-    AssetLoader.Cache.set(url, asset)
+    params.cache && AssetLoader.Cache.set(url, asset)
 
     onLoad(asset)
   }
@@ -161,13 +162,14 @@ const load = async (
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void
 ) => {
+  params.cache = typeof params.cache === 'undefined' || params.cache
   if (!params.url) {
     onError(new Error('URL is empty'))
     return
   }
   const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
-  if (AssetLoader.Cache.has(url)) {
+  if (params.cache && AssetLoader.Cache.has(url)) {
     onLoad(AssetLoader.Cache.get(url))
   }
 
@@ -175,12 +177,16 @@ const load = async (
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 
-  // TODO: fix instancing for GLTFs
-  // if (params.instanced) {
-  //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
-  // } else {
-  loader.load(url, callback, onProgress, onError)
-  // }
+  try {
+    // TODO: fix instancing for GLTFs
+    // if (params.instanced) {
+    //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
+    // } else {
+    loader.load(url, callback, onProgress, onError)
+    // }
+  } catch (error) {
+    onError(error)
+  }
 }
 
 export class AssetLoader {

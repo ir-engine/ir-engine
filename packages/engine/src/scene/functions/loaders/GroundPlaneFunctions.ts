@@ -51,22 +51,24 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   addComponent(entity, Object3DComponent, { value: groundPlane })
 
-  json.props.color = new Color(json.props.color)
-  addComponent(entity, GroundPlaneComponent, json.props)
+  const props = parseGroundPlaneProperties(json.props)
+  addComponent(entity, GroundPlaneComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
   else createCollider(entity, groundPlane.userData.mesh)
 
-  updateGroundPlane(entity)
+  updateGroundPlane(entity, props)
 }
 
 let navigationRaycastTarget: Group
 
-export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
+export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity, properties: GroundPlaneComponentType) => {
   const component = getComponent(entity, GroundPlaneComponent)
   const groundPlane = getComponent(entity, Object3DComponent)?.value
 
-  ;(groundPlane.userData.mesh.material as MeshStandardMaterial).color.set(component.color)
+  if (typeof properties.color !== 'undefined') {
+    ;(groundPlane.userData.mesh.material as MeshStandardMaterial).color.set(component.color)
+  }
 
   if (component.generateNavmesh === component.isNavmeshGenerated) return
 
@@ -112,4 +114,11 @@ export const prepareGroundPlaneForGLTFExport: ComponentPrepareForGLTFExportFunct
   groundPlane.add(collider)
   groundPlane.userData.mesh.removeFromParent()
   delete groundPlane.userData.mesh
+}
+
+const parseGroundPlaneProperties = (props): GroundPlaneComponentType => {
+  return {
+    color: new Color(props.color ?? SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES.color),
+    generateNavmesh: props.generateNavmesh ?? SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES.generateNavmesh
+  }
 }

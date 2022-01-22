@@ -4,7 +4,6 @@ ECS stands for Entity Component System. It is a pattern for organising data and 
 
 ```ts
 import { createEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions"
-import { System } from "@xrengine/engine/src/ecs/classes/System"
 import { World } from "@xrengine/engine/src/ecs/classes/World"
 import { 
   addComponent,
@@ -15,7 +14,7 @@ import {
 
 export const TimerComponent = createMappedComponent<{ time: number }>('TimerComponent')
 
-export default async function TimerSystem (world: World): Promise<System> {
+export default async function TimerSystem (world: World) {
 
   const myEntity = createEntity()
   addComponent(myEntity, TimerComponent, { time: 0 })

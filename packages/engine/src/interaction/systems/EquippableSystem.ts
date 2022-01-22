@@ -9,7 +9,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EquipperComponent } from '../components/EquipperComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
@@ -77,7 +76,7 @@ export function equippableQueryExit(entity) {
  * @author Josh Field <github.com/HexaField>
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
-export default async function EquippableSystem(world: World): Promise<System> {
+export default async function EquippableSystem(world: World) {
   world.receptors.push(equippableActionReceptor)
 
   const equippableQuery = defineQuery([EquipperComponent])

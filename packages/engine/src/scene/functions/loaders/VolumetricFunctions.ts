@@ -41,11 +41,12 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
 
   if (!isClient) return
 
-  addComponent(entity, VolumetricComponent, { ...json.props })
+  const props = parseVolumetricProperties(json.props)
+  addComponent(entity, VolumetricComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 
-  updateVolumetric(entity, json.props)
+  updateVolumetric(entity, props)
 }
 
 export const updateVolumetric: ComponentUpdateFunction = async (
@@ -55,7 +56,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
   const obj3d = getComponent(entity, Object3DComponent).value as UpdateableObject3D
   const component = getComponent(entity, VolumetricComponent)
 
-  if (properties.hasOwnProperty('paths')) {
+  if (typeof properties.paths !== 'undefined') {
     try {
       if (component.paths.length <= 0) return
 
@@ -97,7 +98,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
     }
   }
 
-  if (properties.hasOwnProperty('playMode')) obj3d.userData.player.playMode = component.playMode as any
+  if (typeof properties.playMode !== 'undefined') obj3d.userData.player.playMode = component.playMode as any
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
@@ -139,5 +140,12 @@ export const toggleVolumetric = (entity: Entity): boolean => {
     obj3d.userData.player.stopOnNextFrame = false
     obj3d.userData.player.play()
     return true
+  }
+}
+
+const parseVolumetricProperties = (props): VolumetricVideoComponentType => {
+  return {
+    paths: props.paths ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.paths,
+    playMode: props.playMode ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.playMode
   }
 }

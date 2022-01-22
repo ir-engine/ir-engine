@@ -102,7 +102,7 @@ export const CubemapBakeNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor {...props} name="Cubemap Bake" description="For Adding Cubemap bake in your scene">
       {renderCubemapBakeProperties()}
-      <PropertiesPanelButton onClick={() => uploadBakeToServer(props.node.entity, '')}>Bake</PropertiesPanelButton>
+      <PropertiesPanelButton onClick={() => uploadBakeToServer(props.node.entity)}>Bake</PropertiesPanelButton>
     </NodeEditor>
   )
 }

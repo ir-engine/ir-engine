@@ -1,5 +1,5 @@
 import { Engine } from '../../src/ecs/classes/Engine'
-import { applyIncomingActions } from '../../src/networking/systems/IncomingNetworkSystem'
+import { applyIncomingActions } from '../../src/ecs/functions/ActionDispatchSystem'
 
 export const mockProgressWorldForNetworkActions = () => {
   // increment tick
