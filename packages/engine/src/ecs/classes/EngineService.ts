@@ -18,7 +18,7 @@ const state = createState({
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: null! as string,
+  avatarTappedId: '',
   interactionData: null! as InteractionData
 })
 

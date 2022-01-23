@@ -18,7 +18,7 @@ import { ProjectService, useProjectState } from '@xrengine/client-core/src/commo
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import React, { useEffect, useRef } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import matches from 'ts-matches'
 import { initNetwork, loadLocation } from './LocationLoadHelper'
 

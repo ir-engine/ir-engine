@@ -50,10 +50,9 @@ export default async function XRUISystem(world: World): Promise<System> {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchLocal(EngineActions.userAvatarTapped(userId))
         return
-      } else {
-        dispatchLocal(EngineActions.userAvatarTapped(''))
       }
     }
+    dispatchLocal(EngineActions.userAvatarTapped(''))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {

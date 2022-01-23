@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@hookstate/core'
-import { useUserState } from '../../user/services/UserService'
+import { useUserState, UserService } from '../../user/services/UserService'
+import { useAuthState } from '../../user/services/AuthService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const styles = {
   root: {
@@ -93,12 +95,29 @@ type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
 const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
+  const engineState = accessEngineState()
   const userState = useUserState()
+  const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-
   const { t } = useTranslation()
 
-  return user && userState.selectedLayerUser.value === user.id.value ? (
+  const blockUser = () => {
+    if (authState.user?.id?.value !== null && user) {
+      const selfId = authState.user.id?.value ?? ''
+      const blockUserId = user.id?.value ?? ''
+      UserService.blockUser(selfId, blockUserId)
+    }
+  }
+
+  const addAsFriend = () => {
+    if (authState.user?.id?.value !== null && user) {
+      const selfId = authState.user.id?.value ?? ''
+      const blockUserId = user.id?.value ?? ''
+      UserService.requestFriend(selfId, blockUserId)
+    }
+  }
+
+  return user && engineState.avatarTappedId?.value === user.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
@@ -111,12 +130,7 @@ const AvatarContextMenu = () => {
           >
             {t('user:personMenu.inviteToParty')}
           </Button>
-          <Button
-            style={styles.button}
-            onClick={() => {
-              console.log('Add as a friend')
-            }}
-          >
+          <Button style={styles.button} onClick={addAsFriend}>
             {t('user:personMenu.addAsFriend')}
           </Button>
           <Button
@@ -143,12 +157,7 @@ const AvatarContextMenu = () => {
           >
             {t('user:personMenu.mute')}
           </Button>
-          <Button
-            style={styles.buttonRed}
-            onClick={() => {
-              console.log('Block')
-            }}
-          >
+          <Button style={styles.buttonRed} onClick={blockUser}>
             {t('user:personMenu.block')}
           </Button>
         </section>

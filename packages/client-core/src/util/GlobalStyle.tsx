@@ -99,19 +99,19 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   ::selection {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.selected};
+    color: ${(props) => props.theme?.text};
+    background-color: ${(props) => props.theme?.selected};
   }
 
   a {
-    color: ${(props) => props.theme.text};
+    color: ${(props) => props.theme?.text};
 
     &:hover {
-      color: ${(props) => props.theme.blueHover};
+      color: ${(props) => props.theme?.blueHover};
     }
 
     &:active {
-      color: ${(props) => props.theme.bluePressed};
+      color: ${(props) => props.theme?.bluePressed};
     }
   }
 
@@ -133,10 +133,10 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   body {
-    font-family: ${(props) => props.theme.lato};
+    font-family: ${(props) => props.theme?.lato};
     font-size: 12px;
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.background};
+    color: ${(props) => props.theme?.text};
+    background-color: ${(props) => props.theme?.background};
     scrollbar-color: #282c31 #5d646c;
   }
 
@@ -146,7 +146,7 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
     flex: 1;
     outline: none;
     max-height: 100%;
-    box-shadow: ${(props) => props.theme.shadow30};
+    box-shadow: ${(props) => props.theme?.shadow30};
     margin-bottom: 10vh;
   }
 
