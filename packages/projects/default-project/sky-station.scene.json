@@ -499,10 +499,10 @@
         {
           "name": "media",
           "props": {
-            "controls": false,
-            "autoplay": false,
+            "controls": true,
+            "autoplay": true,
             "autoStartTime": 0,
-            "loop": false
+            "loop": true
           }
         },
         {

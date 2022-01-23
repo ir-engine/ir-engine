@@ -27,7 +27,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const videoComponent = getComponent(props.node.entity, VideoComponent)
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
 
   return (
     <NodeEditor
@@ -45,12 +44,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
-        <BooleanInput
-          value={interactableComponent.interactable}
-          onChange={updateProperty(InteractableComponent, 'interactable')}
-        />
-      </InputGroup>
       <PropertiesPanelButton onClick={() => toggleVideo(props.node.entity)}>
         {t('editor:properties.video.lbl-test')}
       </PropertiesPanelButton>
