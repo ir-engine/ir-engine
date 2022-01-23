@@ -19,7 +19,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
  * This is the base class which holds all the data related to the scene, camera,system etc.
  * Data is holded statically hence will be available everywhere.
  *
- * @author Shaw, Josh, Vyacheslav, Gheric and the XREngine Team
+ * @author Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
   /** The uuid of the logged-in user */

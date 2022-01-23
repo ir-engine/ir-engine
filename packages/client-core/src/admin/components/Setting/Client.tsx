@@ -21,17 +21,8 @@ const Client = (props: clientProps) => {
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
 
-  const [enabled, setEnabled] = React.useState({
-    checkedA: true,
-    checkedB: true
-  })
-
   const authState = useAuthState()
   const user = authState.user
-
-  const handleEnable = (event) => {
-    setEnabled({ ...enabled, [event.target.name]: event.target.checked })
-  }
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -88,17 +79,6 @@ const Client = (props: clientProps) => {
         <Typography component="h1" className={classes.settingsHeading}>
           CLIENT
         </Typography>
-        <label>Enabled</label>
-        <Paper component="div" className={classes.createInput}>
-          <Switch
-            disabled
-            checked={enabled.checkedB}
-            onChange={handleEnable}
-            color="primary"
-            name="checkedB"
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-          />
-        </Paper>
         <label>Title</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
