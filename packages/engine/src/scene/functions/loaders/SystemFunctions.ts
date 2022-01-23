@@ -25,7 +25,8 @@ export const deserializeSystem: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<SystemComponentType>
 ) => {
-  addComponent(entity, SystemComponent, json.props)
+  const props = parseSystemProperties(json.props)
+  addComponent(entity, SystemComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
@@ -48,5 +49,15 @@ export const serializeSystem: ComponentSerializeFunction = (entity) => {
       enableServer: component.enableServer,
       args: component.args
     }
+  }
+}
+
+const parseSystemProperties = (props): SystemComponentType => {
+  return {
+    filePath: props.filePath ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.filePath,
+    systemUpdateType: props.systemUpdateType ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.systemUpdateType,
+    enableClient: props.enableClient ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.enableClient,
+    enableServer: props.enableServer ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.enableServer,
+    args: props.args ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.args
   }
 }

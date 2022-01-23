@@ -7,9 +7,10 @@ import {
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpacePartitioningHelper'
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
@@ -217,11 +218,18 @@ export const NavigationSystem = async (world: World) => {
 const Page = () => {
   useEffect(() => {
     ;(async function () {
-      await initializeEngine()
+      createEngine()
       // Register our systems to do stuff
-      registerSystem(SystemUpdateType.FIXED, Promise.resolve({ default: NavigationSystem }))
-      registerSystem(SystemUpdateType.UPDATE, Promise.resolve({ default: RenderSystem }))
-      await Engine.currentWorld.initSystems()
+      await initSystems(useWorld(), [
+        {
+          type: SystemUpdateType.FIXED,
+          systemModulePromise: Promise.resolve({ default: NavigationSystem })
+        },
+        {
+          type: SystemUpdateType.UPDATE,
+          systemModulePromise: Promise.resolve({ default: RenderSystem })
+        }
+      ])
 
       // Set up rendering and basic scene for demo
       const canvas = document.createElement('canvas')

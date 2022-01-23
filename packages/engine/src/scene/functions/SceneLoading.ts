@@ -45,16 +45,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
-  // Create Entity Tree
-  if (!world.entityTree) world.entityTree = new EntityTree()
   const tree = world.entityTree
 
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
-    console.log(sceneEntity.name, node)
-    reparentObject3D(node, node.parentNode)
   })
 
   addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})

@@ -87,3 +87,12 @@ export const saveScene = async (
     throw new Error(error)
   }
 }
+
+export const createNewScene = async (projectName: string) => {
+  try {
+    return client.service('scene').create({ projectName })
+  } catch (error) {
+    console.error('Error in Getting Project:' + error)
+    throw new Error(error)
+  }
+}

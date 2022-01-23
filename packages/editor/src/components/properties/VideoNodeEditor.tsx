@@ -44,8 +44,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(VideoComponent, 'elementId')}
         />
       </InputGroup>
-      <ImageSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
         <BooleanInput

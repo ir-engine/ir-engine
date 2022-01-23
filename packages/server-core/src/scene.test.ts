@@ -40,7 +40,7 @@ describe('scene.test', () => {
       metadataOnly: false
     }, params)
     const entities = Object.values(data.scene!.entities)
-    assert.strictEqual(entities.length, 9)
+    assert.strictEqual(entities.length, 8)
   })
 
   it("should add new project", async function() {

@@ -2,9 +2,8 @@
   "name": "@xrengine/matchmaking",
   "version": "0.4.13",
   "author": {
-    "name": "XREngine",
-    "email": "shawmakesmagic@gmail.com",
-    "url": "http://github.com/XRFoundation"
+    "name": "XRFoundation Collective",
+    "email": "hello@xrfoundation.io"
   },
   "publishConfig": {
     "access": "public"
@@ -23,7 +22,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
-    "test": "mocha",
+    "test": "mocha --config .mocharc.json",
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
@@ -33,7 +32,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "axios": "0.24.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.6"
   },
   "devDependencies": {
     "@types/mocha": "9.0.0",

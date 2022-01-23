@@ -10,6 +10,9 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
+import { Object3D } from 'three'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { UpdatableComponent } from '../../components/UpdatableComponent'
 
 export const SCENE_COMPONENT_MEDIA = 'media'
 export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
@@ -23,11 +26,14 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<MediaComponentType>
 ) => {
-  addComponent(entity, MediaComponent, { ...json.props })
+  const props = parseMediaProperties(json.props)
+  addComponent(entity, MediaComponent, props)
+  addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
+  addComponent(entity, UpdatableComponent, {})
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
 
-  updateMedia(entity, json.props)
+  updateMedia(entity, props)
 }
 
 export const updateMedia: ComponentUpdateFunction = async (entity: Entity, properties: MediaComponentType) => {
@@ -36,16 +42,16 @@ export const updateMedia: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (!Engine.isEditor) {
     if (obj3d.userData.player) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.player.autoplay = component.autoplay
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
     } else if (obj3d.userData.videoEl) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.videoEl.autoplay = component.autoplay
-      if (properties.hasOwnProperty('controls')) obj3d.userData.videoEl.controls = component.controls
-      if (properties.hasOwnProperty('loop')) obj3d.userData.videoEl.loop = component.loop
-      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.videoEl.autoplay = component.autoplay
+      if (typeof properties.controls !== 'undefined') obj3d.userData.videoEl.controls = component.controls
+      if (typeof properties.loop !== 'undefined') obj3d.userData.videoEl.loop = component.loop
+      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
     } else if (obj3d.userData.audioEl) {
-      if (properties.hasOwnProperty('autoplay')) obj3d.userData.audioEl.autoplay = component.autoplay
-      if (properties.hasOwnProperty('loop')) obj3d.userData.audioEl.setLoop(component.loop)
-      if (properties.hasOwnProperty('autoStartTime')) updateAutoStartTimeForMedia(entity)
+      if (typeof properties.autoplay !== 'undefined') obj3d.userData.audioEl.autoplay = component.autoplay
+      if (typeof properties.loop !== 'undefined') obj3d.userData.audioEl.setLoop(component.loop)
+      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
     }
   }
 }
@@ -103,5 +109,14 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
     const offset = (-timeDiff / 1000) % obj3d.userData.audioEl.buffer.duration
     obj3d.userData.audioEl.offset = offset
     obj3d.userData.audioEl.play()
+  }
+}
+
+const parseMediaProperties = (props): MediaComponentType => {
+  return {
+    controls: props.controls ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.controls,
+    autoplay: props.autoplay ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoplay,
+    autoStartTime: props.autoStartTime ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoStartTime,
+    loop: props.loop ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.loop
   }
 }

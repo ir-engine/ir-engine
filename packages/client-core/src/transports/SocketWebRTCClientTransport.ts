@@ -10,7 +10,7 @@ import * as mediasoupClient from 'mediasoup-client'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -22,7 +22,6 @@ const gameserverAddress =
         (globalThis as any).process.env['VITE_GAMESERVER_PORT']
       }`
     : `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}`
-console.log('gameserverAddress', gameserverAddress)
 
 // Adds support for Promise to socket.io-client
 const promisedRequest = (socket: Socket) => {
@@ -116,7 +115,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientTransport]: already initialized')
     console.log('[SocketWebRTCClientTransport]: Initialising transport with args', args)
-    console.log(process.env)
     const { sceneId, ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
