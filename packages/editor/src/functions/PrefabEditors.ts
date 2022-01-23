@@ -121,6 +121,7 @@ export const prefabIcons = {
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.link]: LinkNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
+  [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
   [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
