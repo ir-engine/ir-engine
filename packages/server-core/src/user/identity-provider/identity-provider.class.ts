@@ -188,12 +188,19 @@ export class IdentityProvider extends Service {
     // DRC
     try {
       if (result.user.userRole !== 'guest') {
-        let response: any = await blockchainTokenGenerator()
-        const accessToken = response?.data?.accessToken
-        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
+        try {
+          let response: any = await blockchainTokenGenerator()
 
+          const accessToken = response?.data?.accessToken
+
+          let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
+        } catch (err) {
+          console.error(err, 'blockchain error')
+        }
         let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
+
         let invenDataId = invenData.data[0].dataValues.inventoryItemId
+
         let resp = await this.app.service('user-inventory').create({
           userId: result.user.id,
           inventoryItemId: invenDataId,

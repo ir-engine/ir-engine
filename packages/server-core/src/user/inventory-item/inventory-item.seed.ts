@@ -9,7 +9,7 @@ export const inventoryItemSeed = {
       metadata: { name: 'In Game Currency' },
       isPublic: 1,
       isCoin: 1,
-      url: 'https://arkh-frontend.s3.us-west-1.amazonaws.com/basket-image/Coin.png',
+      url: 'https://xrengine-marketplace.s3.us-west-1.amazonaws.com/playersassets/Coin.png',
       createdAt: '2020-11-12 10:54:59',
       updatedAt: '2020-11-12 10:54:59'
     }
