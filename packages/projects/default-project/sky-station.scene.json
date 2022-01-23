@@ -521,6 +521,16 @@
           }
         },
         {
+          "name": "image",
+          "props": {
+            "imageSource": "",
+            "alphaCutoff": 0.5,
+            "alphaMode": "Opaque",
+            "projection": "Flat",
+            "side": 2
+          }
+        },
+        {
           "name": "video",
           "props": {
             "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",

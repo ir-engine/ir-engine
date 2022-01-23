@@ -13,7 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": {},
+            "color": 16777215,
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -57,7 +57,7 @@
           "props": {
             "type": 1,
             "envMapTextureType": 0,
-            "envMapSourceColor": {},
+            "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
             "envMapCubemapBake": {
@@ -227,9 +227,9 @@
               "z": 0
             },
             "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": -3.141592653589793,
+              "y": 1.2246467991473532e-16,
+              "z": -3.1415926535897922
             },
             "scale": {
               "x": 1,
@@ -446,6 +446,209 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6,
       "name": "directional light"
+    },
+    "D0F3DF9D-AE1A-4D31-994C-D281B2425AE9": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 1.5,
+              "z": -2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "media",
+          "props": {
+            "controls": true,
+            "autoplay": true,
+            "autoStartTime": 0,
+            "loop": true
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "audioSource": "",
+            "volume": 0.5,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 120,
+            "coneOuterAngle": 180,
+            "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "image",
+          "props": {
+            "imageSource": "",
+            "alphaCutoff": 0.5,
+            "alphaMode": "Opaque",
+            "projection": "Flat",
+            "side": 2
+          }
+        },
+        {
+          "name": "video",
+          "props": {
+            "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",
+            "elementId": "video-1642973841551"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7,
+      "name": "Video"
+    },
+    "924A0977-CFC6-40C2-8E69-3C72F715474B": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -2,
+              "y": 1.5,
+              "z": -2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "media",
+          "props": {
+            "controls": false,
+            "autoplay": false,
+            "autoStartTime": 0,
+            "loop": false
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "audioSource": "",
+            "volume": 0.5,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 120,
+            "coneOuterAngle": 180,
+            "coneOuterGain": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 8,
+      "name": "Audio"
+    },
+    "9F4A8827-771D-4C1D-B50E-3A60DEE87212": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 2,
+              "y": 0.5,
+              "z": -2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "media",
+          "props": {
+            "controls": false,
+            "autoplay": false,
+            "autoStartTime": 0,
+            "loop": false
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "audioSource": "",
+            "volume": 0.5,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 120,
+            "coneOuterAngle": 180,
+            "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "volumetric",
+          "props": {
+            "paths": [],
+            "playMode": 1
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 9,
+      "name": "Volumetric"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
