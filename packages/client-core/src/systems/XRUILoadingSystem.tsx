@@ -12,6 +12,7 @@ type TransitionType = 'IN' | 'OUT' | 'NONE'
 
 export default async function XRUILoadingSystem(world: World) {
   const ui = createLoaderDetailView('')
+
   const transitionPeriodSeconds = 1
   let currentState = 'NONE' as TransitionType
   let alpha = 0 // alpha is a number between 0 and 1
@@ -22,6 +23,8 @@ export default async function XRUILoadingSystem(world: World) {
   }
 
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => setState('OUT'), 1000))
+
+  await ui.ready
 
   return () => {
     if (Engine.activeCameraEntity) {
