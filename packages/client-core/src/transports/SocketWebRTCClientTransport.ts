@@ -17,7 +17,7 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 
 // import { encode, decode } from 'msgpackr'
 const gameserverAddress =
-  process.env.APP_ENV === 'development'
+  process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
     ? `https://${(globalThis as any).process.env['VITE_GAMESERVER_HOST']}:${
         (globalThis as any).process.env['VITE_GAMESERVER_PORT']
       }`
