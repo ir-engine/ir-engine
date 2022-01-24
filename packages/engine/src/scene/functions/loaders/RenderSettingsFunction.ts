@@ -66,18 +66,19 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
     Engine.renderer.shadowMap.enabled = false
   }
 
-  if (component.csm && !Engine.isHMD && Engine.renderer.shadowMap.enabled) {
+  if (component.csm && Engine.renderer.shadowMap.enabled) {
     if (accessEngineState().sceneLoaded.value) initializeCSM()
     else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
   }
 }
 
 export const initializeCSM = () => {
-  Engine.csm = new CSM({
-    camera: Engine.camera as PerspectiveCamera,
-    parent: Engine.scene,
-    lights: Engine.directionalLights
-  })
+  if (!Engine.isHMD)
+    Engine.csm = new CSM({
+      camera: Engine.camera as PerspectiveCamera,
+      parent: Engine.scene,
+      lights: Engine.directionalLights
+    })
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {
