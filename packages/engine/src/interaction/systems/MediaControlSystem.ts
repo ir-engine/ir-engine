@@ -35,10 +35,6 @@ export default async function MediaControlSystem(world: World) {
         transition.setState('OUT')
         mediaControls.state.mouseOver.set(false)
       }
-
-      xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-        console.log(layer.name, layer.pseudoStates.hover)
-      })
       transition.update(world, (opacity) => {
         buttonLayer.scale.setScalar(0.9 + 0.1 * opacity * opacity)
         xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
