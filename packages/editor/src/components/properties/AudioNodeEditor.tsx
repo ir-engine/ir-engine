@@ -10,8 +10,6 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { PropertiesPanelButton } from '../inputs/Button'
 import MediaSourceProperties from './MediaSourceProperties'
-import BooleanInput from '../inputs/BooleanInput'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 
 /**
@@ -25,7 +23,6 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const audioComponent = getComponent(props.node.entity, AudioComponent)
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
 
   return (
     <NodeEditor
@@ -38,12 +35,6 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
-        <BooleanInput
-          value={interactableComponent.interactable}
-          onChange={updateProperty(InteractableComponent, 'interactable')}
-        />
-      </InputGroup>
       <PropertiesPanelButton onClick={() => toggleAudio(props.node.entity)}>
         {t('editor:properties.audio.lbl-test')}
       </PropertiesPanelButton>
