@@ -13,6 +13,7 @@ import channels from './channels'
 import authentication from '@xrengine/server-core/src/user/authentication'
 import config from '@xrengine/server-core/src/appconfig'
 import sync from 'feathers-sync'
+import * as k8s from '@kubernetes/client-node'
 import { api } from '@xrengine/server-core/src/k8s'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
@@ -132,6 +133,9 @@ try {
   app.configure(channels)
 
   if (config.server.mode !== 'local') {
+    const kc = new k8s.KubeConfig()
+    kc.loadFromDefault()
+
     app.k8AgonesClient = api({
       endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
       version: '/apis/agones.dev/v1',
@@ -140,22 +144,8 @@ try {
         token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
       }
     })
-    app.k8DefaultClient = api({
-      endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-      version: '/api/v1',
-      auth: {
-        caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-        token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-      }
-    })
-    app.k8AppsClient = api({
-      endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-      version: '/apis/apps/v1',
-      auth: {
-        caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-        token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-      }
-    })
+    app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+    app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
   }
 
   app.use('/healthcheck', (req, res) => {

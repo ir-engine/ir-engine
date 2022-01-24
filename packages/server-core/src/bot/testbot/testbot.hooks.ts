@@ -3,7 +3,7 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('benchmark', 'write') as any)],
+    all: [iff(isProvider('external'), verifyScope('benchmarking', 'write') as any)],
     find: [],
     get: [],
     create: [],
