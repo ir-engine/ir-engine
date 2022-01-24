@@ -127,7 +127,7 @@ const UserTable = (props: UserProps) => {
         column={userColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminUserCount}
+        count={adminUserCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

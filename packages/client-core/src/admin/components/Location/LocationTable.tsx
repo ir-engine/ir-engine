@@ -1,26 +1,22 @@
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
 import React, { ReactElement } from 'react'
-import { LocationService } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useLocationState } from '../../services/LocationService'
-import { useInstanceState } from '../../services/InstanceService'
-import { useUserState } from '../../services/UserService'
-import { SceneService } from '../../services/SceneService'
-import { UserService } from '../../services/UserService'
-import { InstanceService } from '../../services/InstanceService'
+import { useTranslation } from 'react-i18next'
 import { useErrorState } from '../../../common/services/ErrorService'
 import { useDispatch } from '../../../store'
-import { useTranslation } from 'react-i18next'
-import { locationColumns, LocationProps } from '../../common/variables/location'
-import Chip from '@mui/material/Chip'
-import Avatar from '@mui/material/Avatar'
-import ViewLocation from './ViewLocation'
-import { LOCATION_PAGE_LIMIT } from '../../services/LocationService'
+import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
-import TableComponent from '../../common/Table'
-import { useFetchLocation, useFetchAdminScenes, useFetchLocationTypes } from '../../common/hooks/Location.hooks'
-import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
+import { useFetchAdminScenes, useFetchLocation, useFetchLocationTypes } from '../../common/hooks/Location.hooks'
+import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
+import TableComponent from '../../common/Table'
+import { locationColumns, LocationProps } from '../../common/variables/location'
+import { InstanceService, useInstanceState } from '../../services/InstanceService'
+import { LocationService, LOCATION_PAGE_LIMIT, useLocationState } from '../../services/LocationService'
+import { SceneService } from '../../services/SceneService'
+import { UserService, useUserState } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
+import ViewLocation from './ViewLocation'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
@@ -39,7 +35,7 @@ const LocationTable = (props: LocationProps) => {
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
   const adminLocationState = useLocationState()
-  const adminLocations = adminLocationState
+  const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total
 
   // Call custom hooks
@@ -130,7 +126,7 @@ const LocationTable = (props: LocationProps) => {
     }
   }
 
-  const rows = adminLocations.locations.value.map((el) => {
+  const rows = adminLocations.value.map((el) => {
     return createData(
       el,
       el.id,
