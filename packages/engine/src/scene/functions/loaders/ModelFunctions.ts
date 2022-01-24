@@ -47,7 +47,19 @@ export const updateModel: ComponentUpdateFunction = async (
   if (properties.src) {
     try {
       await loadGLTFModel(entity)
+      component.error = ''
     } catch (err) {
+      component.error = err.message
+      Promise.reject(err)
+    }
+  }
+
+  if (properties.envMapOverride) {
+    try {
+      // ToDo: Add right method to load envMap
+      component.errorEnvMapLoad = ''
+    } catch (err) {
+      component.errorEnvMapLoad = err.message
       Promise.reject(err)
     }
   }

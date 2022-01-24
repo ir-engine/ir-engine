@@ -155,7 +155,8 @@
             "lbl-coreOuterGain": "Cone Outer Gain",
             "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
             "lbl-volume": "Volume",
-            "lbl-test": "Test"
+            "lbl-test": "Test",
+            "error-url": "Error Loading From URL"
         },
         "boxCollider": {
             "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
@@ -248,7 +249,8 @@
             "lbl-side": "Side",
             "info-controls": "Toggle the visibility of the media controls in Hubs.",
             "info-transparency": "How to apply transparency:\n'opaque' = no transparency\n'blend' = use the images alpha channel\n'mask' = Use a specified cutoff value for on/off transparency (more performant)",
-            "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent"
+            "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
+            "error-url": "Invalid URL"
         },
         "name": {
             "lbl-name": "Name"

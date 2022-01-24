@@ -32,6 +32,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
         <AudioInput value={audioComponent.audioSource} onChange={updateProperty(AudioComponent, 'audioSource')} />
+        {audioComponent.error && <div style={{ color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
       </InputGroup>
       <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
