@@ -26,12 +26,13 @@ interface Props {
   openView: boolean
   closeViewModel: () => void
   partyAdmin: any
+  editMode: boolean
+  handleEditMode: (open: boolean) => void
 }
 
 export default function ViewParty(props: Props) {
-  const { openView, closeViewModel, partyAdmin } = props
+  const { openView, closeViewModel, partyAdmin, editMode, handleEditMode } = props
   const classes = useStyles()
-  const [editMode, setEditMode] = useState(false)
   const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',
@@ -258,23 +259,13 @@ export default function ViewParty(props: Props) {
               </span>{' '}
               Submit
             </Button>
-            <Button
-              className={classes.saveBtn}
-              onClick={() => {
-                setEditMode(false)
-              }}
-            >
+            <Button className={classes.saveBtn} onClick={() => handleEditMode(false)}>
               CANCEL
             </Button>
           </div>
         ) : (
           <div className={classes.marginTpM}>
-            <Button
-              className={classes.saveBtn}
-              onClick={() => {
-                setEditMode(true)
-              }}
-            >
+            <Button className={classes.saveBtn} onClick={() => handleEditMode(true)}>
               EDIT
             </Button>
             <Button onClick={() => closeViewModel()} className={classes.saveBtn}>

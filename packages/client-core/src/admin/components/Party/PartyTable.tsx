@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { PartyService } from '../../services/PartyService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -16,13 +16,14 @@ const PartyTable = (props: PartyPropsTable) => {
   const classes = useStyles()
   const dispatch = useDispatch()
 
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
-  const [partyName, setPartyName] = React.useState('')
-  const [partyId, setPartyId] = React.useState('')
-  const [viewModel, setViewModel] = React.useState(false)
-  const [partyAdmin, setPartyAdmin] = React.useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [partyName, setPartyName] = useState('')
+  const [partyId, setPartyId] = useState('')
+  const [viewModel, setViewModel] = useState(false)
+  const [partyAdmin, setPartyAdmin] = useState('')
+  const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
   const user = authState.user
@@ -57,6 +58,11 @@ const PartyTable = (props: PartyPropsTable) => {
   const closeViewModel = () => {
     setViewModel(false)
     setPartyAdmin('')
+    setEditMode(false)
+  }
+
+  const handleEditMode = (open: boolean) => {
+    setEditMode(open)
   }
 
   const createData = (el: any, id: string, instance: any, location: any): PartyData => {
@@ -118,7 +124,13 @@ const PartyTable = (props: PartyPropsTable) => {
         name={partyName}
         label={'party with instance of '}
       />
-      <ViewParty openView={viewModel} closeViewModel={closeViewModel} partyAdmin={partyAdmin} />
+      <ViewParty
+        openView={viewModel}
+        closeViewModel={closeViewModel}
+        partyAdmin={partyAdmin}
+        editMode={editMode}
+        handleEditMode={handleEditMode}
+      />
     </React.Fragment>
   )
 }
