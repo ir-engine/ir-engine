@@ -22,7 +22,7 @@ export const deserializeWorldData: ComponentDeserializeFunction = (
   json: ComponentJson<WorldDataComponentType>
 ) => {
   const obj3d = new Object3D()
-  const data = json.props.data
+  const data = json.props.data ?? ''
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteractableComponent, { action: '_metadata', interactionUserData: data })
 

@@ -4,7 +4,6 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'
 import { createAvatar } from './functions/createAvatar'
-import { System } from '../ecs/classes/System'
 import { World } from '../ecs/classes/World'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
@@ -51,7 +50,7 @@ export class SpawnPoints {
   }
 }
 
-export default async function AvatarSpawnSystem(world: World): Promise<System> {
+export default async function AvatarSpawnSystem(world: World) {
   world.receptors.push((action) => {
     matches(action).when(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       if (isClient) {

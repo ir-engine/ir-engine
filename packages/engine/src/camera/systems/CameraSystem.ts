@@ -9,7 +9,6 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
@@ -161,6 +160,8 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.updateWorldMatrix(false, true)
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
@@ -223,7 +224,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   }
 }
 
-export default async function CameraSystem(world: World): Promise<System> {
+export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
 

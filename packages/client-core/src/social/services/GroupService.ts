@@ -103,7 +103,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -122,7 +122,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -153,7 +153,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {

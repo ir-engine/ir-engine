@@ -30,6 +30,10 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.editor.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "xrengine.testbot.name" -}}
+{{- default .Chart.Name .Values.testbot.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 
 {{/*
 Create a default fully qualified app name.
@@ -90,6 +94,15 @@ If release name contains chart name it will be used as a full name.
 {{- .Values.gameserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
 {{- printf "%s-%s" .Release.Name .Values.gameserver.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+
+{{- define "xrengine.testbot.fullname" -}}
+{{- if .Values.testbot.fullnameOverride -}}
+{{- .Values.testbot.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name .Values.testbot.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -220,6 +233,28 @@ app.kubernetes.io/component: gameserver
 
 
 {{/*
+Common labels
+*/}}
+{{- define "xrengine.testbot.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.testbot.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "xrengine.testbot.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.testbot.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: testbot
+{{- end -}}
+
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "xrengine.analytics.serviceAccountName" -}}
@@ -273,6 +308,18 @@ Create the name of the service account to use
     {{ default (include "xrengine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.gameserver.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "xrengine.testbot.serviceAccountName" -}}
+{{- if .Values.testbot.serviceAccount.create -}}
+    {{ default (include "xrengine.testbot.fullname" .) .Values.testbot.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.testbot.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

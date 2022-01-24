@@ -1,14 +1,13 @@
 import assert from 'assert'
 import { Engine } from '../../src/ecs/classes/Engine'
-import { System } from '../../src/ecs/classes/System'
+
 import { createWorld, World } from '../../src/ecs/classes/World'
 import { addComponent, createMappedComponent, defineQuery, getComponent, removeComponent } from '../../src/ecs/functions/ComponentFunctions'
-import { registerSystem, SystemModulePromise } from '../../src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 import { createEntity,removeEntity } from '../../src/ecs/functions/EntityFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { Entity } from '../../src/ecs/classes/Entity'
 import * as bitecs from 'bitecs'
+import { initSystems } from '../../src/ecs/functions/SystemFunctions'
 
 const mockDelta = 1/60
 let mockElapsedTime = 0
@@ -27,7 +26,7 @@ const MockSystemModulePromise = async () => {
 
 const MockSystemState = new Map<World, Array<number>>()
 
-async function MockSystemInitialiser(world: World, args: {}): Promise<System> {
+async function MockSystemInitialiser(world: World, args: {}) {
   const mockQuery = defineQuery([MockComponent])
   MockSystemState.set(world, [])
 
@@ -55,8 +54,12 @@ describe('ECS', () => {
 
   beforeEach(async () => {
     const world = Engine.currentWorld = createWorld()
-    registerSystem(SystemUpdateType.UPDATE, MockSystemModulePromise())
-    await world.initSystems()
+    await initSystems(world,[
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: MockSystemModulePromise()
+      }
+    ])
   })
 
   // afterEach(() => {

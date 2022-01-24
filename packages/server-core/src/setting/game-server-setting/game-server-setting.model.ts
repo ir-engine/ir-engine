@@ -16,10 +16,6 @@ export default (app: Application) => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      enabled: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-      },
       rtc_start_port: {
         type: DataTypes.INTEGER,
         allowNull: true

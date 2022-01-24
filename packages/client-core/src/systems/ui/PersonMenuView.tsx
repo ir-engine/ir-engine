@@ -6,6 +6,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@hookstate/core'
 import { useUserState } from '../../user/services/UserService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const styles = {
   root: {
@@ -94,17 +95,18 @@ const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
   const userState = useUserState()
+  const engineState = useEngineState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
 
   const { t } = useTranslation()
 
-  return user && userState.selectedLayerUser.value === user.id.value ? (
+  return user && engineState.avatarTappedId.value === user.id.value ? (
     <div style={styles.root}>
-      <img style={styles.ownerImage} src={getAvatarURLForUser(user?.id?.value)} />
+      <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
         <section style={styles.buttonSection}>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Invite to Party')
             }}
@@ -112,7 +114,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.inviteToParty')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Add as a friend')
             }}
@@ -120,7 +122,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.addAsFriend')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Trade')
             }}
@@ -128,7 +130,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.trade')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Pay')
             }}
@@ -136,7 +138,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.pay')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Mute')
             }}
@@ -144,7 +146,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.mute')}
           </Button>
           <Button
-            style={styles.buttonRed}
+            style={styles.buttonRed as {}}
             onClick={() => {
               console.log('Block')
             }}

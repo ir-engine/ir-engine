@@ -19,7 +19,6 @@ import { EditorComponentType } from './Util'
 const StyledNameInputGroup = (styled as any)(InputGroup)`
   label {
     width: auto !important;
-    padding-right: 8px;
   }
 `
 
@@ -30,7 +29,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {
-  const nodeName = getComponent(props.node.entity, NameComponent).name
+  const nodeName = getComponent(props.node.entity, NameComponent)?.name
 
   const [name, setName] = useState(nodeName)
   const [focusedNode, setFocusedNode] = useState<EntityTreeNode>()

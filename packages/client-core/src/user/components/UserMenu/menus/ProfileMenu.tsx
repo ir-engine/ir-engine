@@ -11,11 +11,13 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
 import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
@@ -49,6 +51,7 @@ const initialState = {
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
+  const location: any = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -57,7 +60,9 @@ const ProfileMenu = (props: Props): any => {
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
+  const [showApiKey, setShowApiKey] = useState(false)
   const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
+  const [apiKeyState, setApiKeyState] = useState({ value: '', copied: false, open: false })
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
@@ -143,12 +148,16 @@ const ProfileMenu = (props: Props): any => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
+    setShowUserId(false)
+    setShowApiKey(false)
+    setUserIdState({ ...userIdState, open: false })
+    setApiKeyState({ ...apiKeyState, open: false })
     await AuthService.logoutUser()
     // window.location.reload()
   }
@@ -185,8 +194,21 @@ const ProfileMenu = (props: Props): any => {
     setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
-  const handleClose = () => {
+  const handleShowApiKey = () => {
+    setShowApiKey(!showApiKey)
+    setApiKeyState({ ...apiKeyState, value: selfUser.apiKey?.token?.value })
+  }
+
+  const handleCloseUserId = () => {
     setUserIdState({ ...userIdState, open: false })
+  }
+
+  const handleCloseApiKey = () => {
+    setApiKeyState({ ...apiKeyState, open: false })
+  }
+
+  const refreshApiKey = () => {
+    AuthService.updateApiKey()
   }
 
   const getConnectText = () => {
@@ -290,7 +312,7 @@ const ProfileMenu = (props: Props): any => {
             </span>
 
             <Grid container justifyContent="right">
-              <Grid item xs={6}>
+              <Grid item xs={selfUser.userRole?.value === 'guest' ? 6 : 4}>
                 <h2>
                   {selfUser?.userRole?.value === 'admin'
                     ? t('user:usermenu.profile.youAreAn')
@@ -298,13 +320,28 @@ const ProfileMenu = (props: Props): any => {
                   <span>{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={6} alignItems="flex-start" direction="column">
+              <Grid
+                item
+                container
+                xs={selfUser.userRole?.value === 'guest' ? 6 : 4}
+                alignItems="flex-start"
+                direction="column"
+              >
                 <Tooltip title="Show User ID" placement="right">
                   <h2 className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
               </Grid>
+              {selfUser?.apiKey?.id && (
+                <Grid item container xs={4} alignItems="flex-start" direction="column">
+                  <Tooltip title="Show API key" placement="right">
+                    <h2 className={styles.showUserId} onClick={handleShowApiKey}>
+                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}{' '}
+                    </h2>
+                  </Tooltip>
+                </Grid>
+              )}
             </Grid>
             {selfUser?.userRole.value !== 'guest' && (
               <Grid
@@ -384,6 +421,7 @@ const ProfileMenu = (props: Props): any => {
 
             <form>
               <TextField
+                id="user-id"
                 className={styles.emailField}
                 size="small"
                 placeholder={'user id'}
@@ -397,6 +435,46 @@ const ProfileMenu = (props: Props): any => {
                         text={userIdState.value}
                         onCopy={() => {
                           setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
+        {showApiKey && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              API key
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'API key'}
+                variant="outlined"
+                value={selfUser?.apiKey?.token?.value}
+                onChange={({ target: { value } }) => setApiKeyState({ ...apiKeyState, value, copied: false })}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <RefreshIcon className={styles.apiRefresh} onClick={refreshApiKey} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={apiKeyState.value}
+                        onCopy={() => {
+                          setApiKeyState({ ...apiKeyState, copied: true, open: true })
                         }}
                       >
                         <a href="#" className={styles.materialIconBlock}>
@@ -511,9 +589,18 @@ const ProfileMenu = (props: Props): any => {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={userIdState.open}
-        onClose={handleClose}
+        onClose={handleCloseUserId}
         message="User ID copied"
         key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={apiKeyState.open}
+        onClose={handleCloseApiKey}
+        message="API Key copied"
+        key={'bottom' + 'center'}
         autoHideDuration={2000}
       />
     </div>

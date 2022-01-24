@@ -5,12 +5,10 @@ import TuneIcon from '@mui/icons-material/Tune'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import Modal from 'react-modal'
+import Dialog from '@mui/material/Dialog'
 import styled from 'styled-components'
-import { getScene, saveScene } from '../functions/sceneFunctions'
+import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
@@ -36,35 +34,11 @@ import { saveProject } from '../functions/projectFunctions'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-
-/**
- * StyledEditorContainer component is used as root element of new project page.
- * On this page we have an editor to create a new or modifing an existing project.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const StyledEditorContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-`
-
-/**
- *Styled component used as workspace container.
- *
- * @author Robert Long
- * @type {type}
- */
-const WorkspaceContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  margin: 0px;
-`
+import Search from './Search/Search'
+import { AppContext } from './Search/context'
+import * as styles from './styles.module.scss'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { DndWrapper } from './dnd/DndWrapper'
 
 /**
  *Styled component used as dock container.
@@ -132,6 +106,8 @@ type EditorContainerProps = {
 const EditorContainer = (props) => {
   const projectName = useEditorState().projectName.value
   const sceneName = useEditorState().sceneName.value
+  const [searchElement, setSearchElement] = React.useState('')
+  const [searchHierarchy, setSearchHierarchy] = React.useState('')
 
   const { t } = useTranslation()
   const [editorReady, setEditorReady] = useState(false)
@@ -165,6 +141,13 @@ const EditorContainer = (props) => {
     }
   }
 
+  const handleInputChangeHierarchy = (searchInput) => {
+    setSearchHierarchy(searchInput)
+  }
+  const handleInputChangeElement = (searchInput) => {
+    setSearchElement(searchInput)
+  }
+
   useEffect(() => {
     const locationSceneName = props?.match?.params?.sceneName
     const locationProjectName = props?.match?.params?.projectName
@@ -190,8 +173,23 @@ const EditorContainer = (props) => {
     }
   }, [editorReady, sceneLoaded])
 
-  const reRouteToLoadScene = (sceneName) => {
-    projectName && sceneName && history.push(`/editor/${projectName}/${sceneName}`)
+  const reRouteToLoadScene = async (newSceneName) => {
+    if (sceneName === newSceneName) return
+
+    await uploadCurrentScene()
+
+    projectName && newSceneName && history.push(`/editor/${projectName}/${newSceneName}`)
+  }
+
+  const uploadCurrentScene = async () => {
+    if (!Engine.sceneLoaded) return
+
+    ProjectManager.instance.dispose()
+
+    return unloadScene({
+      removePersisted: true,
+      keepSystems: true
+    })
   }
 
   const loadScene = async (sceneName) => {
@@ -222,15 +220,17 @@ const EditorContainer = (props) => {
   }
 
   const newScene = async () => {
+    if (!projectName) return
+
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
     setSceneLoaded(false)
-    try {
-      // TODO: replace with better template functionality
-      const project = await getScene('default-project', 'empty', false)
 
-      if (!project.scene) return
-      await ProjectManager.instance.loadProject(project.scene)
+    try {
+      const newProject = await createNewScene(projectName)
+      if (!newProject) return
+
+      reRouteToLoadScene(newProject.sceneName)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -243,10 +243,6 @@ const EditorContainer = (props) => {
         />
       )
     }
-    dispatch(EditorAction.sceneLoaded(sceneName))
-    SceneManager.instance.sceneModified = true
-    updateModifiedState()
-    setSceneLoaded(true)
   }
 
   const updateModifiedState = (then?) => {
@@ -622,7 +618,7 @@ const EditorContainer = (props) => {
         },
         {
           mode: 'vertical' as DockMode,
-          size: 2,
+          size: 3,
           children: [
             {
               tabs: [
@@ -632,6 +628,7 @@ const EditorContainer = (props) => {
                     <PanelDragContainer>
                       <PanelIcon as={AccountTreeIcon} size={12} />
                       <PanelTitle>Hierarchy</PanelTitle>
+                      <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
                     </PanelDragContainer>
                   ),
                   content: <HierarchyPanelContainer />
@@ -654,7 +651,10 @@ const EditorContainer = (props) => {
                   id: 'assetsPanel',
                   title: (
                     <PanelDragContainer>
-                      <PanelTitle>Elements</PanelTitle>
+                      <PanelTitle>
+                        Elements
+                        <Search elementsName="element" handleInputChange={handleInputChangeElement} />
+                      </PanelTitle>
                     </PanelDragContainer>
                   ),
                   content: <AssetsPanel />
@@ -667,34 +667,33 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
+    <div className={styles.editorContainer} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-        <DndProvider backend={HTML5Backend}>
+        <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <WorkspaceContainer>
+          <div className={styles.workspaceContainer}>
             <ViewportPanelContainer />
-            <DockContainer>
-              <DockLayout
-                ref={dockPanelRef}
-                defaultLayout={defaultLayout}
-                style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
-              />
-            </DockContainer>
-          </WorkspaceContainer>
-          <Modal
-            ariaHideApp={false}
-            isOpen={!!DialogComponent}
-            onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={true}
-            className="Modal"
-            overlayClassName="Overlay"
+            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
+              <DockContainer>
+                <DockLayout
+                  ref={dockPanelRef}
+                  defaultLayout={defaultLayout}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                />
+              </DockContainer>
+            </AppContext.Provider>
+          </div>
+          <Dialog
+            open={!!DialogComponent}
+            onClose={() => setDialogComponent(null)}
+            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
           >
             {DialogComponent}
-          </Modal>
-        </DndProvider>
+          </Dialog>
+        </DndWrapper>
       </DialogContext.Provider>
-    </StyledEditorContainer>
+    </div>
   )
 }
 

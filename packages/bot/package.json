@@ -1,0 +1,31 @@
+{
+  "name": "@xrengine/bot",
+  "version": "0.4.10",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "engines": {
+    "node": ">= 16.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "npmClient": "npm",
+  "main": "src/bot.ts",
+  "scripts": {
+    "check-errors": "tsc --noemit",
+    "validate": "npm run test",
+    "build-publish": "rimraf dist && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production rollup -c",
+    "test": "exit 0",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  },
+  "dependencies": {
+    "puppeteer": "^13.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "7.0.3",
+    "typescript": "4.5.5"
+  },
+  "license": "ISC"
+}

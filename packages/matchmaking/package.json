@@ -2,9 +2,8 @@
   "name": "@xrengine/matchmaking",
   "version": "0.4.13",
   "author": {
-    "name": "XREngine",
-    "email": "shawmakesmagic@gmail.com",
-    "url": "http://github.com/XRFoundation"
+    "name": "XRFoundation Collective",
+    "email": "hello@xrfoundation.io"
   },
   "publishConfig": {
     "access": "public"
@@ -20,10 +19,10 @@
     "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
   "scripts": {
-    "check-errors": "exit 0",
+    "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
-    "test": "mocha",
+    "test": "mocha --config .mocharc.json",
     "validate": "npm run test",
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
@@ -32,17 +31,17 @@
   },
   "dependencies": {
     "abort-controller": "^3.0.0",
-    "axios": "0.24.0",
-    "node-fetch": "^2.6.1"
+    "axios": "0.25.0",
+    "node-fetch": "^2.6.6"
   },
   "devDependencies": {
-    "@types/mocha": "9.0.0",
+    "@types/mocha": "9.1.0",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
-    "mocha": "9.1.3",
-    "nock": "13.2.1",
+    "mocha": "9.1.4",
+    "nock": "13.2.2",
     "ts-node": "10.4.0",
-    "typescript": "4.5.4",
-    "vite": "2.6.14"
+    "typescript": "4.5.5",
+    "vite": "2.7.13"
   }
 }

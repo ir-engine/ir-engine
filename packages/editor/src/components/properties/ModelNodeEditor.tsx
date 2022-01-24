@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import ModelInput from '../inputs/ModelInput'
-import { getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import { EditorComponentType, updateProperty } from './Util'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -37,7 +37,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const modelComponent = getComponent(props.node.entity, ModelComponent)
   const obj3d = getComponent(props.node.entity, Object3DComponent).value
 
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+  useEffect(() => {
+    setInteractable(hasComponent(props.node.entity, InteractableComponent))
+  }, [])
 
   const onChangeInteractable = (interact) => {
     setInteractable(interact)

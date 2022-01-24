@@ -1,12 +1,12 @@
-import React, { Fragment, Suspense, useEffect } from 'react'
-import { Switch, Redirect } from 'react-router-dom'
-import PrivateRoute from '../Private'
 import CircularProgress from '@mui/material/CircularProgress'
-import { useAuthState } from '../user/services/AuthService'
-import { AuthService } from '../user/services/AuthService'
+import React, { Fragment, Suspense, useEffect } from 'react'
+import { Redirect, Switch } from 'react-router-dom'
+import PrivateRoute from '../Private'
+import { AuthService, useAuthState } from '../user/services/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
 const avatars = React.lazy(() => import('./pages/avatars'))
+const benchmarking = React.lazy(() => import('./pages/benchmarking'))
 const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
@@ -36,7 +36,8 @@ const ProtectedRoutes = (props: Props) => {
     groups: false,
     instance: false,
     invite: false,
-    globalAvatars: false
+    globalAvatars: false,
+    benchmarking: false
   }
   const scopes = admin?.scopes?.value || []
 
@@ -56,7 +57,7 @@ const ProtectedRoutes = (props: Props) => {
   })
 
   if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to="/login" />
+    return <Redirect to={{ pathname: '/login', state: { from: '/admin' } }} />
   }
 
   return (
@@ -80,6 +81,7 @@ const ProtectedRoutes = (props: Props) => {
           <Switch>
             <PrivateRoute exact path="/admin" component={analytic} />
             <PrivateRoute exact path="/admin/avatars" component={avatars} />
+            <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />
             <PrivateRoute exact path="/admin/groups" component={groups} />
             <PrivateRoute exact path="/admin/instance" component={instance} />
             <PrivateRoute exact path="/admin/invites" component={invites} />

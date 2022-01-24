@@ -7,8 +7,8 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { result } = context
     const loggedInUser = extractLoggedInUserFromParams(context.params)
-    if (loggedInUser?.userId != null) {
-      const user = await context.app.service('user').get(loggedInUser.userId)
+    if (loggedInUser?.id != null) {
+      const user = await context.app.service('user').get(loggedInUser.id)
       if (user.partyId) {
         const partyOwnerResult = await context.app.service('party-user').find({
           query: {

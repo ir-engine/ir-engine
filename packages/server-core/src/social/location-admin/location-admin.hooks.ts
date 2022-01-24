@@ -1,12 +1,10 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
     get: [],
     create: [],

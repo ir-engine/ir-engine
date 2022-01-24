@@ -31,7 +31,7 @@ import { MediaComponent } from '../../components/MediaComponent'
 import isHLS from '../isHLS'
 import Hls from 'hls.js'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
-import { matchActionOnce, receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
@@ -46,13 +46,12 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   json: ComponentJson<VideoComponentType>
 ) => {
   if (!isClient) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
     return
   }
 
   const mediaComponent = getComponent(entity, MediaComponent)
 
-  const obj3d = new Object3D()
+  const obj3d = getComponent(entity, Object3DComponent).value
   const video = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
   video.name = VIDEO_MESH_NAME
 
@@ -62,7 +61,8 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
   el.setAttribute('loop', 'true')
-  el.setAttribute('preload', 'none')
+  el.setAttribute('preload', 'metadata')
+  el.setAttribute('autoplay', mediaComponent.autoplay ? 'true' : 'false')
   el.setAttribute('playsInline', 'true')
   el.setAttribute('playsinline', 'true')
   el.setAttribute('webkit-playsInline', 'true')
@@ -73,12 +73,21 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   document.body.appendChild(el)
   obj3d.userData.videoEl = el
 
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, VideoComponent, { ...json.props })
+  el.addEventListener('playing', () => {
+    mediaComponent.playing = true
+  })
+  el.addEventListener('pause', () => {
+    mediaComponent.playing = false
+  })
+  mediaComponent.el = el
+
+  const props = parseVideoProperties(json.props) as VideoComponentType
+
+  addComponent(entity, VideoComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 
-  updateVideo(entity, json.props)
+  updateVideo(entity, props)
 }
 
 export const updateVideo: ComponentUpdateFunction = async (entity: Entity, properties: VideoComponentType) => {
@@ -92,7 +101,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
 
       if (isHLS(url, contentType)) {
         component.hls = setupHLS(url)
-        component.hls.attachMedia(obj3d.userData.videoEl)
+        component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
       //   const { MediaPlayer } = await import('dashjs')
@@ -119,7 +128,6 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         'loadeddata',
         () => {
           obj3d.userData.videoEl.muted = false
-          console.log(obj3d.userData.videoEl, obj3d.userData.videoEl.autoplay)
 
           if (obj3d.userData.videoEl.autoplay) {
             if (accessEngineState().userHasInteracted.value) {
@@ -147,7 +155,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('elementId')) obj3d.userData.videoEl.id = component.elementId
+  if (typeof properties.elementId !== 'undefined') obj3d.userData.videoEl.id = component.elementId
 }
 
 export const serializeVideo: ComponentSerializeFunction = (entity) => {
@@ -217,5 +225,12 @@ export const toggleVideo = (entity: Entity) => {
   } else {
     data.audioEl.stop()
     data.videoEl.pause()
+  }
+}
+
+const parseVideoProperties = (props): Partial<VideoComponentType> => {
+  return {
+    videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
+    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
   }
 }

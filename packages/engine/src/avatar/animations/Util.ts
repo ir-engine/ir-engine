@@ -1,6 +1,6 @@
 import matches from 'ts-matches'
 import { AnimationAction, AnimationActionLoopStyles, AnimationClip, Vector3 } from 'three'
-import { matchesVector3 } from '../../networking/interfaces/Action'
+import { matchesVector3 } from '../../ecs/functions/Action'
 
 /** State of the avatar animation */
 
@@ -80,13 +80,13 @@ export const matchesWeightsParameters = matches.partial({
 
 export type WeightsParameterType = {
   /** Movement of the avatar in the frame */
-  movement: MovementType
+  movement?: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */
-  resetAnimation: boolean
+  resetAnimation?: boolean
 
   /** Skip validation check and force state transition */
-  forceTransition: boolean
+  forceTransition?: boolean
 
   /** Other data to be passed with */
   [key: string]: any

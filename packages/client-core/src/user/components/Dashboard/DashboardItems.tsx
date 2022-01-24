@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Accessibility,
   CalendarViewDay,
@@ -9,13 +8,12 @@ import {
   NearMe,
   PersonAdd,
   Settings,
+  Shuffle,
   SupervisorAccount,
-  Toys,
-  Shuffle
+  Timeline,
+  Toys
 } from '@mui/icons-material'
-import RemoveFromQueueIcon from '@mui/icons-material/RemoveFromQueue'
-import ViewModuleIcon from '@mui/icons-material/ViewModule'
-import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople'
+import React from 'react'
 
 export const SidebarItems = (allowedRoutes) => [
   {
@@ -68,6 +66,11 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/avatars',
     icon: <Accessibility style={{ color: 'white' }} />
   },
+  allowedRoutes.benchmarking && {
+    name: 'user:dashboard.benchmarking',
+    path: '/admin/benchmarking',
+    icon: <Timeline style={{ color: 'white' }} />
+  },
   {
     name: 'user:dashboard.setting',
     path: '/admin/settings',
@@ -77,28 +80,5 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.bots',
     path: '/admin/bots',
     icon: <Toys style={{ color: 'white' }} />
-  }
-]
-
-export const SocialSidebarItems = () => [
-  {
-    title: 'Social',
-    items: [
-      {
-        name: 'social:dashboard.feeds',
-        path: '/admin/feeds',
-        icon: <ViewModuleIcon style={{ color: 'white' }} />
-      },
-      {
-        name: 'social:dashboard.arMedia',
-        path: '/admin/armedia',
-        icon: <EmojiPeopleIcon style={{ color: 'white' }} />
-      },
-      {
-        name: 'social:dashboard.creator',
-        path: '/admin/creator',
-        icon: <RemoveFromQueueIcon style={{ color: 'white' }} />
-      }
-    ]
   }
 ]

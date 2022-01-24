@@ -5,7 +5,6 @@ client:
     API_SOCKET_ENDPOINT: /socket
     API_SERVER: https://api-local.theoverlay.io
     CLIENT_ADDRESS: https://local.theoverlay.io
-    CLIENT_ENABLED: "true"
     CLIENT_SCENE_ROUTE: /scenes/
     CLIENT_LOCAL_SCENE_ROUTE: "/scene.html?scene_id="
     CORS_PROXY_SERVER: https://api-local.theoverlay.io
@@ -18,7 +17,6 @@ client:
     NODE_ENV: production
     NON_CORS_PROXY_DOMAINS: "reticulum.io,theoverlay.io,amazonaws.com"
     ROUTER_BASE_PATH: /spoke
-    SERVER_ENABLED: "false"
     SITE_DESC: Connected Worlds for Everyone
     SITE_TITLE: XR3ngine
     THUMBNAIL_ROUTE: /thumbnail/
@@ -76,7 +74,6 @@ api:
     AWS_SMS_REGION: <SMS_REGION>
     AWS_SMS_SECRET_ACCESS_KEY: <SMS_USER_SECRET_KEY>
     AWS_SMS_TOPIC_ARN: arn:aws:sns:<SMS_REGION>:<AWS_ACCOUNT_ID>:<SMS_TOPIC_NAME>
-    CLIENT_ENABLED: "false"
     CERT: certs/cert.pem
     KEY: certs/key.pem
     CORS_SERVER_PORT: "3036"
@@ -245,7 +242,6 @@ gameserver:
     APP_URL: https://local.theoverlay.io
     CERT: certs/cert.pem
     KEY: certs/key.pem
-    GAMESERVER_ENABLED: "true"
     GAMESERVER_PORT: "3031"
     ROUTE53_ACCESS_KEY_ID: <ROUTE53_USER_ACCESS_KEY>
     ROUTE53_ACCESS_KEY_SECRET: <ROUTE53_USER_SECRET_KEY>
@@ -289,3 +285,10 @@ gameserver:
 
 redis:
     enabled: false
+
+testbot:
+  extraEnv:
+    APP_HOST: local.theoverlay.io
+  image:
+    repository: xrengine-testbot
+    pullPolicy: IfNotPresent

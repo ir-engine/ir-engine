@@ -30,7 +30,8 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  addComponent(entity, LoopAnimationComponent, { ...component.props })
+  const props = parseLoopAnimationProperties(component.props)
+  addComponent(entity, LoopAnimationComponent, props)
   addComponent(entity, AnimationComponent, {
     animations: [],
     mixer: null!,
@@ -87,5 +88,12 @@ export const serializeLoopAnimation: ComponentSerializeFunction = (entity) => {
       activeClipIndex: component.activeClipIndex,
       hasAvatarAnimations: component.hasAvatarAnimations
     }
+  }
+}
+
+const parseLoopAnimationProperties = (props): LoopAnimationComponentType => {
+  return {
+    activeClipIndex: props.activeClipIndex ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.activeClipIndex,
+    hasAvatarAnimations: props.hasAvatarAnimations ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.hasAvatarAnimations
   }
 }

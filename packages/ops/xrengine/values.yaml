@@ -49,8 +49,6 @@ client:
 
   extraEnv:
     API_SERVER: http://xrsocial.local
-    CLIENT_ENABLED: "true"
-    SERVER_ENABLED: "false"
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
     APP_ENV: production
@@ -106,9 +104,6 @@ api:
   extraEnv:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
-
-    CLIENT_ENABLED: "false"
-    SERVER_ENABLED: "true"
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
@@ -198,9 +193,6 @@ media:
   extraEnv:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
-
-    CLIENT_ENABLED: "false"
-    SERVER_ENABLED: "true"
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
@@ -318,6 +310,39 @@ gameserver:
     create: true
     annotations: {}
     name:
+
+
+testbot:
+  enabled: true
+  name: xrengine-testbot
+  suspend: true
+
+  image:
+    repository: lagunalabs/xrengine-testbot
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  extraEnv:
+    API_SERVER: http://xrsocial.local
+    SITE_TITLE: MyXR
+    SITE_DESC: Connected Worlds for Everyone
+    APP_ENV: production
 
 ########### Subcharts - values here will overwrite the subchart
 

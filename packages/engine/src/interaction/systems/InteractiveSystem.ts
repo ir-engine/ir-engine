@@ -16,7 +16,6 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import {
   createInteractUI,
@@ -38,7 +37,7 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 
-export default async function InteractiveSystem(world: World): Promise<System> {
+export default async function InteractiveSystem(world: World) {
   const interactorsQuery = defineQuery([InteractorComponent])
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
   const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
@@ -60,8 +59,11 @@ export default async function InteractiveSystem(world: World): Promise<System> {
     }
 
     for (const entity of interactiveQuery.exit(world)) {
-      // TODO: Does the Box3 object need to be destroyed before this?
-      removeComponent(entity, BoundingBoxComponent)
+      // this getComponent check is required for handling cases when multiple setEquippedObject cached network action are received
+      // and this exit query could get called with EquippedComponent not being present on the entity
+      if (getComponent(entity, EquippedComponent)) {
+        removeComponent(entity, BoundingBoxComponent)
+      }
       removeComponent(entity, InteractiveFocusedComponent)
       removeComponent(entity, SubFocusedComponent)
     }

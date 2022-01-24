@@ -13,11 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": {
-              "r": 1,
-              "g": 1,
-              "b": 1
-            },
+            "color": 16777215,
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -26,14 +22,15 @@
         {
           "name": "audio-settings",
           "props": {
+            "usePositionalAudio": true,
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,
             "avatarMaxDistance": 10000,
-            "mediaVolume": 0.5,
+            "mediaVolume": 1,
             "mediaDistanceModel": "inverse",
             "mediaRolloffFactor": 1,
-            "mediaRefDistance": 1,
+            "mediaRefDistance": 20,
             "mediaMaxDistance": 10000,
             "mediaConeInnerAngle": 360,
             "mediaConeOuterAngle": 0,
@@ -48,10 +45,10 @@
               "y": 15,
               "z": 30
             },
-            "overrideRendererSettings": true,
+            "overrideRendererSettings": false,
             "csm": true,
-            "toneMapping": 3,
-            "toneMappingExposure": 1.3,
+            "toneMapping": 1,
+            "toneMappingExposure": 0.8,
             "shadowMapType": 2
           }
         },
@@ -60,23 +57,80 @@
           "props": {
             "type": 1,
             "envMapTextureType": 0,
-            "envMapSourceColor": {},
+            "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
-            "envMapIntensity": 3.5
+            "envMapIntensity": 3.5,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 512,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
           }
         }
       ],
-      "name": "sky-station-25-03-2021"
+      "name": "sky-station"
     },
-    "15D96FA9-8B36-4EB1-89D1-6FDDA1AD2EBD": {
+    "1463EAC0-883F-493A-9A33-6757CC8FF48B": {
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": 2.5,
-              "y": 3.5,
-              "z": 6
+              "x": 75.83377071893172,
+              "y": 22.754914443536105,
+              "z": 18.400897195875466
+            },
+            "rotation": {
+              "x": -0.9238421630987406,
+              "y": 1.1208489301818778,
+              "z": 0.8727784216484142
+            },
+            "scale": {
+              "x": 0.9999999999999999,
+              "y": 1,
+              "z": 0.9999999999999999
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "scene-preview-camera",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 0,
+      "name": "scene preview camera"
+    },
+    "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
             "rotation": {
               "x": 0,
@@ -98,26 +152,26 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "/hdr/cubemap/MilkyWay/",
+            "equirectangularPath": "",
             "cubemapPath": "/hdr/cubemap/MilkyWay/",
             "backgroundType": 1,
             "skyboxProps": {
               "turbidity": 10,
-              "rayleigh": 2,
+              "rayleigh": 1,
               "luminance": 1,
-              "mieCoefficient": 0.005,
-              "mieDirectionalG": 8.5,
-              "inclination": 60,
-              "azimuth": 0
+              "mieCoefficient": 0.004999999999999893,
+              "mieDirectionalG": 0.99,
+              "inclination": 0.10471975511965978,
+              "azimuth": 0.16666666666666666
             }
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 0,
+      "index": 1,
       "name": "skybox"
     },
-    "633CD01A-BC2A-4584-99E2-2A3CFE2C8AD9": {
+    "1B698483-C15A-4CEC-9247-03873520DF70": {
       "components": [
         {
           "name": "transform",
@@ -128,9 +182,9 @@
               "z": 0
             },
             "rotation": {
-              "x": 3.141592653589793,
-              "y": -0.7853981633974484,
-              "z": 3.141592653589793
+              "x": 0,
+              "y": 0,
+              "z": 0
             },
             "scale": {
               "x": 1,
@@ -138,10 +192,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "spawn-point",
@@ -149,384 +199,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 1,
+      "index": 2,
       "name": "spawn point"
     },
-    "CD8E5818-7659-4675-9720-200657B9B7DF": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": -6.151167775555251,
-              "y": 1.31568728596931,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "gltf-model",
-          "props": {
-            "src": "__$project$__/default-project/assets/Skybase.glb",
-            "textureOverride": "",
-            "matrixAutoUpdate": false
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "interactable",
-          "props": {}
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 2,
-      "name": "model"
-    },
-    "CEF7BCDE-4C78-45B7-A2DB-66F8159AA945": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": -77.101617304139,
-              "y": 65.64281832114845,
-              "z": -18.964291623100856
-            },
-            "rotation": {
-              "x": -1.7703503812978527,
-              "y": -0.9595641083436542,
-              "z": -1.8129117906249699
-            },
-            "scale": {
-              "x": 0.9999999999999997,
-              "y": 0.9999999999999999,
-              "z": 0.9999999999999998
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "scene-preview-camera",
-          "props": {}
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 3,
-      "name": "scene preview camera"
-    },
-    "949A8E39-25D0-48B3-AADF-FCDD2D21A2FE": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "ambient-light",
-          "props": {
-            "color": 15335423,
-            "intensity": 1.6
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 4,
-      "name": "Ambient Light"
-    },
-    "A8F61640-74D2-4E33-8CFF-60D52C833D70": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 72.62929221206238,
-              "y": 37.76670564401437,
-              "z": -39.44043178716066
-            },
-            "rotation": {
-              "x": -2.336034219943989,
-              "y": 0.8140047571580721,
-              "z": 2.1803827110356346
-            },
-            "scale": {
-              "x": 1.000000000000001,
-              "y": 1.000000000000001,
-              "z": 1.0000000000000009
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "directional-light",
-          "props": {
-            "color": 12700897,
-            "intensity": 3,
-            "castShadow": true,
-            "shadowMapResolution": [
-              512,
-              512
-            ],
-            "shadowBias": -0.0009999999999998899,
-            "shadowRadius": 1,
-            "cameraFar": 300,
-            "showCameraHelper": false
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 5,
-      "name": "Directional Light"
-    },
-    "A4B9313F-C244-4A83-813D-281C43B671BE": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 49.45498515651032,
-              "y": 1.979821728775554,
-              "z": -0.008053372554778448
-            },
-            "rotation": {
-              "x": 3.141592653589793,
-              "y": -1.5539241938416208,
-              "z": 3.141592653589793
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "portal",
-          "props": {
-            "linkedPortalId": "BF989CD9-DEFB-41D0-B536-0F723D5A8DBD",
-            "spawnPosition": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "spawnRotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            }
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 6,
-      "name": "Portal"
-    },
-    "78007030-F875-4F6A-8EA2-4F7472CAD25A": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 3.6999999999999997,
-              "y": 2.6,
-              "z": 10.6
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "gltf-model",
-          "props": {
-            "src": "https://model3d.shopifycdn.com/models/o/baea3e723e1ba676/razer_laptop.glb",
-            "textureOverride": "",
-            "matrixAutoUpdate": false
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": false,
-            "receive": false
-          }
-        },
-        {
-          "name": "interactable",
-          "props": {
-            "interactable": true
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7,
-      "name": "Model"
-    },
-    "560B2C33-DD18-42DF-8848-4605FF6B91B6": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": -1.5,
-              "y": 3.5,
-              "z": 13.5
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1.777,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "video",
-          "props": {}
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 8,
-      "name": "Video"
-    },
-    "D98AD592-0DDF-4F1C-9C41-FC1E5229FAB3": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 24.5,
-              "y": 3,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "target": null,
-            "onEnter": "",
-            "onExit": ""
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 9,
-      "name": "Trigger Volume"
-    },
-    "358A1F93-4823-4436-A26E-2D4ED06DD9E1": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 24.5,
-              "y": 2,
-              "z": 0
-            },
-            "rotation": {
-              "x": -1.5707963267948963,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 10,
-      "name": "Particle Emitter"
-    },
-    "68F3E172-E383-4EC0-832A-657CE147B1CE": {
+    "1B698484-C15A-4CEC-9247-03873520DF70": {
       "components": [
         {
           "name": "transform",
@@ -637,55 +313,18 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 11,
-      "name": "Post Processing"
+      "index": 3,
+      "name": "post processing"
     },
-    "9E159A4E-08FE-4B2B-A927-D86D378F1E07": {
+    "B7094163-537F-4B23-8A5B-5285B333157C": {
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": 4.1,
-              "y": 2.6,
-              "z": 9.8
-            },
-            "rotation": {
-              "x": 0,
-              "y": -1.5707963267948966,
+              "x": -6.1,
+              "y": 1.3,
               "z": 0
-            },
-            "scale": {
-              "x": 1.0000000000000002,
-              "y": 1,
-              "z": 1.0000000000000002
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "interactable",
-          "props": {
-            "interactable": true
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 12,
-      "name": "Shopify"
-    },
-    "A4B9313F-C244-4A83-813D-281C43B671EB": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 2.5,
-              "y": 4,
-              "z": -13.5
             },
             "rotation": {
               "x": 0,
@@ -693,37 +332,295 @@
               "z": 0
             },
             "scale": {
-              "x": 2,
-              "y": 2,
-              "z": 2
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         },
         {
           "name": "visible",
           "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/Skybase.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 4,
+      "name": "Model"
+    },
+    "F3080B3B-0FD2-4B29-BBC2-644F789F2BDA": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "ambient-light",
+          "props": {
+            "color": 15335423,
+            "intensity": 1.6
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 5,
+      "name": "Ambient Light"
+    },
+    "0944C740-261D-4A88-8CA1-556E4F493041": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "directional-light",
+          "props": {
+            "color": 12700897,
+            "intensity": 3,
+            "castShadow": true,
+            "shadowMapResolution": [
+              512,
+              512
+            ],
+            "shadowBias": -0.0009999999999998899,
+            "shadowRadius": 1,
+            "cameraFar": 500,
+            "showCameraHelper": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 6,
+      "name": "Directional Light"
+    },
+    "A7187B08-8E63-498D-9878-58A99D39C6EB": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 4,
+              "z": 12.5
+            },
+            "rotation": {
+              "x": -3.141592653589793,
+              "y": 1.2246467991473532e-16,
+              "z": -3.141592653589793
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "media",
+          "props": {
+            "controls": true,
+            "autoplay": true,
+            "autoStartTime": 0,
+            "loop": true
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "audioSource": "",
+            "volume": 0.5,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 120,
+            "coneOuterAngle": 180,
+            "coneOuterGain": 0
+          }
         },
         {
           "name": "image",
           "props": {
+            "imageSource": "",
             "alphaCutoff": 0.5,
-            "alphaMode": "opaque",
-            "projection": "flat"
+            "alphaMode": "Opaque",
+            "projection": "Flat",
+            "side": 2
+          }
+        },
+        {
+          "name": "video",
+          "props": {
+            "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",
+            "elementId": "earth video"
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 13,
-      "name": "Image"
+      "index": 7,
+      "name": "Video"
     },
-    "8E515C31-872E-4017-AD92-B03078F3729B": {
+    "3CCDC88B-250C-4F26-9BE0-4AC39440EDAF": {
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": 38.9,
-              "y": 3.1,
+              "x": 22,
+              "y": 2.5,
+              "z": 0
+            },
+            "rotation": {
+              "x": -1.5707963267948963,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/dot.png",
+            "startColor": 16711680,
+            "middleColor": 65280,
+            "endColor": 255,
+            "startOpacity": 1,
+            "middleOpacity": 1,
+            "endOpacity": 1,
+            "colorCurve": "linear",
+            "sizeCurve": "linear",
+            "startSize": 0.25,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 100,
+            "startVelocity": {
+              "x": 0,
+              "y": 0.10000000000000009,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0.19999999999999996,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 8,
+      "name": "Particle Emitter"
+    },
+    "DC8DE746-6160-45EE-BF32-D828022E0FC7": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
               "z": 0
             },
             "rotation": {
@@ -732,15 +629,22 @@
               "z": 0
             },
             "scale": {
-              "x": 0.10000000000000009,
-              "y": 0.10000000000000009,
-              "z": 0.10000000000000009
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         },
         {
           "name": "visible",
           "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
         },
         {
           "name": "gltf-model",
@@ -753,21 +657,23 @@
           }
         },
         {
-          "name": "shadow",
+          "name": "loop-animation",
           "props": {
-            "cast": false,
-            "receive": false
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
           }
         },
         {
           "name": "interactable",
           "props": {
-            "interactable": true
+            "interactable": true,
+            "interactionType": "equippable",
+            "intensity": 2
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 14,
+      "index": 9,
       "name": "Equippable"
     }
   },

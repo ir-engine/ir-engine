@@ -24,6 +24,7 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     Network.instance.transportHandler = new TestNetworkTransportHandler()
 		world = createWorld()
 		Engine.currentWorld = world
+		Engine.isInitialized = true
 	})
 
   it('should serialize and send poses', async () => {
@@ -31,6 +32,12 @@ describe('OutgoingNetworkSystem Integration Tests', async () => {
     // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
     Engine.hasJoinedWorld = true
+
+    world.clients.set(Engine.userId, {
+      userId: Engine.userId,
+      name: Engine.userId,
+      subscribedChatUpdates: []
+    })
 
 		const entity = createEntity()
 		const transform = addComponent(entity, TransformComponent, {

@@ -32,10 +32,10 @@ import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComp
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
 export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
-  backgroundColor: 0,
-  equirectangularPath: '/hdr/city.jpg',
-  cubemapPath: '/hdr/cubemap/Bridge2/',
-  backgroundType: 3,
+  backgroundColor: 0x000000,
+  equirectangularPath: '',
+  cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
+  backgroundType: 1,
   skyboxProps: {
     turbidity: 10,
     rayleigh: 1,
@@ -52,9 +52,9 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
   json: ComponentJson<SkyboxComponentType>
 ) => {
   if (isClient) {
-    json.props.backgroundColor = new Color(json.props.backgroundColor)
+    const props = parseSkyboxProperties(json.props)
     addComponent(entity, Object3DComponent, { value: new Object3D() })
-    addComponent(entity, SkyboxComponent, json.props)
+    addComponent(entity, SkyboxComponent, props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
     if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
@@ -126,7 +126,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_SKYBOX,
     props: {
-      backgroundColor: component.backgroundColor?.getHex(),
+      backgroundColor: component.backgroundColor.getHex(),
       equirectangularPath: component.equirectangularPath,
       cubemapPath: component.cubemapPath,
       backgroundType: component.backgroundType,
@@ -141,4 +141,26 @@ const setSkyDirection = (direction: Vector3): void => {
 
 export const shouldDeserializeSkybox: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(SkyboxComponent) <= 0
+}
+
+const parseSkyboxProperties = (props): SkyboxComponentType => {
+  return {
+    backgroundColor: new Color(props.backgroundColor ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.backgroundColor),
+    equirectangularPath: props.equirectangularPath ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.equirectangularPath,
+    cubemapPath: props.cubemapPath ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.cubemapPath,
+    backgroundType: props.backgroundType ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.backgroundType,
+    skyboxProps: props.skyboxProps
+      ? {
+          turbidity: props.skyboxProps.turbidity ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.turbidity,
+          rayleigh: props.skyboxProps.rayleigh ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.rayleigh,
+          luminance: props.skyboxProps.luminance ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.luminance,
+          mieCoefficient:
+            props.skyboxProps.mieCoefficient ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.mieCoefficient,
+          mieDirectionalG:
+            props.skyboxProps.mieDirectionalG ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.mieDirectionalG,
+          inclination: props.skyboxProps.inclination ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.inclination,
+          azimuth: props.skyboxProps.azimuth ?? SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps.azimuth
+        }
+      : SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES.skyboxProps
+  }
 }

@@ -1,4 +1,3 @@
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../components/NameComponent'
@@ -6,7 +5,7 @@ import { NameComponent } from '../components/NameComponent'
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function NamedEntitiesSystem(world: World): Promise<System> {
+export default async function NamedEntitiesSystem(world: World) {
   const nameQuery = defineQuery([NameComponent])
 
   return () => {

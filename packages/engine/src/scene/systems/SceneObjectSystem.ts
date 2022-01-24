@@ -9,13 +9,17 @@ import { VisibleComponent } from '../components/VisibleComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { Updatable } from '../interfaces/Updatable'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
+import { reparentObject3D } from '../functions/ReparentFunction'
+import { parseGLTFModel } from '../functions/loadGLTFModel'
+import { ModelComponent } from '../components/ModelComponent'
+import { isNode } from '../../common/functions/getEnvironment'
+import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -54,16 +58,12 @@ export const processObject3d = (entity: Entity) => {
       obj.castShadow = shadowComponent.castShadow
     }
 
-    if (Engine.simpleMaterials) {
-      // || Engine.isHMD) {
+    if (Engine.simpleMaterials || Engine.isHMD) {
       useSimpleMaterial(obj)
     } else {
       useStandardMaterial(obj)
     }
   })
-
-  // Generate BVH
-  object3DComponent.value.traverse(generateMeshBVH)
 }
 
 const sceneObjectQuery = defineQuery([Object3DComponent])
@@ -73,19 +73,30 @@ const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
-export default async function SceneObjectSystem(world: World): Promise<System> {
+export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
+
+  if (isNode) {
+    await loadDRACODecoder()
+  }
 
   return () => {
     for (const entity of sceneObjectQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      // Add to scene
-      if (!Engine.scene.children.includes(obj3d)) {
-        Engine.scene.add(obj3d)
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        reparentObject3D(node, node.parentNode)
       } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.', obj3d)
+        let found = false
+        Engine.scene.traverse((obj) => {
+          if (obj === obj3d) {
+            found = true
+          }
+        })
+
+        if (!found) Engine.scene.add(obj3d)
       }
 
       processObject3d(entity)
@@ -99,9 +110,9 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       obj3d.removeFromParent()
     }
 
-    // TODO: refactor this
     for (const entity of objectReplaceQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent)
+      const modelComponent = getComponent(entity, ModelComponent)
       const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
 
       if (!obj3d || !replacementObj) continue
@@ -115,7 +126,13 @@ export default async function SceneObjectSystem(world: World): Promise<System> {
       obj3d.value.parent = null
       obj3d.value = replacementObj
 
+      const node = world.entityTree.findNodeFromEid(entity)
+      if (node) {
+        node.children?.forEach((child) => reparentObject3D(child, node))
+      }
+
       processObject3d(entity)
+      if (modelComponent) parseGLTFModel(entity, modelComponent, obj3d.value)
       removeComponent(entity, ReplaceObject3DComponent)
     }
 
