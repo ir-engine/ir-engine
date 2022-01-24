@@ -58,16 +58,12 @@ export const processObject3d = (entity: Entity) => {
       obj.castShadow = shadowComponent.castShadow
     }
 
-    if (Engine.simpleMaterials) {
-      // || Engine.isHMD) {
+    if (Engine.simpleMaterials || Engine.isHMD) {
       useSimpleMaterial(obj)
     } else {
       useStandardMaterial(obj)
     }
   })
-
-  // Generate BVH
-  object3DComponent.value.traverse(generateMeshBVH)
 }
 
 const sceneObjectQuery = defineQuery([Object3DComponent])
