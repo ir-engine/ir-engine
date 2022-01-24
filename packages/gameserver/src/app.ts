@@ -38,154 +38,152 @@ export const createApp = (): Application => {
 
   app.set('nextReadyEmitter', emitter)
 
-  if (config.gameserver.enabled) {
-    try {
-      app.configure(
-        swagger({
-          docsPath: '/openapi',
-          docsJsonPath: '/openapi.json',
-          uiIndex: path.join(process.cwd() + '/openapi.html'),
-          // TODO: Relate to server config, don't hardcode this here
-          specs: {
-            info: {
-              title: 'XREngine API Surface',
-              description: 'APIs for the XREngine application',
-              version: '1.0.0'
-            },
-            schemes: ['https'],
-            securityDefinitions: {
-              bearer: {
-                type: 'apiKey',
-                in: 'header',
-                name: 'authorization'
-              }
-            },
-            security: [{ bearer: [] }]
-          }
-        })
-      )
-
-      app.set('paginate', config.server.paginate)
-      app.set('authentication', config.authentication)
-
-      app.configure(sequelize)
-
-      // Enable security, CORS, compression, favicon and body parsing
-      app.use(helmet())
-      app.use(
-        cors({
-          origin: true,
-          credentials: true
-        })
-      )
-      app.use(compress())
-      app.use(json())
-      app.use(urlencoded({ extended: true }))
-
-      // Set up Plugins and providers
-      app.configure(rest())
-      app.configure(
-        socketio(
-          {
-            serveClient: false,
-            pingTimeout: process.env.APP_ENV === 'development' ? 1200000 : 20000,
-            cors: {
-              origin: [
-                'https://' + config.gameserver.clientHost,
-                'capacitor://' + config.gameserver.clientHost,
-                'ionic://' + config.gameserver.clientHost
-              ],
-              methods: ['OPTIONS', 'GET', 'POST'],
-              allowedHeaders: '*',
-              preflightContinue: true,
-              credentials: true
+  try {
+    app.configure(
+      swagger({
+        docsPath: '/openapi',
+        docsJsonPath: '/openapi.json',
+        uiIndex: path.join(process.cwd() + '/openapi.html'),
+        // TODO: Relate to server config, don't hardcode this here
+        specs: {
+          info: {
+            title: 'XREngine API Surface',
+            description: 'APIs for the XREngine application',
+            version: '1.0.0'
+          },
+          schemes: ['https'],
+          securityDefinitions: {
+            bearer: {
+              type: 'apiKey',
+              in: 'header',
+              name: 'authorization'
             }
           },
-          (io) => {
-            Network.instance = new Network()
-            Network.instance.transportHandler = new ServerTransportHandler()
-            app.transport = new SocketWebRTCServerTransport(app)
-            app.transport.initialize()
-            io.use((socket, next) => {
-              console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
-              ;(socket as any).feathers.socketQuery = socket.handshake.query
-              ;(socket as any).socketQuery = socket.handshake.query
-              next()
-            })
-          }
-        )
-      )
-
-      if (config.redis.enabled) {
-        app.configure(
-          sync({
-            uri:
-              config.redis.password != null && config.redis.password !== ''
-                ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
-                : `redis://${config.redis.address}:${config.redis.port}`
-          })
-        )
-        app.sync.ready.then(() => {
-          logger.info('Feathers-sync started')
-        })
-      }
-
-      // Configure other middleware (see `middleware/index.js`)
-      app.configure(authentication)
-      // Set up our services (see `services/index.js`)
-
-      app.configure(feathersLogger(winston))
-      app.configure(services)
-
-      if (config.gameserver.mode === 'realtime') {
-        app.k8AgonesClient = api({
-          endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-          version: '/apis/agones.dev/v1',
-          auth: {
-            caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-            token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-          }
-        })
-        app.k8DefaultClient = api({
-          endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-          version: '/api/v1',
-          auth: {
-            caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-            token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-          }
-        })
-        app.k8AppsClient = api({
-          endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-          version: '/apis/apps/v1',
-          auth: {
-            caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-            token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-          }
-        })
-      }
-
-      if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
-        agonesSDK.connect()
-        agonesSDK.ready().catch((err) => {
-          throw new Error(
-            '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
-          )
-        })
-        app.agonesSDK = agonesSDK
-        setInterval(() => agonesSDK.health(), 1000)
-
-        app.configure(channels)
-      } else {
-        console.warn('Did not create gameserver')
-      }
-
-      app.use('/healthcheck', (req, res) => {
-        res.sendStatus(200)
+          security: [{ bearer: [] }]
+        }
       })
-    } catch (err) {
-      console.log('Server init failure')
-      console.log(err)
+    )
+
+    app.set('paginate', config.server.paginate)
+    app.set('authentication', config.authentication)
+
+    app.configure(sequelize)
+
+    // Enable security, CORS, compression, favicon and body parsing
+    app.use(helmet())
+    app.use(
+      cors({
+        origin: true,
+        credentials: true
+      })
+    )
+    app.use(compress())
+    app.use(json())
+    app.use(urlencoded({ extended: true }))
+
+    // Set up Plugins and providers
+    app.configure(rest())
+    app.configure(
+      socketio(
+        {
+          serveClient: false,
+          pingTimeout: process.env.APP_ENV === 'development' ? 1200000 : 20000,
+          cors: {
+            origin: [
+              'https://' + config.gameserver.clientHost,
+              'capacitor://' + config.gameserver.clientHost,
+              'ionic://' + config.gameserver.clientHost
+            ],
+            methods: ['OPTIONS', 'GET', 'POST'],
+            allowedHeaders: '*',
+            preflightContinue: true,
+            credentials: true
+          }
+        },
+        (io) => {
+          Network.instance = new Network()
+          Network.instance.transportHandler = new ServerTransportHandler()
+          app.transport = new SocketWebRTCServerTransport(app)
+          app.transport.initialize()
+          io.use((socket, next) => {
+            console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query)
+            ;(socket as any).feathers.socketQuery = socket.handshake.query
+            ;(socket as any).socketQuery = socket.handshake.query
+            next()
+          })
+        }
+      )
+    )
+
+    if (config.redis.enabled) {
+      app.configure(
+        sync({
+          uri:
+            config.redis.password != null && config.redis.password !== ''
+              ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}`
+              : `redis://${config.redis.address}:${config.redis.port}`
+        })
+      )
+      app.sync.ready.then(() => {
+        logger.info('Feathers-sync started')
+      })
     }
+
+    // Configure other middleware (see `middleware/index.js`)
+    app.configure(authentication)
+    // Set up our services (see `services/index.js`)
+
+    app.configure(feathersLogger(winston))
+    app.configure(services)
+
+    if (config.gameserver.mode === 'realtime') {
+      app.k8AgonesClient = api({
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+        version: '/apis/agones.dev/v1',
+        auth: {
+          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+        }
+      })
+      app.k8DefaultClient = api({
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+        version: '/api/v1',
+        auth: {
+          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+        }
+      })
+      app.k8AppsClient = api({
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
+        version: '/apis/apps/v1',
+        auth: {
+          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
+          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
+        }
+      })
+    }
+
+    if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
+      agonesSDK.connect()
+      agonesSDK.ready().catch((err) => {
+        throw new Error(
+          '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
+        )
+      })
+      app.agonesSDK = agonesSDK
+      setInterval(() => agonesSDK.health(), 1000)
+
+      app.configure(channels)
+    } else {
+      console.warn('Did not create gameserver')
+    }
+
+    app.use('/healthcheck', (req, res) => {
+      res.sendStatus(200)
+    })
+  } catch (err) {
+    console.log('Server init failure')
+    console.log(err)
   }
 
   app.use(errorHandler({ logger } as any))

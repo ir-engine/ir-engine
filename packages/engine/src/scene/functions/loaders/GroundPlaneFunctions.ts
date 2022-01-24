@@ -95,7 +95,7 @@ export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_GROUND_PLANE,
     props: {
-      color: component.color?.getHex(),
+      color: component.color.getHex(),
       generateNavmesh: component.generateNavmesh
     }
   }

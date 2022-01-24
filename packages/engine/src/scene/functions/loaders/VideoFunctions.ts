@@ -46,13 +46,10 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   json: ComponentJson<VideoComponentType>
 ) => {
   if (!isClient) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
     return
   }
 
-  const mediaComponent = getComponent(entity, MediaComponent)
-
-  const obj3d = new Object3D()
+  const obj3d = getComponent(entity, Object3DComponent).value
   const video = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
   video.name = VIDEO_MESH_NAME
 
@@ -73,9 +70,8 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   document.body.appendChild(el)
   obj3d.userData.videoEl = el
 
-  const props = parseVideoProperties(json.props)
+  const props = parseVideoProperties(json.props) as VideoComponentType
 
-  addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, VideoComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
@@ -222,7 +218,7 @@ export const toggleVideo = (entity: Entity) => {
   }
 }
 
-const parseVideoProperties = (props): VideoComponentType => {
+const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
     videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
     elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId

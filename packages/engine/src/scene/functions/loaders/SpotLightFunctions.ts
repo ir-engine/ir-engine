@@ -99,7 +99,7 @@ export const serializeSpotLight: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_SPOT_LIGHT,
     props: {
-      color: component.color?.getHex(),
+      color: component.color.getHex(),
       intensity: component.intensity,
       range: component.range,
       decay: component.decay,

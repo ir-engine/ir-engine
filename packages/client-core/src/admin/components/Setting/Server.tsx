@@ -35,10 +35,6 @@ const Server = (props: serverProps) => {
     }
   }, [serverSettingState?.updateNeeded?.value])
 
-  const [enabled, setEnabled] = useState({
-    checkedA: true,
-    checkedB: true
-  })
   const [dryRun, setDryRun] = useState({
     checkedA: true,
     checkedB: true
@@ -55,10 +51,6 @@ const Server = (props: serverProps) => {
   }
   const handleClickPaginate = () => {
     setOpenPginate(!openPaginate)
-  }
-
-  const handleEnable = (event) => {
-    setEnabled({ ...enabled, [event.target.name]: event.target.checked })
   }
 
   const handleDryRun = (event) => {
@@ -92,17 +84,6 @@ const Server = (props: serverProps) => {
       </Typography>
       <Grid container spacing={3} key={serverSetting?.id || ''}>
         <Grid item xs={12} sm={6}>
-          <label>Enabled</label>
-          <Paper component="div" className={classes.createInput}>
-            <Switch
-              disabled
-              checked={enabled.checkedB}
-              onChange={handleEnable}
-              color="primary"
-              name="checkedB"
-              inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-          </Paper>
           <br />
           <label>Mode</label>
           <Paper component="div" className={classes.createInput}>
