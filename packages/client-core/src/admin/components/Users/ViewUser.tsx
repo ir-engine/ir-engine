@@ -27,7 +27,7 @@ import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserROleService, useUserRoleState } from '../../services/UserRoleService'
+import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import { validateUserForm } from './validation'
@@ -53,7 +53,7 @@ const ViewUser = (props: Props) => {
     //doLoginAuto
   } = props
   const [openDialog, setOpenDialog] = useState(false)
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState(userAdmin.userRole)
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
 
@@ -87,9 +87,13 @@ const ViewUser = (props: Props) => {
   }
 
   useEffect(() => {
+    setStatus(userAdmin.userRole)
+  }, [userAdmin.userRole])
+
+  useEffect(() => {
     const fetchData = async () => {
       AuthService.doLoginAuto(false)
-      await UserROleService.fetchUserRole()
+      await UserRoleService.fetchUserRole()
     }
     if (userRole.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
@@ -127,7 +131,7 @@ const ViewUser = (props: Props) => {
   }, [singleUserData?.id?.value])
 
   const patchUserRole = async (user: any, role: string) => {
-    await UserROleService.updateUserRole(user, role)
+    await UserRoleService.updateUserRole(user, role)
     handleCloseDialog()
     setRefetch(refetch + 1)
   }
@@ -269,12 +273,12 @@ const ViewUser = (props: Props) => {
                 <Select
                   labelId="demo-controlled-open-select-label"
                   id="demo-controlled-open-select"
-                  value={status || singleUserData?.userRole?.value}
+                  value={status}
                   fullWidth
                   displayEmpty
                   onChange={handleRoleChange}
                   className={classes.select}
-                  name="scene"
+                  name="status"
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
                 >
                   <MenuItem value="" disabled>

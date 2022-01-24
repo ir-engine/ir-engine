@@ -38,7 +38,7 @@ export const accessUserRoleState = () => state
 export const useUserRoleState = () => useState(state) as any as typeof state
 
 //Service
-export const UserROleService = {
+export const UserRoleService = {
   fetchUserRole: async () => {
     const dispatch = useDispatch()
     {
