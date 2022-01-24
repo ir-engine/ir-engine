@@ -78,7 +78,6 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           </Button>
         )}
       </InputGroup>
-      {/* <AudioSourceProperties {...props} /> */}
     </NodeEditor>
   )
 }

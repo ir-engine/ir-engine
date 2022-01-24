@@ -13,7 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": {},
+            "color": 16777215,
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -57,7 +57,7 @@
           "props": {
             "type": 1,
             "envMapTextureType": 0,
-            "envMapSourceColor": {},
+            "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
             "envMapCubemapBake": {
@@ -227,9 +227,9 @@
               "z": 0
             },
             "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": -3.141592653589793,
+              "y": 1.2246467991473532e-16,
+              "z": -3.1415926535897922
             },
             "scale": {
               "x": 1,
