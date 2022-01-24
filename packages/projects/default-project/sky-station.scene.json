@@ -13,7 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": {},
+            "color": 16777215,
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -57,7 +57,7 @@
           "props": {
             "type": 1,
             "envMapTextureType": 0,
-            "envMapSourceColor": {},
+            "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
             "envMapIntensity": 3.5,
             "envMapCubemapBake": {
@@ -499,10 +499,10 @@
         {
           "name": "media",
           "props": {
-            "controls": false,
-            "autoplay": false,
+            "controls": true,
+            "autoplay": true,
             "autoStartTime": 0,
-            "loop": false
+            "loop": true
           }
         },
         {
@@ -518,6 +518,16 @@
             "coneInnerAngle": 120,
             "coneOuterAngle": 180,
             "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "image",
+          "props": {
+            "imageSource": "",
+            "alphaCutoff": 0.5,
+            "alphaMode": "Opaque",
+            "projection": "Flat",
+            "side": 2
           }
         },
         {
@@ -549,7 +559,7 @@
               "z": 0
             },
             "rotation": {
-              "x": -1.5707963267948966,
+              "x": -1.5707963267948963,
               "y": 0,
               "z": 0
             },
