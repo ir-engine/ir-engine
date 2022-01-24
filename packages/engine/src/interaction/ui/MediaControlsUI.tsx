@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { createState } from '@hookstate/core'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -8,21 +8,34 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 
 export function createMediaControlsView(data: MediaComponentType, entity: Entity) {
-  return createXRUI(() => <MediaControlsView entity={entity} />, createInteractiveModalState(data))
+  return createXRUI(() => <MediaControlsView entity={entity} />, createMediaControlsState(data))
 }
 
-function createInteractiveModalState(data: MediaComponentType) {
+function createMediaControlsState(data: MediaComponentType) {
   return createState({
     playing: data.playing,
-    el: data.el!
+    mouseOver: false
   })
 }
 
-type InteractiveDetailState = ReturnType<typeof createInteractiveModalState>
+type MediaControlsState = ReturnType<typeof createMediaControlsState>
 
-const MediaControlsView = ({ entity }) => {
-  const detailState = useXRUIState() as InteractiveDetailState
-  const mediaComponent = getComponent(entity, MediaComponent)
+type MediaControlsProps = {
+  entity: Entity
+}
+
+const MediaControlsView = (props: MediaControlsProps) => {
+  const detailState = useXRUIState() as MediaControlsState
+  const mediaComponent = getComponent(props.entity, MediaComponent)
+
+  useEffect(() => {
+    mediaComponent.el?.addEventListener('playing', () => {
+      detailState.merge({ playing: true })
+    })
+    mediaComponent.el?.addEventListener('pause', () => {
+      detailState.merge({ playing: false })
+    })
+  }, [])
 
   const buttonClick = () => {
     detailState.playing.value ? mediaComponent.el?.pause() : mediaComponent.el?.play()
@@ -49,7 +62,7 @@ const MediaControlsView = ({ entity }) => {
       </button>
       <style>
         {`button:hover {
-            background-color: darkgrey;
+            background-color: pink;
         }`}
       </style>
     </>
