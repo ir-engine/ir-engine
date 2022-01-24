@@ -1,38 +1,30 @@
-import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
-import { UserService } from '../../services/UserService'
-import { useDispatch } from '../../../store'
+import React, { useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
-import { useUserState } from '../../services/UserService'
-import { USER_PAGE_LIMIT } from '../../services/UserService'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
-import ViewUser from './ViewUser'
-import { useUserStyle, useUserStyles } from './styles'
+import ConfirmModel from '../../common/ConfirmModel'
+import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
+import TableComponent from '../../common/Table'
+import { UserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
 import { userColumns, UserData, UserProps } from './Variables'
+import ViewUser from './ViewUser'
 
 const UserTable = (props: UserProps) => {
-  const classes = useUserStyle()
-  const classx = useUserStyles()
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(USER_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
-  const [userId, setUserId] = React.useState('')
-  const [viewModel, setViewModel] = React.useState(false)
-  const [userAdmin, setUserAdmin] = React.useState('')
-  const user = useAuthState().user
-  const dispatch = useDispatch()
+  const classes = useStyles()
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [userId, setUserId] = useState('')
+  const [userName, setUserName] = useState('')
+  const [viewModel, setViewModel] = useState(false)
+  const [userAdmin, setUserAdmin] = useState('')
+  const authState = useAuthState()
+  const user = authState.user
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const adminUserCount = adminUserState.total
+
+  useFetchUsersAsAdmin(user, adminUserState, UserService)
+
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     UserService.fetchUsersAsAdmin(incDec)
@@ -43,27 +35,23 @@ const UserTable = (props: UserProps) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
-  React.useEffect(() => {
-    const fetchData = async () => {
-      await UserService.fetchUsersAsAdmin()
-    }
-    if (adminUserState.updateNeeded.value === true && user.id.value) fetchData()
-  }, [adminUserState.updateNeeded.value, user])
 
   const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    UserService.refetchSingleUserAdmin()
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
     setUserAdmin(user)
     setViewModel(open)
   }
 
   const closeViewModel = (open) => {
     setViewModel(open)
+  }
+
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
+  }
+
+  const submitDeleteUser = async () => {
+    await UserService.removeUserAdmin(userId)
+    setPopConfirmOpen(false)
   }
 
   const createData = (
@@ -94,12 +82,12 @@ const UserTable = (props: UserProps) => {
             href="#h"
             className={classes.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setUserId(id)
+              setUserName(name)
+              setPopConfirmOpen(true)
             }}
           >
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
+            <span className={classes.spanDange}>Delete</span>
           </a>
         </>
       )
@@ -133,82 +121,25 @@ const UserTable = (props: UserProps) => {
   })
 
   return (
-    <div className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {userColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classx.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, id) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {userColumns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        classes={{ root: classes.root }}
-                        className={classx.tableCellBody}
-                      >
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[USER_PAGE_LIMIT]}
-        component="div"
-        count={adminUserCount?.value || 12}
-        rowsPerPage={rowsPerPage}
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={userColumns}
         page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classx.tableFooter}
+        rowsPerPage={rowsPerPage}
+        count={adminUserCount}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <Dialog
-        open={popConfirmOpen}
-        onClose={() => setPopConfirmOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        classes={{ paper: classes.paperDialog }}
-      >
-        <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
-            Cancel
-          </Button>
-          <Button
-            className={classes.spanDange}
-            onClick={async () => {
-              await UserService.removeUserAdmin(userId)
-              setPopConfirmOpen(false)
-            }}
-            autoFocus
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitDeleteUser}
+        name={userName}
+        label={'user'}
+      />
       {userAdmin && <ViewUser openView={viewModel} userAdmin={userAdmin} closeViewModel={closeViewModel} />}
-    </div>
+    </React.Fragment>
   )
 }
 

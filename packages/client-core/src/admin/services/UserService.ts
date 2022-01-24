@@ -1,9 +1,9 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -87,13 +87,22 @@ export const UserService = {
               $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
               $limit: limit,
               action: 'admin',
-              userRole: null! as {}
+              $or: [
+                {
+                  userRole: 'admin'
+                },
+                {
+                  userRole: 'guest'
+                }
+              ]
             }
           }
           if (skipGuests) {
-            params.query.userRole = {
-              $ne: 'guest'
-            }
+            params.query.$or = [
+              {
+                userRole: 'admin'
+              }
+            ]
           }
           const users = await client.service('user').find(params)
           dispatch(UserAction.loadedUsers(users))
