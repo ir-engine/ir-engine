@@ -133,6 +133,8 @@
       "youAreA": "You are a",
       "showUserId": "Show User ID",
       "hideUserId": "Hide User ID",
+      "showApiKey": "Show API key",
+      "hideApiKey": "Hide API key",
       "logout": "Log out",
       "connectPhone": "Connect your phone number",
       "connectEmail": "Connect your email",
@@ -201,6 +203,7 @@
       "projects": "Projects",
       "scenes": "Scenes",
       "avatars": "Avatars",
+      "benchmarking": "Benchmarking",
       "bots": "Bots"
     }
   },
@@ -228,6 +231,7 @@
     "content": "Content Packs",
     "scenes": "Scenes",
     "avatars": "Avatars",
+    "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings"
   },

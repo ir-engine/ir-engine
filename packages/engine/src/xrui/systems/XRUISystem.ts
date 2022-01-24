@@ -1,7 +1,6 @@
 import { Color, Mesh, Raycaster } from 'three'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -13,8 +12,9 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 
-export default async function XRUISystem(world: World): Promise<System> {
+export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
@@ -26,7 +26,17 @@ export default async function XRUISystem(world: World): Promise<System> {
   hoverAudio.src = hoverSfxPath
   let idCounter = 0
 
-  const xrui = (XRUIManager.instance = new XRUIManager(await import('ethereal')))
+  const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
+  xrui.WebLayerModule.WebLayerManager.initialize(Engine.renderer)
+  // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
+  //   astcSupported: false,
+  //   etc1Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc1' ),
+  //   etc2Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc' ),
+  //   dxtSupported: renderer.extensions.has( 'WEBGL_compressed_texture_s3tc' ),
+  //   bptcSupported: renderer.extensions.has( 'EXT_texture_compression_bptc' ),
+  //   pvrtcSupported: false
+  // }
+
   const screenRaycaster = new Raycaster()
   xrui.interactionRays = [screenRaycaster.ray]
 
@@ -35,7 +45,7 @@ export default async function XRUISystem(world: World): Promise<System> {
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
@@ -59,7 +69,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
 
       for (const [i, controller] of controllers.entries()) {
         const hit = layer.hitTest(controller)
@@ -126,7 +136,7 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     for (const entity of xruiQuery.enter()) {
-      const layer = getComponent(entity, XRUIComponent).layer
+      const layer = getComponent(entity, XRUIComponent).container
       layer.interactionRays = xrui.interactionRays
     }
 
@@ -145,12 +155,12 @@ export default async function XRUISystem(world: World): Promise<System> {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).layer
-      if (!xrui.layoutSystem.nodeAdapters.has(layer)) layer.update()
+      const layer = getComponent(entity, XRUIComponent).container
+      layer.update()
     }
 
-    xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
-    Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
-    xrui.layoutSystem.update(world.delta, world.elapsedTime)
+    // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)
+    // Engine.renderer.getSize(xrui.layoutSystem.viewResolution)
+    // xrui.layoutSystem.update(world.delta, world.elapsedTime)
   }
 }

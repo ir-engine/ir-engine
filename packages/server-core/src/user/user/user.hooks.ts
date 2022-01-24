@@ -1,11 +1,9 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import addScopeToUser from '../../hooks/add-scope-to-user'
-
-const { authenticate } = authentication.hooks
 
 /**
  * This module used to declare and identify database relation
@@ -14,12 +12,15 @@ const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [
       addAssociations({
         models: [
           {
             model: 'identity-provider'
+          },
+          {
+            model: 'user-api-key'
           },
           // {
           //   model: 'subscription'
@@ -56,6 +57,9 @@ export default {
           {
             model: 'identity-provider'
           },
+          {
+            model: 'user-api-key'
+          },
           // {
           //   model: 'subscription'
           // },
@@ -89,6 +93,9 @@ export default {
         models: [
           {
             model: 'identity-provider'
+          },
+          {
+            model: 'user-api-key'
           },
           // {
           //   model: 'subscription'
@@ -233,6 +240,10 @@ export default {
           const app = context.app
           let result = context.result
           if (Array.isArray(result)) result = result[0]
+          if (result?.userRole !== 'guest')
+            await context.app.service('user-api-key').create({
+              userId: context.result.id
+            })
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
             await app.service('user').patch(result.id, {

@@ -3,23 +3,19 @@
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
 
-export default class History {
-  undos: any[]
-  redos: any[]
-  lastCmdTime: Date
-  idCounter: number
-  commandUpdatesEnabled: boolean
-  debug: boolean
-  constructor() {
-    this.undos = []
-    this.redos = []
-    this.lastCmdTime = new Date()
-    this.idCounter = 0
-    this.commandUpdatesEnabled = true // Used for testing
-    this.debug = false
-  }
+import Command from '../commands/Command'
 
-  execute(cmd) {
+const ALLOWED_TIME_FOR_MERGER = 1000
+
+export default class History {
+  undos: Command[] = []
+  redos: Command[] = []
+  lastCmdTime = new Date()
+  idCounter = 0
+  commandUpdatesEnabled = true
+  debug = false
+
+  execute(cmd: Command): Command {
     const lastCmd = this.undos[this.undos.length - 1]
     const timeDifference = new Date().getTime() - this.lastCmdTime.getTime()
 
@@ -27,38 +23,31 @@ export default class History {
       this.commandUpdatesEnabled &&
       lastCmd &&
       lastCmd.constructor === cmd.constructor &&
-      timeDifference < 1000 &&
+      timeDifference < ALLOWED_TIME_FOR_MERGER &&
       lastCmd.shouldUpdate(cmd)
     ) {
       lastCmd.update(cmd)
       cmd = lastCmd
 
-      if (this.debug) {
-        console.log(`update:`, cmd)
-      }
+      if (this.debug) console.log(`update:`, cmd)
     } else {
       // the command is not updatable and is added as a new part of the history
       this.undos.push(cmd)
       cmd.id = ++this.idCounter
       cmd.execute()
 
-      if (this.debug) {
-        console.log(`execute:`, cmd)
-      }
+      if (this.debug) console.log(`execute:`, cmd)
     }
 
     this.lastCmdTime = new Date()
 
     // clearing all the redo-commands
-
     this.redos = []
 
     return cmd
   }
 
-  revert(checkpointId) {
-    let cmd = undefined
-
+  revert(checkpointId: number): void {
     if (this.undos.length === 0) {
       return
     }
@@ -70,67 +59,45 @@ export default class History {
       return
     }
 
-    do {
-      if (this.undos.length > 0) {
-        cmd = this.undos.pop()
-      } else {
-        cmd = undefined
-      }
-
-      if (cmd !== undefined) {
-        cmd.undo()
-        this.redos.push(cmd)
-
-        if (this.debug) {
-          console.log(`revert: ${cmd}`)
-        }
-      }
-    } while (cmd && checkpointId !== cmd.id)
-  }
-
-  undo() {
-    let cmd = undefined
-
-    if (this.undos.length > 0) {
-      cmd = this.undos.pop()
-    }
-
-    if (cmd !== undefined) {
+    let cmd = this.undos.pop()!
+    while (this.undos.length > 0 && checkpointId !== cmd.id) {
       cmd.undo()
       this.redos.push(cmd)
 
-      if (this.debug) {
-        console.log(`undo: ${cmd}`)
-      }
+      if (this.debug) console.log(`revert: ${cmd}`)
+      cmd = this.undos.pop()!
     }
+  }
+
+  undo(): Command | undefined {
+    if (this.undos.length === 0) return
+
+    const cmd = this.undos.pop()!
+    cmd.undo()
+    this.redos.push(cmd)
+
+    if (this.debug) console.log(`undo: ${cmd}`)
 
     return cmd
   }
 
-  redo() {
-    let cmd = undefined
+  redo(): Command | undefined {
+    if (this.redos.length === 0) return
 
-    if (this.redos.length > 0) {
-      cmd = this.redos.pop()
-    }
+    const cmd = this.redos.pop()!
+    cmd.undo()
+    this.undos.push(cmd)
 
-    if (cmd !== undefined) {
-      cmd.execute(true)
-      this.undos.push(cmd)
-
-      if (this.debug) {
-        console.log(`redo: ${cmd}`)
-      }
-    }
+    if (this.debug) console.log(`redo: ${cmd}`)
 
     return cmd
   }
 
-  getDebugLog() {
+  getDebugLog(): string {
     return this.undos.map((cmd) => cmd.toString()).join('\n')
   }
 
-  clear() {
+  clear(): void {
     this.undos = []
     this.redos = []
     this.idCounter = 0

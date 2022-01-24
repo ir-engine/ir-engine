@@ -200,6 +200,12 @@ export class Project extends Service {
    */
   // @ts-ignore
   async update(data: { url: string }, params: Params) {
+    if (data.url === 'default-project') {
+      copyDefaultProject()
+      await uploadLocalProjectToProvider('default-project', true)
+      return
+    }
+
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')

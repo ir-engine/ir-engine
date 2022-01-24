@@ -1,4 +1,4 @@
-import { DefaultLoadingManager, Texture, FileLoader } from 'three'
+import { Texture, FileLoader, Loader } from 'three'
 
 declare const OffscreenCanvas: {
   prototype: any
@@ -6,19 +6,14 @@ declare const OffscreenCanvas: {
 }
 
 /** Loader class for TGA asset. */
-export class TGALoader {
-  /** Path of the asset. */
-  path: any
-  /** Loading manager for TGA asset. */
-  manager: any
-
-  /** Constructs TGA Loader. */
-  constructor() {
-    this.manager = this.manager !== undefined ? this.manager : DefaultLoadingManager
-  }
-
+export class TGALoader extends Loader {
   /** Load TGA texture. */
-  load(url, onLoad, onProgress, onError): Texture {
+  load(
+    url: string,
+    onLoad?: (texture: Texture) => void,
+    onProgress?: (event: ProgressEvent) => void,
+    onError?: (event: ErrorEvent) => void
+  ): Texture {
     const texture = new Texture()
 
     const loader = new FileLoader(this.manager)
@@ -437,8 +432,6 @@ export class TGALoader {
         break
     }
 
-    //
-
     const useOffscreen = typeof OffscreenCanvas !== 'undefined'
 
     const canvas = useOffscreen ? new OffscreenCanvas(header.width, header.height) : document.createElement('canvas')
@@ -457,7 +450,7 @@ export class TGALoader {
   }
 
   /** Setter method for path Property. */
-  setPath(value): TGALoader {
+  setPath(value: string): this {
     this.path = value
     return this
   }

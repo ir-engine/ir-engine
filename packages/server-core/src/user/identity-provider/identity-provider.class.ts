@@ -10,6 +10,7 @@ import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 interface Data {}
 
@@ -44,8 +45,8 @@ export class IdentityProvider extends Service {
         { accessToken: params.authentication.accessToken },
         {}
       )
-      if (authResult) {
-        user = await this.app.service('user').get(authResult['identity-provider'].userId)
+      if (authResult[config.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
       }
     }
     if (
@@ -231,7 +232,8 @@ export class IdentityProvider extends Service {
   }
 
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    if (params.provider) params.query!.userId = params['identity-provider'].userId
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    if (params.provider) params.query!.userId = loggedInUser.id
     return super.find(params)
   }
 }

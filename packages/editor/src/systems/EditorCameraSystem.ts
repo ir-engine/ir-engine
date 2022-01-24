@@ -1,4 +1,3 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -13,7 +12,7 @@ const ORBIT_SPEED = 5
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function GizmoSystem(world: World): Promise<System> {
+export default async function GizmoSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()
@@ -41,7 +40,7 @@ export default async function GizmoSystem(world: World): Promise<System> {
         cameraComponent.zoomDelta = 0
       }
 
-      if (cameraComponent.focusedObjects) {
+      if (cameraComponent.refocus) {
         let distance = 0
         if (cameraComponent.focusedObjects.length === 0) {
           cameraComponent.center.set(0, 0, 0)
@@ -66,7 +65,8 @@ export default async function GizmoSystem(world: World): Promise<System> {
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 4)
         camera.position.copy(cameraComponent.center).add(delta)
 
-        cameraComponent.focusedObjects = null
+        cameraComponent.focusedObjects = null!
+        cameraComponent.refocus = false
       }
 
       if (cameraComponent.isPanning) {

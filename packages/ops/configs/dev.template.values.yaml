@@ -14,7 +14,6 @@ client:
     API_SERVER: https://api-dev.<domain>
     APP_ENV: production
     CLIENT_ADDRESS: https://dev.<domain>
-    CLIENT_ENABLED: "true"
     CLIENT_SCENE_ROUTE: /scenes/
     CLIENT_LOCAL_SCENE_ROUTE: "/scene.html?scene_id="
     CORS_PROXY_SERVER: https://api-dev.<domain>
@@ -27,7 +26,6 @@ client:
     NODE_ENV: production
     NON_CORS_PROXY_DOMAINS: "reticulum.io,<domain>,amazonaws.com"
     ROUTER_BASE_PATH: /spoke
-    SERVER_ENABLED: "false"
     SITE_DESC: Connected Worlds for Everyone
     SITE_TITLE: TheOverlay
     THUMBNAIL_ROUTE: /thumbnail/
@@ -96,7 +94,6 @@ api:
     AWS_SMS_REGION: us-east-1
     AWS_SMS_SECRET_ACCESS_KEY: <SNS_USER_ACCESS_KEY>
     AWS_SMS_TOPIC_ARN: <SNS_TOPIC_ARN>
-    CLIENT_ENABLED: "false"
     CERT: certs/cert.pem
     KEY: certs/key.pem
     FACEBOOK_CALLBACK_URL: https://dev.<domain>/auth/oauth/facebook
@@ -115,7 +112,6 @@ api:
     LINKEDIN_CIENT_SECRET: "<LINKEDIN_OAUTH_CLIENT_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SERVER_ENABLED: "true"
     SERVER_HOST: "api-dev.<domain>"
     SERVER_MODE: "api"
     SERVER_PORT: "3030"
@@ -233,7 +229,6 @@ media:
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SERVER_ENABLED: "true"
     SERVER_HOST: "api-dev.<domain>"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
@@ -283,7 +278,6 @@ gameserver:
     APP_HOST: dev.<domain>
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     APP_URL: https://dev.<domain>
-    GAMESERVER_ENABLED: "true"
     ROUTE53_ACCESS_KEY_ID: <ROUTE53_USER_ACCESS_KEY>
     ROUTE53_ACCESS_KEY_SECRET: <ROUTE53_USER_SECRET>
     ROUTE53_HOSTED_ZONE_ID: <ROUTE53_HOSTED_ZONE_ID>
@@ -340,6 +334,13 @@ gameserver:
                 values:
                   - ng-gameservers-1
 
+testbot:
+  extraEnv:
+    APP_HOST: dev.<domain>
+  image:
+    repository: <repository_name>
+    pullPolicy: IfNotPresent
+
 editor:
   enabled: false
   extraEnv:
@@ -377,7 +378,6 @@ analytics:
     repository: <repository_name>
     pullPolicy: IfNotPresent
   extraEnv:
-    ANALYTICS_ENABLED: "true"
     ANALYTICS_PORT: "3030"
     ANALYTICS_PROCESS_INTERVAL: "10000"
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
@@ -404,3 +404,50 @@ analytics:
                 operator: In
                 values:
                   - ng-1
+
+builder:
+  extraEnv:
+    RELEASE_NAME: <RELEASE_NAME>
+    AWS_ACCESS_KEY: <AWS_ACCESS_KEY>
+    AWS_SECRET: <AWS_SECRET>
+    AWS_REGION: <AWS_REGION
+    CLUSTER_NAME: <CLUSTER_NAME>
+    ECR_URL: <ECR_URL>
+    REPO_NAME: <REPO_NAME>
+    DOCKER_LABEL: <DOCKER_LABEL>
+    PRIVATE_ECR: "false"
+    STORAGE_PROVIDER: aws
+    STORAGE_AWS_ACCESS_KEY_ID: <S3_USER_ACCESS_KEY>
+    STORAGE_AWS_ACCESS_KEY_SECRET: <S3_USER_SECRET>
+    STORAGE_CLOUDFRONT_DOMAIN: <CLOUDFRONT_DOMAIN>
+    STORAGE_CLOUDFRONT_DISTRIBUTION_ID: <CLOUDFRONT_DISTRIBUTION_ID>
+    STORAGE_S3_REGION: <S3_REGION>
+    STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_BUCKET_NAME>
+    STORAGE_S3_AVATAR_DIRECTORY: avatars
+    VITE_APP_HOST: dev.<domain>
+    VITE_APP_PORT: "3000"
+    VITE_SERVER_HOST: api-dev.<domain>
+    VITE_SERVER_PORT: "3030"
+    VITE_GAMESERVER_HOST: gameserver-dev.<domain>
+    VITE_GAMESERVER_PORT: "3031"
+    VITE_ROOT_REDIRECT: "false"
+    VITE_READY_PLAYER_ME_URL: https://xre.readyplayer.me
+    VITE_LOCAL_STORAGE_KEY: theoverlay-client-store-key-v1
+    VITE_FEATHERS_STORE_KEY: TheOverlay-Auth-Store
+    VITE_GA_MEASUREMENT_ID: <GOOGLE_ANALYTICS_MEASUREMENT_ID>
+    VITE_MAPBOX_API_KEY: <MAPBOX_API_KEY>
+    VITE_ETH_MARKETPLACE: <ETH_MARKETPLACE_ADDRESS>
+  image:
+    repository: <ECR_URL>/xrengine-dev-builder
+  service:
+    type: NodePort
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/nodegroup
+                operator: In
+                values:
+                  - ng-<RELEASE_NAME>-builder-1
+  replicaCount: 1

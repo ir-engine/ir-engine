@@ -1,29 +1,32 @@
-import Button from '@mui/material/Button'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import { useAuthState } from '../../../services/AuthService'
-import { AuthService } from '../../../services/AuthService'
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import InventoryIcon from '@mui/icons-material/Inventory'
+import StoreIcon from '@mui/icons-material/Store'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import InputAdornment from '@mui/material/InputAdornment'
+import Snackbar from '@mui/material/Snackbar'
+import TextField from '@mui/material/TextField'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
-import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
-import { getAvatarURLForUser, Views } from '../util'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
+import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Tooltip from '@mui/material/Tooltip'
-import Grid from '@mui/material/Grid'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import Snackbar from '@mui/material/Snackbar'
-import { AuthSettingService } from '../../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
-import appconfig from '@xrengine/server-core/src/appconfig'
+import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
   changeActiveMenu?: any
@@ -48,6 +51,7 @@ const initialState = {
 const ProfileMenu = (props: Props): any => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
+  const location: any = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -56,7 +60,9 @@ const ProfileMenu = (props: Props): any => {
   const [error, setError] = useState(false)
   const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
+  const [showApiKey, setShowApiKey] = useState(false)
   const [userIdState, setUserIdState] = useState({ value: '', copied: false, open: false })
+  const [apiKeyState, setApiKeyState] = useState({ value: '', copied: false, open: false })
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
@@ -142,12 +148,16 @@ const ProfileMenu = (props: Props): any => {
   }
 
   const handleOAuthServiceClick = (e) => {
-    AuthService.loginUserByOAuth(e.currentTarget.id)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location)
   }
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
+    setShowUserId(false)
+    setShowApiKey(false)
+    setUserIdState({ ...userIdState, open: false })
+    setApiKeyState({ ...apiKeyState, open: false })
     await AuthService.logoutUser()
     // window.location.reload()
   }
@@ -181,11 +191,24 @@ const ProfileMenu = (props: Props): any => {
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
-    setUserIdState({ ...userIdState, value: selfUser.id.value })
+    setUserIdState({ ...userIdState, value: selfUser.id.value as string })
   }
 
-  const handleClose = () => {
+  const handleShowApiKey = () => {
+    setShowApiKey(!showApiKey)
+    setApiKeyState({ ...apiKeyState, value: selfUser.apiKey?.token?.value })
+  }
+
+  const handleCloseUserId = () => {
     setUserIdState({ ...userIdState, open: false })
+  }
+
+  const handleCloseApiKey = () => {
+    setApiKeyState({ ...apiKeyState, open: false })
+  }
+
+  const refreshApiKey = () => {
+    AuthService.updateApiKey()
   }
 
   const getConnectText = () => {
@@ -289,7 +312,7 @@ const ProfileMenu = (props: Props): any => {
             </span>
 
             <Grid container justifyContent="right">
-              <Grid item xs={6}>
+              <Grid item xs={selfUser.userRole?.value === 'guest' ? 6 : 4}>
                 <h2>
                   {selfUser?.userRole?.value === 'admin'
                     ? t('user:usermenu.profile.youAreAn')
@@ -297,15 +320,84 @@ const ProfileMenu = (props: Props): any => {
                   <span>{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={6} alignItems="flex-start" direction="column">
+              <Grid
+                item
+                container
+                xs={selfUser.userRole?.value === 'guest' ? 6 : 4}
+                alignItems="flex-start"
+                direction="column"
+              >
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 size="small" className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
               </Grid>
+              {selfUser?.apiKey?.id && (
+                <Grid item container xs={4} alignItems="flex-start" direction="column">
+                  <Tooltip title="Show API key" placement="right">
+                    <h2 className={styles.showUserId} onClick={handleShowApiKey}>
+                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}{' '}
+                    </h2>
+                  </Tooltip>
+                </Grid>
+              )}
             </Grid>
+            {selfUser?.userRole.value !== 'guest' && (
+              <Grid
+                display="grid"
+                gridTemplateColumns="1fr 1.5fr"
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1.5fr',
 
+                  '@media(max-width: 600px)': {
+                    gridTemplateColumns: '1fr'
+                  },
+
+                  button: {
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    color: 'white',
+                    display: 'grid',
+                    fontSize: '14px',
+                    textAlign: 'left',
+                    justifyContent: 'flex-start',
+                    gridTemplateColumns: 'max-content auto',
+
+                    svg: {
+                      marginRight: '10px'
+                    }
+                  }
+                }}
+              >
+                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
+                  <InventoryIcon />
+                  <Typography component="div" variant="button">
+                    My Inventory
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
+                  <StoreIcon />
+                  <Typography component="div" variant="button">
+                    My Trading
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
+                  <AccountBalanceWalletIcon />
+                  <Typography component="div" variant="button">
+                    My Wallet
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToEthNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+              </Grid>
+            )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
                 <div className={styles.logout} onClick={handleLogout}>
@@ -318,22 +410,6 @@ const ProfileMenu = (props: Props): any => {
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>
             )}
-            {selfUser?.userRole.value !== 'guest' && (
-              <>
-                <button onClick={() => changeActiveMenu(Views.Inventory)} className={styles.walletBtn}>
-                  My Inventory
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Trading)} className={styles.walletBtn}>
-                  My Trading
-                </button>
-                <button onClick={() => changeActiveMenu(Views.Wallet)} className={styles.walletBtn}>
-                  My Wallet
-                </button>
-                <button onClick={() => goToEthNFT()} className={styles.walletBtn}>
-                  Open ETH NFT Marketplace
-                </button>
-              </>
-            )}
           </div>
         </section>
 
@@ -345,6 +421,7 @@ const ProfileMenu = (props: Props): any => {
 
             <form>
               <TextField
+                id="user-id"
                 className={styles.emailField}
                 size="small"
                 placeholder={'user id'}
@@ -358,6 +435,46 @@ const ProfileMenu = (props: Props): any => {
                         text={userIdState.value}
                         onCopy={() => {
                           setUserIdState({ ...userIdState, copied: true, open: true })
+                        }}
+                      >
+                        <a href="#" className={styles.materialIconBlock}>
+                          <ContentCopyIcon className={styles.primaryForeground} />
+                        </a>
+                      </CopyToClipboard>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            </form>
+          </section>
+        )}
+
+        {showApiKey && (
+          <section className={styles.emailPhoneSection}>
+            <Typography variant="h1" className={styles.panelHeader}>
+              API key
+            </Typography>
+
+            <form>
+              <TextField
+                className={styles.emailField}
+                size="small"
+                placeholder={'API key'}
+                variant="outlined"
+                value={selfUser?.apiKey?.token?.value}
+                onChange={({ target: { value } }) => setApiKeyState({ ...apiKeyState, value, copied: false })}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <RefreshIcon className={styles.apiRefresh} onClick={refreshApiKey} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <CopyToClipboard
+                        text={apiKeyState.value}
+                        onCopy={() => {
+                          setApiKeyState({ ...apiKeyState, copied: true, open: true })
                         }}
                       >
                         <a href="#" className={styles.materialIconBlock}>
@@ -472,9 +589,18 @@ const ProfileMenu = (props: Props): any => {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={userIdState.open}
-        onClose={handleClose}
+        onClose={handleCloseUserId}
         message="User ID copied"
         key={'top' + 'center'}
+        autoHideDuration={2000}
+      />
+
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={apiKeyState.open}
+        onClose={handleCloseApiKey}
+        message="API Key copied"
+        key={'bottom' + 'center'}
         autoHideDuration={2000}
       />
     </div>

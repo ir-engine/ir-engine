@@ -12,8 +12,15 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import {
+  createEngine,
+  initializeCoreSystems,
+  initializeMediaServerSystems,
+  initializeNode,
+  initializeProjectSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
@@ -29,17 +36,20 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
-  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
-    const projects = await app.service('project').find(null!)
-    const options: InitializeOptions = {
-      type: EngineSystemPresets.SERVER,
-      publicPath: config.client.url,
-      projects: projects.data.map((project) => project.name),
-      systems
-    }
-    await initializeEngine(options)
+    const systems = await getSystemsFromSceneData(projectName, sceneData, false)
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    Engine.publicPath = config.client.url
+    createEngine()
+    initializeNode()
+    await initializeCoreSystems()
+    await initializeRealtimeSystems()
+    await initializeSceneSystems()
+    await initializeProjectSystems(projects, systems)
+
+    Engine.userId = 'server' as UserId
+    Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
   }
 
   let entitiesLeft = -1
@@ -196,10 +206,13 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
-    await initializeEngine({
-      type: EngineSystemPresets.MEDIA,
-      publicPath: config.client.url
-    })
+    Engine.publicPath = config.client.url
+    Engine.userId = 'media' as UserId
+    createEngine()
+    initializeNode()
+    await initializeMediaServerSystems()
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    await initializeProjectSystems(projects, [])
     Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded(true) as any)
     dispatchLocal(EngineActions.joinedWorld(true) as any)
@@ -441,7 +454,8 @@ export default (app: Application): void => {
         console.log('user instanceId: ' + user.instanceId)
 
         if (instanceId != null && instance != null) {
-          const activeUsers = Engine.currentWorld.clients
+          const activeClients = Engine.currentWorld.clients
+          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== 'server'))
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {

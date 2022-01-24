@@ -20,7 +20,7 @@ export default function usePaginatedSearch(
     urlRef.current = new URL(path, (window as any).location)
 
     for (const name in queryParams) {
-      if (Object.prototype.hasOwnProperty.call(queryParams, name)) {
+      if (typeof queryParams[name] !== 'undefined') {
         urlRef.current.searchParams.set(name, queryParams[name])
       }
     }
@@ -32,7 +32,7 @@ export default function usePaginatedSearch(
     urlRef.current = new URL(path, (window as any).location)
 
     for (const name in queryParams) {
-      if (Object.prototype.hasOwnProperty.call(queryParams, name)) {
+      if (typeof queryParams[name] !== 'undefined') {
         urlRef.current.searchParams.set(name, queryParams[name])
       }
     }

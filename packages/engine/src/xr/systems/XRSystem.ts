@@ -5,7 +5,6 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -47,19 +46,23 @@ const startXRSession = async () => {
  * @author Josh Field <github.com/hexafield>
  */
 
-export default async function XRSystem(world: World): Promise<System> {
+export default async function XRSystem(world: World) {
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   const quat = new Quaternion()
   const vector3 = new Vector3()
 
+  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+
   // TEMPORARY - precache controller model
   // Cache hand models
-  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' })
-  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' })
-  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' })
-  await AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
+  await Promise.all([
+    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' }),
+    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' }),
+    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' }),
+    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
+  ])
 
   Engine.currentWorld.receptors.push((action: EngineActionType) => {
     switch (action.type) {
@@ -96,19 +99,22 @@ export default async function XRSystem(world: World): Promise<System> {
                 : LifecycleValue.Ended
             })
           })
-          if (source.gamepad?.axes.length > 2) {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
-              lifecycleState: LifecycleValue.Started
-            })
-          } else {
-            Engine.inputState.set(mapping.axes, {
-              type: InputType.TWODIM,
-              value: [source.gamepad.axes[0], source.gamepad.axes[1]],
-              lifecycleState: LifecycleValue.Started
-            })
+          const inputData =
+            source.gamepad?.axes.length > 2
+              ? [source.gamepad.axes[2], source.gamepad.axes[3]]
+              : [source.gamepad.axes[0], source.gamepad.axes[1]]
+          if (Math.abs(inputData[0]) < 0.05) {
+            inputData[0] = 0
           }
+          if (Math.abs(inputData[1]) < 0.05) {
+            inputData[1] = 0
+          }
+          console.log(inputData)
+          Engine.inputState.set(mapping.axes, {
+            type: InputType.TWODIM,
+            value: inputData,
+            lifecycleState: LifecycleValue.Started
+          })
         }
       }
     }

@@ -4,7 +4,6 @@ import { client } from '../../feathers'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import waitForClientAuthenticated from '../../util/wait-for-client-authenticated'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
@@ -104,7 +103,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -123,7 +122,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {
@@ -154,7 +153,7 @@ store.receptors.push((action: GroupActionType): any => {
         })
         if (groupIndex !== -1) {
           const group = s.groups.groups[groupIndex]
-          groupUserIndex = group.groupUsers.value.findIndex((groupUserItem) => {
+          groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
             return groupUserItem != null && groupUserItem.id === groupUser.id
           })
           if (groupUserIndex !== -1) {

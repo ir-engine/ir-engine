@@ -20,7 +20,6 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -76,10 +75,21 @@ const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const mat = (obj as SkinnedMesh).material as Material
-    if (!mat) return
-    mat.opacity = opacity
-    mat.transparent = opacity < 0.95
+    const material = (obj as SkinnedMesh).material as Material
+    if (!material.userData.shader) return
+    const shader = material.userData.shader
+    shader.uniforms.boneOpacity.value = opacity
+  })
+}
+
+const getAvatarBonePosition = (entity: Entity, name: string, position: Vector3): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.traverse((obj) => {
+    const bone = obj as any
+    // TODO: Cache the neck bone reference
+    if (!bone.isBone || !bone.name.toLowerCase().includes(name)) return
+    const el = bone.matrixWorld.elements
+    position.set(el[12], el[13], el[14])
   })
 }
 
@@ -167,24 +177,26 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
-  const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
   const followCamera = getComponent(entity, FollowCameraComponent)
 
   const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
   const side = followCamera.shoulderSide ? -1 : 1
   const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
-  const heightOffset = lerp(0, 0.25, minDistanceRatio)
+  //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
-  target.set(shoulderOffset, avatar.avatarHeight + heightOffset, 0)
+  target.set(shoulderOffset, 0.1, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
-  target.add(avatarTransform.position)
+  getAvatarBonePosition(entity, 'neck', tempVec1)
+  target.add(tempVec1)
 }
 
 const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.updateWorldMatrix(false, true)
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
@@ -247,7 +259,7 @@ const updateFollowCamera = (entity: Entity, delta: number) => {
   }
 }
 
-export default async function CameraSystem(world: World): Promise<System> {
+export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
 

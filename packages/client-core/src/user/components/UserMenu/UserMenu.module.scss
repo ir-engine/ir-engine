@@ -7,6 +7,15 @@
     color: $PrimaryGreenColor;
 }
 
+.apiRefresh {
+    &:hover {
+        cursor: pointer;
+        color: white;
+        background-color: dimgray;
+        border-radius: 100px;
+    }
+}
+
 .settingContainer {
     position: fixed;
     bottom: 20px;

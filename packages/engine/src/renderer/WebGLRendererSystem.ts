@@ -16,7 +16,6 @@ import { ClientStorage } from '../common/classes/ClientStorage'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System } from '../ecs/classes/System'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
@@ -66,11 +65,6 @@ export interface EffectComposerWithSchema extends EffectComposer {
 
 let lastRenderTime = 0
 
-type EngineRendererProps = {
-  canvas: HTMLCanvasElement
-  enabled: boolean
-}
-
 export class EngineRenderer {
   static instance: EngineRenderer
 
@@ -86,7 +80,6 @@ export class EngineRenderer {
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
-  postProcessingConfig = null
   renderPass: RenderPass
   normalPass: NormalPass
   renderContext: WebGLRenderingContext | WebGL2RenderingContext
@@ -103,8 +96,11 @@ export class EngineRenderer {
   /** init ExponentialMovingAverage */
   movingAverage = new ExponentialMovingAverage(this.averageTimePeriods)
 
+  /** To Disable update for renderer */
+  disableUpdate = false
+
   /** Constructs WebGL Renderer System. */
-  constructor(attributes: EngineRendererProps) {
+  constructor() {
     EngineRenderer.instance = this
     this.onResize = this.onResize.bind(this)
 
@@ -114,7 +110,7 @@ export class EngineRenderer {
       WebGL.dispatchWebGLDisconnectedEvent()
     }
 
-    const canvas: HTMLCanvasElement = attributes.canvas ?? document.querySelector('canvas')
+    const canvas: HTMLCanvasElement = document.querySelector('canvas')!
     const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl')
 
     if (!context) {
@@ -159,8 +155,9 @@ export class EngineRenderer {
 
     this.needsResize = true
     Engine.renderer.autoClear = true
+    Engine.effectComposer = new EffectComposer(Engine.renderer)
 
-    configureEffectComposer(EngineRenderer.instance.postProcessingConfig)
+    configureEffectComposer()
 
     Engine.currentWorld.receptors.push((action: EngineActionType) => {
       switch (action.type) {
@@ -211,7 +208,7 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && Engine.csm?.update()
-        if (state.usePostProcessing.value && Engine.effectComposer) {
+        if (state.usePostProcessing.value) {
           Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true
@@ -258,29 +255,29 @@ export class EngineRenderer {
   }
 
   async loadGraphicsSettingsFromStorage() {
-    const [automatic, scaleFactor, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
+    const [automatic, qualityLevel, useShadows, /* pbr, */ usePostProcessing] = await Promise.all([
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as Promise<boolean>,
-      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as Promise<number>,
+      ClientStorage.get(databasePrefix + RENDERER_SETTINGS.QUALITY_LEVEL) as Promise<number>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.USE_SHADOWS) as Promise<boolean>,
       // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
     ])
     dispatchLocal(EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchLocal(EngineRendererAction.setQualityLevel(scaleFactor ?? 1))
+    dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
     dispatchLocal(EngineRendererAction.setShadows(useShadows ?? true))
     // dispatchLocal(EngineRendererAction.setPBR(pbr ?? true))
     dispatchLocal(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
   }
 }
 
-export default async function WebGLRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  new EngineRenderer(props)
+export default async function WebGLRendererSystem(world: World) {
+  new EngineRenderer()
 
   await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
   world.receptors.push(EngineRendererReceptor)
 
   return () => {
-    if (props.enabled) EngineRenderer.instance.execute(world.delta)
+    EngineRenderer.instance.execute(world.delta)
   }
 }
 

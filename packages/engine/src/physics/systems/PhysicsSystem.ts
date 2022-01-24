@@ -10,7 +10,6 @@ import { RaycastComponent } from '../components/RaycastComponent'
 import { isClient } from '../../common/functions/isClient'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
 import { teleportRigidbody } from '../functions/teleportRigidbody'
@@ -35,7 +34,7 @@ function physicsActionReceptor(action: unknown) {
  * @author Josh Field <github.com/HexaField>
  */
 
-export default async function PhysicsSystem(world: World): Promise<System> {
+export default async function PhysicsSystem(world: World) {
   const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])

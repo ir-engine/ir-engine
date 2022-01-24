@@ -47,7 +47,7 @@ const UserProfile = (props: Props): any => {
     setUsername(name)
   }
   const updateUsername = async (): Promise<void> => {
-    await AuthService.updateUsername(user.id.value, username)
+    await AuthService.updateUsername(user.id.value!, username)
   }
   return (
     <div className={styles['user-container']}>
@@ -75,7 +75,7 @@ const UserProfile = (props: Props): any => {
       <div className={styles.uploadform}>
         {fileUrl ? (
           <img
-            src={URL.createObjectURL(fileUrl)}
+            src={fileUrl}
             className={classNames({
               [styles.rounded]: true,
               [styles['mx-auto']]: true,

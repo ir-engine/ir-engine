@@ -119,22 +119,22 @@ const AvatarContextMenu = () => {
 
   return user && engineState.avatarTappedId?.value === user.id.value ? (
     <div style={styles.root}>
-      <img style={styles.ownerImage} src={getAvatarURLForUser(user?.id?.value)} />
+      <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
         <section style={styles.buttonSection}>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Invite to Party')
             }}
           >
             {t('user:personMenu.inviteToParty')}
           </Button>
-          <Button style={styles.button} onClick={addAsFriend}>
+          <Button style={styles.button as {}} onClick={addAsFriend}>
             {t('user:personMenu.addAsFriend')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Trade')
             }}
@@ -142,7 +142,7 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.trade')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Pay')
             }}
@@ -150,14 +150,14 @@ const AvatarContextMenu = () => {
             {t('user:personMenu.pay')}
           </Button>
           <Button
-            style={styles.button}
+            style={styles.button as {}}
             onClick={() => {
               console.log('Mute')
             }}
           >
             {t('user:personMenu.mute')}
           </Button>
-          <Button style={styles.buttonRed} onClick={blockUser}>
+          <Button style={styles.buttonRed as {}} onClick={blockUser}>
             {t('user:personMenu.block')}
           </Button>
         </section>

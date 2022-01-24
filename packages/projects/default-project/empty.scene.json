@@ -1,9 +1,7 @@
 {
   "version": 4,
-  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
   "entities": {
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
-      "name": "empty_scene",
       "components": [
         {
           "name": "mtdata",
@@ -15,7 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": "#ffffff",
+            "color": {},
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -24,6 +22,7 @@
         {
           "name": "audio-settings",
           "props": {
+            "usePositionalAudio": true,
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,
@@ -36,12 +35,6 @@
             "mediaConeInnerAngle": 360,
             "mediaConeOuterAngle": 0,
             "mediaConeOuterGain": 0
-          }
-        },
-        {
-          "name": "simple-materials",
-          "props": {
-            "simpleMaterials": false
           }
         },
         {
@@ -63,15 +56,38 @@
           "name": "envmap",
           "props": {
             "type": 1,
-            "envMapIntensity": 1,
             "envMapTextureType": 0,
-            "envMapSourceURL": "/hdr/cubemap/Bridge2/"
+            "envMapSourceColor": {},
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 512,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
           }
         }
-      ]
+      ],
+      "name": "empty_scene"
     },
     "1463EAC0-883F-493A-9A33-6757CC8FF48B": {
-      "name": "scene preview camera",
       "components": [
         {
           "name": "transform",
@@ -95,9 +111,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "scene-preview-camera",
@@ -105,10 +119,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 0
+      "index": 0,
+      "name": "scene preview camera"
     },
     "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
-      "name": "skybox",
       "components": [
         {
           "name": "transform",
@@ -132,17 +146,15 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "skybox",
           "props": {
-            "backgroundColor": "#000000",
-            "equirectangularPath": "/hdr/city.jpg",
-            "cubemapPath": "/hdr/cubemap/Bridge2/",
-            "backgroundType": 3,
+            "backgroundColor": 0,
+            "equirectangularPath": "",
+            "cubemapPath": "/hdr/cubemap/skyboxsun25deg/",
+            "backgroundType": 1,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -156,10 +168,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 1
+      "index": 1,
+      "name": "skybox"
     },
     "1B698482-C15A-4CEC-9247-03873520DF70": {
-      "name": "ground plane",
       "components": [
         {
           "name": "transform",
@@ -183,32 +195,28 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "ground-plane",
           "props": {
-            "color": "#7ed321"
+            "color": 8311585,
+            "generateNavmesh": false
           }
         },
         {
           "name": "shadow",
           "props": {
+            "cast": true,
             "receive": true
           }
-        },
-        {
-          "name": "walkable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 2
+      "index": 2,
+      "name": "ground plane"
     },
     "1B698483-C15A-4CEC-9247-03873520DF70": {
-      "name": "spawn point",
       "components": [
         {
           "name": "transform",
@@ -228,12 +236,6 @@
               "y": 1,
               "z": 1
             }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {
-            "visible": true
           }
         },
         {
@@ -242,10 +244,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 3
+      "index": 3,
+      "name": "spawn point"
     },
     "1B698484-C15A-4CEC-9247-03873520DF70": {
-      "name": "post processing",
       "components": [
         {
           "name": "transform",
@@ -269,9 +271,7 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": false
-          }
+          "props": {}
         },
         {
           "name": "postprocessing",
@@ -358,10 +358,10 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 4
+      "index": 4,
+      "name": "post processing"
     },
     "1B698484-C15A-4CEC-9247-03873520DF71": {
-      "name": "hemisphere light",
       "components": [
         {
           "name": "transform",
@@ -385,24 +385,22 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "hemisphere-light",
           "props": {
-            "skyColor": "#ffffff",
-            "groundColor": "#ffffff",
+            "skyColor": 16777215,
+            "groundColor": 16777215,
             "intensity": 1
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 5
+      "index": 5,
+      "name": "hemisphere light"
     },
     "46BB52A2-E365-410F-BC37-5873691B48C9": {
-      "name": "directional light",
       "components": [
         {
           "name": "transform",
@@ -415,7 +413,7 @@
             "rotation": {
               "x": -0.5235987755982988,
               "y": 0.2617993877991494,
-              "z": 0
+              "z": -1.005714020795104e-16
             },
             "scale": {
               "x": 1,
@@ -426,14 +424,12 @@
         },
         {
           "name": "visible",
-          "props": {
-            "visible": true
-          }
+          "props": {}
         },
         {
           "name": "directional-light",
           "props": {
-            "color": "#ffffff",
+            "color": 16777215,
             "intensity": 1,
             "castShadow": true,
             "shadowMapResolution": [
@@ -448,7 +444,9 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 6
+      "index": 6,
+      "name": "directional light"
     }
-  }
+  },
+  "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
 }

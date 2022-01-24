@@ -24,10 +24,8 @@ describe('loadGLTFModel', () => {
     const world = createWorld()
     Engine.currentWorld = world
 
-    const mockComponentData = { data: { src: '' } } as any
+    const mockComponentData = { src: 'https://mock.site/asset.glb' } as any
     const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
-
-    // await initializeEngine(engineTestSetup)
 
     const entity = createEntity()
     addComponent(entity, TransformComponent, { position: new Vector3(), rotation: new Quaternion(), scale: new Vector3(1, 1, 1), })
@@ -37,14 +35,14 @@ describe('loadGLTFModel', () => {
     const mesh = new Mesh()
     mesh.userData = {
       'xrengine.entity': entityName,
-      'xrengine.spawn-point': '',
+      // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
     scene.add(mesh)
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
-    const childQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent, SpawnPointComponent])
+    const childQuery = defineQuery([NameComponent, TransformComponent, Object3DComponent, CustomComponent/*, SpawnPointComponent*/])
 
-    parseGLTFModel(entity, mockComponentData, { scene } as any)
+    parseGLTFModel(entity, mockComponentData, scene)
 
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
@@ -55,7 +53,7 @@ describe('loadGLTFModel', () => {
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, Object3DComponent).value.layers.test(expectedLayer))
 
-    assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
+    // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
     assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
     assert.equal(getComponent(mockSpawnPointEntity, NameComponent).name, entityName)
     assert(getComponent(mockSpawnPointEntity, Object3DComponent).value.layers.test(expectedLayer))

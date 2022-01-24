@@ -45,12 +45,12 @@ export const ResetPassword = (props: Props): any => {
   }
 
   const password = useRef<HTMLInputElement>()
-  const confirm_password = useRef<HTMLInputElement>()
+  const confirm_password = useRef<HTMLInputElement>(null!)
   function validatePassword() {
-    if (password.current.value != confirm_password.current.value) {
-      confirm_password.current.setCustomValidity(t('user:auth.resetPassword.passwordNotMatch'))
+    if (password?.current?.value != confirm_password?.current.value) {
+      confirm_password?.current.setCustomValidity(t('user:auth.resetPassword.passwordNotMatch'))
     } else {
-      confirm_password.current.setCustomValidity('')
+      confirm_password?.current.setCustomValidity('')
     }
   }
 

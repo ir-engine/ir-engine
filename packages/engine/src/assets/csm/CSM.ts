@@ -109,6 +109,7 @@ export class CSM {
         const light = sourceLight.clone()
         light.target = sourceLight.target.clone()
         light.castShadow = true
+        light.visible = true
         this.parent.add(light, light.target)
         this.lights[sourceLightIndex].push(light)
       }
