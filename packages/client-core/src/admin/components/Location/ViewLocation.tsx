@@ -31,7 +31,6 @@ interface Props {
   openView: any
   closeViewModel: any
   locationAdmin: any
-
   authState?: any
 }
 
