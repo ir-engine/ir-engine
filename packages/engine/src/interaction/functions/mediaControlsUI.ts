@@ -20,7 +20,7 @@ export const createMediaControlsUI = (entity: Entity) => {
 
   const transform = getComponent(entity, TransformComponent)
   addComponent(ui.entity, TransformComponent, {
-    position: new Vector3(transform.position.x - 0.1, transform.position.y, transform.position.z),
+    position: new Vector3(transform.position.x, transform.position.y, transform.position.z),
     rotation: new Quaternion(),
     scale: new Vector3(1, 1, 1)
   })

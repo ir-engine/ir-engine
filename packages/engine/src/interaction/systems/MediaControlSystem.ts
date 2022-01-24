@@ -15,7 +15,8 @@ export default async function MediaControlSystem(world: World) {
   return () => {
     for (const entity of mediaQuery.enter(world)) {
       createMediaControlsUI(entity)
-      const transition = createTransitionState(1)
+      const transition = createTransitionState(0.25)
+      transition.setState('OUT')
       MediaFadeTransitions.set(entity, transition)
     }
 
@@ -24,21 +25,28 @@ export default async function MediaControlSystem(world: World) {
       const xrui = getComponent(mediaControls.entity, XRUIComponent)
       if (!xrui?.container) continue
       const transition = MediaFadeTransitions.get(entity)!
-      console.log('hover', xrui.container.rootLayer.pseudoStates, mediaControls.state.mouseOver.value)
-      if (xrui.container.rootLayer.pseudoStates.hover && !mediaControls.state.mouseOver.value) {
+      const buttonLayer = xrui.container.rootLayer.querySelector('button')!
+      const hover = xrui.container.rootLayer.pseudoStates.hover || buttonLayer.pseudoStates.hover
+      if (hover && !mediaControls.state.mouseOver.value) {
         transition.setState('IN')
         mediaControls.state.mouseOver.set(true)
       }
-      if (!xrui.container.rootLayer.pseudoStates.hover && mediaControls.state.mouseOver.value) {
+      if (!hover && mediaControls.state.mouseOver.value) {
         transition.setState('OUT')
         mediaControls.state.mouseOver.set(false)
       }
+
+      xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+        console.log(layer.name, layer.pseudoStates.hover)
+      })
       transition.update(world, (opacity) => {
+        buttonLayer.scale.setScalar(0.9 + 0.1 * opacity * opacity)
         xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-          console.log('setOpacity', opacity)
           const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
           mat.opacity = opacity
+          layer.scale
           mat.visible = opacity > 0
+          layer.visible = opacity > 0
         })
       })
     }

@@ -42,29 +42,42 @@ const MediaControlsView = (props: MediaControlsProps) => {
   }
 
   return (
-    <>
+    <div
+      id="container"
+      style={{
+        width: '100px',
+        height: '100px',
+        display: 'flex',
+        padding: '150px'
+      }}
+    >
       <button
         xr-layer="true"
+        id="button"
         style={{
           fontFamily: "'Roboto', sans-serif",
-          border: '10px solid white',
+          border: '10px solid grey',
           boxShadow: '#fff2 0 0 30px',
-          backgroundColor: '#000000dd',
-          color: 'white',
+          color: 'lighgrey',
           fontSize: '25px',
-          position: 'absolute',
           width: '100px',
-          height: '100px'
+          height: '100px',
+          margin: 'auto auto',
+          transform: 'translateZ(0.01px)'
         }}
         onClick={buttonClick}
       >
+        <style>
+          {`
+        button {
+          background-color: #000000dd;
+        }
+        button:hover {
+            background-color: grey;
+        }`}
+        </style>
         {detailState.playing.value ? <Pause style={{ fill: 'white' }} /> : <PlayArrow style={{ fill: 'white' }} />}
       </button>
-      <style>
-        {`button:hover {
-            background-color: pink;
-        }`}
-      </style>
-    </>
+    </div>
   )
 }
