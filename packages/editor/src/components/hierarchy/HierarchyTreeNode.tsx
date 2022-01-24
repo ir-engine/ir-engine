@@ -1,5 +1,6 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -57,6 +58,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const data = props.data
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
+  // const component = getComponent(node.entityNode.entity, AudioComponent)
   if (!nameComponent) return null
 
   const onClickToggle = useCallback(
