@@ -126,11 +126,11 @@ export const serializeOcean: ComponentSerializeFunction = (entity) => {
       normalMap: component.normalMap,
       distortionMap: component.distortionMap,
       envMap: component.envMap,
-      color: component.color?.getHex(),
+      color: component.color.getHex(),
       opacityRange: component.opacityRange,
       opacityFadeDistance: component.opacityFadeDistance,
       shallowToDeepDistance: component.shallowToDeepDistance,
-      shallowWaterColor: component.shallowWaterColor?.getHex(),
+      shallowWaterColor: component.shallowWaterColor.getHex(),
       waveScale: component.waveScale,
       waveSpeed: component.waveSpeed,
       waveTiling: component.waveTiling,
@@ -143,7 +143,7 @@ export const serializeOcean: ComponentSerializeFunction = (entity) => {
       bigWaveSpeed: component.bigWaveSpeed,
       foamSpeed: component.foamSpeed,
       foamTiling: component.foamTiling,
-      foamColor: component.foamColor?.getHex()
+      foamColor: component.foamColor.getHex()
     }
   }
 }

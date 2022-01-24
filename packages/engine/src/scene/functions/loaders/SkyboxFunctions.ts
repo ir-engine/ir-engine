@@ -33,9 +33,9 @@ import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComp
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
 export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
   backgroundColor: 0x000000,
-  equirectangularPath: '/hdr/city.jpg',
-  cubemapPath: '/hdr/cubemap/Bridge2/',
-  backgroundType: 3,
+  equirectangularPath: '',
+  cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
+  backgroundType: 1,
   skyboxProps: {
     turbidity: 10,
     rayleigh: 1,
@@ -126,7 +126,7 @@ export const serializeSkybox: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_SKYBOX,
     props: {
-      backgroundColor: component.backgroundColor?.getHex(),
+      backgroundColor: component.backgroundColor.getHex(),
       equirectangularPath: component.equirectangularPath,
       cubemapPath: component.cubemapPath,
       backgroundType: component.backgroundType,

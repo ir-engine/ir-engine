@@ -67,7 +67,7 @@ export const serializeFog: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_FOG,
     props: {
       type: component.type,
-      color: component.color,
+      color: component.color.getHex(),
       near: component.near,
       far: component.far,
       density: component.density

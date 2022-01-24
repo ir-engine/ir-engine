@@ -35,7 +35,7 @@ export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
   type: 1,
   envMapTextureType: 0,
   envMapSourceColor: '#000000',
-  envMapSourceURL: '/hdr/cubemap/Bridge2/',
+  envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
   envMapIntensity: 1,
   envMapCubemapBake: {}
 }
@@ -179,7 +179,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
     props: {
       type: component.type,
       envMapTextureType: component.envMapTextureType,
-      envMapSourceColor: component.envMapSourceColor,
+      envMapSourceColor: component.envMapSourceColor.getHex(),
       envMapSourceURL: component.envMapSourceURL,
       envMapIntensity: component.envMapIntensity,
       envMapCubemapBake: component.envMapCubemapBake

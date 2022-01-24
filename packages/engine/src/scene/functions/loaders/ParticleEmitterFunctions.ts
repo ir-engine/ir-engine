@@ -13,6 +13,9 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
 import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitterMesh'
 import { RenderedComponent } from '../../components/RenderedComponent'
+import { Engine } from '../../../ecs/classes/Engine'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -47,11 +50,20 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const props = parseParticleEmitterProperties(json.props)
-  const mesh = new ParticleEmitterMesh(props)
 
-  addComponent(entity, ParticleEmitterComponent, mesh)
-  addComponent(entity, Object3DComponent, { value: mesh })
-  addComponent(entity, RenderedComponent, {})
+  registerSceneLoadPromise(
+    new Promise<void>((resolve) => {
+      AssetLoader.load({ url: props.src }, (texture) => {
+        const mesh = new ParticleEmitterMesh(props, texture)
+        addComponent(entity, ParticleEmitterComponent, mesh)
+        addComponent(entity, Object3DComponent, { value: mesh })
+        addComponent(entity, RenderedComponent, {})
+        resolve()
+      })
+    })
+  )
+
+  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
@@ -66,31 +78,29 @@ export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, p
 
 export const serializeParticleEmitter: ComponentSerializeFunction = (entity) => {
   const particleEmitterComponent = getComponent(entity, ParticleEmitterComponent)
-  if (particleEmitterComponent) {
-    return {
-      name: SCENE_COMPONENT_PARTICLE_EMITTER,
-      props: {
-        src: particleEmitterComponent.src,
-        startColor: particleEmitterComponent.startColor,
-        middleColor: particleEmitterComponent.middleColor,
-        endColor: particleEmitterComponent.endColor,
-        startOpacity: particleEmitterComponent.startOpacity,
-        middleOpacity: particleEmitterComponent.middleOpacity,
-        endOpacity: particleEmitterComponent.endOpacity,
-        colorCurve: particleEmitterComponent.colorCurve,
-        sizeCurve: particleEmitterComponent.sizeCurve,
-        startSize: particleEmitterComponent.startSize,
-        endSize: particleEmitterComponent.endSize,
-        sizeRandomness: particleEmitterComponent.sizeRandomness,
-        ageRandomness: particleEmitterComponent.ageRandomness,
-        lifetime: particleEmitterComponent.lifetime,
-        lifetimeRandomness: particleEmitterComponent.lifetimeRandomness,
-        particleCount: particleEmitterComponent.particleCount,
-        startVelocity: particleEmitterComponent.startVelocity,
-        endVelocity: particleEmitterComponent.endVelocity,
-        velocityCurve: particleEmitterComponent.velocityCurve,
-        angularVelocity: particleEmitterComponent.angularVelocity
-      }
+  return {
+    name: SCENE_COMPONENT_PARTICLE_EMITTER,
+    props: {
+      src: particleEmitterComponent.src,
+      startColor: particleEmitterComponent.startColor.getHex(),
+      middleColor: particleEmitterComponent.middleColor.getHex(),
+      endColor: particleEmitterComponent.endColor.getHex(),
+      startOpacity: particleEmitterComponent.startOpacity,
+      middleOpacity: particleEmitterComponent.middleOpacity,
+      endOpacity: particleEmitterComponent.endOpacity,
+      colorCurve: particleEmitterComponent.colorCurve,
+      sizeCurve: particleEmitterComponent.sizeCurve,
+      startSize: particleEmitterComponent.startSize,
+      endSize: particleEmitterComponent.endSize,
+      sizeRandomness: particleEmitterComponent.sizeRandomness,
+      ageRandomness: particleEmitterComponent.ageRandomness,
+      lifetime: particleEmitterComponent.lifetime,
+      lifetimeRandomness: particleEmitterComponent.lifetimeRandomness,
+      particleCount: particleEmitterComponent.particleCount,
+      startVelocity: particleEmitterComponent.startVelocity,
+      endVelocity: particleEmitterComponent.endVelocity,
+      velocityCurve: particleEmitterComponent.velocityCurve,
+      angularVelocity: particleEmitterComponent.angularVelocity
     }
   }
 }
