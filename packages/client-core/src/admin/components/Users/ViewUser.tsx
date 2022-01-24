@@ -1,41 +1,36 @@
-import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import Paper from '@mui/material/Paper'
-import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
 import { Edit, Save } from '@mui/icons-material'
-import Skeleton from '@mui/material/Skeleton'
-import TextField from '@mui/material/TextField'
+import MuiAlert from '@mui/material/Alert'
+import Autocomplete from '@mui/material/Autocomplete'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
-import Autocomplete from '@mui/material/Autocomplete'
-import { useAuthState } from '../../../user/services/AuthService'
-import { UserService } from '../../services/UserService'
-import { useDispatch } from '../../../store'
-import InputBase from '@mui/material/InputBase'
-
-import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../services/UserService'
-import { validateUserForm } from './validation'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import MenuItem from '@mui/material/MenuItem'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
+import Grid from '@mui/material/Grid'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import { useScopeState } from '../../services/ScopeService'
-import { AuthService } from '../../../user/services/AuthService'
-import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
-import { useUserRoleState, UserROleService } from '../../services/UserRoleService'
-import { useSingleUserState, SingleUserService } from '../../services/SingleUserService'
-import { useStaticResourceState, staticResourceService } from '../../services/StaticResourceService'
+import Skeleton from '@mui/material/Skeleton'
+import Snackbar from '@mui/material/Snackbar'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import React, { useEffect, useState } from 'react'
+import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
+import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { UserROleService, useUserRoleState } from '../../services/UserRoleService'
+import { UserService, useUserState } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
+import { validateUserForm } from './validation'
 
 interface Props {
   openView: boolean
@@ -49,9 +44,7 @@ const Alert = (props) => {
 }
 
 const ViewUser = (props: Props) => {
-  const classx = useUserStyle()
-  const classes = useUserStyles()
-  const dispatch = useDispatch()
+  const classes = useStyles()
 
   const {
     openView,
@@ -59,12 +52,12 @@ const ViewUser = (props: Props) => {
     userAdmin
     //doLoginAuto
   } = props
-  const [openDialog, setOpenDialog] = React.useState(false)
-  const [status, setStatus] = React.useState('')
-  const [editMode, setEditMode] = React.useState(false)
-  const [refetch, setRefetch] = React.useState(0)
+  const [openDialog, setOpenDialog] = useState(false)
+  const [status, setStatus] = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [refetch, setRefetch] = useState(0)
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     avatar: '',
     scopeTypes: [] as AdminScopeType[],
@@ -74,8 +67,8 @@ const ViewUser = (props: Props) => {
       scopeTypes: ''
     }
   })
-  const [error, setError] = React.useState('')
-  const [openWarning, setOpenWarning] = React.useState(false)
+  const [error, setError] = useState('')
+  const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
   const userRole = useUserRoleState()
@@ -84,7 +77,6 @@ const ViewUser = (props: Props) => {
   const singleUserData = singleUser.singleUser
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
-  const adminScopeState = useScopeState()
   const adminScopeTypeState = useScopeTypeState()
 
   const handleClick = () => {
@@ -94,7 +86,7 @@ const ViewUser = (props: Props) => {
     setOpenDialog(false)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       AuthService.doLoginAuto(false)
       await UserROleService.fetchUserRole()
@@ -117,13 +109,13 @@ const ViewUser = (props: Props) => {
     adminScopeTypeState.updateNeeded.value
   ])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!refetch) {
       setRefetch(refetch + 1)
     }
   }, [userAdmin.id, refetch])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (singleUserData?.value) {
       setState({
         ...state,
@@ -133,11 +125,6 @@ const ViewUser = (props: Props) => {
       })
     }
   }, [singleUserData?.id?.value])
-
-  const defaultProps = {
-    options: userRoleData,
-    getOptionLabel: (option: any) => option.role
-  }
 
   const patchUserRole = async (user: any, role: string) => {
     await UserROleService.updateUserRole(user, role)
@@ -205,6 +192,17 @@ const ViewUser = (props: Props) => {
     setOpenWarning(false)
   }
 
+  const handleRoleChange = (e) => {
+    setStatus(e.target.value)
+  }
+
+  const handleSubmitRole = async () => {
+    await patchUserRole(singleUserData?.id?.value, status)
+    setRefetch(refetch + 1)
+    setStatus('')
+    handleCloseDialog()
+  }
+
   const handleCloseDrawer = () => {
     setError('')
     setOpenWarning(false)
@@ -222,9 +220,14 @@ const ViewUser = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
+      <Drawer
+        anchor="right"
+        open={openView}
+        onClose={() => handleCloseDrawer()}
+        classes={{ paper: classes.paperDrawer }}
+      >
         {userAdmin && (
-          <Paper elevation={3} className={classes.paperHeight}>
+          <Paper elevation={3} className={classes.rootPaper}>
             <Container maxWidth="sm" className={classes.pad}>
               <Grid container spacing={2} className={classes.centering}>
                 <Grid item xs={4}>
@@ -243,7 +246,7 @@ const ViewUser = (props: Props) => {
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={singleUserData?.userRole?.value} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={userAdmin.userRole} onDelete={handleClick} deleteIcon={<Edit />} />
                     ) : (
                       <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
                     )}
@@ -256,36 +259,39 @@ const ViewUser = (props: Props) => {
               open={openDialog}
               onClose={handleCloseDialog}
               aria-labelledby="form-dialog-title"
-              classes={{ paper: classx.paperDialog }}
+              classes={{ paper: classes.paperDialog }}
             >
               <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
               <DialogContent>
                 <DialogContentText>
                   In order to change role for {userAdmin.name} search from the list or select user role and submit.
                 </DialogContentText>
-                <Autocomplete
-                  onChange={(e, newValue) => {
-                    if (newValue) {
-                      setStatus(newValue.role as string)
-                    } else {
-                      setStatus('')
-                    }
-                  }}
-                  {...defaultProps}
-                  id="debug"
-                  renderInput={(params) => <TextField {...params} label="User Role" />}
-                />
+                <Select
+                  labelId="demo-controlled-open-select-label"
+                  id="demo-controlled-open-select"
+                  value={status || singleUserData?.userRole?.value}
+                  fullWidth
+                  displayEmpty
+                  onChange={handleRoleChange}
+                  className={classes.select}
+                  name="scene"
+                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                >
+                  <MenuItem value="" disabled>
+                    <em>User Role</em>
+                  </MenuItem>
+                  {userRoleData.map((el, i) => (
+                    <MenuItem value={el.role} key={i}>
+                      {el.role}
+                    </MenuItem>
+                  ))}
+                </Select>
               </DialogContent>
               <DialogActions className={classes.marginTop}>
-                <Button onClick={handleCloseDialog} className={classx.spanDange}>
+                <Button onClick={handleCloseDialog} className={classes.spanDange}>
                   Cancel
                 </Button>
-                <Button
-                  onClick={() => {
-                    patchUserRole(userAdmin.id, status)
-                  }}
-                  color="primary"
-                >
+                <Button onClick={handleSubmitRole} color="primary">
                   Submit
                 </Button>
               </DialogActions>
@@ -329,7 +335,7 @@ const ViewUser = (props: Props) => {
                     onChange={handleInputChange}
                     className={classes.select}
                     name="avatar"
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select avatar</em>
@@ -355,7 +361,7 @@ const ViewUser = (props: Props) => {
                   multiple
                   value={state.scopeTypes}
                   className={classes.selector}
-                  classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
+                  classes={{ paper: classes.selectPaper, inputRoot: classes.select }}
                   id="tags-standard"
                   options={adminScopeTypeState.scopeTypes.value}
                   disableCloseOnSelect
@@ -390,16 +396,16 @@ const ViewUser = (props: Props) => {
               </Grid>
               <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.party?.location?.name || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.avatarId || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.inviteCode || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.party?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
                 </Typography>
               </Grid>
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
@@ -432,14 +438,14 @@ const ViewUser = (props: Props) => {
           <DialogActions className={classes.mb10}>
             {editMode ? (
               <div className={classes.marginTop}>
-                <Button onClick={handleSubmit} className={classx.saveBtn}>
+                <Button onClick={handleSubmit} className={classes.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>{' '}
                   Submit
                 </Button>
                 <Button
-                  className={classx.saveBtn}
+                  className={classes.saveBtn}
                   onClick={() => {
                     setEditMode(false)
                   }}
@@ -450,7 +456,7 @@ const ViewUser = (props: Props) => {
             ) : (
               <div className={classes.marginTop}>
                 <Button
-                  className={classx.saveBtn}
+                  className={classes.saveBtn}
                   onClick={() => {
                     setEditMode(true)
                     setState({
@@ -463,7 +469,7 @@ const ViewUser = (props: Props) => {
                 >
                   EDIT
                 </Button>
-                <Button onClick={() => handleCloseDrawer()} className={classx.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
                   CANCEL
                 </Button>
               </div>
@@ -477,8 +483,7 @@ const ViewUser = (props: Props) => {
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <Alert onClose={handleCloseWarning} severity="warning">
-            {' '}
-            {error}{' '}
+            {error}
           </Alert>
         </Snackbar>
       </Drawer>

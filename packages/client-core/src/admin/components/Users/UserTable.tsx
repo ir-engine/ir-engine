@@ -16,7 +16,7 @@ const UserTable = (props: UserProps) => {
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
   const [viewModel, setViewModel] = useState(false)
-  const [userAdmin, setUserAdmin] = useState('')
+  const [userAdmin, setUserAdmin] = useState(null)
   const authState = useAuthState()
   const user = authState.user
   const adminUserState = useUserState()
