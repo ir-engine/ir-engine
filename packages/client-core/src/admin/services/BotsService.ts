@@ -113,7 +113,6 @@ export const BotsAction = {
     }
   },
   botRemoved: (bot: AdminBot) => {
-    debugger
     return {
       type: 'BOT_ADMIN_REMOVE' as const,
       bot: bot

@@ -25,6 +25,7 @@ import Button from '@mui/material/Button'
 import Snackbar from '@mui/material/Snackbar'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import UpdateBot from './updateBot'
+import ConfirmModel from '../../common/ConfirmModel'
 
 interface Props {}
 
@@ -41,6 +42,9 @@ const DisplayBots = (props: Props) => {
   const [open, setOpen] = React.useState(false)
   const [openModel, setOpenModel] = React.useState(false)
   const [bot, setBot] = React.useState('')
+  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
+  const [botName, setBotName] = React.useState('')
+  const [botId, setBotId] = React.useState('')
 
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false)
@@ -66,6 +70,10 @@ const DisplayBots = (props: Props) => {
     setOpenModel(false)
   }
 
+  const handleCloseConfirmModel = () => {
+    setPopConfirmOpen(false)
+  }
+
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
@@ -83,6 +91,11 @@ const DisplayBots = (props: Props) => {
     BotCommandService.createBotCammand(data)
     setName('')
     setDescription('')
+  }
+
+  const submitRemoveBot = async () => {
+    await BotService.removeBots(botId)
+    setPopConfirmOpen(false)
   }
 
   return (
@@ -127,7 +140,14 @@ const DisplayBots = (props: Props) => {
                       <IconButton onClick={() => handleOpenModel(bot)} size="large">
                         <Edit style={{ color: '#fff' }} />
                       </IconButton>
-                      <IconButton onClick={() => BotService.removeBots(bot.id)} size="large">
+                      <IconButton
+                        onClick={() => {
+                          setPopConfirmOpen(true)
+                          setBotId(bot.id)
+                          setBotName(bot.name)
+                        }}
+                        size="large"
+                      >
                         <DeleteIcon style={{ color: '#fff' }} />
                       </IconButton>
                     </div>
@@ -221,6 +241,14 @@ const DisplayBots = (props: Props) => {
         </Alert>
       </Snackbar>
       <UpdateBot open={openModel} handleClose={handleCloseModel} bot={bot} />
+
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseConfirmModel}
+        submit={submitRemoveBot}
+        name={botName}
+        label={'bot'}
+      />
     </div>
   )
 }
