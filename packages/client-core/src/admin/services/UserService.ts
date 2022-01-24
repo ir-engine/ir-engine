@@ -36,9 +36,7 @@ store.receptors.push((action: UserActionType): any => {
           lastFetched: Date.now()
         })
       case 'USER_ADMIN_REMOVED':
-        let userRemove = [...s.users.value]
-        userRemove = userRemove.filter((user) => user.id !== action.data.id)
-        return s.merge({ users: userRemove, updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'USER_ADMIN_CREATED':
         return s.merge({ updateNeeded: true })
       case 'USER_ADMIN_PATCHED':
