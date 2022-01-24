@@ -98,7 +98,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
   if (properties.videoSource) {
     try {
       const { url, contentType } = await resolveMedia(component.videoSource)
-
+      component.error = ''
       if (isHLS(url, contentType)) {
         component.hls = setupHLS(url)
         component.hls?.attachMedia(obj3d.userData.videoEl)
@@ -151,7 +151,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         { once: true }
       )
     } catch (error) {
-      console.error(error)
+      component.error = error.message
     }
   }
 

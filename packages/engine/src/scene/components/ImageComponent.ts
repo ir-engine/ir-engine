@@ -8,6 +8,7 @@ export type ImageComponentType = {
   alphaCutoff: number
   projection: ImageProjectionType
   side: Side
+  error?: string
 }
 
 export const ImageComponent = createMappedComponent<ImageComponentType>('ImageComponent')

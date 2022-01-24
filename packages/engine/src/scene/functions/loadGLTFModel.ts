@@ -234,12 +234,11 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
           res.scene.animations = res.animation
           resolve(res)
         } else {
-          reject()
+          reject({ message: 'Not a valid object' })
         }
       },
       null!,
       (err) => {
-        modelComponent.error = err.message
         reject(err)
       }
     )

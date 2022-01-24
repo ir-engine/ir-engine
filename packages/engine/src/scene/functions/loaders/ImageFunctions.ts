@@ -70,6 +70,7 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.imageSource)
       const texture = await loadTexture(url)
+      component.error = ''
       if (!texture) return
 
       texture.encoding = sRGBEncoding
@@ -80,6 +81,7 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
 
       if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
     } catch (error) {
+      component.error = error.message
       console.error(error)
     }
   }

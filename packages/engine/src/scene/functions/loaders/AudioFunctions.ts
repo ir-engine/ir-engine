@@ -102,6 +102,7 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.audioSource)
       const audioBuffer = await loadAudio(url)
+      component.error = ''
       if (!audioBuffer) return
 
       if (obj3d.userData.audioEl.isPlaying) obj3d.userData.audioEl.stop()
@@ -109,6 +110,7 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
       obj3d.userData.audioEl.setBuffer(audioBuffer)
       if (!audioTypeChanged) updateAutoStartTimeForMedia(entity)
     } catch (error) {
+      component.error = error.message
       console.error(error)
     }
   }

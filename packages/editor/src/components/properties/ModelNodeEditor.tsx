@@ -69,16 +69,17 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
-
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
-        {modelComponent.error && <div>{t('editor:properties.model.error-url')}</div>}
+        {modelComponent.error && <div style={{ color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Environment Map" label={t('editor:properties.model.lbl-envmapUrl')}>
         <ModelInput value={modelComponent.envMapOverride} onChange={updateProperty(ModelComponent, 'envMapOverride')} />
-        {/* {modelComponent.errorEnvMapLoad && <div>{t('editor:properties.model.error-url')}</div>} */}
+        {modelComponent.errorEnvMapLoad && (
+          <div style={{ color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+        )}
       </InputGroup>
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
