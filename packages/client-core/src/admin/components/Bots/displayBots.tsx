@@ -22,15 +22,15 @@ import { useBotState } from '../../services/BotsService'
 import { useBotCommandState } from '../../services/BotsCommand'
 import { useAuthState } from '../../../user/services/AuthService'
 import Button from '@mui/material/Button'
-import MuiAlert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import UpdateBot from './updateBot'
 
 interface Props {}
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
+})
 
 const DisplayBots = (props: Props) => {
   const dispatch = useDispatch()
@@ -66,10 +66,11 @@ const DisplayBots = (props: Props) => {
     setOpenModel(false)
   }
 
-  const handleClose = (event, reason) => {
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
+
     setOpen(false)
   }
 

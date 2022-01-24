@@ -24,21 +24,19 @@ import { useInstanceState } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import { BotService } from '../../services/BotsService'
 import { useLocationState } from '../../services/LocationService'
 import { validateForm } from './validation'
-
 import { Location } from '@xrengine/common/src/interfaces/Location'
-
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import Snackbar from '@mui/material/Snackbar'
+import MuiAlert, { AlertProps } from '@mui/material/Alert'
 
 interface Props {}
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
+})
 
 const CreateBot = (props: Props) => {
   const [command, setCommand] = React.useState({
@@ -81,7 +79,7 @@ const CreateBot = (props: Props) => {
     }
   }, [user.id.value, adminInstanceState.updateNeeded.value])
 
-  const handleClose = (event, reason) => {
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -355,8 +353,7 @@ const CreateBot = (props: Props) => {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleClose} severity="warning">
-          {' '}
-          {error}{' '}
+          {error}
         </Alert>
       </Snackbar>
     </Card>
