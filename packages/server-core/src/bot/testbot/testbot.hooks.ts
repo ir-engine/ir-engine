@@ -1,9 +1,10 @@
+import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 export default {
   before: {
-    all: [iff(isProvider('external'), verifyScope('benchmarking', 'write') as any)],
+    all: [authenticate(), iff(isProvider('external'), verifyScope('benchmarking', 'write') as any)],
     find: [],
     get: [],
     create: [],
