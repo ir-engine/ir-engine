@@ -1,9 +1,9 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 /**
  * This class used to find user
@@ -27,9 +27,13 @@ export class User extends Service {
 
   async find(params: Params): Promise<any> {
     if (!params.query) params.query = {}
-    const action = params.query.action
-    const skip = params.query.$skip ? params.query.$skip : 0
-    const limit = params.query.$limit ? params.query.$limit : 10
+    const { action, $skip, $limit, search, ...query } = params.query!
+
+    const skip = $skip ? $skip : 0
+    const limit = $limit ? $limit : 10
+
+    delete query.search
+
     // this is a privacy & security vulnerability, please rethink the implementation here and on the front end.
     // if (action === 'inventory') {
     //   delete params.query?.action
@@ -71,10 +75,25 @@ export class User extends Service {
       return super.find(params)
     } else if (action === 'admin') {
       delete params.query.action
+      delete params.query.search
       const loggedInUser = extractLoggedInUserFromParams(params)
       if (loggedInUser.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
 
-      // return await super.find(params)
+      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+        where: {
+          name: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        raw: true
+      })
+
+      if (search) {
+        params.query.id = {
+          $in: searchedUser.map((user) => user.id)
+        }
+      }
+
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data

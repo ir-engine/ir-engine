@@ -57,6 +57,7 @@ export interface UserProps {
   adminUserState?: any
   fetchUsersAsAdmin?: any
   refetchSingleUserAdmin?: any
+  search: string
 }
 
 export interface UserTabPanelProps {

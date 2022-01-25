@@ -9,6 +9,7 @@ import { userColumns, UserData, UserProps } from './Variables'
 import ViewUser from './ViewUser'
 
 const UserTable = (props: UserProps) => {
+  const { search } = props
   const classes = useStyles()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
@@ -23,7 +24,7 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users
   const adminUserCount = adminUserState.total
 
-  useFetchUsersAsAdmin(user, adminUserState, UserService)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, search)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'

@@ -44,7 +44,7 @@ const LocationTable = (props: LocationProps) => {
   useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService)
   useFetchAdminScenes(user, SceneService)
   useFetchLocationTypes(user, adminLocationState, LocationService)
-  useFetchUsersAsAdmin(user, adminUserState, UserService)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, null)
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {

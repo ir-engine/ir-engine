@@ -67,7 +67,7 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement') => {
+  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
@@ -82,9 +82,10 @@ export const UserService = {
               $sort: {
                 name: 1
               },
-              $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+              $skip: skip,
               $limit: limit,
               action: 'admin',
+              search: value,
               $or: [
                 {
                   userRole: 'admin'
