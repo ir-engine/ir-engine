@@ -1,4 +1,4 @@
-import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
+import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, Group, TextureLoader } from 'three'
 import { getLoader as getGLTFLoader, loadExtensions } from '../functions/LoadGLTF'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
@@ -112,6 +112,7 @@ export const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+//@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
@@ -146,14 +147,26 @@ const assetLoadCallback =
       await loadExtensions(asset)
     }
 
+    if (assetType === AssetType.FBX) {
+      //TODO: need to fix
+      const object = new Group()
+      const child = new Group()
+      child.scale.set(0.01, 0.01, 0.01)
+      object.add(child)
+      child.add(asset)
+      asset = {
+        scene: object
+      }
+    }
+
     const assetClass = getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      processModelAsset(asset.scene ? asset.scene : asset, params)
+      processModelAsset(asset.scene, params)
     }
 
     params.cache && AssetLoader.Cache.set(url, asset)
 
-    onLoad(asset.scene ? asset : { scene: asset })
+    onLoad(asset)
   }
 
 const load = async (

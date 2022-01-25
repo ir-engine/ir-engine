@@ -41,15 +41,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
+  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo/pete.fbx'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
       castShadow: true,
       receiveShadow: true
     },
-    (gltf: any) => {
-      console.log('loadAvatarForEntity', gltf.scene)
-      setupAvatar(entity, SkeletonUtils.clone(gltf.scene), avatarDetail.avatarURL)
+    (model: any) => {
+      setupAvatar(entity, SkeletonUtils.clone(model.scene), avatarDetail.avatarURL)
     }
   )
 }
@@ -68,6 +68,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
   const retargeted = AvatarBoneMatching(model)
+  const rootBone = retargeted.Root
 
   let hips = model
   model.traverse((o) => {
@@ -100,8 +101,6 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
     }
   })
 
-  model.children.forEach((child) => avatar.modelContainer.add(child))
-  const rootBone = retargeted.Root
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone, null, false, armatureType)
@@ -128,11 +127,16 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(world.delta)
-  retargeted.Neck.updateMatrixWorld(true)
-  const transform = getComponent(entity, TransformComponent)
-  avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
+
+  if (retargeted.LeftEye) {
+    retargeted.Neck.updateMatrixWorld(true)
+    const transform = getComponent(entity, TransformComponent)
+    avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
+  }
 
   loadGrowingEffectObject(entity, materialList)
+
+  model.children.forEach((child) => avatar.modelContainer.add(child))
 }
 
 const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {

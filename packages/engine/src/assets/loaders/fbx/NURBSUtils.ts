@@ -1,5 +1,11 @@
-// @ts-nocheck
+//@ts-nocheck
 import { Vector3, Vector4 } from 'three'
+
+/**
+ * NURBS utils
+ *
+ * See NURBSCurve and NURBSSurface.
+ **/
 
 /**************************************************************
  *	NURBS Utils
@@ -7,12 +13,14 @@ import { Vector3, Vector4 } from 'three'
 
 /*
 Finds knot vector span.
+
 p : degree
 u : parametric value
 U : knot vector
+
 returns the span
 */
-export function findSpan(p: number, u: number, U: number[]): number {
+function findSpan(p, u, U) {
   const n = U.length - p - 1
 
   if (u >= U[n]) {
@@ -42,13 +50,15 @@ export function findSpan(p: number, u: number, U: number[]): number {
 
 /*
 Calculate basis functions. See The NURBS Book, page 70, algorithm A2.2
+
 span : span in which u lies
 u    : parametric point
 p    : degree
 U    : knot vector
+
 returns array[p+1] with basis functions values.
 */
-export function calcBasisFunctions(span: number, u: number, p: number, U: number[]): number[] {
+function calcBasisFunctions(span, u, p, U) {
   const N = []
   const left = []
   const right = []
@@ -76,13 +86,15 @@ export function calcBasisFunctions(span: number, u: number, p: number, U: number
 
 /*
 Calculate B-Spline curve points. See The NURBS Book, page 82, algorithm A3.1.
+
 p : degree of B-Spline
 U : knot vector
 P : control points (x, y, z, w)
 u : parametric point
+
 returns point for given u
 */
-export function calcBSplinePoint(p: number, U: number[], P: Vector4[], u: number): Vector4 {
+function calcBSplinePoint(p, U, P, u) {
   const span = findSpan(p, u, U)
   const N = calcBasisFunctions(span, u, p, U)
   const C = new Vector4(0, 0, 0, 0)
@@ -102,21 +114,25 @@ export function calcBSplinePoint(p: number, U: number[], P: Vector4[], u: number
 
 /*
 Calculate basis functions derivatives. See The NURBS Book, page 72, algorithm A2.3.
+
 span : span in which u lies
 u    : parametric point
 p    : degree
 n    : number of derivatives to calculate
 U    : knot vector
+
 returns array[n+1][p+1] with basis functions derivatives
 */
-export function calcBasisFunctionDerivatives(span: number, u: number, p: number, n: number, U: number[]): number[][] {
+function calcBasisFunctionDerivatives(span, u, p, n, U) {
   const zeroArr = []
   for (let i = 0; i <= p; ++i) zeroArr[i] = 0.0
 
   const ders = []
+
   for (let i = 0; i <= n; ++i) ders[i] = zeroArr.slice(0)
 
   const ndu = []
+
   for (let i = 0; i <= p; ++i) ndu[i] = zeroArr.slice(0)
 
   ndu[0][0] = 1.0
@@ -155,6 +171,7 @@ export function calcBasisFunctionDerivatives(span: number, u: number, p: number,
     for (let i = 0; i <= p; ++i) {
       a[i] = zeroArr.slice(0)
     }
+
     a[0][0] = 1.0
 
     for (let k = 1; k <= n; ++k) {
@@ -194,6 +211,7 @@ export function calcBasisFunctionDerivatives(span: number, u: number, p: number,
     for (let j = 0; j <= p; ++j) {
       ders[k][j] *= r
     }
+
     r *= p - k
   }
 
@@ -202,14 +220,16 @@ export function calcBasisFunctionDerivatives(span: number, u: number, p: number,
 
 /*
 	Calculate derivatives of a B-Spline. See The NURBS Book, page 93, algorithm A3.2.
+
 	p  : degree
 	U  : knot vector
 	P  : control points
 	u  : Parametric points
 	nd : number of derivatives
+
 	returns array[d+1] with derivatives
 	*/
-export function calcBSplineDerivatives(p: number, U: number[], P: Vector4[], u: number, nd: number): Vector4[] {
+function calcBSplineDerivatives(p, U, P, u, nd) {
   const du = nd < p ? nd : p
   const CK = []
   const span = findSpan(p, u, U)
@@ -226,6 +246,7 @@ export function calcBSplineDerivatives(p: number, U: number[], P: Vector4[], u: 
 
     Pw[i] = point
   }
+
   for (let k = 0; k <= du; ++k) {
     const point = Pw[span - p].clone().multiplyScalar(nders[k][0])
 
@@ -245,9 +266,10 @@ export function calcBSplineDerivatives(p: number, U: number[], P: Vector4[], u: 
 
 /*
 Calculate "K over I"
+
 returns k!/(i!(k-i)!)
 */
-export function calcKoverI(k: number, i: number): number {
+function calcKoverI(k, i) {
   let nom = 1
 
   for (let j = 2; j <= k; ++j) {
@@ -269,10 +291,12 @@ export function calcKoverI(k: number, i: number): number {
 
 /*
 Calculate derivatives (0-nd) of rational curve. See The NURBS Book, page 127, algorithm A4.2.
+
 Pders : result of function calcBSplineDerivatives
+
 returns array with derivatives for rational curve.
 */
-export function calcRationalCurveDerivatives(Pders: Vector4[]): Vector3[] {
+function calcRationalCurveDerivatives(Pders) {
   const nd = Pders.length
   const Aders = []
   const wders = []
@@ -300,36 +324,31 @@ export function calcRationalCurveDerivatives(Pders: Vector4[]): Vector3[] {
 
 /*
 Calculate NURBS curve derivatives. See The NURBS Book, page 127, algorithm A4.2.
+
 p  : degree
 U  : knot vector
 P  : control points in homogeneous space
 u  : parametric points
 nd : number of derivatives
+
 returns array with derivatives.
 */
-export function calcNURBSDerivatives(p: number, U: number[], P: Vector4[], u: number, nd: number): Vector3[] {
+function calcNURBSDerivatives(p, U, P, u, nd) {
   const Pders = calcBSplineDerivatives(p, U, P, u, nd)
   return calcRationalCurveDerivatives(Pders)
 }
 
 /*
 Calculate rational B-Spline surface point. See The NURBS Book, page 134, algorithm A4.3.
+
 p1, p2 : degrees of B-Spline surface
 U1, U2 : knot vectors
 P      : control points (x, y, z, w)
 u, v   : parametric values
+
 returns point for given (u, v)
 */
-export function calcSurfacePoint(
-  p: number,
-  q: number,
-  U: number[],
-  V: number[],
-  P: Vector4[],
-  u: number,
-  v: number,
-  target: Vector3
-) {
+function calcSurfacePoint(p, q, U, V, P, u, v, target) {
   const uspan = findSpan(p, u, U)
   const vspan = findSpan(q, v, V)
   const Nu = calcBasisFunctions(uspan, u, p, U)
@@ -355,4 +374,16 @@ export function calcSurfacePoint(
 
   Sw.divideScalar(Sw.w)
   target.set(Sw.x, Sw.y, Sw.z)
+}
+
+export {
+  findSpan,
+  calcBasisFunctions,
+  calcBSplinePoint,
+  calcBasisFunctionDerivatives,
+  calcBSplineDerivatives,
+  calcKoverI,
+  calcRationalCurveDerivatives,
+  calcNURBSDerivatives,
+  calcSurfacePoint
 }
