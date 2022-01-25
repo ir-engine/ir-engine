@@ -1,9 +1,9 @@
-import authenticate from '../../hooks/authenticate'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addScopeToUser from '../../hooks/add-scope-to-user'
+import authenticate from '../../hooks/authenticate'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import addScopeToUser from '../../hooks/add-scope-to-user'
 
 /**
  * This module used to declare and identify database relation
@@ -230,9 +230,9 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopeTypes?.forEach((el) => {
+          context.arguments[0]?.scopes?.forEach((el) => {
             context.app.service('scope').create({
-              type: el.type,
+              type: el,
               userId: context.result.id
             })
           })
