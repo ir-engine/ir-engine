@@ -316,6 +316,7 @@ export const queueAllOutgoingPoses = pipe(
 
 const serializeAndSend = (world: World, sendData: Function) => {
   queueAllOutgoingPoses(world)
+  world.outgoingNetworkState.time = Date.now()
   const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
   sendData(data)
 }
@@ -372,8 +373,6 @@ export default async function OutgoingNetworkSystem(world: World) {
 
     // side effect - network IO
     sendActions(world)
-
-    world.outgoingNetworkState.time = Date.now()
 
     // serializeAndSend(world, sendData)
     serializeAndSendFast(world, serialize, sendData)
