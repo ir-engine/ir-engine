@@ -60,10 +60,12 @@ export default async function XRUILoadingSystem(world: World) {
             const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
             mat.opacity = opacity
             mat.visible = opacity > 0
+            layer.visible = opacity > 0
           })
 
         if (currentState !== 'NONE') {
           alpha += world.delta / transitionPeriodSeconds
+          alpha = MathUtils.clamp(alpha, 0, 1)
           setOpacity(currentState === 'IN' ? alpha : 1 - alpha)
           if (alpha > 1) setState('NONE')
         }

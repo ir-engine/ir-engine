@@ -1,5 +1,7 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { GLTF, GLTFLoader, GLTFParser } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 
@@ -47,6 +49,13 @@ export async function LoadGLTF(url: string): Promise<GLTF> {
 export const loadExtensions = async (gltf: GLTF) => {
   await loadLightmaps(gltf)
   loadLights(gltf)
+  if (isClient) {
+    const bvhTraverse: Promise<void>[] = []
+    gltf.scene.traverse((mesh) => {
+      bvhTraverse.push(generateMeshBVH(mesh))
+    })
+    await Promise.all(bvhTraverse)
+  }
 }
 
 const loadLightmaps = async (gltf: GLTF) => {
@@ -130,7 +139,7 @@ const _shadow = (light, lightData) => {
 }
 
 const _directional = (obj) => {
-  if (!Engine.csm) return // currently this breaks CSM
+  if (Engine.csm) return // currently this breaks CSM
   const lightData = obj.userData.gltfExtensions.MOZ_hubs_components['directional-light']
   const light = new DirectionalLight(lightData.color, lightData.intensity)
   _shadow(light, lightData)

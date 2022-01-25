@@ -10,7 +10,7 @@ const storageProvider = useStorageProvider()
 export const download = async (projectName) => {
   try {
     console.log('[ProjectLoader]: Installing project', projectName, '...')
-    const files = await getFileKeysRecursive(`projects/${projectName}`)
+    const files = await getFileKeysRecursive(`projects/${projectName}/`)
     console.log('[ProjectLoader]: Found files', files)
 
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects', projectName)

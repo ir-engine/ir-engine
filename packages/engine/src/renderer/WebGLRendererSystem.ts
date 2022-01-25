@@ -214,10 +214,6 @@ export class EngineRenderer {
           Engine.renderer.autoClear = true
           Engine.renderer.render(Engine.scene, Engine.camera)
         }
-        // if on oculus, render one frame and freeze, just to create a preview of the scene
-        if (Engine.isHMD) {
-          this.rendereringEnabled = false
-        }
       }
     }
   }

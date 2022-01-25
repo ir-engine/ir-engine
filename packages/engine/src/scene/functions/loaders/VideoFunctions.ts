@@ -49,6 +49,7 @@ export const deserializeVideo: ComponentDeserializeFunction = (
     return
   }
 
+  const mediaComponent = getComponent(entity, MediaComponent)
   let obj3d = getComponent(entity, Object3DComponent)?.value
 
   if (!obj3d) {
@@ -64,7 +65,8 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
   el.setAttribute('loop', 'true')
-  el.setAttribute('preload', 'none')
+  el.setAttribute('preload', 'metadata')
+  el.setAttribute('autoplay', mediaComponent.autoplay ? 'true' : 'false')
   el.setAttribute('playsInline', 'true')
   el.setAttribute('playsinline', 'true')
   el.setAttribute('webkit-playsInline', 'true')
@@ -74,6 +76,14 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   el.hidden = true
   document.body.appendChild(el)
   obj3d.userData.videoEl = el
+
+  el.addEventListener('playing', () => {
+    mediaComponent.playing = true
+  })
+  el.addEventListener('pause', () => {
+    mediaComponent.playing = false
+  })
+  mediaComponent.el = el
 
   const props = parseVideoProperties(json.props) as VideoComponentType
 
@@ -122,7 +132,6 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         'loadeddata',
         () => {
           obj3d.userData.videoEl.muted = false
-          console.log(obj3d.userData.videoEl, obj3d.userData.videoEl.autoplay)
 
           if (obj3d.userData.videoEl.autoplay) {
             if (accessEngineState().userHasInteracted.value) {

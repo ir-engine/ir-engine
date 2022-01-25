@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim
 
 RUN apt-get update
 RUN apt-get install build-essential -y
