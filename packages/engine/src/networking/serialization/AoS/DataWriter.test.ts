@@ -12,6 +12,7 @@ import { Quaternion, Vector3 } from 'three'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
 import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 describe('AoS DataWriter', () => {
 
@@ -65,7 +66,7 @@ describe('AoS DataWriter', () => {
     const writeView = createViewCursor()
     const entity = 1234 as Entity
     
-    const [x, y, z] = [1.5, 0, 3.5]
+    const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
     TransformComponent.position.y[entity] = y
     TransformComponent.position.z[entity] = z
@@ -188,6 +189,9 @@ describe('AoS DataWriter', () => {
   it('should writeEntity with only TransformComponent', () => {
     const writeView = createViewCursor()
     const entity = createEntity()
+    const networkId = 999 as NetworkId
+    const userId = '0' as UserId
+    const userIndex = 0
     
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -196,20 +200,31 @@ describe('AoS DataWriter', () => {
       rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
       scale: new Vector3(1,1,1)
     })
+
+    addComponent(entity, NetworkObjectComponent, {
+      networkId,
+      ownerId: userId,
+      ownerIndex: userIndex,
+      prefab: '',
+      parameters: {}
+    })
     
-    NetworkObjectComponent.networkId[entity] = 999
+    NetworkObjectComponent.networkId[entity] = networkId
     
-    writeEntity(writeView, entity)
+    writeEntity(writeView, userIndex, networkId, entity)
 
     const readView = createViewCursor(writeView.buffer)
 
     strictEqual(writeView.cursor, 
-      (1 * Uint32Array.BYTES_PER_ELEMENT) + 
+      (2 * Uint32Array.BYTES_PER_ELEMENT) + 
       (4 * Uint8Array.BYTES_PER_ELEMENT) + 
       (7 * Float32Array.BYTES_PER_ELEMENT))
     
+    // read userIndex
+    strictEqual(readUint32(readView), userIndex)
+
     // read networkId
-    strictEqual(readUint32(readView), 999)
+    strictEqual(readUint32(readView), networkId)
 
     // read writeEntity changeMask (only reading TransformComponent)
     strictEqual(readUint8(readView), 0b01)
@@ -244,12 +259,21 @@ describe('AoS DataWriter', () => {
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     entities.forEach(entity => {
-      const netId = entity as unknown as NetworkId
-      NetworkObjectComponent.networkId[entity] = netId
+      const networkId = entity as unknown as NetworkId
+      const userId = entity as unknown as UserId
+      const userIndex = entity
+      NetworkObjectComponent.networkId[entity] = networkId
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
         rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
         scale: new Vector3(1,1,1)
+      })
+      addComponent(entity, NetworkObjectComponent, {
+        networkId,
+        ownerId: userId,
+        ownerIndex: userIndex,
+        prefab: '',
+        parameters: {}
       })
     })
 
@@ -258,7 +282,7 @@ describe('AoS DataWriter', () => {
     
     const expectedBytes = (1 * Uint32Array.BYTES_PER_ELEMENT) +
       n * (
-        (1 * Uint32Array.BYTES_PER_ELEMENT) +
+        (2 * Uint32Array.BYTES_PER_ELEMENT) +
         (4 * Uint8Array.BYTES_PER_ELEMENT) + 
         (7 * Float32Array.BYTES_PER_ELEMENT)
       )
@@ -272,6 +296,9 @@ describe('AoS DataWriter', () => {
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
+
+      // read userIndex
+      strictEqual(readUint32(readView), entities[i])
 
       // read networkId
       strictEqual(readUint32(readView), entities[i])
@@ -314,12 +341,21 @@ describe('AoS DataWriter', () => {
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     entities.forEach(entity => {
-      const netId = entity as unknown as NetworkId
-      NetworkObjectComponent.networkId[entity] = netId
+      const networkId = entity as unknown as NetworkId
+      const userId = entity as unknown as UserId
+      const userIndex = entity
+      NetworkObjectComponent.networkId[entity] = networkId
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
         rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
         scale: new Vector3(1,1,1)
+      })
+      addComponent(entity, NetworkObjectComponent, {
+        networkId,
+        ownerId: userId,
+        ownerIndex: userIndex,
+        prefab: '',
+        parameters: {}
       })
     })
 
@@ -328,7 +364,7 @@ describe('AoS DataWriter', () => {
     const expectedBytes = (
       2 * Uint32Array.BYTES_PER_ELEMENT) +
       n * (
-        (1 * Uint32Array.BYTES_PER_ELEMENT) +
+        (2 * Uint32Array.BYTES_PER_ELEMENT) +
         (4 * Uint8Array.BYTES_PER_ELEMENT) + 
         (7 * Float32Array.BYTES_PER_ELEMENT)
       )
@@ -343,6 +379,9 @@ describe('AoS DataWriter', () => {
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
+
+      // read userIndex
+      strictEqual(readUint32(readView), entities[i])
 
       // read networkId
       strictEqual(readUint32(readView), entities[i])

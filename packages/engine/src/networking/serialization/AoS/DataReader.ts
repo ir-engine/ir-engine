@@ -115,9 +115,10 @@ export const readXRInputs = (v: ViewCursor, entity: Entity) => {
 }
 
 export const readEntity = (v: ViewCursor, world: World) => {
-  const userIndex = readUint32(v) as unknown as UserId
+  const userIndex = readUint32(v)
+  const userId = world.userIndexToUserId.get(userIndex)!
   const netId = readUint32(v) as NetworkId
-  const entity = world.getNetworkObject(userIndex, netId)
+  const entity = world.getNetworkObject(userId, netId)
 
   const changeMask = readUint8(v)
 

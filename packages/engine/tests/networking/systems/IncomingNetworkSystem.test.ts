@@ -14,6 +14,7 @@ import { TestNetwork } from '../TestNetwork'
 import { Engine } from '../../../src/ecs/classes/Engine'
 import { WorldStateInterface, WorldStateModel } from '../../../src/networking/schema/networkSchema'
 import ActionDispatchSystem from '../../../src/ecs/functions/ActionDispatchSystem'
+import { createDataWriter } from '../../../src/networking/serialization/AoS/DataWriter'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
 	
@@ -23,11 +24,12 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
     /* hoist */
 		Network.instance = new TestNetwork()
 		world = createWorld()
+		world.userIndexToUserId = new Map()
 		Engine.currentWorld = world
 		Engine.isInitialized = true
 	})
 
-	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
+	it.skip('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
 		/* mock */
 
 		// make this engine user the host (world.isHosting === true)
@@ -46,10 +48,13 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		})
 		const networkObject = addComponent(entity, NetworkObjectComponent, {
 			ownerId: '0' as UserId,
+			ownerIndex: 0,
 			networkId: 0 as NetworkId,
 			prefab: '',
 			parameters: {},
 		})
+
+		world.userIndexToUserId.set(0, '0' as UserId)
 
 		// mock incoming server data
 		const newPosition = new Vector3(1,2,3)
@@ -73,6 +78,9 @@ describe('IncomingNetworkSystem Integration Tests', async () => {
 		}
 
 		const buffer = WorldStateModel.toBuffer(newWorldState)
+
+		// const serialize = createDataWriter()
+		// const buffer = serialize(world, [entity])
 		
 		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
 		// instead of an import dependency , but this works for now

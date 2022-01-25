@@ -1,3 +1,4 @@
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -141,7 +142,7 @@ export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeEntity = (v: ViewCursor, userIndex: number, entity: Entity) => {
+export const writeEntity = (v: ViewCursor, userIndex: number, networkId: NetworkId, entity: Entity) => {
   const rewind = rewindViewCursor(v)
 
   const writeUserIndex = spaceUint32(v)
@@ -155,10 +156,7 @@ export const writeEntity = (v: ViewCursor, userIndex: number, entity: Entity) =>
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
 
   return (
-    (changeMask > 0 &&
-      writeUserIndex(userIndex) &&
-      writeNetworkId(NetworkObjectComponent.networkId[entity]) &&
-      writeChangeMask(changeMask)) ||
+    (changeMask > 0 && writeUserIndex(userIndex) && writeNetworkId(networkId) && writeChangeMask(changeMask)) ||
     rewind()
   )
 }
@@ -170,7 +168,8 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   for (let i = 0, l = entities.length; i < l; i++) {
     const entity = entities[i]
     const userIndex = NetworkObjectComponent.ownerIndex[entity]
-    count += writeEntity(v, userIndex, entity) ? 1 : 0
+    const networkId = NetworkObjectComponent.networkId[entity] as NetworkId
+    count += writeEntity(v, userIndex, networkId, entity) ? 1 : 0
   }
 
   if (count > 0) writeCount(count)

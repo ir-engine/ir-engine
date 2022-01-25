@@ -203,7 +203,11 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     const node = world.entityTree.findNodeFromEid(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.spawnObject({ prefab: '', parameters: { sceneEntityId: node.uuid } })
+        NetworkWorldAction.spawnObject({
+          ownerIndex: world.userIdToUserIndex.get(world.hostId)!,
+          prefab: '',
+          parameters: { sceneEntityId: node.uuid }
+        })
       ).cache()
     }
   } else {
