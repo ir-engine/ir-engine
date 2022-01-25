@@ -28,9 +28,9 @@ import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
 const avatarRadius = 0.25
-const avatarHeight = 1.8
-const capsuleHeight = avatarHeight - avatarRadius * 2
-export const avatarHalfHeight = avatarHeight / 2
+const defaultAvatarHeight = 1.8
+const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
+export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
@@ -57,7 +57,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
   tiltContainer.name = 'Actor (tiltContainer)' + entity
-  tiltContainer.position.setY(avatarHalfHeight)
+  tiltContainer.position.setY(defaultAvatarHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   const modelContainer = new Group()
@@ -66,8 +66,8 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
 
   addComponent(entity, AvatarComponent, {
     ...world.clients.get(userId)?.avatarDetail,
-    avatarHalfHeight,
-    avatarHeight,
+    avatarHalfHeight: defaultAvatarHalfHeight,
+    avatarHeight: defaultAvatarHeight,
     modelContainer,
     isGrounded: false
   })
@@ -105,9 +105,9 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     filterData,
     type: SceneQueryType.Closest,
     hits: [],
-    origin: new Vector3(0, avatarHalfHeight, 0),
+    origin: new Vector3(0, defaultAvatarHalfHeight, 0),
     direction: new Vector3(0, -1, 0),
-    maxDistance: avatarHalfHeight + 0.05,
+    maxDistance: defaultAvatarHalfHeight + 0.05,
     flags
   })
 
@@ -135,7 +135,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     transform: {
       translation: {
         x: transform.position.x,
-        y: transform.position.y + avatarHalfHeight,
+        y: transform.position.y + defaultAvatarHalfHeight,
         z: transform.position.z
       },
       rotation: new Quaternion()
@@ -166,7 +166,7 @@ export const createAvatarController = (entity: Entity) => {
     material: world.physics.createMaterial(),
     position: {
       x: position.x,
-      y: position.y + avatarHalfHeight,
+      y: position.y + defaultAvatarHalfHeight,
       z: position.z
     },
     contactOffset: 0.01,
@@ -181,7 +181,7 @@ export const createAvatarController = (entity: Entity) => {
   console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
-  frustumCamera.position.setY(avatarHalfHeight)
+  frustumCamera.position.setY(defaultAvatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
   value.add(frustumCamera)
