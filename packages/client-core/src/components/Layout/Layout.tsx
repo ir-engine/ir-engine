@@ -8,20 +8,26 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { AppAction, useAppState } from '@xrengine/client-core/src/common/services/AppService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, Suspense, useRef } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import Debug from '../Debug'
+import InstanceChat from '../InstanceChat'
+import MediaIconsBox from '../MediaIconsBox'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useLoadingSystemState } from '../../systems/state/LoadingState'
+
+const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -29,6 +35,7 @@ declare module '@mui/styles/defaultTheme' {
 }
 
 interface Props {
+  useLoadingScreenOpacity?: boolean
   login?: boolean
   pageTitle: string
   children?: any
@@ -49,6 +56,7 @@ const Layout = (props: Props): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const loadingSystemState = useLoadingSystemState()
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
@@ -83,6 +91,9 @@ const Layout = (props: Props): any => {
     respawnAvatar(useWorld().localClientEntity)
   }
 
+  const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
+  const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
+
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -99,42 +110,52 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
-              <header>
-                {path === '/login' && <NavMenu login={login} />}
-                {!props.hideVideo && (
+              {children}
+              <div style={{ opacity: layoutOpacity }}>
+                <header>
+                  {path === '/login' && <NavMenu login={login} />}
+                  {!props.hideVideo && (
+                    <>
+                      <section className={styles.locationUserMenu}>
+                        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                        <PartyVideoWindows />
+                      </section>
+                      <UserToast />
+                    </>
+                  )}
+                </header>
+
+                {!iOS() && (
                   <>
-                    <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                      <PartyVideoWindows />
-                    </section>
-                    <UserToast />
+                    {props.hideFullscreen ? null : fullScreenActive ? (
+                      <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                        <FullscreenExit />
+                      </button>
+                    ) : (
+                      <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                        <ZoomOutMap />
+                      </button>
+                    )}
                   </>
                 )}
-              </header>
 
-              {!iOS() && (
-                <>
-                  {props.hideFullscreen ? null : fullScreenActive ? (
-                    <button type="button" className={styles.fullScreen} onClick={handle.exit}>
-                      <FullscreenExit />
-                    </button>
-                  ) : (
-                    <button type="button" className={styles.fullScreen} onClick={handle.enter}>
-                      <ZoomOutMap />
-                    </button>
-                  )}
-                </>
-              )}
+                <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+                  <Refresh />
+                </button>
 
-              <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
-                <Refresh />
-              </button>
-
-              <Fragment>
                 <UIDialog />
                 <Alerts />
-                {children}
-              </Fragment>
+                {isTouchAvailable && (
+                  <Suspense fallback={<></>}>
+                    <TouchGamepad layout="default" />
+                  </Suspense>
+                )}
+                <Debug />
+                {/* <RecordingApp /> */}
+                <MediaIconsBox />
+                <UserMenu />
+                <InstanceChat />
+              </div>
             </section>
           </ThemeProvider>
         </StyledEngineProvider>

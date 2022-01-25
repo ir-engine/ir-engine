@@ -1,6 +1,6 @@
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { store } from '../../store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 
 //State

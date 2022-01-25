@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Vector2 } from 'three'
-import { useState as useHookstate } from '@hookstate/core'
+import { useState as useHookstate } from '@speigg/hookstate'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'

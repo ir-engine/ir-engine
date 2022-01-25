@@ -1,4 +1,4 @@
-import { createState, DevTools, DevToolsID, none, useState } from '@hookstate/core';
+import { createState, DevTools, DevToolsID, none, useState } from '@speigg/hookstate';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
