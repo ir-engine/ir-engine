@@ -348,8 +348,13 @@ export async function handleWebRtcTransportCreate(
   const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
   if (config.kubernetes.enabled) {
-    const serverResult = await networkTransport.app.k8AgonesClient.get('gameservers')
-    const thisGs = serverResult.items.find(
+    const serverResult = await networkTransport.app.k8AgonesClient.listNamespacedCustomObject(
+      'agones.dev',
+      'v1',
+      'default',
+      'gameservers'
+    )
+    const thisGs = serverResult.body.items.find(
       (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
 

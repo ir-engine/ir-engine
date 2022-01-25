@@ -14,7 +14,6 @@ import authentication from '@xrengine/server-core/src/user/authentication'
 import config from '@xrengine/server-core/src/appconfig'
 import sync from 'feathers-sync'
 import * as k8s from '@kubernetes/client-node'
-import { api } from '@xrengine/server-core/src/k8s'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
@@ -136,14 +135,7 @@ try {
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
 
-    app.k8AgonesClient = api({
-      endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-      version: '/apis/agones.dev/v1',
-      auth: {
-        caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-        token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-      }
-    })
+    app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
     app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
     app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
   }
