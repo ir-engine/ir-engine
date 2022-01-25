@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { User } from '@xrengine/common/src/interfaces/User'
 //State

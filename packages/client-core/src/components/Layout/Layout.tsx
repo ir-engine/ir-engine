@@ -8,20 +8,25 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { AppAction, useAppState } from '@xrengine/client-core/src/common/services/AppService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, Suspense } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
 import Me from '../Me'
 import PartyVideoWindows from '../PartyVideoWindows'
 import styles from './Layout.module.scss'
+import Debug from '../Debug'
+import InstanceChat from '../InstanceChat'
+import MediaIconsBox from '../MediaIconsBox'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+
+const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -49,6 +54,7 @@ const Layout = (props: Props): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const engineState = useEngineState()
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
@@ -133,7 +139,21 @@ const Layout = (props: Props): any => {
               <Fragment>
                 <UIDialog />
                 <Alerts />
+                {isTouchAvailable ? (
+                  <Suspense fallback={<></>}>
+                    <TouchGamepad layout="default" />
+                  </Suspense>
+                ) : null}
                 {children}
+                {engineState.joinedWorld.value && (
+                  <>
+                    <Debug />
+                    {/* <RecordingApp /> */}
+                    <MediaIconsBox />
+                    <UserMenu />
+                    <InstanceChat />
+                  </>
+                )}
               </Fragment>
             </section>
           </ThemeProvider>

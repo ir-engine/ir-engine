@@ -1,6 +1,6 @@
 import { client } from '../../feathers'
 import { store } from '../../store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 export const state = createState({

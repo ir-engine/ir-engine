@@ -3,7 +3,7 @@ import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
 
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
 import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'

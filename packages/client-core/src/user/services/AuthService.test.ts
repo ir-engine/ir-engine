@@ -1,4 +1,4 @@
-import { createState, Downgraded } from '@hookstate/core'
+import { createState, Downgraded } from '@speigg/hookstate'
 import assert from 'assert'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
