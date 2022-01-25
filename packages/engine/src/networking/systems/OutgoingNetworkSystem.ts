@@ -373,12 +373,9 @@ export default async function OutgoingNetworkSystem(world: World) {
     // side effect - network IO
     sendActions(world)
 
+    world.outgoingNetworkState.time = Date.now()
+
     // serializeAndSend(world, sendData)
     serializeAndSendFast(world, serialize, sendData)
-
-    // side effect - network IO
-    world.outgoingNetworkState.time = Date.now()
-    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-    sendData(data)
   }
 }
