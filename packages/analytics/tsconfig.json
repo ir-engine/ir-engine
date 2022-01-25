@@ -28,8 +28,7 @@
   },
   "exclude": [
     "../projects/projects/**",
-    "**/node_modules/**",
-    "../../node_modules/k8s/*"
+    "**/node_modules/**"
   ],
   "include": [
     "./**/*.ts",
