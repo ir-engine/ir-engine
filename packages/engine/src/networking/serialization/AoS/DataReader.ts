@@ -1,4 +1,5 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
@@ -113,9 +114,10 @@ export const readXRInputs = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
-export const readEntity = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>) => {
+export const readEntity = (v: ViewCursor, world: World) => {
+  const userIndex = readUint32(v) as unknown as UserId
   const netId = readUint32(v) as NetworkId
-  const entity = netIdMap.get(netId)!
+  const entity = world.getNetworkObject(userIndex, netId)
 
   const changeMask = readUint8(v)
 
@@ -124,11 +126,11 @@ export const readEntity = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 }
 
-export const readEntities = (v: ViewCursor, netIdMap: Map<NetworkId, Entity>, byteLength: number) => {
+export const readEntities = (v: ViewCursor, world: World, byteLength: number) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, netIdMap)
+      readEntity(v, world)
     }
   }
 }
@@ -142,6 +144,6 @@ export const createDataReader = () => {
   return (world: World, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
     readMetadata(view, world)
-    readEntities(view, world.networkIdMap, packet.byteLength)
+    readEntities(view, world, packet.byteLength)
   }
 }

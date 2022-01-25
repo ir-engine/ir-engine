@@ -204,6 +204,7 @@ export async function handleConnectToWorld(
   const world = Engine.currentWorld
   world.clients.set(userId, {
     userId: userId,
+    userIndex: world.userIndexCount++,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -280,7 +281,8 @@ export const handleJoinWorld = (
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.createClient({
       $from: joinedUserId,
-      name: client.name
+      name: client.name,
+      index: client.userIndex
     })
   ).to('others')
 }

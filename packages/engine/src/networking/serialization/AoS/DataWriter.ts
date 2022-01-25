@@ -141,9 +141,10 @@ export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeEntity = (v: ViewCursor, entity: Entity) => {
+export const writeEntity = (v: ViewCursor, userIndex: number, entity: Entity) => {
   const rewind = rewindViewCursor(v)
 
+  const writeUserIndex = spaceUint32(v)
   const writeNetworkId = spaceUint32(v)
 
   const writeChangeMask = spaceUint8(v)
@@ -154,7 +155,10 @@ export const writeEntity = (v: ViewCursor, entity: Entity) => {
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
 
   return (
-    (changeMask > 0 && writeNetworkId(NetworkObjectComponent.networkId[entity]) && writeChangeMask(changeMask)) ||
+    (changeMask > 0 &&
+      writeUserIndex(userIndex) &&
+      writeNetworkId(NetworkObjectComponent.networkId[entity]) &&
+      writeChangeMask(changeMask)) ||
     rewind()
   )
 }
@@ -164,7 +168,9 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 
   let count = 0
   for (let i = 0, l = entities.length; i < l; i++) {
-    count += writeEntity(v, entities[i]) ? 1 : 0
+    const entity = entities[i]
+    const userIndex = NetworkObjectComponent.ownerIndex[entity]
+    count += writeEntity(v, userIndex, entity) ? 1 : 0
   }
 
   if (count > 0) writeCount(count)

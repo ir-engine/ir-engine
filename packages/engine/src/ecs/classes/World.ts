@@ -97,6 +97,9 @@ export class World {
   previousNetworkState: WorldStateInterface
 
   networkIdMap: Map<NetworkId, Entity>
+  userIndexMap: Map<UserId, number>
+
+  userIndexCount: number
 
   /**
    * Check if this user is hosting the world.

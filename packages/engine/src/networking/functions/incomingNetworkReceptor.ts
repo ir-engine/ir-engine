@@ -17,10 +17,11 @@ export function incomingNetworkReceptor(action) {
   const world = useWorld()
 
   matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ $from, name }) => {
+    .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => {
       if (!isClient) return
       world.clients.set($from, {
         userId: $from,
+        userIndex: index,
         name,
         subscribedChatUpdates: []
       })
@@ -70,12 +71,14 @@ export function incomingNetworkReceptor(action) {
 
       addComponent(entity, NetworkObjectComponent, {
         ownerId: a.$from,
+        ownerIndex: a.ownerIndex,
         networkId: a.networkId,
         prefab: a.prefab,
         parameters: a.parameters
       })
 
       world.networkIdMap.set(a.networkId, entity)
+      world.userIndexMap.set(a.$from, a.ownerIndex)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {

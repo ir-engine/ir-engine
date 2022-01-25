@@ -5,6 +5,7 @@ import type { AvatarProps } from './WorldState'
 
 export interface NetworkClient {
   userId: UserId
+  userIndex: number
   name: string
   subscribedChatUpdates: string[]
   // The following properties are only present on the server

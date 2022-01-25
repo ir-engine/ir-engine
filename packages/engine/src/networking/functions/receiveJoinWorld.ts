@@ -23,7 +23,7 @@ export const receiveJoinWorld = ({ tick, clients, cachedActions, avatarDetail })
 
   for (const client of clients)
     Engine.currentWorld.incomingActions.add(
-      NetworkWorldAction.createClient({ $from: client.userId, name: client.name })
+      NetworkWorldAction.createClient({ $from: client.userId, name: client.name, index: client.index })
     )
 
   for (const action of cachedActions) Engine.currentWorld.incomingActions.add({ $fromCache: true, ...action })
