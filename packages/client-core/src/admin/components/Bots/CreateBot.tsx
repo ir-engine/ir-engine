@@ -8,7 +8,6 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
-import { useStylesForBots as useStyles, useStyle } from './styles'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -18,6 +17,7 @@ import { Autorenew, Face, Save } from '@mui/icons-material'
 import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
+import { useStyles } from '../../styles/ui'
 
 import { InstanceService } from '../../services/InstanceService'
 import { useInstanceState } from '../../services/InstanceService'
@@ -29,14 +29,9 @@ import { useLocationState } from '../../services/LocationService'
 import { validateForm } from './validation'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import Snackbar from '@mui/material/Snackbar'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
+import AlertMessage from '../../common/AlertMessage'
 
 interface Props {}
-
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-})
 
 const CreateBot = (props: Props) => {
   const [command, setCommand] = React.useState({
@@ -62,7 +57,6 @@ const CreateBot = (props: Props) => {
   const adminInstanceState = useInstanceState()
   const dispatch = useDispatch()
   const classes = useStyles()
-  const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
   const adminInstances = adminInstanceState
@@ -166,9 +160,9 @@ const CreateBot = (props: Props) => {
   }
 
   return (
-    <Card className={classes.rootLeft}>
-      <Paper className={classes.header} style={{ display: 'flex' }}>
-        <Typography className={classes.title}>
+    <Card className={classes.botRootLeft}>
+      <Paper className={classes.botHeader} style={{ display: 'flex' }}>
+        <Typography className={classes.botTitle}>
           <Face />
           <div className={classes.smFont}>Create new bot</div>
         </Typography>
@@ -226,7 +220,7 @@ const CreateBot = (props: Props) => {
                     name="location"
                     displayEmpty
                     className={classes.select}
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select location</em>
@@ -263,7 +257,7 @@ const CreateBot = (props: Props) => {
                     onChange={handleInputChange}
                     className={classes.select}
                     name="instance"
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select instance</em>
@@ -315,7 +309,7 @@ const CreateBot = (props: Props) => {
 
           <Button
             variant="contained"
-            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px', width: '100%' }}
+            className={classes.addCommand}
             onClick={() => {
               if (command.name) {
                 setCommandData([...commandData, command])
@@ -346,16 +340,7 @@ const CreateBot = (props: Props) => {
           </div>
         </form>
       </CardContent>
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleClose} severity="warning">
-          {error}
-        </Alert>
-      </Snackbar>
+      <AlertMessage open={open} handleClose={handleClose} severity="warning" message={error} />
     </Card>
   )
 }

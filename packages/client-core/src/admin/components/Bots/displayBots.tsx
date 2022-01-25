@@ -4,7 +4,6 @@ import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useStylesForBots as useStyles } from './styles'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
@@ -26,6 +25,7 @@ import Snackbar from '@mui/material/Snackbar'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import UpdateBot from './updateBot'
 import ConfirmModel from '../../common/ConfirmModel'
+import { useStyles } from '../../styles/ui'
 
 interface Props {}
 
@@ -99,7 +99,7 @@ const DisplayBots = (props: Props) => {
   }
 
   return (
-    <div className={classes.rootRigt}>
+    <div className={classes.botRootRight}>
       {botAdminData.value.map((bot, index) => {
         return (
           <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
@@ -112,16 +112,16 @@ const DisplayBots = (props: Props) => {
               <Typography className={classes.heading}>{bot.name}</Typography>
               <Typography className={classes.secondaryHeading}>{bot?.description}</Typography>
             </AccordionSummary>
-            <AccordionDetails className={classes.details}>
+            <AccordionDetails className={classes.botDetails}>
               <div style={{ width: '100%' }}>
                 <Grid container spacing={5}>
                   <Grid item xs={8}>
                     <Grid container spacing={5}>
                       <Grid item xs={4}>
-                        <Typography className={classes.thirdHeadding} component="h1">
+                        <Typography className={classes.thirdHeading} component="h1">
                           Location:
                         </Typography>
-                        <Typography className={classes.thirdHeadding} component="h1">
+                        <Typography className={classes.thirdHeading} component="h1">
                           Instance:
                         </Typography>
                       </Grid>
@@ -192,7 +192,7 @@ const DisplayBots = (props: Props) => {
                 <Button
                   variant="contained"
                   fullWidth={true}
-                  style={{ color: '#fff', background: '#3a4149', marginBottom: '20px' }}
+                  className={classes.addCommand}
                   onClick={() => {
                     if (name) {
                       submitCommandBot(bot.id)

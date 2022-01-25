@@ -4,7 +4,6 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { useStyle, useStylesForBots as useStyles } from './styles'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
@@ -23,6 +22,7 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import { InstanceService } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
@@ -40,7 +40,6 @@ const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
   const dispatch = useDispatch()
-  const classx = useStyle()
   const classes = useStyles()
   const [state, setState] = React.useState({
     name: '',
@@ -159,7 +158,7 @@ const UpdateBot = (props: Props) => {
       <Dialog
         open={open}
         aria-labelledby="form-dialog-title"
-        classes={{ paper: classx.dialoPaper }}
+        classes={{ paper: classes.paperDialog }}
         onClose={handleClose}
       >
         <DialogTitle id="form-dialog-title">UPDATE BOT</DialogTitle>
@@ -207,7 +206,7 @@ const UpdateBot = (props: Props) => {
                     name="location"
                     displayEmpty
                     className={classes.select}
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select location</em>
@@ -248,7 +247,7 @@ const UpdateBot = (props: Props) => {
                     onChange={handleInputChange}
                     className={classes.select}
                     name="instance"
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select instance</em>
