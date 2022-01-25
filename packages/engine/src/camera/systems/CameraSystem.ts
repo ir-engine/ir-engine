@@ -177,18 +177,18 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
 }
 
 const calculateCameraTarget = (entity: Entity, target: Vector3) => {
+  const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
-  const followCamera = getComponent(entity, FollowCameraComponent)
 
-  const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
-  const side = followCamera.shoulderSide ? -1 : 1
-  const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
+  // const followCamera = getComponent(entity, FollowCameraComponent)
+  // const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  // const side = followCamera.shoulderSide ? -1 : 1
+  // const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
   //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
-  target.set(shoulderOffset, 0.1, 0.2)
+  target.set(0, avatar.avatarHeight, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
-  getAvatarBonePosition(entity, 'neck', tempVec1)
-  target.add(tempVec1)
+  target.add(avatarTransform.position)
 }
 
 const updateFollowCamera = (entity: Entity, delta: number) => {

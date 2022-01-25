@@ -50,6 +50,7 @@ function _addRig(
   if (hasComponent(entity, IKObj)) removeComponent(entity, IKObj)
   addComponent(entity, IKObj, { ref: skinnedMesh })
   const rig = addComponent(entity, componentClass, {
+    boneStructure: null!,
     rootParent: rootObject,
     tpose: new Pose(rootObject, true), // If Passing a TPose, it must have its world space computed.
     pose: new Pose(rootObject, false),
