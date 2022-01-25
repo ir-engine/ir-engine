@@ -6,7 +6,7 @@ import {
   matchesUserId,
   matchesVector3,
   matchesWithDefault
-} from '../interfaces/Action'
+} from '../../ecs/functions/Action'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 import { matchesWeightsParameters } from '../../avatar/animations/Util'

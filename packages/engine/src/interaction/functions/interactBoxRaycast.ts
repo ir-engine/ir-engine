@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Vector3 } from 'three'
+import { Box3, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -61,10 +61,17 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
       }
       if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent)
-        const aabb = new Box3()
-        aabb.copy(boundingBox.box)
-        aabb.applyMatrix4(object3D.value.matrixWorld)
-        return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)]
+        let object3DAABB = new Box3()
+        object3D.value.traverse((mesh: Mesh) => {
+          if (mesh instanceof Mesh) {
+            if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox() // only here for edge cases, this would already be calculated
+            const meshAABB = new Box3().copy(mesh.geometry.boundingBox!)
+            meshAABB.applyMatrix4(mesh.matrixWorld)
+            object3DAABB.union(meshAABB)
+          }
+        })
+        boundingBox.box.copy(object3DAABB)
+        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
       } else {
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
       }

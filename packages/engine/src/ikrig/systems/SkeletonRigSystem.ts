@@ -4,7 +4,6 @@ import { IKPoseComponent } from '../components/IKPoseComponent'
 import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
 
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { Quaternion, Vector3 } from 'three'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -61,7 +60,7 @@ const mockAvatars = () => {
   }
 }
 
-export default async function SkeletonRigSystem(world: World): Promise<System> {
+export default async function SkeletonRigSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
   // mockAvatars()

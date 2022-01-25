@@ -47,7 +47,7 @@ export class User extends Service {
           {
             model: (this.app.service('user-relationship') as any).Model,
             where: {
-              relatedUserId: loggedInUser.userId,
+              relatedUserId: loggedInUser.id,
               userRelationshipType: 'friend'
             }
           }
@@ -61,22 +61,18 @@ export class User extends Service {
     } else if (action === 'layer-users') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      params.query.instanceId = params.query.instanceId || user.instanceId || 'intentionalBadId'
+      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'channel-users') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      params.query.channelInstanceId = params.query.channelInstanceId || user.channelInstanceId || 'intentionalBadId'
+      params.query.channelInstanceId =
+        params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'admin') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
-      const user = await super.get(loggedInUser.userId)
-      if (user.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
+      if (loggedInUser.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
 
       // return await super.find(params)
       return super.find(params)
@@ -101,9 +97,7 @@ export class User extends Service {
       return super.find(params)
     } else {
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      if (user?.userRole !== 'admin' && params.isInternal != true)
+      if (loggedInUser?.userRole !== 'admin' && params.isInternal != true)
         return new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }

@@ -8,7 +8,6 @@ import { WorldStateModel } from '../schema/networkSchema'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { System } from '../../ecs/classes/System'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { isZero } from '@xrengine/common/src/utils/mathUtils'
 import { arraysAreEqual } from '@xrengine/common/src/utils/miscUtils'
@@ -19,6 +18,7 @@ import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { createDataWriter } from '../serialization/AoS/DataWriter'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 
 /***********
  * QUERIES *
@@ -87,12 +87,18 @@ function isControllerPoseTheSame(previousNetworkState, ownerId, netId, hp, hr, l
  **************/
 
 export const queueEntityTransform = (world: World, entity: Entity) => {
-  const { outgoingNetworkState, previousNetworkState } = world
+  const { outgoingNetworkState, previousNetworkState, clients } = world
 
   const networkObject = getComponent(entity, NetworkObjectComponent)
   const transformComponent = getComponent(entity, TransformComponent)
 
   if (!networkObject || !transformComponent) return world
+
+  if (!clients.has(networkObject.ownerId)) {
+    // cleanup network objects whose owners are no longer present
+    removeEntity(entity, false, world)
+    return world
+  }
 
   let vel = undefined! as number[]
   let angVel = undefined
@@ -352,7 +358,7 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
   }
 }
 
-export default async function OutgoingNetworkSystem(world: World): Promise<System> {
+export default async function OutgoingNetworkSystem(world: World) {
   const worldTransport = Network.instance.transportHandler.getWorldTransport()
   const sendActions = sendActionsOnTransport(worldTransport)
   const sendData = sendDataOnTransport(worldTransport)
@@ -369,5 +375,10 @@ export default async function OutgoingNetworkSystem(world: World): Promise<Syste
 
     // serializeAndSend(world, sendData)
     serializeAndSendFast(world, serialize, sendData)
+
+    // side effect - network IO
+    world.outgoingNetworkState.time = Date.now()
+    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+    sendData(data)
   }
 }

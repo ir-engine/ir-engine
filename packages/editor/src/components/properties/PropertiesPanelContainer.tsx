@@ -167,7 +167,7 @@ export const PropertiesPanelContainer = () => {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
     // get all editors that this entity has a component for
-    const Editor = getNodeEditorsForEntity(node.entity)
+    const editors = getNodeEditorsForEntity(node.entity)
 
     const transform =
       hasComponent(node.entity, TransformComponent) &&
@@ -197,7 +197,9 @@ export const PropertiesPanelContainer = () => {
           </PersistInputGroup>
           {transform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
-        <Editor multiEdit={multiEdit} node={node} />
+        {editors.map((Editor, i) => (
+          <Editor key={i} multiEdit={multiEdit} node={node} />
+        ))}
       </StyledNodeEditor>
     )
   }

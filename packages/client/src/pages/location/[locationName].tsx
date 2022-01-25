@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import Layout from '../../components/Layout/Layout'
-import DefaultLayoutView from '../../components/World/DefaultLayoutView'
-import { LoadEngineWithScene } from '../../components/World/LoadEngineWithScene'
-import { LoadLocationScene } from '../../components/World/LoadLocationScene'
-import { NetworkInstanceProvisioning } from '../../components/World/NetworkInstanceProvisioning'
+import Layout from '@xrengine/client-core/src/components/Layout/Layout'
+import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 
+const DefaultLayoutView = lazy(() => import('@xrengine/client-core/src/components/World/DefaultLayoutView'))
+const LoadLocationScene = lazy(() => import('@xrengine/client-core/src/components/World/LoadLocationScene'))
+const NetworkInstanceProvisioning = lazy(
+  () => import('@xrengine/client-core/src/components/World/NetworkInstanceProvisioning')
+)
 interface Props {
   match?: any
 }
@@ -18,10 +20,12 @@ const LocationPage = (props: Props) => {
   return (
     <>
       <Layout pageTitle={t('location.locationName.pageTitle')}>
-        <NetworkInstanceProvisioning locationName={locationName} />
-        <LoadLocationScene locationName={props.match.params.locationName} />
         <LoadEngineWithScene />
-        <DefaultLayoutView allowDebug={true} locationName={locationName} />
+        <Suspense fallback={<></>}>
+          <NetworkInstanceProvisioning locationName={locationName} />
+          <LoadLocationScene locationName={props.match.params.locationName} />
+          <DefaultLayoutView allowDebug={true} locationName={locationName} />
+        </Suspense>
       </Layout>
     </>
   )

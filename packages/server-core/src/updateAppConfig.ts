@@ -75,10 +75,6 @@ export const updateAppConfig = async (): Promise<void> => {
   const promises: any[] = []
 
   const analyticsSetting = sequelizeClient.define('analyticsSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     port: {
       type: DataTypes.STRING,
       allowNull: true
@@ -93,7 +89,6 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbAnalytics]) => {
       const dbAnalyticsConfig = dbAnalytics && {
         port: dbAnalytics.port,
-        enabled: dbAnalytics.enabled,
         processInterval: dbAnalytics.processInterval
       }
       if (dbAnalyticsConfig) {
@@ -270,10 +265,6 @@ export const updateAppConfig = async (): Promise<void> => {
   promises.push(chargebeeSettingPromise)
 
   const clientSetting = sequelizeClient.define('clientSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     logo: {
       type: DataTypes.STRING,
       allowNull: true
@@ -315,7 +306,6 @@ export const updateAppConfig = async (): Promise<void> => {
     .findAll()
     .then(([dbClient]) => {
       const dbClientConfig = dbClient && {
-        enabled: dbClient.enabled,
         logo: dbClient.logo,
         title: dbClient.title,
         url: dbClient.url,
@@ -386,10 +376,6 @@ export const updateAppConfig = async (): Promise<void> => {
       type: DataTypes.STRING,
       allowNull: true
     },
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     rtc_start_port: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -435,7 +421,6 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbGameServer]) => {
       const dbGameServerConfig = dbGameServer && {
         clientHost: dbGameServer.clientHost,
-        enabled: dbGameServer.enabled,
         rtc_start_port: dbGameServer.rtc_start_port,
         rtc_end_port: dbGameServer.rtc_end_port,
         rtc_port_block_size: dbGameServer.rtc_port_block_size,
@@ -503,10 +488,6 @@ export const updateAppConfig = async (): Promise<void> => {
   const serverSetting = sequelizeClient.define('serverSetting', {
     hostname: {
       type: DataTypes.STRING,
-      allowNull: true
-    },
-    enabled: {
-      type: DataTypes.BOOLEAN,
       allowNull: true
     },
     mode: {
@@ -583,7 +564,6 @@ export const updateAppConfig = async (): Promise<void> => {
     .then(([dbServer]) => {
       const dbServerConfig = dbServer && {
         hostname: dbServer.hostname,
-        enabled: dbServer.enabled,
         mode: dbServer.mode,
         port: dbServer.port,
         clientHost: dbServer.clientHost,

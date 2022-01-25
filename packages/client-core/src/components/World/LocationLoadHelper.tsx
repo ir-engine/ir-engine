@@ -1,12 +1,8 @@
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
-import { client } from '@xrengine/client-core/src/feathers'
+import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
@@ -18,6 +14,22 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Quaternion, Vector3 } from 'three'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import {
+  createEngine,
+  initializeBrowser,
+  initializeCoreSystems,
+  initializeProjectSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import matches from 'ts-matches'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Downgraded } from '@hookstate/core'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -35,16 +47,6 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
       LocationService.getLocationByName(locationName)
     }
   }
-}
-
-export const getSceneData = async (projectName: string, sceneName: string, isOffline: boolean) => {
-  if (isOffline) {
-    return testScenes[sceneName] || testScenes.test
-  }
-
-  const sceneResult = await client.service('scene').get({ projectName, sceneName })
-  console.log(sceneResult)
-  return sceneResult.data.scene
 }
 
 const getFirstSpawnPointFromSceneData = (scene: SceneJson) => {
@@ -66,7 +68,7 @@ const createOfflineUser = (sceneData: SceneJson) => {
   const avatarDetail = {
     thumbnailURL: '',
     avatarURL: ''
-  } as any
+  }
 
   const spawnPos = getFirstSpawnPointFromSceneData(sceneData)
 
@@ -83,43 +85,82 @@ const createOfflineUser = (sceneData: SceneJson) => {
   Engine.userId = userId
   // Replicate the server behavior
   dispatchLocal(NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }) as any)
-  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }))
+  dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
-export const initNetwork = () => {
+const injectedSystems: SystemModuleType<any>[] = [
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
+  },
+  {
+    type: 'FIXED',
+    systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
+  }
+]
+
+export const initEngine = async () => {
+  if (Engine.isInitialized) return
   Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
+  createEngine()
+  initializeBrowser()
+  await initializeCoreSystems(injectedSystems)
 }
 
-export const loadLocation = async (sceneName: string): Promise<any> => {
-  // console.log('loading location: ' + sceneName)
-  const [project, scene] = sceneName.split('/')
+export const initClient = async (project) => {
+  await initializeRealtimeSystems()
+  await initializeSceneSystems()
 
-  // 1. Get scene data
-  const sceneData = await getSceneData(project, scene, false)
+  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
+  const systems = await getSystemsFromSceneData(project, sceneData, true)
+  const projects = accessProjectState().projects.value.map((project) => project.name)
+  await initializeProjectSystems(projects, systems)
 
-  const packs = await getSystemsFromSceneData(project, sceneData, true)
+  // add extraneous receptors
+  useWorld().receptors.push((action) => {
+    matches(action)
+      .when(NetworkWorldAction.createClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      })
+      .when(NetworkWorldAction.destroyClient.matches, () => {
+        updateNearbyAvatars()
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      })
+  })
+  Engine.isReady = true
+}
 
-  await Engine.currentWorld.initSystems(packs)
+export const loadLocation = async (): Promise<any> => {
+  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
+
   const dispatch = useDispatch()
 
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
+  let entitiesToLoad = 0
 
   const receptor = (action: EngineActionType) => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        dispatchLocal(EngineActions.loadingProgress(action.entitiesLeft) as any)
+        const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
+        dispatchLocal(
+          EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), 'Loading Complete!')
+        )
         break
     }
   }
   Engine.currentWorld.receptors.push(receptor)
-  await loadSceneFromJSON(sceneData)
-  ///remove receptor
-  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
-  Engine.currentWorld.receptors.splice(receptorIndex, 1)
-  //
-  getPortalDetails()
-  dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+
+  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
+  loadSceneFromJSON(sceneData).then(() => {
+    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining world...'))
+
+    getPortalDetails()
+    dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
+  })
+
+  entitiesToLoad = Engine.sceneLoadPromises.length
 }

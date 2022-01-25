@@ -1,7 +1,6 @@
 export interface ServerSetting {
   id: string
   hostname?: string
-  enabled: boolean
   mode?: string
   port?: string
   clientHost?: string

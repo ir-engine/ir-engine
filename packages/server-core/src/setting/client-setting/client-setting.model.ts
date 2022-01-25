@@ -12,10 +12,6 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
-      enabled: {
-        type: DataTypes.BOOLEAN,
-        allowNull: true
-      },
       logo: {
         type: DataTypes.STRING,
         allowNull: true

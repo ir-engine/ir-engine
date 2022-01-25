@@ -1,14 +1,8 @@
-import * as feathersAuthentication from '@feathersjs/authentication'
-import { hooks } from '@feathersjs/authentication-local'
+import authenticate from '../../hooks/authenticate'
 import accountService from '../auth-management/auth-management.notifier'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 import { NotFound } from '@feathersjs/errors'
-
-const { authenticate } = feathersAuthentication.hooks
-const hashPassword = hooks.hashPassword
-
-const { protect } = hooks
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {
@@ -52,12 +46,12 @@ const checkIdentityProvider = (): any => {
 export default {
   before: {
     all: [],
-    find: [iff(isProvider('external'), authenticate('jwt') as any)],
-    get: [iff(isProvider('external'), authenticate('jwt') as any, checkIdentityProvider())],
+    find: [iff(isProvider('external'), authenticate() as any)],
+    get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
     create: [],
-    update: [iff(isProvider('external'), authenticate('jwt') as any, checkIdentityProvider())],
-    patch: [iff(isProvider('external'), authenticate('jwt') as any, checkIdentityProvider())],
-    remove: [iff(isProvider('external'), authenticate('jwt') as any, checkIdentityProvider())]
+    update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    patch: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())]
   },
   after: {
     all: [],

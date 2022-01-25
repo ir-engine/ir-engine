@@ -1,6 +1,6 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import React, { KeyboardEvent, useCallback, useEffect } from 'react'
+import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -49,6 +49,7 @@ export type HierarchyTreeNodeData = {
 export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
+  style: StyleHTMLAttributes<HTMLLIElement>
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
@@ -192,12 +193,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editor = getNodeEditorsForEntity(node.entityNode.entity)
+  const editors = getNodeEditorsForEntity(node.entityNode.entity)
+  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
   return (
-    <li>
+    <li style={props.style}>
       <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" collect={collectNodeMenuProps}>
         <div
           ref={drag}
@@ -228,7 +230,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             )}
 
             <div className={styles.selectTarget}>
-              {editor ? <editor.iconComponent className={styles.nodeIcon} /> : null}
+              {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
               <div className={styles.labelContainer}>
                 {renaming ? (
                   <div className={styles.renameInputContainer}>

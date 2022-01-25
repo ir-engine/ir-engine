@@ -8,8 +8,7 @@ import {
   sRGBEncoding,
   LinearFilter,
   SphereBufferGeometry,
-  Object3D,
-  Texture
+  Object3D
 } from 'three'
 import {
   ComponentDeserializeFunction,
@@ -53,11 +52,12 @@ export const deserializeImage: ComponentDeserializeFunction = (
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
 
-  addComponent(entity, ImageComponent, { ...json.props })
+  const props = parseImageProperties(json.props)
+  addComponent(entity, ImageComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
 
-  updateImage(entity, json.props)
+  updateImage(entity, props)
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity, properties: ImageComponentType) => {
@@ -84,7 +84,7 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('projection')) {
+  if (typeof properties.projection !== 'undefined') {
     if (component.projection === ImageProjection.Equirectangular360) {
       mesh.geometry = new SphereBufferGeometry(1, 64, 32)
       mesh.scale.set(1, 1, 1)
@@ -94,16 +94,16 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     }
   }
 
-  if (properties.hasOwnProperty('alphaMode')) {
+  if (typeof properties.alphaMode !== 'undefined') {
     mesh.material.transparent = component.alphaMode === ImageAlphaMode.Blend
     mesh.material.alphaTest = component.alphaMode === ImageAlphaMode.Mask ? component.alphaCutoff : 0
   }
 
-  if (properties.hasOwnProperty('alphaCutoff')) {
+  if (typeof properties.alphaCutoff !== 'undefined') {
     mesh.material.alphaTest = component.alphaCutoff
   }
 
-  if (properties.hasOwnProperty('side')) mesh.material.side = component.side
+  if (typeof properties.side !== 'undefined') mesh.material.side = component.side
 
   mesh.material.needsUpdate = true
 }
@@ -138,4 +138,14 @@ export const resizeImageMesh = (mesh: Mesh<any, MeshStandardMaterial>) => {
   const _width = Math.min(1.0, 1.0 / ratio)
   const _height = Math.min(1.0, ratio)
   mesh.scale.set(_width, _height, 1)
+}
+
+const parseImageProperties = (props): ImageComponentType => {
+  return {
+    imageSource: props.imageSource ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.imageSource,
+    alphaMode: props.alphaMode ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.alphaMode,
+    alphaCutoff: props.alphaCutoff ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.alphaCutoff,
+    projection: props.projection ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.projection,
+    side: props.side ?? SCENE_COMPONENT_IMAGE_DEFAULT_VALUES.side
+  }
 }

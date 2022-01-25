@@ -42,16 +42,18 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
   }
 }
 
-export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity) => {
+export const updateCameraTransform = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const transformComponent = getComponent(entity, TransformComponent)
 
-  new Matrix4()
+  return new Matrix4()
     .copy(obj3d.parent!.matrixWorld)
     .invert()
     .multiply(Engine.camera.matrixWorld)
     .decompose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
 }
+
+export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity) => {}
 
 export const serializeScenePreviewCamera: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, ScenePreviewCameraTagComponent)) {

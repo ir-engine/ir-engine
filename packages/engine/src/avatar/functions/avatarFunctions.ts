@@ -33,6 +33,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
@@ -61,13 +62,10 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  let hips = model
+  const retargeted = AvatarBoneMatching(model)
 
+  let hips = model
   model.traverse((o) => {
-    // TODO: Remove me when we add retargeting
-    if (o.name?.includes('mixamorig')) {
-      o.name = o.name.replace('mixamorig', '')
-    }
     if (o.name?.toLowerCase().includes('hips')) hips = o
   })
 
@@ -82,7 +80,6 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   model.traverse((object) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
-
     if (object.material) {
       // Transparency fix
       object.material.format = RGBAFormat
@@ -100,10 +97,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   model.children.forEach((child) => avatar.modelContainer.add(child))
 
-  // TODO: find skinned mesh in avatar.modelContainer
-  const avatarSkinnedMesh = avatar.modelContainer.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-  const rootBone = avatarSkinnedMesh.skeleton.bones.find((b) => b.parent!.type !== 'Bone')
-
+  const rootBone = retargeted?.Root
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
@@ -120,14 +114,6 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   sourceSkeletonRoot.traverse((child) => {
     if (child.name) retargetedBones.push(child.name)
-  })
-
-  retargetedBones.forEach((r) => {
-    if (!loadedAvatarBoneNames.includes(r)) console.warn(`[Avatar Loader]: Bone '${r}' not found`)
-  })
-
-  loadedAvatarBoneNames.forEach((r) => {
-    if (!retargetedBones.includes(r)) console.warn(`[Avatar Loader]: Bone '${r}' not supported`)
   })
 
   if (avatarAnimationComponent.currentState) {
