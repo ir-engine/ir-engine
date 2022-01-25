@@ -1,6 +1,9 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -58,7 +61,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const data = props.data
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  // const component = getComponent(node.entityNode.entity, AudioComponent)
+  let audioComponent, imageComponent, videoComponent, modelComponent
+  if (nameComponent.name.toLocaleLowerCase() == 'audio')
+    audioComponent = getComponent(node.entityNode.entity, AudioComponent)
+  if (nameComponent.name.toLocaleLowerCase() == 'video')
+    videoComponent = getComponent(node.entityNode.entity, VideoComponent)
+  if (nameComponent.name.toLocaleLowerCase() == 'model')
+    modelComponent = getComponent(node.entityNode.entity, ModelComponent)
+  if (nameComponent.name.toLocaleLowerCase() == 'image')
+    imageComponent = getComponent(node.entityNode.entity, ImageComponent)
   if (!nameComponent) return null
 
   const onClickToggle = useCallback(
@@ -252,7 +263,18 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 )}
               </div>
-              {/* {node.entitynode.issues && node.entitynode.issues.length > 0 && <NodeIssuesIcon node={node.entitynode} />} */}
+              {audioComponent?.error && audioComponent?.error.length > 0 && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: audioComponent?.error }]} />
+              )}
+              {imageComponent?.error && imageComponent?.error.length > 0 && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: imageComponent?.error }]} />
+              )}
+              {videoComponent?.error && videoComponent?.error.length > 0 && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: videoComponent?.error }]} />
+              )}
+              {modelComponent?.error && modelComponent?.error.length > 0 && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: modelComponent?.error }]} />
+              )}
             </div>
           </div>
 

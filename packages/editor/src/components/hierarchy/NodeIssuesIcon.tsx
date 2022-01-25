@@ -77,7 +77,7 @@ export function NodeIssuesIcon({ node }) {
       <IssuesTooltipContainer>
         <h6>{t('editor:hierarchy.isseus')}</h6>
         <ul>
-          {node.issues.map((issue, i) => {
+          {node.map((issue, i) => {
             return (
               <li key={i}>
                 <IssueIcon size={12} color={severityToColor[issue.severity]} /> {issue.message}
@@ -91,7 +91,7 @@ export function NodeIssuesIcon({ node }) {
 
   let maxSeverity = 'warning'
 
-  for (const issue of node.issues) {
+  for (const issue of node) {
     if (issue.severity === 'error') {
       maxSeverity = 'error'
       break
