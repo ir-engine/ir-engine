@@ -21,7 +21,7 @@ const UserTable = (props: UserProps) => {
   const authState = useAuthState()
   const user = authState.user
   const adminUserState = useUserState()
-  const adminUsers = adminUserState.users
+  const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
 
   useFetchUsersAsAdmin(user, adminUserState, UserService, search)
@@ -95,7 +95,7 @@ const UserTable = (props: UserProps) => {
     }
   }
 
-  const rows = adminUsers.value.map((el) => {
+  const rows = adminUsers.map((el) => {
     const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (
       loc.name || <span className={classes.spanNone}>None</span>

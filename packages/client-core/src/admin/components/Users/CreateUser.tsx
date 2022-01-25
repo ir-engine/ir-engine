@@ -41,12 +41,12 @@ const CreateUser = (props: Props) => {
     name: '',
     avatar: '',
     userRole: '',
-    scopeTypes: [] as Array<AdminScopeType>,
+    scopes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
       userRole: '',
-      scopeTypes: ''
+      scopes: ''
     }
   })
 
@@ -91,7 +91,7 @@ const CreateUser = (props: Props) => {
   }
 
   const handleChangeScopeType = (e) => {
-    setState({ ...state, scopeTypes: e.target.value, formErrors: { ...state.formErrors, scopeTypes: '' } })
+    setState({ ...state, scopes: e.target.value, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
   const handleChange = (e) => {
@@ -119,7 +119,7 @@ const CreateUser = (props: Props) => {
       name: state.name,
       avatarId: state.avatar,
       userRole: state.userRole,
-      scopeTypes: state.scopeTypes
+      scopes: state.scopes
     }
     let temp = state.formErrors
     if (!state.name) {
@@ -131,8 +131,8 @@ const CreateUser = (props: Props) => {
     if (!state.userRole) {
       temp.userRole = "User role can't be empty"
     }
-    if (!state.scopeTypes.length) {
-      temp.scopeTypes = "Scope type can't be empty"
+    if (!state.scopes.length) {
+      temp.scopes = "Scope type can't be empty"
     }
     setState({ ...state, formErrors: temp })
 
@@ -144,7 +144,7 @@ const CreateUser = (props: Props) => {
         name: '',
         avatar: '',
         userRole: '',
-        scopeTypes: []
+        scopes: []
       })
     } else {
       setError('Please fill all required field')
@@ -158,7 +158,7 @@ const CreateUser = (props: Props) => {
       name: '',
       avatar: '',
       userRole: '',
-      scopeTypes: []
+      scopes: []
     })
     closeViewModel(false)
   }
@@ -247,26 +247,26 @@ const CreateUser = (props: Props) => {
           <label>Grant Scope</label>
           <Paper
             component="div"
-            className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
+            className={state.formErrors.scopes.length > 0 ? classes.redBorder : classes.createInput}
           >
             <FormControl fullWidth>
               <Select
                 labelId="demo-controlled-open-select-label"
                 id="demo-controlled-open-select"
-                value={state.scopeTypes}
+                value={state.scopes}
                 fullWidth
                 displayEmpty
                 onChange={handleChangeScopeType}
                 className={classes.select}
-                name="scopeTypes"
+                name="scopes"
                 multiple
                 renderValue={(value) =>
                   value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
                 }
                 MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
-                {adminScopeTypeState.scopeTypes.value.map((el) => (
-                  <MenuItem value={el?.type} key={el?.type}>
+                {adminScopeTypeState.scopeTypes.value.map((el, index) => (
+                  <MenuItem value={el?.type} key={index}>
                     {el?.type}
                   </MenuItem>
                 ))}

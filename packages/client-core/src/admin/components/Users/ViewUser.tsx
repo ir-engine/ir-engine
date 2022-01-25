@@ -1,6 +1,5 @@
 import { Edit, Save } from '@mui/icons-material'
 import MuiAlert from '@mui/material/Alert'
-import Autocomplete from '@mui/material/Autocomplete'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -19,7 +18,6 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Snackbar from '@mui/material/Snackbar'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import React, { useEffect, useState } from 'react'
@@ -60,11 +58,11 @@ const ViewUser = (props: Props) => {
   const [state, setState] = useState({
     name: '',
     avatar: '',
-    scopeTypes: [] as AdminScopeType[],
+    scopes: [] as AdminScopeType[],
     formErrors: {
       name: '',
       avatar: '',
-      scopeTypes: ''
+      scopes: ''
     }
   })
   const [error, setError] = useState('')
@@ -125,7 +123,7 @@ const ViewUser = (props: Props) => {
         ...state,
         name: userAdmin.name || '',
         avatar: userAdmin.avatarId || '',
-        scopeTypes: userAdmin.scopes || []
+        scopes: userAdmin.scopes || []
       })
     }
   }, [singleUserData?.id?.value])
@@ -156,7 +154,7 @@ const ViewUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
-      scopeTypes: state.scopeTypes
+      scopes: state.scopes
     }
 
     let temp = state.formErrors
@@ -166,11 +164,11 @@ const ViewUser = (props: Props) => {
     if (!state.avatar) {
       temp.avatar = "Avatar can't be empty"
     }
-    if (!state.scopeTypes) {
-      temp.scopeTypes = "Scope type can't be empty"
+    if (!state.scopes) {
+      temp.scopes = "Scope type can't be empty"
     }
-    if (!state.scopeTypes.length) {
-      temp.scopeTypes = "Scope can't be empty"
+    if (!state.scopes.length) {
+      temp.scopes = "Scope can't be empty"
     }
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
@@ -179,7 +177,7 @@ const ViewUser = (props: Props) => {
         ...state,
         name: '',
         avatar: '',
-        scopeTypes: []
+        scopes: []
       })
       setEditMode(false)
       closeViewModel(false)
@@ -217,10 +215,16 @@ const ViewUser = (props: Props) => {
         ...state.formErrors,
         name: '',
         avatar: '',
-        scopeTypes: ''
+        scopes: ''
       }
     })
   }
+
+  const handleChangeScopeType = (e) => {
+    setState({ ...state, scopes: e.target.value, formErrors: { ...state.formErrors, scopes: '' } })
+  }
+
+  console.log(singleUserData.scopes.value)
 
   return (
     <React.Fragment>
@@ -306,8 +310,7 @@ const ViewUser = (props: Props) => {
           {editMode ? (
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                {' '}
-                Update personal Information{' '}
+                Update personal Information
               </Typography>
               <label>Name</label>
               <Paper
@@ -356,33 +359,37 @@ const ViewUser = (props: Props) => {
               <label>Grant scope</label>
               <Paper
                 component="div"
-                className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.scopes.length > 0 ? classes.redBorder : classes.createInput}
               >
-                <Autocomplete
-                  onChange={(event, value) =>
-                    setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-                  }
-                  multiple
-                  value={state.scopeTypes}
-                  className={classes.selector}
-                  classes={{ paper: classes.selectPaper, inputRoot: classes.select }}
-                  id="tags-standard"
-                  options={adminScopeTypeState.scopeTypes.value}
-                  disableCloseOnSelect
-                  filterOptions={(options) =>
-                    options.filter(
-                      (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
-                    )
-                  }
-                  getOptionLabel={(option) => option.type}
-                  renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
-                />
+                <FormControl fullWidth>
+                  <Select
+                    labelId="demo-controlled-open-select-label"
+                    id="demo-controlled-open-select"
+                    value={state.scopes}
+                    fullWidth
+                    displayEmpty
+                    onChange={handleChangeScopeType}
+                    className={classes.select}
+                    name="scopes"
+                    multiple
+                    renderValue={(value) =>
+                      value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
+                    }
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                  >
+                    {adminScopeTypeState.scopeTypes.value.map((el, index) => (
+                      <MenuItem value={el?.type} key={index}>
+                        {el?.type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Paper>
             </div>
           ) : (
             <Grid container spacing={3} className={classes.mt5}>
               <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Personal Information{' '}
+                Personal Information
               </Typography>
               <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
@@ -467,7 +474,7 @@ const ViewUser = (props: Props) => {
                       ...state,
                       name: userAdmin.name || '',
                       avatar: userAdmin.avatarId || '',
-                      scopeTypes: userAdmin.scopes || []
+                      scopes: userAdmin.scopes || []
                     })
                   }}
                 >
