@@ -14,9 +14,6 @@ import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import { Autorenew, Face, Save } from '@mui/icons-material'
-import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
 import { useStyles } from '../../styles/ui'
 
 import { InstanceService } from '../../services/InstanceService'
@@ -30,8 +27,15 @@ import { validateForm } from './validation'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import AlertMessage from '../../common/AlertMessage'
+import AddCommand from '../../common/AddCommand'
+import InputText from '../../common/InputText'
+import InputSelect from '../../common/InputSelect'
 
 interface Props {}
+interface Menu {
+  value: string
+  label: string
+}
 
 const CreateBot = (props: Props) => {
   const [command, setCommand] = React.useState({
@@ -64,6 +68,22 @@ const CreateBot = (props: Props) => {
   const adminLocationState = useLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
+
+  const handleChangeCommand = (e) => {
+    const { name, value } = e.target
+    setCommand({ ...command, [name]: value })
+  }
+
+  const addCommandData = (command) => {
+    if (command.name) {
+      setCommandData([...commandData, command])
+      setCommand({ name: '', description: '' })
+    } else {
+      setError('Fill in command is required!')
+      setOpen(true)
+    }
+  }
+
   React.useEffect(() => {
     if (user.id.value && adminInstances.updateNeeded.value) {
       InstanceService.fetchAdminInstances()
@@ -90,13 +110,10 @@ const CreateBot = (props: Props) => {
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
+    } else {
+      setCurrentIntance([])
     }
   }, [state.location, adminInstanceState.instances.value.length])
-
-  const temp: Location[] = []
-  locationData.value.forEach((el) => {
-    temp.push(el)
-  })
 
   const handleSubmit = () => {
     const data = {
@@ -159,6 +176,22 @@ const CreateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
+  const locationMenu: Menu[] = []
+  locationData.value.forEach((el) => {
+    locationMenu.push({
+      value: el.id,
+      label: el.name
+    })
+  })
+
+  const instanceMenu: Menu[] = []
+  currentInstance.forEach((el) => {
+    instanceMenu.push({
+      value: el.id,
+      label: el.ipAddress
+    })
+  })
+
   return (
     <Card className={classes.botRootLeft}>
       <Paper className={classes.botHeader} style={{ display: 'flex' }}>
@@ -176,63 +209,30 @@ const CreateBot = (props: Props) => {
           Add more bots in the system.
         </Typography>
         <form style={{ marginTop: '40px' }}>
-          <label>Name</label>
-          <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
-            <InputBase
-              name="name"
-              className={classes.input}
-              placeholder="Enter name"
-              style={{ color: '#fff' }}
-              value={state.name}
-              onChange={handleInputChange}
-            />
-          </Paper>
+          <InputText
+            name="name"
+            handleInputChange={handleInputChange}
+            value={state.name}
+            formErrors={formErrors.name}
+          />
 
-          <label>Description</label>
-          <Paper
-            component="div"
-            className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
-          >
-            <InputBase
-              className={classes.input}
-              name="description"
-              placeholder="Enter description"
-              style={{ color: '#fff' }}
-              value={state.description}
-              onChange={handleInputChange}
-            />
-          </Paper>
+          <InputText
+            name="description"
+            handleInputChange={handleInputChange}
+            value={state.description}
+            formErrors={formErrors.description}
+          />
 
           <label>Location</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper
-                component="div"
-                className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.location}
-                    fullWidth
-                    onChange={handleInputChange}
-                    name="location"
-                    displayEmpty
-                    className={classes.select}
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select location</em>
-                    </MenuItem>
-                    {temp.map((el) => (
-                      <MenuItem value={el.id} key={el.id}>
-                        {el.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                formErrors={formErrors.location}
+                value={state.location}
+                handleInputChange={handleInputChange}
+                name="location"
+                menu={locationMenu}
+              />
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
@@ -246,30 +246,13 @@ const CreateBot = (props: Props) => {
           <label>Instance</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper component="div" className={classes.createInput}>
-                <FormControl fullWidth disabled={currentInstance.length > 0 ? false : true}>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.instance}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={classes.select}
-                    name="instance"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select instance</em>
-                    </MenuItem>
-                    {currentInstance.map((el) => (
-                      <MenuItem value={el.id} key={el.id}>
-                        {el.ipAddress}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                formErrors={formErrors.location}
+                value={state.instance}
+                handleInputChange={handleInputChange}
+                name="instance"
+                menu={instanceMenu}
+              />
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
@@ -280,64 +263,12 @@ const CreateBot = (props: Props) => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <label>Command</label>
-              <Paper component="div" className={classes.createInput}>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Enter command"
-                  style={{ color: '#fff' }}
-                  value={command.name}
-                  onChange={(e) => setCommand({ ...command, name: e.target.value })}
-                />
-              </Paper>
-            </Grid>
-            <Grid item xs={8}>
-              <label>Description</label>
-              <Paper component="div" className={classes.createInput}>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Enter description"
-                  style={{ color: '#fff' }}
-                  value={command.description}
-                  onChange={(e) => setCommand({ ...command, description: e.target.value })}
-                />
-              </Paper>
-            </Grid>
-          </Grid>
-
-          <Button
-            variant="contained"
-            className={classes.addCommand}
-            onClick={() => {
-              if (command.name) {
-                setCommandData([...commandData, command])
-                setCommand({ name: '', description: '' })
-              } else {
-                setError('Fill in command is required!')
-                setOpen(true)
-              }
-            }}
-          >
-            Add command
-          </Button>
-          <div className={commandData.length > 0 ? classes.alterContainer : classes.createAlterContainer}>
-            {commandData.map((el, i) => {
-              return (
-                <List dense={true} key={i}>
-                  <ListItem>
-                    <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
-                    <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="delete" size="large">
-                        <DeleteIcon style={{ color: '#fff' }} />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </List>
-              )
-            })}
-          </div>
+          <AddCommand
+            command={command}
+            handleChangeCommand={handleChangeCommand}
+            addCommandData={addCommandData}
+            commandData={commandData}
+          />
         </form>
       </CardContent>
       <AlertMessage open={open} handleClose={handleClose} severity="warning" message={error} />
