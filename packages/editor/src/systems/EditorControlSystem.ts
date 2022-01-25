@@ -192,8 +192,7 @@ export default async function EditorControlSystem(_: World) {
         editorControlComponent.selectStartPosition.copy(getInput(EditorActionSet.selectStartPosition))
 
         if (gizmoObj.activeControls) {
-          raycaster.setFromCamera(editorControlComponent.selectStartPosition, Engine.camera)
-          gizmoObj.selectAxisWithRaycaster(raycaster)
+          gizmoObj.selectAxisWithRaycaster(editorControlComponent.selectStartPosition)
 
           if (gizmoObj.selectedAxis) {
             planeNormal.copy(gizmoObj.selectedPlaneNormal!).applyQuaternion(gizmoObj.quaternion).normalize()
@@ -204,8 +203,7 @@ export default async function EditorControlSystem(_: World) {
           }
         }
       } else if (gizmoObj.activeControls && !editorControlComponent.dragging) {
-        raycaster.setFromCamera(cursorPosition, Engine.camera)
-        gizmoObj.highlightHoveredAxis(raycaster)
+        gizmoObj.highlightHoveredAxis(cursorPosition)
       }
 
       const modifier = getInput(EditorActionSet.modifier)

@@ -13,6 +13,8 @@ import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHe
 import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
 export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
@@ -47,6 +49,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
     const cameraHelper = new CameraHelper(light.shadow.camera)
     cameraHelper.visible = false
     light.userData.cameraHelper = cameraHelper
+    setObjectLayers(cameraHelper, ObjectLayers.Scene)
   }
 
   if (Engine.isCSMEnabled) {

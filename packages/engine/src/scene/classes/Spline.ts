@@ -1,6 +1,7 @@
 import { Vector3, BufferGeometry, BufferAttribute, CatmullRomCurve3, Line, LineBasicMaterial, Object3D } from 'three'
 import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
 import SplineHelper from './SplineHelper'
+import { ObjectLayers } from '../constants/ObjectLayers'
 
 export default class Spline extends Object3D {
   ARC_SEGMENTS = 200
@@ -67,7 +68,7 @@ export default class Spline extends Object3D {
 
     for (const k in this._splines) {
       const spline = this._splines[k]
-      spline.mesh.layers.set(1)
+      spline.mesh.layers.set(ObjectLayers.Scene)
       super.add(spline.mesh)
     }
 

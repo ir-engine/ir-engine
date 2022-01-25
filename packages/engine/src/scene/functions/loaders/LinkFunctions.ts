@@ -14,6 +14,8 @@ import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } fr
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_LINK = 'link'
 export const SCENE_COMPONENT_LINK_DEFAULT_VALUES = {
@@ -40,7 +42,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
     material.side = DoubleSide
     material.transparent = true
     const helper = new Mesh(geometry, material)
-    helper.layers.set(1)
+    setObjectLayers(helper, ObjectLayers.Scene)
     obj3d.add(helper)
     obj3d.userData.linkHelper = helper
   }

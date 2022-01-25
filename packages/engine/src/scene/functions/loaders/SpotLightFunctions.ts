@@ -12,6 +12,8 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpotLightComponent, SpotLightComponentType } from '../../components/SpotLightComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'
 export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
@@ -53,6 +55,9 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
 
     ring.rotateX(Math.PI / 2)
     cone.position.setY(-0.25)
+
+    setObjectLayers(ring, ObjectLayers.Scene)
+    setObjectLayers(cone, ObjectLayers.Scene)
   }
 
   addComponent(entity, Object3DComponent, { value: light })

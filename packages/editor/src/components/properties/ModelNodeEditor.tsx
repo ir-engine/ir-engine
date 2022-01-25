@@ -37,8 +37,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const modelComponent = getComponent(props.node.entity, ModelComponent)
   const obj3d = getComponent(props.node.entity, Object3DComponent).value
 
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
-
   const onChangeInteractable = (interact) => {
     setInteractable(interact)
     if (interact) {

@@ -72,7 +72,7 @@ export class ControlManager {
   enterPlayMode() {
     this.isInPlayMode = true
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
-    Engine.camera.layers.disable(1)
+    Engine.camera.layers.disable(ObjectLayers.Scene)
     this.playModeControls.enable()
     CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
   }

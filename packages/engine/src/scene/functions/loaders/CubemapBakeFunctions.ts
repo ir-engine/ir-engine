@@ -35,6 +35,8 @@ import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { textureLoader } from '../../constants/Util'
 import { CubemapBakeSettings } from '../../types/CubemapBakeSettings'
+import { setObjectLayers } from '../setObjectLayers'
+import { ObjectLayers } from '../../constants/ObjectLayers'
 
 const quat = new Quaternion(0)
 export const SCENE_COMPONENT_CUBEMAP_BAKE = 'cubemapbake'
@@ -85,6 +87,7 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   obj3d.userData.gizmo.userData.disableOutline = true
   obj3d.add(obj3d.userData.gizmo)
 
+  setObjectLayers(obj3d, ObjectLayers.Scene)
   updateCubemapBake(entity)
   updateCubemapBakeTexture(bakeComponent.options)
 }

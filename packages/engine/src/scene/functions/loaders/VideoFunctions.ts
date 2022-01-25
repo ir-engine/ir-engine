@@ -49,7 +49,12 @@ export const deserializeVideo: ComponentDeserializeFunction = (
     return
   }
 
-  const obj3d = getComponent(entity, Object3DComponent).value
+  let obj3d = getComponent(entity, Object3DComponent)?.value
+
+  if (!obj3d) {
+    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+  }
+
   const video = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
   video.name = VIDEO_MESH_NAME
 
