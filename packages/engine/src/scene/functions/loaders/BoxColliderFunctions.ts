@@ -36,7 +36,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   const transform = getComponent(entity, TransformComponent)
 
   const shape = world.physics.createShape(
-    new PhysX.PxBoxGeometry(transform.scale.x, transform.scale.y, transform.scale.z),
+    new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
     undefined,
     boxColliderProps as any
   )
