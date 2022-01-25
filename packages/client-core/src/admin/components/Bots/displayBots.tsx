@@ -1,17 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
-import ListItemText from '@mui/material/ListItemText'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
 import Grid from '@mui/material/Grid'
 import { Edit } from '@mui/icons-material'
 import { BotService } from '../../services/BotsService'
@@ -20,31 +14,33 @@ import { useDispatch } from '../../../store'
 import { useBotState } from '../../services/BotsService'
 import { useBotCommandState } from '../../services/BotsCommand'
 import { useAuthState } from '../../../user/services/AuthService'
-import Button from '@mui/material/Button'
-import Snackbar from '@mui/material/Snackbar'
-import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import UpdateBot from './updateBot'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useStyles } from '../../styles/ui'
+import AlertMessage from '../../common/AlertMessage'
+import AddCommand from '../../common/AddCommand'
 
 interface Props {}
-
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
-})
 
 const DisplayBots = (props: Props) => {
   const dispatch = useDispatch()
   const classes = useStyles()
-  const [expanded, setExpanded] = React.useState<string | false>('panel0')
-  const [name, setName] = React.useState('')
-  const [description, setDescription] = React.useState('')
-  const [open, setOpen] = React.useState(false)
-  const [openModel, setOpenModel] = React.useState(false)
-  const [bot, setBot] = React.useState('')
-  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
-  const [botName, setBotName] = React.useState('')
-  const [botId, setBotId] = React.useState('')
+  const [expanded, setExpanded] = useState<string | false>('panel0')
+  const [command, setCommand] = useState({
+    name: '',
+    description: ''
+  })
+  const [open, setOpen] = useState(false)
+  const [openModel, setOpenModel] = useState(false)
+  const [bot, setBot] = useState('')
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [botName, setBotName] = useState('')
+  const [botId, setBotId] = useState('')
+
+  const handleChangeCommand = (e) => {
+    const { name, value } = e.target
+    setCommand({ ...command, [name]: value })
+  }
 
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false)
@@ -55,7 +51,7 @@ const DisplayBots = (props: Props) => {
   const user = useAuthState().user
   const botAdminData = botAdmin.bots
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user.id.value && botAdmin.updateNeeded.value) {
       BotService.fetchBotAsAdmin()
     }
@@ -84,13 +80,15 @@ const DisplayBots = (props: Props) => {
 
   const submitCommandBot = (id: string) => {
     const data = {
-      name: name,
-      description: description,
+      name: command.name,
+      description: command.description,
       botId: id
     }
     BotCommandService.createBotCammand(data)
-    setName('')
-    setDescription('')
+    setCommand({
+      name: '',
+      description: ''
+    })
   }
 
   const submitRemoveBot = async () => {
@@ -162,84 +160,26 @@ const DisplayBots = (props: Props) => {
                   Add more command
                 </Typography>
 
-                <Grid container spacing={2}>
-                  <Grid item xs={4}>
-                    <label>Command</label>
-                    <Paper component="div" className={classes.createInput}>
-                      <InputBase
-                        className={classes.input}
-                        placeholder="Enter command"
-                        style={{ color: '#fff' }}
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={8}>
-                    <label>Description</label>
-                    <Paper component="div" className={classes.createInput}>
-                      <InputBase
-                        className={classes.input}
-                        placeholder="Enter description"
-                        style={{ color: '#fff' }}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                      />
-                    </Paper>
-                  </Grid>
-                </Grid>
-
-                <Button
-                  variant="contained"
-                  fullWidth={true}
-                  className={classes.addCommand}
-                  onClick={() => {
-                    if (name) {
+                <AddCommand
+                  command={command}
+                  handleChangeCommand={handleChangeCommand}
+                  addCommandData={() => {
+                    if (command.name) {
                       submitCommandBot(bot.id)
                     } else {
                       setOpen(true)
                     }
                   }}
-                >
-                  Add command
-                </Button>
-                {bot.botCommands?.map((el, i) => {
-                  return (
-                    <div className={classes.alterContainer} key={i}>
-                      <List dense={true}>
-                        <ListItem>
-                          <ListItemText primary={`/${el.name} --> ${el.description} `} />
-                          <ListItemSecondaryAction>
-                            <IconButton
-                              edge="end"
-                              aria-label="delete"
-                              onClick={() => BotCommandService.removeBotsCommand(el.id)}
-                              size="large"
-                            >
-                              <DeleteIcon style={{ color: '#fff' }} />
-                            </IconButton>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                      </List>
-                    </div>
-                  )
-                })}
+                  commandData={bot.botCommands}
+                />
               </div>
             </AccordionDetails>
           </Accordion>
         )
       })}
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleClose} severity="warning">
-          {' '}
-          Fill in command is requiired!
-        </Alert>
-      </Snackbar>
+
+      <AlertMessage open={open} handleClose={handleClose} severity="warning" message="Fill in command is required!" />
+
       <UpdateBot open={openModel} handleClose={handleCloseModel} bot={bot} />
 
       <ConfirmModel

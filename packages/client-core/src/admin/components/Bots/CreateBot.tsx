@@ -1,13 +1,6 @@
-import React from 'react'
-import InputBase from '@mui/material/InputBase'
+import React, { useEffect, useState } from 'react'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import DeleteIcon from '@mui/icons-material/Delete'
-import List from '@mui/material/List'
-
-import ListItem from '@mui/material/ListItem'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
-import ListItemText from '@mui/material/ListItemText'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
@@ -15,7 +8,6 @@ import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import { Autorenew, Face, Save } from '@mui/icons-material'
 import { useStyles } from '../../styles/ui'
-
 import { InstanceService } from '../../services/InstanceService'
 import { useInstanceState } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
@@ -24,12 +16,14 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { BotService } from '../../services/BotsService'
 import { useLocationState } from '../../services/LocationService'
 import { validateForm } from './validation'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import AlertMessage from '../../common/AlertMessage'
 import AddCommand from '../../common/AddCommand'
 import InputText from '../../common/InputText'
 import InputSelect from '../../common/InputSelect'
+import _ from 'lodash'
+import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 
 interface Props {}
 interface Menu {
@@ -38,21 +32,21 @@ interface Menu {
 }
 
 const CreateBot = (props: Props) => {
-  const [command, setCommand] = React.useState({
+  const [command, setCommand] = useState({
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = React.useState<{ name: string; description: string }[]>([])
-  const [open, setOpen] = React.useState(false)
-  const [error, setError] = React.useState('')
+  const [commandData, setCommandData] = useState<{ name: string; description: string }[]>([])
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
 
-  const [formErrors, setFormErrors] = React.useState({
+  const [formErrors, setFormErrors] = useState({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
-  const [state, setState] = React.useState({
+  const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
+  const [state, setState] = useState({
     name: '',
     description: '',
     instance: '',
@@ -69,6 +63,10 @@ const CreateBot = (props: Props) => {
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
 
+  //Call custom hooks
+  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+  useFetchAdminLocations(user, adminLocationState, LocationService)
+
   const handleChangeCommand = (e) => {
     const { name, value } = e.target
     setCommand({ ...command, [name]: value })
@@ -84,15 +82,6 @@ const CreateBot = (props: Props) => {
     }
   }
 
-  React.useEffect(() => {
-    if (user.id.value && adminInstances.updateNeeded.value) {
-      InstanceService.fetchAdminInstances()
-    }
-    if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
-      LocationService.fetchAdminLocations()
-    }
-  }, [user.id.value, adminInstanceState.updateNeeded.value])
-
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
@@ -105,7 +94,7 @@ const CreateBot = (props: Props) => {
     data.push(element)
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     const instanceFilter = data.filter((el) => el.locationId === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
@@ -159,19 +148,7 @@ const CreateBot = (props: Props) => {
     const names = e.target.name
     const value = e.target.value
     let temp = formErrors
-    switch (names) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required!' : ''
-        break
-      case 'location':
-        temp.location = value.length < 2 ? 'Location is required!' : ''
-        break
-      default:
-        break
-    }
+    temp[names] = value.length < 2 ? `${_.upperFirst(names)} is required` : ''
     setFormErrors(temp)
     setState({ ...state, [names]: value })
   }
