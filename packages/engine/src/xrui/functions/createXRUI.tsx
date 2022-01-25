@@ -13,7 +13,7 @@ import { WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
-async function createUIRootLayer<S extends State<any> | null>(
+async function createWebContainer<S extends State<any> | null>(
   UI: React.FC,
   state: S,
   options: import('@etherealjs/web-layer/three').WebContainer3DOptions
@@ -44,10 +44,10 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   let intervalHandle: number
 
   const ready = new Promise<void>((resolve, reject) => {
-    createUIRootLayer(UIFunc, state, {
+    createWebContainer(UIFunc, state, {
       manager: WebLayerManager.instance,
       onLayerPaint: (layer) => {
-        console.log('PAINTED', layer.element)
+        Engine.renderer.initTexture(layer.currentTexture!)
         ;(layer.contentMesh.material as THREE.MeshBasicMaterial).toneMapped = false
         layersRemaining.delete(layer)
         if (layersRemaining.size === 0) {
@@ -56,7 +56,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
         }
       }
     })
-      .then((uiRoot) => {
+      .then((container) => {
         // Make sure entity still exists, since we are adding these components asynchronously,
         // and bad things might happen if we add these components after entity has been removed
         // TODO: revise this pattern after refactor
@@ -64,16 +64,16 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
           console.warn('XRUI layer initialized after entity removed from world')
           return
         }
-        addComponent(entity, Object3DComponent, { value: uiRoot })
-        setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
-        addComponent(entity, XRUIComponent, { container: uiRoot })
+        addComponent(entity, Object3DComponent, { value: container })
+        setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
+        addComponent(entity, XRUIComponent, { container: container })
 
-        uiRoot.rootLayer.traverseLayersPreOrder((layer) => {
+        container.rootLayer.traverseLayersPreOrder((layer) => {
           if (layer.bounds.width * layer.bounds.height > 0) layersRemaining.add(layer)
         })
 
         intervalHandle = setInterval(() => {
-          uiRoot.update()
+          container.update()
         }, 20) as any
       })
       .catch((err: any) => {
