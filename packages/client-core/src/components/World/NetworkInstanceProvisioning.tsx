@@ -156,11 +156,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     channelConnectionState.instanceServerConnecting.value
   ])
 
-  return (
-    <>
-      <GameServerWarnings locationName={props.locationName} />
-    </>
-  )
+  return <GameServerWarnings locationName={props.locationName} />
 }
 
 export default NetworkInstanceProvisioning

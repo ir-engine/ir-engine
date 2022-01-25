@@ -134,7 +134,6 @@ export const initClient = async (project) => {
 }
 
 export const loadLocation = () => {
-  console.log('\nload location\n\n')
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
 
   const dispatch = useDispatch()

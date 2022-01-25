@@ -145,11 +145,11 @@ const Layout = (props: Props): any => {
 
                 <UIDialog />
                 <Alerts />
-                {isTouchAvailable ? (
+                {isTouchAvailable && (
                   <Suspense fallback={<></>}>
                     <TouchGamepad layout="default" />
                   </Suspense>
-                ) : null}
+                )}
                 <Debug />
                 {/* <RecordingApp /> */}
                 <MediaIconsBox />
