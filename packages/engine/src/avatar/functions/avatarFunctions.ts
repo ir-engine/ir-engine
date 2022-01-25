@@ -104,14 +104,14 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const rootBone = retargeted.Root
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
-  addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
+  addTargetRig(entity, rootBone, null, false, armatureType)
 
   if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
   addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
 
   // animation will be applied to this skeleton instead of avatar
   const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
-  rootBone?.parent!.add(sourceSkeletonRoot)
+  rootBone.add(sourceSkeletonRoot)
   addRig(entity, sourceSkeletonRoot)
   getComponent(entity, IKRigComponent).boneStructure = retargeted
 

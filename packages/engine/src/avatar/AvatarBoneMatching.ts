@@ -411,6 +411,14 @@ function getSkeleton(model) {
   return skeleton
 }
 
+const foundRoot = (bone) => {
+  if (bone.parent && bone.parent.parent) {
+    return foundRoot(bone.parent)
+  } else {
+    return bone.parent
+  }
+}
+
 export default function AvatarBoneMatching(model): BoneStructure {
   try {
     const skeleton = getSkeleton(model)
@@ -655,8 +663,10 @@ export default function AvatarBoneMatching(model): BoneStructure {
       bone.initialQuaternion = bone.quaternion.clone()
     })
 
+    const Root = foundRoot(Hips)
+
     const targetModelBones = {
-      Root: Hips.parent ? Hips.parent : Hips,
+      Root,
       Hips,
       Spine,
       Spine1,
