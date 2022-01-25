@@ -16,7 +16,7 @@ const LocationPage = (props: Props) => {
 
   return (
     <>
-      <Layout pageTitle={t('location.locationName.pageTitle')}>
+      <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
         <LoadEngineWithScene />
         <NetworkInstanceProvisioning locationName={locationName} />
         <LoadLocationScene locationName={props.match.params.locationName} />
