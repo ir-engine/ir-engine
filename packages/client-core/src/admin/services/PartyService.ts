@@ -26,8 +26,19 @@ store.receptors.push((action: PartyActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'PARTY_ADMIN_DISPLAYED':
-        return s.merge({ parties: action.data.data, updateNeeded: false })
+        return s.merge({
+          parties: action.data.data,
+          updateNeeded: false,
+          skip: action.data.skip,
+          limit: action.data.limit,
+          total: action.data.total,
+          lastFetched: Date.now()
+        })
       case 'PARTY_ADMIN_CREATED':
+        return s.merge({ updateNeeded: true })
+      case 'ADMIN_PARTY_REMOVED':
+        return s.merge({ updateNeeded: true })
+      case 'ADMIN_PARTY_PATCHED':
         return s.merge({ updateNeeded: true })
     }
   }, action.type)
@@ -50,7 +61,7 @@ export const PartyService = {
       }
     }
   },
-  fetchAdminParty: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminParty: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       const user = accessAuthState().user
@@ -61,17 +72,38 @@ export const PartyService = {
         if (user.userRole.value === 'admin') {
           const parties = await client.service('party').find({
             query: {
-              $sort: {
-                createdAt: -1
-              },
-              $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-              $limit: limit
+              // $sort: {
+              //   createdAt: -1
+              // },
+              $skip: skip,
+              $limit: limit,
+              action: 'admin',
+              search: value
             }
           })
+          console.log(parties)
           dispatch(PartyAction.partyRetrievedAction(parties))
         }
       } catch (err) {
         AlertService.dispatchAlertError(err)
+      }
+    }
+  },
+  removeParty: async (id: string) => {
+    const dispatch = useDispatch()
+    {
+      const result = await client.service('party').remove(id)
+      dispatch(PartyAction.partyRemoved(result))
+    }
+  },
+  patchParty: async (id: string, party: any) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        const result = await client.service('party').patch(id, party)
+        dispatch(PartyAction.partyPatched(result))
+      } catch (error) {
+        AlertService.dispatchAlertError(error)
       }
     }
   }
@@ -90,6 +122,18 @@ export const PartyAction = {
     return {
       type: 'PARTY_ADMIN_DISPLAYED' as const,
       data: data
+    }
+  },
+  partyRemoved: (party: AdminParty) => {
+    return {
+      type: 'ADMIN_PARTY_REMOVED' as const,
+      party: party
+    }
+  },
+  partyPatched: (party: AdminParty) => {
+    return {
+      type: 'ADMIN_PARTY_PATCHED' as const,
+      party: party
     }
   }
 }
