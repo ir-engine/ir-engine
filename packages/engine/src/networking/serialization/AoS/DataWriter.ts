@@ -2,6 +2,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { VelocityComponent } from '../../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../../xr/components/XRInputSourceComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
@@ -77,6 +78,7 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
 
 // todo: fix types
 export const writePosition = writeVector3(TransformComponent.position)
+export const writeLinearVelocity = writeVector3(VelocityComponent.velocity)
 export const writeRotation = writeVector4(TransformComponent.rotation)
 
 // export const writeTransform = writeComponent(TransformComponent)
@@ -91,6 +93,20 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   changeMask |= writePosition(v, entity) ? 1 << b++ : b++ && 0
   // todo: compress quaternion with custom writeQuaternion function
   changeMask |= writeRotation(v, entity) ? 1 << b++ : b++ && 0
+
+  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+}
+
+export const writeVelocity = (v: ViewCursor, entity: Entity) => {
+  if (!hasComponent(entity, VelocityComponent)) return
+
+  const rewind = rewindViewCursor(v)
+  const writeChangeMask = spaceUint8(v)
+  let changeMask = 0
+  let b = 0
+
+  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
+  // changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0 // TODO: angular velocity
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
@@ -153,6 +169,7 @@ export const writeEntity = (v: ViewCursor, userIndex: number, networkId: Network
   let b = 0
 
   changeMask |= writeTransform(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
 
   return (

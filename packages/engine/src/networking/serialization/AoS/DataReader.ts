@@ -3,6 +3,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
+import { VelocityComponent } from '../../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../../xr/components/XRInputSourceComponent'
 import { flatten, Vector3SoA, Vector4SoA } from '../Utils'
@@ -63,6 +64,7 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 }
 
 export const readPosition = readVector3(TransformComponent.position)
+export const readLinearVelocity = readVector3(VelocityComponent.velocity)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 // export const readTransform = readComponent(TransformComponent)
@@ -71,6 +73,13 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
+}
+
+export const readVelocity = (v: ViewCursor, entity: Entity) => {
+  const changeMask = readUint8(v)
+  let b = 0
+  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
+  // if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
@@ -124,6 +133,7 @@ export const readEntity = (v: ViewCursor, world: World) => {
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 }
 
