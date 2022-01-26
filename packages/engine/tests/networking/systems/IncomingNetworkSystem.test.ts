@@ -17,82 +17,81 @@ import ActionDispatchSystem from '../../../src/ecs/functions/ActionDispatchSyste
 import { createDataWriter } from '../../../src/networking/serialization/AoS/DataWriter'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
-	
-	let world
+  let world
 
-	beforeEach(() => {
+  beforeEach(() => {
     /* hoist */
-		Network.instance = new TestNetwork()
-		world = createWorld()
-		world.userIndexToUserId = new Map()
-		Engine.currentWorld = world
-		Engine.isInitialized = true
-	})
+    Network.instance = new TestNetwork()
+    world = createWorld()
+    world.userIndexToUserId = new Map()
+    Engine.currentWorld = world
+    Engine.isInitialized = true
+  })
 
-	it.skip('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
-		/* mock */
+  it.skip('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
+    /* mock */
 
-		// make this engine user the host (world.isHosting === true)
+    // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
     Engine.hasJoinedWorld = true
-		
-		// mock entity to apply incoming unreliable updates to
-		const entity = createEntity()
-		const transform = addComponent(entity, TransformComponent, {
-			position: new Vector3(),
-			rotation: new Quaternion(),
-			scale: new Vector3(),
-		})
-		const velocity = addComponent(entity, VelocityComponent, {
-			velocity: new Vector3()
-		})
-		const networkObject = addComponent(entity, NetworkObjectComponent, {
-			ownerId: '0' as UserId,
-			ownerIndex: 0,
-			networkId: 0 as NetworkId,
-			prefab: '',
-			parameters: {},
-		})
 
-		world.userIndexToUserId.set(0, '0' as UserId)
+    // mock entity to apply incoming unreliable updates to
+    const entity = createEntity()
+    const transform = addComponent(entity, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion(),
+      scale: new Vector3()
+    })
+    const velocity = addComponent(entity, VelocityComponent, {
+      velocity: new Vector3()
+    })
+    const networkObject = addComponent(entity, NetworkObjectComponent, {
+      ownerId: '0' as UserId,
+      ownerIndex: 0,
+      networkId: 0 as NetworkId,
+      prefab: '',
+      parameters: {}
+    })
 
-		// mock incoming server data
-		const newPosition = new Vector3(1,2,3)
-		const newRotation = new Quaternion(1,2,3,4)
-		
-		const newWorldState: WorldStateInterface = {
-			tick: 0,
-			time: Date.now(),
-			pose: [
-				{
-					ownerId: '0' as UserId,
-					networkId: 0 as NetworkId,
-					position: newPosition.toArray(),
-					rotation: newRotation.toArray(),
-					linearVelocity: [],
-					angularVelocity: [],
-				}
-			],
-			controllerPose: [],
-      		handsPose: []
-		}
+    world.userIndexToUserId.set(0, '0' as UserId)
 
-		const buffer = WorldStateModel.toBuffer(newWorldState)
+    // mock incoming server data
+    const newPosition = new Vector3(1, 2, 3)
+    const newRotation = new Quaternion(1, 2, 3, 4)
 
-		// const serialize = createDataWriter()
-		// const buffer = serialize(world, [entity])
-		
-		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
-		// instead of an import dependency , but this works for now
-		Network.instance.incomingMessageQueueUnreliable.add(buffer)
-		Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
-		
-		/* run */
-		const incomingNetworkSystem = await IncomingNetworkSystem(world)
-		
-		incomingNetworkSystem()
-		
-		/* assert */
-		assert(transform.position.equals(newPosition))
-	})
+    const newWorldState: WorldStateInterface = {
+      tick: 0,
+      time: Date.now(),
+      pose: [
+        {
+          ownerId: '0' as UserId,
+          networkId: 0 as NetworkId,
+          position: newPosition.toArray(),
+          rotation: newRotation.toArray(),
+          linearVelocity: [],
+          angularVelocity: []
+        }
+      ],
+      controllerPose: [],
+      handsPose: []
+    }
+
+    const buffer = WorldStateModel.toBuffer(newWorldState)
+
+    // const serialize = createDataWriter()
+    // const buffer = serialize(world, [entity])
+
+    // todo: Network.instance should ideally be passed into the system as a parameter dependency,
+    // instead of an import dependency , but this works for now
+    Network.instance.incomingMessageQueueUnreliable.add(buffer)
+    Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
+
+    /* run */
+    const incomingNetworkSystem = await IncomingNetworkSystem(world)
+
+    incomingNetworkSystem()
+
+    /* assert */
+    assert(transform.position.equals(newPosition))
+  })
 })

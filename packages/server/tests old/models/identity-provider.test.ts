@@ -2,7 +2,7 @@ import app from '../../packages/server/src/app'
 import bcrypt from 'bcrypt'
 import request from 'supertest'
 
-describe('CRUD operation on \'IdentityProvider\' model', () => {
+describe("CRUD operation on 'IdentityProvider' model", () => {
   const model = (app.service('identity-provider') as any).Model
   const userModel = (app.service('user') as any).Model
   let userId: any
@@ -70,10 +70,11 @@ describe('CRUD operation on \'IdentityProvider\' model', () => {
   })
 
   it('Not expecting password and token ', async () => {
-    (request(app) as any).get('/identity-provider')
+    ;(request(app) as any)
+      .get('/identity-provider')
       .expect('Content-Type', /json/)
       .expect(200)
-      .then(response => {
+      .then((response) => {
         const result = JSON.parse(response.res.text)
         if (result.total > 0) {
           const identityProvider = result.data[0]
