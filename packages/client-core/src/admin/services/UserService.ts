@@ -85,23 +85,13 @@ export const UserService = {
               $skip: skip,
               $limit: limit,
               action: 'admin',
-              search: value,
-              $or: [
-                {
-                  userRole: 'admin'
-                },
-                {
-                  userRole: 'guest'
-                }
-              ]
+              search: value
             }
           }
           if (skipGuests) {
-            params.query.$or = [
-              {
-                userRole: 'admin'
-              }
-            ]
+            ;(params.query as any).userRole = {
+              $ne: 'guest'
+            }
           }
           const users = await client.service('user').find(params)
           dispatch(UserAction.loadedUsers(users))
