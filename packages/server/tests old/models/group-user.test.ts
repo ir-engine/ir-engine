@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'GroupUser\' model', () => {
+describe("CRUD operation on 'GroupUser' model", () => {
   const model = (app.service('group-user') as any).Model
   const userModel = (app.service('user') as any).Model
   const userRoleModel = (app.service('user-role') as any).Model
@@ -105,15 +105,17 @@ describe('CRUD operation on \'GroupUser\' model', () => {
   })
 
   it('Update', async () => {
-    await model.update({
-      groupUserRank: groupUserRankUpdated
-    },
-    {
-      where: {
-        userId: userId,
-        groupId: groupId
+    await model.update(
+      {
+        groupUserRank: groupUserRankUpdated
+      },
+      {
+        where: {
+          userId: userId,
+          groupId: groupId
+        }
       }
-    })
+    )
     console.log('GETTING UPDATES')
     const updateModel = await model.findOne({
       where: {

@@ -16,75 +16,74 @@ import { WorldStateInterface, WorldStateModel } from '../../../src/networking/sc
 import ActionDispatchSystem from '../../../src/ecs/functions/ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Integration Tests', async () => {
-	
-	let world
+  let world
 
-	beforeEach(() => {
+  beforeEach(() => {
     /* hoist */
-		Network.instance = new TestNetwork()
-		world = createWorld()
-		Engine.currentWorld = world
-		Engine.isInitialized = true
-	})
+    Network.instance = new TestNetwork()
+    world = createWorld()
+    Engine.currentWorld = world
+    Engine.isInitialized = true
+  })
 
-	it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
-		/* mock */
+  it('should apply pose state to an entity from World.incomingMessageQueueUnreliable', async () => {
+    /* mock */
 
-		// make this engine user the host (world.isHosting === true)
+    // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
     Engine.hasJoinedWorld = true
-		
-		// mock entity to apply incoming unreliable updates to
-		const entity = createEntity()
-		const transform = addComponent(entity, TransformComponent, {
-			position: new Vector3(),
-			rotation: new Quaternion(),
-			scale: new Vector3(),
-		})
-		const velocity = addComponent(entity, VelocityComponent, {
-			velocity: new Vector3()
-		})
-		const networkObject = addComponent(entity, NetworkObjectComponent, {
-			ownerId: '0' as UserId,
-			networkId: 0 as NetworkId,
-			prefab: '',
-			parameters: {},
-		})
 
-		// mock incoming server data
-		const newPosition = new Vector3(1,2,3)
-		const newRotation = new Quaternion(1,2,3,4)
-		
-		const newWorldState: WorldStateInterface = {
-			tick: 0,
-			time: Date.now(),
-			pose: [
-				{
-					ownerId: '0' as UserId,
-					networkId: 0 as NetworkId,
-					position: newPosition.toArray(),
-					rotation: newRotation.toArray(),
-					linearVelocity: [],
-					angularVelocity: [],
-				}
-			],
-			controllerPose: [],
-      		handsPose: []
-		}
+    // mock entity to apply incoming unreliable updates to
+    const entity = createEntity()
+    const transform = addComponent(entity, TransformComponent, {
+      position: new Vector3(),
+      rotation: new Quaternion(),
+      scale: new Vector3()
+    })
+    const velocity = addComponent(entity, VelocityComponent, {
+      velocity: new Vector3()
+    })
+    const networkObject = addComponent(entity, NetworkObjectComponent, {
+      ownerId: '0' as UserId,
+      networkId: 0 as NetworkId,
+      prefab: '',
+      parameters: {}
+    })
 
-		const buffer = WorldStateModel.toBuffer(newWorldState)
-		
-		// todo: Network.instance should ideally be passed into the system as a parameter dependency,
-		// instead of an import dependency , but this works for now
-		Network.instance.incomingMessageQueueUnreliable.add(buffer)
-		Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
-		
-		/* run */
-		const incomingNetworkSystem = await IncomingNetworkSystem(world)
-		
-		incomingNetworkSystem()
-		
-		/* assert */
-		assert(transform.position.equals(newPosition))
-	})
+    // mock incoming server data
+    const newPosition = new Vector3(1, 2, 3)
+    const newRotation = new Quaternion(1, 2, 3, 4)
+
+    const newWorldState: WorldStateInterface = {
+      tick: 0,
+      time: Date.now(),
+      pose: [
+        {
+          ownerId: '0' as UserId,
+          networkId: 0 as NetworkId,
+          position: newPosition.toArray(),
+          rotation: newRotation.toArray(),
+          linearVelocity: [],
+          angularVelocity: []
+        }
+      ],
+      controllerPose: [],
+      handsPose: []
+    }
+
+    const buffer = WorldStateModel.toBuffer(newWorldState)
+
+    // todo: Network.instance should ideally be passed into the system as a parameter dependency,
+    // instead of an import dependency , but this works for now
+    Network.instance.incomingMessageQueueUnreliable.add(buffer)
+    Network.instance.incomingMessageQueueUnreliableIDs.add(Engine.userId)
+
+    /* run */
+    const incomingNetworkSystem = await IncomingNetworkSystem(world)
+
+    incomingNetworkSystem()
+
+    /* assert */
+    assert(transform.position.equals(newPosition))
+  })
 })

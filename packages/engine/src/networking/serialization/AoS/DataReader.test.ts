@@ -6,11 +6,26 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
 import { Vector3SoA } from '../Utils'
 import { createViewCursor, writeProp } from '../ViewCursor'
-import { checkBitflag, readComponent, readComponentProp, readEntity, readPosition, readRotation, readTransform, readVector3 } from "./DataReader"
-import { createDataWriter, writeEntities, writeEntity, writePosition, writeRotation, writeTransform } from './DataWriter'
+import {
+  checkBitflag,
+  readComponent,
+  readComponentProp,
+  readEntity,
+  readPosition,
+  readRotation,
+  readTransform,
+  readVector3
+} from './DataReader'
+import {
+  createDataWriter,
+  writeEntities,
+  writeEntity,
+  writePosition,
+  writeRotation,
+  writeTransform
+} from './DataWriter'
 
 describe('AoS DataReader', () => {
-
   it('should checkBitflag', () => {
     const A = 2 ** 0
     const B = 2 ** 1
@@ -240,7 +255,6 @@ describe('AoS DataReader', () => {
     strictEqual(TransformComponent.rotation.x[entity], x)
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
-
   })
 
   it('should readEntity', () => {
@@ -300,7 +314,6 @@ describe('AoS DataReader', () => {
     strictEqual(TransformComponent.rotation.x[entity], x)
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
-
   })
 
   it('should readEntities', () => {
@@ -309,11 +322,13 @@ describe('AoS DataReader', () => {
     const netIdMap = new Map<NetworkId, Entity>()
 
     const n = 5
-    const entities: Entity[] = Array(n).fill(0).map((_, i) => i as Entity)
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map((_, i) => i as Entity)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       TransformComponent.position.x[entity] = x
@@ -336,9 +351,7 @@ describe('AoS DataReader', () => {
       strictEqual(TransformComponent.rotation.x[entity], x)
       strictEqual(TransformComponent.rotation.y[entity], y)
       strictEqual(TransformComponent.rotation.z[entity], z)
-
     }
-
   })
 
   it('should createDataReader', () => {
@@ -347,11 +360,13 @@ describe('AoS DataReader', () => {
     const netIdMap = new Map<NetworkId, Entity>()
 
     const n = 50
-    const entities: Entity[] = Array(n).fill(0).map((_, i) => i as Entity)
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map((_, i) => i as Entity)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       TransformComponent.position.x[entity] = x
@@ -374,9 +389,6 @@ describe('AoS DataReader', () => {
       strictEqual(TransformComponent.rotation.x[entity], x)
       strictEqual(TransformComponent.rotation.y[entity], y)
       strictEqual(TransformComponent.rotation.z[entity], z)
-
     }
-
   })
-
 })
