@@ -256,22 +256,6 @@ const EditorContainer = (props) => {
     }
   }
 
-  const setDebuginfo = () => {
-    const gl = Engine.renderer.getContext()
-
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-
-    let webglVendor = 'Unknown'
-    let webglRenderer = 'Unknown'
-
-    if (debugInfo) {
-      webglVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
-      webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-    }
-
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
-  }
-
   /**
    * Scene Event Handlers
    */
@@ -304,6 +288,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveAs = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     const abortController = new AbortController()
     try {
       let saveProjectFlag = true
@@ -442,6 +432,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveScene = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     if (!sceneName) {
       if (modified) {
         onSaveAs()
@@ -513,7 +509,6 @@ const EditorContainer = (props) => {
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })

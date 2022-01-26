@@ -25,6 +25,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const particleComponent = getComponent(props.node.entity, ParticleEmitterComponent)
 
+  if (!particleComponent) return <></>
   return (
     <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <NumericInputGroup

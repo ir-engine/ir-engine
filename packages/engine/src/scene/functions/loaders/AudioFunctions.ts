@@ -27,6 +27,8 @@ import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
@@ -64,17 +66,19 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
       new PlaneBufferGeometry(),
       new MeshBasicMaterial({ transparent: true, side: DoubleSide })
     )
-
     obj3d.add(obj3d.userData.textureMesh)
+    obj3d.userData.textureMesh.userData.disableOutline = true
 
     if (!audioTexture) {
       // can't use await since component should have to be deserialize for media component to work properly
       loadTexture(AUDIO_TEXTURE_PATH).then((texture) => {
         audioTexture = texture!
         obj3d.userData.textureMesh.material.map = audioTexture
+        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
       })
     } else {
       obj3d.userData.textureMesh.material.map = audioTexture
+      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
     }
   }
 
