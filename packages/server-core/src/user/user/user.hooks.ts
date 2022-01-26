@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from "../../hooks/restrict-user-role";
+import restrictUserRole from '../../hooks/restrict-user-role'
 import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -138,7 +138,7 @@ export default {
             }
           })
           return context
-        } catch(err) {
+        } catch (err) {
           throw new Error(err)
         }
       }
