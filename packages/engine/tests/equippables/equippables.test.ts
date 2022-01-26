@@ -33,10 +33,11 @@ describe('Equippables Integration Tests', () => {
     let world = createWorld()
     Engine.currentWorld = world
     Engine.hasJoinedWorld = true
+    world.userIdToUserIndex = new Map([[world.hostId, world.hostId as unknown as number]])
     await Engine.currentWorld.physics.createScene({ verbose: true })
-
+    
     Engine.userId = 'client' as UserId
-
+    
     const equippableEntity = createEntity()
 
     const transform = addComponent(equippableEntity, TransformComponent, {
@@ -69,6 +70,7 @@ describe('Equippables Integration Tests', () => {
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.hostId,
+      ownerIndex: world.userIdToUserIndex.get(world.hostId)!,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {},

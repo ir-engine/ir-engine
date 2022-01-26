@@ -24,6 +24,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       world.clients.set('1' as UserId, {
         userId: '1' as UserId,
+        userIndex: 1,
         name: '1',
         subscribedChatUpdates: []
       })
@@ -49,6 +50,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
           ownerId: '1' as UserId,
+          ownerIndex: 1,
           networkId: 0 as NetworkId,
           prefab: '',
           parameters: {},
@@ -86,6 +88,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const userId = String(i) as UserId
         world.clients.set(userId, {
           userId: userId,
+          userIndex: i,
           name: userId,
           subscribedChatUpdates: []
         })
@@ -103,6 +106,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
           ownerId: userId,
+          ownerIndex: i,
           networkId: i as NetworkId,
           prefab: '',
           parameters: {},
@@ -142,6 +146,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
       world.clients.set('0' as UserId, {
         userId: '0' as UserId,
+        userIndex: 0,
         name: '0',
         subscribedChatUpdates: []
       })
@@ -157,6 +162,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const networkObject = addComponent(entity, NetworkObjectComponent, {
         ownerId: '0' as UserId,
         networkId: 0 as NetworkId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
       })
@@ -219,6 +225,7 @@ describe('outgoingNetworkState', () => {
 
     world.clients.set('id' as UserId, {
       userId: 'id' as UserId,
+      userIndex: 0,
       name: 'id',
       subscribedChatUpdates: []
     })

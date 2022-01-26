@@ -78,7 +78,8 @@ export function incomingNetworkReceptor(action) {
       })
 
       world.networkIdMap.set(a.networkId, entity)
-      world.userIndexMap.set(a.$from, a.ownerIndex)
+      world.userIdToUserIndex.set(a.$from, a.ownerIndex)
+      world.userIndexToUserId.set(a.ownerIndex, a.$from)
     })
 
     .when(NetworkWorldAction.destroyObject.matches, (a) => {

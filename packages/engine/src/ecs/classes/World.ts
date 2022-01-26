@@ -38,7 +38,10 @@ export class World {
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+
     this.networkIdMap = new Map<NetworkId, Entity>()
+    this.userIdToUserIndex = new Map()
+    this.userIndexToUserId = new Map()
 
     if (!Engine.currentWorld) Engine.currentWorld = this
 
@@ -89,7 +92,8 @@ export class World {
   previousNetworkState: WorldStateInterface
 
   networkIdMap: Map<NetworkId, Entity>
-  userIndexMap: Map<UserId, number>
+  userIndexToUserId: Map<number, UserId>
+  userIdToUserIndex: Map<UserId, number>
 
   userIndexCount = 0
 

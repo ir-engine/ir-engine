@@ -190,7 +190,7 @@ export const applyUnreliableQueueFast = (networkInstance: Network, deserialize: 
   }
 }
 
-export default async function IncomingNetworkSystem(world: World): Promise<System> {
+export default async function IncomingNetworkSystem(world: World) {
   const deserialize = createDataReader()
 
   // prettier-ignore
