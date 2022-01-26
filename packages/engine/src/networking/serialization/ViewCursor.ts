@@ -66,6 +66,12 @@ export const writeFloat32 = (v: ViewCursor, value: number) => {
   return v
 }
 
+export const writeUint64 = (v, value) => {
+  v.setUint32(v.cursor, value)
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
+  return v
+}
+
 export const writeUint32 = (v: ViewCursor, value: number) => {
   v.setUint32(v.cursor, value)
   v.cursor += Uint32Array.BYTES_PER_ELEMENT
@@ -82,6 +88,15 @@ export const writeUint8 = (v: ViewCursor, value: number) => {
   v.setUint8(v.cursor, value)
   v.cursor += Uint8Array.BYTES_PER_ELEMENT
   return v
+}
+
+export const spaceUint64 = (v) => {
+  const savePoint = v.cursor
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
+  return (value) => {
+    v.setUint32(savePoint, value)
+    return v
+  }
 }
 
 export const spaceUint32 = (v: ViewCursor) => {
@@ -127,6 +142,12 @@ export const readProp = (v: ViewCursor, prop: TypedArray) => {
 export const readFloat32 = (v: ViewCursor) => {
   const val = v.getFloat32(v.cursor)
   v.cursor += Float32Array.BYTES_PER_ELEMENT
+  return val
+}
+
+export const readUint64 = (v) => {
+  const val = v.getBigUint64(v.cursor)
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
   return val
 }
 

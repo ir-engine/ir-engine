@@ -10,9 +10,10 @@ import { flatten, Vector3SoA, Vector4SoA } from '../Utils'
 import {
   createViewCursor,
   ViewCursor,
+  spaceUint8,
   spaceUint16,
   spaceUint32,
-  spaceUint8,
+  spaceUint64,
   sliceViewCursor,
   writePropIfChanged,
   writeUint32,
@@ -29,14 +30,12 @@ export const writeComponent = (component: any) => {
   // todo: test performance of using flatten in the return scope vs this scope
   const props = flatten(component)
 
+  const changeMaskSpacer =
+    props.length <= 8 ? spaceUint8 : props.length <= 16 ? spaceUint16 : props.length <= 32 ? spaceUint32 : spaceUint64
+
   return (v: ViewCursor, entity: Entity) => {
     const rewind = rewindViewCursor(v)
-    const writeChangeMask =
-      props.length <= 8
-        ? // use Uint8 if <= 8 properties
-          spaceUint8(v)
-        : // use Uint16 if > 8 properties
-          spaceUint16(v)
+    const writeChangeMask = changeMaskSpacer(v)
     let changeMask = 0
 
     for (let i = 0; i < props.length; i++) {
@@ -76,12 +75,10 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-// todo: fix types
 export const writePosition = writeVector3(TransformComponent.position)
 export const writeLinearVelocity = writeVector3(VelocityComponent.velocity)
 export const writeRotation = writeVector4(TransformComponent.rotation)
 
-// export const writeTransform = writeComponent(TransformComponent)
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent)) return
 

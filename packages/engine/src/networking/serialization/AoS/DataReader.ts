@@ -7,7 +7,7 @@ import { VelocityComponent } from '../../../physics/components/VelocityComponent
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../../xr/components/XRInputSourceComponent'
 import { flatten, Vector3SoA, Vector4SoA } from '../Utils'
-import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8 } from '../ViewCursor'
+import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8, readUint64 } from '../ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
@@ -21,13 +21,11 @@ export const readComponent = (component: any) => {
   // todo: test performance of using flatten in the inner scope vs outer scope
   const props = flatten(component)
 
+  const readChanged =
+    props.length <= 8 ? readUint8 : props.length <= 16 ? readUint16 : props.length <= 32 ? readUint32 : readUint64
+
   return (v: ViewCursor, entity: Entity) => {
-    const changeMask =
-      props.length <= 8
-        ? // use Uint8 if <= 8 properties
-          readUint8(v)
-        : // use Uint16 if > 8 properties
-          readUint16(v)
+    const changeMask = readChanged(v)
 
     for (let i = 0; i < props.length; i++) {
       // skip reading property if not in the change mask
@@ -67,7 +65,6 @@ export const readPosition = readVector3(TransformComponent.position)
 export const readLinearVelocity = readVector3(VelocityComponent.velocity)
 export const readRotation = readVector4(TransformComponent.rotation)
 
-// export const readTransform = readComponent(TransformComponent)
 export const readTransform = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
