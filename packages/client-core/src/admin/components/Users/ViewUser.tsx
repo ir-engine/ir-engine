@@ -107,6 +107,7 @@ const ViewUser = (props: Props) => {
     adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
+    userRole.updateNeeded.value,
     singleUser.updateNeeded.value,
     adminScopeTypeState.updateNeeded.value
   ])
@@ -223,8 +224,6 @@ const ViewUser = (props: Props) => {
   const handleChangeScopeType = (e) => {
     setState({ ...state, scopes: e.target.value, formErrors: { ...state.formErrors, scopes: '' } })
   }
-
-  console.log(singleUserData.scopes.value)
 
   return (
     <React.Fragment>
@@ -372,7 +371,7 @@ const ViewUser = (props: Props) => {
                     className={classes.select}
                     name="scopes"
                     multiple
-                    renderValue={(value) =>
+                    renderValue={(value: any) =>
                       value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
                     }
                     MenuProps={{ classes: { paper: classes.selectPaper } }}

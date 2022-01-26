@@ -73,7 +73,7 @@ const CreateUser = (props: Props) => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
       ScopeTypeService.getScopeTypeService()
     }
-  }, [adminScopeTypeState.updateNeeded.value, staticResource.updateNeeded.value, user])
+  }, [adminScopeTypeState.updateNeeded.value, userRole.updateNeeded.value, staticResource.updateNeeded.value, user])
 
   const createUserRole = () => {
     setOpenCreateUserRole(true)
@@ -260,7 +260,7 @@ const CreateUser = (props: Props) => {
                 className={classes.select}
                 name="scopes"
                 multiple
-                renderValue={(value) =>
+                renderValue={(value: any) =>
                   value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
                 }
                 MenuProps={{ classes: { paper: classes.selectPaper } }}

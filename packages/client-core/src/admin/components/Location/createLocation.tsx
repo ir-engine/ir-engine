@@ -381,8 +381,7 @@ const CreateLocation = (props: Props) => {
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           >
             <Alert onClose={handleCloseWarning} severity="warning">
-              {' '}
-              {error}{' '}
+              {error}
             </Alert>
           </Snackbar>
         </Container>
