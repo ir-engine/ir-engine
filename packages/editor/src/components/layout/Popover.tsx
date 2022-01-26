@@ -2,7 +2,7 @@ import React, { useRef, useCallback, ReactNode } from 'react'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import Overlay from './Overlay'
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@speigg/hookstate'
 
 interface PopoverProp {
   children?: ReactNode

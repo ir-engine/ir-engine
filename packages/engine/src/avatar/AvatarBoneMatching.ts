@@ -2,7 +2,36 @@
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+
+export type BoneNames =
+  | 'Root'
+  | 'Hips'
+  | 'Spine'
+  | 'Spine1'
+  | 'Spine2'
+  | 'Neck'
+  | 'Head'
+  | 'LeftEye'
+  | 'RightEye'
+  | 'LeftShoulder'
+  | 'LeftArm'
+  | 'LeftForeArm'
+  | 'LeftHand'
+  | 'LeftUpLeg'
+  | 'LeftLeg'
+  | 'LeftFoot'
+  | 'RightShoulder'
+  | 'RightArm'
+  | 'RightForeArm'
+  | 'RightHand'
+  | 'RightUpLeg'
+  | 'RightLeg'
+  | 'RightFoot'
+
+export type BoneStructure = {
+  [bone in BoneNames]: Bone
+}
 
 const _getTailBones = (skeleton) => {
   const result: any[] = []
@@ -382,7 +411,7 @@ function getSkeleton(model) {
   return skeleton
 }
 
-export default function AvatarBoneMatching(model) {
+export default function AvatarBoneMatching(model): BoneStructure {
   try {
     const skeleton = getSkeleton(model)
     const Hips = _findHips(skeleton)
@@ -662,6 +691,6 @@ export default function AvatarBoneMatching(model) {
     return targetModelBones
   } catch (error) {
     console.error(error)
-    return null
+    return null!
   }
 }

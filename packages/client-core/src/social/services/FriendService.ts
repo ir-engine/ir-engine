@@ -6,7 +6,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult'
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State

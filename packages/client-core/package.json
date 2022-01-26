@@ -32,7 +32,7 @@
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.10.1",
-    "@hookstate/core": "3.0.13",
+    "@speigg/hookstate": "3.0.13-stable-state",
     "@mui/icons-material": "5.3.0",
     "@mui/material": "5.3.0",
     "@mui/styled-engine-sc": "5.3.0",

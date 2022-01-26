@@ -109,7 +109,6 @@ export default async function XRSystem(world: World) {
           if (Math.abs(inputData[1]) < 0.05) {
             inputData[1] = 0
           }
-          console.log(inputData)
           Engine.inputState.set(mapping.axes, {
             type: InputType.TWODIM,
             value: inputData,

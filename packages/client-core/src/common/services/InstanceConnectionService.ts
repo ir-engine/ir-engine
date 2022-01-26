@@ -7,7 +7,7 @@ import { leave } from '../../transports/SocketWebRTCClientFunctions'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
@@ -110,7 +110,8 @@ export const InstanceConnectionService = {
       dispatch(InstanceConnectionAction.instanceServerProvisioned(provisionResult, locationId!, sceneId!))
     } else {
       EngineEvents.instance.dispatchEvent({
-        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
+        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
+        instanceId
       })
     }
   },

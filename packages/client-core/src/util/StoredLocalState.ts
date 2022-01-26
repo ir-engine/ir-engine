@@ -1,4 +1,4 @@
-import { createState, Downgraded, useState } from '@hookstate/core'
+import { createState, Downgraded, useState } from '@speigg/hookstate'
 import { store } from '../store'
 
 const state = createState({
