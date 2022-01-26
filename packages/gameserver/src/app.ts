@@ -143,6 +143,7 @@ export const createApp = (): Application => {
       app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
       app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
       app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+      app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
     }
 
     if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {

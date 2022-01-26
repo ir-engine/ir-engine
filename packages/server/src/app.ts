@@ -138,6 +138,7 @@ try {
     app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
     app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
     app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+    app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
   }
 
   app.use('/healthcheck', (req, res) => {

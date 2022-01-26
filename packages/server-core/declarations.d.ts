@@ -19,6 +19,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   k8AgonesClient: k8s.CustomObjectsApi
   k8DefaultClient: k8s.CoreV1Api
   k8AppsClient: k8s.AppsV1Api
+  k8BatchClient: k8s.BatchV1Api
   agonesSDK: any
   sync: any
   io: SocketIO.Server
