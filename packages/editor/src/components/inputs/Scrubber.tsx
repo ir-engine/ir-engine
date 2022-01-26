@@ -7,7 +7,7 @@ import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 import {} from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@speigg/hookstate'
 import MultipleStopIcon from '@mui/icons-material/MultipleStop'
 
 /**

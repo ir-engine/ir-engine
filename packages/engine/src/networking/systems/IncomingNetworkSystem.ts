@@ -14,7 +14,7 @@ import { pipe } from 'bitecs'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { Group } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { avatarHalfHeight } from '../../avatar/functions/createAvatar'
+import { defaultAvatarHalfHeight } from '../../avatar/functions/createAvatar'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { Engine } from '../../ecs/classes/Engine'
@@ -93,7 +93,7 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
           const rot = pose.rotation
 
           // TODO: Find a cleaner way to shift the avatar's capsule
-          const yOffset = isAvatar ? avatarHalfHeight : 0
+          const yOffset = isAvatar ? defaultAvatarHalfHeight : 0
 
           collider.body.setGlobalPose(
             {

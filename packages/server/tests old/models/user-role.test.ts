@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'UserRole\' model', () => {
+describe("CRUD operation on 'UserRole' model", () => {
   const model = (app.service('user-role') as any).Model
   const role: string = 'testrole'
 

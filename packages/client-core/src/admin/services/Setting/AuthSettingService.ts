@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 

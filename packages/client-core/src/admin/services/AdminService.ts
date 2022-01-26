@@ -4,7 +4,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { PublicVideo, VideoAction } from '../../media/services/VideoService'
 import { useAuthState } from '../../user/services/AuthService'
 import { useDispatch, store } from '../../store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import {
   VideoCreationForm,
   VideoUpdateForm,

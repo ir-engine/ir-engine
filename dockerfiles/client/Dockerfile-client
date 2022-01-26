@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim as builder
 
 RUN apt update
 # Create app directory
@@ -37,5 +37,13 @@ ENV MYSQL_USER=$MYSQL_USER
 RUN npm run build-client
 
 ENV APP_ENV=production
+
+FROM node:16-buster-slim as runner
+WORKDIR /app
+
+COPY --from=builder /app/packages/client ./packages/client
+COPY --from=builder /app/scripts ./scripts
+
+RUN npm install express app-root-path
 
 CMD ["scripts/start-server.sh"]

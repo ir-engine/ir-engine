@@ -1,4 +1,4 @@
-import { useState } from '@hookstate/core'
+import { useState } from '@speigg/hookstate'
 import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
 import { accessMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'

@@ -29,7 +29,7 @@ import { MediaStreamService } from '@xrengine/client-core/src/media/services/Med
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@hookstate/core'
+import { Downgraded } from '@speigg/hookstate'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -133,7 +133,7 @@ export const initClient = async (project) => {
   Engine.isReady = true
 }
 
-export const loadLocation = async (): Promise<any> => {
+export const loadLocation = () => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
 
   const dispatch = useDispatch()

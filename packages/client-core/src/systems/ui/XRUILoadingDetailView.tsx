@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useHookstate, createState } from '@hookstate/core'
+import { useHookstate, createState } from '@speigg/hookstate'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import ProgressBar from './SimpleProgressBar'
 import { useSceneState } from '../../world/services/SceneService'
