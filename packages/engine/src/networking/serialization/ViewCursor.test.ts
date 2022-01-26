@@ -1,13 +1,30 @@
 import assert, { strictEqual } from 'assert'
-import { NetworkId } from "@xrengine/common/src/interfaces/NetworkId"
-import { Entity } from "../../ecs/classes/Entity"
-import { NetworkObjectComponent } from "../components/NetworkObjectComponent"
-import { createViewCursor, readFloat32, readProp, readUint16, readUint32, readUint8, sliceViewCursor, spaceUint16, spaceUint32, spaceUint8, writeEntityId, writeFloat32, writeNetworkId, writeProp, writePropIfChanged, writeUint16, writeUint32, writeUint8 } from "./ViewCursor"
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { Entity } from '../../ecs/classes/Entity'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import {
+  createViewCursor,
+  readFloat32,
+  readProp,
+  readUint16,
+  readUint32,
+  readUint8,
+  sliceViewCursor,
+  spaceUint16,
+  spaceUint32,
+  spaceUint8,
+  writeEntityId,
+  writeFloat32,
+  writeNetworkId,
+  writeProp,
+  writePropIfChanged,
+  writeUint16,
+  writeUint32,
+  writeUint8
+} from './ViewCursor'
 
 describe('ViewCursor read/write', () => {
-
   describe('ViewCursor', () => {
-
     it('should createViewCursor', () => {
       const view = createViewCursor()
       assert(view.hasOwnProperty('cursor'))
@@ -22,11 +39,9 @@ describe('ViewCursor read/write', () => {
       strictEqual(sliceViewCursor(view).byteLength, 4)
       strictEqual(view.cursor, 0)
     })
-
   })
 
   describe('writers', () => {
-
     it('should writeProp', () => {
       const view = createViewCursor()
       const prop = new Float32Array(1)
@@ -54,7 +69,7 @@ describe('ViewCursor read/write', () => {
       prop[entity]++
 
       writePropIfChanged(view, prop, 0 as Entity)
-      strictEqual(view.getFloat32(4), val+1)
+      strictEqual(view.getFloat32(4), val + 1)
     })
 
     it('should writeFloat32', () => {
@@ -133,11 +148,9 @@ describe('ViewCursor read/write', () => {
       strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
       strictEqual(view.getUint32(0), netId)
     })
-
   })
 
   describe('readers', () => {
-
     it('should readProp', () => {
       const view = createViewCursor()
       const prop = new Float32Array(1)
@@ -173,7 +186,5 @@ describe('ViewCursor read/write', () => {
       view.setUint8(0, val)
       strictEqual(readUint8(view), val)
     })
-
   })
-
 })

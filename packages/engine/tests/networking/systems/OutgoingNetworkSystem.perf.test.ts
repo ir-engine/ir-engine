@@ -33,38 +33,35 @@ const Timer = () => {
 }
 
 describe.skip('OutgoingNetworkSystem Performance Tests', async () => {
-	
   let world
 
-	beforeEach(() => {
+  beforeEach(() => {
     /* hoist */
-		Network.instance = new TestNetwork()
-		world = createWorld()
-		Engine.currentWorld = world
-	})
+    Network.instance = new TestNetwork()
+    world = createWorld()
+    Engine.currentWorld = world
+  })
 
   it('should serialize 500 entity positions in < 1.2 millisecond on average', async () => {
-
     /* mock */
     // make this engine user the host (world.isHosting === true)
     Engine.userId = world.hostId
 
-    const
-      ents = 500,
+    const ents = 500,
       ticks = 100
 
     for (let i = 0; i < ents; i++) {
       const entity = createEntity()
       addComponent(entity, TransformComponent, {
-        position: new Vector3(1,2,3),
+        position: new Vector3(1, 2, 3),
         rotation: new Quaternion(),
-        scale: new Vector3(),
+        scale: new Vector3()
       })
       addComponent(entity, NetworkObjectComponent, {
         ownerId: i as unknown as UserId,
         networkId: 0 as NetworkId,
         prefab: '',
-        parameters: {},
+        parameters: {}
       })
     }
 
@@ -78,7 +75,7 @@ describe.skip('OutgoingNetworkSystem Performance Tests', async () => {
     outgoingNetworkSystem()
 
     const timer = Timer()
-  
+
     for (let i = 0; i < ticks; i++) {
       outgoingNetworkSystem()
       timer.tick()
@@ -88,7 +85,5 @@ describe.skip('OutgoingNetworkSystem Performance Tests', async () => {
 
     /* assert */
     assert(avg < 1.2, `${avg}`)
-
   })
-
 })

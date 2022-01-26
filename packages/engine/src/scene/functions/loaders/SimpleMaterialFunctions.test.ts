@@ -26,5 +26,4 @@ describe('SimpleMaterialFunctions', () => {
     // todo: this will be unnecessary when engine global state is refactored
     Engine.simpleMaterials = false
   })
-
 })

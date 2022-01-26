@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe.skip('CRUD operation on \'Collection\' model', () => {
+describe.skip("CRUD operation on 'Collection' model", () => {
   const model = (app.service('collection') as any).Model
   const collectionTypeModel = (app.service('collection-type') as any).Model
   let collectionType: any
@@ -31,10 +31,7 @@ describe.skip('CRUD operation on \'Collection\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { description: 'test1 description' },
-      { where: { name: 'test' } }
-    )
+    model.update({ description: 'test1 description' }, { where: { name: 'test' } })
   })
 
   it('Delete', () => {

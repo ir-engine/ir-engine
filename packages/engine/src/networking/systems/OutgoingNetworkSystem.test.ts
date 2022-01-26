@@ -1,6 +1,11 @@
 import { strictEqual } from 'assert'
 import { Engine } from '../../../src/ecs/classes/Engine'
-import { queueEntityTransform, queueUnchangedPosesClient, queueUnchangedPosesServer, resetNetworkState } from '../../../src/networking/systems/OutgoingNetworkSystem'
+import {
+  queueEntityTransform,
+  queueUnchangedPosesClient,
+  queueUnchangedPosesServer,
+  resetNetworkState
+} from '../../../src/networking/systems/OutgoingNetworkSystem'
 import { createWorld } from '../../../src/ecs/classes/World'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
@@ -14,10 +19,8 @@ import { WorldStateModel } from '../schema/networkSchema'
 import { deepEqual } from '../../common/functions/deepEqual'
 
 describe('OutgoingNetworkSystem Unit Tests', () => {
-
   describe('queueUnchangedPosesServer', () => {
     it('should queue all state changes on server', () => {
-
       /* mock */
       const world = createWorld()
       Engine.currentWorld = world
@@ -44,14 +47,14 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const transform = addComponent(entity, TransformComponent, {
           position: new Vector3(1, 2, 3),
           rotation: new Quaternion(),
-          scale: new Vector3(),
+          scale: new Vector3()
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
           ownerId: '1' as UserId,
           networkId: 0 as NetworkId,
           prefab: '',
-          parameters: {},
+          parameters: {}
         })
       }
 
@@ -67,7 +70,6 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
 
   describe('queueUnchangedPosesClient', () => {
     it('should queue only client avatar state changes on client', () => {
-
       /* mock */
       const world = createWorld()
       Engine.currentWorld = world
@@ -98,17 +100,16 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         const transform = addComponent(entity, TransformComponent, {
           position: new Vector3(1, 2, 3),
           rotation: new Quaternion(),
-          scale: new Vector3(),
+          scale: new Vector3()
         })
         const networkObject = addComponent(entity, NetworkObjectComponent, {
           // remote owner
           ownerId: userId,
           networkId: i as NetworkId,
           prefab: '',
-          parameters: {},
+          parameters: {}
         })
       }
-
 
       /* run */
       queueUnchangedPosesClient(world)
@@ -125,9 +126,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
   })
 
   describe('queueEntityTransform', () => {
-
     it('should queue entities with network & transform components', () => {
-
       /* mock */
       const world = createWorld()
       Engine.currentWorld = world
@@ -146,19 +145,18 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
         subscribedChatUpdates: []
       })
 
-
       const entity = createEntity()
 
       const transform = addComponent(entity, TransformComponent, {
         position: new Vector3(1, 2, 3),
         rotation: new Quaternion(),
-        scale: new Vector3(),
+        scale: new Vector3()
       })
       const networkObject = addComponent(entity, NetworkObjectComponent, {
         ownerId: '0' as UserId,
         networkId: 0 as NetworkId,
         prefab: '',
-        parameters: {},
+        parameters: {}
       })
 
       /* run */
@@ -168,11 +166,9 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       // verify only 1 client pose was queued
       const { outgoingNetworkState } = world
       strictEqual(outgoingNetworkState.pose.length, 1)
-
     })
 
     it('should NOT queue entities without network & transform components', () => {
-
       /* mock */
       const world = createWorld()
       Engine.currentWorld = world
@@ -190,7 +186,7 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       const transform = addComponent(entity, TransformComponent, {
         position: new Vector3(1, 2, 3),
         rotation: new Quaternion(),
-        scale: new Vector3(),
+        scale: new Vector3()
       })
 
       /* run */
@@ -200,16 +196,12 @@ describe('OutgoingNetworkSystem Unit Tests', () => {
       // verify 0 client poses were queued
       const { outgoingNetworkState } = world
       strictEqual(outgoingNetworkState.pose.length, 0)
-
     })
   })
 })
 
 describe('outgoingNetworkState', () => {
-
-
   it('should resetNetworkState', () => {
-
     /* mock */
     const world = createWorld()
     Engine.currentWorld = world
@@ -231,20 +223,22 @@ describe('outgoingNetworkState', () => {
       handsPose: []
     }
 
-    const state = world.outgoingNetworkState = {
+    const state = (world.outgoingNetworkState = {
       tick: 0,
       time: Date.now(),
-      pose: [{
-        ownerId: 'id' as UserId,
-        networkId: 100 as NetworkId,
-        position: [1, 2, 3],
-        rotation: [1, 2, 3, 4],
-        linearVelocity: [0],
-        angularVelocity: [0]
-      }],
+      pose: [
+        {
+          ownerId: 'id' as UserId,
+          networkId: 100 as NetworkId,
+          position: [1, 2, 3],
+          rotation: [1, 2, 3, 4],
+          linearVelocity: [0],
+          angularVelocity: [0]
+        }
+      ],
       controllerPose: [{} as any],
       handsPose: [{} as any]
-    }
+    })
 
     resetNetworkState(world)
 
@@ -252,11 +246,9 @@ describe('outgoingNetworkState', () => {
     strictEqual(state.pose.length, 0)
     strictEqual(state.controllerPose.length, 0)
     strictEqual(state.handsPose.length, 0)
-
   })
 
   it('should serialize and deserialize correctly', () => {
-
     /* mock */
     const world = createWorld()
     Engine.currentWorld = world
@@ -265,41 +257,49 @@ describe('outgoingNetworkState', () => {
     world.outgoingNetworkState = {
       tick: 42,
       time: now,
-      pose: [{
-        ownerId: 'id' as UserId,
-        networkId: 100 as NetworkId,
-        position: [1, 2, 3],
-        rotation: [1, 2, 3, 4],
-        linearVelocity: [0],
-        angularVelocity: [0]
-      }],
-      controllerPose: [{
-        ownerId: 'id' as UserId,
-        networkId: 101 as NetworkId,
-        headPosePosition: [1, 2, 3],
-        headPoseRotation: [4, 5, 6, 7],
-        leftRayPosition: [1, 2, 3],
-        leftRayRotation: [4, 5, 6, 7],
-        rightRayPosition: [10, 20, 30],
-        rightRayRotation: [40, 50, 60, 70],
-        leftGripPosition: [1, 2, 3],
-        leftGripRotation: [4, 5, 6, 7],
-        rightGripPosition: [11, 21, 31],
-        rightGripRotation: [41, 51, 61, 71],
-      }],
-      handsPose: [{
-        ownerId: 'id' as UserId,
-        networkId: 102 as NetworkId,
-        hands: [{
-          joints: [
+      pose: [
+        {
+          ownerId: 'id' as UserId,
+          networkId: 100 as NetworkId,
+          position: [1, 2, 3],
+          rotation: [1, 2, 3, 4],
+          linearVelocity: [0],
+          angularVelocity: [0]
+        }
+      ],
+      controllerPose: [
+        {
+          ownerId: 'id' as UserId,
+          networkId: 101 as NetworkId,
+          headPosePosition: [1, 2, 3],
+          headPoseRotation: [4, 5, 6, 7],
+          leftRayPosition: [1, 2, 3],
+          leftRayRotation: [4, 5, 6, 7],
+          rightRayPosition: [10, 20, 30],
+          rightRayRotation: [40, 50, 60, 70],
+          leftGripPosition: [1, 2, 3],
+          leftGripRotation: [4, 5, 6, 7],
+          rightGripPosition: [11, 21, 31],
+          rightGripRotation: [41, 51, 61, 71]
+        }
+      ],
+      handsPose: [
+        {
+          ownerId: 'id' as UserId,
+          networkId: 102 as NetworkId,
+          hands: [
             {
-              key: 'string',
-              position: [1, 2, 3],
-              rotation: [4, 5, 6, 7],
+              joints: [
+                {
+                  key: 'string',
+                  position: [1, 2, 3],
+                  rotation: [4, 5, 6, 7]
+                }
+              ]
             }
           ]
-        }]
-      }],
+        }
+      ]
     }
 
     const buffer = WorldStateModel.toBuffer(world.outgoingNetworkState)
@@ -331,8 +331,5 @@ describe('outgoingNetworkState', () => {
     deepEqual(state.handsPose[0].hands[0].joints[0].key, 'string')
     deepEqual(state.handsPose[0].hands[0].joints[0].position, [1, 2, 3])
     deepEqual(state.handsPose[0].hands[0].joints[0].rotation, [4, 5, 6, 7])
-
   })
-
-
 })

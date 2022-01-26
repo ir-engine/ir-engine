@@ -22,63 +22,63 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 describe('createAvatar', () => {
-	let world
-    
-    beforeEach(async () => {
-      /* hoist */
-      Network.instance = new TestNetwork()
-      world = createWorld()
-      Engine.currentWorld = world
-      await Engine.currentWorld.physics.createScene({ verbose: true })
-    })
-    
-    afterEach(() => {
-      Engine.currentWorld = null!
-      delete (globalThis as any).PhysX
-    })
-    
-    it('check the create avatar function', () => {
-        Engine.userId = world.hostId
-        Engine.hasJoinedWorld = true
-        
-        // mock entity to apply incoming unreliable updates to
-        const entity = createEntity()
-        
-        const networkObject = addComponent(entity, NetworkObjectComponent, {
-          // remote owner
-          ownerId: Engine.userId,
-          networkId: 0 as NetworkId,
-          prefab: '',
-          parameters: {},
-        })
+  let world
 
-        const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
-        const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
+  beforeEach(async () => {
+    /* hoist */
+    Network.instance = new TestNetwork()
+    world = createWorld()
+    Engine.currentWorld = world
+    await Engine.currentWorld.physics.createScene({ verbose: true })
+  })
 
-        createAvatar({
-          prefab: 'avatar',
-          parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
-          type: 'network.SPAWN_OBJECT',
-          networkId: networkObject.networkId,
-          $from: Engine.userId,
-          $to: 'all',
-          $tick: Engine.currentWorld.fixedTick,
-          $cache: true
-        })
-        
-        assert(hasComponent(entity, TransformComponent))
-        assert(hasComponent(entity, VelocityComponent))
-        assert(hasComponent(entity, AvatarComponent))
-        assert(hasComponent(entity, NameComponent))
-        assert(hasComponent(entity, AvatarAnimationComponent))
-        assert(hasComponent(entity, Object3DComponent))
-        assert(hasComponent(entity, RaycastComponent))
-        assert(hasComponent(entity, CollisionComponent))
-        assert(hasComponent(entity, SpawnPoseComponent))
-        assert(hasComponent(entity, AvatarControllerComponent))
-        assert(hasComponent(entity, InteractorComponent))
-        strictEqual(Engine.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
-        strictEqual(Engine.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
-        strictEqual(getComponent(entity, NameComponent).name, Engine.userId)
+  afterEach(() => {
+    Engine.currentWorld = null!
+    delete (globalThis as any).PhysX
+  })
+
+  it('check the create avatar function', () => {
+    Engine.userId = world.hostId
+    Engine.hasJoinedWorld = true
+
+    // mock entity to apply incoming unreliable updates to
+    const entity = createEntity()
+
+    const networkObject = addComponent(entity, NetworkObjectComponent, {
+      // remote owner
+      ownerId: Engine.userId,
+      networkId: 0 as NetworkId,
+      prefab: '',
+      parameters: {}
     })
+
+    const prevPhysicsBodies = Engine.currentWorld.physics.bodies.size
+    const prevPhysicsColliders = Engine.currentWorld.physics.controllers.size
+
+    createAvatar({
+      prefab: 'avatar',
+      parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() },
+      type: 'network.SPAWN_OBJECT',
+      networkId: networkObject.networkId,
+      $from: Engine.userId,
+      $to: 'all',
+      $tick: Engine.currentWorld.fixedTick,
+      $cache: true
+    })
+
+    assert(hasComponent(entity, TransformComponent))
+    assert(hasComponent(entity, VelocityComponent))
+    assert(hasComponent(entity, AvatarComponent))
+    assert(hasComponent(entity, NameComponent))
+    assert(hasComponent(entity, AvatarAnimationComponent))
+    assert(hasComponent(entity, Object3DComponent))
+    assert(hasComponent(entity, RaycastComponent))
+    assert(hasComponent(entity, CollisionComponent))
+    assert(hasComponent(entity, SpawnPoseComponent))
+    assert(hasComponent(entity, AvatarControllerComponent))
+    assert(hasComponent(entity, InteractorComponent))
+    strictEqual(Engine.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
+    strictEqual(Engine.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
+    strictEqual(getComponent(entity, NameComponent).name, Engine.userId)
+  })
 })
