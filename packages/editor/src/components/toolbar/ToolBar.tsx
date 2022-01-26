@@ -9,6 +9,7 @@ import TransformSnapTool from './tools/TransformSnapTool'
 import PlayModeTool from './tools/PlayModeTool'
 import StatsTool from './tools/StatsTool'
 import RenderModeTool from './tools/RenderModeTool'
+import HelperToggleTool from './tools/HelperToggleTool'
 
 type ToolBarProps = {
   menu?: any
@@ -31,6 +32,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <RenderModeTool />
       <PlayModeTool />
       <StatsTool />
+      <HelperToggleTool />
     </div>
   )
 }

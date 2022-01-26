@@ -2,6 +2,8 @@ import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Ve
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
@@ -59,6 +61,7 @@ export default class EditorInfiniteGridHelper extends Mesh {
   plane: Plane
   intersectionPointWorld: Vector3
   intersection: any
+
   constructor(size1?, size2?, color?, distance?) {
     color = color || new Color('white')
     size1 = size1 || 1
@@ -88,9 +91,12 @@ export default class EditorInfiniteGridHelper extends Mesh {
         derivatives: true
       }
     })
+
     super(geometry, material)
+
     this.visible = true
     this.name = 'EditorInfiniteGridHelper'
+    setObjectLayers(this, ObjectLayers.Scene)
     addIsHelperFlag(this)
     this.frustumCulled = false
     this.plane = new Plane(this.up)

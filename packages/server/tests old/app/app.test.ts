@@ -8,7 +8,7 @@ import https from 'https'
 const port = appconfig.server.port
 const agent = new https.Agent({
   rejectUnauthorized: false
-});
+})
 
 describe.skip('Feathers application tests', () => {
   let server: Server
@@ -20,14 +20,13 @@ describe.skip('Feathers application tests', () => {
       nextReadyEmitter.once('next-ready', () => {
         done()
       })
-    }
-    else {
+    } else {
       server.once('listening', () => done())
     }
   }, 90000)
 
   afterAll((done) => {
-    server.close(error => {
+    server.close((error) => {
       if (error) console.log(error)
     })
     done()

@@ -26,6 +26,7 @@ import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const avatarRadius = 0.25
 const defaultAvatarHeight = 1.8
@@ -91,10 +92,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-  tiltContainer.traverse((o) => {
-    o.layers.disable(ObjectLayers.Scene)
-    o.layers.enable(ObjectLayers.Avatar)
-  })
+  setObjectLayers(tiltContainer, ObjectLayers.Render, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)

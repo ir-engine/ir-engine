@@ -20,6 +20,8 @@ import { World } from '../../ecs/classes/World'
 import { getGeometryType, isControllerBody, isTriggerShape } from '../../physics/classes/Physics'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { BodyType } from '../../physics/types/PhysicsTypes'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const parentMatrix = new Matrix4()
 const childMatrix = new Matrix4()
@@ -81,6 +83,7 @@ export const DebugRenderer = () => {
       const mesh = new Mesh(geom, _materials[5])
       mesh.position.copy(obstacle.getPosition() as Vector3)
       mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
@@ -122,6 +125,7 @@ export const DebugRenderer = () => {
         )
       }
       _meshes.set(id, mesh)
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
     }
   }
@@ -219,6 +223,7 @@ export const DebugRenderer = () => {
     }
 
     if (mesh && mesh.geometry) {
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
     }
 

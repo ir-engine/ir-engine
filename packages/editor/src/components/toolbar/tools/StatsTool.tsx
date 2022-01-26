@@ -18,18 +18,16 @@ const StatsTool = () => {
 
   useEffect(() => {
     SceneManager.instance.onUpdateStats = (info) => {
-      if (info.render.frame % 3 === 0) {
-        setInfo({
-          geometries: info.memory.geometries,
-          textures: info.memory.textures,
-          fps: (info.render as any).fps,
-          frameTime: (info.render as any).frameTime,
-          calls: info.render.calls,
-          triangles: info.render.triangles,
-          points: info.render.points,
-          lines: info.render.lines
-        })
-      }
+      setInfo({
+        geometries: info.memory.geometries,
+        textures: info.memory.textures,
+        fps: (info.render as any).fps,
+        frameTime: (info.render as any).frameTime,
+        calls: info.render.calls,
+        triangles: info.render.triangles,
+        points: info.render.points,
+        lines: info.render.lines
+      })
     }
 
     return () => {

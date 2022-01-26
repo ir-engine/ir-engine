@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'User\' model', () => {
+describe("CRUD operation on 'User' model", () => {
   const model = (app.service('user') as any).Model
   const userRoleModel = (app.service('user-role') as any).Model
 
@@ -42,12 +42,13 @@ describe('CRUD operation on \'User\' model', () => {
   })
 
   it('Update', async () => {
-    const name = "name";
+    const name = 'name'
     await model.update(
       { name: name },
       {
         where: { name: 'test', userRole: 'testrole' }
-      })
+      }
+    )
     const updateUser = await model.findOne({
       where: {
         name: name,
