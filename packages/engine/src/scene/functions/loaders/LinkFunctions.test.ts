@@ -32,6 +32,5 @@ describe('LinkFunctions', () => {
 
     assert(hasComponent(entity, InteractableComponent))
     assert.deepStrictEqual(getComponent(entity, InteractableComponent), { action: 'link' })
-
   })
 })

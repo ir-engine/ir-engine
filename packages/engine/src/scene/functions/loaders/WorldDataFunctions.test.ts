@@ -1,14 +1,14 @@
-import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
-import { MathUtils, Quaternion, Vector3 } from "three"
-import { createEntity } from "../../../ecs/functions/EntityFunctions"
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { MathUtils, Quaternion, Vector3 } from 'three'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import assert from 'assert'
-import { createWorld } from "../../../ecs/classes/World"
-import { Engine } from "../../../ecs/classes/Engine"
-import { deserializeWorldData } from "./WorldDataFunctions"
-import { addComponent, getComponent, hasComponent } from "../../../ecs/functions/ComponentFunctions"
-import { TransformComponent } from "../../../transform/components/TransformComponent"
-import { Object3DComponent } from "../../components/Object3DComponent"
-import { InteractableComponent } from "../../../interaction/components/InteractableComponent"
+import { createWorld } from '../../../ecs/classes/World'
+import { Engine } from '../../../ecs/classes/Engine'
+import { deserializeWorldData } from './WorldDataFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 
 describe('WorldDataFunctions', () => {
   describe('deserializeWorldData', () => {

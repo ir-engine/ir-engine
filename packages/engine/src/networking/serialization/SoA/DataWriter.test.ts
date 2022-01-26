@@ -4,21 +4,22 @@ import { TypedArray } from 'bitecs'
 import { Entity } from '../../../ecs/classes/Entity'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
-import { createDataWriter, writeProps } from "../SoA/DataWriter"
+import { createDataWriter, writeProps } from '../SoA/DataWriter'
 import { createViewCursor, readFloat32, readUint8, readUint32 } from '../ViewCursor'
 
 describe('SoA DataWriter', () => {
-
   it('should writeProps', () => {
     const writeView = createViewCursor()
 
-    const entities = Array(10).fill(0).map((_, i) => i as Entity)
+    const entities = Array(10)
+      .fill(0)
+      .map((_, i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 
     const [x, y, z] = propValues
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       TransformComponent.position.x[entity] = x
@@ -29,7 +30,7 @@ describe('SoA DataWriter', () => {
     const props = [
       TransformComponent.position.x as unknown as TypedArray,
       TransformComponent.position.y as unknown as TypedArray,
-      TransformComponent.position.z as unknown as TypedArray,
+      TransformComponent.position.z as unknown as TypedArray
     ]
 
     const packet = writeProps(writeView, props, entities)
@@ -51,18 +52,20 @@ describe('SoA DataWriter', () => {
     const props = [
       TransformComponent.position.x as unknown as TypedArray,
       TransformComponent.position.y as unknown as TypedArray,
-      TransformComponent.position.z as unknown as TypedArray,
+      TransformComponent.position.z as unknown as TypedArray
     ]
 
     const write = createDataWriter(props)
 
-    const entities = Array(10).fill(0).map((_, i) => i as Entity)
+    const entities = Array(10)
+      .fill(0)
+      .map((_, i) => i as Entity)
 
     const propValues = [1.5, 2.5, 3.5]
 
     const [x, y, z] = propValues
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const netId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = netId
       TransformComponent.position.x[entity] = x
@@ -84,5 +87,4 @@ describe('SoA DataWriter', () => {
       }
     }
   })
-
 })
