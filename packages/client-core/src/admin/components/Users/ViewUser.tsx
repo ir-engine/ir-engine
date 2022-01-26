@@ -429,7 +429,7 @@ const ViewUser = (props: Props) => {
                       container
                       spacing={3}
                       style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}
-                      key={el.id}
+                      key={index}
                     >
                       <Grid item xs={8}>
                         <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
@@ -492,9 +492,7 @@ const ViewUser = (props: Props) => {
           onClose={handleCloseWarning}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <Alert onClose={handleCloseWarning} severity="warning">
-            {error}
-          </Alert>
+          <Alert severity="warning">{error}</Alert>
         </Snackbar>
       </Drawer>
     </React.Fragment>

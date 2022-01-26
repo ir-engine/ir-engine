@@ -1,28 +1,26 @@
-import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Button from '@mui/material/Button'
-import { useDispatch } from '../../../store'
-import DialogActions from '@mui/material/DialogActions'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import Snackbar from '@mui/material/Snackbar'
 import MuiAlert from '@mui/material/Alert'
-import { useStyles } from '../../styles/ui'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
-import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
+import Grid from '@mui/material/Grid'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+import Snackbar from '@mui/material/Snackbar'
 import Switch from '@mui/material/Switch'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocationState } from '../../services/LocationService'
-import { useSceneState } from '../../services/SceneService'
-import { LocationService } from '../../services/LocationService'
-import { validateUserForm } from '../Users/validation'
 import { useAlertState } from '../../../common/services/AlertService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { useStyles } from '../../styles/ui'
+import { validateUserForm } from '../Users/validation'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -59,7 +57,6 @@ const CreateLocation = (props: Props) => {
     }
   })
 
-  const dispatch = useDispatch()
   const { t } = useTranslation()
   const adminLocationState = useLocationState()
   const locationTypes = adminLocationState.locationTypes
@@ -380,9 +377,7 @@ const CreateLocation = (props: Props) => {
             onClose={handleClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           >
-            <Alert onClose={handleCloseWarning} severity="warning">
-              {error}
-            </Alert>
+            <Alert severity="warning">{error}</Alert>
           </Snackbar>
         </Container>
       </Drawer>

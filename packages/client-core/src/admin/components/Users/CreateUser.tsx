@@ -13,6 +13,7 @@ import Select from '@mui/material/Select'
 import Snackbar from '@mui/material/Snackbar'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import React from 'react'
+import { useAlertState } from '../../../common/services/AlertService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
@@ -60,6 +61,19 @@ const CreateUser = (props: Props) => {
   const staticResourceData = staticResource.staticResource
 
   const adminScopeTypeState = useScopeTypeState()
+  const alertState = useAlertState()
+  const errorType = alertState.type
+  const errorMessage = alertState.message
+
+  React.useEffect(() => {
+    if (errorType.value === 'error') {
+      setError(errorMessage.value)
+      setOpenWarning(true)
+      setTimeout(() => {
+        setOpenWarning(false)
+      }, 5000)
+    }
+  }, [errorType.value, errorMessage.value])
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -287,9 +301,7 @@ const CreateUser = (props: Props) => {
             onClose={handleClose}
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           >
-            <Alert onClose={handleCloseWarning} severity="warning">
-              {error}
-            </Alert>
+            <Alert severity="warning">{error}</Alert>
           </Snackbar>
         </Container>
       </Drawer>
