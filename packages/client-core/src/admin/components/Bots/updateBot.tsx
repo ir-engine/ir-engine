@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -23,6 +23,7 @@ import IconButton from '@mui/material/IconButton'
 import { InstanceService } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { useStyles } from '../../styles/ui'
+import AlertMessage from '../../common/AlertMessage'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
@@ -32,36 +33,32 @@ interface Props {
   bot: any
 }
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
-
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
   const dispatch = useDispatch()
   const classes = useStyles()
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     description: '',
     instance: '',
     location: ''
   })
-  const [formErrors, setFormErrors] = React.useState({
+  const [formErrors, setFormErrors] = useState({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
-  const [openAlter, setOpenAlter] = React.useState(false)
-  const [error, setError] = React.useState('')
+  const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
+  const [openAlter, setOpenAlter] = useState(false)
+  const [error, setError] = useState('')
   const adminLocation = useLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const user = useAuthState().user
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (bot) {
       setState({
         name: bot?.name,
@@ -98,15 +95,16 @@ const UpdateBot = (props: Props) => {
     data.push(element)
   })
 
-  React.useEffect(() => {
-    if (bot) {
-      const instanceFilter = data.filter((el) => el.locationId === state.location)
-      if (instanceFilter.length > 0) {
-        setState({ ...state, instance: state.instance || '' })
-        setCurrentIntance(instanceFilter)
-      }
+  useEffect(() => {
+    const instanceFilter = data.filter((el) => el.locationId === state.location)
+    if (instanceFilter.length > 0) {
+      setState({ ...state, instance: state.instance || '' })
+      setCurrentIntance(instanceFilter)
+    } else {
+      setCurrentIntance([])
+      setState({ ...state, instance: '' })
     }
-  }, [state.location, bot, adminInstanceState.instances.value])
+  }, [state.location, adminInstanceState.instances.value.length])
 
   const handleUpdate = () => {
     const data = {
@@ -142,7 +140,7 @@ const UpdateBot = (props: Props) => {
     InstanceService.fetchAdminInstances()
   }
 
-  const handleCloseAlter = (event, reason) => {
+  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -278,6 +276,7 @@ const UpdateBot = (props: Props) => {
             className={classes.saveBtn}
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
+              setFormErrors({ name: '', description: '', location: '' })
               handleClose()
             }}
           >
@@ -288,17 +287,8 @@ const UpdateBot = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        open={openAlter}
-        autoHideDuration={6000}
-        onClose={handleCloseAlter}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseAlter} severity="warning">
-          {' '}
-          {error}{' '}
-        </Alert>
-      </Snackbar>
+
+      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </div>
   )
 }
