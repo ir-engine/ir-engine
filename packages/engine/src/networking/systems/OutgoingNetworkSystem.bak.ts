@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'

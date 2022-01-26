@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Network } from '../classes/Network'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
