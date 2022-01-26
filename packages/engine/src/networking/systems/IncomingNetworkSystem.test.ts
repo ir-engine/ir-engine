@@ -17,6 +17,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from future
@@ -45,6 +46,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past
@@ -75,6 +77,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past

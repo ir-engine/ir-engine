@@ -19,6 +19,7 @@ import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { deepEqual } from '../../common/functions/deepEqual'
 import { Engine } from '../../ecs/classes/Engine'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
+import { createDataReader } from '../serialization/AoS/DataReader'
 
 export const applyUnreliableQueue = (networkInstance: Network) => (world: World) => {
   const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = networkInstance
@@ -178,10 +179,24 @@ export const applyUnreliableQueue = (networkInstance: Network) => (world: World)
   return world
 }
 
+export const applyUnreliableQueueFast = (networkInstance: Network, deserialize: Function) => (world: World) => {
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = networkInstance
+
+  while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
+    incomingMessageQueueUnreliableIDs.pop()
+    const packet = incomingMessageQueueUnreliable.pop()
+
+    deserialize(world, packet)
+  }
+}
+
 export default async function IncomingNetworkSystem(world: World) {
+  const deserialize = createDataReader()
+
   // prettier-ignore
   const applyIncomingNetworkState = pipe(
-    applyUnreliableQueue(Network.instance),
+    // applyUnreliableQueue(Network.instance),
+    applyUnreliableQueueFast(Network.instance, deserialize),
   )
 
   const VALIDATE_NETWORK_INTERVAL = 300 // TODO: /** world.tickRate * 5 */

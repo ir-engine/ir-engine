@@ -17,6 +17,7 @@ import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { Mesh } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { createDataWriter } from '../serialization/AoS/DataWriter'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 
 /***********
@@ -165,6 +166,7 @@ export const queueUnchangedControllerPoses = (world: World) => {
     const headPosePosition = xrInputs.head.position.toArray()
     const headPoseRotation = xrInputs.head.quaternion.toArray()
 
+    // todo: make isomorphic
     const controllerLeft = isClient ? xrInputs.controllerLeft.parent! : xrInputs.controllerLeft
     const controllerRight = isClient ? xrInputs.controllerRight.parent! : xrInputs.controllerRight
     const controllerGripLeft = isClient ? xrInputs.controllerGripLeft.parent! : xrInputs.controllerGripLeft
@@ -312,6 +314,27 @@ export const queueAllOutgoingPoses = pipe(
  * DATA SENDING *
  ***************/
 
+const serializeAndSend = (world: World, sendData: Function) => {
+  queueAllOutgoingPoses(world)
+  world.outgoingNetworkState.time = Date.now()
+  const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
+  sendData(data)
+}
+
+const serializeAndSendFast = (world: World, serialize: Function, sendData: Function) => {
+  const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
+  if (ents.length > 0) {
+    const data = serialize(world, ents)
+
+    // todo: insert historian logic here
+
+    if (data.byteLength > 0) {
+      // side effect - network IO
+      sendData(data)
+    }
+  }
+}
+
 const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
   const { outgoingActions } = world
 
@@ -343,17 +366,15 @@ export default async function OutgoingNetworkSystem(world: World) {
 
   initNetworkStates(world)
 
+  const serialize = createDataWriter()
+
   return () => {
     if (!Engine.isInitialized) return
 
     // side effect - network IO
     sendActions(world)
 
-    queueAllOutgoingPoses(world)
-
-    // side effect - network IO
-    world.outgoingNetworkState.time = Date.now()
-    const data = WorldStateModel.toBuffer(world.outgoingNetworkState)
-    sendData(data)
+    // serializeAndSend(world, sendData)
+    serializeAndSendFast(world, serialize, sendData)
   }
 }
