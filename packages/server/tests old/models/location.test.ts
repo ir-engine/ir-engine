@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'Location\' model', () => {
+describe("CRUD operation on 'Location' model", () => {
   const model = (app.service('location') as any).Model
 
   beforeAll(async () => {
@@ -30,10 +30,7 @@ describe('CRUD operation on \'Location\' model', () => {
   })
 
   it('Update', async () => {
-    await model.update(
-      { maxUsersPerInstance: 11 },
-      { where: { name: 'model-test' } }
-    )
+    await model.update({ maxUsersPerInstance: 11 }, { where: { name: 'model-test' } })
   })
 
   it('Delete', async () => {

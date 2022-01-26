@@ -1,4 +1,4 @@
-import { createState, State, useState } from '@hookstate/core'
+import { createState, State, useState } from '@speigg/hookstate'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { Engine } from '../ecs/classes/Engine'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'

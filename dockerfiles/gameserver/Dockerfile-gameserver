@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim as builder
 
 RUN apt update
-RUN apt-get install build-essential meson python3-testresources python3-venv python3-pip -y
+RUN apt-get -y install build-essential meson python3-testresources python3-venv python3-pip git
 # Create app directory
 WORKDIR /app
 
@@ -26,4 +26,10 @@ COPY . .
 
 ENV APP_ENV=production
 
+FROM node:16-buster-slim as runner
+WORKDIR /app
+
+COPY --from=builder /app ./
+
 CMD ["scripts/start-server.sh"]
+

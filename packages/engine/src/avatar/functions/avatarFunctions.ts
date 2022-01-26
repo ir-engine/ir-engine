@@ -37,6 +37,11 @@ import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
+import { Vector3 } from 'three'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+
+const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
   AssetLoader.load(
@@ -99,8 +104,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   })
 
   model.children.forEach((child) => avatar.modelContainer.add(child))
-
-  const rootBone = retargeted?.Root
+  const rootBone = retargeted.Root
   // TODO: add way to handle armature type
   const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
   addTargetRig(entity, rootBone?.parent!, null, false, armatureType)
@@ -112,6 +116,8 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
   rootBone?.parent!.add(sourceSkeletonRoot)
   addRig(entity, sourceSkeletonRoot)
+  getComponent(entity, IKRigComponent).boneStructure = retargeted
+
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   const retargetedBones: string[] = []
 
@@ -125,6 +131,9 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
 
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(world.delta)
+  retargeted.Neck.updateMatrixWorld(true)
+  const transform = getComponent(entity, TransformComponent)
+  avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
 
   loadGrowingEffectObject(entity, materialList)
 }

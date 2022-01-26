@@ -35,7 +35,7 @@
     "@gltf-transform/core": "2.0.0-alpha.5",
     "@gltf-transform/functions": "2.0.0-alpha.5",
     "@gltf-transform/extensions": "2.0.0-alpha.5",
-    "@hookstate/core": "3.0.13",
+    "@speigg/hookstate": "3.0.13-stable-state",
     "@tweenjs/tween.js": "^18.6.4",
     "@vladmandic/face-api": "^1.6.1",
     "@xrengine/common": "^0.4.13",

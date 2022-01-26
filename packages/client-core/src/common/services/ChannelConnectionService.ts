@@ -9,7 +9,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { accessLocationState } from '../../social/services/LocationService'
 import { MediaStreamService } from '../../media/services/MediaStreamService'
 
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 

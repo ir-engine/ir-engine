@@ -12,7 +12,6 @@ import { PortalComponent } from '../../components/PortalComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { deserializePortal } from './PortalFunctions'
 
-
 describe.skip('PortalFunctions', () => {
   it('deserializePortal', async () => {
     const world = createWorld()

@@ -1,5 +1,5 @@
 import React from 'react'
-import { createState } from '@hookstate/core'
+import { createState } from '@speigg/hookstate'
 import { useUserState } from '../../user/services/UserService'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
