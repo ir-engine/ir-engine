@@ -4,7 +4,6 @@ import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@hookstate/core'
 import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
 import {
   LocationAction,
@@ -77,11 +76,11 @@ export const LoadEngineWithScene = (props: Props) => {
    * Once we have the scene data, initialise the engine
    */
   useEffect(() => {
-    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
+    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.name.value) {
       dispatch(EngineActions.setTeleporting(null!))
       loadLocation()
     }
-  }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
+  }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.name])
 
   const canTeleport = useRef(true)
   useEffect(() => {

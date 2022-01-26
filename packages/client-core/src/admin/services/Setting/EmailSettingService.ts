@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 
 //State

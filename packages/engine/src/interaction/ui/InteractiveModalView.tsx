@@ -1,5 +1,5 @@
 import React from 'react'
-import { createState } from '@hookstate/core'
+import { createState } from '@speigg/hookstate'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
