@@ -59,6 +59,7 @@ describe.skip('OutgoingNetworkSystem Performance Tests', async () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         ownerId: i as unknown as UserId,
+        ownerIndex: i,
         networkId: 0 as NetworkId,
         prefab: '',
         parameters: {}
