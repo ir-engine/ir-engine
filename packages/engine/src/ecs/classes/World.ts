@@ -91,7 +91,7 @@ export class World {
   networkIdMap: Map<NetworkId, Entity>
   userIndexMap: Map<UserId, number>
 
-  userIndexCount: number
+  userIndexCount = 0
 
   /**
    * Check if this user is hosting the world.

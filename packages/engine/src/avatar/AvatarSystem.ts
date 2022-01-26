@@ -33,7 +33,8 @@ function avatarActionReceptor(action) {
 
   matches(action)
     .when(NetworkWorldAction.avatarDetails.matches, ({ $from, avatarDetail }) => {
-      const client = world.clients.get($from)!
+      const client = world.clients.get($from)
+      if (!client) throw Error(`Avatar details action received for a client that does not exist: ${$from}`)
       if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
       if (isClient) {
         const entity = world.getUserAvatarEntity($from)
