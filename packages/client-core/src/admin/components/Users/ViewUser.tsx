@@ -58,7 +58,7 @@ const ViewUser = (props: Props) => {
   const [state, setState] = useState({
     name: '',
     avatar: '',
-    scopes: [] as AdminScopeType[],
+    scopes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
@@ -468,13 +468,13 @@ const ViewUser = (props: Props) => {
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {
-                    setEditMode(true)
                     setState({
                       ...state,
                       name: userAdmin.name || '',
                       avatar: userAdmin.avatarId || '',
                       scopes: userAdmin.scopes || []
                     })
+                    setEditMode(true)
                   }}
                 >
                   EDIT

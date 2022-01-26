@@ -37,11 +37,6 @@ const UserTable = (props: UserProps) => {
     setPage(0)
   }
 
-  const openViewModel = (open: boolean, user: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    setUserAdmin(user)
-    setViewModel(open)
-  }
-
   const closeViewModel = (open) => {
     setViewModel(open)
   }
@@ -76,7 +71,14 @@ const UserTable = (props: UserProps) => {
       instanceId,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, user)}>
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setUserAdmin(user)
+              setViewModel(true)
+            }}
+          >
             <span className={classes.spanWhite}>View</span>
           </a>
           <a
@@ -139,7 +141,9 @@ const UserTable = (props: UserProps) => {
         name={userName}
         label={'user'}
       />
-      {userAdmin && <ViewUser openView={viewModel} userAdmin={userAdmin} closeViewModel={closeViewModel} />}
+      {userAdmin && viewModel && (
+        <ViewUser openView={viewModel} userAdmin={userAdmin} closeViewModel={closeViewModel} />
+      )}
     </React.Fragment>
   )
 }
