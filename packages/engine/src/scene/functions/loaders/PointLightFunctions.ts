@@ -47,8 +47,8 @@ export const deserializePointLight: ComponentDeserializeFunction = (
     light.userData.rangeBall = rangeBall
     light.userData.ball = ball
 
-    setObjectLayers(ball, ObjectLayers.Scene)
-    setObjectLayers(rangeBall, ObjectLayers.Scene)
+    setObjectLayers(ball, ObjectLayers.NodeHelper)
+    setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
   }
 
   addComponent(entity, Object3DComponent, { value: light })

@@ -83,7 +83,7 @@ export const DebugRenderer = () => {
       const mesh = new Mesh(geom, _materials[5])
       mesh.position.copy(obstacle.getPosition() as Vector3)
       mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
-      setObjectLayers(mesh, ObjectLayers.Scene)
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
@@ -125,7 +125,7 @@ export const DebugRenderer = () => {
         )
       }
       _meshes.set(id, mesh)
-      setObjectLayers(mesh, ObjectLayers.Scene)
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
     }
   }
@@ -223,7 +223,7 @@ export const DebugRenderer = () => {
     }
 
     if (mesh && mesh.geometry) {
-      setObjectLayers(mesh, ObjectLayers.Scene)
+      setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
     }
 

@@ -41,8 +41,8 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     obj3d.userData.helperBox.userData.isHelper = true
     obj3d.add(obj3d.userData.helperBox)
 
-    setObjectLayers(obj3d.userData.helperModel, ObjectLayers.Scene)
-    setObjectLayers(obj3d.userData.helperBox, ObjectLayers.Scene)
+    setObjectLayers(obj3d.userData.helperModel, ObjectLayers.NodeHelper)
+    setObjectLayers(obj3d.userData.helperBox, ObjectLayers.NodeHelper)
   }
 }
 

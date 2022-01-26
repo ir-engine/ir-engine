@@ -42,7 +42,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
     material.side = DoubleSide
     material.transparent = true
     const helper = new Mesh(geometry, material)
-    setObjectLayers(helper, ObjectLayers.Scene)
+    setObjectLayers(helper, ObjectLayers.NodeHelper)
     obj3d.add(helper)
     obj3d.userData.linkHelper = helper
   }

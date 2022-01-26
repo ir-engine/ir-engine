@@ -68,7 +68,7 @@ export default class Spline extends Object3D {
 
     for (const k in this._splines) {
       const spline = this._splines[k]
-      spline.mesh.layers.set(ObjectLayers.Scene)
+      spline.mesh.layers.set(ObjectLayers.NodeHelper)
       super.add(spline.mesh)
     }
 

@@ -85,7 +85,7 @@ export default class EditorDirectionalLightHelper extends Object3D {
     this.targetLine = new LineSegments(geometry, material)
     this.add(this.targetLine)
 
-    setObjectLayers(this, ObjectLayers.Scene)
+    setObjectLayers(this, ObjectLayers.NodeHelper)
     addIsHelperFlag(this)
   }
 

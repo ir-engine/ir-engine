@@ -74,11 +74,11 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
       loadTexture(AUDIO_TEXTURE_PATH).then((texture) => {
         audioTexture = texture!
         obj3d.userData.textureMesh.material.map = audioTexture
-        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.Scene)
+        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
       })
     } else {
       obj3d.userData.textureMesh.material.map = audioTexture
-      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.Scene)
+      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
     }
   }
 

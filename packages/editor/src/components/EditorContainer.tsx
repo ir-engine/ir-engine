@@ -288,6 +288,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveAs = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     const abortController = new AbortController()
     try {
       let saveProjectFlag = true
@@ -426,6 +432,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveScene = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     if (!sceneName) {
       if (modified) {
         onSaveAs()

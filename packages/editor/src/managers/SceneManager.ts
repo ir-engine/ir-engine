@@ -97,6 +97,8 @@ export class SceneManager {
     Engine.camera.position.set(0, 5, 10)
     Engine.camera.lookAt(new Vector3())
     Engine.camera.layers.enable(ObjectLayers.Scene)
+    Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+    Engine.camera.layers.enable(ObjectLayers.NodeHelper)
     Engine.camera.layers.enable(ObjectLayers.Gizmos)
 
     this.grid = new EditorInfiniteGridHelper()

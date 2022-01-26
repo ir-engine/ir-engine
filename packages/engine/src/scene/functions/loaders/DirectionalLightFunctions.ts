@@ -49,7 +49,7 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
     const cameraHelper = new CameraHelper(light.shadow.camera)
     cameraHelper.visible = false
     light.userData.cameraHelper = cameraHelper
-    setObjectLayers(cameraHelper, ObjectLayers.Scene)
+    setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
   }
 
   if (Engine.isCSMEnabled) {

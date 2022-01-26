@@ -61,7 +61,7 @@ export const deserializePortal: ComponentDeserializeFunction = (
     spawnDirection.rotateX(Math.PI / 2)
     spawnHelperMesh.add(spawnDirection)
 
-    setObjectLayers(spawnHelperMesh, ObjectLayers.Scene)
+    setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
   }
 

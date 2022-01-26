@@ -35,7 +35,7 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     camera.userData.helper = new CameraHelper(camera)
     camera.userData.helper.name = SCENE_PREVIEW_CAMERA_HELPER
-    setObjectLayers(camera.userData.helper, ObjectLayers.Scene)
+    setObjectLayers(camera.userData.helper, ObjectLayers.NodeHelper)
 
     addComponent(entity, Object3DComponent, { value: camera })
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)

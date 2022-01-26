@@ -87,7 +87,7 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   obj3d.userData.gizmo.userData.disableOutline = true
   obj3d.add(obj3d.userData.gizmo)
 
-  setObjectLayers(obj3d, ObjectLayers.Scene)
+  setObjectLayers(obj3d, ObjectLayers.NodeHelper)
   updateCubemapBake(entity)
   updateCubemapBakeTexture(bakeComponent.options)
 }

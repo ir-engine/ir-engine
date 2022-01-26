@@ -56,8 +56,8 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
     ring.rotateX(Math.PI / 2)
     cone.position.setY(-0.25)
 
-    setObjectLayers(ring, ObjectLayers.Scene)
-    setObjectLayers(cone, ObjectLayers.Scene)
+    setObjectLayers(ring, ObjectLayers.NodeHelper)
+    setObjectLayers(cone, ObjectLayers.NodeHelper)
   }
 
   addComponent(entity, Object3DComponent, { value: light })
