@@ -21,6 +21,8 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import React, { useEffect } from 'react'
 import { retriveLocationByName } from './LocationLoadHelper'
+import GameServerWarnings from './GameServerWarnings'
+import { usePartyState } from '../../social/services/PartyService'
 
 interface Props {
   locationName: string
@@ -154,7 +156,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     channelConnectionState.instanceServerConnecting.value
   ])
 
-  return <></>
+  return <GameServerWarnings locationName={props.locationName} />
 }
 
 export default NetworkInstanceProvisioning

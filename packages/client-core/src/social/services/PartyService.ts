@@ -11,7 +11,7 @@ import { accessInstanceConnectionState } from '../../common/services/InstanceCon
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State
