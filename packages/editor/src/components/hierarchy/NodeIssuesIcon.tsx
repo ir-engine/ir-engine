@@ -44,6 +44,9 @@ const IssuesTooltipContainer = (styled as any).div`
  * @param {styled component} styled
  */
 const IssueIcon = (styled as any)(ErrorOutlineIcon)`
+  width: 16px;
+  height: auto;
+  font-size: inherit;
   color: ${(props) => props.color};
 `
 
@@ -100,7 +103,7 @@ export function NodeIssuesIcon({ node }) {
 
   return (
     <Tooltip renderContent={renderInfo}>
-      <IssueIcon size={14} color={severityToColor[maxSeverity]} />
+      <IssueIcon color={severityToColor[maxSeverity]} />
     </Tooltip>
   )
 }

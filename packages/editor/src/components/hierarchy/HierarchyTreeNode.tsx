@@ -1,9 +1,5 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
-import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -21,6 +17,8 @@ import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * getNodeElId function provides id for node.
@@ -59,18 +57,10 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
+  const engineState = useEngineState()
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  let audioComponent, imageComponent, videoComponent, modelComponent
-  if (nameComponent.name.toLocaleLowerCase() == 'audio')
-    audioComponent = getComponent(node.entityNode.entity, AudioComponent)
-  if (nameComponent.name.toLocaleLowerCase() == 'video')
-    videoComponent = getComponent(node.entityNode.entity, VideoComponent)
-  if (nameComponent.name.toLocaleLowerCase() == 'model')
-    modelComponent = getComponent(node.entityNode.entity, ModelComponent)
-  if (nameComponent.name.toLocaleLowerCase() == 'image')
-    imageComponent = getComponent(node.entityNode.entity, ImageComponent)
-  if (!nameComponent) return null
+  const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -263,17 +253,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 )}
               </div>
-              {audioComponent?.error && audioComponent?.error.length > 0 && (
-                <NodeIssuesIcon node={[{ severity: 'error', message: audioComponent?.error }]} />
-              )}
-              {imageComponent?.error && imageComponent?.error.length > 0 && (
-                <NodeIssuesIcon node={[{ severity: 'error', message: imageComponent?.error }]} />
-              )}
-              {videoComponent?.error && videoComponent?.error.length > 0 && (
-                <NodeIssuesIcon node={[{ severity: 'error', message: videoComponent?.error }]} />
-              )}
-              {modelComponent?.error && modelComponent?.error.length > 0 && (
-                <NodeIssuesIcon node={[{ severity: 'error', message: modelComponent?.error }]} />
+              {engineState.errorEntities[node.entityNode.entity].get() && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
               )}
             </div>
           </div>

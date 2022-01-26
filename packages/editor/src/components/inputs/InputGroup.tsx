@@ -39,7 +39,9 @@ export const InputGroupContainer = (styled as any).div`
  * @type {Styled component}
  */
 export const InputGroupContent = (styled as any).div`
-  
+  display: flex;
+  justify-content: space-between;
+
   & > label {
     display: block;
     width: 25%;
@@ -81,9 +83,9 @@ export const InputGroupVerticalContent = (styled as any).div`
  *  @type {styled component}
  */
 export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
-  width: 20px;
+  width: 18px;
   display: flex;
-  padding-left: 8px;
+  margin-left: 5px;
   color: ${(props) => props.theme.blue};
   cursor: pointer;
   align-self: center;

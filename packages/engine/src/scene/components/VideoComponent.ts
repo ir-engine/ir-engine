@@ -5,7 +5,6 @@ export type VideoComponentType = {
   videoSource: string
   elementId: string
   hls?: Hls
-  error?: string
 }
 
 export const VideoComponent = createMappedComponent<VideoComponentType>('VideoComponent')

@@ -44,13 +44,11 @@ export const deserializeImage: ComponentDeserializeFunction = (
 
   if (!obj3d) {
     obj3d = new Object3D()
-    const image = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-
-    obj3d.add(image)
-    obj3d.userData.mesh = image
-
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
+
+  obj3d.userData.mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+  obj3d.add(obj3d.userData.mesh)
 
   const props = parseImageProperties(json.props)
   addComponent(entity, ImageComponent, props)
