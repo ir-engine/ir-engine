@@ -26,24 +26,22 @@ import matches from 'ts-matches'
 import { NetworkWorldAction } from '../../src/networking/functions/NetworkWorldAction'
 
 describe('Equippables Integration Tests', () => {
-
   it('Can equip and unequip', async () => {
-
     Network.instance = new TestNetwork()
     let world = createWorld()
     Engine.currentWorld = world
     Engine.hasJoinedWorld = true
     world.userIdToUserIndex = new Map([[world.hostId, world.hostId as unknown as number]])
     await Engine.currentWorld.physics.createScene({ verbose: true })
-    
+
     Engine.userId = 'client' as UserId
-    
+
     const equippableEntity = createEntity()
 
     const transform = addComponent(equippableEntity, TransformComponent, {
       position: new Vector3(),
       rotation: new Quaternion(),
-      scale: new Vector3(),
+      scale: new Vector3()
     })
 
     // physics mock stuff
@@ -73,7 +71,7 @@ describe('Equippables Integration Tests', () => {
       ownerIndex: world.userIdToUserIndex.get(world.hostId)!,
       networkId: 0 as NetworkId,
       prefab: '',
-      parameters: {},
+      parameters: {}
     })
 
     // Equipper
@@ -81,7 +79,7 @@ describe('Equippables Integration Tests', () => {
     addComponent(equipperEntity, TransformComponent, {
       position: new Vector3(2, 0, 0),
       rotation: new Quaternion(),
-      scale: new Vector3(),
+      scale: new Vector3()
     })
 
     equipEntity(equipperEntity, equippableEntity, undefined)
@@ -115,5 +113,4 @@ describe('Equippables Integration Tests', () => {
     collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.DYNAMIC)
   })
-
 })

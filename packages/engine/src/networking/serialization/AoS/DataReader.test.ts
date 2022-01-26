@@ -13,15 +13,35 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { NetworkObjectComponent } from '../../components/NetworkObjectComponent'
 import { Vector3SoA, Vector4SoA } from '../Utils'
 import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor, writeProp } from '../ViewCursor'
-import { checkBitflag, createDataReader, readComponent, readComponentProp, readEntities, readEntity, readPosition, readRotation, readTransform, readVector3, readVector4 } from "./DataReader"
-import { createDataWriter, writeEntities, writeEntity, writePosition, writeRotation, writeTransform, writeVector3, writeVector4 } from './DataWriter'
+import {
+  checkBitflag,
+  createDataReader,
+  readComponent,
+  readComponentProp,
+  readEntities,
+  readEntity,
+  readPosition,
+  readRotation,
+  readTransform,
+  readVector3,
+  readVector4
+} from './DataReader'
+import {
+  createDataWriter,
+  writeEntities,
+  writeEntity,
+  writePosition,
+  writeRotation,
+  writeTransform,
+  writeVector3,
+  writeVector4
+} from './DataWriter'
 
 describe('AoS DataReader', () => {
-
   before(() => {
     Engine.currentWorld = createWorld()
   })
-  
+
   it('should checkBitflag', () => {
     const A = 2 ** 0
     const B = 2 ** 1
@@ -252,11 +272,11 @@ describe('AoS DataReader', () => {
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     const transform = addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-      scale: new Vector3(1,1,1)
+      position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+      scale: new Vector3(1, 1, 1)
     })
-    
+
     writeTransform(view, entity)
 
     transform.position.x = 0
@@ -300,7 +320,6 @@ describe('AoS DataReader', () => {
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
     strictEqual(TransformComponent.rotation.w[entity], w)
-
   })
 
   it('should readEntity', () => {
@@ -319,9 +338,9 @@ describe('AoS DataReader', () => {
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
     const transform = addComponent(entity, TransformComponent, {
-      position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-      scale: new Vector3(1,1,1)
+      position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+      scale: new Vector3(1, 1, 1)
     })
 
     addComponent(entity, NetworkObjectComponent, {
@@ -375,7 +394,6 @@ describe('AoS DataReader', () => {
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
     strictEqual(TransformComponent.rotation.w[entity], w)
-
   })
 
   it('should readEntities', () => {
@@ -386,18 +404,20 @@ describe('AoS DataReader', () => {
     Engine.currentWorld.userIdToUserIndex = new Map()
 
     const n = 50
-    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map(() => createEntity())
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-        scale: new Vector3(1,1,1)
+        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -440,9 +460,7 @@ describe('AoS DataReader', () => {
       strictEqual(TransformComponent.rotation.y[entity], y)
       strictEqual(TransformComponent.rotation.z[entity], z)
       strictEqual(TransformComponent.rotation.w[entity], w)
-
     }
-
   })
 
   it('should createDataReader', () => {
@@ -453,18 +471,20 @@ describe('AoS DataReader', () => {
     Engine.currentWorld.userIdToUserIndex = new Map()
 
     const n = 10
-    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map(() => createEntity())
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-        scale: new Vector3(1,1,1)
+        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -488,7 +508,6 @@ describe('AoS DataReader', () => {
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
-
       // read userIndex
       strictEqual(readUint32(readView), entities[i])
 
@@ -508,7 +527,7 @@ describe('AoS DataReader', () => {
       strictEqual(readFloat32(readView), x)
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
-    
+
       // read writeRotation changeMask
       strictEqual(readUint8(readView), 0b1111)
 
@@ -517,7 +536,6 @@ describe('AoS DataReader', () => {
       strictEqual(readFloat32(readView), y)
       strictEqual(readFloat32(readView), z)
       strictEqual(readFloat32(readView), w)
-
     }
 
     for (let i = 0; i < entities.length; i++) {
@@ -546,13 +564,10 @@ describe('AoS DataReader', () => {
       strictEqual(TransformComponent.rotation.y[entity], y)
       strictEqual(TransformComponent.rotation.z[entity], z)
       strictEqual(TransformComponent.rotation.w[entity], w)
-
     }
-
   })
 
   it('should createDataReader and return empty packet if no changes were made', () => {
-
     const write = createDataWriter()
 
     Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>()
@@ -560,18 +575,20 @@ describe('AoS DataReader', () => {
     Engine.currentWorld.userIdToUserIndex = new Map()
 
     const n = 10
-    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map(() => createEntity())
 
-    const [x, y, z, w] = [0,0,0,0]
+    const [x, y, z, w] = [0, 0, 0, 0]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-        scale: new Vector3(1,1,1)
+        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -594,11 +611,9 @@ describe('AoS DataReader', () => {
     assert.throws(() => {
       const tick = readUint32(readView)
     })
-
   })
 
   it('should createDataReader and detect changes', () => {
-
     const write = createDataWriter()
 
     Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>()
@@ -606,18 +621,20 @@ describe('AoS DataReader', () => {
     Engine.currentWorld.userIdToUserIndex = new Map()
 
     const n = 10
-    const entities: Entity[] = Array(n).fill(0).map(() => createEntity())
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map(() => createEntity())
 
-    const [x, y, z, w] = [0,0,0,0]
+    const [x, y, z, w] = [0, 0, 0, 0]
 
-    entities.forEach(entity => {
+    entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       const userId = entity as unknown as UserId
       const userIndex = entity
       addComponent(entity, TransformComponent, {
-        position: createVector3Proxy(TransformComponent.position, entity).set(x,y,z),
-        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x,y,z,w),
-        scale: new Vector3(1,1,1)
+        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        scale: new Vector3(1, 1, 1)
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -659,7 +676,6 @@ describe('AoS DataReader', () => {
     strictEqual(count, 1) // only one entity changed
 
     for (let i = 0; i < count; i++) {
-
       // read userIndex
       strictEqual(readUint32(readView), entities[i])
 
@@ -679,13 +695,11 @@ describe('AoS DataReader', () => {
       strictEqual(readFloat32(readView), 1)
       strictEqual(readFloat32(readView), 1)
       strictEqual(readFloat32(readView), 1)
-    
+
       // ensure rotation wasn't written and we reached the end of the packet
       assert.throws(() => {
         readUint8(readView)
       })
     }
-
   })
-
 })
