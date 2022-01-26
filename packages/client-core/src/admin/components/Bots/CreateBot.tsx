@@ -22,6 +22,7 @@ import AddCommand from '../../common/AddCommand'
 import InputText from '../../common/InputText'
 import InputSelect from '../../common/InputSelect'
 import _ from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 
@@ -33,10 +34,11 @@ interface Menu {
 
 const CreateBot = (props: Props) => {
   const [command, setCommand] = useState({
+    id: '',
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = useState<{ name: string; description: string }[]>([])
+  const [commandData, setCommandData] = useState<{ id: string; name: string; description: string }[]>([])
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
 
@@ -69,13 +71,13 @@ const CreateBot = (props: Props) => {
 
   const handleChangeCommand = (e) => {
     const { name, value } = e.target
-    setCommand({ ...command, [name]: value })
+    setCommand({ ...command, id: uuidv4(), [name]: value })
   }
 
   const addCommandData = (command) => {
     if (command.name) {
       setCommandData([...commandData, command])
-      setCommand({ name: '', description: '' })
+      setCommand({ id: '', name: '', description: '' })
     } else {
       setError('Fill in command is required!')
       setOpen(true)
@@ -142,6 +144,11 @@ const CreateBot = (props: Props) => {
 
   const fetchAdminLocations = () => {
     LocationService.fetchAdminLocations()
+  }
+
+  const removeCommand = (id) => {
+    const data = commandData.filter((el) => el.id !== id)
+    setCommandData(data)
   }
 
   const handleInputChange = (e) => {
@@ -245,6 +252,7 @@ const CreateBot = (props: Props) => {
             handleChangeCommand={handleChangeCommand}
             addCommandData={addCommandData}
             commandData={commandData}
+            removeCommand={removeCommand}
           />
         </form>
       </CardContent>

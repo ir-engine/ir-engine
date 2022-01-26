@@ -16,9 +16,10 @@ interface Props {
   handleChangeCommand: any
   addCommandData: (command: any) => void
   commandData: any
+  removeCommand: (id: any) => void
 }
 
-const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData }: Props) => {
+const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData, removeCommand }: Props) => {
   const classes = useStyles()
   return (
     <div>
@@ -61,7 +62,7 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData 
               <ListItem>
                 <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="delete" size="large">
+                  <IconButton edge="end" aria-label="delete" size="large" onClick={() => removeCommand(el.id)}>
                     <DeleteIcon style={{ color: '#fff' }} />
                   </IconButton>
                 </ListItemSecondaryAction>

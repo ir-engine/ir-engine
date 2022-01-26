@@ -96,6 +96,24 @@ const DisplayBots = (props: Props) => {
     setPopConfirmOpen(false)
   }
 
+  const botRefresh = async () => {
+    if (botCommand.updateNeeded.value) await BotService.fetchBotAsAdmin()
+  }
+
+  const removeCommand = async (id) => {
+    await BotCommandService.removeBotsCommand(id)
+    botRefresh()
+  }
+
+  const addCommand = (id) => {
+    if (command.name) {
+      submitCommandBot(id)
+      botRefresh()
+    } else {
+      setOpen(true)
+    }
+  }
+
   return (
     <div className={classes.botRootRight}>
       {botAdminData.value.map((bot, index) => {
@@ -163,14 +181,9 @@ const DisplayBots = (props: Props) => {
                 <AddCommand
                   command={command}
                   handleChangeCommand={handleChangeCommand}
-                  addCommandData={() => {
-                    if (command.name) {
-                      submitCommandBot(bot.id)
-                    } else {
-                      setOpen(true)
-                    }
-                  }}
+                  addCommandData={() => addCommand(bot.id)}
                   commandData={bot.botCommands}
+                  removeCommand={removeCommand}
                 />
               </div>
             </AccordionDetails>
