@@ -38,6 +38,10 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
       const jobName = `${config.server.releaseName}-xrengine-testbot`
       const oldJobResult = await app.k8BatchClient.readNamespacedJob(jobName, 'default')
 
+      if (!oldJobResult) {
+        return { status: false, message: `Failed to spawn bot. (JobNotFound)` }
+      }
+
       // Removed unused properties
       delete oldJobResult.body.metadata.managedFields
       delete oldJobResult.body.metadata.resourceVersion
