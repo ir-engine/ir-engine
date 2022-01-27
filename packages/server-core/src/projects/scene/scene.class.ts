@@ -46,7 +46,7 @@ interface UpdateParams {
   sceneName: string
   sceneData?: SceneJson
   thumbnailBuffer?: Buffer
-  rename: boolean
+  rename?: boolean
   oldSceneName?: string
 }
 
