@@ -1,6 +1,5 @@
 import { AnimationClip, SkinnedMesh } from 'three'
 import { getLoader } from '../assets/functions/LoadGLTF'
-import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { getDefaultSkeleton } from './functions/avatarFunctions'
 
@@ -19,9 +18,6 @@ export class AnimationManager {
     return new Promise((resolve) => {
       if (this._animations) {
         resolve(this._animations)
-      }
-      if (!isClient) {
-        resolve([])
       }
       getLoader().load(
         Engine.publicPath + '/default_assets/Animations.glb',
