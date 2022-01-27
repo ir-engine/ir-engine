@@ -303,7 +303,7 @@ export const moveXRAvatar = (
   const camPos = camera.position
   getAvatarCameraPosition(entity, avatarCameraOffset, tempVec1)
 
-  if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.25) {
+  if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.1) {
     tempVec3.subVectors(Engine.camera.position, Engine.camera.parent!.position)
 
     alignXRCameraPositionWithAvatar(entity, camera)

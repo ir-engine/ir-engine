@@ -9,13 +9,12 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { World } from '../../ecs/classes/World'
-import { lerp, smoothDamp } from '../../common/functions/MathLerpFunctions'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
-import { avatarCameraOffset, getAvatarCameraPosition } from '../../avatar/functions/moveAvatar'
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -293,7 +292,7 @@ export default async function CameraSystem(world: World) {
 
     for (const entity of followCameraQuery(world)) {
       updateFollowCamera(entity, delta)
-      updateAvatarHeadOpacity(entity)
+      updateAvatarOpacity(entity)
     }
 
     for (const entity of targetCameraRotationQuery(world)) {

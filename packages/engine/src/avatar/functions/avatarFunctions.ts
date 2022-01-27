@@ -38,7 +38,6 @@ import { insertAfterString, insertBeforeString } from '../../common/functions/st
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const vec3 = new Vector3()
