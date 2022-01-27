@@ -6,6 +6,7 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
+RUN apt-get -y install python3-pip git
 RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
