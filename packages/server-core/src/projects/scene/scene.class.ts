@@ -151,19 +151,19 @@ export class Scene implements ServiceMethods<any> {
         appRootPath.path,
         `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
       )
-      const oldSceneThumbNailPath = path.resolve(
+      const oldSceneThumbnailPath = path.resolve(
         appRootPath.path,
         `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
       )
       if (fs.existsSync(oldSceneJsonPath)) {
         fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
       }
-      if (fs.existsSync(oldSceneThumbNailPath)) {
-        const newSceneThumbNailPath = path.resolve(
+      if (fs.existsSync(oldSceneThumbnailPath)) {
+        const newSceneThumbnailPath = path.resolve(
           appRootPath.path,
           `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
         )
-        fs.renameSync(oldSceneThumbNailPath, newSceneThumbNailPath)
+        fs.renameSync(oldSceneThumbnailPath, newSceneThumbnailPath)
       }
       return
     }
@@ -195,8 +195,6 @@ export class Scene implements ServiceMethods<any> {
   // @ts-ignore
   async remove({ projectName, sceneName }, params: Params): Promise<any> {
     const name = cleanString(sceneName)
-
-    if (projectName === 'default-project') return
 
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
