@@ -1,61 +1,54 @@
-import React from 'react'
-import InputBase from '@mui/material/InputBase'
+import React, { useEffect, useState } from 'react'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import DeleteIcon from '@mui/icons-material/Delete'
-import List from '@mui/material/List'
-
-import ListItem from '@mui/material/ListItem'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
-import ListItemText from '@mui/material/ListItemText'
-import { useStylesForBots as useStyles, useStyle } from './styles'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
 import { Autorenew, Face, Save } from '@mui/icons-material'
-import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
-
+import { useStyles } from '../../styles/ui'
 import { InstanceService } from '../../services/InstanceService'
 import { useInstanceState } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import { BotService } from '../../services/BotsService'
 import { useLocationState } from '../../services/LocationService'
 import { validateForm } from './validation'
-
-import { Location } from '@xrengine/common/src/interfaces/Location'
-
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import AlertMessage from '../../common/AlertMessage'
+import AddCommand from '../../common/AddCommand'
+import InputText from '../../common/InputText'
+import InputSelect from '../../common/InputSelect'
+import _ from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
+import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 
 interface Props {}
-
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
+interface Menu {
+  value: string
+  label: string
 }
 
 const CreateBot = (props: Props) => {
-  const [command, setCommand] = React.useState({
+  const [command, setCommand] = useState({
+    id: '',
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = React.useState<{ name: string; description: string }[]>([])
-  const [open, setOpen] = React.useState(false)
-  const [error, setError] = React.useState('')
+  const [commandData, setCommandData] = useState<{ id: string; name: string; description: string }[]>([])
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
 
-  const [formErrors, setFormErrors] = React.useState({
+  const [formErrors, setFormErrors] = useState({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = React.useState<Instance[]>([])
-  const [state, setState] = React.useState({
+  const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
+  const [state, setState] = useState({
     name: '',
     description: '',
     instance: '',
@@ -64,7 +57,6 @@ const CreateBot = (props: Props) => {
   const adminInstanceState = useInstanceState()
   const dispatch = useDispatch()
   const classes = useStyles()
-  const classx = useStyle()
   const authState = useAuthState()
   const user = authState.user
   const adminInstances = adminInstanceState
@@ -72,16 +64,33 @@ const CreateBot = (props: Props) => {
   const adminLocationState = useLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
-  React.useEffect(() => {
-    if (user.id.value && adminInstances.updateNeeded.value) {
-      InstanceService.fetchAdminInstances()
-    }
-    if (user?.id.value != null && adminLocation.updateNeeded.value === true) {
-      LocationService.fetchAdminLocations()
-    }
-  }, [user.id.value, adminInstanceState.updateNeeded.value])
 
-  const handleClose = (event, reason) => {
+  //Call custom hooks
+  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+  useFetchAdminLocations(user, adminLocationState, LocationService)
+
+  const handleChangeCommand = (e) => {
+    const { name, value } = e.target
+    setCommand({ ...command, id: uuidv4(), [name]: value })
+  }
+
+  const addCommandData = (command) => {
+    if (command.name) {
+      const found = commandData.find((el) => el.name === command.name)
+      if (found) {
+        setError('Command should be unique')
+        setOpen(true)
+      } else {
+        setCommandData([...commandData, command])
+        setCommand({ id: '', name: '', description: '' })
+      }
+    } else {
+      setError('Fill in command is required!')
+      setOpen(true)
+    }
+  }
+
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -93,18 +102,15 @@ const CreateBot = (props: Props) => {
     data.push(element)
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     const instanceFilter = data.filter((el) => el.locationId === state.location)
     if (instanceFilter.length > 0) {
       setState({ ...state, instance: '' })
       setCurrentIntance(instanceFilter)
+    } else {
+      setCurrentIntance([])
     }
   }, [state.location, adminInstanceState.instances.value.length])
-
-  const temp: Location[] = []
-  locationData.value.forEach((el) => {
-    temp.push(el)
-  })
 
   const handleSubmit = () => {
     const data = {
@@ -146,31 +152,40 @@ const CreateBot = (props: Props) => {
     LocationService.fetchAdminLocations()
   }
 
+  const removeCommand = (id) => {
+    const data = commandData.filter((el) => el.id !== id)
+    setCommandData(data)
+  }
+
   const handleInputChange = (e) => {
     const names = e.target.name
     const value = e.target.value
     let temp = formErrors
-    switch (names) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required!' : ''
-        break
-      case 'location':
-        temp.location = value.length < 2 ? 'Location is required!' : ''
-        break
-      default:
-        break
-    }
+    temp[names] = value.length < 2 ? `${_.upperFirst(names)} is required` : ''
     setFormErrors(temp)
     setState({ ...state, [names]: value })
   }
 
+  const locationMenu: Menu[] = []
+  locationData.value.forEach((el) => {
+    locationMenu.push({
+      value: el.id,
+      label: el.name
+    })
+  })
+
+  const instanceMenu: Menu[] = []
+  currentInstance.forEach((el) => {
+    instanceMenu.push({
+      value: el.id,
+      label: el.ipAddress
+    })
+  })
+
   return (
-    <Card className={classes.rootLeft}>
-      <Paper className={classes.header} style={{ display: 'flex' }}>
-        <Typography className={classes.title}>
+    <Card className={classes.botRootLeft}>
+      <Paper className={classes.botHeader} style={{ display: 'flex' }}>
+        <Typography className={classes.botTitle}>
           <Face />
           <div className={classes.smFont}>Create new bot</div>
         </Typography>
@@ -184,63 +199,30 @@ const CreateBot = (props: Props) => {
           Add more bots in the system.
         </Typography>
         <form style={{ marginTop: '40px' }}>
-          <label>Name</label>
-          <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
-            <InputBase
-              name="name"
-              className={classes.input}
-              placeholder="Enter name"
-              style={{ color: '#fff' }}
-              value={state.name}
-              onChange={handleInputChange}
-            />
-          </Paper>
+          <InputText
+            name="name"
+            handleInputChange={handleInputChange}
+            value={state.name}
+            formErrors={formErrors.name}
+          />
 
-          <label>Description</label>
-          <Paper
-            component="div"
-            className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
-          >
-            <InputBase
-              className={classes.input}
-              name="description"
-              placeholder="Enter description"
-              style={{ color: '#fff' }}
-              value={state.description}
-              onChange={handleInputChange}
-            />
-          </Paper>
+          <InputText
+            name="description"
+            handleInputChange={handleInputChange}
+            value={state.description}
+            formErrors={formErrors.description}
+          />
 
           <label>Location</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper
-                component="div"
-                className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.location}
-                    fullWidth
-                    onChange={handleInputChange}
-                    name="location"
-                    displayEmpty
-                    className={classes.select}
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select location</em>
-                    </MenuItem>
-                    {temp.map((el) => (
-                      <MenuItem value={el.id} key={el.id}>
-                        {el.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                formErrors={formErrors.location}
+                value={state.location}
+                handleInputChange={handleInputChange}
+                name="location"
+                menu={locationMenu}
+              />
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
@@ -254,30 +236,13 @@ const CreateBot = (props: Props) => {
           <label>Instance</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper component="div" className={classes.createInput}>
-                <FormControl fullWidth disabled={currentInstance.length > 0 ? false : true}>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.instance}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={classes.select}
-                    name="instance"
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Select instance</em>
-                    </MenuItem>
-                    {currentInstance.map((el) => (
-                      <MenuItem value={el.id} key={el.id}>
-                        {el.ipAddress}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                formErrors={formErrors.location}
+                value={state.instance}
+                handleInputChange={handleInputChange}
+                name="instance"
+                menu={instanceMenu}
+              />
             </Grid>
             <Grid item xs={2} style={{ display: 'flex' }}>
               <div style={{ marginLeft: 'auto' }}>
@@ -288,77 +253,16 @@ const CreateBot = (props: Props) => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <label>Command</label>
-              <Paper component="div" className={classes.createInput}>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Enter command"
-                  style={{ color: '#fff' }}
-                  value={command.name}
-                  onChange={(e) => setCommand({ ...command, name: e.target.value })}
-                />
-              </Paper>
-            </Grid>
-            <Grid item xs={8}>
-              <label>Description</label>
-              <Paper component="div" className={classes.createInput}>
-                <InputBase
-                  className={classes.input}
-                  placeholder="Enter description"
-                  style={{ color: '#fff' }}
-                  value={command.description}
-                  onChange={(e) => setCommand({ ...command, description: e.target.value })}
-                />
-              </Paper>
-            </Grid>
-          </Grid>
-
-          <Button
-            variant="contained"
-            style={{ color: '#fff', background: '#3a4149', marginBottom: '20px', width: '100%' }}
-            onClick={() => {
-              if (command.name) {
-                setCommandData([...commandData, command])
-                setCommand({ name: '', description: '' })
-              } else {
-                setError('Fill in command is required!')
-                setOpen(true)
-              }
-            }}
-          >
-            Add command
-          </Button>
-          <div className={commandData.length > 0 ? classes.alterContainer : classes.createAlterContainer}>
-            {commandData.map((el, i) => {
-              return (
-                <List dense={true} key={i}>
-                  <ListItem>
-                    <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
-                    <ListItemSecondaryAction>
-                      <IconButton edge="end" aria-label="delete" size="large">
-                        <DeleteIcon style={{ color: '#fff' }} />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                </List>
-              )
-            })}
-          </div>
+          <AddCommand
+            command={command}
+            handleChangeCommand={handleChangeCommand}
+            addCommandData={addCommandData}
+            commandData={commandData}
+            removeCommand={removeCommand}
+          />
         </form>
       </CardContent>
-      <Snackbar
-        open={open}
-        autoHideDuration={6000}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={handleClose} severity="warning">
-          {' '}
-          {error}{' '}
-        </Alert>
-      </Snackbar>
+      <AlertMessage open={open} handleClose={handleClose} severity="warning" message={error} />
     </Card>
   )
 }
