@@ -23,7 +23,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-describe('AoS DataWriter', () => {
+describe('DataWriter', () => {
   before(() => {
     Engine.currentWorld = createWorld()
   })

@@ -37,9 +37,12 @@ import {
   writeVector4
 } from './DataWriter'
 
-describe('AoS DataReader', () => {
+describe('DataReader', () => {
   before(() => {
     Engine.currentWorld = createWorld()
+  })
+  afterEach(() => {
+    Engine.userId = undefined as any
   })
 
   it('should checkBitflag', () => {
@@ -394,6 +397,78 @@ describe('AoS DataReader', () => {
     strictEqual(TransformComponent.rotation.y[entity], y)
     strictEqual(TransformComponent.rotation.z[entity], 0)
     strictEqual(TransformComponent.rotation.w[entity], w)
+  })
+
+  it('should not readEntity if reading back own data', () => {
+    const view = createViewCursor()
+    const entity = createEntity()
+    const networkId = 5678 as NetworkId
+    const userId = '0' as UserId
+    Engine.userId = userId
+    const userIndex = 0
+
+    NetworkObjectComponent.networkId[entity] = networkId
+
+    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>([[networkId, entity]])
+    Engine.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
+    Engine.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
+
+    const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
+
+    const transform = addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+      scale: new Vector3(1, 1, 1)
+    })
+
+    addComponent(entity, NetworkObjectComponent, {
+      networkId,
+      ownerId: userId,
+      ownerIndex: userIndex,
+      prefab: '',
+      parameters: {}
+    })
+
+    writeEntity(view, userIndex, networkId, entity)
+
+    transform.position.x = 1
+    transform.position.y = 2
+    transform.position.z = 3
+    transform.rotation.x = 4
+    transform.rotation.y = 5
+    transform.rotation.z = 6
+    transform.rotation.w = 7
+
+    view.cursor = 0
+
+    readEntity(view, Engine.currentWorld)
+
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
+
+    transform.position.x = 8
+    transform.rotation.z = 9
+
+    view.cursor = 0
+
+    writeEntity(view, userIndex, networkId, entity)
+
+    view.cursor = 0
+
+    readEntity(view, Engine.currentWorld)
+
+    strictEqual(TransformComponent.position.x[entity], 0)
+    strictEqual(TransformComponent.position.y[entity], 0)
+    strictEqual(TransformComponent.position.z[entity], 0)
+    strictEqual(TransformComponent.rotation.x[entity], 0)
+    strictEqual(TransformComponent.rotation.y[entity], 0)
+    strictEqual(TransformComponent.rotation.z[entity], 0)
+    strictEqual(TransformComponent.rotation.w[entity], 0)
   })
 
   it('should readEntities', () => {
