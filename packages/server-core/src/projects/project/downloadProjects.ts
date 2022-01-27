@@ -19,14 +19,17 @@ export const download = async (projectName) => {
       deleteFolderRecursive(localProjectDirectory)
     }
 
-    for (const filePath of files) {
-      console.log(`[ProjectLoader]: - downloading "${filePath}"`)
-      const fileResult = await storageProvider.getObject(filePath)
-      if (fileResult.Body.length === 0) {
-        console.log(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
-      }
-      writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
-    }
+    await Promise.all(
+      files.map(async (filePath) => {
+        console.log(`[ProjectLoader]: - downloading "${filePath}"`)
+        const fileResult = await storageProvider.getObject(filePath)
+
+        if (fileResult.Body.length === 0) {
+          console.log(`[ProjectLoader]: WARNING file "${filePath}" is empty`)
+        }
+        writeFileSyncRecursive(path.join(appRootPath.path, 'packages/projects', filePath), fileResult.Body)
+      })
+    )
 
     console.log('[ProjectLoader]: Successfully downloaded and mounted project', projectName)
   } catch (e) {

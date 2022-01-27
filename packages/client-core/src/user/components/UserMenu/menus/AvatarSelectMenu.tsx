@@ -255,10 +255,12 @@ export const AvatarSelectMenu = (props: Props) => {
           <Help />
           <div className={styles.legend}>
             <div>
-              <IconLeftClick /> - <span>{t('user:avatar.rotate')}</span>
+              <IconLeftClick />
+              <br />- <span>{t('user:avatar.rotate')}</span>
             </div>
             <div>
-              <span className={styles.shiftKey}>Shift</span> + <IconLeftClick /> - <span>{t('user:avatar.pan')}</span>
+              <span className={styles.shiftKey}>Shift</span> + <IconLeftClick />
+              <br />- <span>{t('user:avatar.pan')}</span>
             </div>
           </div>
         </div>

@@ -12,6 +12,7 @@
     "savingMsg": "Saving project...",
     "savingError": "Error Saving Project",
     "savingErrorMsg": "There was an error when saving the project.",
+    "savingSceneErrorMsg": "Scene is not loaded properly. Try reloading the scene.",
     "duplicating": "Duplicating Project",
     "duplicatingMsg": "Duplicating project...",
     "exporting": "Exporting Project",

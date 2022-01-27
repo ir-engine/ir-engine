@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'Instance\' model', () => {
+describe("CRUD operation on 'Instance' model", () => {
   const model = (app.service('instance') as any).Model
   const locationModel = (app.service('location') as any).Model
   let locationId: any
@@ -10,12 +10,12 @@ describe('CRUD operation on \'Instance\' model', () => {
       where: {
         slugifiedName: 'test-location'
       }
-    });
+    })
     const location = await locationModel.create({
       name: 'test location',
       slugifiedName: 'test-location',
       maxUsersPerInstance: 10
-    });
+    })
     locationId = location.id
   })
 
@@ -34,10 +34,7 @@ describe('CRUD operation on \'Instance\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { currentUsers: 20 },
-      { where: { locationId } }
-    )
+    model.update({ currentUsers: 20 }, { where: { locationId } })
   })
 
   it('Delete', () => {

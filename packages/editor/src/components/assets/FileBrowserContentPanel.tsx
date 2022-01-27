@@ -10,7 +10,7 @@ import { ToolButton } from '../toolbar/ToolButton'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { Downgraded } from '@hookstate/core'
+import { Downgraded } from '@speigg/hookstate'
 import { FileDataType } from './FileDataType'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 

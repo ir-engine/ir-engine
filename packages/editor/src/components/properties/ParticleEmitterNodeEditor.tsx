@@ -30,6 +30,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const particleComponent = getComponent(entity, ParticleEmitterComponent)
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
+  if (!particleComponent) return <></>
   return (
     <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <NumericInputGroup

@@ -1,5 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Mesh, MeshStandardMaterial, sRGBEncoding, LinearFilter, VideoTexture } from 'three'
+import { Mesh, MeshStandardMaterial, sRGBEncoding, LinearFilter, VideoTexture, Object3D } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -42,9 +42,12 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   }
 
   const mediaComponent = getComponent(entity, MediaComponent)
+  let obj3d = getComponent(entity, Object3DComponent)?.value
 
-  console.debug
-  const obj3d = getComponent(entity, Object3DComponent).value
+  if (!obj3d) {
+    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+  }
+
   const video = obj3d.userData.mesh
   video.name = VIDEO_MESH_NAME
 

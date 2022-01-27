@@ -6,6 +6,7 @@ RUN apt update
 # Create app directory
 WORKDIR /app
 
+RUN apt-get -y install python3-pip git
 RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
@@ -16,6 +17,7 @@ COPY packages/projects/package.json ./packages/projects/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
