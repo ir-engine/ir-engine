@@ -88,9 +88,6 @@ export class World {
   /** All actions that have been dispatched */
   actionHistory = new Set<Action>()
 
-  outgoingNetworkState: WorldStateInterface
-  previousNetworkState: WorldStateInterface
-
   networkIdMap: Map<NetworkId, Entity>
   userIndexToUserId: Map<number, UserId>
   userIdToUserIndex: Map<UserId, number>
