@@ -38,32 +38,30 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
       const jobName = `${config.server.releaseName}-xrengine-testbot`
       const oldJobResult = await app.k8BatchClient.readNamespacedJob(jobName, 'default')
 
-      if (!oldJobResult) {
-        return { status: false, message: `Failed to spawn bot. (JobNotFound)` }
-      }
+      if (oldJobResult && oldJobResult.body) {
+        // Removed unused properties
+        delete oldJobResult.body.metadata.managedFields
+        delete oldJobResult.body.metadata.resourceVersion
+        delete oldJobResult.body.spec.selector
+        delete oldJobResult.body.spec.template.metadata.labels
 
-      // Removed unused properties
-      delete oldJobResult.body.metadata.managedFields
-      delete oldJobResult.body.metadata.resourceVersion
-      delete oldJobResult.body.spec.selector
-      delete oldJobResult.body.spec.template.metadata.labels
+        oldJobResult.body.spec.suspend = false
 
-      oldJobResult.body.spec.suspend = false
+        const deleteJobResult = await app.k8BatchClient.deleteNamespacedJob(
+          jobName,
+          'default',
+          undefined,
+          undefined,
+          0,
+          undefined,
+          'Background'
+        )
 
-      const deleteJobResult = await app.k8BatchClient.deleteNamespacedJob(
-        jobName,
-        'default',
-        undefined,
-        undefined,
-        0,
-        undefined,
-        'Background'
-      )
+        if (deleteJobResult.body.status === 'Success') {
+          await app.k8BatchClient.createNamespacedJob('default', oldJobResult.body)
 
-      if (deleteJobResult.body.status === 'Success') {
-        await app.k8BatchClient.createNamespacedJob('default', oldJobResult.body)
-
-        return { status: true, message: 'Bot spawned successfully' }
+          return { status: true, message: 'Bot spawned successfully' }
+        }
       }
     } catch (e) {
       console.log(e)
