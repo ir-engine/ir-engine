@@ -38,10 +38,7 @@ function avatarActionReceptor(action) {
       if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
       if (isClient) {
         const entity = world.getUserAvatarEntity($from)
-        // if(entity)
         loadAvatarForEntity(entity, avatarDetail)
-        // else
-        //   console.warn('avatarDetails receptor tried to set the avatar of a user that does not exist' + $from)
       }
     })
 
