@@ -219,12 +219,12 @@ const Projects = () => {
   }
 
   const handleCloseReuploadModel = () => {
-    setProject('')
+    setProject(null!)
     setPopupReuploadConfirmOpen(false)
   }
 
   const handleCloseRemoveModel = () => {
-    setProject('')
+    setProject(null!)
     setPopupRemoveConfirmOpen(false)
   }
 
