@@ -403,7 +403,7 @@ describe('DataReader', () => {
     const view = createViewCursor()
     const entity = createEntity()
     const networkId = 5678 as NetworkId
-    const userId = '0' as UserId
+    const userId = 'user Id' as UserId
     Engine.userId = userId
     const userIndex = 0
 
@@ -431,37 +431,16 @@ describe('DataReader', () => {
 
     writeEntity(view, userIndex, networkId, entity)
 
-    transform.position.x = 1
-    transform.position.y = 2
-    transform.position.z = 3
-    transform.rotation.x = 4
-    transform.rotation.y = 5
-    transform.rotation.z = 6
-    transform.rotation.w = 7
-
     view.cursor = 0
 
+    // reset data on transform component
+    transform.position.set(0, 0, 0)
+    transform.rotation.set(0, 0, 0, 0)
+
+    // read entity will populate data stored in 'view'
     readEntity(view, Engine.currentWorld)
 
-    strictEqual(TransformComponent.position.x[entity], 0)
-    strictEqual(TransformComponent.position.y[entity], 0)
-    strictEqual(TransformComponent.position.z[entity], 0)
-    strictEqual(TransformComponent.rotation.x[entity], 0)
-    strictEqual(TransformComponent.rotation.y[entity], 0)
-    strictEqual(TransformComponent.rotation.z[entity], 0)
-    strictEqual(TransformComponent.rotation.w[entity], 0)
-
-    transform.position.x = 8
-    transform.rotation.z = 9
-
-    view.cursor = 0
-
-    writeEntity(view, userIndex, networkId, entity)
-
-    view.cursor = 0
-
-    readEntity(view, Engine.currentWorld)
-
+    // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], 0)
     strictEqual(TransformComponent.position.z[entity], 0)
