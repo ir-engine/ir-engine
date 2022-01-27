@@ -10,7 +10,6 @@ import {
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -95,7 +94,7 @@ export const initializeHandModel = (controller: any, handedness: string, isGrip:
   let handMesh = gltf?.scene?.children[0]
 
   if (!handMesh) {
-    if (isClient) console.error(`Could not load ${fileName} mesh`)
+    console.error(`Could not load ${fileName} mesh`)
     return
   }
 
