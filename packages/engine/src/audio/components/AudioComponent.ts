@@ -12,7 +12,6 @@ export type AudioComponentType = {
   coneInnerAngle: number
   coneOuterAngle: number
   coneOuterGain: number
-  error?: string
 }
 
 export const AudioComponent = createMappedComponent<AudioComponentType>('AudioComponent')

@@ -8,7 +8,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
@@ -21,11 +21,10 @@ import { updateAutoStartTimeForMedia } from './MediaFunctions'
 import { MediaComponent } from '../../components/MediaComponent'
 import isHLS from '../isHLS'
 import Hls from 'hls.js'
-import { accessEngineState, EngineActions } from '../../../ecs/classes/EngineService'
+import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { ErrorComponent } from '../../components/ErrorComponent'
-import { dispatchLocal } from '../../../networking/functions/dispatchFrom'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
@@ -105,16 +104,8 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
       //   component.dash.on('ERROR', (e) => console.error('ERROR', e)
       // }
       else {
-        obj3d.userData.videoEl.addEventListener('error', () => {
-          const errorComponent = getComponent(entity, ErrorComponent) ?? addComponent(entity, ErrorComponent, {})
-          errorComponent.error = 'Error Loading video'
-          dispatchLocal(EngineActions.updateEntityError(entity))
-        })
-        obj3d.userData.videoEl.addEventListener('loadeddata', () => {
-          removeComponent(entity, ErrorComponent)
-          dispatchLocal(EngineActions.updateEntityError(entity, true))
-        })
-
+        obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
+        obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
         obj3d.userData.videoEl.src = url
       }
 
@@ -209,9 +200,7 @@ const setupHLS = (entity: Entity, url: string): Hls => {
           break
       }
 
-      const errorComponent = getComponent(entity, ErrorComponent) ?? addComponent(entity, ErrorComponent, {})
-      errorComponent.error = 'Error Loading video'
-      dispatchLocal(EngineActions.updateEntityError(entity))
+      addError(entity, 'error', 'Error Loading video')
     }
   })
 
@@ -219,8 +208,7 @@ const setupHLS = (entity: Entity, url: string): Hls => {
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
     hls.loadSource(url)
     hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
-      removeComponent(entity, ErrorComponent)
-      dispatchLocal(EngineActions.updateEntityError(entity, true))
+      removeError(entity, 'error')
     })
   })
 

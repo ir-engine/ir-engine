@@ -27,6 +27,7 @@ import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
@@ -100,17 +101,22 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.audioSource) {
     try {
-      const { url } = await resolveMedia(component.audioSource)
+      const { url, contentType } = await resolveMedia(component.audioSource)
+      if (!contentType) {
+        addError(entity, 'error', 'Error while loading audio')
+        return
+      }
+
       const audioBuffer = await loadAudio(url)
-      component.error = ''
       if (!audioBuffer) return
 
       if (obj3d.userData.audioEl.isPlaying) obj3d.userData.audioEl.stop()
 
       obj3d.userData.audioEl.setBuffer(audioBuffer)
       if (!audioTypeChanged) updateAutoStartTimeForMedia(entity)
+      removeError(entity, 'error')
     } catch (error) {
-      component.error = error.message
+      addError(entity, 'error', error.message)
       console.error(error)
     }
   }

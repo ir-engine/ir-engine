@@ -41,6 +41,11 @@ export const InputGroupContainer = (styled as any).div`
 export const InputGroupContent = (styled as any).div`
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+
+  &>*:first-child {
+    max-width: calc(100% - 23px)
+  }
 
   & > label {
     display: block;

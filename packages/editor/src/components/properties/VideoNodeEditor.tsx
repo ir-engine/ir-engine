@@ -36,7 +36,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={videoComponent.videoSource} onChange={updateProperty(VideoComponent, 'videoSource')} />
-        {hasError && <div style={{ color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
+        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.video.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
         <ControlledStringInput

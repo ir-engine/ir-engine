@@ -26,6 +26,7 @@ import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_IMAGE = 'image'
 export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
@@ -68,8 +69,10 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.imageSource)
       const texture = await loadTexture(url)
-      component.error = ''
-      if (!texture) return
+      if (!texture) {
+        addError(entity, 'error', 'Error Loading image')
+        return
+      }
 
       texture.encoding = sRGBEncoding
       texture.minFilter = LinearFilter
@@ -78,9 +81,9 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
       mesh.material.map = texture
 
       if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
+      removeError(entity, 'error')
     } catch (error) {
-      component.error = error.message
-      console.error(error)
+      addError(entity, 'error', 'Error Loading image')
     }
   }
 

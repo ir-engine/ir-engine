@@ -29,6 +29,7 @@ import {
 import { Vector3 } from 'three'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
 export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
@@ -76,19 +77,30 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
         (texture) => {
           texture.encoding = sRGBEncoding
           Engine.scene.background = texture
+          removeError(entity, 'error')
         },
         (_res) => {
           /* console.log(_res) */
         },
-        (erro) => console.warn('Skybox texture could not be found!', erro)
+        (error) => {
+          addError(entity, 'error', error.message)
+        }
       )
       break
 
     case SkyTypeEnum.equirectangular:
-      textureLoader.load(component.equirectangularPath, (texture) => {
-        texture.encoding = sRGBEncoding
-        Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
-      })
+      textureLoader.load(
+        component.equirectangularPath,
+        (texture) => {
+          texture.encoding = sRGBEncoding
+          Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
+          removeError(entity, 'error')
+        },
+        undefined,
+        (error) => {
+          addError(entity, 'error', error.message)
+        }
+      )
       break
 
     case SkyTypeEnum.skybox:

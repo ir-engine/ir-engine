@@ -13,6 +13,8 @@ import MediaSourceProperties from './MediaSourceProperties'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
@@ -23,10 +25,13 @@ import { VolumetricComponent } from '@xrengine/engine/src/scene/components/Volum
  */
 export const AudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
+  const entity = props.node.entity
 
-  const audioComponent = getComponent(props.node.entity, AudioComponent)
-  const isVideo = hasComponent(props.node.entity, VideoComponent)
-  const isVolumetric = hasComponent(props.node.entity, VolumetricComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
+  const isVideo = hasComponent(entity, VideoComponent)
+  const isVolumetric = hasComponent(entity, VolumetricComponent)
+  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
   return (
     <NodeEditor
@@ -37,14 +42,14 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
       {!isVideo && !isVolumetric && (
         <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
           <AudioInput value={audioComponent.audioSource} onChange={updateProperty(AudioComponent, 'audioSource')} />
-          {audioComponent.error && <div style={{ color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
+          {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
         </InputGroup>
       )}
       <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
       {!isVideo && !isVolumetric && (
         <>
           <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-          <PropertiesPanelButton onClick={() => toggleAudio(props.node.entity)}>
+          <PropertiesPanelButton onClick={() => toggleAudio(entity)}>
             {t('editor:properties.audio.lbl-test')}
           </PropertiesPanelButton>
         </>
