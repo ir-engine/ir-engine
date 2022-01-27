@@ -47,8 +47,13 @@ export async function getFreeGameserver(
     return checkForDuplicatedAssignments(app, stringIp, iteration, locationId, channelId)
   }
   console.log('Getting free gameserver')
-  const serverResult = await (app as any).k8AgonesClient.get('gameservers')
-  const readyServers = _.filter(serverResult.items, (server: any) => {
+  const serverResult = await (app as any).k8AgonesClient.listNamespacedCustomObject(
+    'agones.dev',
+    'v1',
+    'default',
+    'gameservers'
+  )
+  const readyServers = _.filter(serverResult.body!.items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
@@ -215,12 +220,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
    */
 
   async gsCleanup(instance): Promise<boolean> {
-    const gameservers = await (this.app as any).k8AgonesClient.get('gameservers')
-    const gsIds = gameservers.items.map((gs) =>
+    const gameservers = await (this.app as any).k8AgonesClient.listNamespacedCustomObject(
+      'agones.dev',
+      'v1',
+      'default',
+      'gameservers'
+    )
+    const gsIds = gameservers.body!.items.map((gs) =>
       gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null!
     )
     const [ip, port] = instance.ipAddress.split(':')
-    const match = gameservers?.items?.find((gs) => {
+    const match = gameservers?.body?.items?.find((gs) => {
       const inputPort = gs.status.ports?.find((port) => port.name === 'default')
       return gs.status.address === ip && inputPort?.port?.toString() === port
     })
