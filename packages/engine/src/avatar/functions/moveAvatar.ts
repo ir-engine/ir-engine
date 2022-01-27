@@ -28,7 +28,7 @@ export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): void => {
+export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
   const {
     fixedDelta,
     physics: { timeScale }
@@ -167,6 +167,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
   ]
+
+  return displacement
 }
 
 /**
@@ -250,8 +252,9 @@ export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: Perspect
 export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
   const avatarTransform = getComponent(entity, TransformComponent)
   const camParentRot = camera.parent!.quaternion
-  tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation)
-  quat.copy(camera.quaternion).invert()
+  tempVec1.set(0, 0, 1).applyQuaternion(Engine.camera.quaternion).setY(0).normalize()
+  quat.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).invert()
+  tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
@@ -298,20 +301,19 @@ export const moveXRAvatar = (
   world: World,
   entity: Entity,
   camera: PerspectiveCamera | OrthographicCamera,
-  lastCameraPos: Vector3
+  lastCameraPos: Vector3,
+  avatarVelocity: Vector3
 ): void => {
   const camPos = camera.position
   getAvatarCameraPosition(entity, avatarCameraOffset, tempVec1)
 
-  if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.1) {
-    tempVec3.subVectors(Engine.camera.position, Engine.camera.parent!.position)
+  if (tempVec1.subVectors(tempVec1, camPos).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
+    lastCameraPos.subVectors(Engine.camera.position, Engine.camera.parent!.position)
 
     alignXRCameraPositionWithAvatar(entity, camera)
 
     // Calculate new camera world position
-    tempVec3.add(Engine.camera.parent!.position)
-
-    lastCameraPos.copy(tempVec3)
+    lastCameraPos.add(Engine.camera.parent!.position)
     return
   }
 

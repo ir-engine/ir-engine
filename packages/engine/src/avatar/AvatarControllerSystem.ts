@@ -28,8 +28,9 @@ export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
-  const tempVec = new Vector3()
-  const lastCamPos = new Vector3()
+  const tempVec = new Vector3(),
+    lastCamPos = new Vector3(),
+    displacement = new Vector3()
   let localCameraInitialized = false
 
   return () => {
@@ -72,13 +73,14 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of localXRInputQuery(world)) {
       if (localCameraInitialized) {
-        moveXRAvatar(world, entity, Engine.camera, lastCamPos)
+        moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
         rotateXRAvatar(world, entity, Engine.camera)
       }
     }
 
     for (const entity of controllerQuery(world)) {
-      moveAvatar(world, entity, Engine.camera)
+      const displace = moveAvatar(world, entity, Engine.camera)
+      displacement.set(displace.x, displace.y, displace.z)
 
       const controller = getComponent(entity, AvatarControllerComponent)
       const collider = getComponent(entity, ColliderComponent)
@@ -103,6 +105,7 @@ export default async function AvatarControllerSystem(world: World) {
         continue
       }
     }
+
     return world
   }
 }
