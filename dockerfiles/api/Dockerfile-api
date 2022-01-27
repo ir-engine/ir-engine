@@ -16,6 +16,7 @@ COPY packages/projects/package.json ./packages/projects/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
