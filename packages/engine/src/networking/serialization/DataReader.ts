@@ -1,13 +1,23 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { TypedArray } from 'bitecs'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
-import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8, readUint64 } from './ViewCursor'
+import {
+  createViewCursor,
+  ViewCursor,
+  readProp,
+  readUint16,
+  readUint32,
+  readUint8,
+  readUint64,
+  scrollViewCursor
+} from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
@@ -120,10 +130,24 @@ export const readXRInputs = (v: ViewCursor, entity: Entity) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
+const Vector3ByteLength = Float32Array.BYTES_PER_ELEMENT * 3
+const Vector4ByteLength = Float32Array.BYTES_PER_ELEMENT * 3
+
+const EntityDataByteLength =
+  16 + // changemask
+  +(8 * Vector3ByteLength) + // position + velocity + 6 XR position
+  7 * Vector4ByteLength // rotation + 6 XR rotation
+
 export const readEntity = (v: ViewCursor, world: World) => {
   const userIndex = readUint32(v)
   const userId = world.userIndexToUserId.get(userIndex)!
   const netId = readUint32(v) as NetworkId
+
+  // ignore data for our avatar
+  if (userId === Engine.userId) {
+    scrollViewCursor(v, EntityDataByteLength)
+    return
+  }
   const entity = world.getNetworkObject(userId, netId)
 
   const changeMask = readUint8(v)
