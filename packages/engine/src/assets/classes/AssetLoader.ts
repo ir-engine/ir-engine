@@ -147,26 +147,14 @@ const assetLoadCallback =
       await loadExtensions(asset)
     }
 
-    if (assetType === AssetType.FBX) {
-      //TODO: need to fix
-      const object = new Group()
-      const child = new Group()
-      child.scale.set(0.01, 0.01, 0.01)
-      object.add(child)
-      child.add(asset)
-      asset = {
-        scene: object
-      }
-    }
-
     const assetClass = getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      processModelAsset(asset.scene, params)
+      processModelAsset(asset.scene ? asset.scene : asset, params)
     }
 
     params.cache && AssetLoader.Cache.set(url, asset)
 
-    onLoad(asset)
+    onLoad(asset.scene ? asset : { scene: asset })
   }
 
 const load = async (
