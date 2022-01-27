@@ -40,10 +40,10 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
 
       if (oldJobResult && oldJobResult.body) {
         // Removed unused properties
-        delete oldJobResult.body.metadata.managedFields
-        delete oldJobResult.body.metadata.resourceVersion
-        delete oldJobResult.body.spec.selector
-        delete oldJobResult.body.spec.template.metadata.labels
+        delete oldJobResult.body.metadata!.managedFields
+        delete oldJobResult.body.metadata!.resourceVersion
+        delete oldJobResult.body.spec!.selector
+        delete oldJobResult.body.spec!.template.metadata.labels
 
         oldJobResult.body.spec.suspend = false
 
