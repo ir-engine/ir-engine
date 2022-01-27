@@ -32,8 +32,8 @@ const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props
           <MenuItem value="" disabled>
             <em>Select {name}</em>
           </MenuItem>
-          {menu.map((el) => (
-            <MenuItem value={el.value} key={el.value}>
+          {menu.map((el, index) => (
+            <MenuItem value={el.value} key={index}>
               {el.label}
             </MenuItem>
           ))}
