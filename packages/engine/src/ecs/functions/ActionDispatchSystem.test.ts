@@ -1,10 +1,10 @@
 import assert, { strictEqual } from 'assert'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createWorld } from '../../../src/ecs/classes/World'
-import { NetworkWorldAction } from '../../../src/networking/functions/NetworkWorldAction'
-import { ActionRecipients } from '../../ecs/functions/Action'
+import { createWorld } from '../classes/World'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { ActionRecipients } from './Action'
 import matches from 'ts-matches'
-import { applyIncomingActions } from '../../ecs/functions/ActionDispatchSystem'
+import { applyIncomingActions } from './ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
   describe('applyIncomingActions', () => {
@@ -17,6 +17,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from future
@@ -45,6 +46,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past
@@ -75,6 +77,7 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
 
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
+        ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past

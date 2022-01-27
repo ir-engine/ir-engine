@@ -12,6 +12,9 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { initializeHandModel } from './addControllerModels'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { World } from '../../ecs/classes/World'
+import { isClient } from '../../common/functions/isClient'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -50,6 +53,65 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
   }
 }
 
+const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) => {
+  const { head, container, controllerLeft, controllerGripLeft, controllerRight, controllerGripRight } = inputData
+
+  // todo: make isomorphic
+
+  proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
+  proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
+  proxifyVector3(
+    XRInputSourceComponent.controllerLeft.position,
+    entity,
+    isClient ? controllerLeft.parent!.position : controllerLeft.position
+  )
+  proxifyVector3(
+    XRInputSourceComponent.controllerRight.position,
+    entity,
+    isClient ? controllerRight.parent!.position : controllerRight.position
+  )
+  proxifyVector3(
+    XRInputSourceComponent.controllerGripLeft.position,
+    entity,
+    isClient ? controllerGripLeft.parent!.position : controllerGripLeft.position
+  )
+  proxifyVector3(
+    XRInputSourceComponent.controllerGripRight.position,
+    entity,
+    isClient ? controllerGripRight.parent!.position : controllerGripRight.position
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.head.quaternion,
+    entity,
+    isClient ? head.parent!.quaternion : head.quaternion
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.container.quaternion,
+    entity,
+    isClient ? container.parent!.quaternion : container.quaternion
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.controllerLeft.quaternion,
+    entity,
+    isClient ? controllerLeft.parent!.quaternion : controllerLeft.quaternion
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.controllerRight.quaternion,
+    entity,
+    isClient ? controllerRight.parent!.quaternion : controllerRight.quaternion
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.controllerGripLeft.quaternion,
+    entity,
+    isClient ? controllerGripLeft.parent!.quaternion : controllerGripLeft.quaternion
+  )
+  proxifyQuaternion(
+    XRInputSourceComponent.controllerGripRight.quaternion,
+    entity,
+    isClient ? controllerGripRight.parent!.quaternion : controllerGripRight.quaternion
+  )
+}
+
 /**
  * @author Josh Field <github.com/HexaField>
  * @returns {void}
@@ -61,28 +123,37 @@ export const startWebXR = (): void => {
   const cameraContainer = new Group()
   cameraContainer.add(Engine.camera)
   Engine.scene.add(cameraContainer)
+  const head = new Group()
+  const controllerLeft = new Group()
+  const controllerRight = new Group()
+  const controllerGripLeft = new Group()
+  const controllerGripRight = new Group()
 
   const world = useWorld()
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
 
-  const inputData = {
-    head: new Group(),
-    container,
-    controllerLeft: new Group(),
-    controllerRight: new Group(),
-    controllerGripLeft: new Group(),
-    controllerGripRight: new Group()
-  }
+  // Engine.scene.remove(Engine.camera)
+  // container.add(Engine.camera)
 
   // Default mapping
-  assignControllerAndGrip(Engine.xrManager, inputData.controllerLeft, inputData.controllerGripLeft, 0)
-  assignControllerAndGrip(Engine.xrManager, inputData.controllerRight, inputData.controllerGripRight, 1)
+  assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
+  assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
+
+  const inputData = {
+    head,
+    container,
+    controllerLeft,
+    controllerRight,
+    controllerGripLeft,
+    controllerGripRight
+  }
 
   // Map input sources
   // Sometimes the input sources are not available immidiately
   setTimeout(() => {
     mapXRControllers(inputData)
+    proxifyXRInputs(world.localClientEntity, inputData)
   }, 1000)
 
   addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
