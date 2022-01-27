@@ -1,6 +1,5 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 
-const appServerURL = `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 export const resolveMediaCache = new Map()
 
 /**
@@ -17,10 +16,6 @@ export const resolveMedia = async (
   index?: number
 ): Promise<{ url: string; contentType?: string | null }> => {
   url = new URL(url, window.location.origin).href
-
-  if (url.startsWith(appServerURL)) {
-    return { url: url }
-  }
 
   // createing cacheKey for absoluteUrl
   const cacheKey = `${url}|${index}`
