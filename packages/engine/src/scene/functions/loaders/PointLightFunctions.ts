@@ -12,6 +12,8 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PointLightComponent, PointLightComponentType } from '../../components/PointLightComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_POINT_LIGHT = 'point-light'
 export const SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES = {
@@ -44,6 +46,9 @@ export const deserializePointLight: ComponentDeserializeFunction = (
     ball.userData.isHelper = true
     light.userData.rangeBall = rangeBall
     light.userData.ball = ball
+
+    setObjectLayers(ball, ObjectLayers.NodeHelper)
+    setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
   }
 
   addComponent(entity, Object3DComponent, { value: light })

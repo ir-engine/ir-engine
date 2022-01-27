@@ -3,9 +3,10 @@ import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { createState } from '@hookstate/core'
+import { createState } from '@speigg/hookstate'
 import { useUserState } from '../../user/services/UserService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const styles = {
   root: {
@@ -94,11 +95,12 @@ const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
   const userState = useUserState()
+  const engineState = useEngineState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
 
   const { t } = useTranslation()
 
-  return user && userState.selectedLayerUser.value === user.id.value ? (
+  return user && engineState.avatarTappedId.value === user.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>

@@ -17,7 +17,7 @@ export function hasSubscribedToChatSystem(userId, system: string): boolean {
 
   for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
-      return client.subscribedChatUpdates.includes(system)
+      return client.subscribedChatUpdates!.includes(system)
     }
   }
 
@@ -29,13 +29,13 @@ export function subscribeToChatSystem(userId, system: string) {
 
   for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
-      if (system !== 'all' && !client.subscribedChatUpdates.includes(system)) {
-        client.subscribedChatUpdates.push(system)
+      if (system !== 'all' && !client.subscribedChatUpdates!.includes(system)) {
+        client.subscribedChatUpdates!.push(system)
         return
       } else if (system === 'all') {
-        client.subscribedChatUpdates.push('emotions_system')
-        client.subscribedChatUpdates.push('jl_system')
-        client.subscribedChatUpdates.push('proximity_system')
+        client.subscribedChatUpdates!.push('emotions_system')
+        client.subscribedChatUpdates!.push('jl_system')
+        client.subscribedChatUpdates!.push('proximity_system')
         //add all chat systems
         return
       }
@@ -48,8 +48,8 @@ export function unsubscribeFromChatSystem(userId, system: string) {
 
   for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
-      if (system !== 'all' && client.subscribedChatUpdates.includes(system)) {
-        client.subscribedChatUpdates.splice(client.subscribedChatUpdates.indexOf(system), 1)
+      if (system !== 'all' && client.subscribedChatUpdates!.includes(system)) {
+        client.subscribedChatUpdates!.splice(client.subscribedChatUpdates!.indexOf(system), 1)
         return
       } else if (system === 'all') {
         client.subscribedChatUpdates = []
@@ -64,7 +64,7 @@ export function getSubscribedChatSystems(userId): string[] {
 
   for (let [_, client] of Engine.currentWorld.clients) {
     if (client.userId === userId) {
-      return client.subscribedChatUpdates
+      return client.subscribedChatUpdates!
     }
   }
 

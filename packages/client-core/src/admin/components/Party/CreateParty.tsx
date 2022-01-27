@@ -1,32 +1,37 @@
-import React, { useState, useEffect } from 'react'
-import Fade from '@mui/material/Fade'
-import Modal from '@mui/material/Modal'
-import styles from '../Admin.module.scss'
-import classNames from 'classnames'
-import Autocomplete from '@mui/material/Autocomplete'
-import TextField from '@mui/material/TextField'
+import React, { useState } from 'react'
 import { LocationService } from '../../services/LocationService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { PartyService } from '../../services/PartyService'
 import { InstanceService } from '../../services/InstanceService'
 import DialogContentText from '@mui/material/DialogContentText'
-import DialogActions from '@mui/material/DialogActions'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import { PartyProps } from './variables'
-import { usePartyStyle } from './style'
+import { PartyProps } from '../../common/variables/party'
+import { useStyles } from '../../styles/ui'
 import { useLocationState } from '../../services/LocationService'
 import { useInstanceState } from '../../services/InstanceService'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import CreateModel from '../../common/CreateModel'
+import Paper from '@mui/material/Paper'
+import FormControl from '@mui/material/FormControl'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import { validateForm } from '../../common/Validation/formValidation'
+import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 
 const CreateParty = (props: PartyProps) => {
-  const classes = usePartyStyle()
+  const classes = useStyles()
   CreateParty
   const { open, handleClose } = props
 
-  const [location, setLocation] = useState('')
-  const [instance, setInstance] = React.useState('')
+  const [newParty, setNewParty] = useState({
+    location: '',
+    instance: '',
+    formErrors: {
+      location: '',
+      instance: ''
+    }
+  })
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
@@ -36,18 +41,25 @@ const CreateParty = (props: PartyProps) => {
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
 
-  useEffect(() => {
-    if (user?.id.value != null && adminLocationState.updateNeeded.value === true) {
-      LocationService.fetchAdminLocations()
-    }
-    if (user.id.value && adminInstances.updateNeeded.value) {
-      InstanceService.fetchAdminInstances()
-    }
-  }, [authState.user?.id?.value, adminLocationState.updateNeeded.value, adminInstanceState.updateNeeded.value])
+  //Call custom hooks
+  useFetchAdminInstance(user, adminInstanceState, InstanceService)
+  useFetchAdminLocations(user, adminLocationState, LocationService)
 
-  const defaultProps = {
-    options: locationData.value,
-    getOptionLabel: (option: any) => option.name
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    let temp = newParty.formErrors
+    switch (name) {
+      case 'location':
+        temp.location = value.length < 2 ? 'Location is required' : ''
+        break
+      case 'instance':
+        temp.instance = value.length < 2 ? 'Instance is required' : ''
+        break
+
+      default:
+        break
+    }
+    setNewParty({ ...newParty, [name]: value, formErrors: temp })
   }
 
   const data: Instance[] = []
@@ -55,78 +67,93 @@ const CreateParty = (props: PartyProps) => {
     data.push(element)
   })
 
-  const InstanceProps = {
-    options: data,
-    getOptionLabel: (option: any) => option.ipAddress
-  }
+  const submitParty = async () => {
+    const data = {
+      locationId: newParty.location,
+      instanceId: newParty.instance
+    }
+    let temp = newParty.formErrors
+    if (!newParty.location) {
+      temp.location = "Location can't be empty"
+    }
+    if (!newParty.instance) {
+      temp.instance = "Instance can't be empty"
+    }
+    setNewParty({ ...newParty, formErrors: temp })
 
-  const submitParty = async (e) => {
-    e.preventDefault()
-    await PartyService.createAdminParty({
-      locationId: location,
-      instanceId: instance
-    })
-    setLocation('')
-    setInstance('')
-    handleClose()
+    if (validateForm(newParty, newParty.formErrors)) {
+      await PartyService.createAdminParty(data)
+      setNewParty({ ...newParty, location: '', instance: '' })
+      handleClose()
+    }
   }
-
   return (
-    <React.Fragment>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={styles.modal}
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
+    <CreateModel open={open} action="Create" text="party" handleClose={handleClose} submit={submitParty}>
+      <label>Instance</label>
+      <Paper
+        component="div"
+        className={newParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
       >
-        <Fade in={props.open}>
-          <div
-            className={classNames({
-              [styles.paper]: true,
-              [styles['modal-content']]: true
-            })}
+        <FormControl fullWidth>
+          <Select
+            labelId="demo-controlled-open-select-label"
+            id="demo-controlled-open-select"
+            value={newParty.instance}
+            fullWidth
+            displayEmpty
+            onChange={handleChange}
+            className={classes.select}
+            name="instance"
+            MenuProps={{ classes: { paper: classes.selectPaper } }}
           >
-            <Typography variant="h5" gutterBottom={true} className={classes.marginTop}>
-              Create new party
-            </Typography>
-            <form>
-              <Autocomplete
-                onChange={(e, newValue) => setLocation(newValue.id as string)}
-                {...defaultProps}
-                id="debug"
-                renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
-              />
+            <MenuItem value="" disabled>
+              <em>Select instance</em>
+            </MenuItem>
+            {data.map((el) => (
+              <MenuItem value={el?.id} key={el?.id}>
+                {el?.ipAddress}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
 
-              <Autocomplete
-                onChange={(e, newValue) => setInstance(newValue.id as string)}
-                {...InstanceProps}
-                id="debug"
-                renderInput={(params) => <TextField {...params} label="Instance" className={classes.marginBottm} />}
-              />
+      <label>Location</label>
+      <Paper
+        component="div"
+        className={newParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+      >
+        <FormControl fullWidth>
+          <Select
+            labelId="demo-controlled-open-select-label"
+            id="demo-controlled-open-select"
+            value={newParty.location}
+            fullWidth
+            displayEmpty
+            onChange={handleChange}
+            className={classes.select}
+            name="location"
+            MenuProps={{ classes: { paper: classes.selectPaper } }}
+          >
+            <MenuItem value="" disabled>
+              <em>Select location</em>
+            </MenuItem>
+            {locationData.value.map((el) => (
+              <MenuItem value={el?.id} key={el?.id}>
+                {el?.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Paper>
 
-              <DialogContentText className={classes.marginBottm}>
-                {' '}
-                Don't see Instance?{' '}
-                <a href="/admin/instance" className={classes.textLink}>
-                  Create One
-                </a>{' '}
-              </DialogContentText>
-
-              <DialogActions>
-                <Button type="submit" color="primary" onClick={(e) => submitParty(e)}>
-                  Submit
-                </Button>
-                <Button onClick={handleClose} color="primary">
-                  Cancel
-                </Button>
-              </DialogActions>
-            </form>
-          </div>
-        </Fade>
-      </Modal>
-    </React.Fragment>
+      <DialogContentText className={classes.marginBottm}>
+        <span className={classes.spanWhite}> Don't see Location? </span>
+        <a href="/admin/locations" className={classes.textLink}>
+          Create One
+        </a>
+      </DialogContentText>
+    </CreateModel>
   )
 }
 

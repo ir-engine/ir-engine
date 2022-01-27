@@ -67,6 +67,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     marginTp: {
       marginTop: '20%'
     },
+    marginTop: {
+      marginTop: '30px'
+    },
     texAlign: {
       textAlign: 'center'
     },
@@ -222,6 +225,11 @@ export const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('md')]: {
         marginTop: '2.5rem'
       }
+    },
+    textLink: {
+      marginLeft: '5px',
+      textDecoration: 'none',
+      color: '#ff9966'
     }
   })
 )

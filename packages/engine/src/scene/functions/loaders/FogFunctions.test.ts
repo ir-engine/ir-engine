@@ -43,6 +43,5 @@ describe('FogFunctions', () => {
 
     // TODO: unnecessary once engine global scope is refactored
     Engine.scene = null!
-
   })
 })

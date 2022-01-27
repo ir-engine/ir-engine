@@ -12,6 +12,7 @@ export interface PartyPropsTable {
   fetchAdminParty?: any
   authState?: any
   adminPartyState?: any
+  search: string
 }
 
 export interface PartyColumn {
@@ -33,6 +34,7 @@ export const partyColumns: PartyColumn[] = [
 ]
 
 export interface PartyData {
+  el: any
   id: string
   instance: string
   location: string

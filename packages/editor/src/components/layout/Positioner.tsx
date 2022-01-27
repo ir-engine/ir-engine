@@ -1,4 +1,4 @@
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@speigg/hookstate'
 import React, { useRef, useEffect, Children, cloneElement } from 'react'
 import styled from 'styled-components'
 

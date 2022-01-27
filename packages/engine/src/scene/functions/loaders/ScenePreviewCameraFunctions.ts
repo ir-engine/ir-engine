@@ -20,6 +20,8 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'
 export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA_DEFAULT_VALUES = {}
@@ -33,7 +35,7 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     camera.userData.helper = new CameraHelper(camera)
     camera.userData.helper.name = SCENE_PREVIEW_CAMERA_HELPER
-    camera.userData.helper.layers.set(1)
+    setObjectLayers(camera.userData.helper, ObjectLayers.NodeHelper)
 
     addComponent(entity, Object3DComponent, { value: camera })
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
@@ -42,16 +44,18 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
   }
 }
 
-export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity) => {
+export const updateCameraTransform = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const transformComponent = getComponent(entity, TransformComponent)
 
-  new Matrix4()
+  return new Matrix4()
     .copy(obj3d.parent!.matrixWorld)
     .invert()
     .multiply(Engine.camera.matrixWorld)
     .decompose(transformComponent.position, transformComponent.rotation, transformComponent.scale)
 }
+
+export const updateScenePreviewCamera: ComponentUpdateFunction = (entity: Entity) => {}
 
 export const serializeScenePreviewCamera: ComponentSerializeFunction = (entity) => {
   if (hasComponent(entity, ScenePreviewCameraTagComponent)) {

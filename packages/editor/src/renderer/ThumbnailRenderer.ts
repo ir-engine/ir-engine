@@ -1,4 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   Scene,
   AmbientLight,
@@ -56,7 +57,7 @@ export default class ThumbnailRenderer {
     camera.position.y += size / 2
     camera.position.z += size
     camera.lookAt(center)
-    camera.layers.disable(1)
+    camera.layers.set(ObjectLayers.Render)
 
     this.renderer.setSize(width, height, true)
     this.renderer.render(scene, camera)

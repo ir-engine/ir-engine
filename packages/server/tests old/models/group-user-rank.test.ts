@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'GroupUserRank\' model', () => {
+describe("CRUD operation on 'GroupUserRank' model", () => {
   const model = (app.service('group-user-rank') as any).Model
 
   beforeAll(async (done) => {
@@ -25,10 +25,7 @@ describe('CRUD operation on \'GroupUserRank\' model', () => {
   })
 
   it('Update', async () => {
-    await model.update(
-      { rank: 'test' },
-      { where: { rank: 'test' } }
-    )
+    await model.update({ rank: 'test' }, { where: { rank: 'test' } })
   })
 
   it('Delete', async () => {

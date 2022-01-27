@@ -1,4 +1,4 @@
-import { createState, none, useState } from '@hookstate/core'
+import { createState, none, useState } from '@speigg/hookstate'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { Group } from '@xrengine/common/src/interfaces/Group'

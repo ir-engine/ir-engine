@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim
 
 RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
 RUN wget http://nginx.org/keys/nginx_signing.key

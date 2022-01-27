@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim as builder
 
 RUN apt update
 # Create app directory
@@ -16,6 +16,7 @@ COPY packages/projects/package.json ./packages/projects/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
@@ -24,5 +25,10 @@ COPY . .
 # copy then compile the code
 
 ENV APP_ENV=production
+
+FROM node:16-buster-slim as runner
+WORKDIR /app
+
+COPY --from=builder /app ./
 
 CMD ["scripts/start-server.sh"]
