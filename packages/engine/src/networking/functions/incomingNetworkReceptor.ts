@@ -18,7 +18,7 @@ export function incomingNetworkReceptor(action) {
 
   matches(action)
     .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => {
-      if (!isHost()) return
+      if (isHost()) return
       world.clients.set($from, {
         userId: $from,
         userIndex: index,
