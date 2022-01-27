@@ -76,8 +76,14 @@ const CreateBot = (props: Props) => {
 
   const addCommandData = (command) => {
     if (command.name) {
-      setCommandData([...commandData, command])
-      setCommand({ id: '', name: '', description: '' })
+      const found = commandData.find((el) => el.name === command.name)
+      if (found) {
+        setError('Command should be unique')
+        setOpen(true)
+      } else {
+        setCommandData([...commandData, command])
+        setCommand({ id: '', name: '', description: '' })
+      }
     } else {
       setError('Fill in command is required!')
       setOpen(true)
