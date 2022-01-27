@@ -226,7 +226,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
       'default',
       'gameservers'
     )
-    const gsIds = gameservers.body!.items.map((gs) =>
+    const gsIds = gameservers?.body?.items.map((gs) =>
       gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null!
     )
     const [ip, port] = instance.ipAddress.split(':')

@@ -12,8 +12,8 @@ export const getTestbotPod = async (app: Application) => {
         let labels = pod.metadata!.labels
         if (labels && labels['job-name'] && labels['job-name'] === jobName) {
           pods.push({
-            name: pod.metadata!.name,
-            status: pod.status!.phase
+            name: pod.metadata!.name!,
+            status: pod.status!.phase!
           })
         }
       }
