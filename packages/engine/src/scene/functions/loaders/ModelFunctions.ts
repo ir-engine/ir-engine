@@ -51,7 +51,7 @@ export const updateModel: ComponentUpdateFunction = async (
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)
-      Promise.reject(err)
+      Promise.resolve(err)
     }
   }
 
@@ -61,7 +61,7 @@ export const updateModel: ComponentUpdateFunction = async (
       removeError(entity, 'envMapError')
     } catch (err) {
       addError(entity, 'envMapError', err.message)
-      Promise.reject(err)
+      Promise.resolve(err)
     }
   }
 

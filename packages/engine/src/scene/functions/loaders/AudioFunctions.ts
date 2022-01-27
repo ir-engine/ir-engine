@@ -30,6 +30,7 @@ import { updateAutoStartTimeForMedia } from './MediaFunctions'
 import { addError, removeError } from '../ErrorFunctions'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { setObjectLayers } from '../setObjectLayers'
+import { MediaComponent } from '../../components/MediaComponent'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
@@ -84,6 +85,11 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   }
 
   updateAudio(entity, props)
+
+  const mediaComponent = getComponent(entity, MediaComponent)
+  obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
+  obj3d.userData.audioEl.setLoop(mediaComponent.loop)
+  updateAutoStartTimeForMedia(entity)
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
