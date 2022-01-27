@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import Grid from '@mui/material/Grid'
-import Button from '@mui/material/Button'
-import Cross from '@mui/icons-material/Cancel'
 import Cached from '@mui/icons-material/Cached'
+import Cross from '@mui/icons-material/Cancel'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import Paper from '@mui/material/Paper'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import React, { useEffect, useState } from 'react'
+import { ProjectService, PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
-import { ProjectService } from '../../../common/services/ProjectService'
+import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -123,6 +123,9 @@ const Projects = () => {
     height: window.innerHeight,
     width: window.innerWidth
   })
+  const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
+  const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
+  const [project, setProject] = useState<ProjectInterface>(null!)
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -150,18 +153,26 @@ const Projects = () => {
   //   setPage(0)
   // }
 
-  const onRemoveProject = async (e: any, row: any) => {
-    const projectToRemove = adminProjects.value.find((project) => project.name === row.name)!
-    await ProjectService.removeProject(projectToRemove.id!)
+  const onRemoveProject = async () => {
+    try {
+      if (project) {
+        const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
+        await ProjectService.removeProject(projectToRemove.id!)
+      }
+    } catch (err) {
+      console.log(err)
+    }
   }
 
-  const tryReuploadProjects = async (row: ProjectInterface) => {
+  const tryReuploadProjects = async () => {
     try {
-      if (!row.repositoryPath && row.name !== 'default-project') return
-      const existingProjects = adminProjects.value.find((projects) => projects.name === row.name)!
-      await ProjectService.uploadProject(
-        row.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath
-      )
+      if (project) {
+        if (!project.repositoryPath && project.name !== 'default-project') return
+        const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
+        await ProjectService.uploadProject(
+          project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath
+        )
+      }
     } catch (err) {
       console.log(err)
     }
@@ -195,6 +206,26 @@ const Projects = () => {
       height: window.innerHeight,
       width: window.innerWidth
     })
+  }
+
+  const handleOpenReuploadConfirmation = (row) => {
+    setProject(row)
+    setPopupReuploadConfirmOpen(true)
+  }
+
+  const handleOpenRemoveConfirmation = (row) => {
+    setProject(row)
+    setPopupRemoveConfirmOpen(true)
+  }
+
+  const handleCloseReuploadModel = () => {
+    setProject('')
+    setPopupReuploadConfirmOpen(false)
+  }
+
+  const handleCloseRemoveModel = () => {
+    setProject('')
+    setPopupRemoveConfirmOpen(false)
   }
 
   return (
@@ -254,7 +285,7 @@ const Projects = () => {
                         <Button
                           className={styles.checkbox}
                           disabled={row.repositoryPath === null && row.name !== 'default-project'}
-                          onClick={(e) => tryReuploadProjects(row)}
+                          onClick={() => handleOpenReuploadConfirmation(row)}
                           name="stereoscopic"
                           color="primary"
                         >
@@ -266,7 +297,7 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
-                          onClick={(e) => onRemoveProject(e, row)}
+                          onClick={() => handleOpenRemoveConfirmation(row)}
                           name="stereoscopic"
                           color="primary"
                         >
@@ -297,6 +328,21 @@ const Projects = () => {
           repos={githubAppRepos}
           open={uploadProjectsModalOpen}
           handleClose={() => setUploadProjectsModalOpen(false)}
+        />
+        <ConfirmModel
+          popConfirmOpen={popupReuploadConfirmOpen}
+          handleCloseModel={handleCloseReuploadModel}
+          submit={tryReuploadProjects}
+          name={project?.name}
+          label={'project'}
+          type="rebuild"
+        />
+        <ConfirmModel
+          popConfirmOpen={popupRemoveConfirmOpen}
+          handleCloseModel={handleCloseRemoveModel}
+          submit={onRemoveProject}
+          name={project?.name}
+          label={'project'}
         />
       </Paper>
     </div>
