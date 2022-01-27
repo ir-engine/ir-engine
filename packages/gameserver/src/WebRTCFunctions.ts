@@ -354,7 +354,7 @@ export async function handleWebRtcTransportCreate(
       'default',
       'gameservers'
     )
-    const thisGs = serverResult?.body?.items.find(
+    const thisGs = (serverResult?.body! as any).items.find(
       (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
 

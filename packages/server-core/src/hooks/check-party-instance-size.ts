@@ -53,7 +53,10 @@ export default () => {
                 'default',
                 'gameservers'
               )
-              const readyServers = _.filter(serverResult?.body?.items, (server: any) => server.status.state === 'Ready')
+              const readyServers = _.filter(
+                (serverResult?.body! as any).items,
+                (server: any) => server.status.state === 'Ready'
+              )
               const server = readyServers[Math.floor(Math.random() * readyServers.length)]
               status = server.status
               selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
