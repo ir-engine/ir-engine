@@ -1,13 +1,13 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { TypedArray } from 'bitecs'
-import { Entity } from '../../../ecs/classes/Entity'
-import { World } from '../../../ecs/classes/World'
-import { VelocityComponent } from '../../../physics/components/VelocityComponent'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../../xr/components/XRInputSourceComponent'
-import { flatten, Vector3SoA, Vector4SoA } from '../Utils'
-import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8, readUint64 } from '../ViewCursor'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { flatten, Vector3SoA, Vector4SoA } from './Utils'
+import { createViewCursor, ViewCursor, readProp, readUint16, readUint32, readUint8, readUint64 } from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
