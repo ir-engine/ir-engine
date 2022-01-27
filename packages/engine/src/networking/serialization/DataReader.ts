@@ -143,7 +143,6 @@ export const readEntity = (v: ViewCursor, world: World) => {
   const userId = world.userIndexToUserId.get(userIndex)!
   const netId = readUint32(v) as NetworkId
 
-  console.log('userId', userId, Engine.userId)
   // ignore data for our avatar
   if (userId === Engine.userId) {
     scrollViewCursor(v, EntityDataByteLength)
