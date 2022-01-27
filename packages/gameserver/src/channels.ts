@@ -23,6 +23,7 @@ import {
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type InstanceMetadata = {
   currentUsers: number
@@ -47,9 +48,10 @@ const loadScene = async (app: Application, scene: string) => {
     await initializeRealtimeSystems()
     await initializeSceneSystems()
     await initializeProjectSystems(projects, systems)
-
-    Engine.userId = 'server' as UserId
-    Engine.currentWorld.clients.set('server' as UserId, { name: 'server' } as any)
+    const world = useWorld()
+    const userId = 'server' as UserId
+    Engine.userId = userId
+    Engine.currentWorld.clients.set(userId, { userId, name: 'server', userIndex: world.userIndexCount++ })
   }
 
   let entitiesLeft = -1

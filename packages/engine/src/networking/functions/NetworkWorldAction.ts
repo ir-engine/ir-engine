@@ -15,7 +15,8 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 export class NetworkWorldAction {
   static createClient = defineActionCreator({
     type: 'network.CREATE_CLIENT',
-    name: matches.string
+    name: matches.string,
+    index: matches.number
   })
 
   static destroyClient = defineActionCreator({
@@ -36,6 +37,7 @@ export class NetworkWorldAction {
       type: 'network.SPAWN_OBJECT',
       prefab: matches.string,
       networkId: matchesWithDefault(matchesNetworkId, () => useWorld().createNetworkId()),
+      ownerIndex: matches.number,
       parameters: matches.any.optional()
     },
     (action) => {

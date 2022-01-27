@@ -3,7 +3,7 @@
 FROM node:16-buster-slim as builder
 
 RUN apt update
-RUN apt-get install build-essential meson python3-testresources python3-venv python3-pip -y
+RUN apt-get -y install build-essential meson python3-testresources python3-venv python3-pip git
 # Create app directory
 WORKDIR /app
 
@@ -17,6 +17,7 @@ COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/matchmaking/package.json ./packages/matchmaking/
 COPY packages/projects/package.json ./packages/projects/
 COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
