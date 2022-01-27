@@ -5,10 +5,16 @@ import { Application } from '../../declarations'
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result, params } = context
-    console.log('assignment HOOK!', result)
+    console.log('matchmaking create instance HOOK!', result)
     const identityProvider = params['identity-provider']
+    const matchInstanceId = result?.id
     const connection = result?.connection
-    const gameMode = result?.extensions?.GameMode.value
+    const gameMode = result?.gamemode
+    // const gameMode = result?.extensions?.GameMode.value
+    console.log(' matchInstanceId', matchInstanceId)
+    console.log(' connection', connection)
+    console.log(' gameMode', gameMode)
+
     // context.params.connection
     if (!connection) {
       // assignment is not found yet
@@ -55,21 +61,12 @@ export default (): Hook => {
         instanceId = existingInstance.data[0].id
       }
 
-      const existingInstanceAuthorizedUser = await app.service('instance-authorized-user').find({
-        query: {
-          userId: identityProvider.userId,
-          instanceId: instanceId,
-          $limit: 0
-        }
+      // matchInstanceId
+      await app.service('match-instance').patch(matchInstanceId, {
+        gameserver: instanceId
       })
-      if (existingInstanceAuthorizedUser.total === 0)
-        await app.service('instance-authorized-user').create({
-          userId: identityProvider.userId,
-          instanceId: instanceId
-        })
 
-      context.result.instanceId = instanceId
-      context.result.locationName = locationName
+      context.result.gameserver = instanceId
     } catch (e) {
       console.log('matchmaking instance create error', e)
       // TODO: check error? skip?
