@@ -22,6 +22,7 @@ import { UserService } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
 import { validateUserForm } from './validation'
+import AutoComplete from '../../common/AutoComplete'
 
 const Alert = (props) => {
   return <MuiAlert elevation={6} variant="filled" {...props} />
@@ -104,8 +105,8 @@ const CreateUser = (props: Props) => {
     setOpenWarning(false)
   }
 
-  const handleChangeScopeType = (e) => {
-    setState({ ...state, scopes: e.target.value, formErrors: { ...state.formErrors, scopes: '' } })
+  const handleChangeScopeType = (scope) => {
+    setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
   const handleChange = (e) => {
@@ -176,6 +177,8 @@ const CreateUser = (props: Props) => {
     })
     closeViewModel(false)
   }
+
+  console.log(state.scopes)
 
   return (
     <React.Fragment>
@@ -258,7 +261,11 @@ const CreateUser = (props: Props) => {
               Create One
             </a>
           </DialogContentText>
-          <label>Grant Scope</label>
+          <AutoComplete
+            data={adminScopeTypeState.scopeTypes.value}
+            label="Grant Scope"
+            handleChangeScopeType={handleChangeScopeType}
+          />
           <Paper
             component="div"
             className={state.formErrors.scopes.length > 0 ? classes.redBorder : classes.createInput}

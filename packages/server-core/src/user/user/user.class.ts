@@ -93,7 +93,6 @@ export class User extends Service {
           $in: searchedUser.map((user) => user.id)
         }
       }
-
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data
