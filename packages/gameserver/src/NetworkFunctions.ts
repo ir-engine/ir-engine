@@ -149,7 +149,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     'default',
     'gameservers'
   )
-  const gsIds = gameservers.body.items.map((gs) =>
+  const gsIds = gameservers.body!.items.map((gs) =>
     gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
@@ -157,7 +157,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     instances.rows.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = gameservers.body.items.find((gs) => {
+      const match = gameservers.body!.items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
         const inputPort = gs.status.ports.find((port) => port.name === 'default')
         return gs.status.address === ip && inputPort.port.toString() === port

@@ -9,11 +9,11 @@ export const getTestbotPod = async (app: Application) => {
       const podsResult = await app.k8DefaultClient.listNamespacedPod('default')
       let pods: TestBot[] = []
       for (const pod of podsResult.body.items) {
-        let labels = pod.metadata.labels
+        let labels = pod.metadata!.labels
         if (labels && labels['job-name'] && labels['job-name'] === jobName) {
           pods.push({
-            name: pod.metadata.name,
-            status: pod.status.phase
+            name: pod.metadata!.name,
+            status: pod.status!.phase
           })
         }
       }
@@ -43,9 +43,9 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
         delete oldJobResult.body.metadata!.managedFields
         delete oldJobResult.body.metadata!.resourceVersion
         delete oldJobResult.body.spec!.selector
-        delete oldJobResult.body.spec!.template.metadata.labels
+        delete oldJobResult.body.spec!.template!.metadata!.labels
 
-        oldJobResult.body.spec.suspend = false
+        oldJobResult.body.spec!.suspend = false
 
         const deleteJobResult = await app.k8BatchClient.deleteNamespacedJob(
           jobName,
