@@ -15,6 +15,7 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
+import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -209,6 +210,7 @@ export async function handleConnectToWorld(
   const world = Engine.currentWorld
   world.clients.set(userId, {
     userId: userId,
+    userIndex: world.userIndexCount++,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -249,7 +251,7 @@ export const handleJoinWorld = (
   transport: SocketWebRTCServerTransport,
   socket,
   data,
-  callback,
+  callback: (args: JoinWorldProps) => void,
   joinedUserId: UserId,
   user
 ) => {
@@ -261,9 +263,9 @@ export const handleJoinWorld = (
   clearCachedActionsForUser(joinedUserId)
 
   // send all client info
-  const clients = [] as any[]
+  const clients = [] as Array<{ userId: UserId; name: string; index: number }>
   for (const [userId, client] of world.clients) {
-    clients.push({ userId, name: client.name })
+    clients.push({ userId, index: client.userIndex, name: client.name })
   }
 
   // send all cached and outgoing actions to joining user
@@ -278,14 +280,14 @@ export const handleJoinWorld = (
     tick: world.fixedTick,
     clients,
     cachedActions,
-    avatarDetail: client.avatarDetail!,
-    routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
+    avatarDetail: client.avatarDetail!
   })
 
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.createClient({
       $from: joinedUserId,
-      name: client.name
+      name: client.name,
+      index: client.userIndex
     })
   ).to('others')
 }
