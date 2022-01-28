@@ -4,7 +4,7 @@ import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   LocationAction,
   LocationService,
@@ -104,7 +104,7 @@ export const LoadEngineWithScene = (props: Props) => {
       // shut down connection with existing GS
       console.log('reseting connection for portal teleport')
       leave(getWorldTransport())
-      InstanceConnectionService.resetInstanceServer()
+      LocationInstanceConnectionService.resetServer()
       const portalComponent = engineState.isTeleporting.value
       teleportToScene(portalComponent, async () => {
         history.push('/location/' + portalComponent.location)
