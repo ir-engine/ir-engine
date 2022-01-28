@@ -43,16 +43,22 @@ export default (): Hook => {
     if (!matchServerInstance) {
       // try to create server instance, ignore error and try to search again, possibly someone just created same server
       try {
-        matchServerInstance = await app.service('match-instance').create(
-          {
-            connection: result.connection,
-            gamemode: matchUser.gamemode
-          },
-          context.params
-        )
+        matchServerInstance = await app.service('match-instance').create({
+          connection: result.connection,
+          gamemode: matchUser.gamemode
+        })
       } catch (e) {
-        // ignore all errors? todo: separate if available and ignore only duplicate error
+        console.log('failed to create new match-instance')
+        const isConnectionDuplicateError =
+          e.errors?.[0]?.type === 'unique violation' && e.errors?.[0]?.path === 'connection'
+        if (!isConnectionDuplicateError) {
+          // ignore only duplicate error
+          throw e
+        }
+        console.log('^-- server instance probably exists but not provisioned', matchServerInstance)
       }
+    } else {
+      console.log('server instance probably exists but not provisioned', matchServerInstance)
     }
 
     if (!matchServerInstance?.gameserver) {
