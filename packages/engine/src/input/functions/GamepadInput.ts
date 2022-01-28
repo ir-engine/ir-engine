@@ -16,6 +16,7 @@ import { Engine } from '../../ecs/classes/Engine'
 
 let gamepadConnected = false
 const gamepadThreshold = 0.1
+const gamepadMultiplier = 0.01
 const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
@@ -25,8 +26,6 @@ let gamepad: Gamepad
 let inputBase: number
 let x: number
 let y: number
-let prevLeftX: number
-let prevLeftY: number
 
 let _index: number // temp var for iterator loops
 /**
@@ -87,11 +86,12 @@ const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
 }
 
+let prevLeftX: number
+let prevLeftY: number
+
 /**
- * Gamepad axios
+ * Gamepad axis
  *
- * @param {Entity} entity The entity
- * @param args is argument object
  */
 export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedInputValue: InputAlias) => {
   inputBase = inputIndex * 2
@@ -99,27 +99,35 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
   const yIndex = inputBase + 1
 
   x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold)
-  y = applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
-  if (mappedInputValue === BaseInput.MOVEMENT_PLAYERONE) {
+  y = -applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
+  if (mappedInputValue === GamepadAxis.Left) {
     const tmpX = x
-    x = -y
+    x = y
     y = -tmpX
+  } else {
+    x *= gamepadMultiplier
+    y *= gamepadMultiplier
   }
 
-  prevLeftX = gamepadInput[xIndex]
-  prevLeftY = gamepadInput[yIndex]
-
   // Axis has changed, so get mutable reference to Input and set data
-  if (x !== prevLeftX || y !== prevLeftY) {
+  if (x !== gamepadInput[xIndex] || y !== gamepadInput[yIndex]) {
     Engine.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y],
       lifecycleState: LifecycleValue.Changed
     })
-
-    gamepadInput[xIndex] = x
-    gamepadInput[yIndex] = y
   }
+
+  if ((x === 0 && gamepadInput[xIndex] !== 0) || (y === 0 && gamepadInput[yIndex] !== 0)) {
+    Engine.inputState.set(mappedInputValue, {
+      type: InputType.TWODIM,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.Ended
+    })
+  }
+
+  gamepadInput[xIndex] = x
+  gamepadInput[yIndex] = y
 }
 
 /**
