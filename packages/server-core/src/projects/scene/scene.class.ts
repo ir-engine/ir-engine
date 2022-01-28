@@ -54,12 +54,6 @@ interface RenameParams {
   projectName: string
 }
 
-interface RenameParams {
-  newSceneName: string
-  oldSceneName: string
-  projectName: string
-}
-
 export class Scene implements ServiceMethods<any> {
   app: Application
   docs: any
