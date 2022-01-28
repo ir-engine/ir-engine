@@ -2,12 +2,12 @@ import { DataTypes, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 
 /**
- * This model contains connection of user to open match tickets and connection
+ * This model contains matchmaking match
  */
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const MatchUser = sequelizeClient.define(
-    'match_user',
+  const MatchInstance = sequelizeClient.define(
+    'match_instance',
     {
       id: {
         type: DataTypes.UUID,
@@ -15,17 +15,17 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
-      ticketId: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: true
+      connection: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
       },
       gamemode: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      connection: {
-        type: DataTypes.STRING,
+      gameserver: {
+        type: DataTypes.UUID,
         allowNull: true
       }
     },
@@ -38,9 +38,9 @@ export default (app: Application) => {
     }
   )
 
-  ;(MatchUser as any).associate = (models: any): void => {
-    ;(MatchUser as any).belongsTo(models.user, { as: 'user', required: true })
-  }
+  // ;(MatchInstance as any).associate = (models: any): void => {
+  //   ;(MatchInstance as any).belongsTo(models.user, { as: 'user', allowNull: false })
+  // }
 
-  return MatchUser
+  return MatchInstance
 }
