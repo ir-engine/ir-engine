@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'CollectionType\' model', () => {
+describe("CRUD operation on 'CollectionType' model", () => {
   const model = (app.service('collection-type') as any).Model
 
   beforeAll(async () => {

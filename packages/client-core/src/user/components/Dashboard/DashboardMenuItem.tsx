@@ -1,17 +1,14 @@
-import React from 'react'
-import List from '@mui/material/List'
 import Divider from '@mui/material/Divider'
+import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import { Link, withRouter } from 'react-router-dom'
-import { useStylesForDashboard } from './styles'
-import ListSubheader from '@mui/material/ListSubheader'
-import { useAuthState } from '../../services/AuthService'
-import { SidebarItems, SocialSidebarItems } from './DashboardItems'
-
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, withRouter } from 'react-router-dom'
+import { useAuthState } from '../../services/AuthService'
+import { SidebarItems } from './DashboardItems'
+import { useStylesForDashboard } from './styles'
 
 interface Props {
   authState?: any
@@ -90,33 +87,6 @@ const DashboardMenuItem = (props: Props) => {
           </ListItem>
         </Link> */}
       </List>
-      <Divider style={{ background: '#C0C0C0', marginTop: '2rem' }} />
-      {SocialSidebarItems().map((item, index) => {
-        return (
-          <List key={index}>
-            <ListSubheader inset style={{ color: '#C0C0C0' }}>
-              {item.title}
-            </ListSubheader>
-            <List>
-              {item.items.map((socialItem, key) => {
-                return (
-                  <Link key={key} style={{ textDecoration: 'none' }} to={socialItem.path}>
-                    <ListItem
-                      style={{ color: 'white' }}
-                      classes={{ selected: classes.selected }}
-                      selected={socialItem.path === pathname}
-                      button
-                    >
-                      <ListItemIcon>{socialItem.icon}</ListItemIcon>
-                      <ListItemText primary={t(socialItem.name)} />
-                    </ListItem>
-                  </Link>
-                )
-              })}
-            </List>
-          </List>
-        )
-      })}
     </>
   )
 }

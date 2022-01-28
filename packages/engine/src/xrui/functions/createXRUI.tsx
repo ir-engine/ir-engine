@@ -1,5 +1,5 @@
 import React from 'react'
-import { State } from '@hookstate/core'
+import { State } from '@speigg/hookstate'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { XRUIComponent } from '../components/XRUIComponent'

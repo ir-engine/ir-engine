@@ -26,6 +26,8 @@ import { TargetCameraRotationComponent } from '../components/TargetCameraRotatio
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { BoneNames } from '../../avatar/AvatarBoneMatching'
+import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -71,7 +73,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
-const setAvatarOpacity = (entity: Entity, opacity: number): void => {
+export const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
@@ -82,18 +84,14 @@ const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   })
 }
 
-const getAvatarBonePosition = (entity: Entity, name: string, position: Vector3): void => {
+export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position: Vector3): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    const bone = obj as any
-    // TODO: Cache the neck bone reference
-    if (!bone.isBone || !bone.name.toLowerCase().includes(name)) return
-    const el = bone.matrixWorld.elements
-    position.set(el[12], el[13], el[14])
-  })
+  const ikRigComponent = getComponent(entity, IKRigComponent)
+  const el = ikRigComponent.boneStructure[name].matrixWorld.elements
+  position.set(el[12], el[13], el[14])
 }
 
-const updateAvatarOpacity = (entity: Entity) => {
+export const updateAvatarOpacity = (entity: Entity) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)
@@ -102,7 +100,7 @@ const updateAvatarOpacity = (entity: Entity) => {
   setAvatarOpacity(entity, distanceRatio)
 }
 
-const updateCameraTargetRotation = (entity: Entity, delta: number) => {
+export const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   if (!entity) return
   const followCamera = getComponent(entity, FollowCameraComponent)
   const target = getComponent(entity, TargetCameraRotationComponent)
@@ -119,7 +117,7 @@ const updateCameraTargetRotation = (entity: Entity, delta: number) => {
   followCamera.theta = smoothDamp(followCamera.theta, target.theta, target.thetaVelocity, target.time, delta)
 }
 
-const getMaxCamDistance = (entity: Entity, target: Vector3) => {
+export const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   // Cache the raycast result for 0.1 seconds
   // if (camRayCastCache.maxDistance != -1 && camRayCastClock.getElapsedTime() < 0.1) {
   //   return camRayCastCache
@@ -176,22 +174,22 @@ const getMaxCamDistance = (entity: Entity, target: Vector3) => {
   return camRayCastCache
 }
 
-const calculateCameraTarget = (entity: Entity, target: Vector3) => {
+export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
+  const avatar = getComponent(entity, AvatarComponent)
   const avatarTransform = getComponent(entity, TransformComponent)
-  const followCamera = getComponent(entity, FollowCameraComponent)
 
-  const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
-  const side = followCamera.shoulderSide ? -1 : 1
-  const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
+  // const followCamera = getComponent(entity, FollowCameraComponent)
+  // const minDistanceRatio = Math.min(followCamera.distance / followCamera.minDistance, 1)
+  // const side = followCamera.shoulderSide ? -1 : 1
+  // const shoulderOffset = lerp(0, 0.2, minDistanceRatio) * side
   //const heightOffset = lerp(0, 0.25, minDistanceRatio)
 
-  target.set(shoulderOffset, 0.1, 0.2)
+  target.set(0, avatar.avatarHeight, 0.2)
   target.applyQuaternion(avatarTransform.rotation)
-  getAvatarBonePosition(entity, 'neck', tempVec1)
-  target.add(tempVec1)
+  target.add(avatarTransform.position)
 }
 
-const updateFollowCamera = (entity: Entity, delta: number) => {
+export const updateFollowCamera = (entity: Entity, delta: number) => {
   if (!entity) return
 
   const followCamera = getComponent(entity, FollowCameraComponent)

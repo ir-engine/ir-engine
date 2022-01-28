@@ -1,33 +1,39 @@
-import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
+import React, { useState } from 'react'
 import { PartyService } from '../../services/PartyService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PartyPropsTable, partyColumns, PartyData } from './variables'
-import { usePartyStyles, usePartyStyle } from './style'
+import { PartyPropsTable, partyColumns, PartyData } from '../../common/variables/party'
+import { useStyles } from '../../styles/ui'
 import { usePartyState } from '../../services/PartyService'
 import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
+import TableComponent from '../../common/Table'
+import ConfirmModel from '../../common/ConfirmModel'
+import { useFetchAdminParty } from '../../common/hooks/party.hooks'
+import ViewParty from './ViewParty'
 
 const PartyTable = (props: PartyPropsTable) => {
-  const classes = usePartyStyle()
-  const classex = usePartyStyles()
+  const { search } = props
+  const classes = useStyles()
   const dispatch = useDispatch()
 
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(PARTY_PAGE_LIMIT)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [partyName, setPartyName] = useState('')
+  const [partyId, setPartyId] = useState('')
+  const [viewModel, setViewModel] = useState(false)
+  const [partyAdmin, setPartyAdmin] = useState('')
+  const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
   const user = authState.user
   const adminPartyState = usePartyState()
   const adminParty = adminPartyState
   const adminPartyData = adminParty.parties?.value || []
-  const adminPartyCount = adminParty.total
+  const adminPartyCount = adminParty.total.value
+
+  //Call custom hooks
+  useFetchAdminParty(user, adminParty, adminPartyState, PartyService, search)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -35,24 +41,50 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(newPage)
   }
 
-  React.useEffect(() => {
-    if (user?.id?.value && adminParty.updateNeeded.value === true) {
-      PartyService.fetchAdminParty()
-    }
-  }, [authState.user?.id?.value, adminPartyState.updateNeeded.value])
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
+  }
 
-  const createData = (id: string, instance: string, location: string): PartyData => {
+  const submitRemoveParty = async () => {
+    await PartyService.removeParty(partyId)
+    setPopConfirmOpen(false)
+  }
+
+  const openViewModel = (open: boolean, party: any) => {
+    setPartyAdmin(party)
+    setViewModel(open)
+  }
+
+  const closeViewModel = () => {
+    setViewModel(false)
+    setPartyAdmin('')
+    setEditMode(false)
+  }
+
+  const handleEditMode = (open: boolean) => {
+    setEditMode(open)
+  }
+
+  const createData = (el: any, id: string, instance: any, location: any): PartyData => {
     return {
+      el,
       id,
       instance,
       location,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
-            {' '}
-            <span className={classes.spanWhite}>View</span>{' '}
+          <a href="#h" className={classes.actionStyle} onClick={() => openViewModel(true, el)}>
+            <span className={classes.spanWhite}>View</span>
           </a>
-          <a href="#h" className={classes.actionStyle}>
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setPopConfirmOpen(true)
+              setPartyName(instance)
+              setPartyId(id)
+            }}
+          >
             <span className={classes.spanDange}>Delete</span>
           </a>
         </>
@@ -67,59 +99,39 @@ const PartyTable = (props: PartyPropsTable) => {
 
   const rows = adminPartyData?.map((el) => {
     return createData(
+      el,
       el.id,
-      el?.instance?.ipAddress || `<span className={classes.spanNone}>None</span>`,
-      el.location?.name || `<span className={classes.spanNone}>None</span>`
+      el?.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
+      el.location?.name || <span className={classes.spanNone}>None</span>
     )
   })
 
   return (
-    <div className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {partyColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classex.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {partyColumns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={column.id} align={column.align} className={classex.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[PARTY_PAGE_LIMIT]}
-        component="div"
-        count={adminPartyCount.value}
-        rowsPerPage={rowsPerPage}
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={partyColumns}
         page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classex.tableFooter}
+        rowsPerPage={rowsPerPage}
+        count={adminPartyCount}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
       />
-    </div>
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveParty}
+        name={partyName}
+        label={'party with instance of '}
+      />
+      <ViewParty
+        openView={viewModel}
+        closeViewModel={closeViewModel}
+        partyAdmin={partyAdmin}
+        editMode={editMode}
+        handleEditMode={handleEditMode}
+      />
+    </React.Fragment>
   )
 }
 

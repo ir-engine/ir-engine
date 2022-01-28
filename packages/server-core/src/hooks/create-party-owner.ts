@@ -8,10 +8,13 @@ export default () => {
     const { result } = context
 
     const user = extractLoggedInUserFromParams(context.params)
-    const ownerUser =
-      user.location_admins.length > 0
-        ? user.location_admins.find((locationAdmin) => locationAdmin.locationId === result.locationId) != null
-        : false
+    let ownerUser = false
+    if (user.location_admins) {
+      ownerUser =
+        user.location_admins.length > 0
+          ? user.location_admins.find((locationAdmin) => locationAdmin.locationId === result.locationId) != null
+          : false
+    }
     try {
       await context.app.service('party-user').create(
         {

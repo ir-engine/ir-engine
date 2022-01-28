@@ -1,14 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import {
-  MeshBasicMaterial,
-  Mesh,
-  PlaneBufferGeometry,
-  MeshStandardMaterial,
-  sRGBEncoding,
-  LinearFilter,
-  Object3D,
-  VideoTexture
-} from 'three'
+import { Mesh, MeshStandardMaterial, sRGBEncoding, LinearFilter, VideoTexture, Object3D } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -33,6 +24,7 @@ import Hls from 'hls.js'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
@@ -49,17 +41,25 @@ export const deserializeVideo: ComponentDeserializeFunction = (
     return
   }
 
-  const obj3d = getComponent(entity, Object3DComponent).value
-  const video = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-  video.name = VIDEO_MESH_NAME
+  const mediaComponent = getComponent(entity, MediaComponent)
+  let obj3d = getComponent(entity, Object3DComponent)?.value
 
-  obj3d.add(video)
-  obj3d.userData.mesh = video
+  if (!obj3d) {
+    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+  }
+
+  const video = obj3d.userData.mesh
+  video.name = VIDEO_MESH_NAME
 
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
   el.setAttribute('loop', 'true')
-  el.setAttribute('preload', 'none')
+  el.setAttribute('preload', 'metadata')
+
+  // Setting autoplay to false will not work
+  // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-autoplay
+  if (mediaComponent.autoplay) el.setAttribute('autoplay', 'true')
+
   el.setAttribute('playsInline', 'true')
   el.setAttribute('playsinline', 'true')
   el.setAttribute('webkit-playsInline', 'true')
@@ -69,6 +69,14 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   el.hidden = true
   document.body.appendChild(el)
   obj3d.userData.videoEl = el
+
+  el.addEventListener('playing', () => {
+    mediaComponent.playing = true
+  })
+  el.addEventListener('pause', () => {
+    mediaComponent.playing = false
+  })
+  mediaComponent.el = el
 
   const props = parseVideoProperties(json.props) as VideoComponentType
 
@@ -87,9 +95,9 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
   if (properties.videoSource) {
     try {
       const { url, contentType } = await resolveMedia(component.videoSource)
-
       if (isHLS(url, contentType)) {
-        component.hls = setupHLS(url)
+        if (component.hls) component.hls.destroy()
+        component.hls = setupHLS(entity, url)
         component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
@@ -99,6 +107,8 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
       //   component.dash.on('ERROR', (e) => console.error('ERROR', e)
       // }
       else {
+        obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
+        obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
         obj3d.userData.videoEl.src = url
       }
 
@@ -117,7 +127,6 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         'loadeddata',
         () => {
           obj3d.userData.videoEl.muted = false
-          console.log(obj3d.userData.videoEl, obj3d.userData.videoEl.autoplay)
 
           if (obj3d.userData.videoEl.autoplay) {
             if (accessEngineState().userHasInteracted.value) {
@@ -173,7 +182,7 @@ export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = 
   }
 }
 
-const setupHLS = (url: string): Hls => {
+const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()
   hls.on(Hls.Events.ERROR, function (event, data) {
     if (data.fatal) {
@@ -193,13 +202,17 @@ const setupHLS = (url: string): Hls => {
           hls.destroy()
           break
       }
+
+      addError(entity, 'error', 'Error Loading video')
     }
   })
 
   // hls.once(Hls.Events.LEVEL_LOADED, () => { resolve() })
   hls.on(Hls.Events.MEDIA_ATTACHED, () => {
     hls.loadSource(url)
-    hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {})
+    hls.on(Hls.Events.MANIFEST_PARSED, (_event, _data) => {
+      removeError(entity, 'error')
+    })
   })
 
   return hls

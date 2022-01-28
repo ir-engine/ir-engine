@@ -18,10 +18,13 @@ import {
   sRGBEncoding,
   WebGLRenderer,
   Scene,
-  PerspectiveCamera
+  PerspectiveCamera,
+  Object3D
 } from 'three'
 import loadTexture from '../../assets/functions/loadTexture'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import { Object3DWithEntity } from '../components/Object3DComponent'
+import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexUniforms = `uniform float time;
 uniform sampler2D distortionMap;
@@ -334,8 +337,11 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._distortionTexture = texture
+        removeError((this as Object3D as Object3DWithEntity).entity, 'distortionMapError')
       })
-      .catch(console.error)
+      .catch((error) => {
+        addError((this as Object3D as Object3DWithEntity).entity, 'distortionMapError', error.message)
+      })
   }
 
   get envMap(): string {
@@ -351,8 +357,11 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
         texture.mapping = EquirectangularReflectionMapping
         texture.encoding = sRGBEncoding
         this._material.envMap = texture
+        removeError((this as Object3D as Object3DWithEntity).entity, 'envMapError')
       })
-      .catch(console.error)
+      .catch((error) => {
+        addError((this as Object3D as Object3DWithEntity).entity, 'envMapError', error.message)
+      })
   }
 
   get normalMap(): string {
@@ -367,8 +376,11 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
         texture.wrapS = RepeatWrapping
         texture.wrapT = RepeatWrapping
         this._material.normalMap = texture
+        removeError((this as Object3D as Object3DWithEntity).entity, 'normalMapError')
       })
-      .catch(console.error)
+      .catch((error) => {
+        addError((this as Object3D as Object3DWithEntity).entity, 'normalMapError', error.message)
+      })
   }
 
   set shininess(value: number) {

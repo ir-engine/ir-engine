@@ -2,7 +2,7 @@ import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { useDispatch, store } from '../../store'
 import { client } from '../../feathers'
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none } from '@speigg/hookstate'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 
 //State
@@ -14,8 +14,7 @@ const state = createState({
   layerUsersUpdateNeeded: true,
   channelLayerUsers: [] as Array<User>,
   channelLayerUsersUpdateNeeded: true,
-  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>,
-  selectedLayerUser: ''
+  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>
 })
 
 store.receptors.push((action: UserActionType): void => {
@@ -80,8 +79,6 @@ store.receptors.push((action: UserActionType): void => {
         } else return s
       case 'USER_TOAST':
         return s.toastMessages.merge([action.message])
-      case 'SELECTED_LAYER_USER':
-        return s.selectedLayerUser.set(action.userId)
     }
   }, action.type)
 })
@@ -287,13 +284,6 @@ export const UserAction = {
     return {
       type: 'USER_TOAST' as const,
       message: { user, args }
-    }
-  },
-
-  selectedLayerUser: (userId: string) => {
-    return {
-      type: 'SELECTED_LAYER_USER' as const,
-      userId: userId
     }
   }
 }

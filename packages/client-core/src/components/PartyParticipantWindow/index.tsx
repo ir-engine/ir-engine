@@ -1,4 +1,4 @@
-import { Downgraded } from '@hookstate/core'
+import { Downgraded } from '@speigg/hookstate'
 import {
   Launch,
   Mic,

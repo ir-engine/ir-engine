@@ -15,6 +15,7 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 import AWS from 'aws-sdk'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
+import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -142,8 +143,13 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
       ended: false
     }
   })
-  const gameservers = await transport.app.k8AgonesClient.get('gameservers')
-  const gsIds = gameservers.items.map((gs) =>
+  const gameservers = await transport.app.k8AgonesClient.listNamespacedCustomObject(
+    'agones.dev',
+    'v1',
+    'default',
+    'gameservers'
+  )
+  const gsIds = (gameservers?.body! as any).items.map((gs) =>
     gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
@@ -151,7 +157,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     instances.rows.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = gameservers.items.find((gs) => {
+      const match = (gameservers?.body! as any).items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
         const inputPort = gs.status.ports.find((port) => port.name === 'default')
         return gs.status.address === ip && inputPort.port.toString() === port
@@ -204,6 +210,7 @@ export async function handleConnectToWorld(
   const world = Engine.currentWorld
   world.clients.set(userId, {
     userId: userId,
+    userIndex: world.userIndexCount++,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -244,7 +251,7 @@ export const handleJoinWorld = (
   transport: SocketWebRTCServerTransport,
   socket,
   data,
-  callback,
+  callback: (args: JoinWorldProps) => void,
   joinedUserId: UserId,
   user
 ) => {
@@ -256,9 +263,9 @@ export const handleJoinWorld = (
   clearCachedActionsForUser(joinedUserId)
 
   // send all client info
-  const clients = [] as any[]
+  const clients = [] as Array<{ userId: UserId; name: string; index: number }>
   for (const [userId, client] of world.clients) {
-    clients.push({ userId, name: client.name })
+    clients.push({ userId, index: client.userIndex, name: client.name })
   }
 
   // send all cached and outgoing actions to joining user
@@ -273,14 +280,14 @@ export const handleJoinWorld = (
     tick: world.fixedTick,
     clients,
     cachedActions,
-    avatarDetail: client.avatarDetail!,
-    routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
+    avatarDetail: client.avatarDetail!
   })
 
   dispatchFrom(world.hostId, () =>
     NetworkWorldAction.createClient({
       $from: joinedUserId,
-      name: client.name
+      name: client.name,
+      index: client.userIndex
     })
   ).to('others')
 }

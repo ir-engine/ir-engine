@@ -10,7 +10,6 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
-import { Object3D } from 'three'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 
@@ -27,7 +26,7 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   json: ComponentJson<MediaComponentType>
 ) => {
   const props = parseMediaProperties(json.props)
-  addComponent(entity, MediaComponent, props)
+  addComponent(entity, MediaComponent, { ...props, playing: false })
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
 
@@ -118,5 +117,5 @@ const parseMediaProperties = (props): MediaComponentType => {
     autoplay: props.autoplay ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoplay,
     autoStartTime: props.autoStartTime ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoStartTime,
     loop: props.loop ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.loop
-  }
+  } as MediaComponentType
 }

@@ -7,22 +7,17 @@ import { PerspectiveCamera, MathUtils } from 'three'
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-
-type TransitionType = 'IN' | 'OUT' | 'NONE'
+import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
+import { LoadingSystemState } from './state/LoadingState'
 
 export default async function XRUILoadingSystem(world: World) {
   const ui = createLoaderDetailView('')
 
   const transitionPeriodSeconds = 1
-  let currentState = 'NONE' as TransitionType
-  let alpha = 0 // alpha is a number between 0 and 1
+  const transition = createTransitionState(transitionPeriodSeconds)
 
-  function setState(state: TransitionType) {
-    currentState = state
-    alpha = 0
-  }
-
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => setState('OUT'), 1000))
+  // todo: push timeout to accumulator
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 1000))
 
   // await ui.ready
 
@@ -57,19 +52,16 @@ export default async function XRUILoadingSystem(world: World) {
 
         xrui.container.scale.x = xrui.container.scale.y = scale
 
-        const setOpacity = (opacity) =>
+        transition.update(world, (opacity) => {
+          if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
           xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
             // console.log('setOpacity', opacity)
             const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
             mat.opacity = opacity
             mat.visible = opacity > 0
+            layer.visible = opacity > 0
           })
-
-        if (currentState !== 'NONE') {
-          alpha += world.delta / transitionPeriodSeconds
-          setOpacity(currentState === 'IN' ? alpha : 1 - alpha)
-          if (alpha > 1) setState('NONE')
-        }
+        })
       }
     }
   }

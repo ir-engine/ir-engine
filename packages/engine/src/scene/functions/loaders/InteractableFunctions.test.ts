@@ -1,9 +1,9 @@
 import assert from 'assert'
-import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
-import { Engine } from "../../../ecs/classes/Engine"
-import { createWorld } from "../../../ecs/classes/World"
-import { getComponent, hasComponent } from "../../../ecs/functions/ComponentFunctions"
-import { createEntity } from "../../../ecs/functions/EntityFunctions"
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Engine } from '../../../ecs/classes/Engine'
+import { createWorld } from '../../../ecs/classes/World'
+import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { deserializeInteractable } from './InteractableFunctions'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 
@@ -16,10 +16,10 @@ describe('InteractableFunctions', () => {
 
     const sceneComponentData = {
       interactable: true,
-      interactionType: "interaction type",
-      interactionText: "interaction text",
-      interactionName: "interaction name",
-      interactionDescription: "interaction description",
+      interactionType: 'interaction type',
+      interactionText: 'interaction text',
+      interactionName: 'interaction name',
+      interactionDescription: 'interaction description',
       interactionImages: [],
       interactionVideos: [],
       interactionUrls: [],

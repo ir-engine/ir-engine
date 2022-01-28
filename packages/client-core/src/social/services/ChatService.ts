@@ -1,4 +1,4 @@
-import { createState, none, useState } from '@hookstate/core'
+import { createState, none, useState } from '@speigg/hookstate'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
 import { Group } from '@xrengine/common/src/interfaces/Group'
@@ -12,7 +12,7 @@ import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import { AlertService } from '../../common/services/AlertService'
-import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -241,7 +241,7 @@ export const ChatService = {
       const channelResult = await client.service('channel').find({
         query: {
           channelType: 'instance',
-          instanceId: accessInstanceConnectionState().instance.id.value
+          instanceId: accessLocationInstanceConnectionState().instance.id.value
         }
       })
       if (channelResult.total === 0) return setTimeout(() => ChatService.getInstanceChannel(), 2000)

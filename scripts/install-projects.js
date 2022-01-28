@@ -49,10 +49,7 @@ async function installAllProjects() {
     
     const projects = await Projects.findAll()
     console.log('found projects', projects)
-    
-    for(const project of projects) {
-      await download(project.name)
-    }
+    await Promise.all(projects.map((project) => download(project.name)))
   } catch (e) {
     console.log(e)
   }

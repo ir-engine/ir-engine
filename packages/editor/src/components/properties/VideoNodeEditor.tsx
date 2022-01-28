@@ -3,18 +3,16 @@ import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import VideoInput from '../inputs/VideoInput'
 import VideocamIcon from '@mui/icons-material/Videocam'
-import AudioSourceProperties from './AudioSourceProperties'
 import { EditorComponentType, updateProperty } from './Util'
 import { ControlledStringInput } from '../inputs/StringInput'
 import { useTranslation } from 'react-i18next'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
-import ImageSourceProperties from './ImageSourceProperties'
 import { PropertiesPanelButton } from '../inputs/Button'
 import MediaSourceProperties from './MediaSourceProperties'
-import BooleanInput from '../inputs/BooleanInput'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 /**
  * VideoNodeEditor used to render editor view for property customization.
@@ -25,9 +23,10 @@ import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoF
  */
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
 
   const videoComponent = getComponent(props.node.entity, VideoComponent)
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+  const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   return (
     <NodeEditor
@@ -37,6 +36,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={videoComponent.videoSource} onChange={updateProperty(VideoComponent, 'videoSource')} />
+        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.video.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
         <ControlledStringInput
@@ -45,12 +45,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
-        <BooleanInput
-          value={interactableComponent.interactable}
-          onChange={updateProperty(InteractableComponent, 'interactable')}
-        />
-      </InputGroup>
       <PropertiesPanelButton onClick={() => toggleVideo(props.node.entity)}>
         {t('editor:properties.video.lbl-test')}
       </PropertiesPanelButton>

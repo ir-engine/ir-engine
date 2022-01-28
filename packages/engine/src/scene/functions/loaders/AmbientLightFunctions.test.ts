@@ -1,9 +1,9 @@
 import assert from 'assert'
-import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
-import { AmbientLight, Color, MathUtils } from "three"
-import { createEntity } from "../../../ecs/functions/EntityFunctions"
-import { createWorld } from "../../../ecs/classes/World"
-import { Engine } from "../../../ecs/classes/Engine"
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { AmbientLight, Color, MathUtils } from 'three'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createWorld } from '../../../ecs/classes/World'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { deserializeAmbientLight } from './AmbientLightFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -31,6 +31,5 @@ describe('AmbientLightFunctions', () => {
     assert((getComponent(entity, Object3DComponent).value as AmbientLight).color instanceof Color)
     assert.deepEqual((getComponent(entity, Object3DComponent).value as AmbientLight).color.toArray(), color.toArray())
     assert.deepEqual((getComponent(entity, Object3DComponent).value as AmbientLight).intensity, 5)
-    
   })
 })
