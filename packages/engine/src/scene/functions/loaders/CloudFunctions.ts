@@ -15,6 +15,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Clouds } from '../../classes/Clouds'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { Color, Vector2, Vector3 } from 'three'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
 export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
@@ -58,8 +59,9 @@ export const updateCloud: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.texture)
       obj3d.texture = url
+      removeError(entity, 'error')
     } catch (error) {
-      console.error(error)
+      addError(entity, 'error', error.message)
     }
   }
 

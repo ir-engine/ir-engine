@@ -156,7 +156,8 @@
             "lbl-coreOuterGain": "Cone Outer Gain",
             "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
             "lbl-volume": "Volume",
-            "lbl-test": "Test"
+            "lbl-test": "Test",
+            "error-url": "Error Loading From URL"
         },
         "boxCollider": {
             "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
@@ -249,7 +250,8 @@
             "lbl-side": "Side",
             "info-controls": "Toggle the visibility of the media controls in Hubs.",
             "info-transparency": "How to apply transparency:\n'opaque' = no transparency\n'blend' = use the images alpha channel\n'mask' = Use a specified cutoff value for on/off transparency (more performant)",
-            "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent"
+            "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
+            "error-url": "Invalid URL"
         },
         "name": {
             "lbl-name": "Name"
@@ -279,7 +281,8 @@
             "info-ageRandomness": "The amount of variation between when particles are spawned.",
             "info-lifetime": "The maximum age of a particle before it is respawned.",
             "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
-            "info-sizeRandomness": "The amount of variation between particle starting sizes."
+            "info-sizeRandomness": "The amount of variation between particle starting sizes.",
+            "error-url": "Error Loading From URL"
         },
         "clouds": {
             "name": "Cloud",
@@ -291,7 +294,8 @@
             "lbl-noiseOffset": "Noise Offset",
             "lbl-spriteScale": "Sprite Scale",
             "lbl-fogColor": "Fog Color",
-            "lbl-fogRange": "Fog Range"
+            "lbl-fogRange": "Fog Range",
+            "error-url": "Error Loading From URL"
         },
         "ocean": {
             "name": "Ocean",
@@ -316,7 +320,8 @@
             "lbl-waveScale":  "Wave Scale",
             "lbl-waveTiling":  "Wave Tiling",
             "lbl-waveDistortionSpeed":  "Wave Distortion Speed",
-            "lbl-waveDistortionTiling":  "Wave Distortion Tiling"
+            "lbl-waveDistortionTiling":  "Wave Distortion Tiling",
+            "error-url": "Error Loading From URL"
         },
         "water": {
             "name": "Water",
@@ -327,7 +332,8 @@
             "description": "A surface with mapped cube texture to emulate interior environments",
             "lbl-cubeMap":  "Cube Map texture",
             "lbl-tiling": "Tiling amount",
-            "lbl-size": "Surface size"
+            "lbl-size": "Surface size",
+            "error-url": "Error Loading From URL"
         },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
@@ -383,7 +389,8 @@
             "lbl-toneMappingExposure": "Tone Mapping Exposure",
             "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-shadowMapType": "Shadow Map Type",
-            "info-shadowMapType": "Type of shadow map"
+            "info-shadowMapType": "Type of shadow map",
+            "error-url": "Error Loading From URL"
         },
         "sceneCamera": {
             "name": "Scene Preview Camera",
@@ -402,7 +409,8 @@
             "lbl-horizonStart": "Horizon Start",
             "lbl-horizonEnd": "Horizon End",
             "lbl-texture": "Texture",
-            "lbl-skyType": "Sky Type"
+            "lbl-skyType": "Sky Type",
+            "error-url": "Error Loading From URL"
         },
         "spawnPoint": {
             "name": "Spawn Point",
@@ -440,7 +448,8 @@
             "lbl-islivestream": "Live Stream",
             "lbl-interactable": "Interactable",
             "lbl-id": "Element Id",
-            "lbl-test": "Test"
+            "lbl-test": "Test",
+            "error-url": "Error Loading From URL"
         },
         "volumetric": {
             "name": "Volumetric",
