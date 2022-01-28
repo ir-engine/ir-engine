@@ -13,7 +13,7 @@ import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   SkyboxComponent,
   SkyboxComponentType,
@@ -21,6 +21,8 @@ import {
 } from '@xrengine/engine/src/scene/components/SkyboxComponent'
 import { Color } from 'three'
 import { EditorComponentType, updateProperty } from './Util'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -58,6 +60,9 @@ const SkyOption = [
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
+  const entity = props.node.entity
+  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
@@ -156,6 +161,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const renderEquirectangularSettings = (path: string) => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
       <ImageInput value={path} onChange={onChangeEquirectangularPathOption} />
+      {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )
 
@@ -163,6 +169,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const renderCubemapSettings = (path: string) => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
       <FolderInput value={path} onChange={onChangeCubemapPathOption} />
+      {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )
 
@@ -187,7 +194,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const skyComponent = getComponent(props.node.entity, SkyboxComponent)
+  const skyComponent = getComponent(entity, SkyboxComponent)
 
   return (
     <NodeEditor

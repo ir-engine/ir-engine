@@ -71,7 +71,7 @@ export const BooleanInput = (props: BooleanInputProp) => {
   }
 
   return (
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <StyledBooleanInput id={checkboxId} type="checkbox" checked={props.value} onChange={onChange} />
       <BooleanInputLabel htmlFor={checkboxId}>{props.value && <BooleanCheck size={12} />}</BooleanInputLabel>
     </div>

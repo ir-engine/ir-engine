@@ -30,6 +30,7 @@ const ActivityGraph = ({ data /* see data tab */ }) => {
         zoom: {
           autoScaleYaxis: true
         },
+        background: '#323845',
         toolbar: {
           tools: {
             zoomin: false,
