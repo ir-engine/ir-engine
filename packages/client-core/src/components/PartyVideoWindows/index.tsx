@@ -1,5 +1,5 @@
 import { useState } from '@speigg/hookstate'
-import { useChannelConnectionState } from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { accessMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
@@ -12,7 +12,7 @@ const PartyVideoWindows = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useUserState()
   const [displayedUsers, setDisplayedUsers] = React.useState([] as Array<User>)
-  const channelConnectionState = useChannelConnectionState()
+  const channelConnectionState = useMediaInstanceConnectionState()
 
   useEffect(() => {
     if (channelConnectionState.channelType.value === 'channel') {
