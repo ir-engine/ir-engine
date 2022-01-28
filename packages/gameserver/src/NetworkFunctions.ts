@@ -265,13 +265,18 @@ export const handleJoinWorld = async (
 
     let users = result.data
     if (users.length > 0) {
-      const inviterUserId = users[0].id
-      const inviterUserAvatar = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
-      const inviterUserTransform = getComponent(inviterUserAvatar, TransformComponent)
+      const inviterUser = users[0]
+      if (inviterUser.instanceId === user.instanceId) {
+        const inviterUserId = inviterUser.id
+        const inviterUserAvatar = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserTransform = getComponent(inviterUserAvatar, TransformComponent)
 
-      spawnPose = {
-        position: inviterUserTransform.position,
-        rotation: inviterUserTransform.rotation
+        spawnPose = {
+          position: inviterUserTransform.position,
+          rotation: inviterUserTransform.rotation
+        }
+      } else {
+        console.warn('The user who invited this user in no longer on this instnace!')
       }
     }
   }
