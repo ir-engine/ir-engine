@@ -153,6 +153,7 @@ describe('matchmaking match-instance service', () => {
     await app.service('instance').remove(gameServerInstance.id)
   })
 
+  // it will create null:null instance server on localhost for second match
   it('assigns two packs of players to different servers', async () => {
     const assignmentService = app.service('match-ticket-assignment')
 
