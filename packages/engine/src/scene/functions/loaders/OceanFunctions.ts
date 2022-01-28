@@ -15,6 +15,7 @@ import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { isClient } from '../../../common/functions/isClient'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { Ocean } from '../../classes/Ocean'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_OCEAN = 'ocean'
 export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
@@ -71,7 +72,9 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.normalMap)
       obj3d.normalMap = url
+      removeError(entity, 'normalMapError')
     } catch (error) {
+      addError(entity, 'normalMapError', error.message)
       console.error(error)
     }
   }
@@ -80,7 +83,9 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.distortionMap)
       obj3d.distortionMap = url
+      removeError(entity, 'distortionMapError')
     } catch (error) {
+      addError(entity, 'distortionMapError', error.message)
       console.error(error)
     }
   }
@@ -89,7 +94,9 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.envMap)
       obj3d.envMap = url
+      removeError(entity, 'envMapError')
     } catch (error) {
+      addError(entity, 'envMapError', error.message)
       console.error(error)
     }
   }

@@ -6,9 +6,12 @@ import {
   CubeTexture,
   sRGBEncoding,
   Texture,
-  Vector2
+  Vector2,
+  Object3D
 } from 'three'
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
+import { Object3DWithEntity } from '../components/Object3DComponent'
+import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
 attribute vec4 tangent;
@@ -129,8 +132,11 @@ export class Interior extends Mesh<PlaneBufferGeometry, ShaderMaterial> {
       .then((texture) => {
         texture.encoding = sRGBEncoding
         this._material.uniforms.cubemap.value = texture
+        removeError((this as Object3D as Object3DWithEntity).entity, 'error')
       })
-      .catch(console.error)
+      .catch((error) => {
+        addError((this as Object3D as Object3DWithEntity).entity, 'error', error.message)
+      })
   }
 
   get tiling(): number {
