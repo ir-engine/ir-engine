@@ -29,6 +29,8 @@ ENV APP_ENV=production
 FROM node:16-buster-slim as runner
 WORKDIR /app
 
+RUN apt-get -y install git
+
 COPY --from=builder /app ./
 
 CMD ["scripts/start-server.sh"]
