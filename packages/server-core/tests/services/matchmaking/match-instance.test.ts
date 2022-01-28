@@ -122,7 +122,7 @@ describe('matchmaking match-instance service', () => {
     })
 
     // made with promise all to make all request work asynchronous
-    await Promise.all(
+    const assignments = await Promise.all(
       connectionTickets.map((ticket, index) => {
         return assignmentService.get(ticket.id, { 'identity-provider': { userId: ticket.user.id } })
       })
@@ -143,6 +143,11 @@ describe('matchmaking match-instance service', () => {
     const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver)
     assert(gameServerInstance)
     assert(!gameServerInstance.ended)
+
+    // just in case, check that assignments have instance id and location name
+    // it should be set in one of hooks
+    assert((assignments[0] as any).instanceId)
+    assert((assignments[0] as any).locationName)
 
     // cleanup created instance
     await app.service('instance').remove(gameServerInstance.id)

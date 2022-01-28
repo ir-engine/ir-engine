@@ -1,10 +1,15 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
+interface AssignmentResponse extends OpenMatchTicketAssignment {
+  instanceId: string
+  locationName: string
+}
+
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const app = context.app
-    const result: OpenMatchTicketAssignment = context.result
+    const result: AssignmentResponse = context.result
     const userId = context.params['identity-provider']?.userId
 
     if (!result.connection) {
@@ -84,6 +89,9 @@ export default (): Hook => {
         instanceId: matchServerInstance.gameserver
       })
     }
+
+    result.instanceId = matchServerInstance.gameserver
+    result.locationName = 'game-' + matchServerInstance.gamemode
 
     return context
   }
