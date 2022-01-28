@@ -1,4 +1,7 @@
 import { Group, Object3D, SkinnedMesh } from 'three'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 
 export class XRHandMeshModel extends Object3D {
   controller: Group
@@ -6,6 +9,8 @@ export class XRHandMeshModel extends Object3D {
 
   constructor(controller: Group, model: Object3D, handedness: string) {
     super()
+
+    const world = useWorld()
 
     this.controller = controller
     this.bones = []
@@ -49,11 +54,18 @@ export class XRHandMeshModel extends Object3D {
 
       if (bone) {
         ;(bone as any).jointName = jointName
+
+        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, world.localClientEntity, bone.position)
+        proxifyQuaternion(
+          XRHandsInputComponent[handedness][jointName].quaternion,
+          world.localClientEntity,
+          bone.quaternion
+        )
+
+        this.bones.push(bone)
       } else {
         console.warn(`Couldn't find ${jointName} in ${handedness} hand mesh`)
       }
-
-      this.bones.push(bone)
     })
   }
 

@@ -18,7 +18,7 @@ describe('ColliderFunctions', () => {
     const world = createWorld()
     Engine.currentWorld = world
     await Engine.currentWorld.physics.createScene({ verbose: true })
-    
+
     const entity = createEntity(world)
     const type = 'trimesh'
     let geom = new SphereBufferGeometry()
@@ -39,9 +39,9 @@ describe('ColliderFunctions', () => {
     })
 
     addComponent(entity, TransformComponent, {
-      position: new Vector3(0,2,0),
+      position: new Vector3(0, 2, 0),
       rotation: new Quaternion(),
-      scale: new Vector3(1,1,1)
+      scale: new Vector3(1, 1, 1)
     })
 
     const sceneComponentData = bodyOptions

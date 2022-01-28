@@ -14,6 +14,7 @@ import { InteriorComponent, InteriorComponentType } from '../../components/Inter
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { isClient } from '../../../common/functions/isClient'
 import { Interior } from '../../classes/Interior'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_INTERIOR = 'interior'
 export const SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES = {
@@ -51,8 +52,9 @@ export const updateInterior: ComponentUpdateFunction = async (entity: Entity, pr
     try {
       const { url } = await resolveMedia(component.cubeMap)
       obj3d.cubeMap = url
+      removeError(entity, 'error')
     } catch (error) {
-      console.error(error)
+      addError(entity, 'error', error.message)
     }
   }
 

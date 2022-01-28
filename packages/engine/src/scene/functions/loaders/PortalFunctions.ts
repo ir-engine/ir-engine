@@ -13,6 +13,8 @@ import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quatern
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { setObjectLayers } from '../setObjectLayers'
+import { ObjectLayers } from '../../constants/ObjectLayers'
 
 export const SCENE_COMPONENT_PORTAL = 'portal'
 export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
@@ -59,6 +61,7 @@ export const deserializePortal: ComponentDeserializeFunction = (
     spawnDirection.rotateX(Math.PI / 2)
     spawnHelperMesh.add(spawnDirection)
 
+    setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
   }
 

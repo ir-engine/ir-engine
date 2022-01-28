@@ -1,38 +1,36 @@
+import { World } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { dispatchFrom } from './dispatchFrom'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
-export async function validateNetworkObjects(world): Promise<void> {
+export async function validateNetworkObjects(world: World): Promise<void> {
   for (const [userId, client] of world.clients) {
     // Validate that user has phoned home recently
-    if (process.env.APP_ENV !== 'development' && Date.now() - client.lastSeenTs > 30000) {
+    if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
-      if (!client) return console.warn('Client is not in client list')
-
-      const disconnectedClient = Object.assign({}, client)
 
       dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
 
-      console.log('Disconnected Client:', disconnectedClient.userId)
-      if (disconnectedClient?.instanceRecvTransport) {
+      console.log('Disconnected Client:', client.userId)
+      if (client?.instanceRecvTransport) {
         console.log('Closing instanceRecvTransport')
-        await disconnectedClient.instanceRecvTransport.close()
+        await client.instanceRecvTransport.close()
         console.log('Closed instanceRecvTransport')
       }
-      if (disconnectedClient?.instanceSendTransport) {
+      if (client?.instanceSendTransport) {
         console.log('Closing instanceSendTransport')
-        await disconnectedClient.instanceSendTransport.close()
+        await client.instanceSendTransport.close()
         console.log('Closed instanceSendTransport')
       }
-      if (disconnectedClient?.channelRecvTransport) {
+      if (client?.channelRecvTransport) {
         console.log('Closing channelRecvTransport')
-        await disconnectedClient.channelRecvTransport.close()
+        await client.channelRecvTransport.close()
         console.log('Closed channelRecvTransport')
       }
-      if (disconnectedClient?.channelSendTransport) {
+      if (client?.channelSendTransport) {
         console.log('Closing channelSendTransport')
-        await disconnectedClient.channelSendTransport.close()
+        await client.channelSendTransport.close()
         console.log('Closed channelSendTransport')
       }
 

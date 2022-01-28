@@ -1,7 +1,8 @@
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
+import { Entity } from './Entity'
 
 const state = createState({
   fixedTick: 0,
@@ -20,7 +21,8 @@ const state = createState({
   connectionTimeoutInstance: false,
   avatarTappedId: null! as string,
   userHasInteracted: false,
-  interactionData: null! as InteractableComponentType
+  interactionData: null! as InteractableComponentType,
+  errorEntities: {} as { [key: Entity]: boolean }
 })
 
 export function EngineEventReceptor(action: EngineActionType) {
@@ -80,6 +82,9 @@ export function EngineEventReceptor(action: EngineActionType) {
         return
       case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
         return s.merge({ userHasInteracted: true })
+      case EngineEvents.EVENTS.ENTITY_ERROR_UPDATE:
+        s.errorEntities[action.entity].set(!action.isResolved)
+        return
     }
   }, action.type)
 }
@@ -233,6 +238,13 @@ export const EngineActions = {
   setUserHasInteracted: () => {
     return {
       type: EngineEvents.EVENTS.SET_USER_HAS_INTERACTED
+    }
+  },
+  updateEntityError: (entity: Entity, isResolved = false) => {
+    return {
+      type: EngineEvents.EVENTS.ENTITY_ERROR_UPDATE,
+      entity,
+      isResolved
     }
   }
 }

@@ -203,7 +203,11 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     const node = world.entityTree.findNodeFromEid(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.spawnObject({ prefab: '', parameters: { sceneEntityId: node.uuid } })
+        NetworkWorldAction.spawnObject({
+          prefab: '',
+          parameters: { sceneEntityId: node.uuid },
+          ownerIndex: world.clients.get(world.hostId)!.userIndex
+        })
       ).cache()
     }
   } else {
@@ -234,12 +238,11 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
           res.scene.animations = res.animation
           resolve(res)
         } else {
-          reject()
+          reject({ message: 'Not a valid object' })
         }
       },
       null!,
       (err) => {
-        modelComponent.error = err.message
         reject(err)
       }
     )

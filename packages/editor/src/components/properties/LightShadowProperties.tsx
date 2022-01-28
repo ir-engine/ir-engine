@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { updateProperty } from './Util'
+import { CommandManager } from '../../managers/CommandManager'
 
 /**
  *  Array containing options for shadow resolution
@@ -17,23 +18,23 @@ import { updateProperty } from './Util'
 const ShadowMapResolutionOptions = [
   {
     label: '256px',
-    value: new Vector2(256, 256)
+    value: 256
   },
   {
     label: '512px',
-    value: new Vector2(512, 512)
+    value: 512
   },
   {
     label: '1024px',
-    value: new Vector2(1024, 1024)
+    value: 1024
   },
   {
     label: '2048px',
-    value: new Vector2(2048, 2048)
+    value: 2048
   },
   {
     label: '4096px (not recommended)',
-    value: new Vector2(4096, 4096)
+    value: 4096
   }
 ]
 
@@ -53,6 +54,13 @@ type LightShadowPropertiesProps = {
 export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
+  const changeShadowMapResolution = (resolution) => {
+    CommandManager.instance.setPropertyOnSelectionEntities({
+      component: props.comp,
+      properties: { shadowMapResolution: new Vector2(resolution, resolution) }
+    })
+  }
+
   const lightComponent = getComponent(props.node.entity, props.comp)
 
   return (
@@ -63,8 +71,8 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
       <InputGroup name="Shadow Map Resolution" label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}>
         <SelectInput
           options={ShadowMapResolutionOptions}
-          value={lightComponent.shadowMapResolution}
-          onChange={updateProperty(props.comp, 'shadowMapResolution')}
+          value={lightComponent.shadowMapResolution?.x}
+          onChange={changeShadowMapResolution}
         />
       </InputGroup>
       <NumericInputGroup

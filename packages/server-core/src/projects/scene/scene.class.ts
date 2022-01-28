@@ -13,7 +13,7 @@ import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()
-const NEW_SCENE_NAME = 'New Scene'
+const NEW_SCENE_NAME = 'New-Scene'
 
 export const getSceneData = (projectName, sceneName, metadataOnly) => {
   const newSceneJsonPath = path.resolve(
@@ -46,6 +46,8 @@ interface UpdateParams {
   sceneName: string
   sceneData?: SceneJson
   thumbnailBuffer?: Buffer
+  rename?: boolean
+  oldSceneName?: string
 }
 
 export class Scene implements ServiceMethods<any> {
@@ -106,7 +108,7 @@ export class Scene implements ServiceMethods<any> {
     let counter = 1
 
     while (true) {
-      if (counter > 1) newSceneName = NEW_SCENE_NAME + ' ' + counter
+      if (counter > 1) newSceneName = NEW_SCENE_NAME + '-' + counter
       if (!fs.existsSync(projectPath + newSceneName + '.scene.json')) break
 
       counter++
@@ -134,7 +136,7 @@ export class Scene implements ServiceMethods<any> {
   }
 
   async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
-    const { sceneName, sceneData, thumbnailBuffer } = data
+    const { sceneName, sceneData, thumbnailBuffer, rename, oldSceneName } = data
     console.log('[scene.update]:', projectName, data)
 
     const project = await this.app.service('project').get(projectName, params)
@@ -144,6 +146,27 @@ export class Scene implements ServiceMethods<any> {
       appRootPath.path,
       `packages/projects/projects/${projectName}/${sceneName}.scene.json`
     )
+    if (rename) {
+      const oldSceneJsonPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
+      )
+      const oldSceneThumbnailPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
+      )
+      if (fs.existsSync(oldSceneJsonPath)) {
+        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+      }
+      if (fs.existsSync(oldSceneThumbnailPath)) {
+        const newSceneThumbnailPath = path.resolve(
+          appRootPath.path,
+          `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        )
+        fs.renameSync(oldSceneThumbnailPath, newSceneThumbnailPath)
+      }
+      return
+    }
 
     if (thumbnailBuffer) {
       const sceneThumbnailPath = path.resolve(
@@ -173,14 +196,20 @@ export class Scene implements ServiceMethods<any> {
   async remove({ projectName, sceneName }, params: Params): Promise<any> {
     const name = cleanString(sceneName)
 
-    if (projectName === 'default-project') return
-
     const project = await this.app.service('project').get(projectName, params)
     if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
     const sceneJsonPath = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/${name}.scene.json`)
+    const thumbnailPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/${projectName}/${name}.thumbnail.jpeg`
+    )
     if (fs.existsSync(sceneJsonPath)) {
       fs.rmSync(path.resolve(sceneJsonPath))
+    }
+
+    if (fs.existsSync(thumbnailPath)) {
+      fs.rmSync(path.resolve(thumbnailPath))
     }
   }
 }

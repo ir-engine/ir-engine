@@ -6,10 +6,10 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useState } from 'react'
+import { usePartyState } from '../../social/services/PartyService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 type GameServerWarningsProps = {
-  instanceId: string
   locationName: string
 }
 
@@ -33,11 +33,15 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   const [modalValues, setModalValues] = useState(initialModalValues)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
+  const [erroredInstanceId, setErroredInstanceId] = useState(null)
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
-      () => updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+      ({ instanceId }) => {
+        setErroredInstanceId(instanceId)
+        updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+      }
     )
 
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () =>
@@ -86,7 +90,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
           action: async () => InstanceConnectionService.provisionInstanceServer(currentLocation.id),
-          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
+          parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
           noCountdown: false
         })
         break

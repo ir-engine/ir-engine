@@ -38,6 +38,8 @@ import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -159,6 +161,8 @@ const ShadowTypeOptions = [
  */
 export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const entity = props.node.entity
+  const engineState = useEngineState()
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = getDirectoryFromUrl(value)
@@ -179,11 +183,13 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
     })
   }, [])
 
-  const metadata = getComponent(props.node.entity, MetaDataComponent)
-  const envmapComponent = getComponent(props.node.entity, EnvmapComponent)
-  const fogComponent = getComponent(props.node.entity, FogComponent)
-  const audioComponent = getComponent(props.node.entity, PositionalAudioSettingsComponent)
-  const renderSettingComponent = getComponent(props.node.entity, RenderSettingComponent)
+  const metadata = getComponent(entity, MetaDataComponent)
+  const envmapComponent = getComponent(entity, EnvmapComponent)
+  const fogComponent = getComponent(entity, FogComponent)
+  const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
+  const renderSettingComponent = getComponent(entity, RenderSettingComponent)
+  const hasError = engineState.errorEntities[entity].get()
+  const errorComponent = getComponent(entity, ErrorComponent)
 
   return (
     <NodeEditor
@@ -225,7 +231,9 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
                 onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
               />
             )}
-            {envmapComponent.errorWhileLoading && <div>Error Loading From URL </div>}
+            {hasError && errorComponent.envmapError && (
+              <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.scene.error-url')}</div>
+            )}
           </InputGroup>
         </div>
       )}

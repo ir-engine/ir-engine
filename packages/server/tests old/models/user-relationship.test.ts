@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 import { Op } from 'sequelize'
 
-describe('CRUD operation on \'UserRelationship\' model', () => {
+describe("CRUD operation on 'UserRelationship' model", () => {
   const model = (app.service('user-relationship') as any).Model
   const userModel = (app.service('user') as any).Model
   const userRelationshipTypeModel = (app.service('user-relationship-type') as any).Model
@@ -39,10 +39,7 @@ describe('CRUD operation on \'UserRelationship\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { type: userRelationshipType },
-      { where: { userId: userId } }
-    )
+    model.update({ type: userRelationshipType }, { where: { userId: userId } })
   })
 
   it('Delete', () => {
