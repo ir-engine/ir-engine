@@ -20,8 +20,16 @@ describe('matchmaking match-instance service', () => {
   const ticketsNumber = 3
   const users: User[] = []
   const tickets: ticketsTestData[] = []
-  const gamemode = 'msa-private'
+  const gamemode = 'msa-private-test'
   const tier = 'bronze'
+
+  const commonLocationSettings = {
+    locationType: 'public',
+    videoEnabled: false,
+    instanceMediaChatEnabled: false
+  }
+
+  let location
 
   const connections = [Math.random().toString(16), Math.random().toString(16)]
   const emptyAssignmentReplyBody = {
@@ -44,6 +52,25 @@ describe('matchmaking match-instance service', () => {
       .reply(200, () => {
         return { id: 'tst' + Math.random().toString() }
       })
+
+    await app.service('location').Model.destroy({
+      where: {
+        slugifiedName: `game-${gamemode}`
+      }
+    })
+
+    location = await app.service('location').create(
+      {
+        name: `game-${gamemode}`,
+        slugifiedName: `game-${gamemode}`,
+        maxUsersPerInstance: 30,
+        sceneId: `msa/game-${gamemode}`,
+        location_settings: commonLocationSettings as any,
+        isLobby: false,
+        isFeatured: false
+      } as any,
+      {}
+    )
 
     const usersPromises: Promise<any>[] = []
     const ticketsPromises: Promise<any>[] = []
@@ -102,6 +129,8 @@ describe('matchmaking match-instance service', () => {
       cleanupPromises.push(app.service('user').remove(user.id))
     })
     users.length = 0
+
+    cleanupPromises.push(app.service('location').remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
   })
