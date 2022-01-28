@@ -46,8 +46,12 @@ interface UpdateParams {
   sceneName: string
   sceneData?: SceneJson
   thumbnailBuffer?: Buffer
-  rename?: boolean
-  oldSceneName?: string
+}
+
+interface RenameParams {
+  newSceneName: string
+  oldSceneName: string
+  projectName: string
 }
 
 interface RenameParams {
@@ -177,7 +181,7 @@ export class Scene implements ServiceMethods<any> {
   }
 
   async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
-    const { sceneName, sceneData, thumbnailBuffer, rename, oldSceneName } = data
+    const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
 
     const project = await this.app.service('project').get(projectName, params)
@@ -187,27 +191,6 @@ export class Scene implements ServiceMethods<any> {
       appRootPath.path,
       `packages/projects/projects/${projectName}/${sceneName}.scene.json`
     )
-    if (rename) {
-      const oldSceneJsonPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
-      )
-      const oldSceneThumbnailPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
-      )
-      if (fs.existsSync(oldSceneJsonPath)) {
-        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
-      }
-      if (fs.existsSync(oldSceneThumbnailPath)) {
-        const newSceneThumbnailPath = path.resolve(
-          appRootPath.path,
-          `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
-        )
-        fs.renameSync(oldSceneThumbnailPath, newSceneThumbnailPath)
-      }
-      return
-    }
 
     if (thumbnailBuffer) {
       const sceneThumbnailPath = path.resolve(
