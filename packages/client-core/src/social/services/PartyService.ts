@@ -6,7 +6,7 @@ import { AlertService } from '../../common/services/AlertService'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
@@ -219,13 +219,13 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       if (
         party.instanceId != null &&
         party.instanceId !== dbUser.instanceId &&
-        accessInstanceConnectionState().instanceProvisioning.value === false
+        accessLocationInstanceConnectionState().provisioning.value === false
       ) {
         const updateUser = dbUser
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))
         // TODO: Reenable me!
-        // await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+        // await provisionServer(instance.locationId, instance.id)(store.dispatch, store.getState);
       }
     }
   })

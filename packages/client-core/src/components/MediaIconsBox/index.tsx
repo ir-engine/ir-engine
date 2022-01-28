@@ -2,10 +2,10 @@ import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import {
-  ChannelConnectionService,
-  useChannelConnectionState
-} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+  MediaInstanceConnectionService,
+  useMediaInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -40,13 +40,13 @@ const MediaIconsBox = (props) => {
 
   const user = useAuthState().user
   const chatState = useChatState()
-  const instanceId = useInstanceConnectionState().instance.id.value
+  const instanceId = useLocationInstanceConnectionState().instance.id.value
   const channelState = chatState.channels
   const channels = channelState.channels.value
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === instanceId)
   const currentLocation = useLocationState().currentLocation.location
-  const channelConnectionState = useChannelConnectionState()
+  const channelConnectionState = useMediaInstanceConnectionState()
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSettings?.value
     ? currentLocation?.locationSettings?.videoEnabled?.value
@@ -108,7 +108,7 @@ const MediaIconsBox = (props) => {
       await endVideoChat(mediaTransport, {})
       if (mediaTransport.socket?.connected === true) {
         await leave(mediaTransport, false)
-        await ChannelConnectionService.provisionChannelServer(instanceChannel.id)
+        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
   }
