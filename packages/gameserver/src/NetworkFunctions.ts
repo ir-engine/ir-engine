@@ -16,6 +16,8 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import AWS from 'aws-sdk'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -242,7 +244,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
   }
 }
 
-export const handleJoinWorld = (
+export const handleJoinWorld = async (
   transport: SocketWebRTCServerTransport,
   socket,
   data,
@@ -250,7 +252,31 @@ export const handleJoinWorld = (
   joinedUserId: UserId,
   user
 ) => {
-  console.info('JoinWorld received', joinedUserId, data)
+  let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+  const inviteCode = data['inviteCode']
+
+  if (inviteCode) {
+    const result = await transport.app.service('user').find({
+      query: {
+        action: 'invite-code-lookup',
+        inviteCode: inviteCode
+      }
+    })
+
+    let users = result.data
+    if (users.length > 0) {
+      const inviterUserId = users[0].id
+      const inviterUserAvatar = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+      const inviterUserTransform = getComponent(inviterUserAvatar, TransformComponent)
+
+      spawnPose = {
+        position: inviterUserTransform.position,
+        rotation: inviterUserTransform.rotation
+      }
+    }
+  }
+
+  console.info('JoinWorld received', joinedUserId, data, spawnPose)
   const world = Engine.currentWorld
   const client = world.clients.get(joinedUserId)!
 
@@ -275,7 +301,8 @@ export const handleJoinWorld = (
     tick: world.fixedTick,
     clients,
     cachedActions,
-    avatarDetail: client.avatarDetail!
+    avatarDetail: client.avatarDetail!,
+    avatarSpawnPose: spawnPose
   })
 
   dispatchFrom(world.hostId, () =>

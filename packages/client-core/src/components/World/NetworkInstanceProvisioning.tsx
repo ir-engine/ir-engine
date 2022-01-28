@@ -105,10 +105,17 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   ])
 
   useEffect(() => {
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
+    const inviteCode = params.get('inviteCode')
+    const transportRequestData = {
+      inviteCode: inviteCode!
+    }
+
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Network.instance.transportHandler
         .getWorldTransport()
-        .request(MessageTypes.JoinWorld.toString())
+        .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld.value, engineState.sceneLoaded.value])
