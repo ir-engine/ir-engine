@@ -57,7 +57,7 @@ export const deleteScene = async (projectName, sceneName): Promise<any> => {
 
 export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
   try {
-    await client.service('scene').update(projectName, { sceneName: newSceneName, oldSceneName, rename: true })
+    await client.service('scene').patch(null, { newSceneName, oldSceneName, projectName })
   } catch (error) {
     console.log('Error in renaming Project:' + error)
     throw new Error(error)
