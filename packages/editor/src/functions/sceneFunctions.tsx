@@ -46,13 +46,23 @@ export const getScene = async (
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
-  // try {
-  //   await client.service('scene').remove({ projectName, sceneName })
-  // } catch (error) {
-  //   console.log('Error in Getting Project:' + error)
-  //   throw new Error(error)
-  // }
-  // return true
+  try {
+    await client.service('scene').remove({ projectName, sceneName })
+  } catch (error) {
+    console.log('Error in deleting Project:' + error)
+    throw new Error(error)
+  }
+  return true
+}
+
+export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
+  try {
+    await client.service('scene').update(projectName, { sceneName: newSceneName, oldSceneName, rename: true })
+  } catch (error) {
+    console.log('Error in renaming Project:' + error)
+    throw new Error(error)
+  }
+  return true
 }
 
 /**
