@@ -90,7 +90,7 @@ const StyledTag = styled(Tag)<TagProps>(
 
 const Listbox = styled('ul')(
   ({ theme }) => `
-  width: 90%;
+  width: 40%;
   margin: 2px 0 0;
   padding: 0;
   position: absolute;
@@ -137,7 +137,7 @@ const Listbox = styled('ul')(
 `
 )
 
-export default function AutoComplete({ data, label, handleChangeScopeType }) {
+export default function AutoComplete({ data, label, handleChangeScopeType, scopes }) {
   const {
     getRootProps,
     getInputLabelProps,
@@ -151,15 +151,14 @@ export default function AutoComplete({ data, label, handleChangeScopeType }) {
     setAnchorEl
   } = useAutocomplete({
     id: 'customized-hook-demo',
+    defaultValue: scopes || [],
     multiple: true,
     options: data,
-    getOptionLabel: (option) => option.type
+    getOptionLabel: (option) => option.type,
+    onChange: (event: React.ChangeEvent<{}>, value: any) => {
+      handleChangeScopeType(value)
+    }
   })
-
-  //   React.useEffect(()=> {
-  //       if(value.length) handleChangeScopeType(value)
-  //   }, [value]);
-
   return (
     <Root>
       <div {...getRootProps()}>

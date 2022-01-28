@@ -121,9 +121,9 @@ export class User extends Service {
     }
   }
 
-  // async create (params: Params): Promise<any> {
-  //   const data = params;
-  //   data.inviteCode =  Math.random().toString(36).slice(2);
-  //   return await super.create(data);
-  // }
+  async create(params: Params): Promise<any> {
+    const data = params
+    data.inviteCode = Math.random().toString(36).slice(2)
+    return await super.create(data)
+  }
 }

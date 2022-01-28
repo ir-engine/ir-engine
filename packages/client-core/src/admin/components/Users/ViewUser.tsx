@@ -29,6 +29,8 @@ import { UserRoleService, useUserRoleState } from '../../services/UserRoleServic
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import { validateUserForm } from './validation'
+import AlertMessage from '../../common/AlertMessage'
+import AutoComplete from '../../common/AutoComplete'
 
 interface Props {
   openView: boolean
@@ -37,8 +39,8 @@ interface Props {
   //doLoginAuto?: any
 }
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
+interface ScopeData {
+  type: string
 }
 
 const ViewUser = (props: Props) => {
@@ -120,11 +122,17 @@ const ViewUser = (props: Props) => {
 
   useEffect(() => {
     if (singleUserData?.value) {
+      const temp: ScopeData[] = []
+      userAdmin.scopes.forEach((el) => {
+        temp.push({
+          type: el.type
+        })
+      })
       setState({
         ...state,
         name: userAdmin.name || '',
         avatar: userAdmin.avatarId || '',
-        scopes: userAdmin.scopes || []
+        scopes: temp
       })
     }
   }, [singleUserData?.id?.value])
@@ -188,7 +196,7 @@ const ViewUser = (props: Props) => {
     }
   }
 
-  const handleCloseWarning = (event, reason) => {
+  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -221,9 +229,16 @@ const ViewUser = (props: Props) => {
     })
   }
 
-  const handleChangeScopeType = (e) => {
-    setState({ ...state, scopes: e.target.value, formErrors: { ...state.formErrors, scopes: '' } })
+  const handleChangeScopeType = (scope) => {
+    setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
+
+  const scopeData: ScopeData[] = []
+  adminScopeTypeState.scopeTypes.value.forEach((el) => {
+    scopeData.push({
+      type: el.type
+    })
+  })
 
   return (
     <React.Fragment>
@@ -355,35 +370,12 @@ const ViewUser = (props: Props) => {
                 </FormControl>
               </Paper>
 
-              <label>Grant scope</label>
-              <Paper
-                component="div"
-                className={state.formErrors.scopes.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.scopes}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleChangeScopeType}
-                    className={classes.select}
-                    name="scopes"
-                    multiple
-                    renderValue={(value: any) =>
-                      value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
-                    }
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
-                  >
-                    {adminScopeTypeState.scopeTypes.value.map((el, index) => (
-                      <MenuItem value={el?.type} key={index}>
-                        {el?.type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <AutoComplete
+                data={scopeData}
+                label="Grant Scope"
+                handleChangeScopeType={handleChangeScopeType}
+                scopes={state.scopes}
+              />
             </div>
           ) : (
             <Grid container spacing={3} className={classes.mt5}>
@@ -468,12 +460,6 @@ const ViewUser = (props: Props) => {
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {
-                    setState({
-                      ...state,
-                      name: userAdmin.name || '',
-                      avatar: userAdmin.avatarId || '',
-                      scopes: userAdmin.scopes || []
-                    })
                     setEditMode(true)
                   }}
                 >
@@ -486,14 +472,7 @@ const ViewUser = (props: Props) => {
             )}
           </DialogActions>
         </Container>
-        <Snackbar
-          open={openWarning}
-          autoHideDuration={6000}
-          onClose={handleCloseWarning}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert severity="warning">{error}</Alert>
-        </Snackbar>
+        <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
       </Drawer>
     </React.Fragment>
   )

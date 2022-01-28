@@ -23,10 +23,7 @@ import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
 import { validateUserForm } from './validation'
 import AutoComplete from '../../common/AutoComplete'
-
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+import AlertMessage from '../../common/AlertMessage'
 
 interface Props {
   open: boolean
@@ -98,15 +95,14 @@ const CreateUser = (props: Props) => {
     setOpenCreateUserRole(false)
   }
 
-  const handleCloseWarning = (event, reason) => {
+  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
     setOpenWarning(false)
   }
-
   const handleChangeScopeType = (scope) => {
-    setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
+    if (scope.length) setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
   const handleChange = (e) => {
@@ -150,7 +146,6 @@ const CreateUser = (props: Props) => {
       temp.scopes = "Scope type can't be empty"
     }
     setState({ ...state, formErrors: temp })
-
     if (validateUserForm(state, state.formErrors)) {
       UserService.createUser(data)
       closeViewModel(false)
@@ -178,7 +173,16 @@ const CreateUser = (props: Props) => {
     closeViewModel(false)
   }
 
-  console.log(state.scopes)
+  interface ScopeData {
+    type: string
+  }
+
+  const scopeData: ScopeData[] = []
+  adminScopeTypeState.scopeTypes.value.forEach((el) => {
+    scopeData.push({
+      type: el.type
+    })
+  })
 
   return (
     <React.Fragment>
@@ -261,39 +265,7 @@ const CreateUser = (props: Props) => {
               Create One
             </a>
           </DialogContentText>
-          <AutoComplete
-            data={adminScopeTypeState.scopeTypes.value}
-            label="Grant Scope"
-            handleChangeScopeType={handleChangeScopeType}
-          />
-          <Paper
-            component="div"
-            className={state.formErrors.scopes.length > 0 ? classes.redBorder : classes.createInput}
-          >
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.scopes}
-                fullWidth
-                displayEmpty
-                onChange={handleChangeScopeType}
-                className={classes.select}
-                name="scopes"
-                multiple
-                renderValue={(value: any) =>
-                  value?.length ? (Array.isArray(value) ? value.join(', ') : value) : 'Select scope'
-                }
-                MenuProps={{ classes: { paper: classes.selectPaper } }}
-              >
-                {adminScopeTypeState.scopeTypes.value.map((el, index) => (
-                  <MenuItem value={el?.type} key={index}>
-                    {el?.type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
+          <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
           <DialogActions>
             <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
@@ -302,14 +274,7 @@ const CreateUser = (props: Props) => {
               Cancel
             </Button>
           </DialogActions>
-          <Snackbar
-            open={openWarning}
-            autoHideDuration={6000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          >
-            <Alert severity="warning">{error}</Alert>
-          </Snackbar>
+          <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
         </Container>
       </Drawer>
       <CreateUserRole open={openCreateaUserRole} handleClose={handleUserRoleClose} />
