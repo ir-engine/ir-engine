@@ -1,4 +1,4 @@
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
 import { AlertService } from '../../common/services/AlertService'
