@@ -3,31 +3,17 @@ import { applyThreshold } from '../../common/functions/applyThreshold'
 import { InputType } from '../enums/InputType'
 import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
-import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 
-/**
- * @property {Boolean} gamepadConnected Connection a new gamepad
- * @property {Number} gamepadThreshold Threshold value from 0 to 1
- * @property {Binary[]} gamepadButtons Map gamepad buttons
- * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
- */
-
-let gamepadConnected = false
+const inputPerGamepad = 2
 const gamepadThreshold = 0.1
 const gamepadMultiplier = 0.01
-const gamepadButtons: BinaryValue[] = []
-const gamepadInput: number[] = []
 
-const inputPerGamepad = 2
-let gamepads: Gamepad[]
-let gamepad: Gamepad
-let inputBase: number
-let x: number
-let y: number
+let gamepadConnected = false
+const lastButtonInput: BinaryValue[] = []
+const lastAxisInput: number[] = []
 
-let _index: number // temp var for iterator loops
 /**
  * System behavior to handle gamepad input
  *
@@ -37,14 +23,14 @@ export const handleGamepads = () => {
   // Get an immutable reference to input
   if (!gamepadConnected) return
   // Get gamepads from the DOM
-  gamepads = navigator.getGamepads() as Gamepad[]
+  const gamepads = navigator.getGamepads() as Gamepad[]
 
   // Loop over connected gamepads
-  for (_index = 0; _index < gamepads.length; _index++) {
+  for (let _index = 0; _index < gamepads.length; _index++) {
     // If there's no gamepad at this index, skip
     if (!gamepads[_index]) return
     // Hold reference to this gamepad
-    gamepad = gamepads[_index]
+    const gamepad = gamepads[_index]
 
     // If the gamepad has analog inputs (dpads that aren't up UP/DOWN/L/R but have -1 to 1 values for X and Y)
     if (gamepad.axes) {
@@ -75,31 +61,28 @@ export const handleGamepads = () => {
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-const handleGamepadButton = (gamepad: Gamepad, index: number) => {
-  if (gamepad.buttons[index].touched === (gamepadButtons[index] === BinaryValue.ON)) return
+export const handleGamepadButton = (gamepad: Gamepad, index: number) => {
+  if (gamepad.buttons[index].touched === (lastButtonInput[index] === BinaryValue.ON)) return
   // Set input data
   Engine.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
     value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.Started : LifecycleValue.Ended
   })
-  gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
+  lastButtonInput[index] = gamepad.buttons[index].touched ? 1 : 0
 }
-
-let prevLeftX: number
-let prevLeftY: number
 
 /**
  * Gamepad axis
  *
  */
 export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedInputValue: InputAlias) => {
-  inputBase = inputIndex * 2
+  const inputBase = inputIndex * 2
   const xIndex = inputBase
   const yIndex = inputBase + 1
 
-  x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold)
-  y = -applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
+  let x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold)
+  let y = -applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
   if (mappedInputValue === GamepadAxis.Left) {
     const tmpX = x
     x = y
@@ -110,7 +93,7 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
   }
 
   // Axis has changed, so get mutable reference to Input and set data
-  if (x !== gamepadInput[xIndex] || y !== gamepadInput[yIndex]) {
+  if (x !== lastAxisInput[xIndex] || y !== lastAxisInput[yIndex]) {
     Engine.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y],
@@ -118,7 +101,7 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
     })
   }
 
-  if ((x === 0 && gamepadInput[xIndex] !== 0) || (y === 0 && gamepadInput[yIndex] !== 0)) {
+  if (x === 0 && lastAxisInput[xIndex] !== 0 && y === 0 && lastAxisInput[yIndex] !== 0) {
     Engine.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [0, 0],
@@ -126,8 +109,8 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
     })
   }
 
-  gamepadInput[xIndex] = x
-  gamepadInput[yIndex] = y
+  lastAxisInput[xIndex] = x
+  lastAxisInput[yIndex] = y
 }
 
 /**
@@ -144,10 +127,10 @@ export const handleGamepadConnected = (event: any): void => {
   }
 
   gamepadConnected = true
-  gamepad = event.gamepad
+  const gamepad = event.gamepad
 
   for (let index = 0; index < gamepad.buttons.length; index++) {
-    if (typeof gamepadButtons[index] === 'undefined') gamepadButtons[index] = 0
+    if (typeof lastButtonInput[index] === 'undefined') lastButtonInput[index] = 0
   }
 }
 
@@ -163,17 +146,17 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   gamepadConnected = false
 
-  if (!gamepadButtons) return // Already disconnected?
+  if (!lastButtonInput) return // Already disconnected?
 
-  for (let index = 0; index < gamepadButtons.length; index++) {
-    if (gamepadButtons[index] === BinaryValue.ON) {
+  for (let index = 0; index < lastButtonInput.length; index++) {
+    if (lastButtonInput[index] === BinaryValue.ON) {
       Engine.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: [BinaryValue.OFF],
         lifecycleState: LifecycleValue.Changed
       })
     }
-    gamepadButtons[index] = 0
+    lastButtonInput[index] = 0
   }
 }
 
