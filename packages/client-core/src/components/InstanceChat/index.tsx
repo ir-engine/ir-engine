@@ -8,7 +8,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -48,7 +48,7 @@ const InstanceChat = (props: Props): any => {
   const [composingMessage, setComposingMessage] = useState('')
   const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const instanceConnectionState = useInstanceConnectionState()
+  const instanceConnectionState = useLocationInstanceConnectionState()
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
