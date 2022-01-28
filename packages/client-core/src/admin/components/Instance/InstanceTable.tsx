@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from 'react'
-import { useAuthState } from '../../../user/services/AuthService'
-import { InstanceService } from '../../services/InstanceService'
 import { useDispatch } from '../../../store'
-import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { useInstanceState } from '../../services/InstanceService'
-import { useStyles } from '../../styles/ui'
-import { INSTNCE_PAGE_LIMIT } from '../../services/InstanceService'
+import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
+import { instanceColumns, InstanceData } from '../../common/variables/instance'
+import { InstanceService, INSTNCE_PAGE_LIMIT, useInstanceState } from '../../services/InstanceService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   fetchAdminState?: any
@@ -115,7 +113,7 @@ const InstanceTable = (props: Props) => {
   )
 
   return (
-    <div>
+    <React.Fragment>
       <TableComponent
         rows={rows}
         column={instanceColumns}
@@ -132,7 +130,7 @@ const InstanceTable = (props: Props) => {
         name={instanceName}
         label={'instance'}
       />
-    </div>
+    </React.Fragment>
   )
 }
 

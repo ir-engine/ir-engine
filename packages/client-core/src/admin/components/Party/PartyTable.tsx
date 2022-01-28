@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
-import { PartyService } from '../../services/PartyService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { PartyPropsTable, partyColumns, PartyData } from '../../common/variables/party'
-import { useStyles } from '../../styles/ui'
-import { usePartyState } from '../../services/PartyService'
-import { PARTY_PAGE_LIMIT } from '../../services/PartyService'
-import TableComponent from '../../common/Table'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchAdminParty } from '../../common/hooks/party.hooks'
+import TableComponent from '../../common/Table'
+import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
+import { PartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
+import { useStyles } from '../../styles/ui'
 import ViewParty from './ViewParty'
 
 const PartyTable = (props: PartyPropsTable) => {
