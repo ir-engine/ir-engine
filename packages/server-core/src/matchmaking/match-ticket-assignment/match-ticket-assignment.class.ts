@@ -35,7 +35,6 @@ export class MatchTicketAssignment implements ServiceMethods<Data> {
     if (typeof ticketId !== 'string' || ticketId.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
-    console.log(`getTicketsAssignment(${ticketId})`)
 
     let assignment: OpenMatchTicketAssignment
     try {

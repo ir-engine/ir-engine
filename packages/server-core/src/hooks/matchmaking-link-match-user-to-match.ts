@@ -7,18 +7,10 @@ export default (): Hook => {
     const result: OpenMatchTicketAssignment = context.result
     const userId = context.params['identity-provider']?.userId
 
-    console.log(
-      '! --- link match-user to match -- for ticket:%s, user: %s, connection: %s',
-      context.id,
-      userId,
-      result.connection
-    )
     if (!result.connection) {
+      // if connection is empty, match is not found yet
       return context
     }
-
-    console.log(`!!! --- !!! --- save connection and instance -- for ticket [${context.id}]`)
-    console.log('connection', result.connection)
 
     const matchUserResult = await app.service('match-user').find({
       query: {
@@ -33,22 +25,18 @@ export default (): Hook => {
     }
 
     const matchUser = matchUserResult.data[0]
-
     await app.service('match-user').patch(matchUser.id, {
       connection: result.connection
     })
 
-    console.log('ticket assignment result', result)
     let [matchServerInstance] = await app.service('match-instance').find({
       query: {
         connection: result.connection
       }
     })
-    console.log('matchServerInstance0', matchServerInstance)
 
     if (!matchServerInstance) {
-      console.log('INSTANCE NOT FOUND')
-      console.log('create matchServerInstance')
+      // try to create server instance, ignore error and try to search again, possibly someone just created same server
       try {
         matchServerInstance = await app.service('match-instance').create(
           {
@@ -57,16 +45,13 @@ export default (): Hook => {
           },
           context.params
         )
-        console.log('matchServerInstance', matchServerInstance)
       } catch (e) {
-        // console.error('Failed to create match-instance')
-        // throw e
+        // ignore all errors? todo: separate if available and ignore only duplicate error
       }
     }
 
     if (!matchServerInstance?.gameserver) {
-      // TODO: make loop?
-      for (let i = 0; i < 10 && !matchServerInstance?.gameserver; i++) {
+      for (let i = 0; i < 20 && !matchServerInstance?.gameserver; i++) {
         // retry search
         await new Promise((resolve) => setTimeout(resolve, 10))
         matchServerInstance = (
@@ -76,8 +61,13 @@ export default (): Hook => {
             }
           })
         )[0]
-        console.log('matchServerInstance2', matchServerInstance)
       }
+    }
+    if (!matchServerInstance?.gameserver) {
+      // say that no connection yet, on next query it will have gameserver and same connection
+      console.log('Failed to find provisioned server. Need to retry again.')
+      result.connection = ''
+      return context
     }
 
     // add user to server instance
@@ -89,10 +79,6 @@ export default (): Hook => {
       }
     })
     if (existingInstanceAuthorizedUser.total === 0) {
-      console.log('instance-authorized-user.create', {
-        userId: userId,
-        instanceId: matchServerInstance.gameserver
-      })
       await app.service('instance-authorized-user').create({
         userId: userId,
         instanceId: matchServerInstance.gameserver

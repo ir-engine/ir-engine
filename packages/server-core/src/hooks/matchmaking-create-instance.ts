@@ -4,18 +4,11 @@ import { Application } from '../../declarations'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { app, result, params } = context
-    console.log('matchmaking create instance HOOK!', result)
-    const identityProvider = params['identity-provider']
+    const { app, result } = context
     const matchInstanceId = result?.id
     const connection = result?.connection
     const gameMode = result?.gamemode
-    // const gameMode = result?.extensions?.GameMode.value
-    console.log(' matchInstanceId', matchInstanceId)
-    console.log(' connection', connection)
-    console.log(' gameMode', gameMode)
 
-    // context.params.connection
     if (!connection) {
       // assignment is not found yet
       return context
@@ -45,7 +38,7 @@ export default (): Hook => {
           ended: false
         }
       })
-      console.log('existing instance for match', existingInstance)
+
       let instanceId
       if (existingInstance.total === 0) {
         const newInstance = {

@@ -9,12 +9,7 @@ import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking
 
 export default {
   before: {
-    all: [
-      (context) => {
-        console.log('before all hook')
-        return context
-      }
-    ],
+    all: [],
     find: [],
     get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any)],
     create: [
