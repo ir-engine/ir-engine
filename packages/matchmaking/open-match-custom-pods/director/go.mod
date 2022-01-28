@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/heptiolabs/healthcheck v0.0.0-20211123025425-613501dd5deb
 	github.com/kelseyhightower/envconfig v1.4.0
-	google.golang.org/grpc v1.43.0
+	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
 	lagunalabs/matchmaking/common v0.0.0-00010101000000-000000000000
 	open-match.dev/open-match v1.3.0
