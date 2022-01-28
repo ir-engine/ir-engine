@@ -201,9 +201,7 @@ const InstanceChat = (props: Props): any => {
                             }
                             primary={
                               <span>
-                                <span className={styles.userName} color="primary">
-                                  {getMessageUser(message)}
-                                </span>
+                                <span className={styles.userName}>{getMessageUser(message)}</span>
                                 <p>{chatMessage}</p>
                               </span>
                             }

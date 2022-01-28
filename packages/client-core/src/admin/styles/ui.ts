@@ -26,7 +26,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     paperDialog: {
       background: 'rgb(58, 65, 73) !important',
-      color: '#f1f1f1'
+      color: '#f1f1f1',
+      width: '100%',
+      padding: '40px 10px 40px 10px'
     },
     spanDange: {
       color: '#FF8C00'
@@ -230,6 +232,111 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginLeft: '5px',
       textDecoration: 'none',
       color: '#ff9966'
+    },
+    botRoot: {
+      width: '100%',
+      background: '#15171B',
+      color: '#fff'
+    },
+    botHeader: {
+      height: '50px',
+      background: '#343b41',
+      color: '#fff',
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderBottom: '1px solid #23282c',
+      borderRadius: '0px',
+      paddingLeft: '20px',
+      [theme.breakpoints.down('md')]: {
+        paddingLeft: '5px'
+      }
+    },
+    botTitle: {
+      fontSize: 20,
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      [theme.breakpoints.down('sm')]: {
+        fontSize: 14
+      }
+    },
+    pTop5: {
+      paddingTop: '5px'
+    },
+    mLeft10: {
+      marginLeft: '10px'
+    },
+    botRootRight: {
+      width: '100%',
+      background: '#15171B',
+      color: '#fff',
+      marginTop: '15px'
+    },
+    botRootLeft: {
+      width: '100%',
+      background: '#43484F',
+      color: '#fff'
+    },
+    smFont: {
+      fontSize: '20px',
+      marginLeft: '10px',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '14px',
+        marginLeft: '5px'
+      }
+    },
+    saveBtnIcon: {
+      marginRight: '10px',
+      [theme.breakpoints.down('md')]: {
+        marginRight: '5px'
+      }
+    },
+    secondaryHeading: {
+      fontSize: theme.typography.pxToRem(15),
+      color: '#C0C0C0'
+    },
+    alterContainer: {
+      background: '#343b41',
+      border: '1px solid #23282c',
+      borderRadius: '5px',
+      width: '100%',
+      marginTop: '10px'
+    },
+    createAlterContainer: {
+      background: '#343b41',
+      //border: "1px solid #23282c",
+      borderRadius: '5px',
+      width: '100%',
+      marginTop: '10px'
+    },
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+      flexBasis: '33.33%',
+      flexShrink: 0
+    },
+    thirdHeading: {
+      color: '#COCOCO',
+      marginTop: '15px'
+    },
+    summary: {
+      background: '#3a4149',
+      borderBottom: '1px solid #23282c',
+      color: '#f1f1f1',
+      borderRadius: '0px'
+    },
+    botDetails: {
+      background: '#43484F',
+      color: '#fff'
+    },
+    addCommand: {
+      color: '#fff',
+      background: '#3a4149',
+      marginBottom: '20px',
+      width: '100%',
+      '&:hover': {
+        background: '#343b41'
+      }
     }
   })
 )
