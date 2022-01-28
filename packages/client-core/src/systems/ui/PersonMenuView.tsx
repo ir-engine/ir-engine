@@ -8,6 +8,7 @@ import { useUserState, UserService } from '../../user/services/UserService'
 import { useAuthState } from '../../user/services/AuthService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const styles = {
   root: {
@@ -97,6 +98,7 @@ const AvatarContextMenu = () => {
 
   const engineState = accessEngineState()
   const userState = useUserState()
+
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
@@ -117,7 +119,7 @@ const AvatarContextMenu = () => {
     }
   }
 
-  return user && engineState.avatarTappedId?.value === user.id.value ? (
+  return user && engineState.avatarTappedId.value === user.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>

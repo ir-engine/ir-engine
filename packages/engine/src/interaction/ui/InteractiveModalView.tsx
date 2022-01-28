@@ -283,7 +283,6 @@ const InteractiveModalView = (props) => {
             }}
           >
             {detailState.description.value}
-            {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
           </div>
         </div>
         {detailState.urls.value && detailState.urls.value.length ? (
@@ -377,7 +376,6 @@ const InteractiveModalView = (props) => {
           }}
         >
           {detailState.description.value}
-          {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
         </div>
         {detailState.urls.value && detailState.urls.value.length ? (
           <button
