@@ -60,7 +60,7 @@
     "mysql2": "2.3.3",
     "nanoid": "3.2.0",
     "ps-list": "7.2.0",
-    "sequelize": "6.14.1",
+    "sequelize": "6.15.0",
     "serve-favicon": "2.5.0",
     "uuid": "8.3.2",
     "winston": "3.5.0"
