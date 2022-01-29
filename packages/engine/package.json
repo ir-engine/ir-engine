@@ -32,7 +32,7 @@
   },
   "version": "0.4.13",
   "dependencies": {
-    "@gltf-transform/core": "2.0.0-alpha.5",
+    "@gltf-transform/core": "2.0.0",
     "@gltf-transform/functions": "2.0.0-alpha.5",
     "@gltf-transform/extensions": "2.0.0-alpha.5",
     "@speigg/hookstate": "3.0.13-stable-state",
