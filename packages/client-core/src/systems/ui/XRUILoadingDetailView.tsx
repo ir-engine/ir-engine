@@ -12,7 +12,7 @@ interface LoadingUIState {
   imageHeight: number
 }
 
-export function createLoaderDetailView(id: string) {
+export function createLoaderDetailView() {
   return createXRUI(LoadingDetailView, createState({ imageWidth: 1, imageHeight: 1 }))
 }
 

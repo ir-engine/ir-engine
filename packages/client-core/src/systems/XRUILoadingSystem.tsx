@@ -11,13 +11,13 @@ import { createTransitionState } from '@xrengine/engine/src/xrui/functions/creat
 import { LoadingSystemState } from './state/LoadingState'
 
 export default async function XRUILoadingSystem(world: World) {
-  const ui = createLoaderDetailView('')
+  const ui = createLoaderDetailView()
 
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 1000))
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
 
   await ui.ready
 
