@@ -14,6 +14,7 @@ import {
   sRGBEncoding
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AssetType } from '../../assets/enum/AssetType'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -37,7 +38,6 @@ import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-
 const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
@@ -49,7 +49,12 @@ export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) =
       receiveShadow: true
     },
     (model: any) => {
-      setupAvatar(entity, SkeletonUtils.clone(model.scene), avatarDetail.avatarURL)
+      const parent = new Group()
+      parent.add(model.scene)
+      const root = new Group()
+      root.add(model.scene)
+      parent.add(root)
+      setupAvatar(entity, SkeletonUtils.clone(parent), avatarDetail.avatarURL, model.scene.userData.type)
     }
   )
 }
@@ -58,7 +63,7 @@ export const setAvatarLayer = (obj: Object3D) => {
   setObjectLayers(obj, ObjectLayers.Render, ObjectLayers.Avatar)
 }
 
-const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
+const setupAvatar = (entity: Entity, model: any, avatarURL?: string, assetType?: number) => {
   const world = useWorld()
 
   if (!entity) return
@@ -67,22 +72,44 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  const retargeted = AvatarBoneMatching(model)
-  const rootBone = retargeted.Root
-
-  let hips = model
-  model.traverse((o) => {
-    if (o.name?.toLowerCase().includes('hips')) hips = o
-  })
-
-  const loadedAvatarBoneNames: string[] = []
-  hips.traverse((child) => loadedAvatarBoneNames.push(child.name))
-
   animationComponent.mixer.stopAllAction()
   avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
-  let materialList: Array<MaterialMap> = []
+  const retargeted = AvatarBoneMatching(model)
+  const rootBone = retargeted.Root
 
+  if (assetType == AssetType.FBX) {
+    rootBone.children[0].scale.setScalar(0.01)
+  }
+
+  // TODO: add way to handle armature type
+  const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
+  const targetRig = addTargetRig(entity, rootBone, null, false, armatureType)
+
+  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
+  addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
+
+  // animation will be applied to this skeleton instead of avatar
+  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
+  rootBone.add(sourceSkeletonRoot)
+  addRig(entity, sourceSkeletonRoot)
+  getComponent(entity, IKRigComponent).boneStructure = retargeted
+
+  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
+  if (avatarAnimationComponent.currentState) {
+    AnimationRenderer.mountCurrentState(entity)
+  }
+
+  // advance animation for a frame to eliminate potential t-pose
+  animationComponent.mixer.update(world.delta)
+  if (retargeted.LeftEye) {
+    retargeted.Neck.updateMatrixWorld(true)
+    const transform = getComponent(entity, TransformComponent)
+    avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
+  }
+
+  // Material
+  let materialList: Array<MaterialMap> = []
   model.traverse((object) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
@@ -100,42 +127,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string) => {
       object.material = DissolveEffect.getDissolveTexture(object)
     }
   })
-
-  // TODO: add way to handle armature type
-  const armatureType = avatarURL?.includes('trex') ? ArmatureType.TREX : ArmatureType.MIXAMO
-  addTargetRig(entity, rootBone, null, false, armatureType)
-
-  if (hasComponent(entity, IKPoseComponent)) removeComponent(entity, IKPoseComponent)
-  addComponent(entity, IKPoseComponent, defaultIKPoseComponentValues())
-
-  // animation will be applied to this skeleton instead of avatar
-  const sourceSkeletonRoot: Group = SkeletonUtils.clone(getDefaultSkeleton().parent)
-  rootBone.add(sourceSkeletonRoot)
-  addRig(entity, sourceSkeletonRoot)
-  getComponent(entity, IKRigComponent).boneStructure = retargeted
-
-  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
-  const retargetedBones: string[] = []
-
-  sourceSkeletonRoot.traverse((child) => {
-    if (child.name) retargetedBones.push(child.name)
-  })
-
-  if (avatarAnimationComponent.currentState) {
-    AnimationRenderer.mountCurrentState(entity)
-  }
-
-  // advance animation for a frame to eliminate potential t-pose
-  animationComponent.mixer.update(world.delta)
-
-  if (retargeted.LeftEye) {
-    retargeted.Neck.updateMatrixWorld(true)
-    const transform = getComponent(entity, TransformComponent)
-    avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
-  }
-
   loadGrowingEffectObject(entity, materialList)
-
   model.children.forEach((child) => avatar.modelContainer.add(child))
 }
 

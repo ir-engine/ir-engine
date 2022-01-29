@@ -154,6 +154,12 @@ const assetLoadCallback =
 
     params.cache && AssetLoader.Cache.set(url, asset)
 
+    if (asset.scene) {
+      asset.scene.userData.type = assetType
+    } else {
+      asset.userData.type = assetType
+    }
+
     onLoad(asset.scene ? asset : { scene: asset })
   }
 
