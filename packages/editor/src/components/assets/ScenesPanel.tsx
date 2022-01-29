@@ -51,6 +51,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
           <ProjectGrid
             newProjectLabel={t('editor:newScene')}
             loading={loading}
+            projectName={projectName}
             projects={scenes}
             onClickNew={newScene}
             onClickExisting={onClickExisting}

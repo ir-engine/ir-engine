@@ -213,7 +213,6 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   systemsToLoad.push(...systems)
 
   const world = useWorld()
-  await world.physics.createScene()
   await initSystems(world, systemsToLoad)
 
   const executeWorlds = (delta, elapsedTime) => {
@@ -326,6 +325,7 @@ export const initializeSceneSystems = async () => {
     )
   }
 
+  await world.physics.createScene()
   await initSystems(world, systemsToLoad)
 }
 

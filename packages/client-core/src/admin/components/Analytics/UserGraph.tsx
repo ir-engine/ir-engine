@@ -1,6 +1,5 @@
-import React from 'react'
-
 import ApexCharts from 'apexcharts'
+import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
 const UserGraph = ({ data /* see data tab */ }) => {
@@ -28,6 +27,7 @@ const UserGraph = ({ data /* see data tab */ }) => {
         type: 'area',
         height: 350,
         width: '100%',
+        background: '#323845',
         zoom: {
           autoScaleYaxis: true
         },

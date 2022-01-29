@@ -4,7 +4,6 @@ import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapCom
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
-import { convertEquiToCubemap } from '../../classes/ImageUtils'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -29,6 +28,7 @@ import {
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
@@ -88,15 +88,14 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
               const EnvMap = getPmremGenerator().fromCubemap(texture).texture
               EnvMap.encoding = sRGBEncoding
               Engine.scene.environment = EnvMap
-              component.errorWhileLoading = false
+              removeError(entity, 'envmapError')
               texture.dispose()
             },
             (_res) => {
               /* console.log(_res) */
             },
-            (error) => {
-              component.errorWhileLoading = true
-              console.warn('Skybox texture could not be found!', error)
+            (_) => {
+              addError(entity, 'envmapError', 'Skybox texture could not be found!')
             }
           )
           break
@@ -108,15 +107,14 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
               Engine.scene.environment = EnvMap
-              component.errorWhileLoading = false
+              removeError(entity, 'envmapError')
               texture.dispose()
             },
             (_res) => {
               /* console.log(_res) */
             },
-            (error) => {
-              component.errorWhileLoading = true
-              console.warn('Skybox texture could not be found!', error)
+            (_) => {
+              addError(entity, 'envmapError', 'Skybox texture could not be found!')
             }
           )
           break

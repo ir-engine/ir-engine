@@ -47,7 +47,7 @@ function createTicket(gameMode: string, attributes?: Record<string, string>): Pr
     }
   }
 
-  console.log('TICKET.CREATE --------- searchFields', searchFields)
+  // console.log('TICKET.CREATE --------- searchFields', searchFields)
 
   return axiosInstance
     .post(`/tickets`, {
