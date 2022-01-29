@@ -18,6 +18,8 @@ import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -268,12 +270,20 @@ export const handleJoinWorld = async (
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
         const inviterUserId = inviterUser.id
-        const inviterUserAvatar = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
-        const inviterUserTransform = getComponent(inviterUserAvatar, TransformComponent)
+        const inviterUserAvatarEntity = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
-        spawnPose = {
-          position: inviterUserTransform.position,
-          rotation: inviterUserTransform.rotation
+        // Translate infront of the inviter
+        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
+        inviterUserObject3d.value.translateZ(2)
+
+        const validSpawnablePosition = checkValidPositionOnGround(inviterUserObject3d.value.position)
+
+        if (validSpawnablePosition) {
+          spawnPose = {
+            position: inviterUserObject3d.value.position,
+            rotation: inviterUserTransform.rotation
+          }
         }
       } else {
         console.warn('The user who invited this user in no longer on this instnace!')
