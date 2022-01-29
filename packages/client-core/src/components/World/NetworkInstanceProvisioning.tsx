@@ -23,6 +23,7 @@ import React, { useEffect } from 'react'
 import { retriveLocationByName } from './LocationLoadHelper'
 import GameServerWarnings from './GameServerWarnings'
 import { usePartyState } from '../../social/services/PartyService'
+import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 
 interface Props {
   locationName: string
@@ -101,11 +102,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   ])
 
   useEffect(() => {
-    const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
-    const inviteCode = params.get('inviteCode')
     const transportRequestData = {
-      inviteCode: inviteCode!
+      inviteCode: getSearchParamFromURL('inviteCode')!
     }
 
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
