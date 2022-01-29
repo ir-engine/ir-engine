@@ -174,7 +174,7 @@ export class IdentityProvider extends Service {
           ...identityProvider,
           user: {
             id: userId,
-            userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
+            userRole: params.bot ? 'bot' : type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }

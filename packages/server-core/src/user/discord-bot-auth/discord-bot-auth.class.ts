@@ -3,6 +3,7 @@ import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import axios from "axios";
 import config from '../../appconfig'
+import { errors } from '@feathersjs/errors'
 
 interface Data {}
 
@@ -33,21 +34,40 @@ export class DicscordBotAuth implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    console.log('params', params)
-    let url = `https://discord.com/api/oauth2/authorize?client_id=${config.authentication.oauth.discord.key}&scope=bot&permissions=1`
-    if (params.query.guild_id) url = url + `&guild_id=${params.query.guild_id}&disable_guild_select=true`
+    const url = `https://discord.com/api/users/@me`
     try {
       const authResponse = await axios.get(
           url,
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${params.query.bot_token}`
-          //   }
-          // }
+          {
+            headers: {
+              Authorization: `Bot ${params.query.bot_token}`
+            }
+          }
       )
-      console.log('authResponse', authResponse)
+      const resData = authResponse.data
+      if (!resData?.bot) throw new Error('The authenticated Discord user is not a bot')
+      const token = `discord:::${resData.id}`
+      const ipResult = await this.app.service('identity-provider').find({
+        query: {
+          token: token,
+          type: 'discord'
+        }
+      })
+      if (ipResult.total > 0) {
+        return this.app.service('user').get(ipResult.data[0].userId)
+      } else {
+        const ipCreation = await this.app.service('identity-provider').create({
+          token: token,
+          type: 'discord'
+        }, {
+          bot: true
+        })
+        return this.app.service('user').get(ipCreation.userId)
+      }
     } catch(err) {
-      console.log('error', err)
+      console.log(err)
+      if (errors[err.response.status]) throw new errors[err.response.status]
+      else throw new Error(err)
     }
   }
 }
