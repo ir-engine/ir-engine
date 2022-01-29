@@ -132,13 +132,13 @@ const LoadingDetailView = () => {
     `}</style>
       <div id="loading-container" xr-layer="true">
         <div id="thumbnail">
-          <img xr-layer="true" xr-pixel-ratio="0.5" src={thumbnailUrl} />
+          <img xr-layer="true" xr-pixel-ratio="2" src={thumbnailUrl} />
         </div>
         <div id="loading-ui" xr-layer="true">
-          <div id="loading-text" xr-layer="true" xr-pixel-ratio="2">
+          <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
             loading
           </div>
-          <div id="progress-text" xr-layer="true" xr-pixel-ratio="2">
+          <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
             {engineState.loadingProgress.value}%
           </div>
           <div id="progress-container" xr-layer="true">
@@ -150,7 +150,7 @@ const LoadingDetailView = () => {
               isLabelVisible={false}
             />
           </div>
-          <div id="loading-details" xr-layer="true" xr-pixel-ratio="2">
+          <div id="loading-details" xr-layer="true" xr-pixel-ratio="3">
             {engineState.loadingDetails.value}
           </div>
         </div>

@@ -55,6 +55,7 @@ export const createInteractUI = (entity: Entity) => {
     xrComponent.container.refresh()
     if (!xrComponent) return
     setTimeout(() => {
+      xrComponent.container.refresh()
       const mediaIndex = data.mediaIndex
       const mediaData = data.mediaData
       const videoLayer = xrComponent.container.rootLayer.querySelector(`#interactive-ui-video-${entityIndex}`)
@@ -80,6 +81,7 @@ export const createInteractUI = (entity: Entity) => {
               function () {
                 // videoElement.style.height = 'auto'
                 videoElement.play()
+                xrComponent.container.refresh()
               },
               false
             )
