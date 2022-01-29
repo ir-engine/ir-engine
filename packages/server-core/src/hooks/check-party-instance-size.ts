@@ -47,8 +47,16 @@ export default () => {
               ? await getLocalServerIp(false)
               : { ipAddress: status.address, port: status.portsList[0].port }
             if (config.kubernetes.enabled) {
-              const serverResult = await (context.app as Application).k8AgonesClient.get('gameservers')
-              const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
+              const serverResult = await (context.app as Application).k8AgonesClient.listNamespacedCustomObject(
+                'agones.dev',
+                'v1',
+                'default',
+                'gameservers'
+              )
+              const readyServers = _.filter(
+                (serverResult?.body! as any).items,
+                (server: any) => server.status.state === 'Ready'
+              )
               const server = readyServers[Math.floor(Math.random() * readyServers.length)]
               status = server.status
               selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`

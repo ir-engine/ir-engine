@@ -10,7 +10,6 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
-import { Object3D } from 'three'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 

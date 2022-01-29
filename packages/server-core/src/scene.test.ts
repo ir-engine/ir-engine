@@ -15,6 +15,7 @@ const defaultProjectName = 'default-project'
 const defaultSceneName = 'empty'
 const newProjectName = 'test_project_name'
 const newSceneName = 'test_scene_name'
+const newestSceneName = 'test_scene_rename'
 
 const params = { isInternal: true }
 
@@ -98,6 +99,21 @@ describe('scene.test', () => {
     )
     assert.deepStrictEqual(data.name, newSceneName)
     assert.deepStrictEqual(data.scene, parsedData)
+  })
+
+  it('should rename scene', async function () {
+    await app
+      .service('scene')
+      .patch(null, { newSceneName: newestSceneName, oldSceneName: newSceneName, projectName: newProjectName }, params)
+    const { data } = await app.service('scene').get(
+      {
+        projectName: newProjectName,
+        sceneName: newestSceneName,
+        metadataOnly: false
+      },
+      params
+    )
+    assert.strictEqual(data.name, newestSceneName)
   })
 
   it('should remove scene', async function () {

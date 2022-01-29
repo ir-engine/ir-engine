@@ -1,12 +1,12 @@
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
 import {
-  ChannelConnectionService,
-  useChannelConnectionState
-} from '@xrengine/client-core/src/common/services/ChannelConnectionService'
+  MediaInstanceConnectionService,
+  useMediaInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import {
-  InstanceConnectionService,
-  useInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+  LocationInstanceConnectionService,
+  useLocationInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -35,8 +35,8 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
-  const instanceConnectionState = useInstanceConnectionState()
-  const channelConnectionState = useChannelConnectionState()
+  const instanceConnectionState = useLocationInstanceConnectionState()
+  const channelConnectionState = useMediaInstanceConnectionState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
 
@@ -49,7 +49,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     const action = async (ev: any) => {
       if (!ev.instance) return
       await shutdownEngine()
-      InstanceConnectionService.resetInstanceServer()
+      LocationInstanceConnectionService.resetServer()
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
       }
@@ -62,11 +62,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     const currentLocation = locationState.currentLocation.location
 
     if (currentLocation.id?.value) {
-      if (
-        !isUserBanned &&
-        !instanceConnectionState.instanceProvisioned.value &&
-        !instanceConnectionState.instanceProvisioning.value
-      ) {
+      if (!isUserBanned && !instanceConnectionState.provisioned.value && !instanceConnectionState.provisioning.value) {
         const search = window.location.search
         let instanceId
 
@@ -75,7 +71,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = parsed
         }
 
-        InstanceConnectionService.provisionInstanceServer(
+        LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
           locationState.currentLocation.location.sceneId.value
@@ -93,15 +89,15 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     if (
       engineState.isEngineInitialized.value &&
       !instanceConnectionState.connected.value &&
-      instanceConnectionState.instanceProvisioned.value &&
-      !instanceConnectionState.instanceServerConnecting.value
+      instanceConnectionState.provisioned.value &&
+      !instanceConnectionState.connecting.value
     )
-      InstanceConnectionService.connectToInstanceServer()
+      LocationInstanceConnectionService.connectToServer()
   }, [
     engineState.isEngineInitialized.value,
     instanceConnectionState.connected.value,
-    instanceConnectionState.instanceServerConnecting.value,
-    instanceConnectionState.instanceProvisioned.value
+    instanceConnectionState.connecting.value,
+    instanceConnectionState.provisioned.value
   ])
 
   useEffect(() => {
@@ -135,7 +131,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === instanceConnectionState.instance.id.value
       )
-      ChannelConnectionService.provisionChannelServer(instanceChannel?.id, true)
+      MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true)
     }
   }, [chatState.instanceChannelFetched.value])
 
@@ -147,20 +143,20 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // if a media connection has been provisioned and is ready, connect to it
   useEffect(() => {
     if (
-      channelConnectionState.instanceProvisioned.value === true &&
+      channelConnectionState.provisioned.value === true &&
       channelConnectionState.updateNeeded.value === true &&
-      channelConnectionState.instanceServerConnecting.value === false &&
+      channelConnectionState.connecting.value === false &&
       channelConnectionState.connected.value === false
     ) {
-      ChannelConnectionService.connectToChannelServer(channelConnectionState.channelId.value)
+      MediaInstanceConnectionService.connectToServer(channelConnectionState.channelId.value)
       MediaStreamService.updateCamVideoState()
       MediaStreamService.updateCamAudioState()
     }
   }, [
     channelConnectionState.connected.value,
     channelConnectionState.updateNeeded.value,
-    channelConnectionState.instanceProvisioned.value,
-    channelConnectionState.instanceServerConnecting.value
+    channelConnectionState.provisioned.value,
+    channelConnectionState.connecting.value
   ])
 
   return <GameServerWarnings locationName={props.locationName} />

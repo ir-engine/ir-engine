@@ -49,18 +49,21 @@ export const createInteractUI = (entity: Entity) => {
 
   // callback from modal view state
   interactiveComponent.callback = (data) => {
+    const entityIndex = data.entityIndex
+    const currentUI = InteractiveUI.get(entityIndex)!
+    const xrComponent = getComponent(currentUI.entity, XRUIComponent)
+    xrComponent.container.refresh()
+    if (!xrComponent) return
     setTimeout(() => {
+      xrComponent.container.refresh()
       const mediaIndex = data.mediaIndex
       const mediaData = data.mediaData
-      const entityIndex = data.entityIndex
-      const currentUI = getInteractUI(entityIndex) as any
-      const xrComponent = getComponent(currentUI.entity, XRUIComponent) as any
-      if (!xrComponent && !xrComponent.layer) return
-      const videoElement = xrComponent.layer.querySelector(`#interactive-ui-video-${entityIndex}`)
-      const modelElement = xrComponent.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
+      const videoLayer = xrComponent.container.rootLayer.querySelector(`#interactive-ui-video-${entityIndex}`)
+      const modelLayer = xrComponent.container.rootLayer.querySelector(`#interactive-ui-model-${entityIndex}`)
+      const videoElement = videoLayer?.element as HTMLMediaElement
       if (mediaData[mediaIndex]) {
         // refresh video element
-        if (videoElement && videoElement.element) {
+        if (videoElement) {
           //TODO: sometimes the video rendering does not work, set resize for refreshing
           // videoElement.element.style.height = 0
           if (mediaData[mediaIndex].type == 'video') {
@@ -68,29 +71,30 @@ export const createInteractUI = (entity: Entity) => {
             if (isHLS(path)) {
               const hls = new Hls()
               hls.loadSource(path)
-              hls.attachMedia(videoElement.element)
+              hls.attachMedia(videoElement as HTMLMediaElement)
             } else {
-              videoElement.element.src = path
-              videoElement.element.load()
+              videoElement.src = path
+              videoElement.load()
             }
-            videoElement.element.addEventListener(
+            videoElement.addEventListener(
               'loadeddata',
               function () {
-                // videoElement.element.style.height = 'auto'
-                videoElement.element.play()
+                // videoElement.style.height = 'auto'
+                videoElement.play()
+                xrComponent.container.refresh()
               },
               false
             )
           } else {
-            videoElement.element.pause()
+            videoElement.pause()
           }
         }
 
         //refresh model element
-        if (modelElement) {
+        if (modelLayer) {
           if (mediaData[mediaIndex].type == 'model') {
-            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
+            for (var i = modelLayer.contentMesh.children.length - 1; i >= 0; i--) {
+              modelLayer.contentMesh.remove(modelLayer.contentMesh.children[i])
             }
 
             //load glb file
@@ -108,15 +112,15 @@ export const createInteractUI = (entity: Entity) => {
                 }
               })
 
-              const scale = modelElement.contentMesh.scale
+              const scale = modelLayer.contentMesh.scale
               model.scene.scale.set(1 / scale.x, 1 / scale.y, 1 / scale.x)
 
               object3d.add(model.scene)
-              modelElement.contentMesh.add(object3d)
+              modelLayer.contentMesh.add(object3d)
             })
           } else {
-            for (var i = modelElement.contentMesh.children.length - 1; i >= 0; i--) {
-              modelElement.contentMesh.remove(modelElement.contentMesh.children[i])
+            for (var i = modelLayer.contentMesh.children.length - 1; i >= 0; i--) {
+              modelLayer.contentMesh.remove(modelLayer.contentMesh.children[i])
             }
           }
         }
@@ -169,7 +173,7 @@ export const updateInteractUI = (xrEntity: Entity) => {
 
 //TODO: Show interactive UI
 export const showInteractUI = (entity: Entity) => {
-  const ui = getInteractUI(entity)
+  const ui = InteractiveUI.get(entity)
   if (!ui) return
   const xrComponent = getComponent(ui.entity, XRUIComponent) as any
   if (!xrComponent) return
@@ -221,9 +225,7 @@ export const hideInteractUI = (entity: Entity) => {
 
 //TODO: Get interactive UI
 export const getInteractUI = (entity: Entity) => {
-  let ui = InteractiveUI.get(entity)
-  if (ui) return ui
-  return false
+  return InteractiveUI.get(entity)
 }
 
 //TODO: Get interactive UI
