@@ -39,46 +39,26 @@ async function createWebContainer<S extends State<any> | null>(
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   const entity = createEntity()
 
-  const layersRemaining = new Set<WebLayer3D>()
-
-  let intervalHandle: number
-
-  const ready = new Promise<void>((resolve, reject) => {
-    createWebContainer(UIFunc, state, {
-      manager: WebLayerManager.instance,
-      onLayerPaint: (layer) => {
-        Engine.renderer.initTexture(layer.currentTexture!)
-        ;(layer.contentMesh.material as THREE.MeshBasicMaterial).toneMapped = false
-        layersRemaining.delete(layer)
-        if (layersRemaining.size === 0) {
-          clearInterval(intervalHandle)
-          resolve()
-        }
-      }
+  const ready = new Promise<void>(async (resolve, reject) => {
+    const container = await createWebContainer(UIFunc, state, {
+      manager: WebLayerManager.instance
     })
-      .then((container) => {
-        // Make sure entity still exists, since we are adding these components asynchronously,
-        // and bad things might happen if we add these components after entity has been removed
-        // TODO: revise this pattern after refactor
-        if (!Engine.currentWorld.entityQuery().includes(entity)) {
-          console.warn('XRUI layer initialized after entity removed from world')
-          return
-        }
-        addComponent(entity, Object3DComponent, { value: container })
-        setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
-        addComponent(entity, XRUIComponent, { container: container })
 
-        container.rootLayer.traverseLayersPreOrder((layer) => {
-          if (layer.bounds.width * layer.bounds.height > 0) layersRemaining.add(layer)
-        })
+    // Make sure entity still exists, since we are adding these components asynchronously,
+    // and bad things might happen if we add these components after entity has been removed
+    // TODO: revise this pattern after refactor
+    if (!Engine.currentWorld.entityQuery().includes(entity)) {
+      console.warn('XRUI layer initialized after entity removed from world')
+      container.rootLayer.dispose()
+      return reject()
+    }
 
-        intervalHandle = setInterval(() => {
-          container.update()
-        }, 20) as any
-      })
-      .catch((err: any) => {
-        reject(err)
-      })
+    addComponent(entity, Object3DComponent, { value: container })
+    setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
+    addComponent(entity, XRUIComponent, { container: container })
+
+    await container.updateUntilReady()
+    resolve()
   })
 
   return { entity, state, ready }
