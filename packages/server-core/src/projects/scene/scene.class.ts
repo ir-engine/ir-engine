@@ -1,4 +1,4 @@
-import { Params, ServiceMethods } from '@feathersjs/feathers'
+import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import fs from 'fs'
@@ -46,8 +46,12 @@ interface UpdateParams {
   sceneName: string
   sceneData?: SceneJson
   thumbnailBuffer?: Buffer
-  rename?: boolean
-  oldSceneName?: string
+}
+
+interface RenameParams {
+  newSceneName: string
+  oldSceneName: string
+  projectName: string
 }
 
 export class Scene implements ServiceMethods<any> {
@@ -135,8 +139,43 @@ export class Scene implements ServiceMethods<any> {
     return { projectName, sceneName: newSceneName }
   }
 
+  async patch(id: NullableId, data: RenameParams, params: Params): Promise<any> {
+    const { newSceneName, oldSceneName, projectName } = data
+
+    const project = await this.app.service('project').get(projectName, params)
+    if (!project.data) throw new Error(`No project named ${projectName} exists`)
+
+    const oldSceneJsonPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
+    )
+
+    const oldSceneThumbNailPath = path.resolve(
+      appRootPath.path,
+      `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
+    )
+
+    if (fs.existsSync(oldSceneJsonPath)) {
+      const newSceneJsonPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${newSceneName}.scene.json`
+      )
+      fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
+    }
+
+    if (fs.existsSync(oldSceneThumbNailPath)) {
+      const newSceneThumbNailPath = path.resolve(
+        appRootPath.path,
+        `packages/projects/projects/${projectName}/${newSceneName}.thumbnail.jpeg`
+      )
+      fs.renameSync(oldSceneThumbNailPath, newSceneThumbNailPath)
+    }
+
+    return
+  }
+
   async update(projectName: string, data: UpdateParams, params: Params): Promise<any> {
-    const { sceneName, sceneData, thumbnailBuffer, rename, oldSceneName } = data
+    const { sceneName, sceneData, thumbnailBuffer } = data
     console.log('[scene.update]:', projectName, data)
 
     const project = await this.app.service('project').get(projectName, params)
@@ -146,27 +185,6 @@ export class Scene implements ServiceMethods<any> {
       appRootPath.path,
       `packages/projects/projects/${projectName}/${sceneName}.scene.json`
     )
-    if (rename) {
-      const oldSceneJsonPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.scene.json`
-      )
-      const oldSceneThumbnailPath = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${oldSceneName}.thumbnail.jpeg`
-      )
-      if (fs.existsSync(oldSceneJsonPath)) {
-        fs.renameSync(oldSceneJsonPath, newSceneJsonPath)
-      }
-      if (fs.existsSync(oldSceneThumbnailPath)) {
-        const newSceneThumbnailPath = path.resolve(
-          appRootPath.path,
-          `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
-        )
-        fs.renameSync(oldSceneThumbnailPath, newSceneThumbnailPath)
-      }
-      return
-    }
 
     if (thumbnailBuffer) {
       const sceneThumbnailPath = path.resolve(

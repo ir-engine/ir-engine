@@ -143,8 +143,13 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
       ended: false
     }
   })
-  const gameservers = await transport.app.k8AgonesClient.get('gameservers')
-  const gsIds = gameservers.items.map((gs) =>
+  const gameservers = await transport.app.k8AgonesClient.listNamespacedCustomObject(
+    'agones.dev',
+    'v1',
+    'default',
+    'gameservers'
+  )
+  const gsIds = (gameservers?.body! as any).items.map((gs) =>
     gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
@@ -152,7 +157,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     instances.rows.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = gameservers.items.find((gs) => {
+      const match = (gameservers?.body! as any).items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
         const inputPort = gs.status.ports.find((port) => port.name === 'default')
         return gs.status.address === ip && inputPort.port.toString() === port

@@ -198,7 +198,7 @@ export const ProjectGridItem = (props: Props) => {
                   if (e.key == 'Enter') {
                     await renameScene(projectName, newSceneName, oldSceneName)
                     dispatch(EditorAction.sceneLoaded(newSceneName))
-                    history.push(`/editor/${projectName}`)
+                    history.push(`/editor/${projectName}/${newSceneName}`)
                   }
                 }}
               />
