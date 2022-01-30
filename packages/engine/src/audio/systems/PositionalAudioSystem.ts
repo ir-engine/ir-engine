@@ -97,7 +97,7 @@ export default async function PositionalAudioSystem(world: World) {
 
     for (const entity of audioQuery.exit()) {
       const obj3d = getComponent(entity, Object3DComponent, true)
-      if (obj3d && obj3d.value.userData.audioEl) obj3d.value.userData.audioEl.disconnect()
+      if (obj3d && obj3d.value.userData.audioEl?.source) obj3d.value.userData.audioEl.disconnect()
     }
 
     for (const entity of avatarAudioQuery.enter()) {

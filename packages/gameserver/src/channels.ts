@@ -172,7 +172,7 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
   const existingInstanceResult = await app.service('instance').find({
     query: existingInstanceQuery
   })
-  console.log('existingInstanceResult', existingInstanceResult.data)
+  // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
@@ -229,6 +229,7 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+  let engineStarted = false
 
   const shouldLoadGameserver =
     (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -275,6 +276,7 @@ export default (app: Application): void => {
 
         const isReady = status.state === 'Ready'
         const isNeedingNewServer =
+          !engineStarted &&
           !config.kubernetes.enabled &&
           (status.state === 'Shutdown' ||
             app.instance == null ||
@@ -292,9 +294,9 @@ export default (app: Application): void => {
         }
 
         if (isReady || isNeedingNewServer) {
+          engineStarted = true
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)
-          if (sceneId != null && !accessEngineState().sceneLoaded.value && !accessEngineState().sceneLoading.value)
-            await loadEngine(app, sceneId)
+          if (sceneId != null) await loadEngine(app, sceneId)
         } else {
           try {
             const instance = await app.service('instance').get(app.instance.id)
