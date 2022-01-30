@@ -21,10 +21,7 @@ import { LocationService, useLocationState } from '../../services/LocationServic
 import { useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
 import { validateUserForm } from '../Users/validation'
-
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
+import AlertMessage from '../../common/AlertMessage'
 
 interface Props {
   open: boolean
@@ -96,7 +93,7 @@ const CreateLocation = (props: Props) => {
     }
   }, [errorType.value, errorMessage.value])
 
-  const handleCloseWarning = (event, reason) => {
+  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -371,14 +368,7 @@ const CreateLocation = (props: Props) => {
               Cancel
             </Button>
           </DialogActions>
-          <Snackbar
-            open={openWarning}
-            autoHideDuration={6000}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          >
-            <Alert severity="warning">{error}</Alert>
-          </Snackbar>
+          <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
         </Container>
       </Drawer>
     </React.Fragment>
