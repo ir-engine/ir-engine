@@ -78,7 +78,6 @@ export class Engine {
    */
   static audioListener: any = null
 
-  static inputQueue = [] as Array<{ callback: (event: Event) => void; event: Event }>
   static inputState = new Map<any, InputValue>()
   static prevInputState = new Map<any, InputValue>()
 

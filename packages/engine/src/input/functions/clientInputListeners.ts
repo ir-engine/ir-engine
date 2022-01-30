@@ -13,7 +13,6 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 const supportsPassive = (function () {
@@ -58,19 +57,15 @@ export const addClientInputListeners = () => {
   window.addEventListener('keydown', preventDefaultForScrollKeys, false)
 
   const addListener = (domElement, eventName, callback: (event: Event) => void, passive = false) => {
-    const listener = (event: Event) => {
-      Engine.inputQueue.push({ callback, event })
-    }
-
     if (passive && supportsPassive) {
-      domElement.addEventListener(eventName, listener, { passive })
+      domElement.addEventListener(eventName, callback, { passive })
     } else {
-      domElement.addEventListener(eventName, listener)
+      domElement.addEventListener(eventName, callback)
     }
     boundListeners.push({
       domElement,
       eventName,
-      callback: listener
+      callback
     })
   }
 

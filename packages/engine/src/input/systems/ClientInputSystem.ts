@@ -27,12 +27,6 @@ export default async function ClientInputSystem(world: World) {
       handleGamepads()
     }
 
-    // run all queued events detected since the last frame
-    for (const { callback, event } of Engine.inputQueue) {
-      callback(event)
-    }
-    Engine.inputQueue = []
-
     // for continuous input, figure out if the current data and previous data is the same
     Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
       if (Engine.prevInputState.has(key)) {
