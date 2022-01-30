@@ -1,7 +1,7 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of gameserver-gameserver communication
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SpawnPoints } from '../../avatar/AvatarSpawnSystem'
+import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Action } from '../../ecs/functions/Action'
@@ -15,11 +15,12 @@ export type JoinWorldProps = {
   clients: Array<{ userId: UserId; name: string; index: number }>
   cachedActions: Action[]
   avatarDetail: AvatarProps
+  avatarSpawnPose: { position: Vector3; rotation: Quaternion }
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
-  const { tick, clients, cachedActions, avatarDetail } = props
-  console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail)
+  const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
+  console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
   dispatchLocal(EngineActions.joinedWorld(true) as any)
   const world = useWorld()
   world.fixedTick = tick
@@ -31,7 +32,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
         position: engineState.isTeleporting.value.remoteSpawnPosition,
         rotation: engineState.isTeleporting.value.remoteSpawnRotation
       }
-    : SpawnPoints.instance.getRandomSpawnPoint()
+    : avatarSpawnPose
 
   for (const client of clients)
     Engine.currentWorld.incomingActions.add(
