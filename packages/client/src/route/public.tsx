@@ -1,8 +1,8 @@
-import CircularProgress from '@mui/material/CircularProgress'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }
@@ -24,26 +24,13 @@ function RouterComp(props) {
   }, [])
 
   if (!customRoutes) {
-    return <div>Loading...</div>
+    return <LoadingCircle />
   }
 
   return (
     <ErrorBoundary>
       <React.Fragment>
-        <Suspense
-          fallback={
-            <div
-              style={{
-                height: '100vh',
-                width: '100%',
-                textAlign: 'center',
-                paddingTop: 'calc(50vh - 7px)'
-              }}
-            >
-              <CircularProgress />
-            </div>
-          }
-        >
+        <Suspense fallback={<LoadingCircle />}>
           <Switch>
             {customRoutes.map((route, i) => (
               <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />

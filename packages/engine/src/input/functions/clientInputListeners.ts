@@ -13,6 +13,8 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { isClient } from '../../common/functions/isClient'
 
 const supportsPassive = (function () {
   let supportsPassiveValue = false
@@ -49,11 +51,14 @@ interface ListenerBindingData {
 
 const boundListeners: ListenerBindingData[] = []
 
-export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
+export const addClientInputListeners = () => {
+  if (!isClient) return
+  const canvas = EngineRenderer.instance.canvas
+
   window.addEventListener('DOMMouseScroll', preventDefault, false)
   window.addEventListener('keydown', preventDefaultForScrollKeys, false)
 
-  const addListener = (domElement, eventName, callback, passive = false) => {
+  const addListener = (domElement, eventName, callback: (event: Event) => void, passive = false) => {
     if (passive && supportsPassive) {
       domElement.addEventListener(eventName, callback, { passive })
     } else {
@@ -77,7 +82,7 @@ export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
   addListener(
     canvas,
     'touchstart',
-    (e) => {
+    (e: TouchEvent) => {
       handleTouch(e)
       handleTouchMove(e)
     },
