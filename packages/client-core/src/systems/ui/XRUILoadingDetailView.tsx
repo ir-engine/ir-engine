@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { useHookstate, createState } from '@speigg/hookstate'
+import React, { useEffect, useState } from 'react'
+import { useHookstate, createState, State } from '@speigg/hookstate'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import ProgressBar from './SimpleProgressBar'
 import { useSceneState } from '../../world/services/SceneService'
@@ -12,8 +12,28 @@ interface LoadingUIState {
   imageHeight: number
 }
 
+const sleep = (m) => new Promise((r) => setTimeout(r, m))
+
 export function createLoaderDetailView() {
-  return createXRUI(LoadingDetailView, createState({ imageWidth: 1, imageHeight: 1 }))
+  let hasSceneColors = false
+  const xrui = createXRUI(
+    () => (
+      <LoadingDetailView
+        onStateChange={(state) => {
+          hasSceneColors = state.hasSceneColors
+        }}
+      ></LoadingDetailView>
+    ),
+    createState({ imageWidth: 1, imageHeight: 1 })
+  )
+  return {
+    ...xrui,
+    waitForSceneColors: async () => {
+      const container = await xrui.container
+      while (!hasSceneColors) await sleep(100)
+      await container.updateUntilReady()
+    }
+  }
 }
 
 function setDefaultPalette(colors) {
@@ -22,7 +42,7 @@ function setDefaultPalette(colors) {
   colors.alternate.set('black')
 }
 
-const LoadingDetailView = () => {
+const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boolean }) => void }) => {
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
@@ -64,6 +84,15 @@ const LoadingDetailView = () => {
       img.onload = null
     }
   }, [sceneState?.currentScene?.thumbnailUrl?.value])
+
+  useEffect(() => {
+    const hasScene = !!sceneState.currentScene
+    const hasThumbnail = !!sceneState.currentScene?.thumbnailUrl?.value
+    const hasColors = !!colors.main.value
+    props.onStateChange({
+      hasSceneColors: (hasScene && hasThumbnail && hasColors) || (hasScene && !hasThumbnail && hasColors)
+    })
+  }, [colors, sceneState?.currentScene?.thumbnailUrl?.value])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
 

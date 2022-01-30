@@ -9,7 +9,7 @@ import { XRUIStateContext } from '../XRUIStateContext'
 import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
+import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
@@ -39,7 +39,7 @@ async function createWebContainer<S extends State<any> | null>(
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   const entity = createEntity()
 
-  const ready = new Promise<void>(async (resolve, reject) => {
+  const container = new Promise<WebContainer3D>(async (resolve, reject) => {
     const container = await createWebContainer(UIFunc, state, {
       manager: WebLayerManager.instance
     })
@@ -57,15 +57,14 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { container: container })
 
-    await container.updateUntilReady()
-    resolve()
+    resolve(container)
   })
 
-  return { entity, state, ready }
+  return { entity, state, container }
 }
 
 export interface XRUI<S> {
   entity: Entity
   state: S
-  ready: Promise<void>
+  container: Promise<WebContainer3D>
 }
