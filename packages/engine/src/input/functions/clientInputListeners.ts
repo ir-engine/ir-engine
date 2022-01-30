@@ -14,6 +14,7 @@ import {
   handleWindowFocus
 } from '../schema/ClientInputSchema'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { isClient } from '../../common/functions/isClient'
 
 const supportsPassive = (function () {
   let supportsPassiveValue = false
@@ -51,6 +52,7 @@ interface ListenerBindingData {
 const boundListeners: ListenerBindingData[] = []
 
 export const addClientInputListeners = () => {
+  if (!isClient) return
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
