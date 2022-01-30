@@ -1,9 +1,9 @@
 import React from 'react'
-import { useRouteStyles } from './styles'
+import { useStyles } from '../../styles/ui'
 import RouteTable from './RouteTable'
 
 const Routes = () => {
-  const classes = useRouteStyles()
+  const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -20,10 +20,8 @@ const Routes = () => {
   }
 
   return (
-    <div>
-      <div className={classes.rootTable}>
-        <RouteTable />
-      </div>
+    <div className={classes.rootTable}>
+      <RouteTable />
     </div>
   )
 }
