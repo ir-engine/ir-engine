@@ -68,7 +68,7 @@ store.receptors.push((action: LocationActionType): any => {
 
       case 'LOCATION_LOCAL_USER_BANNED':
         s.merge({ currentLocationUpdateNeeded: true })
-        s.currentLocation.merge({ selfUserBanned: true })
+        s.currentLocation.merge({ selfUserBanned: action.banned })
         return
     }
   }, action.type)
