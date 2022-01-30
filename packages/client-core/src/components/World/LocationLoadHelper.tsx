@@ -23,7 +23,7 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import matches from 'ts-matches'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -106,7 +106,9 @@ export const initEngine = async () => {
   Network.instance.transportHandler = new ClientTransportHandler()
   createEngine()
   initializeBrowser()
-  await initializeCoreSystems(injectedSystems)
+  await initializeCoreSystems()
+  const world = useWorld()
+  await initSystems(world, injectedSystems)
 }
 
 export const initClient = async (project) => {
