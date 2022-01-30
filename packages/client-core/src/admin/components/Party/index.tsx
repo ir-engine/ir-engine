@@ -34,7 +34,7 @@ const Party = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={classes.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
       <CreateParty open={partyModelOpen} handleClose={handleCreatePartyClose} />

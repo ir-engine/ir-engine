@@ -1,12 +1,16 @@
 import { Theme } from '@mui/material/styles'
-
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     tableContainer: {
-      maxHeight: '73vh'
+      maxHeight: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
+      minHeight: '0px',
+      overflow: 'scroll'
     },
     searchRoot: {
       padding: '2px 20px',
@@ -23,6 +27,24 @@ export const useStyles = makeStyles((theme: Theme) =>
     iconButton: {
       padding: 10,
       color: '#f1f1f1'
+    },
+    checkboxContainer: {
+      padding: '0px'
+    },
+    progress: {
+      textAlign: 'center',
+      position: 'absolute',
+      top: '50%',
+      left: 0,
+      right: 0,
+      margin: 'auto'
+    },
+    progressBackground: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(32, 32, 32, 0.5)',
+      top: '0px'
     },
     paperDialog: {
       background: 'rgb(58, 65, 73) !important',
@@ -47,7 +69,8 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     tableFooter: {
       background: '#343b41 !important',
-      color: '#f1f1f1 !important'
+      color: '#f1f1f1 !important',
+      overflow: 'unset'
     },
     actionStyle: {
       textDecoration: 'none',
@@ -139,8 +162,20 @@ export const useStyles = makeStyles((theme: Theme) =>
     rootTable: {
       flexGrow: 1,
       width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
       backgroundColor: '#43484F',
-      color: '#f1f1f1'
+      color: '#f1f1f1',
+      maxHeight: 'calc(100vh - 112px)'
+    },
+    rootTableWithSearch: {
+      flexGrow: 1,
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#43484F',
+      color: '#f1f1f1',
+      maxHeight: 'calc(100vh - 172px)'
     },
     rootPaper: {
       marginTop: '65px',
