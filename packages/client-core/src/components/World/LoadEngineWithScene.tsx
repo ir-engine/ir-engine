@@ -43,12 +43,9 @@ export const LoadEngineWithScene = (props: Props) => {
   const projectState = useProjectState()
   const [clientInitialized, setClientInitialized] = useState(false)
   const [clientReady, setClientReady] = useState(false)
-  const [engineReady, setEngineReady] = useState(false)
 
   useEffect(() => {
-    initEngine().then(() => {
-      setEngineReady(true)
-    })
+    initEngine()
   }, [])
 
   /**
@@ -56,14 +53,14 @@ export const LoadEngineWithScene = (props: Props) => {
    */
   useEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
-    if (!clientInitialized && engineReady && projectState.projects.value.length > 0) {
+    if (!clientInitialized && engineState.isEngineInitialized.value && projectState.projects.value.length > 0) {
       setClientInitialized(true)
       const [project] = locationState.currentLocation.location.sceneId.value.split('/')
       initClient(project).then(() => {
         setClientReady(true)
       })
     }
-  }, [engineReady, projectState.projects.value])
+  }, [engineState.isEngineInitialized, projectState.projects.value])
 
   /**
    * Once we have the scene, get the scene data
