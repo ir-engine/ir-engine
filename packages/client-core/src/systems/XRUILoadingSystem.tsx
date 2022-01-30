@@ -19,7 +19,7 @@ export default async function XRUILoadingSystem(world: World) {
   // todo: push timeout to accumulator
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
 
-  await ui.ready
+  await ui.waitForSceneColors()
 
   return () => {
     if (Engine.activeCameraEntity) {
@@ -50,7 +50,7 @@ export default async function XRUILoadingSystem(world: World) {
           scale = targetWidth / contentWidth
         }
 
-        xrui.container.scale.x = xrui.container.scale.y = scale
+        xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
 
         transition.update(world, (opacity) => {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
