@@ -146,9 +146,8 @@ export const loadLocation = () => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
         const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        dispatchLocal(
-          EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), 'Loading Complete!')
-        )
+        const message = Engine.sceneLoadPromises.length ? 'Loading objects...' : 'Loading Complete!'
+        dispatchLocal(EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), message))
         break
     }
   }

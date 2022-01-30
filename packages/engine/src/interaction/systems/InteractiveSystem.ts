@@ -21,7 +21,6 @@ import {
   createInteractUI,
   showInteractUI,
   hideInteractUI,
-  getInteractUI,
   updateInteractUI,
   setUserDataInteractUI,
   InteractiveUI
@@ -53,7 +52,7 @@ export default async function InteractiveSystem(world: World) {
       if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
-      if (interactionData.interactionType !== 'equippable' && !getInteractUI(entity)) {
+      if (interactionData.interactionType !== 'equippable' && !InteractiveUI.get(entity)) {
         createInteractUI(entity)
       }
     }
