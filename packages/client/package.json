@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@capacitor/core": "3.4.0",
-    "@feathersjs/client": "5.0.0-pre.10",
+    "@feathersjs/client": "5.0.0-pre.16",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@mui/icons-material": "5.3.1",
     "@mui/material": "5.3.1",

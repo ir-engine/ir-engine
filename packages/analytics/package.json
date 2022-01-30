@@ -40,9 +40,9 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {
-    "@feathersjs/express": "5.0.0-pre.10",
-    "@feathersjs/feathers": "5.0.0-pre.10",
-    "@feathersjs/socketio": "5.0.0-pre.10",
+    "@feathersjs/express": "5.0.0-pre.16",
+    "@feathersjs/feathers": "5.0.0-pre.16",
+    "@feathersjs/socketio": "5.0.0-pre.16",
     "@xrengine/server-core": "^0.4.13",
     "compression": "1.7.4",
     "cors": "2.8.5",
