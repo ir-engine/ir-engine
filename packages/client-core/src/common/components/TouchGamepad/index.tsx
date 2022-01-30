@@ -77,24 +77,6 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     })
 
     stickLeft.on('move', (e, data) => {
-      const canvasElement = EngineRenderer.instance?.canvas
-      if (!canvasElement) return
-      //@ts-ignore
-      if (canvasElement.addEventListener) {
-        addClientInputListeners(canvasElement)
-      } else {
-        if ((canvasElement as any).attachEvent) {
-          ;(canvasElement as any)
-            .attachEvent('touchstart', function (e) {
-              handleTouch(e)
-              handleTouchMove(e)
-            })(canvasElement as any)
-            .attachEvent('touchend', handleTouch)
-            .attachEvent('touchcancel', handleTouch)
-            .attachEvent('touchmove', handleTouchMove)
-        }
-      }
-
       const event = new CustomEvent('touchstickmove', {
         detail: {
           stick: GamepadAxis.Left,

@@ -20,7 +20,7 @@ import { EngineEvents } from './ecs/classes/EngineEvents'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
+import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld, World } from './ecs/classes/World'
@@ -81,9 +81,6 @@ export const initializeBrowser = () => {
     Engine.hasJoinedWorld = true
   }
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
-
-  const canvas = document.querySelector('canvas')!
-  addClientInputListeners(canvas)
 
   setupInitialClickListener()
 
