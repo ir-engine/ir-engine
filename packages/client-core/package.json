@@ -80,7 +80,7 @@
     "@rollup/plugin-replace": "3.0.1",
     "@types/node": "16.11.21",
     "@types/react": "17.0.38",
-    "@types/three": "0.136.1",
+    "@types/three": "0.137.0",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "esbuild": "0.14.14",
