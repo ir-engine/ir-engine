@@ -59,7 +59,7 @@ export const addClientInputListeners = () => {
 
   const addListener = (domElement, eventName, callback: (event: Event) => void, passive = false) => {
     const listener = (event: Event) => {
-      Engine.inputQueue.set(eventName, { callback, event })
+      Engine.inputQueue.push({ callback, event })
     }
 
     if (passive && supportsPassive) {
