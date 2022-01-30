@@ -325,7 +325,6 @@ export const initializeSceneSystems = async () => {
     )
   }
 
-  await world.physics.createScene()
   await initSystems(world, systemsToLoad)
 }
 

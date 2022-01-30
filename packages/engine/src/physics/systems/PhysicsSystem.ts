@@ -53,6 +53,8 @@ export default async function PhysicsSystem(world: World) {
   })
   world.receptors.push(physicsActionReceptor)
 
+  await world.physics.createScene()
+
   return () => {
     // for (const entity of spawnRigidbodyQuery.enter()) {
     //   const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
