@@ -8,6 +8,7 @@ import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { handleGamepads } from '../functions/GamepadInput'
+import { addClientInputListeners } from '../functions/clientInputListeners'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
   if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
@@ -17,12 +18,20 @@ export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: b
 export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
+  addClientInputListeners()
+
   return () => {
     const { delta } = world
 
     if (!Engine.xrSession) {
       handleGamepads()
     }
+
+    // run all queued events detected since the last frame
+    for (const { callback, event } of Engine.inputQueue.values()) {
+      callback(event)
+    }
+    Engine.inputQueue.clear()
 
     // for continuous input, figure out if the current data and previous data is the same
     Engine.inputState.forEach((value: InputValue, key: InputAlias) => {
