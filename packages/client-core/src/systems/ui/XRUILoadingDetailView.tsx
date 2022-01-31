@@ -62,7 +62,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
       colors.main.set('')
       colors.background.set('')
       colors.alternate.set('')
-      img.crossOrigin = 'Anonymous'
+      img.crossOrigin = 'anonymous'
       img.onload = function () {
         uiState.imageWidth.set(img.naturalWidth)
         uiState.imageHeight.set(img.naturalHeight)
