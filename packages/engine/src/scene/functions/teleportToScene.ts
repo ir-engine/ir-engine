@@ -21,6 +21,7 @@ import { setObjectLayers } from './setObjectLayers'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { unloadSystems } from '../../ecs/functions/SystemFunctions'
 
 export const teleportToScene = async (
   portalComponent: ReturnType<typeof PortalComponent.get>,
@@ -82,7 +83,11 @@ export const teleportToScene = async (
   // TODO: add BPCEM of old and new scenes and fade them in and out too
   await hyperspaceEffect.fadeIn(delta)
 
-  await unloadScene()
+  // remove this scene's injected systems
+  unloadSystems(world, true)
+
+  // remove all entities that don't have PersistTags
+  await unloadScene(world)
   await handleNewScene()
 
   await new Promise((resolve) => {
