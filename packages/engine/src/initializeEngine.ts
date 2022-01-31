@@ -207,10 +207,11 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  systemsToLoad.push(...systems)
-
   const world = useWorld()
   await initSystems(world, systemsToLoad)
+
+  // load injected systems which may rely on core systems
+  await initSystems(world, systems)
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {
