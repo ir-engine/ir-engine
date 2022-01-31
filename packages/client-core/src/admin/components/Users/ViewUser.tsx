@@ -266,7 +266,7 @@ const ViewUser = (props: Props) => {
                 data={scopeData}
                 label="Grant Scope"
                 handleChangeScopeType={handleChangeScopeType}
-                scopes={state.scopes}
+                scopes={state.scopes as any}
               />
             </div>
           ) : (
