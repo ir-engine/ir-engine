@@ -449,6 +449,8 @@ const lookFromXRInputs: InputBehaviorType = (
   transform.rotation.multiply(quat)
 }
 
+const axisLookSensitivity = 320
+
 const lookByInputAxis: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
@@ -459,8 +461,8 @@ const lookByInputAxis: InputBehaviorType = (
   if (target)
     setTargetCameraRotation(
       entity,
-      target.phi - inputValue.value[1] * 20000 * delta,
-      target.theta - inputValue.value[0] * 20000 * delta,
+      target.phi - inputValue.value[1] * axisLookSensitivity,
+      target.theta - inputValue.value[0] * axisLookSensitivity,
       0.1
     )
 }

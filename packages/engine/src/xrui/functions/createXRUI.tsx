@@ -9,11 +9,11 @@ import { XRUIStateContext } from '../XRUIStateContext'
 import { Engine } from '../../ecs/classes/Engine'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { WebLayerManager } from '@etherealjs/web-layer/three'
+import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
-async function createUIRootLayer<S extends State<any> | null>(
+async function createWebContainer<S extends State<any> | null>(
   UI: React.FC,
   state: S,
   options: import('@etherealjs/web-layer/three').WebContainer3DOptions
@@ -39,27 +39,32 @@ async function createUIRootLayer<S extends State<any> | null>(
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
   const entity = createEntity()
 
-  createUIRootLayer(UIFunc, state, {
-    manager: WebLayerManager.instance,
-    onLayerPaint: (layer) => {
-      ;(layer.contentMesh.material as THREE.MeshBasicMaterial).toneMapped = false
-    }
-  }).then((uiRoot) => {
+  const container = new Promise<WebContainer3D>(async (resolve, reject) => {
+    const container = await createWebContainer(UIFunc, state, {
+      manager: WebLayerManager.instance
+    })
+
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
     if (!Engine.currentWorld.entityQuery().includes(entity)) {
       console.warn('XRUI layer initialized after entity removed from world')
-      return
+      container.rootLayer.dispose()
+      return reject()
     }
-    addComponent(entity, Object3DComponent, { value: uiRoot })
-    setObjectLayers(uiRoot, ObjectLayers.Render, ObjectLayers.UI)
-    addComponent(entity, XRUIComponent, { container: uiRoot })
+
+    addComponent(entity, Object3DComponent, { value: container })
+    setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
+    addComponent(entity, XRUIComponent, { container: container })
+
+    resolve(container)
   })
-  return { entity, state }
+
+  return { entity, state, container }
 }
 
 export interface XRUI<S> {
   entity: Entity
   state: S
+  container: Promise<WebContainer3D>
 }

@@ -31,8 +31,9 @@ const renderMedia = (detailState) => {
   }
 
   return (
-    <div id="interactable-media">
+    <div id="interactable-media" xr-layer="true" xr-pixel-ratio="0.5">
       <img
+        xr-layer="true"
         src={imageUrl}
         style={{
           width: '100%',
@@ -159,6 +160,8 @@ const InteractiveModalView = (props) => {
           height: '600px',
           textAlign: 'center'
         }}
+        xr-layer="true"
+        xr-pixel-ratio="0.5"
       >
         <div
           style={{
@@ -177,6 +180,7 @@ const InteractiveModalView = (props) => {
             textAlign: 'left',
             fontSize: '18px'
           }}
+          xr-layer="true"
         >
           {detailState.description.value}
           {/* Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS.Extend your battlefield prowess with the ROG Strix Scope Deluxe gaming keyboard featuring an ergonomic wrist rest to keep you comfortable through those marathon gaming sessions. From ASUS. */}
@@ -184,6 +188,7 @@ const InteractiveModalView = (props) => {
         {detailState.urls.value && detailState.urls.value.length ? (
           <button
             xr-layer="true"
+            xr-pixel-ratio="0.8"
             style={{
               fontSize: '90px',
               backgroundColor: '#000000dd',
@@ -253,6 +258,8 @@ const InteractiveModalView = (props) => {
           height: '1600px',
           textAlign: 'center'
         }}
+        xr-layer="true"
+        xr-pixel-ratio="0.5"
       >
         <div
           style={{
@@ -281,12 +288,14 @@ const InteractiveModalView = (props) => {
               position: 'absolute',
               right: '50px'
             }}
+            xr-layer="true"
           >
             {detailState.description.value}
           </div>
         </div>
         {detailState.urls.value && detailState.urls.value.length ? (
           <button
+            xr-pixel-ratio="0.8"
             xr-layer="true"
             style={{
               width: '500px',
@@ -309,6 +318,7 @@ const InteractiveModalView = (props) => {
         )}
         <button
           xr-layer="true"
+          xr-pixel-ratio="0.5"
           style={{
             width: '250px',
             height: '250px',
@@ -322,6 +332,7 @@ const InteractiveModalView = (props) => {
         </button>
         <button
           xr-layer="true"
+          xr-pixel-ratio="0.5"
           style={{
             width: '250px',
             height: '250px',
@@ -355,6 +366,8 @@ const InteractiveModalView = (props) => {
           width: '500px',
           height: '800px'
         }}
+        xr-layer="true"
+        xr-pixel-ratio="0.5"
       >
         <div
           style={{
@@ -362,6 +375,7 @@ const InteractiveModalView = (props) => {
             padding: '20px 0px',
             textAlign: 'center'
           }}
+          xr-layer="true"
         >
           {detailState.title.value}
         </div>
@@ -374,12 +388,14 @@ const InteractiveModalView = (props) => {
             textAlign: 'left',
             fontSize: '20px'
           }}
+          xr-layer="true"
         >
           {detailState.description.value}
         </div>
         {detailState.urls.value && detailState.urls.value.length ? (
           <button
             xr-layer="true"
+            xr-pixel-ratio="0.8"
             style={{
               fontSize: '25px',
               backgroundColor: '#000000dd',
@@ -396,6 +412,7 @@ const InteractiveModalView = (props) => {
         )}
         <button
           xr-layer="true"
+          xr-pixel-ratio="0.5"
           style={{
             width: '15%',
             fontSize: '25px',
@@ -410,6 +427,7 @@ const InteractiveModalView = (props) => {
         </button>
         <button
           xr-layer="true"
+          xr-pixel-ratio="0.5"
           style={{
             width: '15%',
             fontSize: '25px',
