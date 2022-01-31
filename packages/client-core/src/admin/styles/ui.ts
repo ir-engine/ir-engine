@@ -179,7 +179,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     rootPaper: {
       marginTop: '65px',
-      height: '15vh',
+      minHeight: '15vh',
       background: '#111',
       color: '#f1f1f1',
       backgroundColor: '#343b41',
