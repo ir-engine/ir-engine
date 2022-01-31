@@ -1,8 +1,8 @@
-import * as React from 'react'
-import { useAutocomplete, AutocompleteGetTagProps } from '@mui/base/AutocompleteUnstyled'
+import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { styled } from '@mui/material/styles'
+import * as React from 'react'
 
 const Root = styled('div')(
   ({ theme }) => `
@@ -137,14 +137,7 @@ const Listbox = styled('ul')(
 `
 )
 
-interface Props {
-  data: any
-  label: string
-  handleChangeScopeType: (scope: any) => void
-  scopes?: any
-}
-
-export default function AutoComplete({ data, label, handleChangeScopeType, scopes }: Props) {
+export default function AutoComplete({ data, label, handleChangeScopeType, scopes = [] }) {
   const {
     getRootProps,
     getInputLabelProps,
@@ -158,7 +151,7 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
     setAnchorEl
   } = useAutocomplete({
     id: 'customized-hook-demo',
-    defaultValue: scopes || [],
+    defaultValue: scopes,
     multiple: true,
     options: data,
     getOptionLabel: (option) => option.type,
