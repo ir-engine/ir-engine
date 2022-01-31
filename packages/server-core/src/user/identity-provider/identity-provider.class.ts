@@ -5,12 +5,14 @@ import { v1 as uuidv1 } from 'uuid'
 import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 
 interface Data {}
 
@@ -166,6 +168,15 @@ export class IdentityProvider extends Service {
       }
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
+
+    let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
+
+    // Make first user admin if local and dev
+    if (isDev && adminCount === 0) {
+      role = 'admin'
+      type = 'admin'
+    }
+
     let result
     try {
       result = await super.create(
@@ -174,7 +185,7 @@ export class IdentityProvider extends Service {
           ...identityProvider,
           user: {
             id: userId,
-            userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
+            userRole: role,
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }
@@ -222,6 +233,14 @@ export class IdentityProvider extends Service {
             userId: userId
           })
         })
+      }
+
+      const authService = new AuthenticationService(this.app, 'authentication')
+      // this.app.service('authentication')
+      result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
+    } else if (isDev && type === 'admin') {
+      for (const { type } of scopeTypeSeed.templates) {
+        await this.app.service('scope').create({ userId: userId, type })
       }
 
       const authService = new AuthenticationService(this.app, 'authentication')
