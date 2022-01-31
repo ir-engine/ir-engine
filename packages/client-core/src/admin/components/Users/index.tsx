@@ -1,19 +1,19 @@
+import React, { useState } from 'react'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
-import React from 'react'
 import Search from '../../common/Search'
 import { UserService } from '../../services/UserService'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
-import { useUserStyles } from './styles'
 import UserTable from './UserTable'
+import { useStyles } from '../../styles/ui'
 
 const Users = () => {
-  const classes = useUserStyles()
-  const [search, setSearch] = React.useState('')
-  const [userModalOpen, setUserModalOpen] = React.useState(false)
+  const classes = useStyles()
+  const [search, setSearch] = useState('')
+  const [userModalOpen, setUserModalOpen] = useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (

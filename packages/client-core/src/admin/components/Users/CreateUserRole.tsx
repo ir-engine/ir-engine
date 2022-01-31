@@ -1,12 +1,8 @@
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import TextField from '@mui/material/TextField'
 import React from 'react'
 import { UserRoleService } from '../../services/UserRoleService'
-import { useUserStyle, useUserStyles } from './styles'
+import CreateModel from '../../common/CreateModel'
+import InputText from '../../common/InputText'
 
 interface Props {
   open: boolean
@@ -15,8 +11,6 @@ interface Props {
 
 const createUser = (props: Props) => {
   const { open, handleClose } = props
-  const classes = useUserStyles()
-  const classx = useUserStyle()
   const [role, setRole] = React.useState('')
 
   const createUserRole = async () => {
@@ -25,38 +19,16 @@ const createUser = (props: Props) => {
     setRole('')
   }
 
+  const handleChange = (e) => {
+    setRole(e.target.value)
+  }
+
   return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="form-dialog-title"
-        classes={{ paper: classx.paperDialog }}
-      >
-        <DialogTitle id="form-dialog-title">Create new user role </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="role"
-            label="User Role"
-            type="text"
-            fullWidth
-            value={role}
-            className={classes.marginBottm}
-            onChange={(e) => setRole(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={createUserRole} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <CreateModel open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
+      <DialogContent>
+        <InputText value={role} formErrors={[]} handleInputChange={handleChange} name="role" />
+      </DialogContent>
+    </CreateModel>
   )
 }
 

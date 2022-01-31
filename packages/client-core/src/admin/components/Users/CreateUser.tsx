@@ -1,18 +1,11 @@
-import MuiAlert from '@mui/material/Alert'
+import React, { useState, useEffect } from 'react'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
-import InputBase from '@mui/material/InputBase'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
-import Snackbar from '@mui/material/Snackbar'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import React from 'react'
 import { useAlertState } from '../../../common/services/AlertService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
@@ -24,6 +17,10 @@ import CreateUserRole from './CreateUserRole'
 import { validateUserForm } from './validation'
 import AutoComplete from '../../common/AutoComplete'
 import AlertMessage from '../../common/AlertMessage'
+import _ from 'lodash'
+import InputText from '../../common/InputText'
+import InputSelect from '../../common/InputSelect'
+import { useFetchUserRole, useFetchStaticResource, useFetchScopeType } from '../../common/hooks/User.hooks'
 
 interface Props {
   open: boolean
@@ -31,12 +28,16 @@ interface Props {
   closeViewModel: any
 }
 
+interface InputSelectProps {
+  value: string
+  label: string
+}
+
 const CreateUser = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-
   const classes = useStyles()
-  const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false)
-  const [state, setState] = React.useState({
+  const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
+  const [state, setState] = useState({
     name: '',
     avatar: '',
     userRole: '',
@@ -49,12 +50,11 @@ const CreateUser = (props: Props) => {
     }
   })
 
-  const [openWarning, setOpenWarning] = React.useState(false)
-  const [error, setError] = React.useState('')
+  const [openWarning, setOpenWarning] = useState(false)
+  const [error, setError] = useState('')
 
   const user = useAuthState().user
   const userRole = useUserRoleState()
-  const userRoleData = userRole ? userRole.userRole?.value : []
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
 
@@ -63,7 +63,23 @@ const CreateUser = (props: Props) => {
   const errorType = alertState.type
   const errorMessage = alertState.message
 
-  React.useEffect(() => {
+  //Call custom hooks
+  useFetchUserRole(UserRoleService, userRole, user)
+  useFetchStaticResource(staticResourceService, staticResource, user)
+  useFetchScopeType(ScopeTypeService, adminScopeTypeState, user)
+
+  const clearState = () => {
+    setState({
+      ...state,
+      name: '',
+      avatar: '',
+      userRole: '',
+      scopes: [],
+      formErrors: { name: '', avatar: '', userRole: '', scopes: '' }
+    })
+  }
+
+  useEffect(() => {
     if (errorType.value === 'error') {
       setError(errorMessage.value)
       setOpenWarning(true)
@@ -72,20 +88,6 @@ const CreateUser = (props: Props) => {
       }, 5000)
     }
   }, [errorType.value, errorMessage.value])
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      await UserRoleService.fetchUserRole()
-    }
-    const role = userRole ? userRole.updateNeeded.value : false
-    if (role === true && user.id.value) fetchData()
-    if (user.id.value && staticResource.updateNeeded.value) {
-      staticResourceService.fetchStaticResource()
-    }
-    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
-      ScopeTypeService.getScopeTypeService()
-    }
-  }, [adminScopeTypeState.updateNeeded.value, userRole.updateNeeded.value, staticResource.updateNeeded.value, user])
 
   const createUserRole = () => {
     setOpenCreateUserRole(true)
@@ -108,20 +110,7 @@ const CreateUser = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'avatar':
-        temp.avatar = value.length < 2 ? 'Avatar is required!' : ''
-        break
-      case 'userRole':
-        temp.userRole = value.length < 2 ? 'User role is required!' : ''
-        break
-
-      default:
-        break
-    }
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required!` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -133,43 +122,22 @@ const CreateUser = (props: Props) => {
       scopes: state.scopes
     }
     let temp = state.formErrors
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.avatar) {
-      temp.avatar = "Avatar can't be empty"
-    }
-    if (!state.userRole) {
-      temp.userRole = "User role can't be empty"
-    }
-    if (!state.scopes.length) {
-      temp.scopes = "Scope type can't be empty"
-    }
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
+    temp.userRole = !state.userRole ? "User role can't be empty" : ''
+    temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       UserService.createUser(data)
       closeViewModel(false)
-      setState({
-        ...state,
-        name: '',
-        avatar: '',
-        userRole: '',
-        scopes: []
-      })
+      clearState()
     } else {
       setError('Please fill all required field')
       setOpenWarning(true)
     }
   }
-
   const handleCancel = () => {
-    setState({
-      ...state,
-      name: '',
-      avatar: '',
-      userRole: '',
-      scopes: []
-    })
+    clearState()
     closeViewModel(false)
   }
 
@@ -184,81 +152,49 @@ const CreateUser = (props: Props) => {
     })
   })
 
+  const staticResourceMenu: InputSelectProps[] = []
+  staticResourceData.value.forEach((el) => {
+    staticResourceMenu.push({
+      label: el.name,
+      value: el.name
+    })
+  })
+
+  const userRoleData: InputSelectProps[] = []
+  userRole.userRole.value.forEach((el) => {
+    userRoleData.push({
+      value: el.role,
+      label: el.role
+    })
+  })
+
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose(false)}>
+      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
             Create New User
           </DialogTitle>
-          <label>Name</label>
-          <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
-            <InputBase
-              className={classes.input}
-              name="name"
-              placeholder="Enter name"
-              style={{ color: '#fff' }}
-              autoComplete="off"
-              value={state.name}
-              onChange={handleChange}
-            />
-          </Paper>
-          <label>Avatar</label>
-          <Paper
-            component="div"
-            className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}
-          >
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.avatar}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={classes.select}
-                name="avatar"
-                MenuProps={{ classes: { paper: classes.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>Select avatar</em>
-                </MenuItem>
-                {staticResourceData.value.map((el) => (
-                  <MenuItem value={el.name} key={el.id}>
-                    {el.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
-          <label>User role</label>
-          <Paper
-            component="div"
-            className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}
-          >
-            <FormControl fullWidth>
-              <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
-                value={state.userRole}
-                fullWidth
-                displayEmpty
-                onChange={handleChange}
-                className={classes.select}
-                name="userRole"
-                MenuProps={{ classes: { paper: classes.selectPaper } }}
-              >
-                <MenuItem value="" disabled>
-                  <em>Select user role</em>
-                </MenuItem>
-                {userRoleData.map((el) => (
-                  <MenuItem value={el?.role} key={el?.role}>
-                    {el?.role}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Paper>
+          <InputText
+            value={state.name}
+            formErrors={state.formErrors.name}
+            handleInputChange={handleChange}
+            name="name"
+          />
+          <InputSelect
+            formErrors={state.formErrors.avatar}
+            value={state.avatar}
+            handleInputChange={handleChange}
+            name="avatar"
+            menu={staticResourceMenu}
+          />
+          <InputSelect
+            handleInputChange={handleChange}
+            value={state.userRole}
+            name="userRole"
+            menu={userRoleData}
+            formErrors={state.formErrors.userRole}
+          />
           <DialogContentText className={classes.marginBottm}>
             <span className={classes.select}>Don't see user role? </span>{' '}
             <a href="#h" className={classes.textLink} onClick={createUserRole}>
@@ -276,7 +212,7 @@ const CreateUser = (props: Props) => {
           </DialogActions>
         </Container>
       </Drawer>
-      <CreateUserRole open={openCreateaUserRole} handleClose={handleUserRoleClose} />
+      <CreateUserRole open={openCreateUserRole} handleClose={handleUserRoleClose} />
       <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
