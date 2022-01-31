@@ -137,7 +137,14 @@ const Listbox = styled('ul')(
 `
 )
 
-export default function AutoComplete({ data, label, handleChangeScopeType, scopes }) {
+interface Props {
+  data: any
+  label: string
+  handleChangeScopeType: (scope: any) => void
+  scopes?: any
+}
+
+export default function AutoComplete({ data, label, handleChangeScopeType, scopes }: Props) {
   const {
     getRootProps,
     getInputLabelProps,

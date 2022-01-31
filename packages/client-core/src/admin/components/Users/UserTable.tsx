@@ -52,7 +52,7 @@ const UserTable = (props: UserProps) => {
 
   const createData = (
     id: any,
-    user: any,
+    el: any,
     name: string,
     avatar: string | JSX.Element,
     status: string | JSX.Element,
@@ -62,7 +62,7 @@ const UserTable = (props: UserProps) => {
   ): UserData => {
     return {
       id,
-      user,
+      el,
       name,
       avatar,
       status,
@@ -75,23 +75,25 @@ const UserTable = (props: UserProps) => {
             href="#h"
             className={classes.actionStyle}
             onClick={() => {
-              setUserAdmin(user)
+              setUserAdmin(el)
               setViewModel(true)
             }}
           >
             <span className={classes.spanWhite}>View</span>
           </a>
-          <a
-            href="#h"
-            className={classes.actionStyle}
-            onClick={() => {
-              setUserId(id)
-              setUserName(name)
-              setPopConfirmOpen(true)
-            }}
-          >
-            <span className={classes.spanDange}>Delete</span>
-          </a>
+          {user.id.value !== id && (
+            <a
+              href="#h"
+              className={classes.actionStyle}
+              onClick={() => {
+                setUserId(id)
+                setUserName(name)
+                setPopConfirmOpen(true)
+              }}
+            >
+              <span className={classes.spanDange}>Delete</span>
+            </a>
+          )}
         </>
       )
     }

@@ -9,8 +9,8 @@ export const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexDirection: 'column',
       flexGrow: 1,
-      minHeight: '0px',
-      overflow: 'scroll'
+      minHeight: '0px'
+      // overflow: 'scroll'
     },
     searchRoot: {
       padding: '2px 20px',

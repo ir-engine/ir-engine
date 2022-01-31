@@ -42,7 +42,7 @@ export const userColumns: UserColumn[] = [
 
 export interface UserData {
   id: string
-  user: any
+  el: any
   name: string
   avatar: string | JSX.Element
   status: string | JSX.Element

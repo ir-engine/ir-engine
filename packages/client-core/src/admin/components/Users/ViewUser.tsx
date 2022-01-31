@@ -1,14 +1,10 @@
+import React, { useEffect, useState } from 'react'
 import { Edit, Save } from '@mui/icons-material'
-import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
-import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -17,26 +13,24 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
-import Snackbar from '@mui/material/Snackbar'
 import Typography from '@mui/material/Typography'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import React, { useEffect, useState } from 'react'
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { useAuthState } from '../../../user/services/AuthService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import { validateUserForm } from './validation'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
+import UserRoleDialog from '../../common/UserRoleDialog'
+import _ from 'lodash'
 
 interface Props {
   openView: boolean
   userAdmin: any
   closeViewModel?: any
-  //doLoginAuto?: any
 }
 
 interface ScopeData {
@@ -45,15 +39,8 @@ interface ScopeData {
 
 const ViewUser = (props: Props) => {
   const classes = useStyles()
-
-  const {
-    openView,
-    closeViewModel,
-    userAdmin
-    //doLoginAuto
-  } = props
+  const { openView, closeViewModel, userAdmin } = props
   const [openDialog, setOpenDialog] = useState(false)
-  const [status, setStatus] = useState(userAdmin.userRole)
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
 
@@ -71,8 +58,6 @@ const ViewUser = (props: Props) => {
   const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const userRole = useUserRoleState()
-  const userRoleData = userRole ? userRole.userRole.value : []
   const singleUser = useSingleUserState()
   const singleUserData = singleUser.singleUser
   const staticResource = useStaticResourceState()
@@ -87,15 +72,6 @@ const ViewUser = (props: Props) => {
   }
 
   useEffect(() => {
-    setStatus(userAdmin.userRole)
-  }, [userAdmin.userRole])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      AuthService.doLoginAuto(false)
-      await UserRoleService.fetchUserRole()
-    }
-    if (userRole.updateNeeded.value === true && user.id.value) fetchData()
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
       SingleUserService.fetchSingleUserAdmin(userAdmin.id)
     }
@@ -109,7 +85,6 @@ const ViewUser = (props: Props) => {
     adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
-    userRole.updateNeeded.value,
     singleUser.updateNeeded.value,
     adminScopeTypeState.updateNeeded.value
   ])
@@ -132,30 +107,15 @@ const ViewUser = (props: Props) => {
         ...state,
         name: userAdmin.name || '',
         avatar: userAdmin.avatarId || '',
-        scopes: temp
+        scopes: temp as any
       })
     }
   }, [singleUserData?.id?.value])
 
-  const patchUserRole = async (user: any, role: string) => {
-    await UserRoleService.updateUserRole(user, role)
-    handleCloseDialog()
-    setRefetch(refetch + 1)
-  }
-
   const handleInputChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'avatar':
-        temp.avatar = value.length < 2 ? 'Avatar is required!' : ''
-        break
-      default:
-        break
-    }
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -165,29 +125,14 @@ const ViewUser = (props: Props) => {
       avatarId: state.avatar,
       scopes: state.scopes
     }
-
     let temp = state.formErrors
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.avatar) {
-      temp.avatar = "Avatar can't be empty"
-    }
-    if (!state.scopes) {
-      temp.scopes = "Scope type can't be empty"
-    }
-    if (!state.scopes.length) {
-      temp.scopes = "Scope can't be empty"
-    }
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
+    temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       UserService.patchUser(userAdmin.id, data)
-      setState({
-        ...state,
-        name: '',
-        avatar: '',
-        scopes: []
-      })
+      setState({ ...state, name: '', avatar: '', scopes: [] })
       setEditMode(false)
       closeViewModel(false)
     } else {
@@ -201,17 +146,6 @@ const ViewUser = (props: Props) => {
       return
     }
     setOpenWarning(false)
-  }
-
-  const handleRoleChange = (e) => {
-    setStatus(e.target.value)
-  }
-
-  const handleSubmitRole = async () => {
-    await patchUserRole(singleUserData?.id?.value, status)
-    setRefetch(refetch + 1)
-    setStatus('')
-    handleCloseDialog()
   }
 
   const handleCloseDrawer = () => {
@@ -276,48 +210,6 @@ const ViewUser = (props: Props) => {
                 </Grid>
               </Grid>
             </Container>
-
-            <Dialog
-              open={openDialog}
-              onClose={handleCloseDialog}
-              aria-labelledby="form-dialog-title"
-              classes={{ paper: classes.paperDialog }}
-            >
-              <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  In order to change role for {userAdmin.name} search from the list or select user role and submit.
-                </DialogContentText>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  value={status}
-                  fullWidth
-                  displayEmpty
-                  onChange={handleRoleChange}
-                  className={classes.select}
-                  name="status"
-                  MenuProps={{ classes: { paper: classes.selectPaper } }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>User Role</em>
-                  </MenuItem>
-                  {userRoleData.map((el, i) => (
-                    <MenuItem value={el.role} key={i}>
-                      {el.role}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </DialogContent>
-              <DialogActions className={classes.marginTop}>
-                <Button onClick={handleCloseDialog} className={classes.spanDange}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmitRole} color="primary">
-                  Submit
-                </Button>
-              </DialogActions>
-            </Dialog>
           </Paper>
         )}
         <Container maxWidth="sm">
@@ -472,8 +364,9 @@ const ViewUser = (props: Props) => {
             )}
           </DialogActions>
         </Container>
-        <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
       </Drawer>
+      <UserRoleDialog openDialog={openDialog} handleCloseDialog={handleCloseDialog} userAdmin={userAdmin} />
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

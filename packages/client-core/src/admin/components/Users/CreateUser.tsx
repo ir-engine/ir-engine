@@ -274,10 +274,10 @@ const CreateUser = (props: Props) => {
               Cancel
             </Button>
           </DialogActions>
-          <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
         </Container>
       </Drawer>
       <CreateUserRole open={openCreateaUserRole} handleClose={handleUserRoleClose} />
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }
