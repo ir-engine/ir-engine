@@ -3,6 +3,7 @@ import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 
 export const sceneRelativePathIdentifier = '__$project$__'
 export const corsPath =
@@ -47,7 +48,7 @@ export const parseScenePortals = (scene: SceneDetailInterface) => {
   const portals: PortalDetail[] = []
   for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
     for (const component of entity.components)
-      if (component.name === 'portal') {
+      if (component.name === SCENE_COMPONENT_PORTAL) {
         portals.push({
           sceneName: scene.name,
           portalEntityId: entityId,

@@ -12,7 +12,7 @@ import { PortalComponent } from '../../components/PortalComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { deserializePortal } from './PortalFunctions'
 
-describe.skip('PortalFunctions', () => {
+describe('PortalFunctions', () => {
   it('deserializePortal', async () => {
     const world = createWorld()
     Engine.currentWorld = world
@@ -37,7 +37,6 @@ describe.skip('PortalFunctions', () => {
       modelUrl: '',
       locationName: 'test',
       linkedPortalId,
-      displayText: 'Test',
       triggerPosition: { x: 1, y: 1, z: 1 },
       triggerRotation,
       triggerScale: { x: 1, y: 1, z: 1 }
@@ -58,7 +57,6 @@ describe.skip('PortalFunctions', () => {
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert.equal(portalComponent.displayText, 'Test')
     assert(Engine.currentWorld.portalQuery().includes(entity))
 
     // clean up physx
