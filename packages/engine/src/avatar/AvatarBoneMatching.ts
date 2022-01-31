@@ -670,13 +670,13 @@ export default function AvatarBoneMatching(model): BoneStructure {
     model.traverse((o) => {
       if (o.isSkinnedMesh) {
         try {
-          o.bind(
-            o.skeleton.bones.length === skeleton.bones.length &&
-              o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
-              ? skeleton
-              : o.skeleton
-          )
-          // o.bind(o.skeleton)
+          // o.bind(
+          //   o.skeleton.bones.length === skeleton.bones.length &&
+          //     o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
+          //     ? skeleton
+          //     : o.skeleton
+          // )
+          o.bind(o.skeleton)
         } catch (error) {
           console.error(error)
         }

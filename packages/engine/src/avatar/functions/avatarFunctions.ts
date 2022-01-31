@@ -38,10 +38,14 @@ import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { UpdatableComponent } from '@xrengine/engine/src/scene/components/UpdatableComponent'
+import { Updatable } from '@xrengine/engine/src/scene/interfaces/Updatable'
 const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
-  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo/pete.fbx'
+  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/vrm/AvatarSample_C.vrm'
+  // avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo/pete.fbx'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
@@ -54,7 +58,7 @@ export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) =
       const root = new Group()
       root.add(model.scene)
       parent.add(root)
-      setupAvatar(entity, SkeletonUtils.clone(parent), avatarDetail.avatarURL, model.scene.userData.type)
+      setupAvatar(entity, SkeletonUtils.clone(parent), avatarDetail.avatarURL, model)
     }
   )
 }
@@ -63,7 +67,9 @@ export const setAvatarLayer = (obj: Object3D) => {
   setObjectLayers(obj, ObjectLayers.Render, ObjectLayers.Avatar)
 }
 
-const setupAvatar = (entity: Entity, model: any, avatarURL?: string, assetType?: number) => {
+const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any) => {
+  const assetType = model.scene.userData.type
+
   const world = useWorld()
 
   if (!entity) return
@@ -75,11 +81,24 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string, assetType?:
   animationComponent.mixer.stopAllAction()
   avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
-  const retargeted = AvatarBoneMatching(model)
+  const retargeted = AvatarBoneMatching(root)
   const rootBone = retargeted.Root
 
   if (assetType == AssetType.FBX) {
     rootBone.children[0].scale.setScalar(0.01)
+  } else if (assetType == AssetType.VRM) {
+    if (model) {
+      //@ts-ignore
+      addComponent(entity, UpdatableComponent, {})
+      //@ts-ignore
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      debugger
+      if (object3DComponent.value) {
+        ;(object3DComponent.value as unknown as Updatable).update = function () {
+          model.update()
+        }
+      }
+    }
   }
 
   // TODO: add way to handle armature type
@@ -110,10 +129,10 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string, assetType?:
 
   // Material
   let materialList: Array<MaterialMap> = []
-  model.traverse((object) => {
+  root.traverse((object) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
-    if (object.material) {
+    if (object.material && object.material.clone) {
       // Transparency fix
       object.material.format = RGBAFormat
       const material = object.material.clone()
@@ -128,7 +147,7 @@ const setupAvatar = (entity: Entity, model: any, avatarURL?: string, assetType?:
     }
   })
   loadGrowingEffectObject(entity, materialList)
-  model.children.forEach((child) => avatar.modelContainer.add(child))
+  root.children.forEach((child) => avatar.modelContainer.add(child))
 }
 
 const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {

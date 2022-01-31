@@ -142,9 +142,16 @@ type AssetLoaderParamType = {
 }
 
 const assetLoadCallback =
-  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
+  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (model) => {
     if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+      await loadExtensions(model)
+    }
+
+    let asset: any
+    if (assetType === AssetType.VRM) {
+      asset = model.userData.vrm
+    } else {
+      asset = model
     }
 
     const assetClass = getAssetClass(url)
