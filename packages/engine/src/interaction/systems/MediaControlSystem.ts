@@ -26,7 +26,7 @@ export default async function MediaControlSystem(world: World) {
       if (!xrui?.container) continue
       const transition = MediaFadeTransitions.get(entity)!
       const buttonLayer = xrui.container.rootLayer.querySelector('button')!
-      const hover = xrui.container.rootLayer.pseudoStates.hover || buttonLayer.pseudoStates.hover
+      const hover = xrui.container.rootLayer.domState?.pseudo.hover || buttonLayer.domState?.pseudo.hover
       if (hover && !mediaControls.state.mouseOver.value) {
         transition.setState('IN')
         mediaControls.state.mouseOver.set(true)

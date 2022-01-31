@@ -12,7 +12,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
 
 export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
