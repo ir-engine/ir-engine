@@ -1,4 +1,4 @@
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -89,7 +89,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           open: true,
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-          action: async () => InstanceConnectionService.provisionInstanceServer(currentLocation.id),
+          action: async () => LocationInstanceConnectionService.provisionServer(currentLocation.id),
           parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
           noCountdown: false
         })

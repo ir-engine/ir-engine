@@ -24,25 +24,25 @@ const state = createState({
   channelType: null! as ChannelType,
   channelId: '',
   videoEnabled: false,
-  instanceProvisioned: false,
+  provisioned: false,
   connected: false,
   readyToConnect: false,
   updateNeeded: false,
-  instanceServerConnecting: false,
-  instanceProvisioning: false
+  connecting: false,
+  provisioning: false
 })
 
-store.receptors.push((action: ChannelConnectionActionType): any => {
+store.receptors.push((action: MediaLocationInstanceConnectionActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'CHANNEL_SERVER_PROVISIONING':
+      case 'MEDIA_INSTANCE_SERVER_PROVISIONING':
         return s.merge({
           connected: false,
-          instanceProvisioned: false,
+          provisioned: false,
           readyToConnect: false,
-          instanceProvisioning: true
+          provisioning: true
         })
-      case 'CHANNEL_SERVER_PROVISIONED':
+      case 'MEDIA_INSTANCE_SERVER_PROVISIONED':
         MediaStreams.instance.channelType = action.channelType!
         MediaStreams.instance.channelId = action.channelId!
         return s.merge({
@@ -52,26 +52,26 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           },
           channelType: action.channelType,
           channelId: action.channelId!,
-          instanceProvisioning: false,
-          instanceProvisioned: true,
+          provisioning: false,
+          provisioned: true,
           readyToConnect: true,
           updateNeeded: true,
           connected: false
         })
-      case 'CHANNEL_SERVER_CONNECTING':
-        return s.instanceServerConnecting.set(true)
-      case 'CHANNEL_SERVER_CONNECTED':
+      case 'MEDIA_INSTANCE_SERVER_CONNECTING':
+        return s.connecting.set(true)
+      case 'MEDIA_INSTANCE_SERVER_CONNECTED':
         return s.merge({
           connected: true,
           updateNeeded: false,
           readyToConnect: false,
-          instanceServerConnecting: false
+          connecting: false
         })
-      case 'CHANNEL_SERVER_VIDEO_ENABLED':
+      case 'MEDIA_INSTANCE_SERVER_VIDEO_ENABLED':
         return s.merge({
           videoEnabled: action.enableVideo
         })
-      case 'CHANNEL_SERVER_DISCONNECT':
+      case 'MEDIA_INSTANCE_SERVER_DISCONNECT':
         MediaStreams.instance.channelType = null!
         MediaStreams.instance.channelId = ''
         return s.merge({
@@ -83,26 +83,26 @@ store.receptors.push((action: ChannelConnectionActionType): any => {
           sceneId: '',
           channelType: null!,
           channelId: '',
-          instanceProvisioned: false,
+          provisioned: false,
           connected: false,
           readyToConnect: false,
           updateNeeded: false,
-          instanceServerConnecting: false,
-          instanceProvisioning: false
+          connecting: false,
+          provisioning: false
         })
     }
   }, action.type)
 })
 
-export const accessChannelConnectionState = () => state
+export const accessMediaInstanceConnectionState = () => state
 
-export const useChannelConnectionState = () => useState(state) as any as typeof state
+export const useMediaInstanceConnectionState = () => useState(state) as any as typeof state
 
 //Service
-export const ChannelConnectionService = {
-  provisionChannelServer: async (channelId?: string, isWorldConnection = false) => {
+export const MediaInstanceConnectionService = {
+  provisionServer: async (channelId?: string, isWorldConnection = false) => {
     const dispatch = useDispatch()
-    dispatch(ChannelConnectionAction.channelServerProvisioning())
+    dispatch(MediaLocationInstanceConnectionAction.serverProvisioning())
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await client.service('instance-provision').find({
       query: {
@@ -113,7 +113,7 @@ export const ChannelConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       {
         dispatch(
-          ChannelConnectionAction.channelServerProvisioned(
+          MediaLocationInstanceConnectionAction.serverProvisioned(
             provisionResult,
             channelId,
             isWorldConnection ? 'instance' : 'channel'
@@ -126,12 +126,12 @@ export const ChannelConnectionService = {
       })
     }
   },
-  connectToChannelServer: async (channelId: string) => {
+  connectToServer: async (channelId: string) => {
     const dispatch = useDispatch()
-    dispatch(ChannelConnectionAction.channelServerConnecting())
+    dispatch(MediaLocationInstanceConnectionAction.serverConnecting())
     const authState = accessAuthState()
     const user = authState.user.value
-    const { ipAddress, port } = accessChannelConnectionState().instance.value
+    const { ipAddress, port } = accessMediaInstanceConnectionState().instance.value
 
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location
@@ -144,7 +144,7 @@ export const ChannelConnectionService = {
     }
 
     dispatch(
-      ChannelConnectionAction.enableVideo(
+      MediaLocationInstanceConnectionAction.enableVideo(
         currentLocation?.locationSettings?.videoEnabled?.value === true ||
           !(
             currentLocation?.locationSettings?.locationType?.value === 'showroom' &&
@@ -161,9 +161,9 @@ export const ChannelConnectionService = {
       MediaStreamService.triggerUpdateConsumers
     )
   },
-  resetChannelServer: () => {
+  resetServer: () => {
     const dispatch = useDispatch()
-    dispatch(ChannelConnectionAction.disconnect())
+    dispatch(MediaLocationInstanceConnectionAction.disconnect())
   }
 }
 
@@ -171,25 +171,25 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance-provision').on('created', (params) => {
     if (params.channelId != null) {
       const dispatch = useDispatch()
-      dispatch(ChannelConnectionAction.channelServerProvisioned(params, params.channelId))
+      dispatch(MediaLocationInstanceConnectionAction.serverProvisioned(params, params.channelId))
     }
   })
 }
 
 //Action
-export const ChannelConnectionAction = {
-  channelServerProvisioning: () => {
+export const MediaLocationInstanceConnectionAction = {
+  serverProvisioning: () => {
     return {
-      type: 'CHANNEL_SERVER_PROVISIONING' as const
+      type: 'MEDIA_INSTANCE_SERVER_PROVISIONING' as const
     }
   },
-  channelServerProvisioned: (
+  serverProvisioned: (
     provisionResult: InstanceServerProvisionResult,
     channelId?: string,
     channelType?: ChannelType
   ) => {
     return {
-      type: 'CHANNEL_SERVER_PROVISIONED' as const,
+      type: 'MEDIA_INSTANCE_SERVER_PROVISIONED' as const,
       id: provisionResult.id,
       ipAddress: provisionResult.ipAddress,
       port: provisionResult.port,
@@ -197,29 +197,29 @@ export const ChannelConnectionAction = {
       channelId: channelId
     }
   },
-  channelServerConnecting: () => {
+  serverConnecting: () => {
     return {
-      type: 'CHANNEL_SERVER_CONNECTING' as const
+      type: 'MEDIA_INSTANCE_SERVER_CONNECTING' as const
     }
   },
-  channelServerConnected: () => {
+  serverConnected: () => {
     return {
-      type: 'CHANNEL_SERVER_CONNECTED' as const
+      type: 'MEDIA_INSTANCE_SERVER_CONNECTED' as const
     }
   },
   enableVideo: (enableVideo: boolean) => {
     return {
-      type: 'CHANNEL_SERVER_VIDEO_ENABLED' as const,
+      type: 'MEDIA_INSTANCE_SERVER_VIDEO_ENABLED' as const,
       enableVideo
     }
   },
   disconnect: () => {
     return {
-      type: 'CHANNEL_SERVER_DISCONNECT' as const
+      type: 'MEDIA_INSTANCE_SERVER_DISCONNECT' as const
     }
   }
 }
 
-export type ChannelConnectionActionType = ReturnType<
-  typeof ChannelConnectionAction[keyof typeof ChannelConnectionAction]
+export type MediaLocationInstanceConnectionActionType = ReturnType<
+  typeof MediaLocationInstanceConnectionAction[keyof typeof MediaLocationInstanceConnectionAction]
 >

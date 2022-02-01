@@ -11,6 +11,7 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { addError, removeError } from '../ErrorFunctions'
 import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
 
@@ -47,8 +48,20 @@ export const updateModel: ComponentUpdateFunction = async (
   if (properties.src) {
     try {
       await loadGLTFModel(entity)
+      removeError(entity, 'srcError')
     } catch (err) {
-      Promise.reject(err)
+      addError(entity, 'srcError', err.message)
+      Promise.resolve(err)
+    }
+  }
+
+  if (properties.envMapOverride) {
+    try {
+      // ToDo: Add right method to load envMap
+      removeError(entity, 'envMapError')
+    } catch (err) {
+      addError(entity, 'envMapError', err.message)
+      Promise.resolve(err)
     }
   }
 

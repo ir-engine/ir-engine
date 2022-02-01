@@ -42,7 +42,7 @@ export const userColumns: UserColumn[] = [
 
 export interface UserData {
   id: string
-  user: any
+  el: any
   name: string
   avatar: string | JSX.Element
   status: string | JSX.Element
@@ -57,6 +57,7 @@ export interface UserProps {
   adminUserState?: any
   fetchUsersAsAdmin?: any
   refetchSingleUserAdmin?: any
+  search: string
 }
 
 export interface UserTabPanelProps {

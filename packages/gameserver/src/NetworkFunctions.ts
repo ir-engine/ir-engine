@@ -16,6 +16,10 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import AWS from 'aws-sdk'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -143,8 +147,13 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
       ended: false
     }
   })
-  const gameservers = await transport.app.k8AgonesClient.get('gameservers')
-  const gsIds = gameservers.items.map((gs) =>
+  const gameservers = await transport.app.k8AgonesClient.listNamespacedCustomObject(
+    'agones.dev',
+    'v1',
+    'default',
+    'gameservers'
+  )
+  const gsIds = (gameservers?.body! as any).items.map((gs) =>
     gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
@@ -152,7 +161,7 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     instances.rows.map((instance) => {
       if (!instance.ipAddress) return false
       const [ip, port] = instance.ipAddress.split(':')
-      const match = gameservers.items.find((gs) => {
+      const match = (gameservers?.body! as any).items.find((gs) => {
         if (gs.status.ports == null || gs.status.address === '') return false
         const inputPort = gs.status.ports.find((port) => port.name === 'default')
         return gs.status.address === ip && inputPort.port.toString() === port
@@ -242,7 +251,7 @@ function disconnectClientIfConnected(socket, userId: UserId): void {
   }
 }
 
-export const handleJoinWorld = (
+export const handleJoinWorld = async (
   transport: SocketWebRTCServerTransport,
   socket,
   data,
@@ -250,7 +259,44 @@ export const handleJoinWorld = (
   joinedUserId: UserId,
   user
 ) => {
-  console.info('JoinWorld received', joinedUserId, data)
+  let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+  const inviteCode = data['inviteCode']
+
+  if (inviteCode) {
+    const result = await transport.app.service('user').find({
+      query: {
+        action: 'invite-code-lookup',
+        inviteCode: inviteCode
+      }
+    })
+
+    let users = result.data
+    if (users.length > 0) {
+      const inviterUser = users[0]
+      if (inviterUser.instanceId === user.instanceId) {
+        const inviterUserId = inviterUser.id
+        const inviterUserAvatarEntity = Engine.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
+
+        // Translate infront of the inviter
+        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
+        inviterUserObject3d.value.translateZ(2)
+
+        const validSpawnablePosition = checkValidPositionOnGround(inviterUserObject3d.value.position)
+
+        if (validSpawnablePosition) {
+          spawnPose = {
+            position: inviterUserObject3d.value.position,
+            rotation: inviterUserTransform.rotation
+          }
+        }
+      } else {
+        console.warn('The user who invited this user in no longer on this instnace!')
+      }
+    }
+  }
+
+  console.info('JoinWorld received', joinedUserId, data, spawnPose)
   const world = Engine.currentWorld
   const client = world.clients.get(joinedUserId)!
 
@@ -275,7 +321,8 @@ export const handleJoinWorld = (
     tick: world.fixedTick,
     clients,
     cachedActions,
-    avatarDetail: client.avatarDetail!
+    avatarDetail: client.avatarDetail!,
+    avatarSpawnPose: spawnPose
   })
 
   dispatchFrom(world.hostId, () =>

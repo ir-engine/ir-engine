@@ -115,7 +115,7 @@ export default async function DebugHelpersSystem(world: World) {
       console.log(helper)
     }
     for (const entity of ikDebugQuery.exit()) {
-      const ikobj = getComponent(entity, IKObj)
+      const ikobj = getComponent(entity, IKObj, true)
       const helper = (ikobj.ref as any).helper
       ikobj.ref.remove(helper)
     }

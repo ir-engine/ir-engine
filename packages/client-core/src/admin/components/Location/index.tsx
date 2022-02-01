@@ -40,7 +40,7 @@ const Location = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={classes.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
       <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />

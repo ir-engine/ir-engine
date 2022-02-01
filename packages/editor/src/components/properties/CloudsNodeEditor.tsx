@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next'
 import ColorInput from '../inputs/ColorInput'
 import CloudIcon from '@mui/icons-material/Cloud'
 import { EditorComponentType, updateProperty } from './Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * Clouds Editor provides the editor to customize properties.
@@ -19,7 +21,9 @@ import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudCompo
  */
 export const CloudsNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
   const cloudComponent = getComponent(props.node.entity, CloudComponent)
+  const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   return (
     <NodeEditor
@@ -29,6 +33,7 @@ export const CloudsNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Image" label={t('editor:properties.clouds.lbl-image')}>
         <ImageInput value={cloudComponent.texture} onChange={updateProperty(CloudComponent, 'texture')} />
+        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.clouds.error-url')}</div>}
       </InputGroup>
 
       <InputGroup name="World Scale" label={t('editor:properties.clouds.lbl-wroldScale')}>

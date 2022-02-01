@@ -8,10 +8,13 @@ import {
   RawShaderMaterial,
   UniformsUtils,
   Vector2,
-  Color
+  Color,
+  Object3D
 } from 'three'
 import SimplexNoise from 'simplex-noise'
 import loadTexture from '../../assets/functions/loadTexture'
+import { addError, removeError } from '../functions/ErrorFunctions'
+import { Object3DWithEntity } from '../components/Object3DComponent'
 
 const vertexShader = `
 precision highp float;
@@ -200,8 +203,11 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
     loadTexture(path)
       .then((texture) => {
         this.material.uniforms.map.value = texture
+        removeError((this as Object3D as Object3DWithEntity).entity, 'error')
       })
-      .catch(console.error)
+      .catch((error) => {
+        addError((this as Object3D as Object3DWithEntity).entity, 'error', error.message)
+      })
   }
 
   public get worldScale(): Vector3 {

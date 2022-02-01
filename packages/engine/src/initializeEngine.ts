@@ -20,7 +20,7 @@ import { EngineEvents } from './ecs/classes/EngineEvents'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
-import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
+import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { FontManager } from './xrui/classes/FontManager'
 import { createWorld, World } from './ecs/classes/World'
@@ -81,9 +81,6 @@ export const initializeBrowser = () => {
     Engine.hasJoinedWorld = true
   }
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
-
-  const canvas = document.querySelector('canvas')!
-  addClientInputListeners(canvas)
 
   setupInitialClickListener()
 
@@ -192,12 +189,12 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.POST_RENDER,
         systemModulePromise: import('./renderer/WebGLRendererSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       },
       {
         type: SystemUpdateType.UPDATE,
@@ -210,11 +207,11 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  systemsToLoad.push(...systems)
-
   const world = useWorld()
-  await world.physics.createScene()
   await initSystems(world, systemsToLoad)
+
+  // load injected systems which may rely on core systems
+  await initSystems(world, systems)
 
   const executeWorlds = (delta, elapsedTime) => {
     for (const world of Engine.worlds) {

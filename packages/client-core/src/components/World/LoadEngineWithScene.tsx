@@ -4,7 +4,7 @@ import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   LocationAction,
   LocationService,
@@ -49,31 +49,31 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [])
 
   /**
-   * Once we know what projects we need, initialise the engine.
+   * Once we know what projects we need, initialise the client.
    */
   useEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
-    if (!clientInitialized && Engine.isInitialized && projectState.projects.value.length > 0) {
+    if (!clientInitialized && engineState.isEngineInitialized.value && projectState.projects.value.length > 0) {
       setClientInitialized(true)
       const [project] = locationState.currentLocation.location.sceneId.value.split('/')
       initClient(project).then(() => {
         setClientReady(true)
       })
     }
-  }, [projectState.projects.value])
+  }, [engineState.isEngineInitialized, projectState.projects.value])
 
   /**
-   * Once we have the scene and the engine is loaded, load the location
+   * Once we have the scene, get the scene data
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
+    if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.getSceneData(project, scene)
     }
-  }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
+  }, [locationState.currentLocation.location.sceneId.value])
 
   /**
-   * Once we have the scene data, initialise the engine
+   * Once we have the scene data, load the location
    */
   useEffect(() => {
     if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.name.value) {
@@ -104,7 +104,7 @@ export const LoadEngineWithScene = (props: Props) => {
       // shut down connection with existing GS
       console.log('reseting connection for portal teleport')
       leave(getWorldTransport())
-      InstanceConnectionService.resetInstanceServer()
+      LocationInstanceConnectionService.resetServer()
       const portalComponent = engineState.isTeleporting.value
       teleportToScene(portalComponent, async () => {
         history.push('/location/' + portalComponent.location)

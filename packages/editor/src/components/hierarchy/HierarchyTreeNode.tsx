@@ -17,6 +17,8 @@ import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * getNodeElId function provides id for node.
@@ -55,9 +57,10 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
+  const engineState = useEngineState()
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  if (!nameComponent) return null
+  const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -250,7 +253,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 )}
               </div>
-              {/* {node.entitynode.issues && node.entitynode.issues.length > 0 && <NodeIssuesIcon node={node.entitynode} />} */}
+              {engineState.errorEntities[node.entityNode.entity].get() && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
+              )}
             </div>
           </div>
 

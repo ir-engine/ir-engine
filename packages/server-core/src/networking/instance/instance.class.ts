@@ -50,7 +50,7 @@ export class Instance extends Service {
           where: { ...name }
         },
         nest: false,
-        where: { ended: true, ...ip }
+        where: { ended: false, ...ip }
       })
 
       return {

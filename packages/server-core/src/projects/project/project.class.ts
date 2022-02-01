@@ -221,13 +221,6 @@ export class Project extends Service {
       deleteFolderRecursive(projectLocalDirectory)
     }
 
-    const existingProjectResult = await this.Model.findOne({
-      where: {
-        name: projectName
-      }
-    })
-    if (existingProjectResult != null) await super.remove(existingProjectResult.id, params || {})
-
     let repoPath = await getAuthenticatedRepo(data.url)
     if (!repoPath) repoPath = data.url //public repo
 
@@ -238,6 +231,13 @@ export class Project extends Service {
 
     const projectConfig = (await getProjectConfig(projectName)) ?? {}
 
+    // when we have successfully re-installed the project, remove the database entry if it already exists
+    const existingProjectResult = await this.Model.findOne({
+      where: {
+        name: projectName
+      }
+    })
+    if (existingProjectResult != null) await super.remove(existingProjectResult.id, params || {})
     // Add to DB
     const returned = await super.create(
       {
