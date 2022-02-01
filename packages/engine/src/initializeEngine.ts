@@ -189,12 +189,12 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.POST_RENDER,
         systemModulePromise: import('./renderer/WebGLRendererSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       },
       {
         type: SystemUpdateType.UPDATE,

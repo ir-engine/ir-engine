@@ -1,17 +1,18 @@
-import React from 'react'
-import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import UserModel from './CreateUser'
-import UserTable from './UserTable'
-import SearchUser from './SearchUser'
-import { useUserStyles } from './styles'
-import styles from '../Admin.module.scss'
+import Grid from '@mui/material/Grid'
+import React from 'react'
+import Search from '../../common/Search'
 import { UserService } from '../../services/UserService'
+import styles from '../Admin.module.scss'
+import UserModel from './CreateUser'
+import { useUserStyles } from './styles'
+import UserTable from './UserTable'
 
 const Users = () => {
   const classes = useUserStyles()
+  const [search, setSearch] = React.useState('')
   const [userModalOpen, setUserModalOpen] = React.useState(false)
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -33,11 +34,15 @@ const Users = () => {
     UserService.setSkipGuests(e.target.checked)
   }
 
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
+  }
+
   return (
     <div>
       <Grid container spacing={1} className={classes.marginBottom}>
         <Grid item md={8} xs={6}>
-          <SearchUser />
+          <Search text="user" handleChange={handleChange} />
         </Grid>
         <Grid item md={1} xs={1}>
           <FormControlLabel
@@ -60,7 +65,7 @@ const Users = () => {
         </Grid>
       </Grid>
       <div className={classes.rootTable}>
-        <UserTable />
+        <UserTable search={search} />
       </div>
 
       <UserModel open={userModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
