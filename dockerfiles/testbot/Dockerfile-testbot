@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:12-slim
+FROM node:16-buster
 
 RUN apt update
 # Create app directory
