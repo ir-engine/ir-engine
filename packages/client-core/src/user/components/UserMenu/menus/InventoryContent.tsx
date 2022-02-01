@@ -26,9 +26,11 @@ const useStyles = makeStyles({
     width: '50%'
   },
   root: {
-    width: '100%',
-    height: '100%',
-    color: 'white'
+    width: '50%',
+    // height: '100vh',
+    boxShadow: '16px 16px 16px 16px #11111159',
+    margin: 'auto',
+    borderadius: '10px'
   },
   item: {
     border: 'solid 1px',
@@ -48,28 +50,17 @@ const useStyles = makeStyles({
     // maxHeight: '500px',
     overflow: 'scroll'
   },
-  backButton: {
-    opacity: 0.8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    '&:hover': {
-      background: 'none',
-      opacity: 1
-    }
-  },
   title: {
-    color: 'white'
+    color: '#777777'
   },
   p10: {
     padding: '10px'
   },
   selecteditem: {
-    border: '2px solid white'
+    border: '2px solid #800000'
   },
   card: {
-    margin: '10px'
+    boxShadow: '16px 16px 16px 16px #11111159'
   },
   contents: {
     justifyContent: 'center'
@@ -81,16 +72,7 @@ const useStyles = makeStyles({
 
 const ITEM_HEIGHT = 48
 
-const InventoryContent = ({
-  coinData,
-  data,
-  user,
-  id,
-  InventoryService,
-  isLoadingtransfer,
-  type,
-  changeActiveMenu
-}: any) => {
+const InventoryContent = ({ coinData, data, user, handleTransfer, isLoadingtransfer, type }: any) => {
   const history = useHistory()
   const classes = useStyles()
   const [state, setState] = useState({
@@ -127,6 +109,7 @@ const InventoryContent = ({
   }
 
   useEffect(() => {
+    console.log('data ', coinData)
     if (data.length !== 0) {
       setState((prevState: any) => ({
         ...prevState,
@@ -163,6 +146,7 @@ const InventoryContent = ({
           }))
         } else {
           let filtereddata = data.filter((val) => val.inventoryItemTypeId === selectedtype)
+          console.log(filtereddata, selectedtype)
           if (filtereddata.length !== 0) {
             setState((prevState: any) => ({
               ...prevState,
@@ -189,12 +173,8 @@ const InventoryContent = ({
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
-        <IconButton
-          sx={{ svg: { color: 'white' } }}
-          className={classes.backButton}
-          onClick={() => changeActiveMenu(null)}
-        >
-          <ArrowBackIos />
+        <IconButton onClick={() => history.goBack()}>
+          <ArrowBackIos /> Back
         </IconButton>
         <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
         <Stack direction="row" justifyContent="center">
@@ -215,7 +195,7 @@ const InventoryContent = ({
                 ))}
               </Stack>
             ) : (
-              <Stack>
+              <Stack sx={{ color: 'black' }}>
                 <Typography>No Data Found</Typography>
               </Stack>
             )}
@@ -339,18 +319,7 @@ const InventoryContent = ({
                 <Stack justifyContent="center" alignItems="center" spacing={3} direction="row" className={classes.p10}>
                   <FormControl fullWidth>
                     <InputLabel id="demo-simple-select-label">User</InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={userid}
-                      label="user"
-                      onChange={(e: any) => {
-                        setState((prevState) => ({
-                          ...prevState,
-                          userid: e.target.value
-                        }))
-                      }}
-                    >
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={userid} label="user">
                       {user.map((datas, index) => (
                         <MenuItem style={{ display: 'block', marginRight: '18px' }} key={index} value={datas.id}>
                           {datas.name}
@@ -361,7 +330,7 @@ const InventoryContent = ({
                   <Button
                     variant="outlined"
                     disabled={isLoadingtransfer}
-                    onClick={() => InventoryService.handleTransfer(userid, selectedid, id)}
+                    onClick={() => handleTransfer(userid, selectedid)}
                   >
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Transfer'}
                   </Button>

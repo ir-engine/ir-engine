@@ -255,6 +255,20 @@ const ProfileMenu = (props: Props): any => {
         '_blank'
       )
   }
+  const goToIcpNFT = () => {
+    let token = localStorage.getItem('xrengine-client-store-key-v1')
+    let accessToken = JSON.parse(token).authData.authUser.accessToken
+    console.log(JSON.parse(token).authData.authUser.accessToken, 'token')
+    if (selfUser.id.value && accessToken)
+      window.open(`http://127.0.0.1:4000?userId=${selfUser.id.value}&token=${accessToken}`, '_blank')
+    /*  
+    window.open(
+        `${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${selfUser.id.value}&token=${token}`,
+        '_blank'
+      )
+    */
+  }
+
   const enableSocial =
     authState?.discord ||
     authState?.facebook ||
@@ -394,6 +408,12 @@ const ProfileMenu = (props: Props): any => {
                   <StorefrontIcon />
                   <Typography component="div" variant="button">
                     Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToIcpNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ICP NFT Marketplace
                   </Typography>
                 </Button>
               </Grid>

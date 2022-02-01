@@ -3,7 +3,7 @@
  *
  * @author Kevin KIMENYI
  */
-export default {
+ export default {
   definitions: {
     'identity-provider': {
       type: 'object',
