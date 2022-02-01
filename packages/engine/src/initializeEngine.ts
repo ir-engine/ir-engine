@@ -266,6 +266,10 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
       },
       {

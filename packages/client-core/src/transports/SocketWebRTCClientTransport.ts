@@ -101,6 +101,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.recvTransport = null!
     this.sendTransport = null!
     clearInterval(this.heartbeat)
+    this.socket.removeAllListeners()
     this.socket.close()
     this.socket = null!
   }
@@ -147,7 +148,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.request = promisedRequest(this.socket)
 
     this.socket.on('connect', async () => {
-      console.log(`CONNECT to port ${port}`)
+      console.log('CONNECT to port', port, sceneId, locationId)
       if (this.reconnecting) {
         this.reconnecting = false
         return
