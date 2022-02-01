@@ -420,6 +420,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       }
     },
     typoFontTitle: {
+      color: '#f1f1f1 !important',
       [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
       }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Edit, Save } from '@mui/icons-material'
+import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -24,8 +24,9 @@ import { useStyles } from '../../styles/ui'
 import { validateUserForm } from './validation'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
-import UserRoleDialog from '../../common/UserRoleDialog'
 import _ from 'lodash'
+import InputSelect from '../../common/InputSelect'
+import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 
 interface Props {
   openView: boolean
@@ -37,20 +38,26 @@ interface ScopeData {
   type: string
 }
 
+interface InputSelectProps {
+  value: string
+  label: string
+}
+
 const ViewUser = (props: Props) => {
   const classes = useStyles()
   const { openView, closeViewModel, userAdmin } = props
-  const [openDialog, setOpenDialog] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
 
   const [state, setState] = useState({
     name: '',
     avatar: '',
+    userRole: '',
     scopes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
+      userRole: '',
       scopes: ''
     }
   })
@@ -63,15 +70,14 @@ const ViewUser = (props: Props) => {
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeTypeState = useScopeTypeState()
-
-  const handleClick = () => {
-    setOpenDialog(true)
-  }
-  const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
+  const userRole = useUserRoleState()
 
   useEffect(() => {
+    const fetchData = async () => {
+      await UserRoleService.fetchUserRole()
+    }
+    if (userRole.updateNeeded.value === true && user.id.value) fetchData()
+
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
       SingleUserService.fetchSingleUserAdmin(userAdmin.id)
     }
@@ -86,7 +92,8 @@ const ViewUser = (props: Props) => {
     user.id.value,
     refetch,
     singleUser.updateNeeded.value,
-    adminScopeTypeState.updateNeeded.value
+    adminScopeTypeState.updateNeeded.value,
+    userRole.updateNeeded.value
   ])
 
   useEffect(() => {
@@ -107,6 +114,7 @@ const ViewUser = (props: Props) => {
         ...state,
         name: userAdmin.name || '',
         avatar: userAdmin.avatarId || '',
+        userRole: userAdmin.userRole || '',
         scopes: temp as any
       })
     }
@@ -123,16 +131,18 @@ const ViewUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
+      userRole: state.userRole,
       scopes: state.scopes
     }
     let temp = state.formErrors
     temp.name = !state.name ? "Name can't be empty" : ''
     temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
+    temp.userRole = !state.userRole ? "User role can't be empty" : ''
     temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       UserService.patchUser(userAdmin.id, data)
-      setState({ ...state, name: '', avatar: '', scopes: [] })
+      setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
       closeViewModel(false)
     } else {
@@ -158,6 +168,7 @@ const ViewUser = (props: Props) => {
         ...state.formErrors,
         name: '',
         avatar: '',
+        userRole: '',
         scopes: ''
       }
     })
@@ -171,6 +182,14 @@ const ViewUser = (props: Props) => {
   adminScopeTypeState.scopeTypes.value.forEach((el) => {
     scopeData.push({
       type: el.type
+    })
+  })
+
+  const userRoleData: InputSelectProps[] = []
+  userRole.userRole.value.forEach((el) => {
+    userRoleData.push({
+      value: el.role,
+      label: el.role
     })
   })
 
@@ -202,9 +221,9 @@ const ViewUser = (props: Props) => {
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={userAdmin.userRole} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={userAdmin.userRole} className={classes.spanWhite} />
                     ) : (
-                      <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label="None" />
                     )}
                   </div>
                 </Grid>
@@ -261,7 +280,15 @@ const ViewUser = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-
+              {user.id.value !== userAdmin.id && (
+                <InputSelect
+                  handleInputChange={handleInputChange}
+                  value={state.userRole}
+                  name="userRole"
+                  menu={userRoleData}
+                  formErrors={state.formErrors.userRole}
+                />
+              )}
               <AutoComplete
                 data={scopeData}
                 label="Grant Scope"
@@ -365,7 +392,6 @@ const ViewUser = (props: Props) => {
           </DialogActions>
         </Container>
       </Drawer>
-      <UserRoleDialog openDialog={openDialog} handleCloseDialog={handleCloseDialog} userAdmin={userAdmin} />
       <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
