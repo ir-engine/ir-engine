@@ -88,7 +88,7 @@
     box-shadow: 16px 16px 32px 0px #11111159;
     color: black;
 
-    max-height: calc(100vh - 175px);
+    max-height: calc(100vh - 100px);
     overflow: auto;
 
     & > .avatarContainer {
@@ -182,7 +182,7 @@
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
     color: black;
-    max-height: calc(100vh - 175px);
+    max-height: calc(100vh - 100px);
     overflow: auto;
     width: 360px;
     z-index: 1400;
@@ -208,7 +208,7 @@
     .controlContainer {
       display: flex;
       flex-direction: column;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       button {
         height: 35px;
         background: $PurpleButtonColor;
@@ -238,16 +238,17 @@
       }
       .uploadBtn {
         background: $SelectedGreenColor;
+        cursor: pointer;
       }
       button:hover,
       button:focus {
         outline: none;
-        opacity: 0.8;
+        opacity: 0.7;
       }
       .selectBtns {
         display: flex;
         justify-content: flex-end;
-        margin-bottom: 8px;
+        margin: 8px 0;
       }
     }
     .stage {
@@ -389,7 +390,7 @@
   transform: translateX(-50%);
   box-shadow: 16px 16px 32px 0px #11111159;
   color: black;
-  max-height: calc(100vh - 175px);
+  max-height: calc(100vh - 100px);
   overflow: auto;
   touch-action: auto;
   backdrop-filter: blur(50px);
@@ -1290,9 +1291,6 @@
     button:focus {
       outline: none;
       opacity: 0.8;
-    }
-    .selectBtns {
-      margin: 4px 0 0 8px;
     }
   }
   .stage {

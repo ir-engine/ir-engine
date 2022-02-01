@@ -1,11 +1,8 @@
 import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
 import {
@@ -76,9 +73,19 @@ export const AvatarSelectMenu = (props: Props) => {
   const [obj, setObj] = useState<any>(null)
   const classes = useStyle()
   const [value, setValue] = React.useState(0)
+  const [avatarUrl, setAvatarUrl] = React.useState('')
+  const [thumbNailUrl, setThumbNailUrl] = React.useState('')
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
+  }
+
+  const handleThumbnailUrlChange = (event) => {
+    setThumbNailUrl(event.target.value)
+  }
+
+  const handleAvatarUrlChange = (event) => {
+    setAvatarUrl(event.target.value)
   }
 
   const { isPublicAvatar, changeActiveMenu, uploadAvatarModel } = props
@@ -150,14 +157,6 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }, [])
 
-  const handleBrowse = () => {
-    document.getElementById('avatarSelect')!.click()
-  }
-
-  const handleThumbnail = () => {
-    document.getElementById('thumbnailSelect')!.click()
-  }
-
   const handleAvatarChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
@@ -214,6 +213,8 @@ export const AvatarSelectMenu = (props: Props) => {
   const handleAvatarNameChange = (e) => {
     setAvatarName(e.target.value)
   }
+
+  const uploadByUrls = () => {}
 
   const handleThumbnailChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
@@ -324,22 +325,17 @@ export const AvatarSelectMenu = (props: Props) => {
           />
         </div>
       )}
-      {/* <div className={styles.avatarNameContainer}>
-        <TextField
-          id="avatarName"
-          size="small"
-          name="avatarname"
-          variant="outlined"
-          className={styles.avatarNameInput}
-          onChange={handleAvatarNameChange}
-          placeholder="Avatar Name"
-        />
-      </div> */}
+      {thumbNailUrl.length > 0 && (
+        <div className={styles.thumbnailContainer}>
+          <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
+        </div>
+      )}
       <Paper className={classes.paper2} component="form">
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#ccc' }}
           inputProps={{ 'aria-label': 'avatar url' }}
           classes={{ input: classes.input }}
+          value={avatarName}
           id="avatarName"
           size="small"
           name="avatarname"
@@ -355,56 +351,52 @@ export const AvatarSelectMenu = (props: Props) => {
           classes={{ root: classes.tabRoot, indicator: classes.selected }}
         >
           <Tab
-            style={value == 0 ? { color: '#f1f1f1' } : { color: '#54585d' }}
+            style={value == 0 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
             label="Use URL"
             {...a11yProps(0)}
             classes={{ root: classes.tabRoot }}
           />
           <Tab
-            style={value == 1 ? { color: '#f1f1f1' } : { color: '#54585d' }}
+            style={value == 1 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
             label="Upload Files"
             {...a11yProps(1)}
           />
         </Tabs>
       </div>
       <TabPanel value={value} index={0}>
-        <div className={styles.selectLabelContainer}>
-          <Paper className={classes.paper} component="form">
-            <InputBase
-              sx={{ ml: 1, flex: 1, color: '#ccc' }}
-              placeholder="Paste Avatar Url Here..."
-              inputProps={{ 'aria-label': 'avatar url' }}
-              classes={{ input: classes.input }}
-            />
-            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-            <IconButton
-              color="primary"
-              sx={{ p: '10px' }}
-              aria-label="directions"
-              classes={{ colorPrimary: classes.color }}
-            >
-              <CloudUpload />
-            </IconButton>
-          </Paper>
-        </div>
-        <div className={styles.selectLabelContainer}>
-          <Paper className={classes.paper} component="form">
-            <InputBase
-              sx={{ ml: 1, flex: 1, color: '#ccc' }}
-              placeholder="Paste Thumbnail Url Here..."
-              inputProps={{ 'aria-label': 'thumbnail url' }}
-              classes={{ input: classes.input }}
-            />
-            <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
-            <IconButton
-              color="primary"
-              sx={{ p: '10px' }}
-              classes={{ colorPrimary: classes.color }}
-              aria-label="upload"
-            >
-              <CloudUpload />
-            </IconButton>
-          </Paper>
+        <div className={styles.controlContainer}>
+          <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
+            <Paper className={classes.paper} component="form" style={{ marginRight: '8px', padding: '4px 0' }}>
+              <InputBase
+                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                placeholder="Paste Avatar Url..."
+                inputProps={{ 'aria-label': 'avatar url' }}
+                classes={{ input: classes.input }}
+                value={avatarUrl}
+                onChange={handleAvatarUrlChange}
+              />
+            </Paper>
+            <Paper className={classes.paper} component="form" style={{ padding: '4px 0' }}>
+              <InputBase
+                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                placeholder="Paste Thumbnail Url..."
+                inputProps={{ 'aria-label': 'thumbnail url' }}
+                classes={{ input: classes.input }}
+                value={thumbNailUrl}
+                onChange={handleThumbnailUrlChange}
+              />
+            </Paper>
+          </div>
+          <button
+            type="button"
+            className={styles.uploadBtn}
+            onClick={uploadByUrls}
+            disabled={avatarUrl.length == 0 || thumbNailUrl.length == 0}
+            style={{ cursor: avatarUrl.length == 0 || thumbNailUrl.length == 0 ? 'not-allowed' : 'pointer' }}
+          >
+            {t('user:avatar.lbl-upload')}
+            <CloudUpload />
+          </button>
         </div>
       </TabPanel>
       <TabPanel value={value} index={1}>
@@ -416,28 +408,15 @@ export const AvatarSelectMenu = (props: Props) => {
             {error ? error : thumbnailSelected ? selectedThumbnail.name : t('user:avatar.selectThumbnail')}
           </div>
         </div> */}
-        {/* <input
-          type="file"
-          id="avatarSelect"
-          accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-          hidden
-          onChange={handleAvatarChange}
-        />
-        <input
-          type="file"
-          id="thumbnailSelect"
-          accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-          hidden
-          onChange={handleThumbnailChange}
-        /> */}
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns}>
-            {/* <button type="button" className={styles.browseBtn} onClick={handleBrowse}>
-              {t('user:avatar.lbl-browse')}
-              <SystemUpdateAlt />
-            </button> */}
             <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-              <Input accept="image/*" id="contained-button-file" type="file" onChange={(e) => handleUploads(e)} />
+              <Input
+                accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                id="contained-button-file"
+                type="file"
+                onChange={handleAvatarChange}
+              />
               <Button
                 variant="contained"
                 component="span"
@@ -447,8 +426,13 @@ export const AvatarSelectMenu = (props: Props) => {
                 Avatar
               </Button>
             </label>
-            <label htmlFor="contained-button-file">
-              <Input accept="image/*" id="contained-button-file" type="file" onChange={(e) => handleUploads(e)} />
+            <label htmlFor="contained-button-file-t">
+              <Input
+                accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                id="contained-button-file-t"
+                type="file"
+                onChange={handleThumbnailChange}
+              />
               <Button
                 variant="contained"
                 component="span"
@@ -458,26 +442,19 @@ export const AvatarSelectMenu = (props: Props) => {
                 Thumbnail
               </Button>
             </label>
-            {/* <button type="button" className={styles.thumbnailBtn} onClick={handleThumbnail}>
-              {t('user:avatar.lbl-thumbnail')}
-              <AccountCircle />
-            </button> */}
           </div>
-          <button type="button" className={styles.uploadBtn} onClick={uploadAvatar} disabled={!fileSelected || !!error}>
+          <button
+            type="button"
+            className={styles.uploadBtn}
+            onClick={uploadAvatar}
+            style={{ cursor: !fileSelected || !!error ? 'not-allowed' : 'pointer' }}
+            disabled={!fileSelected || !!error}
+          >
             {t('user:avatar.lbl-upload')}
             <CloudUpload />
           </button>
         </div>
       </TabPanel>
-
-      {/* <div className={classes.btnContainer}>
-        <label htmlFor="contained-button-file">
-          <Input accept="image/*" id="contained-button-file" multiple type="file" onChange={(e) => handleUploads(e)} />
-          <Button variant="contained" component="span" classes={{ root: classes.rootBtn }} endIcon={<CloudUpload />}>
-            Upload files
-          </Button>
-        </label>
-      </div> */}
     </div>
   )
 }
