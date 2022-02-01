@@ -1,38 +1,29 @@
-import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
-import { TableContainer, TableHead, TablePagination, TableRow } from '@mui/material'
+import React, { useState, useEffect } from 'react'
 import { useDispatch } from '../../../store'
 import { useGroupState } from '../../services/GroupService'
 import { GroupService } from '../../services/GroupService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { columns, Data } from './Variables'
-import { useGroupStyles, useGroupStyle } from './styles'
 import ViewGroup from './ViewGroup'
 import { GROUP_PAGE_LIMIT } from '../../services/GroupService'
 import { Group } from '@xrengine/common/src/interfaces/Group'
+import TableComponent from '../../common/Table'
+import ConfirmModel from '../../common/ConfirmModel'
+import { useStyles } from '../../styles/ui'
 
 interface Props {}
 
 const GroupTable = (props: Props) => {
   const dispatch = useDispatch()
-  const classes = useGroupStyles()
-  const classx = useGroupStyle()
-
+  const classes = useStyles()
   const user = useAuthState().user
-  const [viewModel, setViewModel] = React.useState(false)
-  const [singleGroup, setSingleGroup] = React.useState<Group>(null!)
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(GROUP_PAGE_LIMIT)
-  const [groupId, setGroupId] = React.useState('')
-  const [showWarning, setShowWarning] = React.useState(false)
+  const [viewModel, setViewModel] = useState(false)
+  const [singleGroup, setSingleGroup] = useState<Group>(null!)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
+  const [groupId, setGroupId] = useState('')
+  const [groupName, setGroupName] = useState('')
+  const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total
@@ -74,7 +65,7 @@ const GroupTable = (props: Props) => {
     setViewModel(open)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminGroupState.updateNeeded.value) GroupService.getGroupService()
   }, [adminGroupState.updateNeeded.value, user])
 
@@ -88,9 +79,15 @@ const GroupTable = (props: Props) => {
           <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
             <span className={classes.spanWhite}>View</span>
           </a>
-          <a href="#h" className={classes.actionStyle} onClick={() => handleShowWarning(id)}>
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              handleShowWarning(id)
+              setGroupName(name)
+            }}
+          >
+            <span className={classes.spanDange}>Delete</span>
           </a>
         </>
       )
@@ -102,76 +99,27 @@ const GroupTable = (props: Props) => {
   })
 
   return (
-    <div className={classx.root}>
-      <TableContainer className={classx.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classes.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, id) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {columns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={column.id} align={column.align} className={classes.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[GROUP_PAGE_LIMIT]}
-        component="div"
-        count={adminGroupCount.value}
-        rowsPerPage={rowsPerPage}
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={columns}
         page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classes.tableFooter}
+        rowsPerPage={rowsPerPage}
+        count={adminGroupCount.value}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <Dialog
-        open={showWarning}
-        onClose={handleCloseWarning}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle className={classes.alert} id="alert-dialog-title">
-          {'Confirm to delete this group!'}
-        </DialogTitle>
-        <DialogContent className={classes.alert}>
-          <DialogContentText className={classes.alert} id="alert-dialog-description">
-            Deleting group can not be recovered!
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions className={classes.alert}>
-          <Button onClick={handleCloseWarning} className={classes.spanNone}>
-            Cancel
-          </Button>
-          <Button className={classes.spanDange} onClick={deleteGroupHandler} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {singleGroup && <ViewGroup groupAdmin={singleGroup} openView={viewModel} closeViewModal={closeViewModel} />}
-    </div>
+      <ConfirmModel
+        popConfirmOpen={showWarning}
+        handleCloseModel={handleCloseWarning}
+        submit={deleteGroupHandler}
+        name={groupName}
+        label={'group'}
+      />
+      {singleGroup && viewModel && (
+        <ViewGroup groupAdmin={singleGroup} openView={viewModel} closeViewModal={closeViewModel} />
+      )}
+    </React.Fragment>
   )
 }
 

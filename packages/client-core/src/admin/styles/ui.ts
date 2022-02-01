@@ -424,6 +424,28 @@ export const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
       }
+    },
+    groupRootPaper: {
+      maxWidth: '80%',
+      minWidth: '40%',
+      backgroundColor: '#43484F ',
+      color: '#f1f1f1',
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      }
+    },
+    itemAlign: {
+      margin: '7rem auto 0 auto',
+      textAlign: 'center'
+    },
+    scopeFlex: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginTop: '4%'
+    },
+    rootList: {
+      width: '100%',
+      backgroundColor: '#43484F'
     }
   })
 )

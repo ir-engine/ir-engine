@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Drawer from '@mui/material/Drawer'
 import Container from '@mui/material/Container'
 import Paper from '@mui/material/Paper'
@@ -12,7 +12,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import Chip from '@mui/material/Chip'
-import { useGroupStyles, useGroupStyle } from './styles'
+import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
 
 interface Props {
@@ -22,20 +22,24 @@ interface Props {
 }
 
 const ViewGroup = (props: Props) => {
-  const classx = useGroupStyle()
-  const classes = useGroupStyles()
+  const classes = useStyles()
   const { openView, groupAdmin, closeViewModal } = props
-  const [editMode, setEditMode] = React.useState(false)
+  const [editMode, setEditMode] = useState(false)
 
   return (
-    <Drawer anchor="right" open={openView} onClose={() => closeViewModal(false)} classes={{ paper: classx.paper }}>
+    <Drawer
+      anchor="right"
+      open={openView}
+      onClose={() => closeViewModal(false)}
+      classes={{ paper: classes.groupRootPaper }}
+    >
       {editMode ? (
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
         <React.Fragment>
           <Paper elevation={3} className={classes.paperHeight}>
             <Container maxWidth="sm">
-              <div className={classes.center}>
+              <div className={classes.itemAlign}>
                 <Typography variant="h4" component="span" className={classes.typo}>
                   {groupAdmin.name}
                 </Typography>
@@ -66,7 +70,7 @@ const ViewGroup = (props: Props) => {
                 </Grid>
               </Grid>
             </Container>
-            <div className={classes.flex}>
+            <div className={classes.scopeFlex}>
               <div>
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   Group scopes
@@ -93,7 +97,7 @@ const ViewGroup = (props: Props) => {
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   Users Information
                 </Typography>
-                <List className={classes.root} style={{ overflowY: 'auto', height: '300px' }}>
+                <List className={classes.rootList} style={{ overflowY: 'auto', height: '300px' }}>
                   {groupAdmin.groupUsers.map((obj) => (
                     <ListItem key={obj.id}>
                       <ListItemAvatar>

@@ -1,14 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import { useGroupStyles } from './styles'
 import SearchGroup from './SearchGroup'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
+import { useStyles } from '../../styles/ui'
 
 const GroupConsole = () => {
-  const classes = useGroupStyles()
-  const [groupOpen, setGroupOpen] = React.useState(false)
+  const classes = useStyles()
+  const [groupOpen, setGroupOpen] = useState(false)
 
   const openModalCreate = (open: boolean) => {
     setGroupOpen(open)

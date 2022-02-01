@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Drawer from '@mui/material/Drawer'
 import Container from '@mui/material/Container'
 import { useGroupStyles, useGroupStyle } from './styles'
@@ -8,16 +8,19 @@ import InputBase from '@mui/material/InputBase'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
 import { formValid } from './validation'
-import Autocomplete from '@mui/material/Autocomplete'
 import { GroupService } from '../../services/GroupService'
-import TextField from '@mui/material/TextField'
 import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
 import { useAuthState } from '../../../user/services/AuthService'
+import AutoComplete from '../../common/AutoComplete'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   adminGroupState?: any
+}
+
+interface ScopeData {
+  type: string
 }
 
 const CreateGroup = (props: Props) => {
@@ -28,7 +31,7 @@ const CreateGroup = (props: Props) => {
   const adminScopeTypeState = useScopeTypeState()
   const adminScopeTypes = adminScopeTypeState.scopeTypes
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     description: '',
     scopeTypes: [] as any[],
@@ -39,7 +42,7 @@ const CreateGroup = (props: Props) => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
       ScopeTypeService.getScopeTypeService()
     }
@@ -84,6 +87,17 @@ const CreateGroup = (props: Props) => {
     handleClose(false)
   }
 
+  const scopeData: ScopeData[] = []
+  adminScopeTypeState.scopeTypes.value.forEach((el) => {
+    scopeData.push({
+      type: el.type
+    })
+  })
+
+  const handleChangeScopeType = (scope) => {
+    if (scope.length) setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
+  }
+
   return (
     <React.Fragment>
       <Drawer classes={{ paper: classes.paper }} anchor="right" open={open} onClose={() => handleClose(false)}>
@@ -122,29 +136,7 @@ const CreateGroup = (props: Props) => {
                 onChange={handleChange}
               />
             </Paper>
-
-            <label>Grant access</label>
-            <Paper component="div" className={classes.createInput}>
-              <Autocomplete
-                onChange={(event, value) =>
-                  setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-                }
-                multiple
-                className={classes.selector}
-                classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
-                id="tags-standard"
-                options={adminScopeTypes.value}
-                disableCloseOnSelect
-                filterOptions={(options: any) =>
-                  options.filter(
-                    (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
-                  )
-                }
-                getOptionLabel={(option: any) => option.type}
-                renderInput={(params) => <TextField {...params} placeholder="Select access" />}
-              />
-            </Paper>
-
+            <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
             <DialogActions className={classes.marginTp}>
               <Button type="submit" className={classes.saveBtn}>
                 Submit
