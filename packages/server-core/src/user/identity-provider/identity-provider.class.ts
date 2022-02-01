@@ -197,7 +197,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       await this.app.service('user').remove(userId)
       throw err
     }
-    // DRC
 
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {

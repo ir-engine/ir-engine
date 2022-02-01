@@ -28,7 +28,6 @@ const ShareMenu = (): JSX.Element => {
     navigator.clipboard.writeText(refLink.current.value)
     AlertService.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
-  const selfUser = useAuthState().user
 
   const shareOnApps = () => {
     navigator
@@ -62,18 +61,6 @@ const ShareMenu = (): JSX.Element => {
     setEmail(e.target.value)
   }
 
-  const getInviteLink = () => {
-    const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
-    if (selfUser?.inviteCode.value != null) {
-      params.append('inviteCode', selfUser.inviteCode.value)
-      location.search = params.toString()
-      return location
-    } else {
-      return location
-    }
-  }
-
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
@@ -84,7 +71,7 @@ const ShareMenu = (): JSX.Element => {
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={getInviteLink()}
+          value={window.location.href}
           disabled={true}
           inputRef={refLink}
           InputProps={{
