@@ -1,4 +1,4 @@
-import { sRGBEncoding, Quaternion, Vector3 } from 'three'
+import { sRGBEncoding } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
@@ -11,7 +11,6 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { initializeXRInputs, cleanXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
@@ -49,9 +48,6 @@ const startXRSession = async () => {
 export default async function XRSystem(world: World) {
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
-
-  const quat = new Quaternion()
-  const vector3 = new Vector3()
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
 
@@ -130,16 +126,9 @@ export default async function XRSystem(world: World) {
 
     for (const entity of localXRControllerQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      xrInputSourceComponent.container.updateWorldMatrix(true, true)
-
-      quat.copy(transform.rotation).invert()
-      xrInputSourceComponent.head.quaternion.copy(Engine.camera.quaternion).premultiply(quat)
-
-      vector3.subVectors(Engine.camera.position, transform.position)
-      vector3.applyQuaternion(quat)
-      xrInputSourceComponent.head.position.copy(vector3)
+      const head = xrInputSourceComponent.head
+      head.quaternion.copy(Engine.camera.quaternion)
+      head.position.copy(Engine.camera.position)
     }
   }
 }

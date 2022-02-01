@@ -119,22 +119,17 @@ const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) 
 
 export const startWebXR = (): void => {
   const container = new Group()
-  //container.add()
-  const cameraContainer = new Group()
-  cameraContainer.add(Engine.camera)
-  Engine.scene.add(cameraContainer)
   const head = new Group()
   const controllerLeft = new Group()
   const controllerRight = new Group()
   const controllerGripLeft = new Group()
   const controllerGripRight = new Group()
-
   const world = useWorld()
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
 
-  // Engine.scene.remove(Engine.camera)
-  // container.add(Engine.camera)
+  container.add(Engine.camera)
+  Engine.scene.add(container)
 
   // Default mapping
   assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
@@ -171,7 +166,6 @@ export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null!
   Engine.xrManager.setSession(null)
-  Engine.camera.parent?.removeFromParent()
   Engine.scene.add(Engine.camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)

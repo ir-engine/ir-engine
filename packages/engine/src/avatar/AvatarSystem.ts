@@ -57,10 +57,8 @@ function avatarActionReceptor(action) {
             head: new Group()
           })
         }
-      } else {
-        if (hasComponent(entity, XRInputSourceComponent)) {
-          removeComponent(entity, XRInputSourceComponent)
-        }
+      } else if (hasComponent(entity, XRInputSourceComponent)) {
+        removeComponent(entity, XRInputSourceComponent)
       }
     })
 
@@ -109,7 +107,6 @@ export default async function AvatarSystem(world: World) {
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
 
       // todo: make isomorphic
       xrInputSourceComponent.container.add(
@@ -119,8 +116,7 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRight.parent || xrInputSourceComponent.controllerGripRight
       )
 
-      xrInputSourceComponent.container.applyQuaternion(rotate180onY)
-      object3DComponent.value.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
+      Engine.scene.add(xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
