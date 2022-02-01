@@ -10,12 +10,10 @@ import { theme } from '@xrengine/client-core/src/theme'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { StoredLocalAction } from '@xrengine/client-core/src/util/StoredLocalState'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
-import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { BrowserRouter } from 'react-router-dom'
 import RouterComp from '../route/public'
-import './styles.scss'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -104,41 +102,9 @@ const App = (): any => {
   )
 }
 
-interface LoadingProp {
-  loading: boolean
-}
-
-const Loading = (props: LoadingProp) => {
-  return (
-    <div className={props.loading ? 'body_loading' : 'none'}>
-      <div className={'lds_ellipsis'}>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    </div>
-  )
-}
-
 const AppPage = () => {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    const handleStart = (url) => {
-      url !== router.pathname ? setLoading(true) : setLoading(false)
-    }
-    const handleComplete = (url) => setLoading(false)
-
-    router.events.on('routeChangeStart', handleStart)
-    router.events.on('routeChangeComplete', handleComplete)
-    router.events.on('routeChangeError', handleComplete)
-  }, [router])
-
   return (
     <BrowserRouter>
-      <Loading loading={loading} />
       <App />
     </BrowserRouter>
   )
