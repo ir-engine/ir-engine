@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { BrowserRouter } from 'react-router-dom'
 import RouterComp from '../route/public'
+import './styles.scss'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
