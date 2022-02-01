@@ -4,7 +4,12 @@ set -x
 
 if [[ -z $(which unzip) ]]
 then
-  sudo apt install unzip
+  if [[ "$(id -u)" == "0" ]]
+  then
+    apt install unzip
+  else
+    sudo apt install unzip
+  fi
 fi
 if [[ -z $(which aws) ]]
 then
