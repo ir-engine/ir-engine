@@ -87,7 +87,7 @@
     "socket.io": "4.4.1",
     "universal-analytics": "^0.5.0",
     "uuid": "8.3.2",
-    "winston": "3.5.0"
+    "winston": "3.5.1"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "3.1.9",
