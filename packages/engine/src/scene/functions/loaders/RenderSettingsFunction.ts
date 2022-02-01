@@ -35,7 +35,6 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
   const props = parseRenderSettingsProperties(json.props)
   addComponent(entity, RenderSettingComponent, props)
 
-  Engine.isCSMEnabled = props.csm
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity)
@@ -47,7 +46,9 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
 
   resetEngineRenderer()
   if (typeof component.overrideRendererSettings !== 'undefined' && !component.overrideRendererSettings) {
-    initializeCSM()
+    Engine.isCSMEnabled = true
+    if (accessEngineState().sceneLoaded.value) initializeCSM()
+    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
     return
   }
 

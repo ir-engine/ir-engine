@@ -1,4 +1,3 @@
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -8,16 +7,13 @@ import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
-import { reparentObject3D } from './ReparentFunction'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
-import { delay } from '../../common/functions/delay'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()

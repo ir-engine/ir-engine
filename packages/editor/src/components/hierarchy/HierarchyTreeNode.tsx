@@ -227,7 +227,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             {node.isLeaf ? (
               <div className={styles.spacer} />
             ) : (
-              <button type="button" className={styles.collapseButton} onClick={onClickToggle as any}>
+              <button
+                type="button"
+                className={styles.collapseButton}
+                onClick={onClickToggle as any}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
                 {node.isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
               </button>
             )}
@@ -249,7 +254,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 ) : (
                   <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                    {nameComponent.name}
+                    {nameComponent?.name}
                   </div>
                 )}
               </div>
