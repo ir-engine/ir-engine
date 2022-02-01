@@ -14,6 +14,9 @@ import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 
 export default async function XRUISystem(world: World) {
+  const renderer = Engine.renderer
+  if (!renderer) throw new Error('Engine.renderer must exist before initializing XRUISystem')
+
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
@@ -26,7 +29,8 @@ export default async function XRUISystem(world: World) {
   let idCounter = 0
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
-  xrui.WebLayerModule.WebLayerManager.initialize(Engine.renderer)
+  xrui.WebLayerModule.WebLayerManager.initialize(renderer)
+  xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
   // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
   //   astcSupported: false,
   //   etc1Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc1' ),
