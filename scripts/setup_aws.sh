@@ -1,10 +1,19 @@
+#!/bin/bash
 set -e
 set -x
 
-apt install unzip
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip -q awscliv2.zip
-./aws/install
+WHICH_UNZIP=$(which unzip)
+if [[ -z $WHICH_UNZIP ]]
+then
+  sudo apt install unzip
+fi
+WHICH_AWS=$(which aws)
+if [[ -z $WHICH_AWS ]]
+then
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip -q awscliv2.zip
+  ./aws/install
+fi
 
 set +x
 
