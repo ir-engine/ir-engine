@@ -7,7 +7,6 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -96,11 +95,9 @@ function avatarActionReceptor(action) {
 export default async function AvatarSystem(world: World) {
   world.receptors.push(avatarActionReceptor)
 
-  const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
-
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
-  const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent])
+  const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
@@ -116,7 +113,7 @@ export default async function AvatarSystem(world: World) {
         xrInputSourceComponent.controllerGripRight.parent || xrInputSourceComponent.controllerGripRight
       )
 
-      Engine.scene.add(xrInputSourceComponent.head)
+      Engine.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
@@ -136,12 +133,10 @@ export default async function AvatarSystem(world: World) {
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      const container = new Group()
+      const container = xrInputSourceComponent.container
       container.add(...xrHandsComponent.hands)
-      container.applyQuaternion(rotate180onY)
-      object3DComponent.value.add(container)
     }
 
     for (const entity of raycastQuery(world)) {

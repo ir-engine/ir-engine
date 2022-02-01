@@ -129,7 +129,6 @@ export const startWebXR = (): void => {
   removeComponent(world.localClientEntity, FollowCameraComponent)
 
   container.add(Engine.camera)
-  Engine.scene.add(container)
 
   // Default mapping
   assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
