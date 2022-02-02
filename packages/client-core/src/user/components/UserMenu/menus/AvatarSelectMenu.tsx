@@ -12,7 +12,8 @@ import {
   MIN_AVATAR_FILE_SIZE,
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH
+  THUMBNAIL_WIDTH,
+  REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
@@ -31,6 +32,10 @@ interface Props {
   uploadAvatarModel?: Function
   isPublicAvatar?: boolean
 }
+
+let camera: THREE.PerspectiveCamera
+let scene: THREE.Scene
+let renderer: THREE.WebGLRenderer
 
 const Input = styled('input')({
   display: 'none'
@@ -75,26 +80,58 @@ export const AvatarSelectMenu = (props: Props) => {
   const [value, setValue] = React.useState(0)
   const [avatarUrl, setAvatarUrl] = React.useState('')
   const [thumbNailUrl, setThumbNailUrl] = React.useState('')
+  const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
   const handleThumbnailUrlChange = (event) => {
-    setThumbNailUrl(event.target.value)
+    event.preventDefault()
+    if (REGEX_VALID_URL.test(event.target.value)) {
+      fetch(event.target.value)
+        .then((res) => res.blob())
+        .then((data) => setSelectedThumbNailUrl(data))
+        .catch((err) => {
+          setError(err.message)
+        })
+    }
   }
 
   const handleAvatarUrlChange = (event) => {
+    event.preventDefault()
     setAvatarUrl(event.target.value)
+    if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
+      setValidAvatarUrl(true)
+      const loader = getLoader()
+      loader.load(event.target.value, (gltf) => {
+        gltf.scene.name = 'avatar'
+        loadExtensions(gltf)
+        scene.add(gltf.scene)
+        renderScene()
+        const error = validate(gltf.scene)
+        setError(error)
+        setObj(gltf.scene)
+      })
+
+      fetch(event.target.value)
+        .then((res) => res.blob())
+        .then((data) => setSelectedAvatarUrl(data))
+        .catch((err) => {
+          setError(err.message)
+          console.log(err.message)
+        })
+    } else {
+      setValidAvatarUrl(false)
+    }
   }
 
   const { isPublicAvatar, changeActiveMenu, uploadAvatarModel } = props
 
-  let camera: THREE.PerspectiveCamera
-  let scene: THREE.Scene
-  let renderer: THREE.WebGLRenderer
-  let fileSelected = false
-  let thumbnailSelected = false
+  const [fileSelected, setFileSelected] = React.useState(false)
+  const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
   let maxBB = new THREE.Vector3(2, 2, 2)
 
   const { t } = useTranslation()
@@ -202,7 +239,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
     try {
       reader.readAsArrayBuffer(file)
-      fileSelected = true
+      setFileSelected(true)
       setSelectedFile(e.target.files[0])
     } catch (error) {
       console.error(e)
@@ -214,7 +251,29 @@ export const AvatarSelectMenu = (props: Props) => {
     setAvatarName(e.target.value)
   }
 
-  const uploadByUrls = () => {}
+  const uploadByUrls = () => {
+    if (obj == null) return
+    const error = validate(obj)
+    if (error) {
+      setError(error)
+      return
+    }
+
+    const canvas = document.createElement('canvas')
+    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(renderer.domElement, 0, 0)
+
+    if (selectedThumbnailUrl == null)
+      canvas.toBlob(async (blob) => {
+        await AuthService.uploadAvatarModel(selectedAvatarlUrl, blob!, avatarName, isPublicAvatar)
+        changeActiveMenu(Views.Profile)
+      })
+    else {
+      AuthService.uploadAvatarModel(selectedAvatarlUrl, selectedThumbnailUrl, avatarName, isPublicAvatar)
+      changeActiveMenu(Views.Profile)
+    }
+  }
 
   const handleThumbnailChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
@@ -228,7 +287,7 @@ export const AvatarSelectMenu = (props: Props) => {
     }
 
     try {
-      thumbnailSelected = true
+      setThumbnailSelected(true)
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
       console.error(e)
@@ -391,8 +450,8 @@ export const AvatarSelectMenu = (props: Props) => {
             type="button"
             className={styles.uploadBtn}
             onClick={uploadByUrls}
-            disabled={avatarUrl.length == 0 || thumbNailUrl.length == 0}
-            style={{ cursor: avatarUrl.length == 0 || thumbNailUrl.length == 0 ? 'not-allowed' : 'pointer' }}
+            disabled={!validAvatarUrl}
+            style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
           >
             {t('user:avatar.lbl-upload')}
             <CloudUpload />
