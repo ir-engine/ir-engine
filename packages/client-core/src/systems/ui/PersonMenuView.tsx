@@ -1,14 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useUserState, UserService } from '../../user/services/UserService'
-import { useAuthState } from '../../user/services/AuthService'
 import { createState } from '@speigg/hookstate'
+import { useUserState, UserService } from '../../user/services/UserService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { accessEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useAuthState } from '../../user/services/AuthService'
 
 const styles = {
   root: {
@@ -96,7 +95,7 @@ type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
 const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
-  const engineState = accessEngineState()
+  const engineState = useEngineState()
   const userState = useUserState()
 
   const authState = useAuthState()
@@ -127,6 +126,7 @@ const AvatarContextMenu = () => {
           <Button
             style={styles.button as {}}
             onClick={() => {
+              UserService.getUserRelationship(authState.user.id?.value ?? '')
               console.log('Invite to Party')
             }}
           >
@@ -166,6 +166,6 @@ const AvatarContextMenu = () => {
       </div>
     </div>
   ) : (
-    <div></div>
+    <div>&nbsp;</div>
   )
 }

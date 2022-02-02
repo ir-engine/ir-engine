@@ -93,7 +93,7 @@ export const UserService = {
     {
       client
         .service('user-relationship')
-        .findAll({
+        .find({
           query: {
             userId
           }

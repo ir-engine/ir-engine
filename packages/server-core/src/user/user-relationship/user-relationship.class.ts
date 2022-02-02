@@ -19,7 +19,7 @@ export class UserRelationship extends Service {
     this.app = app
   }
 
-  async findAll(params: Params): Promise<any> {
+  async find(params: Params): Promise<any> {
     const UserRelationshipModel = this.getModel(params)
     const UserRelationshipTypeService = this.app.service('user-relationship-type')
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
