@@ -1,9 +1,11 @@
-import authenticate from '../../hooks/authenticate'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addScopeToUser from '../../hooks/add-scope-to-user'
+import authenticate from '../../hooks/authenticate'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import addScopeToUser from '../../hooks/add-scope-to-user'
 
 /**
  * This module used to declare and identify database relation
@@ -86,9 +88,10 @@ export default {
         ]
       })
     ],
-    create: [],
-    update: [],
+    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     patch: [
+      iff(isProvider('external'), restrictUserRole('admin') as any),
       addAssociations({
         models: [
           {
@@ -124,7 +127,22 @@ export default {
       }),
       addScopeToUser()
     ],
-    remove: []
+    remove: [
+      iff(isProvider('external'), restrictUserRole('admin') as any),
+      async (context: HookContext): Promise<HookContext> => {
+        try {
+          const userId = context.id
+          await context.app.service('user-api-key').remove(null, {
+            query: {
+              userId: userId
+            }
+          })
+          return context
+        } catch (err) {
+          throw new Error(err)
+        }
+      }
+    ]
   },
 
   after: {
@@ -230,7 +248,7 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopeTypes?.forEach((el) => {
+          context.arguments[0]?.scopes?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id
