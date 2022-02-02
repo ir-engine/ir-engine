@@ -459,14 +459,11 @@ export const AvatarSelectMenu = (props: Props) => {
         </div>
       </TabPanel>
       <TabPanel value={value} index={1}>
-        {/* <div className={styles.selectLabelContainer}>
-          <div className={styles.avatarSelectLabel + ' ' + (error ? styles.avatarSelectError : '')}>
-            {error ? error : fileSelected ? selectedFile.name : t('user:avatar.selectAvatar')}
+        {error.length > 0 && (
+          <div className={styles.selectLabelContainer}>
+            <div className={styles.avatarSelectError}>{error}</div>
           </div>
-          <div className={styles.thumbnailSelectLabel + ' ' + (error ? styles.thumbnailSelectError : '')}>
-            {error ? error : thumbnailSelected ? selectedThumbnail.name : t('user:avatar.selectThumbnail')}
-          </div>
-        </div> */}
+        )}
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns}>
             <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
