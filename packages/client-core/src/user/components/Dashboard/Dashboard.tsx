@@ -44,12 +44,7 @@ const Dashboard = ({ children }: Props) => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open
-        })}
-      >
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.header}>
           <IconButton
             color="inherit"
