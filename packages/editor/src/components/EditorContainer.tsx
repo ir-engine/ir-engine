@@ -39,6 +39,7 @@ import { AppContext } from './Search/context'
 import * as styles from './styles.module.scss'
 import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { DndWrapper } from './dnd/DndWrapper'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 /**
  *Styled component used as dock container.
@@ -186,10 +187,7 @@ const EditorContainer = (props) => {
 
     ProjectManager.instance.dispose()
 
-    return unloadScene({
-      removePersisted: true,
-      keepSystems: true
-    })
+    return unloadScene(useWorld(), true)
   }
 
   const loadScene = async (sceneName) => {
