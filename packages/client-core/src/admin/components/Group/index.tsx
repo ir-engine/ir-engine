@@ -4,13 +4,18 @@ import Button from '@mui/material/Button'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
 import { useStyles } from '../../styles/ui'
+import Search from '../../common/Search'
 
 const GroupConsole = () => {
   const classes = useStyles()
   const [groupOpen, setGroupOpen] = useState(false)
+  const [search, setSearch] = React.useState('')
 
   const openModalCreate = (open: boolean) => {
     setGroupOpen(open)
+  }
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
   }
 
   return (
@@ -18,7 +23,7 @@ const GroupConsole = () => {
       <div>
         <Grid container spacing={3} className={classes.marginBottom}>
           <Grid item xs={12} sm={9}>
-            {/* <SearchGroup /> */}
+            <Search text="group" handleChange={handleChange} />
           </Grid>
           <Grid item xs={12} sm={3}>
             <Button
@@ -32,7 +37,7 @@ const GroupConsole = () => {
           </Grid>
         </Grid>
         <div className={classes.rootTable}>
-          <GroupTable />
+          <GroupTable search={search} />
         </div>
       </div>
       <CreateGroup open={groupOpen} handleClose={openModalCreate} />

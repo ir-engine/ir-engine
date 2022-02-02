@@ -11,9 +11,12 @@ import TableComponent from '../../common/Table'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useStyles } from '../../styles/ui'
 
-interface Props {}
+interface Props {
+  search: string
+}
 
 const GroupTable = (props: Props) => {
+  const { search } = props
   const dispatch = useDispatch()
   const classes = useStyles()
   const user = useAuthState().user
@@ -66,8 +69,11 @@ const GroupTable = (props: Props) => {
   }
 
   useEffect(() => {
-    if (adminGroupState.updateNeeded.value) GroupService.getGroupService()
-  }, [adminGroupState.updateNeeded.value, user])
+    if (adminGroupState.updateNeeded.value && user.id.value) {
+      GroupService.getGroupService('increment', null)
+    }
+    GroupService.getGroupService('increment', search)
+  }, [adminGroupState.updateNeeded.value, user, search])
 
   const createData = (id: any, name: any, description: string): Data => {
     return {
