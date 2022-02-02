@@ -116,17 +116,15 @@ export const LoadEngineWithScene = (props: Props) => {
 
       console.log('reseting connection for portal teleport')
 
-      dispatch(LocationAction.fetchingCurrentSocialLocation())
+      const world = useWorld()
+
       dispatch(SceneAction.sceneLoaded(null!))
+      history.push('/location/' + world.activePortal.location)
+      LocationService.getLocationByName(world.activePortal.location)
 
       // shut down connection with existing GS
       leave(getWorldTransport())
       dispatch(LocationInstanceConnectionAction.disconnect())
-
-      const world = useWorld()
-
-      history.push('/location/' + world.activePortal.location)
-      LocationService.getLocationByName(world.activePortal.location)
 
       teleportToScene()
     }

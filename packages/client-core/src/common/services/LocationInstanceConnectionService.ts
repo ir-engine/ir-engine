@@ -82,6 +82,7 @@ export const useLocationInstanceConnectionState = () => useState(state) as any a
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
+    console.log('provisionServer', locationId, instanceId, sceneId)
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.serverProvisioning())
     const token = accessAuthState().authUser.accessToken.value
@@ -117,6 +118,7 @@ export const LocationInstanceConnectionService = {
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.connecting())
     const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+    console.log('connectToServer', !!transport.socket, transport)
     if (transport.socket) {
       await leave(transport, false)
     }

@@ -76,7 +76,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          locationState.currentLocation.location.sceneId.value
+          currentLocation.sceneId.value
         )
       }
     } else {
