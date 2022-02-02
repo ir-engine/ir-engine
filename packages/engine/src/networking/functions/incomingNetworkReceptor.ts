@@ -2,7 +2,6 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkWorldAction } from './NetworkWorldAction'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -13,11 +12,27 @@ import { World } from '../../ecs/classes/World'
 
 export const removeAllNetworkClients = (world: World, removeSelf = false) => {
   for (const [userId] of world.clients) {
-    removeClient(world, userId, removeSelf)
+    removeClientNetworkActionReceptor(world, userId, removeSelf)
   }
 }
 
-export const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => {
+export const addClientNetworkActionReceptor = (world: World, userId: UserId, name: string, index: number) => {
+  // host adds the client manually during connectToWorld
+  if (isHost()) return
+
+  world.clients.set(userId, {
+    userId: userId,
+    userIndex: index,
+    name,
+    subscribedChatUpdates: []
+  })
+
+  // set utility maps
+  world.userIdToUserIndex.set(userId, index)
+  world.userIndexToUserId.set(index, userId)
+}
+
+export const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
   if (allowRemoveSelf && userId === Engine.userId) return
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
@@ -25,106 +40,83 @@ export const removeClient = (world: World, userId: UserId, allowRemoveSelf = fal
     dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
   }
 
-  const { networkId, userIndex } = world.clients.get(userId)!
-  world.networkIdMap.delete(networkId!)
+  const { userIndex } = world.clients.get(userId)!
+
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
+}
+
+export const spawnObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.spawnObject>
+) => {
+  const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(action)
+  /**
+   * When changing location via a portal, the local client entity will be
+   * defined when the new world dispatches this action, so ignore it
+   */
+  if (
+    isSpawningAvatar &&
+    Engine.userId === action.$from &&
+    hasComponent(world.localClientEntity, NetworkObjectComponent)
+  ) {
+    getComponent(world.localClientEntity, NetworkObjectComponent).networkId = action.networkId
+    return
+  }
+  const params = action.parameters
+  const isOwnedByMe = action.$from === Engine.userId
+  let entity
+  if (isSpawningAvatar && isOwnedByMe) {
+    entity = world.localClientEntity
+  } else {
+    let networkObject = world.getNetworkObject(action.$from, action.networkId)
+    if (networkObject) {
+      entity = networkObject
+    } else if (params?.sceneEntityId) {
+      const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
+      if (node) entity = node.entity
+    } else {
+      entity = createEntity()
+    }
+  }
+  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+
+  addComponent(entity, NetworkObjectComponent, {
+    ownerId: action.$from,
+    ownerIndex: action.ownerIndex,
+    networkId: action.networkId,
+    prefab: action.prefab,
+    parameters: action.parameters
+  })
+}
+
+export const destroyObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.destroyObject>
+) => {
+  const entity = world.getNetworkObject(action.$from, action.networkId)
+  if (!entity)
+    return console.log(
+      `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
+    )
+  if (entity === world.localClientEntity) return
+
+  const { networkId } = getComponent(entity, NetworkObjectComponent)
+  removeEntity(entity)
 }
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
  */
-export function incomingNetworkReceptor(action) {
-  const world = useWorld()
-
-  matches(action)
-    .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) => {
-      if (isHost()) return
-      world.clients.set($from, {
-        userId: $from,
-        userIndex: index,
-        name,
-        subscribedChatUpdates: []
-      })
-    })
-
-    .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))
-
-    .when(NetworkWorldAction.spawnObject.matches, (a) => {
-      const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
-      /**
-       * When changing location via a portal, the local client entity will be
-       * defined when the new world dispatches this action, so ignore it
-       */
-      if (
-        isSpawningAvatar &&
-        Engine.userId === a.$from &&
-        hasComponent(world.localClientEntity, NetworkObjectComponent)
-      ) {
-        getComponent(world.localClientEntity, NetworkObjectComponent).networkId = a.networkId
-        return
-      }
-      const params = a.parameters
-      const isOwnedByMe = a.$from === Engine.userId
-      let entity
-      if (isSpawningAvatar && isOwnedByMe) {
-        entity = world.localClientEntity
-      } else {
-        let networkObject = world.getNetworkObject(a.$from, a.networkId)
-        if (networkObject) {
-          entity = networkObject
-        } else if (params?.sceneEntityId) {
-          const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
-          if (node) entity = node.entity
-        } else {
-          entity = createEntity()
-        }
-      }
-      if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
-
-      addComponent(entity, NetworkObjectComponent, {
-        ownerId: a.$from,
-        ownerIndex: a.ownerIndex,
-        networkId: a.networkId,
-        prefab: a.prefab,
-        parameters: a.parameters
-      })
-
-      world.networkIdMap.set(a.networkId, entity)
-      world.userIdToUserIndex.set(a.$from, a.ownerIndex)
-      world.userIndexToUserId.set(a.ownerIndex, a.$from)
-    })
-
-    .when(NetworkWorldAction.destroyObject.matches, (a) => {
-      const entity = world.getNetworkObject(a.$from, a.networkId)
-      if (entity === world.localClientEntity) return
-      if (entity) removeEntity(entity)
-    })
-
-  // .when(NetworkWorldAction.setEquippedObject.matchesFromAny, setEquippedObjectReceptor)
-}
-
-// export function setEquippedObjectReceptor(a: any) {
-// const world = useWorld()
-// let entity = world.getNetworkObject(a.object.ownerId, a.object.networkId)
-// if (entity) {
-//   if (a.$from === Engine.userId) {
-//     if (a.equip) {
-//       if (!hasComponent(entity, NetworkObjectOwnedTag)) {
-//         addComponent(entity, NetworkObjectOwnedTag, {})
-//       }
-//     } else {
-//       removeComponent(entity, NetworkObjectOwnedTag)
-//     }
-//   } else {
-//     removeComponent(entity, NetworkObjectOwnedTag)
-//   }
-
-//   // Give ownership back to server, so that item shows up where it was last dropped
-//   if (Engine.userId === world.hostId && !a.equip) {
-//     addComponent(entity, NetworkObjectOwnedTag, {})
-//   }
-// }
-// }
+export const createIncomingNetworkReceptor = (world: World) =>
+  world.receptors.push(function incomingNetworkReceptor(action) {
+    matches(action)
+      .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) =>
+        addClientNetworkActionReceptor(world, $from, name, index)
+      )
+      .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClientNetworkActionReceptor(world, $from))
+      .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObjectNetworkActionReceptor(world, a))
+      .when(NetworkWorldAction.destroyObject.matches, (a) => destroyObjectNetworkActionReceptor(world, a))
+  })
