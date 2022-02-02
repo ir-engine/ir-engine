@@ -34,12 +34,13 @@ describe('PortalFunctions', () => {
     const linkedPortalId = MathUtils.generateUUID()
 
     const sceneComponentData = {
-      modelUrl: '',
-      locationName: 'test',
+      location: 'test',
       linkedPortalId,
       triggerPosition: { x: 1, y: 1, z: 1 },
       triggerRotation,
-      triggerScale: { x: 1, y: 1, z: 1 }
+      triggerScale: { x: 1, y: 1, z: 1 },
+      spawnPosition: { x: 2, y: 3, z: 4 },
+      spawnRotation: { x: 2, y: 3, z: 4, w: 5 }
     }
     const sceneComponent: ComponentJson = {
       name: 'portal',
@@ -48,9 +49,6 @@ describe('PortalFunctions', () => {
 
     deserializePortal(entity, sceneComponent)
 
-    assert(hasComponent(entity, ColliderComponent))
-    assert(hasComponent(entity, CollisionComponent))
-    assert(hasComponent(entity, TriggerVolumeComponent))
     assert(hasComponent(entity, PortalComponent))
 
     // TODO: mesh only created on client
