@@ -242,6 +242,8 @@ export class IdentityProvider extends Service {
       // this.app.service('authentication')
       result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
+      // in dev mode, add all scopes to the first user made an admin
+
       for (const { type } of scopeTypeSeed.templates) {
         await this.app.service('scope').create({ userId: userId, type })
       }
