@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Drawer from '@mui/material/Drawer'
 import Container from '@mui/material/Container'
-import { useGroupStyles, useGroupStyle } from './styles'
 import DialogTitle from '@mui/material/DialogTitle'
 import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
@@ -12,6 +11,8 @@ import { GroupService } from '../../services/GroupService'
 import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import { useStyles } from '../../styles/ui'
+import _ from 'lodash'
 
 interface Props {
   open: boolean
@@ -25,8 +26,7 @@ interface ScopeData {
 
 const CreateGroup = (props: Props) => {
   const { open, handleClose } = props
-  const classes = useGroupStyles()
-  const classx = useGroupStyle()
+  const classes = useStyles()
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const adminScopeTypes = adminScopeTypeState.scopeTypes
@@ -51,15 +51,7 @@ const CreateGroup = (props: Props) => {
   const handleChange = (event) => {
     const { name, value } = event.target
     let temp = state.formErrors
-
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required' : ''
-    }
-
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -67,13 +59,8 @@ const CreateGroup = (props: Props) => {
     event.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
-
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.description) {
-      temp.description = "Description can't be empty"
-    }
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.description = !state.description ? "Description can't be empty" : ''
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       GroupService.createGroupByAdmin({ name, description, scopeTypes })
@@ -83,8 +70,8 @@ const CreateGroup = (props: Props) => {
         description: '',
         scopeTypes: []
       })
+      handleClose(false)
     }
-    handleClose(false)
   }
 
   const scopeData: ScopeData[] = []
@@ -100,7 +87,7 @@ const CreateGroup = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paper }} anchor="right" open={open} onClose={() => handleClose(false)}>
+      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
             <DialogTitle id="form-dialog-title" className={classes.texAlign}>

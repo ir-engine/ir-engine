@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import SearchGroup from './SearchGroup'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
 import { useStyles } from '../../styles/ui'
@@ -19,7 +18,7 @@ const GroupConsole = () => {
       <div>
         <Grid container spacing={3} className={classes.marginBottom}>
           <Grid item xs={12} sm={9}>
-            <SearchGroup />
+            {/* <SearchGroup /> */}
           </Grid>
           <Grid item xs={12} sm={3}>
             <Button
