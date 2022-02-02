@@ -171,10 +171,13 @@ export class IdentityProvider extends Service {
 
     let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
 
-    // Make first user admin if local and dev
-    if (isDev && adminCount === 0) {
-      role = 'admin'
-      type = 'admin'
+    if (adminCount === 0) {
+      // in dev mode make the first guest an admin
+      // otherwise make the first logged in user an admin
+      if (isDev || role === 'user') {
+        type = 'admin'
+        role = 'admin'
+      }
     }
 
     let result
