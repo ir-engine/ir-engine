@@ -10,6 +10,10 @@ import dotenv from 'dotenv'
 import { getClientSetting } from './scripts/getClientSettings'
 
 const copyProjectDependencies = () => {
+  if(!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))){
+    // create directory
+    fs.mkdirSync(path.resolve(__dirname, '../projects/projects/'))
+  }
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
