@@ -10,13 +10,13 @@ import { isHost } from '../../common/functions/isHost'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { World } from '../../ecs/classes/World'
 
-export const removeAllNetworkClients = (world: World, removeSelf = false) => {
+const removeAllNetworkClients = (world: World, removeSelf = false) => {
   for (const [userId] of world.clients) {
     removeClientNetworkActionReceptor(world, userId, removeSelf)
   }
 }
 
-export const addClientNetworkActionReceptor = (world: World, userId: UserId, name: string, index: number) => {
+const addClientNetworkActionReceptor = (world: World, userId: UserId, name: string, index: number) => {
   // host adds the client manually during connectToWorld
   if (isHost()) return
 
@@ -32,7 +32,7 @@ export const addClientNetworkActionReceptor = (world: World, userId: UserId, nam
   world.userIndexToUserId.set(index, userId)
 }
 
-export const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
+const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
   if (!world.clients.has(userId)) return
   if (allowRemoveSelf && userId === Engine.userId) return
 
@@ -47,10 +47,7 @@ export const removeClientNetworkActionReceptor = (world: World, userId: UserId, 
   world.clients.delete(userId)
 }
 
-export const spawnObjectNetworkActionReceptor = (
-  world: World,
-  action: ReturnType<typeof NetworkWorldAction.spawnObject>
-) => {
+const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
   const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(action)
   /**
    * When changing location via a portal, the local client entity will be
@@ -92,7 +89,7 @@ export const spawnObjectNetworkActionReceptor = (
   })
 }
 
-export const destroyObjectNetworkActionReceptor = (
+const destroyObjectNetworkActionReceptor = (
   world: World,
   action: ReturnType<typeof NetworkWorldAction.destroyObject>
 ) => {
@@ -111,8 +108,8 @@ export const destroyObjectNetworkActionReceptor = (
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
  */
-export const createIncomingNetworkReceptor = (world: World) =>
-  world.receptors.push(function incomingNetworkReceptor(action) {
+const createNetworkActionReceptor = (world: World) =>
+  world.receptors.push(function NetworkActionReceptor(action) {
     matches(action)
       .when(NetworkWorldAction.createClient.matches, ({ $from, name, index }) =>
         addClientNetworkActionReceptor(world, $from, name, index)
@@ -121,3 +118,14 @@ export const createIncomingNetworkReceptor = (world: World) =>
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObjectNetworkActionReceptor(world, a))
       .when(NetworkWorldAction.destroyObject.matches, (a) => destroyObjectNetworkActionReceptor(world, a))
   })
+
+export const NetworkActionReceptors = {
+  removeAllNetworkClients,
+
+  addClientNetworkActionReceptor,
+  removeClientNetworkActionReceptor,
+  spawnObjectNetworkActionReceptor,
+  destroyObjectNetworkActionReceptor,
+
+  createNetworkActionReceptor
+}
