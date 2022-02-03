@@ -90,6 +90,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const handleThumbnailUrlChange = (event) => {
     event.preventDefault()
+    setThumbNailUrl(event.target.value)
     if (REGEX_VALID_URL.test(event.target.value)) {
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -248,6 +249,7 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const handleAvatarNameChange = (e) => {
+    e.preventDefault()
     setAvatarName(e.target.value)
   }
 
@@ -346,8 +348,6 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const handleUploads = (e) => {}
-
   return (
     <div className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
@@ -389,7 +389,7 @@ export const AvatarSelectMenu = (props: Props) => {
           <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <Paper className={classes.paper2} component="form">
+      <Paper className={classes.paper2}>
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#ccc' }}
           inputProps={{ 'aria-label': 'avatar url' }}
@@ -425,7 +425,7 @@ export const AvatarSelectMenu = (props: Props) => {
       <TabPanel value={value} index={0}>
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
-            <Paper className={classes.paper} component="form" style={{ marginRight: '8px', padding: '4px 0' }}>
+            <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
               <InputBase
                 sx={{ ml: 1, flex: 1, color: '#ccc' }}
                 placeholder="Paste Avatar Url..."
@@ -435,7 +435,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 onChange={handleAvatarUrlChange}
               />
             </Paper>
-            <Paper className={classes.paper} component="form" style={{ padding: '4px 0' }}>
+            <Paper className={classes.paper} style={{ padding: '4px 0' }}>
               <InputBase
                 sx={{ ml: 1, flex: 1, color: '#ccc' }}
                 placeholder="Paste Thumbnail Url..."
