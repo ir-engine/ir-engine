@@ -21,8 +21,8 @@ export default async function TriggerSystem(world: World) {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (Engine.currentWorld.isInPortal) continue
-        dispatchLocal(EngineActions.portalRedirectEvent(portalComponent) as any)
+        world.activePortal = portalComponent
+        dispatchLocal(EngineActions.setTeleporting(true))
       }
 
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)

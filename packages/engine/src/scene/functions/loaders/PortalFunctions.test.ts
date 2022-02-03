@@ -12,7 +12,7 @@ import { PortalComponent } from '../../components/PortalComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import { deserializePortal } from './PortalFunctions'
 
-describe.skip('PortalFunctions', () => {
+describe('PortalFunctions', () => {
   it('deserializePortal', async () => {
     const world = createWorld()
     Engine.currentWorld = world
@@ -34,13 +34,13 @@ describe.skip('PortalFunctions', () => {
     const linkedPortalId = MathUtils.generateUUID()
 
     const sceneComponentData = {
-      modelUrl: '',
-      locationName: 'test',
+      location: 'test',
       linkedPortalId,
-      displayText: 'Test',
       triggerPosition: { x: 1, y: 1, z: 1 },
       triggerRotation,
-      triggerScale: { x: 1, y: 1, z: 1 }
+      triggerScale: { x: 1, y: 1, z: 1 },
+      spawnPosition: { x: 2, y: 3, z: 4 },
+      spawnRotation: { x: 2, y: 3, z: 4, w: 5 }
     }
     const sceneComponent: ComponentJson = {
       name: 'portal',
@@ -49,16 +49,12 @@ describe.skip('PortalFunctions', () => {
 
     deserializePortal(entity, sceneComponent)
 
-    assert(hasComponent(entity, ColliderComponent))
-    assert(hasComponent(entity, CollisionComponent))
-    assert(hasComponent(entity, TriggerVolumeComponent))
     assert(hasComponent(entity, PortalComponent))
 
     // TODO: mesh only created on client
     const portalComponent = getComponent(entity, PortalComponent)
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
-    assert.equal(portalComponent.displayText, 'Test')
     assert(Engine.currentWorld.portalQuery().includes(entity))
 
     // clean up physx

@@ -20,6 +20,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -211,10 +212,11 @@ export async function handleConnectToWorld(
 
   // Create a new client object
   // and add to the dictionary
-  const world = Engine.currentWorld
+  const world = useWorld()
+  const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
-    userIndex: world.userIndexCount++,
+    userIndex,
     name: user.dataValues.name,
     avatarDetail,
     socket: socket,
@@ -228,6 +230,9 @@ export async function handleConnectToWorld(
     dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
+
+  world.userIdToUserIndex.set(userId, userIndex)
+  world.userIndexToUserId.set(userIndex, userId)
 
   // Return initial world state to client to set things up
   callback({
@@ -374,25 +379,19 @@ export async function handleDisconnect(socket): Promise<any> {
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
     if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
-    if (world.clients.has(userId)) world.clients.delete(userId)
   } else {
     console.warn("Socket didn't match for disconnecting client")
   }
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
+  const world = useWorld()
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.currentWorld?.clients.has(userId)) {
-    Engine.currentWorld.clients.delete(userId)
-    for (const eid of Engine.currentWorld?.getOwnedNetworkObjects(userId)) {
-      const { networkId } = getComponent(eid, NetworkObjectComponent)
-      dispatchFrom(Engine.currentWorld?.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
-    }
-
-    logger.info('Removing ' + userId + ' from client list')
+  if (world.clients.has(userId)) {
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
