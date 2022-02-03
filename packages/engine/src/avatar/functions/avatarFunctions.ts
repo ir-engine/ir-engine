@@ -44,8 +44,6 @@ import { Updatable } from '@xrengine/engine/src/scene/interfaces/Updatable'
 const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
-  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/vrm/AvatarSample_C.vrm'
-  // avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo/pete.fbx'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
