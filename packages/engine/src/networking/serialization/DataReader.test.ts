@@ -334,7 +334,6 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>([[networkId, entity]])
     Engine.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
     Engine.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
 
@@ -409,7 +408,6 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>([[networkId, entity]])
     Engine.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
     Engine.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
 
@@ -453,7 +451,6 @@ describe('DataReader', () => {
   it('should readEntities', () => {
     const writeView = createViewCursor()
 
-    Engine.currentWorld.networkIdMap = new Map()
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
@@ -480,7 +477,6 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.currentWorld.networkIdMap.set(networkId, entity)
       Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
       Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
     })
@@ -520,7 +516,6 @@ describe('DataReader', () => {
   it('should createDataReader', () => {
     const write = createDataWriter()
 
-    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>()
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
@@ -547,7 +542,6 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.currentWorld.networkIdMap.set(networkId, entity)
       Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
       Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
     })
@@ -624,7 +618,6 @@ describe('DataReader', () => {
   it('should createDataReader and return empty packet if no changes were made', () => {
     const write = createDataWriter()
 
-    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>()
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
@@ -651,7 +644,6 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.currentWorld.networkIdMap.set(networkId, entity)
       Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
       Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
     })
@@ -670,7 +662,6 @@ describe('DataReader', () => {
   it('should createDataReader and detect changes', () => {
     const write = createDataWriter()
 
-    Engine.currentWorld.networkIdMap = new Map<NetworkId, Entity>()
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
@@ -697,7 +688,6 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.currentWorld.networkIdMap.set(networkId, entity)
       Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
       Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
     })

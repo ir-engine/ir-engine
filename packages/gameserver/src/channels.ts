@@ -48,10 +48,14 @@ const loadScene = async (app: Application, scene: string) => {
     await initializeRealtimeSystems()
     await initializeSceneSystems()
     await initializeProjectSystems(projects, systems)
+
     const world = useWorld()
     const userId = 'server' as UserId
     Engine.userId = userId
-    Engine.currentWorld.clients.set(userId, { userId, name: 'server', userIndex: world.userIndexCount++ })
+    const hostIndex = world.userIndexCount++
+    world.clients.set(userId, { userId, name: 'server', userIndex: hostIndex })
+    world.userIdToUserIndex.set(userId, hostIndex)
+    world.userIndexToUserId.set(hostIndex, userId)
   }
 
   let entitiesLeft = -1

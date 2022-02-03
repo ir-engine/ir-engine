@@ -39,7 +39,6 @@ export class World {
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    this.networkIdMap = new Map<NetworkId, Entity>()
     this.userIdToUserIndex = new Map()
     this.userIndexToUserId = new Map()
 
@@ -71,7 +70,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  isInPortal = false
+  activePortal = null! as ReturnType<typeof PortalComponent.get>
 
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
@@ -88,8 +87,10 @@ export class World {
   /** All actions that have been dispatched */
   actionHistory = new Set<Action>()
 
-  networkIdMap: Map<NetworkId, Entity>
+  /** Map of numerical user index to user client IDs */
   userIndexToUserId: Map<number, UserId>
+
+  /** Map of user client IDs to numerical user index */
   userIdToUserIndex: Map<UserId, number>
 
   userIndexCount = 0

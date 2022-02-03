@@ -13,7 +13,7 @@ const state = createState({
   loadingProgress: 0,
   loadingDetails: 'loading background assests...',
   connectedWorld: false,
-  isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
+  isTeleporting: false,
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,
@@ -61,12 +61,8 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({ connectionTimeoutInstance: action.instance })
       case EngineEvents.EVENTS.OBJECT_ACTIVATION:
         return s.merge({ interactionData: action.interactionData })
-      case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
-        return s.merge({
-          isTeleporting: action.portalComponent
-        })
       case EngineEvents.EVENTS.SET_TELEPORTING:
-        if (action.portalComponent) {
+        if (action.isTeleporting) {
           s.merge({
             connectedWorld: false,
             sceneLoaded: false,
@@ -74,7 +70,7 @@ export function EngineEventReceptor(action: EngineActionType) {
           })
         }
         return s.merge({
-          isTeleporting: action.portalComponent
+          isTeleporting: action.isTeleporting
         })
       case EngineEvents.EVENTS.LOADING_STATE_CHANGED:
         s.loadingProgress.set(action.loadingProgress)
@@ -98,10 +94,10 @@ export const EngineActions = {
       userId
     }
   },
-  setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
+  setTeleporting: (isTeleporting: boolean) => {
     return {
       type: EngineEvents.EVENTS.SET_TELEPORTING,
-      portalComponent
+      isTeleporting
     }
   },
   resetEngine: (instance: boolean) => {
@@ -169,12 +165,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.OBJECT_ACTIVATION,
       interactionData
-    }
-  },
-  portalRedirectEvent: (portalComponent: PortalComponentType) => {
-    return {
-      type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-      portalComponent
     }
   },
 
