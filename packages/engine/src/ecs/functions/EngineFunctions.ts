@@ -14,7 +14,6 @@ import { configureEffectComposer } from '../../renderer/functions/configureEffec
 import { EntityTreeNode } from '../classes/EntityTree'
 import { unloadSystems } from './SystemFunctions'
 import { World } from '../classes/World'
-import { removeClient } from '../../networking/functions/incomingNetworkReceptor'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

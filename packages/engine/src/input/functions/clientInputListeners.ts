@@ -16,20 +16,6 @@ import {
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { isClient } from '../../common/functions/isClient'
 
-const supportsPassive = (function () {
-  let supportsPassiveValue = false
-  try {
-    const opts = Object.defineProperty({}, 'passive', {
-      get: function () {
-        supportsPassiveValue = true
-      }
-    })
-    window.addEventListener('testPassive', null!, opts)
-    window.removeEventListener('testPassive', null!, opts)
-  } catch (error) {}
-  return supportsPassiveValue
-})()
-
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 
 function preventDefault(e) {
@@ -57,13 +43,15 @@ export const addClientInputListeners = () => {
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
   window.addEventListener('keydown', preventDefaultForScrollKeys, false)
+  window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
 
-  const addListener = (domElement, eventName, callback: (event: Event) => void, passive = false) => {
-    if (passive && supportsPassive) {
-      domElement.addEventListener(eventName, callback, { passive })
-    } else {
-      domElement.addEventListener(eventName, callback)
-    }
+  const addListener = (
+    domElement: HTMLElement | Document | Window,
+    eventName,
+    callback: (event: Event) => void,
+    options?: boolean | AddEventListenerOptions
+  ) => {
+    domElement.addEventListener(eventName, callback, options)
     boundListeners.push({
       domElement,
       eventName,
@@ -77,7 +65,7 @@ export const addClientInputListeners = () => {
   addListener(canvas, 'mouseup', handleMouseButton)
   addListener(canvas, 'mousedown', handleMouseButton)
   addListener(canvas, 'mouseleave', handleMouseLeave)
-  addListener(canvas, 'wheel', handleMouseWheel, true)
+  addListener(canvas, 'wheel', handleMouseWheel, { passive: true, capture: true })
 
   addListener(
     canvas,
@@ -86,11 +74,14 @@ export const addClientInputListeners = () => {
       handleTouch(e)
       handleTouchMove(e)
     },
-    true
+    {
+      passive: true,
+      capture: true
+    }
   )
-  addListener(canvas, 'touchend', handleTouch, true)
-  addListener(canvas, 'touchcancel', handleTouch, true)
-  addListener(canvas, 'touchmove', handleTouchMove, true)
+  addListener(canvas, 'touchend', handleTouch, { passive: true })
+  addListener(canvas, 'touchcancel', handleTouch, { passive: true })
+  addListener(canvas, 'touchmove', handleTouchMove, { passive: true })
 
   addListener(document, 'keyup', handleKey)
   addListener(document, 'keydown', handleKey)
@@ -113,6 +104,7 @@ export const removeClientInputListeners = () => {
 
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
   window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
+  window.removeEventListener('touchmove', preventDefault, { capture: true })
 
   boundListeners.forEach(({ domElement, eventName, callback }) => {
     domElement.removeEventListener(eventName, callback)
