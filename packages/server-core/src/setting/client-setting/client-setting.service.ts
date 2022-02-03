@@ -3,7 +3,7 @@ import { Application } from '../../../declarations'
 import { ClientSetting } from './client-setting.class'
 import createModel from './client-setting.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface SerViceTypes {
     client: ClientSetting
   }

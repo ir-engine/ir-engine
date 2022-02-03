@@ -6,7 +6,7 @@ import instanceProvisionDocs from './instance-provision.docs'
 import hooks from './instance-provision.hooks'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'instance-provision': InstanceProvision
   }

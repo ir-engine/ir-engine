@@ -3,7 +3,7 @@ import hooks from './analytics.hooks'
 import { Analytics } from './analytics.class'
 import createModel from './analytics.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface SerViceTypes {
     Analytics: Analytics
   }

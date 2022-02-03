@@ -3,7 +3,7 @@ import { Application } from '../../../declarations'
 import { Authentication } from './authentication.class'
 import createModel from './authentication.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface SerViceTypes {
     Authentication: Authentication
   }

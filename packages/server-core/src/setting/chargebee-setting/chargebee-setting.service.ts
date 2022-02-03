@@ -3,7 +3,7 @@ import { Application } from '../../../declarations'
 import { ChargebeeSetting } from './chargebee-setting.class'
 import createModel from './chargebee-setting.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     Chargebee: ChargebeeSetting
   }

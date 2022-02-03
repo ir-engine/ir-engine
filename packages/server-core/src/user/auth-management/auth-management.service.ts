@@ -9,7 +9,7 @@ import authManagement from 'feathers-authentication-management'
  *
  * @author Vyacheslav Solovjov
  */
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     authManagement: Authmanagement
   }

@@ -5,7 +5,7 @@ import hooks from './instance.hooks'
 import logger from '../../logger'
 import instanceDocs from './instance.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
   }

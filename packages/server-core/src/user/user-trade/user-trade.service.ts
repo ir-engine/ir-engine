@@ -4,7 +4,7 @@ import createModel from './user-trade.model'
 import hooks from './user-trade.hooks'
 import userTradeDocs from './user-trade.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-trade': UserTrade
   }

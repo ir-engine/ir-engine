@@ -5,7 +5,7 @@ import hooks from './seat.hooks'
 import seatDocs from './seat.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     seat: Seat
   }

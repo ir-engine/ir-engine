@@ -3,7 +3,7 @@ import hooks from './redis-setting.hooks'
 import { RedisSetting } from './redis-setting.class'
 import createModel from './redis-setting.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface SerViceTypes {
     Redis: RedisSetting
   }

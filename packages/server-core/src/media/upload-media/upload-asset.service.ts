@@ -11,7 +11,7 @@ import { getCachedAsset } from '../storageprovider/getCachedAsset'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'upload-asset': any
   }

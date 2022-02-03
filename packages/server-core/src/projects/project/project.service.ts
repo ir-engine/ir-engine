@@ -7,7 +7,7 @@ import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 import authenticate from '../../hooks/authenticate'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     project: Project
   }

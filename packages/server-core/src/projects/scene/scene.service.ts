@@ -9,7 +9,7 @@ import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInter
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
 import { Params } from '@feathersjs/feathers'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     scene: Scene
   }

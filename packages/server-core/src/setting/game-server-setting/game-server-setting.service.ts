@@ -3,7 +3,7 @@ import { Application } from '../../../declarations'
 import { GameServerSetting } from './game-server-setting.class'
 import createModel from './game-server-setting.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface SerViceTypes {
     GameServer: GameServerSetting
   }

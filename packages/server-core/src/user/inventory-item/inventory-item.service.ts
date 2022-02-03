@@ -4,7 +4,7 @@ import createModel from './inventory-item.model'
 import hooks from './inventory-item.hooks'
 import inventoryItemDocs from './inventory-item.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     inventoryItem: InventoryItem
   }
