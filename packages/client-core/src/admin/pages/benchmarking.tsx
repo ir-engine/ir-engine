@@ -6,7 +6,7 @@ interface Props {}
 
 function benchmarkingRoute(props: Props) {
   useEffect(() => {
-    AuthService.doLoginAuto(true)
+    AuthService.doLoginAuto(false)
   }, [])
   return <Benchmarking />
 }

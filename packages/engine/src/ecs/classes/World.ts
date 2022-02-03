@@ -71,7 +71,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  isInPortal = false
+  activePortal = null! as ReturnType<typeof PortalComponent.get>
 
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>

@@ -8,6 +8,29 @@ import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchLocal } from './dispatchFrom'
 import { isHost } from '../../common/functions/isHost'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { World } from '../../ecs/classes/World'
+
+export const removeAllNetworkClients = (world: World, removeSelf = false) => {
+  for (const [userId] of world.clients) {
+    removeClient(world, userId, removeSelf)
+  }
+}
+
+export const removeClient = (world: World, userId: UserId, allowRemoveSelf = false) => {
+  if (allowRemoveSelf && userId === Engine.userId) return
+
+  for (const eid of world.getOwnedNetworkObjects(userId)) {
+    const { networkId } = getComponent(eid, NetworkObjectComponent)
+    dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+  }
+
+  const { networkId, userIndex } = world.clients.get(userId)!
+  world.networkIdMap.delete(networkId!)
+  world.userIdToUserIndex.delete(userId)
+  world.userIndexToUserId.delete(userIndex)
+  world.clients.delete(userId)
+}
 
 /**
  * @author Gheric Speiginer <github.com/speigg>
@@ -27,14 +50,7 @@ export function incomingNetworkReceptor(action) {
       })
     })
 
-    .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => {
-      for (const eid of world.getOwnedNetworkObjects($from)) {
-        const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchLocal(NetworkWorldAction.destroyObject({ $from, networkId }))
-      }
-      if ($from === Engine.userId) return
-      world.clients.delete($from)
-    })
+    .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClient(world, $from))
 
     .when(NetworkWorldAction.spawnObject.matches, (a) => {
       const isSpawningAvatar = NetworkWorldAction.spawnAvatar.matches.test(a)
