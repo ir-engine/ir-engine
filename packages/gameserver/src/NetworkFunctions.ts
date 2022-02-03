@@ -379,25 +379,19 @@ export async function handleDisconnect(socket): Promise<any> {
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
     if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
     if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
-    if (world.clients.has(userId)) world.clients.delete(userId)
   } else {
     console.warn("Socket didn't match for disconnecting client")
   }
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
+  const world = useWorld()
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
-  if (Engine.currentWorld?.clients.has(userId)) {
-    Engine.currentWorld.clients.delete(userId)
-    for (const eid of Engine.currentWorld?.getOwnedNetworkObjects(userId)) {
-      const { networkId } = getComponent(eid, NetworkObjectComponent)
-      dispatchFrom(Engine.currentWorld?.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
-    }
-
-    logger.info('Removing ' + userId + ' from client list')
+  if (world.clients.has(userId)) {
+    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }

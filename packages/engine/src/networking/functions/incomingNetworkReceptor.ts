@@ -33,6 +33,7 @@ export const addClientNetworkActionReceptor = (world: World, userId: UserId, nam
 }
 
 export const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
+  if (!world.clients.has(userId)) return
   if (allowRemoveSelf && userId === Engine.userId) return
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
@@ -41,7 +42,6 @@ export const removeClientNetworkActionReceptor = (world: World, userId: UserId, 
   }
 
   const { userIndex } = world.clients.get(userId)!
-
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
