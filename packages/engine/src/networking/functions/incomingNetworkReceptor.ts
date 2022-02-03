@@ -74,6 +74,7 @@ export const spawnObjectNetworkActionReceptor = (
     if (networkObject) {
       entity = networkObject
     } else if (params?.sceneEntityId) {
+      // spawn object from scene data
       const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
       if (node) entity = node.entity
     } else {
