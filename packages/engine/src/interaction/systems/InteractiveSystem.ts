@@ -63,8 +63,9 @@ export default async function InteractiveSystem(world: World) {
       if (getComponent(entity, EquippedComponent)) {
         removeComponent(entity, BoundingBoxComponent)
       }
-      removeComponent(entity, InteractiveFocusedComponent)
-      removeComponent(entity, SubFocusedComponent)
+
+      hasComponent(entity, InteractableComponent) && removeComponent(entity, InteractiveFocusedComponent)
+      hasComponent(entity, SubFocusedComponent) && removeComponent(entity, SubFocusedComponent)
     }
 
     const interactives = interactiveQuery(world)
