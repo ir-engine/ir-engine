@@ -33,7 +33,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
-import { createIncomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
 // threejs overrides
 
 // @ts-ignore
@@ -232,7 +232,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = useWorld()
-  createIncomingNetworkReceptor(world)
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 
