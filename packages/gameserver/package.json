@@ -55,7 +55,7 @@
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
     "feathers-swagger": "1.2.1",
-    "feathers-sync": "2.4.0",
+    "feathers-sync": "3.0.0",
     "helmet": "5.0.2",
     "mediasoup": "3.9.6",
     "msgpackr": "1.5.4",
