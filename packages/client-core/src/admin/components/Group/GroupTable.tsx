@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import { Group } from '@xrengine/common/src/interfaces/Group'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../../store'
-import { useGroupState } from '../../services/GroupService'
-import { GroupService } from '../../services/GroupService'
 import { useAuthState } from '../../../user/services/AuthService'
+import ConfirmModel from '../../common/ConfirmModel'
+import TableComponent from '../../common/Table'
+import { GroupService, GROUP_PAGE_LIMIT, useGroupState } from '../../services/GroupService'
+import { useStyles } from '../../styles/ui'
 import { columns, Data } from './Variables'
 import ViewGroup from './ViewGroup'
-import { GROUP_PAGE_LIMIT } from '../../services/GroupService'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import TableComponent from '../../common/Table'
-import ConfirmModel from '../../common/ConfirmModel'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   search: string

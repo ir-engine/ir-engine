@@ -1,17 +1,17 @@
-import React, { useState } from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import Paper from '@mui/material/Paper'
 import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import Drawer from '@mui/material/Drawer'
+import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
-import Chip from '@mui/material/Chip'
+import ListItemText from '@mui/material/ListItemText'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+import React, { useState } from 'react'
 import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
 
@@ -31,15 +31,15 @@ const ViewGroup = (props: Props) => {
       anchor="right"
       open={openView}
       onClose={() => closeViewModal(false)}
-      classes={{ paper: classes.groupRootPaper }}
+      classes={{ paper: classes.paperDrawer }}
     >
       {editMode ? (
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
         <React.Fragment>
-          <Paper elevation={3} className={classes.paperGroupHeight}>
+          <Paper elevation={3} className={classes.rootPaper}>
             <Container maxWidth="sm">
-              <div className={classes.itemAlign}>
+              <div className={classes.locationTitle}>
                 <Typography variant="h4" component="span" className={classes.typo}>
                   {groupAdmin.name}
                 </Typography>

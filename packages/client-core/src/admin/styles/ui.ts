@@ -435,7 +435,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       }
     },
     itemAlign: {
-      margin: '7rem auto 0 auto',
       textAlign: 'center'
     },
     scopeFlex: {

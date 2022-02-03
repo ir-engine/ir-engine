@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
-import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import React, { useState } from 'react'
+import Search from '../../common/Search'
+import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
-import { useStyles } from '../../styles/ui'
-import Search from '../../common/Search'
 
 const GroupConsole = () => {
   const classes = useStyles()
@@ -36,7 +36,7 @@ const GroupConsole = () => {
             </Button>
           </Grid>
         </Grid>
-        <div className={classes.rootTable}>
+        <div className={classes.rootTableWithSearch}>
           <GroupTable search={search} />
         </div>
       </div>
