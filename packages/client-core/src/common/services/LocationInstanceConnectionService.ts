@@ -82,6 +82,7 @@ export const useLocationInstanceConnectionState = () => useState(state) as any a
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
+    console.log('provisionServer', locationId, instanceId, sceneId)
     const dispatch = useDispatch()
     dispatch(LocationInstanceConnectionAction.serverProvisioning())
     const token = accessAuthState().authUser.accessToken.value
@@ -115,40 +116,33 @@ export const LocationInstanceConnectionService = {
   },
   connectToServer: async () => {
     const dispatch = useDispatch()
-    try {
-      dispatch(LocationInstanceConnectionAction.connecting())
-      const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-      if (transport.socket) {
-        await leave(transport, false)
-      }
-      const locationState = accessLocationState()
-      const currentLocation = locationState.currentLocation.location
-      const sceneId = currentLocation?.sceneId?.value
-
-      const { ipAddress, port } = accessLocationInstanceConnectionState().instance.value
-
-      try {
-        await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
-        transport.left = false
-
-        const authState = accessAuthState()
-        const user = authState.user.value
-        dispatchLocal(EngineActions.connect(user.id) as any)
-
-        EngineEvents.instance.addEventListener(
-          MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
-          MediaStreamService.triggerUpdateConsumers
-        )
-      } catch (error) {
-        console.error('Network transport could not initialize, transport is: ', transport)
-      }
-    } catch (err) {
-      console.log(err)
+    dispatch(LocationInstanceConnectionAction.connecting())
+    const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+    console.log('connectToServer', !!transport.socket, transport)
+    if (transport.socket) {
+      await leave(transport, false)
     }
-  },
-  resetServer: async () => {
-    const dispatch = useDispatch()
-    dispatch(LocationInstanceConnectionAction.disconnect())
+    const locationState = accessLocationState()
+    const currentLocation = locationState.currentLocation.location
+    const sceneId = currentLocation?.sceneId?.value
+
+    const { ipAddress, port } = accessLocationInstanceConnectionState().instance.value
+
+    try {
+      await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
+      transport.left = false
+
+      const authState = accessAuthState()
+      const user = authState.user.value
+      dispatchLocal(EngineActions.connect(user.id) as any)
+
+      EngineEvents.instance.addEventListener(
+        MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,
+        MediaStreamService.triggerUpdateConsumers
+      )
+    } catch (error) {
+      console.error('Network transport could not initialize, transport is: ', transport)
+    }
   }
 }
 

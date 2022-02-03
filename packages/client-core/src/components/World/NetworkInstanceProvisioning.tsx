@@ -4,6 +4,7 @@ import {
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import {
+  LocationInstanceConnectionAction,
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -50,7 +51,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
     const action = async (ev: any) => {
       if (!ev.instance) return
       await shutdownEngine()
-      LocationInstanceConnectionService.resetServer()
+      dispatch(LocationInstanceConnectionAction.disconnect())
       if (!isUserBanned) {
         retriveLocationByName(authState, props.locationName, history)
       }
@@ -75,7 +76,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,
-          locationState.currentLocation.location.sceneId.value
+          currentLocation.sceneId.value
         )
       }
     } else {
@@ -116,7 +117,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
 
   useEffect(() => {
     if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) dispatchLocal(EngineActions.setTeleporting(null!))
       dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
       dispatch(AppAction.setAppLoaded(true))
     }

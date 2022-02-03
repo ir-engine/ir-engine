@@ -33,7 +33,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
-import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+import { createIncomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
 // threejs overrides
 
 // @ts-ignore
@@ -232,7 +232,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = useWorld()
-  world.receptors.push(incomingNetworkReceptor)
+  createIncomingNetworkReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 
@@ -263,6 +263,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./navigation/systems/AutopilotSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
