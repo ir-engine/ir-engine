@@ -104,11 +104,10 @@ const ViewUser = (props: Props) => {
 
   useEffect(() => {
     if (singleUserData?.value) {
-      const temp: ScopeData[] = []
-      userAdmin.scopes.forEach((el) => {
-        temp.push({
+      const temp: ScopeData[] = userAdmin.scopes.map((el) => {
+        return {
           type: el.type
-        })
+        }
       })
       setState({
         ...state,
@@ -178,19 +177,17 @@ const ViewUser = (props: Props) => {
     setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
-  const scopeData: ScopeData[] = []
-  adminScopeTypeState.scopeTypes.value.forEach((el) => {
-    scopeData.push({
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
       type: el.type
-    })
+    }
   })
 
-  const userRoleData: InputSelectProps[] = []
-  userRole.userRole.value.forEach((el) => {
-    userRoleData.push({
+  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+    return {
       value: el.role,
       label: el.role
-    })
+    }
   })
 
   return (
@@ -280,6 +277,7 @@ const ViewUser = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
+              <label>User role</label>
               {user.id.value !== userAdmin.id && (
                 <InputSelect
                   handleInputChange={handleInputChange}

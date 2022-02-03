@@ -147,27 +147,24 @@ const CreateUser = (props: Props) => {
     type: string
   }
 
-  const scopeData: ScopeData[] = []
-  adminScopeTypeState.scopeTypes.value.forEach((el) => {
-    scopeData.push({
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
       type: el.type
-    })
+    }
   })
 
-  const staticResourceMenu: InputSelectProps[] = []
-  staticResourceData.value.forEach((el) => {
-    staticResourceMenu.push({
+  const staticResourceMenu: InputSelectProps[] = staticResourceData.value.map((el) => {
+    return {
       label: el.name,
       value: el.name
-    })
+    }
   })
 
-  const userRoleData: InputSelectProps[] = []
-  userRole.userRole.value.forEach((el) => {
-    userRoleData.push({
+  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+    return {
       value: el.role,
       label: el.role
-    })
+    }
   })
 
   return (

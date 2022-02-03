@@ -78,11 +78,10 @@ const EditGroup = (props: Props) => {
     setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
   }
 
-  const scopeData: ScopeData[] = []
-  adminScopeTypeState.scopeTypes.value.forEach((el) => {
-    scopeData.push({
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
       type: el.type
-    })
+    }
   })
 
   return (

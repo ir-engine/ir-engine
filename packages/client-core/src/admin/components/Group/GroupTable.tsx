@@ -111,7 +111,7 @@ const GroupTable = (props: Props) => {
         column={columns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminGroupCount.value}
+        count={adminGroups.length}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

@@ -427,7 +427,7 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     groupRootPaper: {
       maxWidth: '80%',
-      minWidth: '40%',
+      minWidth: '60%',
       backgroundColor: '#43484F ',
       color: '#f1f1f1',
       '&::-webkit-scrollbar': {
@@ -439,13 +439,27 @@ export const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'center'
     },
     scopeFlex: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      marginTop: '4%'
+      display: 'grid',
+      gridTemplateColumns: '2fr 2fr',
+      gridGap: '10px',
+      marginTop: '4%',
+      [theme.breakpoints.down('sm')]: {
+        display: 'grid',
+        gridTemplateColumns: '4fr'
+      }
     },
     rootList: {
       width: '100%',
       backgroundColor: '#43484F'
+    },
+    paperGroupHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41',
+      [theme.breakpoints.down('md')]: {
+        height: '20vh'
+      }
     }
   })
 )

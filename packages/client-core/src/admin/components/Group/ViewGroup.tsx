@@ -37,7 +37,7 @@ const ViewGroup = (props: Props) => {
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
         <React.Fragment>
-          <Paper elevation={3} className={classes.paperHeight}>
+          <Paper elevation={3} className={classes.paperGroupHeight}>
             <Container maxWidth="sm">
               <div className={classes.itemAlign}>
                 <Typography variant="h4" component="span" className={classes.typo}>
@@ -75,7 +75,7 @@ const ViewGroup = (props: Props) => {
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   Group scopes
                 </Typography>
-                <Container style={{ overflowY: 'auto', height: '300px' }}>
+                <Container style={{ overflowY: 'auto' }}>
                   {groupAdmin.scopes?.map((el, index) => {
                     const [label, type] = el.type.split(':')
                     return (
@@ -97,7 +97,7 @@ const ViewGroup = (props: Props) => {
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
                   Users Information
                 </Typography>
-                <List className={classes.rootList} style={{ overflowY: 'auto', height: '300px' }}>
+                <List className={classes.rootList} style={{ overflowY: 'auto' }}>
                   {groupAdmin.groupUsers.map((obj) => (
                     <ListItem key={obj.id}>
                       <ListItemAvatar>

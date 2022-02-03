@@ -74,11 +74,10 @@ const CreateGroup = (props: Props) => {
     }
   }
 
-  const scopeData: ScopeData[] = []
-  adminScopeTypeState.scopeTypes.value.forEach((el) => {
-    scopeData.push({
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
       type: el.type
-    })
+    }
   })
 
   const handleChangeScopeType = (scope) => {
