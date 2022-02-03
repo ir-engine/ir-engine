@@ -15,8 +15,6 @@ import { CollisionComponent } from '../../src/physics/components/CollisionCompon
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
-// import { setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
 import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
@@ -28,7 +26,7 @@ import { NetworkWorldAction } from '../../src/networking/functions/NetworkWorldA
 describe('Equippables Integration Tests', () => {
   it('Can equip and unequip', async () => {
     Network.instance = new TestNetwork()
-    let world = createWorld()
+    const world = createWorld()
     Engine.currentWorld = world
     Engine.hasJoinedWorld = true
     world.userIdToUserIndex = new Map([[world.hostId, world.hostId as unknown as number]])
@@ -46,7 +44,7 @@ describe('Equippables Integration Tests', () => {
 
     // physics mock stuff
     const type = 'trimesh' as ColliderTypes
-    let geom = new SphereBufferGeometry()
+    const geom = new SphereBufferGeometry()
 
     const mesh = new Mesh(geom, new MeshNormalMaterial())
     const bodyOptions = {
@@ -88,7 +86,7 @@ describe('Equippables Integration Tests', () => {
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
 
-    mockProgressWorldForNetworkActions()
+    mockProgressWorldForNetworkActions(world)
     equippableQueryEnter(equipperEntity)
 
     // validations for equip
@@ -103,7 +101,7 @@ describe('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    mockProgressWorldForNetworkActions()
+    mockProgressWorldForNetworkActions(world)
     equippableQueryExit(equipperEntity)
 
     // validations for unequip

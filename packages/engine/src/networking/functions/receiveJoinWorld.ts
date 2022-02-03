@@ -29,8 +29,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   const spawnPose = engineState.isTeleporting.value
     ? {
-        position: engineState.isTeleporting.value.remoteSpawnPosition,
-        rotation: engineState.isTeleporting.value.remoteSpawnRotation
+        position: world.activePortal.remoteSpawnPosition,
+        rotation: world.activePortal.remoteSpawnRotation
       }
     : avatarSpawnPose
 
