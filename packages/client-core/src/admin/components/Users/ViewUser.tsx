@@ -102,20 +102,24 @@ const ViewUser = (props: Props) => {
     }
   }, [userAdmin.id, refetch])
 
+  const initiateData = () => {
+    const temp: ScopeData[] = userAdmin.scopes.map((el) => {
+      return {
+        type: el.type
+      }
+    })
+    setState({
+      ...state,
+      name: userAdmin.name || '',
+      avatar: userAdmin.avatarId || '',
+      userRole: userAdmin.userRole || '',
+      scopes: temp as any
+    })
+  }
+
   useEffect(() => {
     if (singleUserData?.value) {
-      const temp: ScopeData[] = userAdmin.scopes.map((el) => {
-        return {
-          type: el.type
-        }
-      })
-      setState({
-        ...state,
-        name: userAdmin.name || '',
-        avatar: userAdmin.avatarId || '',
-        userRole: userAdmin.userRole || '',
-        scopes: temp as any
-      })
+      initiateData()
     }
   }, [singleUserData?.id?.value])
 
@@ -366,6 +370,7 @@ const ViewUser = (props: Props) => {
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {
+                    initiateData()
                     setEditMode(false)
                   }}
                 >
