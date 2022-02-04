@@ -74,7 +74,7 @@
     "make-user-admin": "ts-node scripts/make-user-admin.js",
     "install-projects": "ts-node scripts/install-projects.js",
     "check-db-exists": "cross-env ts-node --transpile-only scripts/check-db-exists.ts",
-    "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true ts-node --transpile-only packages/server/src/index.ts",
+    "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true INIT_DB_PRODUCTION=true ts-node --transpile-only packages/server/src/index.ts",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "depcheck": "lerna exec --no-bail --stream -- depcheck"
   },
@@ -101,8 +101,8 @@
     "depcheck": "1.4.3",
     "kill-port": "1.6.1",
     "lerna": "4.0.0",
-    "lint-staged": "12.2.2",
-    "mocha": "9.1.4",
+    "lint-staged": "12.3.3",
+    "mocha": "9.2.0",
     "mocha-suppress-logs": "0.3.1",
     "no-master-commits": "1.1.1",
     "pre-commit": "1.2.2",
@@ -118,6 +118,6 @@
   },
   "dependencies": {
     "@xrengine/engine": "^0.4.13",
-    "dotenv": "14.2.0"
+    "dotenv": "14.3.2"
   }
 }
