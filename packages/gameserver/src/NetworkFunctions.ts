@@ -197,7 +197,7 @@ export function getUserIdFromSocketId(socketId) {
   return client?.userId
 }
 
-export async function handleConnectToWorld(
+export function handleConnectToWorld(
   transport: SocketWebRTCServerTransport,
   socket,
   data,
@@ -205,10 +205,11 @@ export async function handleConnectToWorld(
   userId: UserId,
   user,
   avatarDetail
-): Promise<any> {
+) {
   console.log('Connect to world from ' + userId)
   // console.log("Avatar detail is", avatarDetail);
-  disconnectClientIfConnected(socket, userId)
+
+  if (disconnectClientIfConnected(socket, userId)) return callback(null! as any)
 
   // Create a new client object
   // and add to the dictionary
@@ -240,19 +241,22 @@ export async function handleConnectToWorld(
   })
 }
 
-function disconnectClientIfConnected(socket, userId: UserId): void {
+function disconnectClientIfConnected(socket, userId: UserId) {
   // If we are already logged in, kick the other socket
   const world = Engine.currentWorld
   if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
-    const client = world.clients.get(userId)!
-    console.log('Client already exists, kicking the old client and disconnecting')
-    client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
-    client.socket?.disconnect()
-  }
+    // const client = world.clients.get(userId)!
+    console.log('Client already logged in, disallowing new connection')
 
-  for (const eid of world.getOwnedNetworkObjects(userId)) {
-    const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    // todo: kick old client instead of new one
+    // console.log('Client already exists, kicking the old client and disconnecting')
+    // client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
+    // client.socket?.disconnect()
+    // for (const eid of world.getOwnedNetworkObjects(userId)) {
+    //   const { networkId } = getComponent(eid, NetworkObjectComponent)
+    //   dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    // }
+    return true
   }
 }
 
@@ -264,6 +268,8 @@ export const handleJoinWorld = async (
   joinedUserId: UserId,
   user
 ) => {
+  if (disconnectClientIfConnected(socket, joinedUserId)) return callback(null! as any)
+
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
   const inviteCode = data['inviteCode']
 
@@ -304,6 +310,8 @@ export const handleJoinWorld = async (
   console.info('JoinWorld received', joinedUserId, data, spawnPose)
   const world = Engine.currentWorld
   const client = world.clients.get(joinedUserId)!
+
+  if (!client) return callback(null! as any)
 
   clearCachedActionsForDisconnectedUsers()
   clearCachedActionsForUser(joinedUserId)
