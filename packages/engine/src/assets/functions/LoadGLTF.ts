@@ -2,7 +2,7 @@ import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Gr
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
-import { GLTF, GLTFLoader, GLTFParser } from '../loaders/gltf/GLTFLoader'
+import { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { createGLTFLoader } from './createGLTFLoader'
 
 /**

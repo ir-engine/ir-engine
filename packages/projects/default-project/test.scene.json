@@ -45,7 +45,7 @@
               "y": 15,
               "z": 30
             },
-            "overrideRendererSettings": false,
+            "overrideRendererSettings": true,
             "csm": false,
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
@@ -58,7 +58,7 @@
             "type": 1,
             "envMapTextureType": 0,
             "envMapSourceColor": 16777215,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
             "envMapIntensity": 1,
             "envMapCubemapBake": {
               "bakeType": 1,
@@ -153,7 +153,7 @@
           "props": {
             "backgroundColor": 0,
             "equirectangularPath": "",
-            "cubemapPath": "/hdr/cubemap/skyboxsun25deg/",
+            "cubemapPath": "__$project$__/default-project/assets/skyboxsun25deg/",
             "backgroundType": 1,
             "skyboxProps": {
               "turbidity": 10,
@@ -315,7 +315,7 @@
         {
           "name": "system",
           "props": {
-            "filePath": "",
+            "filePath": "__$project$__/default-project/TestSystem.ts",
             "systemUpdateType": "UPDATE",
             "enableClient": true,
             "enableServer": true,
@@ -478,7 +478,7 @@
         {
           "name": "gltf-model",
           "props": {
-            "src": "portal_frame.glb",
+            "src": "__$project$__/default-project/assets/cube.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true,
             "isUsingGPUInstancing": false,
@@ -595,7 +595,7 @@
         {
           "name": "particle-emitter",
           "props": {
-            "src": "/static/editor/dot.png",
+            "src": "__$project$__/default-project/assets/dot.png",
             "startColor": 16777215,
             "middleColor": 16777215,
             "endColor": 16777215,
@@ -948,7 +948,7 @@
         {
           "name": "link",
           "props": {
-            "href": "www.google.com"
+            "href": "https://app.theoverlay.io/location/apartment"
           }
         }
       ],
@@ -992,7 +992,7 @@
         {
           "name": "image",
           "props": {
-            "imageSource": "",
+            "imageSource": "__$project$__/default-project/assets/galaxyTexture.jpg",
             "alphaCutoff": 0.5,
             "alphaMode": "Opaque",
             "projection": "Flat",
@@ -1042,7 +1042,7 @@
         {
           "name": "audio",
           "props": {
-            "audioSource": "",
+            "audioSource": "__$project$__/default-project/assets/SampleAudio.mp3",
             "volume": 0.5,
             "audioType": "Positional",
             "distanceModel": "linear",
@@ -1129,7 +1129,7 @@
         {
           "name": "video",
           "props": {
-            "videoSource": "",
+            "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",
             "elementId": "video-1643691360070"
           }
         }
@@ -1198,7 +1198,7 @@
         {
           "name": "volumetric",
           "props": {
-            "paths": [],
+            "paths": ["__$project$__/default-project/assets/volumetric/liamlow.drcs"],
             "playMode": 1
           }
         }
@@ -1278,7 +1278,7 @@
         {
           "name": "cloud",
           "props": {
-            "texture": "/clouds/cloud.png",
+            "texture": "__$project$__/default-project/assets/cloud.png",
             "worldScale": {
               "x": 1000,
               "y": 150,
@@ -1351,9 +1351,9 @@
         {
           "name": "ocean",
           "props": {
-            "normalMap": "/ocean/water_normal.tga",
-            "distortionMap": "/ocean/water_distortion.tga",
-            "envMap": "/hdr/equirectangular/texture222.jpg",
+            "normalMap": "__$project$__/default-project/assets/ocean/water_normal.tga",
+            "distortionMap": "__$project$__/default-project/assets/ocean/water_distortion.tga",
+            "envMap": "__$project$__/default-project/assets/galaxyTexture.jpg",
             "color": 2651869,
             "opacityRange": {
               "x": 0.6,
@@ -1624,7 +1624,7 @@
         {
           "name": "interior",
           "props": {
-            "cubeMap": "cubemap/cube.dds",
+            "cubeMap": "__$project$__/default-project/assets/cube.dds",
             "tiling": 1,
             "size": {
               "x": 1,

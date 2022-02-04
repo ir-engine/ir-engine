@@ -151,7 +151,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
-    let args = {}
+    let args = {} as any
     switch (currentActiveMenu.id) {
       case Views.Profile:
         args = {
@@ -237,7 +237,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
     const Panel = menuPanel[currentActiveMenu.id]
 
-    // @ts-ignore
     return <Panel {...args} />
   }
 

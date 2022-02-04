@@ -7,7 +7,7 @@ import appRootPath from 'app-root-path'
 import { cleanString } from '../../util/cleanString'
 import { uploadLocalProjectToProvider } from '../project/project.class'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
@@ -119,12 +119,12 @@ export class Scene implements ServiceMethods<any> {
     }
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.thumbnail.jpeg`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.thumbnail.jpeg`),
       path.resolve(projectPath + newSceneName + '.thumbnail.jpeg')
     )
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.scene.json`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.scene.json`),
       path.resolve(projectPath + newSceneName + '.scene.json')
     )
 
