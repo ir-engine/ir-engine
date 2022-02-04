@@ -112,6 +112,7 @@ export const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+//@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
@@ -141,19 +142,32 @@ type AssetLoaderParamType = {
 }
 
 const assetLoadCallback =
-  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
+  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (model) => {
     if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+      await loadExtensions(model)
+    }
+
+    let asset: any
+    if (assetType === AssetType.VRM) {
+      asset = model.userData.vrm
+    } else {
+      asset = model
     }
 
     const assetClass = getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      processModelAsset(asset.scene, params)
+      processModelAsset(asset.scene ? asset.scene : asset, params)
     }
 
     params.cache && AssetLoader.Cache.set(url, asset)
 
-    onLoad(asset)
+    if (asset.scene) {
+      asset.scene.userData.type = assetType
+    } else {
+      asset.userData.type = assetType
+    }
+
+    onLoad(asset.scene ? asset : { scene: asset })
   }
 
 const load = async (

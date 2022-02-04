@@ -138,6 +138,7 @@ export const AvatarSelectMenu = (props: Props) => {
             setObj(gltf.scene)
           })
         } else {
+          //@ts-ignore
           const loader = new FBXLoader()
           const scene = loader.parse(fileData.target!.result, file.name)
           scene.name = 'avatar'
