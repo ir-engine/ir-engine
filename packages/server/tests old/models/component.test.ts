@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 import { v1 } from 'uuid'
 
-describe('CRUD operation on \'Component\' model', () => {
+describe("CRUD operation on 'Component' model", () => {
   const model = (app.service('component') as any).Model
   const componentTypeModel = (app.service('component-type') as any).Model
   const entityModel = (app.service('entity') as any).Model
@@ -25,7 +25,7 @@ describe('CRUD operation on \'Component\' model', () => {
 
     const entityModelInstance = await entityModel.create({
       name: newEntityName,
-      entityId: v1(),
+      entityId: v1()
     })
 
     const componentTypeModelInstance = await componentTypeModel.create({
@@ -55,10 +55,7 @@ describe('CRUD operation on \'Component\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { data: JSON.stringify({ data: 'test2' }) },
-      { where: { entityId: entityId } }
-    )
+    model.update({ data: JSON.stringify({ data: 'test2' }) }, { where: { entityId: entityId } })
   })
 
   it('Delete', () => {

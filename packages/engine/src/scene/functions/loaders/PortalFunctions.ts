@@ -13,30 +13,29 @@ import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quatern
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { setObjectLayers } from '../setObjectLayers'
+import { ObjectLayers } from '../../constants/ObjectLayers'
 
 export const SCENE_COMPONENT_PORTAL = 'portal'
 export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
   linkedPortalId: '',
-  locationName: '',
-  triggerPosition: new Vector3(),
-  triggerRotation: new Euler(),
-  triggerScale: new Vector3(1, 1, 1)
-} as Partial<PortalComponentType>
+  location: '',
+  isPlayerInPortal: false,
+  helper: null!,
+  spawnPosition: new Vector3(),
+  spawnRotation: new Quaternion(),
+  remoteSpawnPosition: new Vector3(),
+  remoteSpawnRotation: new Quaternion(),
+  remoteSpawnEuler: new Euler()
+} as PortalComponentType
 
 export const deserializePortal: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<PortalComponentType>
 ): void => {
-  addComponent(entity, PortalComponent, {
-    location: json.props.location,
-    linkedPortalId: json.props.linkedPortalId,
-    displayText: json.props.displayText,
-    helper: null!,
-    isPlayerInPortal: false,
-    remoteSpawnPosition: new Vector3(),
-    remoteSpawnRotation: new Quaternion(),
-    remoteSpawnEuler: new Euler()
-  })
+  const props = parsePortalProperties(json.props)
+
+  addComponent(entity, PortalComponent, props)
 
   if (Engine.isEditor) {
     const spawnHelperEntity = createEntity()
@@ -59,28 +58,33 @@ export const deserializePortal: ComponentDeserializeFunction = (
     spawnDirection.rotateX(Math.PI / 2)
     spawnHelperMesh.add(spawnDirection)
 
+    setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
     addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
   }
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
+
+  updatePortal(entity)
 }
 
 export const updatePortal: ComponentUpdateFunction = (entity: Entity) => {
-  const portalComponent = getComponent(entity, PortalComponent)
-  const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-  if (portalComponent.spawnPosition) {
-    helperTransform.position.set(
-      portalComponent.spawnPosition.x || 0,
-      portalComponent.spawnPosition.y || 0,
-      portalComponent.spawnPosition.z || 0
-    )
-  }
-  if (portalComponent.spawnRotation) {
-    const euler = new Euler().setFromQuaternion(helperTransform.rotation)
-    euler.x = portalComponent.spawnRotation.x ?? euler.x
-    euler.y = portalComponent.spawnRotation.y ?? euler.y
-    euler.z = portalComponent.spawnRotation.z ?? euler.z
-    helperTransform.rotation.setFromEuler(euler)
+  if (Engine.isEditor) {
+    const portalComponent = getComponent(entity, PortalComponent)
+    const helperTransform = getComponent(portalComponent.helper, TransformComponent)
+    if (portalComponent.spawnPosition) {
+      helperTransform.position.set(
+        portalComponent.spawnPosition.x || 0,
+        portalComponent.spawnPosition.y || 0,
+        portalComponent.spawnPosition.z || 0
+      )
+    }
+    if (portalComponent.spawnRotation) {
+      const euler = new Euler().setFromQuaternion(helperTransform.rotation)
+      euler.x = portalComponent.spawnRotation.x ?? euler.x
+      euler.y = portalComponent.spawnRotation.y ?? euler.y
+      euler.z = portalComponent.spawnRotation.z ?? euler.z
+      helperTransform.rotation.setFromEuler(euler)
+    }
   }
 }
 
@@ -99,5 +103,19 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
       spawnPosition: helperTransform.position,
       spawnRotation: new Euler().setFromQuaternion(helperTransform.rotation).toVector3()
     }
+  }
+}
+
+const parsePortalProperties = (props): PortalComponentType => {
+  return {
+    location: props.location ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.location,
+    linkedPortalId: props.linkedPortalId ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.linkedPortalId,
+    helper: null!,
+    isPlayerInPortal: false,
+    spawnPosition: new Vector3().copy(props.spawnPosition),
+    spawnRotation: new Quaternion().setFromEuler(new Euler().setFromVector3(props.spawnRotation)),
+    remoteSpawnPosition: new Vector3(),
+    remoteSpawnRotation: new Quaternion(),
+    remoteSpawnEuler: new Euler()
   }
 }

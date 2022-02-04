@@ -85,6 +85,7 @@ const StyledProjectGrid = (styled as any).div`
 
 interface ProjectGridProp {
   projects?: any
+  projectName?: any
   onClickExisting?: any
   onClickNew?: any
   newProjectLabel?: any
@@ -105,6 +106,7 @@ interface ProjectGridProp {
  */
 export function ProjectGrid({
   projects,
+  projectName,
   onClickExisting,
   onClickNew,
   newProjectLabel,
@@ -119,6 +121,7 @@ export function ProjectGrid({
           onClickExisting={onClickExisting}
           key={project.project_id || project.id || project.name}
           project={project}
+          projectName={projectName}
           contextMenuId={contextMenuId}
         />
       ))}

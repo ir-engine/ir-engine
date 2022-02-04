@@ -159,6 +159,7 @@ export default function HierarchyPanel() {
     if (e.detail === 2) {
       const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.entityNode]
+      cameraComponent.refocus = true
       cameraComponent.dirty = true
     }
   }, [])

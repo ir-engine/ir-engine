@@ -35,9 +35,15 @@ export class World {
   private constructor() {
     bitecs.createWorld(this)
     Engine.worlds.push(this)
+
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+
+    this.userIdToUserIndex = new Map()
+    this.userIndexToUserId = new Map()
+
     if (!Engine.currentWorld) Engine.currentWorld = this
+
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
   }
 
@@ -64,7 +70,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  isInPortal = false
+  activePortal = null! as ReturnType<typeof PortalComponent.get>
 
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
@@ -81,8 +87,13 @@ export class World {
   /** All actions that have been dispatched */
   actionHistory = new Set<Action>()
 
-  outgoingNetworkState: WorldStateInterface
-  previousNetworkState: WorldStateInterface
+  /** Map of numerical user index to user client IDs */
+  userIndexToUserId: Map<number, UserId>
+
+  /** Map of user client IDs to numerical user index */
+  userIdToUserIndex: Map<UserId, number>
+
+  userIndexCount = 0
 
   /**
    * Check if this user is hosting the world.

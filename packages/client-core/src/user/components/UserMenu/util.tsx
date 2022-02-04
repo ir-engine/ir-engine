@@ -28,7 +28,7 @@ export interface UserMenuProps {
   showDialog?: Function
   alertSuccess?: Function
   currentScene?: any
-  provisionInstanceServer?: any
+  provisionServer?: any
   uploadAvatarModel?: Function
   fetchAvatarList?: Function
   updateUserSettings?: Function

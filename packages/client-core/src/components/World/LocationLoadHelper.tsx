@@ -29,7 +29,7 @@ import { MediaStreamService } from '@xrengine/client-core/src/media/services/Med
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@hookstate/core'
+import { Downgraded } from '@speigg/hookstate'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -84,8 +84,8 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocal(NetworkWorldAction.createClient({ name: 'user' }))
-  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters }))
+  dispatchLocal(NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
+  dispatchLocal(NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: 0 }))
   dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
@@ -133,7 +133,7 @@ export const initClient = async (project) => {
   Engine.isReady = true
 }
 
-export const loadLocation = async (): Promise<any> => {
+export const loadLocation = () => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
 
   const dispatch = useDispatch()
@@ -146,9 +146,8 @@ export const loadLocation = async (): Promise<any> => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
         const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        dispatchLocal(
-          EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), 'Loading Complete!')
-        )
+        const message = Engine.sceneLoadPromises.length ? 'Loading objects...' : 'Loading Complete!'
+        dispatchLocal(EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), message))
         break
     }
   }

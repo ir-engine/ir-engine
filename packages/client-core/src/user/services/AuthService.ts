@@ -1,4 +1,4 @@
-import { createState, Downgraded, useState } from '@hookstate/core'
+import { createState, Downgraded, useState } from '@speigg/hookstate'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'

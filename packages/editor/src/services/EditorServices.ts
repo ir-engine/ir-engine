@@ -1,5 +1,5 @@
 import { store } from '@xrengine/client-core/src/store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 type EditorServiceStateType = {
   projectName: string | null

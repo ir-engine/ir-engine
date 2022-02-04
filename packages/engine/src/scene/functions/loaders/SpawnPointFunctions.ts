@@ -11,6 +11,8 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SPAWN_POINT = 'spawn-point'
 export const SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES = {}
@@ -38,6 +40,9 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     obj3d.userData.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff)
     obj3d.userData.helperBox.userData.isHelper = true
     obj3d.add(obj3d.userData.helperBox)
+
+    setObjectLayers(obj3d.userData.helperModel, ObjectLayers.NodeHelper)
+    setObjectLayers(obj3d.userData.helperBox, ObjectLayers.NodeHelper)
   }
 }
 

@@ -1,6 +1,5 @@
 import { disallow } from 'feathers-hooks-common'
-import createInstance from '@xrengine/server-core/src/hooks/matchmaking-create-instance'
-import saveConnection from '@xrengine/server-core/src/hooks/matchmaking-save-connection'
+import linkMatchUserToMatch from '@xrengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -17,7 +16,7 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [saveConnection(), createInstance()], // createLocationIfNotExists - is side effect...
+    get: [linkMatchUserToMatch()], // createLocationIfNotExists - is side effect...
     create: [],
     update: [],
     patch: [],

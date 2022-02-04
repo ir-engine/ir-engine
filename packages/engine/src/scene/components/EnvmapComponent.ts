@@ -10,7 +10,6 @@ export type EnvmapComponentType = {
   envMapSourceURL: string
   envMapIntensity: number
   envMapCubemapBake: CubemapBakeSettings
-  errorWhileLoading?: boolean
 }
 
 export const EnvmapComponent = createMappedComponent<EnvmapComponentType>('EnvmapComponent')

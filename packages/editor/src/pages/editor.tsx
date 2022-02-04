@@ -44,8 +44,8 @@ const EditorProtectedRoutes = () => {
   const systems = [
     {
       systemModulePromise: import('../managers/SceneManager'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true, canvas: document.getElementById(engineRendererCanvasId) }
+      type: SystemUpdateType.POST_RENDER,
+      args: { enabled: true }
     },
     {
       systemModulePromise: import('../systems/InputSystem'),

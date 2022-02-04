@@ -16,6 +16,7 @@ import { RenderedComponent } from '../../components/RenderedComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { registerSceneLoadPromise } from '../SceneLoading'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -68,11 +69,19 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
   if (props.src) {
-    AssetLoader.load({ url: props.src }, (texture) => {
-      const component = getComponent(entity, ParticleEmitterComponent)
-      ;(component.material as ShaderMaterial).uniforms.map.value = texture
-      component.updateParticles()
-    })
+    AssetLoader.load(
+      { url: props.src },
+      (texture) => {
+        const component = getComponent(entity, ParticleEmitterComponent)
+        ;(component.material as ShaderMaterial).uniforms.map.value = texture
+        component.updateParticles()
+        removeError(entity, 'error')
+      },
+      undefined,
+      (error) => {
+        addError(entity, 'error', error.message)
+      }
+    )
   }
 }
 

@@ -1,6 +1,6 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
 

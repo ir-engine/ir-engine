@@ -63,7 +63,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   Engine.sceneLoaded = true
 
   // Configure CSM
-  isClient && updateRenderSetting(world.entityTree.rootNode.entity)
+  updateRenderSetting(world.entityTree.rootNode.entity)
   dispatchLocal(EngineActions.sceneLoaded(true) as any)
 }
 

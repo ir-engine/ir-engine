@@ -8,9 +8,8 @@ import assert from 'assert'
 
 // const debugThumbnail = false
 
-
 // causes CI/CD weirdness
-describe.skip(('avatar-helper'), () => {
+describe.skip('avatar-helper', () => {
   // describe('generateAvatarThumbnail', () => {
   //   it('should generate thumbnail', async () => {
   //     const inputGLBBuffer = fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/default-project/avatars/CyberbotBlack.glb'))
@@ -37,7 +36,7 @@ describe.skip(('avatar-helper'), () => {
     })
     it('should get all avatars and thumbnails', async () => {
       const result = await getAvatarFromStaticResources(app)
-      for(const avatar of result) {
+      for (const avatar of result) {
         assert(avatar.avatarId)
         assert(avatar.avatarURL)
         assert(avatar.thumbnailURL)

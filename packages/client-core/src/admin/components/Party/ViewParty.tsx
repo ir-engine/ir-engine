@@ -55,7 +55,6 @@ export default function ViewParty(props: Props) {
 
   useEffect(() => {
     if (partyAdmin.instance?.id || partyAdmin?.location?.name) {
-      console.log(partyAdmin.instance?.id)
       setUpdateParty({ ...updateParty, instance: partyAdmin.instance?.id, location: partyAdmin.location?.id })
     }
   }, [partyAdmin])

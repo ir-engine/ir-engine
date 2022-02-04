@@ -1,7 +1,8 @@
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
+import { Entity } from './Entity'
 
 const state = createState({
   fixedTick: 0,
@@ -12,7 +13,7 @@ const state = createState({
   loadingProgress: 0,
   loadingDetails: 'loading background assests...',
   connectedWorld: false,
-  isTeleporting: null! as ReturnType<typeof PortalComponent.get>,
+  isTeleporting: false,
   isPhysicsDebug: false,
   isAvatarDebug: false,
   leaveWorld: false,
@@ -20,7 +21,8 @@ const state = createState({
   connectionTimeoutInstance: false,
   avatarTappedId: null! as string,
   userHasInteracted: false,
-  interactionData: null! as InteractableComponentType
+  interactionData: null! as InteractableComponentType,
+  errorEntities: {} as { [key: Entity]: boolean }
 })
 
 export function EngineEventReceptor(action: EngineActionType) {
@@ -59,12 +61,8 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({ connectionTimeoutInstance: action.instance })
       case EngineEvents.EVENTS.OBJECT_ACTIVATION:
         return s.merge({ interactionData: action.interactionData })
-      case EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT:
-        return s.merge({
-          isTeleporting: action.portalComponent
-        })
       case EngineEvents.EVENTS.SET_TELEPORTING:
-        if (action.portalComponent) {
+        if (action.isTeleporting) {
           s.merge({
             connectedWorld: false,
             sceneLoaded: false,
@@ -72,7 +70,7 @@ export function EngineEventReceptor(action: EngineActionType) {
           })
         }
         return s.merge({
-          isTeleporting: action.portalComponent
+          isTeleporting: action.isTeleporting
         })
       case EngineEvents.EVENTS.LOADING_STATE_CHANGED:
         s.loadingProgress.set(action.loadingProgress)
@@ -80,6 +78,9 @@ export function EngineEventReceptor(action: EngineActionType) {
         return
       case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
         return s.merge({ userHasInteracted: true })
+      case EngineEvents.EVENTS.ENTITY_ERROR_UPDATE:
+        s.errorEntities[action.entity].set(!action.isResolved)
+        return
     }
   }, action.type)
 }
@@ -93,10 +94,10 @@ export const EngineActions = {
       userId
     }
   },
-  setTeleporting: (portalComponent: ReturnType<typeof PortalComponent.get>) => {
+  setTeleporting: (isTeleporting: boolean) => {
     return {
       type: EngineEvents.EVENTS.SET_TELEPORTING,
-      portalComponent
+      isTeleporting
     }
   },
   resetEngine: (instance: boolean) => {
@@ -166,12 +167,6 @@ export const EngineActions = {
       interactionData
     }
   },
-  portalRedirectEvent: (portalComponent: PortalComponentType) => {
-    return {
-      type: EngineEvents.EVENTS.PORTAL_REDIRECT_EVENT,
-      portalComponent
-    }
-  },
 
   xrStart: () => {
     return {
@@ -233,6 +228,13 @@ export const EngineActions = {
   setUserHasInteracted: () => {
     return {
       type: EngineEvents.EVENTS.SET_USER_HAS_INTERACTED
+    }
+  },
+  updateEntityError: (entity: Entity, isResolved = false) => {
+    return {
+      type: EngineEvents.EVENTS.ENTITY_ERROR_UPDATE,
+      entity,
+      isResolved
     }
   }
 }

@@ -1,25 +1,26 @@
-import React from 'react'
 import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { useUserStyles, useUserStyle } from './styles'
+import TextField from '@mui/material/TextField'
+import React from 'react'
+import { UserRoleService } from '../../services/UserRoleService'
+import { useUserStyle, useUserStyles } from './styles'
+
 interface Props {
   open: boolean
   handleClose: any
-  createUserRoleAction?: any
 }
 
 const createUser = (props: Props) => {
-  const { open, handleClose, createUserRoleAction } = props
+  const { open, handleClose } = props
   const classes = useUserStyles()
   const classx = useUserStyle()
   const [role, setRole] = React.useState('')
 
   const createUserRole = async () => {
-    await createUserRoleAction({ role })
+    await UserRoleService.createUserRoleAction({ role })
     handleClose()
     setRole('')
   }

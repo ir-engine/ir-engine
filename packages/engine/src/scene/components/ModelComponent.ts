@@ -8,7 +8,6 @@ export type ModelComponentType = {
   isUsingGPUInstancing: boolean
   isDynamicObject: boolean
   curScr?: string
-  error?: string
   parsed?: boolean
 }
 

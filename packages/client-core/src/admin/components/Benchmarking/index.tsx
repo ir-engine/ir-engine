@@ -8,7 +8,7 @@ import { TestBotService, useTestBotState } from '../../services/TestBotService'
 const Benchmarking = () => {
   const testbotState = useTestBotState()
   const classes = useStyles()
-  const bots = testbotState.value.bots
+  const { bots, spawn, spawning } = testbotState.value
 
   const REFRESH_MS = 10000
 
@@ -26,11 +26,21 @@ const Benchmarking = () => {
     <div>
       <Grid container spacing={3}>
         <Grid item xs={4}>
-          <Button type="button" variant="contained" color="primary">
-            {'Spawn Bots'}
+          <Button
+            type="button"
+            variant="contained"
+            color="primary"
+            disabled={spawning}
+            onClick={() => {
+              TestBotService.spawnTestBot()
+            }}
+          >
+            {'Spawn Bot'}
           </Button>
         </Grid>
       </Grid>
+
+      {spawn && <Typography className={classes.heading}>Spawn bot status: {spawn.message}</Typography>}
 
       {bots && bots.length > 0 && (
         <Typography className={classes.secondaryHeading}>

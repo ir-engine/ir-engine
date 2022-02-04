@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { createState } from '@hookstate/core'
+import { createState } from '@speigg/hookstate'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { PlayArrow, Pause } from '@mui/icons-material'

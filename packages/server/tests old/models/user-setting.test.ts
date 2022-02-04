@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'UserSetting\' model', () => {
+describe("CRUD operation on 'UserSetting' model", () => {
   const model = (app.service('user-settings') as any).Model
   const userModel = (app.service('user') as any).Model
   let userId: any
@@ -35,7 +35,8 @@ describe('CRUD operation on \'UserSetting\' model', () => {
         where: {
           userId: userId
         }
-      })
+      }
+    )
   })
 
   it('Delete', async () => {

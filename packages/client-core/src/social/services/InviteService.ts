@@ -4,7 +4,7 @@ import { Invite } from '@xrengine/common/src/interfaces/Invite'
 import { accessAuthState } from '../../user/services/AuthService'
 import { AlertService } from '../../common/services/AlertService'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/

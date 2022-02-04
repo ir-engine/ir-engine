@@ -1,6 +1,7 @@
-import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial } from 'three'
+import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial, Vector2 } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { Engine } from '../../ecs/classes/Engine'
 import {
   TransformAxis,
   TransformAxisType,
@@ -8,6 +9,8 @@ import {
   TransformModeType
 } from '../../scene/constants/transformConstants'
 import cloneObject3D from '../../scene/functions/cloneObject3D'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { setObjectLayers } from '../functions/setObjectLayers'
 
 type AxisInfo = {
   axis: TransformAxisType
@@ -28,6 +31,7 @@ export default class TransformGizmo extends Object3D {
   model: Object3D
   selectionColor: Color
   previousColor: Color
+  raycaster: Raycaster
   raycasterResults: Intersection<Object3D>[]
 
   translateControls: Object3D
@@ -65,16 +69,21 @@ export default class TransformGizmo extends Object3D {
 
   constructor() {
     super()
-    ;(this as any).name = 'TransformGizmo'
     if (!gizmoGltf) {
       throw new Error('TransformGizmo must be loaded before it can be used. Await TransformGizmo.load()')
     }
+
+    this.name = 'TransformGizmo'
     this.model = cloneObject3D(gizmoGltf.scene)
     this.add(this.model)
     this.selectionColor = new Color().setRGB(1, 1, 1)
     this.previousColor = new Color()
     this.raycasterResults = []
     this.translateControls = this.model.getObjectByName('TranslateControls')!
+    setObjectLayers(this, ObjectLayers.Gizmos)
+
+    this.raycaster = new Raycaster()
+    this.raycaster.layers.set(ObjectLayers.Gizmos)
 
     this.translateXAxis = this.translateControls.getObjectByName('TranslateXAxis') as MeshWithAxisInfo
     this.translateXAxis.axisInfo = {
@@ -232,7 +241,6 @@ export default class TransformGizmo extends Object3D {
 
     this.model.traverse((obj: Mesh) => {
       if (obj.isMesh) {
-        // obj.layers.set(1);
         if (Array.isArray(obj.material)) {
           obj.material.forEach((m) => {
             m.depthTest = false
@@ -291,17 +299,21 @@ export default class TransformGizmo extends Object3D {
     this.scaleXZPlane.visible = visible
   }
 
-  selectAxisWithRaycaster(raycaster: Raycaster): TransformAxisType | undefined {
-    this.deselectAxis()
-
+  raycastAxis(target: Vector2, camera = Engine.camera): Intersection<Object3D> | undefined {
     if (!this.activeControls) return
 
     this.raycasterResults.length = 0
-    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults)
-    const axisResult = this.raycasterResults.find(
-      (result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined
-    )
+    this.raycaster.setFromCamera(target, camera)
 
+    return this.raycaster
+      .intersectObject(this.activeControls, true, this.raycasterResults)
+      .find((result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined)
+  }
+
+  selectAxisWithRaycaster(target: Vector2, camera = Engine.camera): TransformAxisType | undefined {
+    this.deselectAxis()
+
+    const axisResult = this.raycastAxis(target, camera)
     if (!axisResult) return
 
     this.selectedAxisObj = axisResult.object as MeshWithAxisInfo
@@ -316,20 +328,11 @@ export default class TransformGizmo extends Object3D {
     return newAxisInfo.axis
   }
 
-  highlightHoveredAxis(raycaster: Raycaster): void {
+  highlightHoveredAxis(target: Vector2, camera = Engine.camera): void {
     if (!this.activeControls) return
+    if (this.hoveredAxis) this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
 
-    if (this.hoveredAxis) {
-      this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
-    }
-
-    this.raycasterResults.length = 0
-    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults)
-
-    const axisResult = this.raycasterResults.find(
-      (result) => (result.object as MeshWithAxisInfo).axisInfo !== undefined
-    )
-
+    const axisResult = this.raycastAxis(target, camera)
     if (!axisResult) return
 
     this.hoveredAxis = axisResult.object as MeshWithAxisInfo

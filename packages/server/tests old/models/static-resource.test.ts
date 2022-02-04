@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'Static Resource\' model', () => {
+describe("CRUD operation on 'Static Resource' model", () => {
   const model = (app.service('static-resource') as any).Model
 
   it('Create', () => {
@@ -22,10 +22,7 @@ describe('CRUD operation on \'Static Resource\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { description: 'description2' },
-      { where: { name: 'test' } }
-    )
+    model.update({ description: 'description2' }, { where: { name: 'test' } })
   })
 
   it('Delete', () => {

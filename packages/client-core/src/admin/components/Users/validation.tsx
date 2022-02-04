@@ -11,12 +11,12 @@ export const validateUserForm = (rest, formErrors) => {
 
   // validate form errors being empty
   Object.values<any>(formErrors).forEach((val) => {
-    val.length > 0 && (valid = false)
+    if (val.length > 0) valid = false
   })
 
   // validate the form was filled out
   Object.values(rest).forEach((val) => {
-    val === null && (valid = false)
+    if (val === null) valid = false
   })
 
   return valid

@@ -121,7 +121,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
     throw new Error('[addComponent]: entity is undefined')
   }
   if (hasComponent(entity, component)) throw new Error('component already exists' + entity + component._name)
-  bitECS.addComponent(world, component, entity)
+  bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   if ((component as any)._schema) {
     for (const [key] of Object.entries((component as any)._schema as any)) {
       component[key][entity] = args[key]
@@ -150,7 +150,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined') {
     throw new Error('[removeComponent]: entity is undefined')
   }
-  bitECS.removeComponent(world, component, entity)
+  bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 
 export const getAllComponents = (entity: Entity, world = useWorld()): ComponentConstructor<any, any>[] => {

@@ -8,7 +8,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { useInstanceConnectionState } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -16,7 +16,6 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { isBot } from '@xrengine/engine/src/common/functions/isBot'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import defaultStyles from './InstanceChat.module.scss'
@@ -49,7 +48,7 @@ const InstanceChat = (props: Props): any => {
   const [composingMessage, setComposingMessage] = useState('')
   const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const instanceConnectionState = useInstanceConnectionState()
+  const instanceConnectionState = useLocationInstanceConnectionState()
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
@@ -172,12 +171,12 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (isClient && !isBot(window) && isCommand(message.text)) return undefined
+                    if (!isBot(window) && isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if ((isClient && isBot(window)) || system === 'jl_system') {
+                      if (isBot(window) || system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
                       } else {
                         return undefined
@@ -202,9 +201,7 @@ const InstanceChat = (props: Props): any => {
                             }
                             primary={
                               <span>
-                                <span className={styles.userName} color="primary">
-                                  {getMessageUser(message)}
-                                </span>
+                                <span className={styles.userName}>{getMessageUser(message)}</span>
                                 <p>{chatMessage}</p>
                               </span>
                             }

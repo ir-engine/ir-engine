@@ -3,9 +3,11 @@ import { useHistory } from 'react-router'
 import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@hookstate/core'
-import { InstanceConnectionService } from '@xrengine/client-core/src/common/services/InstanceConnectionService'
+import { SceneAction, SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import {
+  LocationInstanceConnectionAction,
+  LocationInstanceConnectionService
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   LocationAction,
   LocationService,
@@ -16,6 +18,8 @@ import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFu
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -50,48 +54,56 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [])
 
   /**
-   * Once we know what projects we need, initialise the engine.
+   * Once we know what projects we need, initialise the client.
    */
   useEffect(() => {
     // We assume that the number of projects will always be greater than 0 as the default project is assumed un-deletable
-    if (!clientInitialized && Engine.isInitialized && projectState.projects.value.length > 0) {
+    if (
+      !clientInitialized &&
+      engineState.isEngineInitialized.value &&
+      locationState.currentLocation.location.sceneId.value &&
+      projectState.projects.value.length > 0
+    ) {
       setClientInitialized(true)
       const [project] = locationState.currentLocation.location.sceneId.value.split('/')
       initClient(project).then(() => {
         setClientReady(true)
       })
     }
-  }, [projectState.projects.value])
+  }, [
+    engineState.isEngineInitialized,
+    projectState.projects.value,
+    locationState.currentLocation.location.sceneId.value
+  ])
 
   /**
-   * Once we have the scene and the engine is loaded, load the location
+   * Once we have the scene, get the scene data
    */
   useEffect(() => {
-    if (locationState.currentLocation.location.sceneId.value && engineState.isEngineInitialized.value) {
+    if (locationState.currentLocation.location.sceneId.value) {
       const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
       SceneService.getSceneData(project, scene)
     }
-  }, [locationState.currentLocation.location.sceneId.value, engineState.isEngineInitialized.value])
+  }, [locationState.currentLocation.location.sceneId.value])
 
   /**
-   * Once we have the scene data, initialise the engine
+   * Once we have the scene data, load the location
    */
   useEffect(() => {
-    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene.value) {
-      dispatch(EngineActions.setTeleporting(null!))
+    if (clientReady && locationState.currentLocation.location.sceneId.value && sceneState.currentScene?.name?.value) {
       loadLocation()
     }
-  }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.scene?.value])
+  }, [clientReady, locationState.currentLocation?.location?.sceneId?.value, sceneState.currentScene?.name])
 
-  const canTeleport = useRef(true)
   useEffect(() => {
-    if (engineState.isTeleporting.value === null) {
-      canTeleport.current = true
-      return
-    } else {
-      if (!canTeleport.current) return
-      dispatch(LocationAction.fetchingCurrentSocialLocation())
+    if (engineState.joinedWorld.value && engineState.isTeleporting.value) {
+      // if we are coming from another scene, reset our teleporting status
+      dispatchLocal(EngineActions.setTeleporting(false))
+    }
+  }, [engineState.joinedWorld.value])
 
+  useEffect(() => {
+    if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
       //   teleportPlayer(
@@ -102,17 +114,19 @@ export const LoadEngineWithScene = (props: Props) => {
       //   return
       // }
 
-      // shut down connection with existing GS
       console.log('reseting connection for portal teleport')
+
+      const world = useWorld()
+
+      dispatch(SceneAction.sceneLoaded(null!))
+      history.push('/location/' + world.activePortal.location)
+      LocationService.getLocationByName(world.activePortal.location)
+
+      // shut down connection with existing GS
       leave(getWorldTransport())
-      InstanceConnectionService.resetInstanceServer()
-      const portalComponent = engineState.isTeleporting.value
-      teleportToScene(portalComponent, async () => {
-        history.push('/location/' + portalComponent.location)
-        LocationService.getLocationByName(portalComponent.location)
-        //canTeleport.current=true
-      })
-      canTeleport.current = false
+      dispatch(LocationInstanceConnectionAction.disconnect())
+
+      teleportToScene()
     }
   }, [engineState.isTeleporting.value])
 

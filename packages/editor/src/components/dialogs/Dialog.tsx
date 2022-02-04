@@ -36,6 +36,7 @@ const DialogHeader = (styled as any).div`
   background: black;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
+  color: white;
 
   > * {
     display: flex;

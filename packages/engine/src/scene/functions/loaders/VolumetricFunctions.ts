@@ -14,6 +14,7 @@ import { VolumetricComponent, VolumetricVideoComponentType } from '../../compone
 import { isClient } from '../../../common/functions/isClient'
 import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
@@ -56,8 +57,9 @@ export const updateVolumetric: ComponentUpdateFunction = async (
 ) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
+  const paths = component.paths.filter((p) => p)
 
-  if (typeof properties.paths !== 'undefined' && component.paths.length) {
+  if (typeof properties.paths !== 'undefined' && paths.length) {
     try {
       if (obj3d.userData.player) {
         obj3d.userData.player.mesh.removeFromParent()
@@ -67,16 +69,16 @@ export const updateVolumetric: ComponentUpdateFunction = async (
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
         renderer: Engine.renderer,
-        paths: component.paths,
+        paths,
         playMode: component.playMode as any,
         autoplay: true,
         onMeshBuffering: (_progress) => {},
         onFrameShow: () => {}
       })
-      console.log(obj3d.userData.player)
+
+      removeError(entity, 'error')
 
       obj3d.update = () => {
-        console.log(obj3d.userData.player.hasPlayed)
         if (obj3d.userData.player.hasPlayed) {
           obj3d.userData.player?.handleRender(() => {})
         }
@@ -85,11 +87,13 @@ export const updateVolumetric: ComponentUpdateFunction = async (
       const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
       obj3d.userData.audioEl.setNodeSource(audioSource)
     } catch (error) {
-      console.error(error)
+      addError(entity, 'error', error.message)
     }
   }
 
-  if (typeof properties.playMode !== 'undefined') obj3d.userData.player.playMode = component.playMode as any
+  if (typeof properties.playMode !== 'undefined' && obj3d.userData.player) {
+    obj3d.userData.player.playMode = component.playMode as any
+  }
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {

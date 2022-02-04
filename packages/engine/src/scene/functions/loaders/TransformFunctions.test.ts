@@ -21,7 +21,7 @@ describe('TransformFunctions', () => {
     const sceneComponentData = {
       position: { x: 1, y: 2, z: 3 },
       rotation: { x: euler.x, y: euler.y, z: euler.z },
-      scale: { x: 0.1, y: 0.2, z: 0.3 },
+      scale: { x: 0.1, y: 0.2, z: 0.3 }
     }
     const sceneComponent: ComponentJson = {
       name: 'transform',
@@ -45,6 +45,5 @@ describe('TransformFunctions', () => {
     assert.equal(scale.x, 0.1)
     assert.equal(scale.y, 0.2)
     assert.equal(scale.z, 0.3)
-
   })
 })

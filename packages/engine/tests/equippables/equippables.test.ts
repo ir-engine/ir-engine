@@ -15,8 +15,6 @@ import { CollisionComponent } from '../../src/physics/components/CollisionCompon
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../src/networking/components/NetworkObjectOwnedTag'
-// import { setEquippedObjectReceptor } from '../../src/networking/functions/incomingNetworkReceptor'
 import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
@@ -26,13 +24,12 @@ import matches from 'ts-matches'
 import { NetworkWorldAction } from '../../src/networking/functions/NetworkWorldAction'
 
 describe('Equippables Integration Tests', () => {
-
   it('Can equip and unequip', async () => {
-
     Network.instance = new TestNetwork()
-    let world = createWorld()
+    const world = createWorld()
     Engine.currentWorld = world
     Engine.hasJoinedWorld = true
+    world.userIdToUserIndex = new Map([[world.hostId, world.hostId as unknown as number]])
     await Engine.currentWorld.physics.createScene({ verbose: true })
 
     Engine.userId = 'client' as UserId
@@ -42,12 +39,12 @@ describe('Equippables Integration Tests', () => {
     const transform = addComponent(equippableEntity, TransformComponent, {
       position: new Vector3(),
       rotation: new Quaternion(),
-      scale: new Vector3(),
+      scale: new Vector3()
     })
 
     // physics mock stuff
     const type = 'trimesh' as ColliderTypes
-    let geom = new SphereBufferGeometry()
+    const geom = new SphereBufferGeometry()
 
     const mesh = new Mesh(geom, new MeshNormalMaterial())
     const bodyOptions = {
@@ -69,9 +66,10 @@ describe('Equippables Integration Tests', () => {
     // initially the object is owned by server
     const networkObject = addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: world.hostId,
+      ownerIndex: world.userIdToUserIndex.get(world.hostId)!,
       networkId: 0 as NetworkId,
       prefab: '',
-      parameters: {},
+      parameters: {}
     })
 
     // Equipper
@@ -79,7 +77,7 @@ describe('Equippables Integration Tests', () => {
     addComponent(equipperEntity, TransformComponent, {
       position: new Vector3(2, 0, 0),
       rotation: new Quaternion(),
-      scale: new Vector3(),
+      scale: new Vector3()
     })
 
     equipEntity(equipperEntity, equippableEntity, undefined)
@@ -88,7 +86,7 @@ describe('Equippables Integration Tests', () => {
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
 
-    mockProgressWorldForNetworkActions()
+    mockProgressWorldForNetworkActions(world)
     equippableQueryEnter(equipperEntity)
 
     // validations for equip
@@ -103,7 +101,7 @@ describe('Equippables Integration Tests', () => {
     // unequip stuff
     unequipEntity(equipperEntity)
 
-    mockProgressWorldForNetworkActions()
+    mockProgressWorldForNetworkActions(world)
     equippableQueryExit(equipperEntity)
 
     // validations for unequip
@@ -113,5 +111,4 @@ describe('Equippables Integration Tests', () => {
     collider = getComponent(equippableEntity, ColliderComponent).body
     assert.deepEqual(collider._type, BodyType.DYNAMIC)
   })
-
 })

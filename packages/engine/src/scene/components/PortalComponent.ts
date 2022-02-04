@@ -6,11 +6,10 @@ export type PortalComponentType = {
   location: string
   linkedPortalId: string
   isPlayerInPortal: boolean
-  displayText: string
   helper: Entity
   // todo: refactor these
-  spawnPosition?: Vector3
-  spawnRotation?: Quaternion
+  spawnPosition: Vector3
+  spawnRotation: Quaternion
   remoteSpawnPosition: Vector3
   remoteSpawnRotation: Quaternion
   remoteSpawnEuler: Euler

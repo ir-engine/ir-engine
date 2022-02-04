@@ -26,6 +26,7 @@ import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
 import { resolveMedia } from '../../../common/functions/resolveMedia'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_IMAGE = 'image'
 export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
@@ -44,13 +45,11 @@ export const deserializeImage: ComponentDeserializeFunction = (
 
   if (!obj3d) {
     obj3d = new Object3D()
-    const image = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-
-    obj3d.add(image)
-    obj3d.userData.mesh = image
-
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
+
+  obj3d.userData.mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+  obj3d.add(obj3d.userData.mesh)
 
   const props = parseImageProperties(json.props)
   addComponent(entity, ImageComponent, props)
@@ -70,7 +69,10 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
     try {
       const { url } = await resolveMedia(component.imageSource)
       const texture = await loadTexture(url)
-      if (!texture) return
+      if (!texture) {
+        addError(entity, 'error', 'Error Loading image')
+        return
+      }
 
       texture.encoding = sRGBEncoding
       texture.minFilter = LinearFilter
@@ -79,8 +81,9 @@ export const updateImage: ComponentUpdateFunction = async (entity: Entity, prope
       mesh.material.map = texture
 
       if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
+      removeError(entity, 'error')
     } catch (error) {
-      console.error(error)
+      addError(entity, 'error', 'Error Loading image')
     }
   }
 

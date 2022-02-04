@@ -60,3 +60,20 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
     console.log(`${s.type} ${s.name}`)
   })
 }
+
+export const unloadSystems = (world: World, sceneSystemsOnly = false) => {
+  Object.entries(world.pipelines).forEach(([type, pipeline]) => {
+    const systemsToRemove: any[] = []
+    pipeline.forEach((s) => {
+      if (sceneSystemsOnly) {
+        if (s.sceneSystem) systemsToRemove.push(s)
+      } else {
+        systemsToRemove.push(s)
+      }
+    })
+    systemsToRemove.forEach((s) => {
+      const i = pipeline.indexOf(s)
+      pipeline.splice(i, 1)
+    })
+  })
+}

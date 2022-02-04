@@ -2,7 +2,7 @@ import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { useDispatch, store } from '../../store'
 import { client } from '../../feathers'
-import { createState, useState, none } from '@hookstate/core'
+import { createState, useState, none } from '@speigg/hookstate'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 
 //State

@@ -14,7 +14,7 @@ import logger from '@xrengine/server-core/src/logger'
 import channels from './channels'
 import authentication from '@xrengine/server-core/src/user/authentication'
 import sync from 'feathers-sync'
-import { api } from '@xrengine/server-core/src/k8s'
+import * as k8s from '@kubernetes/client-node'
 import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
@@ -137,30 +137,13 @@ export const createApp = (): Application => {
     app.configure(services)
 
     if (config.gameserver.mode === 'realtime') {
-      app.k8AgonesClient = api({
-        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-        version: '/apis/agones.dev/v1',
-        auth: {
-          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-        }
-      })
-      app.k8DefaultClient = api({
-        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-        version: '/api/v1',
-        auth: {
-          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-        }
-      })
-      app.k8AppsClient = api({
-        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
-        version: '/apis/apps/v1',
-        auth: {
-          caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
-          token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
-        }
-      })
+      const kc = new k8s.KubeConfig()
+      kc.loadFromDefault()
+
+      app.k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
+      app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+      app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+      app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
     }
 
     if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {

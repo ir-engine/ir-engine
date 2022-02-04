@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
@@ -38,7 +38,7 @@ export const accessUserRoleState = () => state
 export const useUserRoleState = () => useState(state) as any as typeof state
 
 //Service
-export const UserROleService = {
+export const UserRoleService = {
   fetchUserRole: async () => {
     const dispatch = useDispatch()
     {
