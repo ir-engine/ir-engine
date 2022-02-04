@@ -270,10 +270,6 @@ export const handleJoinWorld = async (
 ) => {
   if (disconnectClientIfConnected(socket, joinedUserId)) return callback(null! as any)
 
-  console.info('JoinWorld received', joinedUserId, data)
-  const world = Engine.currentWorld
-  const client = world.clients.get(joinedUserId)!
-
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
   const inviteCode = data['inviteCode']
 
@@ -310,6 +306,12 @@ export const handleJoinWorld = async (
       }
     }
   }
+
+  console.info('JoinWorld received', joinedUserId, data, spawnPose)
+  const world = Engine.currentWorld
+  const client = world.clients.get(joinedUserId)!
+
+  if (!client) return callback(null! as any)
 
   clearCachedActionsForDisconnectedUsers()
   clearCachedActionsForUser(joinedUserId)
