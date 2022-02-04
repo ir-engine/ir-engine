@@ -28,7 +28,8 @@ export default () => {
       }
       const userId = path === 'party' ? loggedInUser?.id : params.query?.userId || loggedInUser?.id || partyId
       const paramsCopy = _.cloneDeep(params)
-      const partyResult = await app.service('party').find(paramsCopy.query)
+      if (!paramsCopy.query) paramsCopy.query = {}
+      const partyResult = await app.service('party').find(paramsCopy)
       const party = partyResult.data[0]
       if ((path === 'party-user' || path === 'party') && method === 'create' && party.locationId != null) {
         const user = await app.service('user').get(userId)
