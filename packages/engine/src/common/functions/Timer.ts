@@ -140,8 +140,6 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
     prevTimerRuns = timerRuns
   }
 
-  const expectedDelta = 1000 / 60
-
   function start() {
     elapsedTime = 0
     lastTime = null
@@ -150,10 +148,7 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
     } else {
       const _update = () => {
         const time = nowMilliseconds()
-        if (time - lastTime! >= expectedDelta) {
-          onFrame(time, null)
-          lastTime = time
-        }
+        onFrame(time, null)
       }
       serverLoop = new ServerLoop(_update, 60).start()
     }
