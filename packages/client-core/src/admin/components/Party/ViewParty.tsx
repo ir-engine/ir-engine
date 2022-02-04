@@ -75,9 +75,8 @@ export default function ViewParty(props: Props) {
     setUpdateParty({ ...updateParty, [name]: value, formErrors: temp })
   }
 
-  const data: Instance[] = []
-  instanceData.value.forEach((element) => {
-    data.push(element)
+  const data: Instance[] = instanceData.value.map((element) => {
+    return element
   })
 
   const handleSubmit = async () => {
