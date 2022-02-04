@@ -114,7 +114,7 @@ export function ProjectGrid({
   loading
 }: ProjectGridProp) {
   return (
-    <StyledProjectGrid>
+    <StyledProjectGrid style={{ cursor: loading ? 'not-allowed' : 'pointer' }} disable={loading}>
       {onClickNew && !loading && <NewProjectGridItem onClickNew={onClickNew} label={newProjectLabel} />}
       {projects.map((project) => (
         <ProjectGridItem
