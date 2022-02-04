@@ -116,6 +116,9 @@ export default defineConfig(async (command) => {
         },
       },
     },
+    esbuild: {
+      keepNames: true,
+    }
   };
   if(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.server.https = {
