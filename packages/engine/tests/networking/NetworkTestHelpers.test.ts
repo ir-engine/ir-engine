@@ -2,25 +2,15 @@ import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld } from '../../src/ecs/classes/World'
 import { dispatchFrom } from '../../src/networking/functions/dispatchFrom'
 import assert from 'assert'
-import { TestNetwork } from './TestNetwork'
-import { Network } from '../../src/networking/classes/Network'
 import { mockProgressWorldForNetworkActions } from './NetworkTestHelpers'
 
 describe('NetworkTestHelpers', () => {
   it('mockProgressWorldForNetworkActions', () => {
-    afterEach(() => {
-      Engine.currentWorld = null!
-      Engine.currentWorld = null!
-    })
-
-    beforeEach(() => {
-      Network.instance = new TestNetwork()
+    it('should take 2 ticks to dispatch', () => {
       const world = createWorld()
       Engine.currentWorld = world
       Engine.currentWorld.fixedTick = 0
-    })
 
-    it('should take 2 ticks to dispatch', () => {
       // @ts-ignore
       Engine.userId = 'server' as any
       const mockAction = () => {
@@ -43,7 +33,7 @@ describe('NetworkTestHelpers', () => {
       })
 
       dispatchFrom(Engine.userId as any, mockAction).to('local')
-      mockProgressWorldForNetworkActions()
+      mockProgressWorldForNetworkActions(world)
       assert.deepEqual(actionResponse, mockActionResponse)
     })
   })

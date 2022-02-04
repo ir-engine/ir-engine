@@ -26,6 +26,7 @@ import { LocationService } from '../../services/LocationService'
 import MuiAlert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '../../../user/services/AuthService'
+import AlertMessage from '../../common/AlertMessage'
 
 interface Props {
   openView: any
@@ -169,7 +170,7 @@ const ViewLocation = (props: Props) => {
     }
   }
 
-  const handleCloseWarning = (event, reason) => {
+  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -544,17 +545,7 @@ const ViewLocation = (props: Props) => {
             </div>
           )}
         </DialogActions>
-        <Snackbar
-          open={openWarning}
-          autoHideDuration={6000}
-          onClose={handleCloseWarning}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert onClose={handleCloseWarning} severity="warning">
-            {' '}
-            {error}{' '}
-          </Alert>
-        </Snackbar>
+        <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
       </Drawer>
     </React.Fragment>
   )

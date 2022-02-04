@@ -1,9 +1,30 @@
-import authenticate from '../../hooks/authenticate'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import addScopeToUser from '../../hooks/add-scope-to-user'
+import authenticate from '../../hooks/authenticate'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import addScopeToUser from '../../hooks/add-scope-to-user'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+
+const restrictUserPatch = (context: HookContext) => {
+  if (context.params.isInternal) return context
+
+  // allow admins for all patch actions
+  const loggedInUser = extractLoggedInUserFromParams(context.params)
+  if (loggedInUser.userRole === 'admin') return context
+
+  // only allow a user to patch it's own data
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
+
+  // filter to only allowed
+  const data = {} as any
+  // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
+  if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
+  context.data = data
+  return context
+}
 
 /**
  * This module used to declare and identify database relation
@@ -86,9 +107,10 @@ export default {
         ]
       })
     ],
-    create: [],
-    update: [],
+    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     patch: [
+      iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({
         models: [
           {
@@ -124,7 +146,22 @@ export default {
       }),
       addScopeToUser()
     ],
-    remove: []
+    remove: [
+      iff(isProvider('external'), restrictUserRole('admin') as any),
+      async (context: HookContext): Promise<HookContext> => {
+        try {
+          const userId = context.id
+          await context.app.service('user-api-key').remove(null, {
+            query: {
+              userId: userId
+            }
+          })
+          return context
+        } catch (err) {
+          throw new Error(err)
+        }
+      }
+    ]
   },
 
   after: {
@@ -230,7 +267,7 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopeTypes?.forEach((el) => {
+          context.arguments[0]?.scopes?.forEach((el) => {
             context.app.service('scope').create({
               type: el.type,
               userId: context.result.id

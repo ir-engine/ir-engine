@@ -112,9 +112,7 @@ export const PartyService = {
   getParties: async (): Promise<void> => {
     let socketId: any
     const parties = await client.service('party').find()
-    console.log('PARTIES', parties)
     const userId = accessAuthState().user.id.value
-    console.log('USERID: ', userId)
     if ((client as any).io && socketId === undefined) {
       ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)

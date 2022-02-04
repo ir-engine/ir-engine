@@ -19,6 +19,10 @@ export type JoinWorldProps = {
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
+  if (!props) {
+    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    return
+  }
   const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
   dispatchLocal(EngineActions.joinedWorld(true) as any)
@@ -29,8 +33,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   const spawnPose = engineState.isTeleporting.value
     ? {
-        position: engineState.isTeleporting.value.remoteSpawnPosition,
-        rotation: engineState.isTeleporting.value.remoteSpawnRotation
+        position: world.activePortal.remoteSpawnPosition,
+        rotation: world.activePortal.remoteSpawnRotation
       }
     : avatarSpawnPose
 

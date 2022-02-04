@@ -39,13 +39,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
 
-  const onChangeValue = (prop) => (value) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PortalComponent,
-      properties: { [prop]: value }
-    })
-  }
-
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
     try {
