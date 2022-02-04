@@ -18,6 +18,9 @@ import {
   readUint64,
   scrollViewCursor
 } from './ViewCursor'
+import { NetworkObjectAuthorizedTag } from '../components/NetworkObjectAuthorizedTag'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
@@ -149,6 +152,12 @@ export const readEntity = (v: ViewCursor, world: World) => {
     return
   }
   const entity = world.getNetworkObject(userId, netId)
+
+  // don't apply state if this client has ownership and/or authority
+  const weHaveOwnership =
+    hasComponent(entity, NetworkObjectOwnedTag) || hasComponent(entity, NetworkObjectAuthorizedTag)
+  if (weHaveOwnership) return
+  // TODO: For owned objects only discard if we also have authority
 
   const changeMask = readUint8(v)
 
