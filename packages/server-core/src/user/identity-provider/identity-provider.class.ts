@@ -13,6 +13,9 @@ import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
+import type IdentityProviderModel from './identity-provider.model'
+
+type Model = InstanceType<ReturnType<typeof IdentityProviderModel>>
 
 interface Data {}
 
@@ -22,7 +25,7 @@ interface Data {}
  * @author Vyacheslav Solovjov
  */
 
-export class IdentityProvider extends Service {
+export class IdentityProvider<T = Model> extends Service<T> {
   public app: Application
   public docs: any
 
@@ -38,7 +41,7 @@ export class IdentityProvider extends Service {
    * @param params
    * @returns accessToken
    */
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params: Params = {}): Promise<T & { accessToken?: string }> {
     let { token, type, password } = data
     let user
 
@@ -145,14 +148,14 @@ export class IdentityProvider extends Service {
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
-      return await super.create(
+      return (await super.create(
         {
           ...data,
           ...identityProvider,
           userId
         },
         params
-      )
+      )) as T
     }
 
     // create with user association

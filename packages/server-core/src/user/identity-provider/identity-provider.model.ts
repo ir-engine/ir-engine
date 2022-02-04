@@ -1,9 +1,23 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+
+type IdentityProvider = {
+  id: string
+  token: string
+  password: string
+  isVerified: string
+  verifyToken: string
+  verifyShortToken: string
+  verifyExpires: string
+  verifyChanges: string
+  resetToken: string
+  resetExpires: string
+  type: string
+}
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const identityProvider = sequelizeClient.define(
+  const identityProvider = sequelizeClient.define<Model<IdentityProvider>>(
     'identity_provider',
     {
       id: {

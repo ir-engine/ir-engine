@@ -4,8 +4,8 @@ import { Authentication } from './authentication.class'
 import createModel from './authentication.model'
 
 declare module '@xrengine/common/declarations' {
-  interface SerViceTypes {
-    Authentication: Authentication
+  interface ServiceTypes {
+    'authentication-setting': Authentication
   }
 }
 

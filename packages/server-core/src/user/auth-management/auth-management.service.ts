@@ -11,7 +11,7 @@ import authManagement from 'feathers-authentication-management'
  */
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    authManagement: Authmanagement
+    authManagement: InstanceType<ReturnType<typeof authManagement>>
   }
 }
 

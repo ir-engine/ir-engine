@@ -6,7 +6,7 @@ import inventoryItemDocs from './inventory-item.docs'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    inventoryItem: InventoryItem
+    'inventory-item': InventoryItem
   }
 }
 

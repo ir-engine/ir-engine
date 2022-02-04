@@ -180,7 +180,7 @@ export class Magiclink implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
 
-  async create(data: any, params: Params): Promise<Data> {
+  async create(data: any, params?: Params): Promise<Data> {
     const identityProviderService = this.app.service('identity-provider')
 
     // check magiclink type
