@@ -1,5 +1,10 @@
 import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
-import TextField from '@mui/material/TextField'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import Button from '@mui/material/Button'
+import { styled } from '@mui/material/styles'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_ALLOWED_TRIANGLES,
@@ -7,7 +12,8 @@ import {
   MIN_AVATAR_FILE_SIZE,
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH
+  THUMBNAIL_WIDTH,
+  REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
@@ -19,11 +25,49 @@ import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
+import { useStyle } from './style'
 
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
   isPublicAvatar?: boolean
+}
+
+let camera: THREE.PerspectiveCamera
+let scene: THREE.Scene
+let renderer: THREE.WebGLRenderer
+
+const Input = styled('input')({
+  display: 'none'
+})
+
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`
+  }
+}
+
+interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && children}
+    </div>
+  )
 }
 
 export const AvatarSelectMenu = (props: Props) => {
@@ -32,14 +76,63 @@ export const AvatarSelectMenu = (props: Props) => {
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
+  const classes = useStyle()
+  const [value, setValue] = React.useState(0)
+  const [avatarUrl, setAvatarUrl] = React.useState('')
+  const [thumbNailUrl, setThumbNailUrl] = React.useState('')
+  const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue)
+  }
+
+  const handleThumbnailUrlChange = (event) => {
+    event.preventDefault()
+    setThumbNailUrl(event.target.value)
+    if (REGEX_VALID_URL.test(event.target.value)) {
+      fetch(event.target.value)
+        .then((res) => res.blob())
+        .then((data) => setSelectedThumbNailUrl(data))
+        .catch((err) => {
+          setError(err.message)
+        })
+    }
+  }
+
+  const handleAvatarUrlChange = (event) => {
+    event.preventDefault()
+    setAvatarUrl(event.target.value)
+    if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
+      setValidAvatarUrl(true)
+      const loader = getLoader()
+      loader.load(event.target.value, (gltf) => {
+        gltf.scene.name = 'avatar'
+        loadExtensions(gltf)
+        scene.add(gltf.scene)
+        renderScene()
+        const error = validate(gltf.scene)
+        setError(error)
+        setObj(gltf.scene)
+      })
+
+      fetch(event.target.value)
+        .then((res) => res.blob())
+        .then((data) => setSelectedAvatarUrl(data))
+        .catch((err) => {
+          setError(err.message)
+          console.log(err.message)
+        })
+    } else {
+      setValidAvatarUrl(false)
+    }
+  }
 
   const { isPublicAvatar, changeActiveMenu, uploadAvatarModel } = props
 
-  let camera: THREE.PerspectiveCamera
-  let scene: THREE.Scene
-  let renderer: THREE.WebGLRenderer
-  let fileSelected = false
-  let thumbnailSelected = false
+  const [fileSelected, setFileSelected] = React.useState(false)
+  const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
   let maxBB = new THREE.Vector3(2, 2, 2)
 
   const { t } = useTranslation()
@@ -102,14 +195,6 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }, [])
 
-  const handleBrowse = () => {
-    document.getElementById('avatarSelect')!.click()
-  }
-
-  const handleThumbnail = () => {
-    document.getElementById('thumbnailSelect')!.click()
-  }
-
   const handleAvatarChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
@@ -156,7 +241,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
     try {
       reader.readAsArrayBuffer(file)
-      fileSelected = true
+      setFileSelected(true)
       setSelectedFile(e.target.files[0])
     } catch (error) {
       console.error(e)
@@ -165,7 +250,32 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const handleAvatarNameChange = (e) => {
+    e.preventDefault()
     setAvatarName(e.target.value)
+  }
+
+  const uploadByUrls = () => {
+    if (obj == null) return
+    const error = validate(obj)
+    if (error) {
+      setError(error)
+      return
+    }
+
+    const canvas = document.createElement('canvas')
+    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(renderer.domElement, 0, 0)
+
+    if (selectedThumbnailUrl == null)
+      canvas.toBlob(async (blob) => {
+        await AuthService.uploadAvatarModel(selectedAvatarlUrl, blob!, avatarName, isPublicAvatar)
+        changeActiveMenu(Views.Profile)
+      })
+    else {
+      AuthService.uploadAvatarModel(selectedAvatarlUrl, selectedThumbnailUrl, avatarName, isPublicAvatar)
+      changeActiveMenu(Views.Profile)
+    }
   }
 
   const handleThumbnailChange = (e) => {
@@ -180,7 +290,7 @@ export const AvatarSelectMenu = (props: Props) => {
     }
 
     try {
-      thumbnailSelected = true
+      setThumbnailSelected(true)
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
       console.error(e)
@@ -275,55 +385,133 @@ export const AvatarSelectMenu = (props: Props) => {
           />
         </div>
       )}
-      <div className={styles.avatarNameContainer}>
-        <TextField
+      {thumbNailUrl.length > 0 && (
+        <div className={styles.thumbnailContainer}>
+          <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
+        </div>
+      )}
+      <Paper className={classes.paper2}>
+        <InputBase
+          sx={{ ml: 1, flex: 1, color: '#ccc' }}
+          inputProps={{ 'aria-label': 'avatar url' }}
+          classes={{ input: classes.input }}
+          value={avatarName}
           id="avatarName"
           size="small"
           name="avatarname"
-          variant="outlined"
-          className={styles.avatarNameInput}
           onChange={handleAvatarNameChange}
           placeholder="Avatar Name"
         />
+      </Paper>
+      <div>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+          classes={{ root: classes.tabRoot, indicator: classes.selected }}
+        >
+          <Tab
+            style={value == 0 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            label="Use URL"
+            {...a11yProps(0)}
+            classes={{ root: classes.tabRoot }}
+          />
+          <Tab
+            style={value == 1 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            label="Upload Files"
+            {...a11yProps(1)}
+          />
+        </Tabs>
       </div>
-      <div className={styles.selectLabelContainer}>
-        <div className={styles.avatarSelectLabel + ' ' + (error ? styles.avatarSelectError : '')}>
-          {error ? error : fileSelected ? selectedFile.name : t('user:avatar.selectAvatar')}
-        </div>
-        <div className={styles.thumbnailSelectLabel + ' ' + (error ? styles.thumbnailSelectError : '')}>
-          {error ? error : thumbnailSelected ? selectedThumbnail.name : t('user:avatar.selectThumbnail')}
-        </div>
-      </div>
-      <input
-        type="file"
-        id="avatarSelect"
-        accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-        hidden
-        onChange={handleAvatarChange}
-      />
-      <input
-        type="file"
-        id="thumbnailSelect"
-        accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-        hidden
-        onChange={handleThumbnailChange}
-      />
-      <div className={styles.controlContainer}>
-        <div className={styles.selectBtns}>
-          <button type="button" className={styles.browseBtn} onClick={handleBrowse}>
-            {t('user:avatar.lbl-browse')}
-            <SystemUpdateAlt />
+      <TabPanel value={value} index={0}>
+        <div className={styles.controlContainer}>
+          <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
+            <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+              <InputBase
+                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                placeholder="Paste Avatar Url..."
+                inputProps={{ 'aria-label': 'avatar url' }}
+                classes={{ input: classes.input }}
+                value={avatarUrl}
+                onChange={handleAvatarUrlChange}
+              />
+            </Paper>
+            <Paper className={classes.paper} style={{ padding: '4px 0' }}>
+              <InputBase
+                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                placeholder="Paste Thumbnail Url..."
+                inputProps={{ 'aria-label': 'thumbnail url' }}
+                classes={{ input: classes.input }}
+                value={thumbNailUrl}
+                onChange={handleThumbnailUrlChange}
+              />
+            </Paper>
+          </div>
+          <button
+            type="button"
+            className={styles.uploadBtn}
+            onClick={uploadByUrls}
+            disabled={!validAvatarUrl}
+            style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
+          >
+            {t('user:avatar.lbl-upload')}
+            <CloudUpload />
           </button>
-          <button type="button" className={styles.thumbnailBtn} onClick={handleThumbnail}>
-            {t('user:avatar.lbl-thumbnail')}
-            <AccountCircle />
+        </div>
+      </TabPanel>
+      <TabPanel value={value} index={1}>
+        {error.length > 0 && (
+          <div className={styles.selectLabelContainer}>
+            <div className={styles.avatarSelectError}>{error}</div>
+          </div>
+        )}
+        <div className={styles.controlContainer}>
+          <div className={styles.selectBtns}>
+            <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
+              <Input
+                accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                id="contained-button-file"
+                type="file"
+                onChange={handleAvatarChange}
+              />
+              <Button
+                variant="contained"
+                component="span"
+                classes={{ root: classes.rootBtn }}
+                endIcon={<SystemUpdateAlt />}
+              >
+                Avatar
+              </Button>
+            </label>
+            <label htmlFor="contained-button-file-t">
+              <Input
+                accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                id="contained-button-file-t"
+                type="file"
+                onChange={handleThumbnailChange}
+              />
+              <Button
+                variant="contained"
+                component="span"
+                classes={{ root: classes.rootBtn }}
+                endIcon={<AccountCircle />}
+              >
+                Thumbnail
+              </Button>
+            </label>
+          </div>
+          <button
+            type="button"
+            className={styles.uploadBtn}
+            onClick={uploadAvatar}
+            style={{ cursor: !fileSelected || !!error ? 'not-allowed' : 'pointer' }}
+            disabled={!fileSelected || !!error}
+          >
+            {t('user:avatar.lbl-upload')}
+            <CloudUpload />
           </button>
         </div>
-        <button type="button" className={styles.uploadBtn} onClick={uploadAvatar} disabled={!fileSelected || !!error}>
-          {t('user:avatar.lbl-upload')}
-          <CloudUpload />
-        </button>
-      </div>
+      </TabPanel>
     </div>
   )
 }
