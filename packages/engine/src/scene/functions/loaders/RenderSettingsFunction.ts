@@ -45,15 +45,16 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   const component = getComponent(entity, RenderSettingComponent)
 
   resetEngineRenderer()
-  if (typeof component.overrideRendererSettings !== 'undefined' && !component.overrideRendererSettings) {
+
+  if (component.LODs)
+    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
+
+  if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     Engine.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
     else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
     return
   }
-
-  if (component.LODs)
-    AssetLoader.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
   Engine.isCSMEnabled = component.csm
   Engine.renderer.toneMapping = component.toneMapping
