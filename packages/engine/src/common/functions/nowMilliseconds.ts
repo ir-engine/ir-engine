@@ -1,9 +1,6 @@
-import { isClient } from './isClient'
+import { performance } from './performance'
 
 /**
  * return current time of the system.
- * performance.now() "polyfill"
  */
-export const nowMilliseconds = isClient
-  ? performance.now.bind(performance)
-  : require('perf_hooks').performance.now.bind(require('perf_hooks').performance)
+export const nowMilliseconds = performance.now.bind(performance)
