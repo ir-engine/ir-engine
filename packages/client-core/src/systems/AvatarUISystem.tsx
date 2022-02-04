@@ -45,6 +45,7 @@ export default async function AvatarUISystem(world: World) {
       const contextMenuUI = AvatarContextMenuUI.get(userEntity)!
       const contextMenuXRUI = getComponent(contextMenuUI.entity, XRUIComponent)
       if (!contextMenuXRUI) return
+
       contextMenuXRUI.container.scale.setScalar(
         Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3)
       )

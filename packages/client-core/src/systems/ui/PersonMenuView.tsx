@@ -95,11 +95,11 @@ type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
 const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
-  const userState = useUserState()
   const engineState = useEngineState()
+  const userState = useUserState()
+
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-
   const { t } = useTranslation()
 
   const blockUser = () => {
@@ -126,6 +126,7 @@ const AvatarContextMenu = () => {
           <Button
             style={styles.button as {}}
             onClick={() => {
+              UserService.getUserRelationship(authState.user.id?.value ?? '')
               console.log('Invite to Party')
             }}
           >
