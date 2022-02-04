@@ -1,4 +1,4 @@
-import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, Group, TextureLoader } from 'three'
+import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
 import { getLoader as getGLTFLoader, loadExtensions } from '../functions/LoadGLTF'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'

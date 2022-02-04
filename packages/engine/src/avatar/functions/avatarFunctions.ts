@@ -90,7 +90,6 @@ const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any)
       addComponent(entity, UpdatableComponent, {})
       //@ts-ignore
       const object3DComponent = getComponent(entity, Object3DComponent)
-      debugger
       if (object3DComponent.value) {
         ;(object3DComponent.value as unknown as Updatable).update = function () {
           model.update()
