@@ -202,7 +202,7 @@ export class World {
   execute(delta: number, elapsedTime: number) {
     const start = nowMilliseconds()
     const incomingActions = Array.from(this.incomingActions.values())
-    const incomingBufferLength = Network.instance.incomingMessageQueueUnreliable.getBufferLength()
+    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
     this.delta = delta
     this.elapsedTime = elapsedTime
