@@ -2,18 +2,14 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
-
+import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { createState, useState } from '@speigg/hookstate'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
 
 const state = createState({
-  routes: [] as {
-    id: string
-    project: string
-    routes: string[]
-  }[],
+  routes: [] as Array<InstalledRoutesInterface>,
   skip: 0,
   limit: ROUTE_PAGE_LIMIT,
   total: 0,
@@ -27,7 +23,7 @@ store.receptors.push((action: RouteActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_ROUTE_INSTALLED_RECEIVED':
-        return s.merge({ routes: action.data.data, updateNeeded: false })
+        return s.merge({ routes: action.data, updateNeeded: false })
     }
   }, action.type)
 })
@@ -44,7 +40,7 @@ export const RouteService = {
     try {
       if (user.userRole.value === 'admin') {
         const routes = await client.service('routes-installed').find()
-        dispatch(RouteActions.installedRoutesRetrievedAction(routes))
+        dispatch(RouteActions.installedRoutesRetrievedAction(routes.data as Array<InstalledRoutesInterface>))
       }
     } catch (err) {
       AlertService.dispatchAlertError(err)
@@ -54,7 +50,7 @@ export const RouteService = {
 
 //Action
 export const RouteActions = {
-  installedRoutesRetrievedAction: (data: any) => {
+  installedRoutesRetrievedAction: (data: Array<InstalledRoutesInterface>) => {
     return {
       type: 'ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
       data: data
