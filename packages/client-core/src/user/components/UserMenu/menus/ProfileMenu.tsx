@@ -375,25 +375,25 @@ const ProfileMenu = (props: Props): any => {
                 <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
                   <InventoryIcon />
                   <Typography component="div" variant="button">
-                    My Inventory
+                    {t('user:inventory.myInventory')}
                   </Typography>
                 </Button>
                 <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
                   <StoreIcon />
                   <Typography component="div" variant="button">
-                    My Trading
+                    {t('user:inventory.myTrading')}
                   </Typography>
                 </Button>
                 <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
                   <AccountBalanceWalletIcon />
                   <Typography component="div" variant="button">
-                    My Wallet
+                    {t('user:inventory.myWallet')}
                   </Typography>
                 </Button>
                 <Button size="small" onClick={() => goToEthNFT()}>
                   <StorefrontIcon />
                   <Typography component="div" variant="button">
-                    Open ETH NFT Marketplace
+                    {t('user:inventory.openEthNftMarketplace')}
                   </Typography>
                 </Button>
               </Grid>
@@ -416,7 +416,7 @@ const ProfileMenu = (props: Props): any => {
         {showUserId && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              User id
+              {t('user:usermenu.profile.userIcon.userId')}
             </Typography>
 
             <form>
@@ -452,7 +452,7 @@ const ProfileMenu = (props: Props): any => {
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              API key
+              {t('user:usermenu.profile.apiKey')}
             </Typography>
 
             <form>
