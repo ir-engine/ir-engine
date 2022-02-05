@@ -82,35 +82,32 @@ export const useLocationState = () => useState(state) as any as typeof state
 export const LocationService = {
   getLocation: async (locationId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(LocationAction.fetchingCurrentSocialLocation())
-        const location = await client.service('location').get(locationId)
-        dispatch(LocationAction.socialLocationRetrieved(location))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      dispatch(LocationAction.fetchingCurrentSocialLocation())
+      const location = await client.service('location').get(locationId)
+      dispatch(LocationAction.socialLocationRetrieved(location))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   getLocationByName: async (locationName: string) => {
     const dispatch = useDispatch()
-    {
-      const locationResult = await client
-        .service('location')
-        .find({
-          query: {
-            slugifiedName: locationName,
-            joinableLocations: true
-          }
-        })
-        .catch((error) => {
-          console.log("Couldn't get location by name", error)
-        })
-      if (locationResult && locationResult.total > 0) {
-        dispatch(LocationAction.socialLocationRetrieved(locationResult.data[0]))
-      } else {
-        dispatch(LocationAction.socialLocationNotFound())
-      }
+    dispatch(LocationAction.fetchingCurrentSocialLocation())
+    const locationResult = await client
+      .service('location')
+      .find({
+        query: {
+          slugifiedName: locationName,
+          joinableLocations: true
+        }
+      })
+      .catch((error) => {
+        console.log("Couldn't get location by name", error)
+      })
+    if (locationResult && locationResult.total > 0) {
+      dispatch(LocationAction.socialLocationRetrieved(locationResult.data[0]))
+    } else {
+      dispatch(LocationAction.socialLocationNotFound())
     }
   },
   getLobby: async () => {
@@ -132,16 +129,14 @@ export const LocationService = {
   },
   banUserFromLocation: async (userId: string, locationId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('location-ban').create({
-          userId: userId,
-          locationId: locationId
-        })
-        dispatch(LocationAction.socialLocationBanCreated())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('location-ban').create({
+        userId: userId,
+        locationId: locationId
+      })
+      dispatch(LocationAction.socialLocationBanCreated())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }

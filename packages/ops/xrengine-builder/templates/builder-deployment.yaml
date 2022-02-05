@@ -56,6 +56,17 @@ spec:
               {{- end }}
             - name: MYSQL_HOST
               value: {{ .Values.mariadb.externalHost }}
+            - name: REDIS_ENABLED
+              value: "true"
+            - name: REDIS_ADDRESS
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_HOST)"
+            - name: REDIS_PORT
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_PORT)"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: { { $releaseName } }-redis
+                  key: redis-password
             - name: RELEASE_NAME
               value: {{ $releaseName }}
             - name: DOCKER_HOST

@@ -31,6 +31,9 @@ export default async function XRUISystem(world: World) {
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
   xrui.WebLayerModule.WebLayerManager.instance.ktx2Encoder.pool.setWorkerLimit(1)
+
+  // @ts-ignore
+  // console.log(JSON.stringify(xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig))
   // xrui.WebLayerModule.WebLayerManager.instance.textureLoader.workerConfig = {
   //   astcSupported: false,
   //   etc1Supported: renderer.extensions.has( 'WEBGL_compressed_texture_etc1' ),

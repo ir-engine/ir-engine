@@ -67,6 +67,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   type: TransportType
   constructor(type: TransportType) {
     this.type = type
+    this.onConnection = this.onConnection.bind(this)
   }
 
   mediasoupDevice = new mediasoupClient.Device()
@@ -101,8 +102,24 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.recvTransport = null!
     this.sendTransport = null!
     clearInterval(this.heartbeat)
+    this.socket.off('connect', this.onConnection)
+    this.socket.removeAllListeners()
     this.socket.close()
     this.socket = null!
+  }
+
+  onConnection() {
+    // console.log('CONNECT to port', port, sceneId, locationId)
+    if (this.reconnecting) {
+      this.reconnecting = false
+      return
+    }
+    onConnectToInstance(this)
+
+    // Send heartbeat every second
+    this.heartbeat = setInterval(() => {
+      this.socket.emit(MessageTypes.Heartbeat.toString())
+    }, 1000)
   }
 
   public async initialize(args: {
@@ -146,18 +163,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
     this.request = promisedRequest(this.socket)
 
-    this.socket.on('connect', async () => {
-      console.log(`CONNECT to port ${port}`)
-      if (this.reconnecting) {
-        this.reconnecting = false
-        return
-      }
-      onConnectToInstance(this)
-
-      // Send heartbeat every second
-      this.heartbeat = setInterval(() => {
-        this.socket.emit(MessageTypes.Heartbeat.toString())
-      }, 1000)
-    })
+    this.socket.on('connect', this.onConnection)
   }
 }

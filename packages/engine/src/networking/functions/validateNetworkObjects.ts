@@ -35,14 +35,6 @@ export async function validateNetworkObjects(world: World): Promise<void> {
       }
 
       console.log('Removed transports for', userId)
-
-      // Find all network objects that the disconnecting client owns and remove them
-      for (const eid of world.getOwnedNetworkObjects(userId)) {
-        const { networkId } = getComponent(eid, NetworkObjectComponent)
-        dispatchFrom(world.hostId, () => NetworkWorldAction.destroyObject({ networkId }))
-      }
-      if (world.clients.has(userId)) world.clients.delete(userId)
-      console.log('Finished removing inactive client', userId)
     }
   }
   /*
