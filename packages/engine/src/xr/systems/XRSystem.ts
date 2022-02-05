@@ -11,7 +11,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { initializeXRInputs, cleanXRInputs } from '../functions/addControllerModels'
+import { cleanXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -66,7 +66,7 @@ export default async function XRSystem(world: World) {
         startXRSession()
         break
       case EngineEvents.EVENTS.XR_END:
-        for (const entity of localXRControllerQuery()) {
+        for (const entity of xrControllerQuery()) {
           cleanXRInputs(entity)
         }
         endXR()
@@ -112,10 +112,6 @@ export default async function XRSystem(world: World) {
           })
         }
       }
-    }
-
-    for (const entity of localXRControllerQuery.enter()) {
-      initializeXRInputs(entity)
     }
 
     //XR Controller mesh animation update
