@@ -1,7 +1,7 @@
-import { Theme } from '@mui/material/styles'
-import makeStyles from '@mui/styles/makeStyles'
-import createStyles from '@mui/styles/createStyles'
 import { deepOrange } from '@mui/material/colors'
+import { Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 const drawerWidth = 200
 
@@ -21,14 +21,6 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       }),
       backgroundColor: '#43484F'
     },
-    appBarShift: {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
-      })
-    },
     menuButton: {
       marginRight: 36,
       color: 'white'
@@ -42,11 +34,14 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       whiteSpace: 'nowrap'
     },
     drawerOpen: {
+      position: 'absolute',
       width: `${drawerWidth}px !important`,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen
       }),
+      height: '100%',
+      zIndex: 9999,
       backgroundColor: '#1f252d'
     },
     drawerClose: {

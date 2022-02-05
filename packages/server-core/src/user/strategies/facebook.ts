@@ -9,6 +9,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     super()
     this.app = app
   }
+
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
     const userId = params?.query ? params.query.userId : undefined
@@ -35,6 +36,15 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     await this.app.service('user').patch(entity.userId, {
       userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
     })
+    const apiKey = await this.app.service('user-api-key').find({
+      query: {
+        userId: entity.userId
+      }
+    })
+    if ((apiKey as any).total === 0)
+      await this.app.service('user-api-key').create({
+        userId: entity.userId
+      })
     if (entity.type !== 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)

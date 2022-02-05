@@ -1,5 +1,4 @@
 import { Engine } from '../ecs/classes/Engine'
-import { System } from '../ecs/classes/System'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -17,7 +16,7 @@ export class AvatarSettings {
   jumpHeight = 4
 }
 
-export default async function AvatarControllerSystem(world: World): Promise<System> {
+export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 

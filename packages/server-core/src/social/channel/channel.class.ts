@@ -2,7 +2,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Op, Sequelize } from 'sequelize'
+import { Op } from 'sequelize'
 import _ from 'lodash'
 import logger from '../../logger'
 
@@ -27,7 +27,7 @@ export class Channel extends Service {
     const skip = query?.skip || 0
     const limit = query?.limit || 10
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const userId = loggedInUser.userId
+    const userId = loggedInUser.id
     const Model = (this.app.service('channel') as any).Model
     try {
       const subParams = {

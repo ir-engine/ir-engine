@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Paper, Button, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
-import { useStyles } from './styles'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
-import { AuthSettingService } from '../../services/Setting/AuthSettingService'
-import Switch from '@mui/material/Switch'
-import IconButton from '@mui/material/IconButton'
 import { Icon } from '@iconify/react'
+import { Button, Grid, Paper, Typography } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
+import React, { useEffect, useState } from 'react'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { useStyles } from './styles'
 
 interface Props {}
 
 const initialState = {
   jwt: true,
   local: false,
+  discord: false,
   facebook: false,
   github: false,
   google: false,
@@ -24,6 +24,7 @@ const initialState = {
 }
 
 const OAUTH_TYPES = {
+  DISCORD: 'discord',
   FACEBOOK: 'facebook',
   GITHUB: 'github',
   GOOGLE: 'google',
@@ -39,6 +40,7 @@ const Account = (props: Props) => {
   const [state, setState] = useState(initialState)
   const [holdAuth, setHoldAuth] = useState(initialState)
   const [keySecret, setKeySecret] = useState({
+    discord: authSetting?.oauth.discord,
     github: authSetting?.oauth.github,
     google: authSetting?.oauth.google,
     twitter: authSetting?.oauth.twitter,
@@ -46,6 +48,10 @@ const Account = (props: Props) => {
     facebook: authSetting?.oauth.facebook
   })
   const [showPassword, setShowPassword] = useState({
+    discord: {
+      key: false,
+      secret: false
+    },
     facebook: {
       key: false,
       secret: false
@@ -104,6 +110,7 @@ const Account = (props: Props) => {
 
       let tempKeySecret = JSON.parse(
         JSON.stringify({
+          discord: authSetting?.oauth.discord,
           github: authSetting?.oauth.github,
           google: authSetting?.oauth.google,
           twitter: authSetting?.oauth.twitter,
@@ -140,6 +147,7 @@ const Account = (props: Props) => {
 
     let tempKeySecret = JSON.parse(
       JSON.stringify({
+        discord: authSetting?.oauth.discord,
         github: authSetting?.oauth.github,
         google: authSetting?.oauth.google,
         twitter: authSetting?.oauth.twitter,
@@ -192,7 +200,7 @@ const Account = (props: Props) => {
       </Typography>
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={6} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label> Service</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
@@ -244,7 +252,7 @@ const Account = (props: Props) => {
               </React.Fragment>
             ))}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             <label>Local</label>
             <Paper component="div" className={classes.createInput}>
               <label>User Name:</label>
@@ -298,6 +306,55 @@ const Account = (props: Props) => {
                 className={classes.input}
               />
             </Paper>
+            {holdAuth?.discord && (
+              <Paper className={classes.Paper} elevation={0}>
+                <label style={{ color: '#fff' }}>Discord</label>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Key:</label>
+                  <InputBase
+                    value={keySecret?.discord?.key || ''}
+                    name="key"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.key ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-key')} size="large">
+                    <Icon
+                      icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Secret:</label>
+                  <InputBase
+                    value={keySecret?.discord?.secret || ''}
+                    name="secret"
+                    style={{ color: '#fff' }}
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                    className={classes.input}
+                    type={showPassword.discord.secret ? 'text' : 'password'}
+                  />
+                  <IconButton onClick={() => handleShowPassword('discord-secret')} size="large">
+                    <Icon
+                      icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
+                  </IconButton>
+                </Paper>
+                <Paper component="div" className={classes.createInput}>
+                  <label>Callback:</label>
+                  <InputBase
+                    value={authSetting?.callback?.discord || ''}
+                    name="callbackGithub"
+                    style={{ color: '#fff' }}
+                    disabled
+                    className={classes.input}
+                  />
+                </Paper>
+              </Paper>
+            )}
             {holdAuth?.facebook && (
               <Paper className={classes.Paper} elevation={0}>
                 <label style={{ color: '#fff' }}>Facebook</label>
@@ -415,7 +472,7 @@ const Account = (props: Props) => {
               </Paper>
             )}
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label style={{ color: '#fff' }}>Google</label>
@@ -568,11 +625,11 @@ const Account = (props: Props) => {
             )}
           </Grid>
         </Grid>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp; &nbsp;
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
           Save
         </Button>
       </form>

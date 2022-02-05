@@ -119,7 +119,7 @@ export const useSceneStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('md')]: {
         fontSize: '1.6rem'
       },
-      [theme.breakpoints.between(100, undefined)]: {
+      [theme.breakpoints.between(100, 0)]: {
         fontSize: '1.4rem'
       }
     },

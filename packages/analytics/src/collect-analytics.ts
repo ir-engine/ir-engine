@@ -1,4 +1,3 @@
-import { createApp } from './app'
 import config from '@xrengine/server-core/src/appconfig'
 
 const DEFAULT_INTERVAL_SECONDS = 1800
@@ -8,8 +7,8 @@ const interval = (configInterval || DEFAULT_INTERVAL_SECONDS) * 1000
 export default (app): void => {
   setInterval(async () => {
     console.log('Collecting analytics at ', new Date().toString())
-    const activeLocations = []
-    const activeScenes = []
+    const activeLocations: any[] = []
+    const activeScenes: any[] = []
     const activeParties = await app.service('party').find({
       query: {
         $limit: 0,

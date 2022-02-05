@@ -1,72 +1,41 @@
-import { initializeEngine } from '../src/initializeEngine'
-import { engineTestSetup } from './util/setupEngine'
-import { useWorld } from "../src/ecs/functions/SystemHooks"
-import { putIntoPhysXHeap, vectorToArray } from "../src/physics/functions/physxHelpers"
+import { useWorld } from '../src/ecs/functions/SystemHooks'
+import { putIntoPhysXHeap, vectorToArray } from '../src/physics/functions/physxHelpers'
 import assert from 'assert'
-import { BodyOptions, createCollider, createShape } from '../src/physics/functions/createCollider'
+import { createCollider, ShapeOptions } from '../src/physics/functions/createCollider'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { BodyType } from '../src/physics/types/PhysicsTypes'
 import { CollisionGroups } from '../src/physics/enums/CollisionGroups'
 import { BoxBufferGeometry, Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
-import { delay } from '../src/common/functions/delay'
 import { CollisionComponent } from '../src/physics/components/CollisionComponent'
 import { addComponent, getComponent, hasComponent } from '../src/ecs/functions/ComponentFunctions'
 import { Engine } from '../src/ecs/classes/Engine'
 import { createWorld } from '../src/ecs/classes/World'
-import { loadPhysX } from '../src/physics/physx/loadPhysX'
 import PhysicsSystem from '../src/physics/systems/PhysicsSystem'
-import { SystemUpdateType } from '../src/ecs/functions/SystemUpdateType'
 import { Object3DComponent } from '../src/scene/components/Object3DComponent'
 import { TransformComponent } from '../src/transform/components/TransformComponent'
 import { ColliderComponent } from '../src/physics/components/ColliderComponent'
 import { getGeometryType } from '../src/physics/classes/Physics'
 
-
 const avatarRadius = 0.25
 const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
-const avatarHalfHeight = avatarHeight / 2
-const mockDelta = 1/60
-let mockElapsedTime = 0
+const mockDelta = 1 / 60
 
-describe('Physics', () => {
-
+describe('Physics Interation Tests', () => {
   beforeEach(async () => {
     Engine.currentWorld = createWorld()
-    Engine.currentWorld = Engine.currentWorld
     await Engine.currentWorld.physics.createScene({ verbose: true })
   })
 
   afterEach(() => {
     Engine.currentWorld = null!
-    Engine.currentWorld = null!
     delete (globalThis as any).PhysX
   })
 
   // face indexed cube data
-  const vertices = [
-    0, 0, 1,
-    1, 0, 1,
-    0, 1, 1,
-    1, 1, 1,
-    0, 0, 0,
-    1, 0, 0,
-    0, 1, 0,
-    1, 1, 0,
-  ]
+  const vertices = [0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0]
   const indices = [
-    0, 1, 2,
-    1, 3, 2,
-    2, 3, 7,
-    2, 7, 6,
-    1, 7, 3,
-    1, 5, 7,
-    6, 7, 4,
-    7, 5, 4,
-    0, 4, 1,
-    1, 4, 5,
-    2, 6, 4,
-    0, 2, 4
+    0, 1, 2, 1, 3, 2, 2, 3, 7, 2, 7, 6, 1, 7, 3, 1, 5, 7, 6, 7, 4, 7, 5, 4, 0, 4, 1, 1, 4, 5, 2, 6, 4, 0, 2, 4
   ]
 
   // this has problems with the PhysX bindings itself
@@ -75,18 +44,13 @@ describe('Physics', () => {
 
     const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
 
-    const trimesh = world.physics.cooking.createConvexMesh(
-      verticesPtr,
-      vertices.length,
-      world.physics.physics
-    )
+    const trimesh = world.physics.cooking.createConvexMesh(verticesPtr, vertices.length, world.physics.physics)
 
     PhysX._free(verticesPtr)
 
     const newVertices = vectorToArray(trimesh.getVertices())
     assert.equal(newVertices, vertices)
   })
-
 
   it('Can load physics trimesh', async () => {
     const world = useWorld()
@@ -124,11 +88,11 @@ describe('Physics', () => {
    */
   it('Can detect dynamic and trigger collision', async () => {
     const world = useWorld()
-    const runPhysics = await PhysicsSystem(world, null!)
+    const runPhysics = await PhysicsSystem(world)
 
     const execute = () => {
       world.fixedTick += 1
-      world.elapsedTime += mockDelta 
+      world.elapsedTime += mockDelta
       runPhysics()
     }
 
@@ -199,10 +163,13 @@ describe('Physics', () => {
 
     execute()
 
-    avatarBody.setGlobalPose({
-      translation: new Vector3(),
-      rotation: new Quaternion()
-    }, true)
+    avatarBody.setGlobalPose(
+      {
+        translation: new Vector3(),
+        rotation: new Quaternion()
+      },
+      true
+    )
 
     // update simulation
     execute()
@@ -211,7 +178,6 @@ describe('Physics', () => {
     execute()
 
     assert.equal(collisions.collisions.length, 1)
-
   })
 
   it('Should create static trimesh', async () => {
@@ -224,7 +190,7 @@ describe('Physics', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.STATIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {
@@ -234,7 +200,7 @@ describe('Physics', () => {
     addComponent(entity, TransformComponent, {
       position: new Vector3(),
       rotation: new Quaternion(),
-      scale: new Vector3(1,1,1)
+      scale: new Vector3(1, 1, 1)
     })
 
     createCollider(entity, mesh)
@@ -263,7 +229,7 @@ describe('Physics', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.KINEMATIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {
@@ -304,7 +270,7 @@ describe('Physics', () => {
     const bodyOptions = {
       type,
       bodyType: BodyType.DYNAMIC
-    } as BodyOptions
+    } as ShapeOptions
     mesh.userData = bodyOptions
 
     addComponent(entity, Object3DComponent, {
@@ -332,5 +298,4 @@ describe('Physics', () => {
     assert.equal(geometryType, PhysX.PxGeometryType.eBOX.value)
     assert(hasComponent(entity, CollisionComponent))
   })
-
 })

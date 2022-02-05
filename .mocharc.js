@@ -1,5 +1,5 @@
 module.exports = {
-  'fail-zero': false,
+  'fail-zero': true,
   parallel: true,
   spec: ['tests/**/*.test.ts'],
   require: [
@@ -9,5 +9,9 @@ module.exports = {
   ],
   extension: [
     'ts'
-  ]
+  ],
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '300000'
 };

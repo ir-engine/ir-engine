@@ -1,24 +1,18 @@
 import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
-import SelectInput from '../inputs/SelectInput'
-import { VideoProjection } from '@xrengine/engine/src/scene/classes/Video'
 import VideoInput from '../inputs/VideoInput'
 import VideocamIcon from '@mui/icons-material/Videocam'
-import AudioSourceProperties from './AudioSourceProperties'
-import useSetPropertySelected from './useSetPropertySelected'
+import { EditorComponentType, updateProperty } from './Util'
 import { ControlledStringInput } from '../inputs/StringInput'
-import i18n from 'i18next'
 import { useTranslation } from 'react-i18next'
-
-/**
- * videoProjectionOptions contains VideoProjection options.
- *
- * @author Robert Long
- * @type {object}
- */
-const videoProjectionOptions = Object.values(VideoProjection).map((v) => ({ label: v, value: v }))
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { PropertiesPanelButton } from '../inputs/Button'
+import MediaSourceProperties from './MediaSourceProperties'
+import { toggleVideo } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 /**
  * VideoNodeEditor used to render editor view for property customization.
@@ -27,44 +21,33 @@ const videoProjectionOptions = Object.values(VideoProjection).map((v) => ({ labe
  * @param       {any} props
  * @constructor
  */
-export function VideoNodeEditor(props) {
-  const { node } = props
+export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
 
-  VideoNodeEditor.description = t('editor:properties.video.description')
-  //function to handle changes in src property
-  const onChangeIsLivestream = useSetPropertySelected('isLivestream')
-  //function to handle changes in src property
-  const onChangeSrc = useSetPropertySelected('src')
+  const videoComponent = getComponent(props.node.entity, VideoComponent)
+  const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
-  //function to handle change in projection property
-  const onChangeProjection = useSetPropertySelected('projection')
-
-  //function to handle change in projection property
-  const onChangeInteractable = useSetPropertySelected('interactable')
-
-  //function to handle change in projection property
-  const onChangeId = useSetPropertySelected('elementId')
-
-  //editor view for VideoNode
   return (
-    <NodeEditor description={VideoNodeEditor.description} {...props}>
-      <InputGroup name="Livestream" label={t('editor:properties.video.lbl-islivestream')}>
-        <BooleanInput value={node.isLivestream} onChange={onChangeIsLivestream} />
-      </InputGroup>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.video.name')}
+      description={t('editor:properties.video.description')}
+    >
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
-        <VideoInput value={node.src} onChange={onChangeSrc} />
-      </InputGroup>
-      <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
-        <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
-      </InputGroup>
-      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
-        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
+        <VideoInput value={videoComponent.videoSource} onChange={updateProperty(VideoComponent, 'videoSource')} />
+        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.video.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
-        <ControlledStringInput value={node.elementId} onChange={onChangeId} />
+        <ControlledStringInput
+          value={videoComponent.elementId}
+          onChange={updateProperty(VideoComponent, 'elementId')}
+        />
       </InputGroup>
-      <AudioSourceProperties {...props} />
+      <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
+      <PropertiesPanelButton onClick={() => toggleVideo(props.node.entity)}>
+        {t('editor:properties.video.lbl-test')}
+      </PropertiesPanelButton>
     </NodeEditor>
   )
 }
@@ -72,6 +55,4 @@ export function VideoNodeEditor(props) {
 // setting iconComponent with icon name
 VideoNodeEditor.iconComponent = VideocamIcon
 
-// setting description will appears on editor view
-VideoNodeEditor.description = i18n.t('editor:properties.video.description')
 export default VideoNodeEditor

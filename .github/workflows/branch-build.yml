@@ -42,7 +42,7 @@ jobs:
       - run: npm run check-errors
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npx c8 npm run test 
+      - run: npm run test 
         env:
           STORAGE_AWS_ACCESS_KEY_ID: ${{secrets.STORAGE_AWS_ACCESS_KEY_ID}}
           STORAGE_AWS_ACCESS_KEY_SECRET: ${{secrets.STORAGE_AWS_ACCESS_KEY_SECRET}}

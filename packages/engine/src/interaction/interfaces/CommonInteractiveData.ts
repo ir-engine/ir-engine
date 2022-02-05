@@ -9,4 +9,5 @@ export interface CommonInteractiveData {
   interactionVideos?: any
   interactionUrls?: any
   interactionModels?: any
+  payloadUrl?: any
 }

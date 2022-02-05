@@ -1,10 +1,10 @@
 import { useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
-import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 
 //State
 export const BOTS_PAGE_LIMIT = 100
@@ -113,7 +113,6 @@ export const BotsAction = {
     }
   },
   botRemoved: (bot: AdminBot) => {
-    debugger
     return {
       type: 'BOT_ADMIN_REMOVE' as const,
       bot: bot

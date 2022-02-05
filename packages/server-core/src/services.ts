@@ -5,7 +5,6 @@ import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
 import SocialServices from './social/services'
 import UserServices from './user/services'
-import WorldServices from './world/services'
 import BotService from './bot/services'
 import ScopeService from './scope/service'
 import SettingService from './setting/service'
@@ -42,7 +41,6 @@ export default (app: Application): void => {
     ...AnalyticsServices,
     ...UserServices,
     ...MediaServices,
-    ...WorldServices,
     ...EntityServices,
     ...NetworkingServices,
     ...SocialServices,

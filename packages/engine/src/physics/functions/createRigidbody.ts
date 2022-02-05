@@ -1,4 +1,3 @@
-import { createCollider, BodyOptions } from '../functions/createCollider'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -37,7 +36,7 @@ export const createRigidbody = (world, type) => {
   mesh.userData = {
     type,
     bodyType: BodyType.DYNAMIC
-  } as BodyOptions
+  }
 
   addComponent(entity, VelocityComponent, {
     velocity: new Vector3()

@@ -21,4 +21,5 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build --cache-from $ECR_URL/$REPO_NAME:latest_$STAGE --build-arg BUILDKIT_INLINE_CACHE=1 --tag $LABEL -f Dockerfile-build-deploy .
+cd dockerfiles
+COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 LABEL=$LABEL docker-compose build --parallel

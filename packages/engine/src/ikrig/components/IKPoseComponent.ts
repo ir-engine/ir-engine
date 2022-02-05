@@ -13,39 +13,39 @@ export type IKPoseHipData = {
 export type IKPoseSpineData = [IKPoseLookTwist, IKPoseLookTwist]
 
 export type IKPoseComponentType = {
-  startPosition?: Vector3 // Start of chain (world space position of shoulder for an arm chain)
-  endPosition?: Vector3 // Target position for chain to reach (end effector)
-  axis?: Axis // Axis of rotation toward the end position
-  length?: number
+  startPosition: Vector3 // Start of chain (world space position of shoulder for an arm chain)
+  endPosition: Vector3 // Target position for chain to reach (end effector)
+  axis: Axis // Axis of rotation toward the end position
+  length: number
 
-  spineParentQuaternion?: Quaternion
-  spineParentPosition?: Vector3
-  spineParentScale?: Vector3
+  spineParentQuaternion: Quaternion
+  spineParentPosition: Vector3
+  spineParentScale: Vector3
 
-  spineChildQuaternion?: Quaternion
-  spineChildPosition?: Vector3
-  spineChildScale?: Vector3
+  spineChildQuaternion: Quaternion
+  spineChildPosition: Vector3
+  spineChildScale: Vector3
 
-  hip?: IKPoseHipData
+  hip: IKPoseHipData
 
-  foot_l?: IKPoseLookTwist
-  foot_r?: IKPoseLookTwist
+  foot_l: IKPoseLookTwist
+  foot_r: IKPoseLookTwist
 
   // IK Data for limbs is first the Direction toward the End Effector,
   // The scaled length to the end effector, plus the direction that
   // the KNEE or ELBOW is pointing. For IK Targeting, Dir is FORWARD and
   // joint dir is UP
-  leg_l?: IKPoseLimbData
-  leg_r?: IKPoseLimbData
-  arm_l?: IKPoseLimbData
-  arm_r?: IKPoseLimbData
+  leg_l: IKPoseLimbData
+  leg_r: IKPoseLimbData
+  arm_l: IKPoseLimbData
+  arm_r: IKPoseLimbData
 
-  spine?: IKPoseSpineData
+  spine: IKPoseSpineData
 
-  head?: IKPoseLookTwist
+  head: IKPoseLookTwist
 }
 
-export const defaultIKPoseComponentValues = function (): IKPoseComponentType {
+export const defaultIKPoseComponentValues = (): IKPoseComponentType => {
   return {
     startPosition: new Vector3(), // Start of chain (world space position of shoulder for an arm chain)
     endPosition: new Vector3(), // Target position for chain to reach (end effector)

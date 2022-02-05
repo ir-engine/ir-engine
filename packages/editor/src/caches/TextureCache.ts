@@ -1,8 +1,8 @@
-import { TextureLoader } from 'three'
+import { Texture, TextureLoader } from 'three'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
 
 class Cache {
-  _cache = new Map()
+  _cache = new Map<string, Promise<Texture>>()
   evict(url) {
     const absoluteURL = new URL(url, (window as any).location).href
     this._cache.delete(absoluteURL)
@@ -14,10 +14,12 @@ class Cache {
 
 export default class TextureCache extends Cache {
   textureLoader: TextureLoader
+
   constructor() {
     super()
     this.textureLoader = new TextureLoader()
   }
+
   get(url) {
     const absoluteURL = new URL(url, (window as any).location).href
     if (!this._cache.has(absoluteURL)) {
@@ -25,6 +27,7 @@ export default class TextureCache extends Cache {
     }
     return this._cache.get(absoluteURL)
   }
+
   disposeAndClear() {
     for (const texturePromise of this._cache.values()) {
       texturePromise.then((texture) => texture.dispose())

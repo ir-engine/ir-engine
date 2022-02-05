@@ -4,7 +4,6 @@ import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { Engine } from '../../ecs/classes/Engine'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 
@@ -303,6 +302,7 @@ export class MediaStreams {
 
 export const updateNearbyAvatars = () => {
   MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.userId)
+  if (!MediaStreams.instance.nearbyLayerUsers.length) return
   const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
   EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
   MediaStreams.instance.consumers.forEach((consumer) => {
@@ -315,7 +315,7 @@ export const updateNearbyAvatars = () => {
 // every 5 seconds
 const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
 
-export default async function MediaStreamSystem(world: World): Promise<System> {
+export default async function MediaStreamSystem(world: World) {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
@@ -343,7 +343,7 @@ export default async function MediaStreamSystem(world: World): Promise<System> {
       nearbyAvatarTick++
       if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
         nearbyAvatarTick = 0
-        if (MediaStreams.instance.channelType === 'instance') updateNearbyAvatars()
+        updateNearbyAvatars()
       }
     }
   }

@@ -7,7 +7,9 @@ export const createEntity = (world = useWorld()): Entity => {
   return bitECS.addEntity(world) as Entity
 }
 
-export const removeEntity = (entity: Entity, world = useWorld()) => {
+export const removeEntity = (entity: Entity, immediately = false, world = useWorld()) => {
   removeAllComponents(entity, world)
-  addComponent(entity, EntityRemovedComponent, {})
+
+  if (immediately) bitECS.removeEntity(world, entity)
+  else addComponent(entity, EntityRemovedComponent, {})
 }

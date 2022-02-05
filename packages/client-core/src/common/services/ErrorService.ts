@@ -1,6 +1,4 @@
-import { ErrorActionType } from './ErrorService'
-
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 
 //State

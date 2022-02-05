@@ -108,6 +108,7 @@ const ITEM_HEIGHT = 48
 const TradingContent = ({
   data,
   user,
+  propid,
   rejectOfferSent,
   rejectOfferReceived,
   handleTransfer,
@@ -180,8 +181,6 @@ const TradingContent = ({
 
   useEffect(() => {
     if (data.length !== 0) {
-      console.log('DAATA ', data)
-
       setState((prevState: any) => ({
         ...prevState,
         url: data[0].url,
@@ -204,7 +203,6 @@ const TradingContent = ({
           }))
         } else {
           let filtereddata = inventory.filter((val) => val.inventoryItemTypeId === selectedtype)
-          console.log(filtereddata, selectedtype)
           if (filtereddata.length !== 0) {
             setState((prevState: any) => ({
               ...prevState,
@@ -228,7 +226,6 @@ const TradingContent = ({
   }, [selectedtype])
 
   const onDragStart = (ev, id) => {
-    console.log('dragstart:', id)
     ev.dataTransfer.setData('id', id)
   }
 
@@ -272,7 +269,6 @@ const TradingContent = ({
   }
   const receivefortrade = (value: any, index) => {
     const receivedTrading = [...state.receivedTrading, { ...value }]
-    console.log('receivedTrading ', receivedTrading)
 
     setState((prevState: any) => ({
       ...prevState,
@@ -313,41 +309,21 @@ const TradingContent = ({
   }
 
   const acceptOfferSentId = (id, items) => {
-    console.log('OfferSent ', localStorage.getItem('tradeId'))
-    //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
-    console.log('id', id)
-    console.log('items', items)
-    acceptOfferSent(id, items)
+    acceptOfferSent(id, items, propid)
   }
 
   const acceptOfferReceivedId = (id, items) => {
-    console.log('OfferReceived ', localStorage.getItem('tradeId'))
-    //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
-    console.log('id', id)
-    console.log('items', items)
-    acceptOfferReceived(id, items)
+    acceptOfferReceived(id, items, propid)
   }
 
   const rejectOfferSentId = (id, items) => {
-    console.log('OfferSent ', localStorage.getItem('tradeId'))
-    //acceptOfferSent(localStorage.getItem("tradeId"), offeredTrading)
-    console.log('id', id)
-    console.log('items', items)
-    rejectOfferSent(id, items)
+    rejectOfferSent(id, items, propid)
   }
 
   const rejectOfferReceivedId = (id, items) => {
-    console.log('OfferReceived ', localStorage.getItem('tradeId'))
-    //acceptOfferReceived(localStorage.getItem("tradeId"), receivedTrading)
-    console.log('id', id)
-    console.log('items', items)
-    rejectOfferReceived(id, items)
+    rejectOfferReceived(id, items, propid)
   }
 
-  console.log(data, 'data')
-  console.log(data0, 'data0')
-  console.log(data1, 'data1')
-  console.log(fortrading, 'fortrading')
   return (
     <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
@@ -432,7 +408,9 @@ const TradingContent = ({
                     >
                       <img src={value.url} height="100" width="100" alt="" />
                       <Typography>{`Name: ${value.name}`}</Typography>
-                      <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      {value.inventory_item_type && (
+                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                      )}
                     </Stack>
                   </Card>
                 ))}
@@ -464,7 +442,9 @@ const TradingContent = ({
                       >
                         <img src={value.url} height="100" width="100" alt="" />
                         <Typography>{`Name: ${value.name}`}</Typography>
-                        <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                        {value.inventory_item_type && (
+                          <Typography>{`Type: ${value.inventory_item_type.inventoryItemType}`}</Typography>
+                        )}
                       </Stack>
                     </Card>
                   ))}
@@ -501,7 +481,7 @@ const TradingContent = ({
                   <Button
                     variant="outlined"
                     disabled={isLoadingtransfer}
-                    onClick={() => handleTransfer(userid, fortrading)}
+                    onClick={() => handleTransfer(userid, fortrading, propid)}
                   >
                     {isLoadingtransfer ? <CircularProgress size={30} /> : 'Initiate Trade'}
                   </Button>

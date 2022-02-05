@@ -54,11 +54,9 @@ const LoadingScreen = (props: Props) => {
   return (
     <>
       <section className={styles.overlay}>
-        <div className={styles.imageOverlay}></div>
-        {Loader ? <Loader /> : <LottieLoader />}
-        <section className={styles.linearProgressContainer}>
+        {/* <section className={styles.linearProgressContainer}>
           <span className={styles.loadingProgressInfo}>{loadingText}</span>
-        </section>
+        </section> */}
       </section>
     </>
   )

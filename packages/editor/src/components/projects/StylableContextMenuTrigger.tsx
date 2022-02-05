@@ -10,9 +10,9 @@ import { ContextMenuTrigger } from '../layout/ContextMenu'
  * @param {any} rest
  * @returns
  */
-export function StylableContextMenuTrigger({ className, attributes, children, ...rest }) {
+export function StylableContextMenuTrigger({ className, attributes, children, id, ...rest }) {
   return (
-    <ContextMenuTrigger {...rest} attributes={{ className, ...attributes }}>
+    <ContextMenuTrigger {...rest} id={id} attributes={{ className, ...attributes }}>
       {children}
     </ContextMenuTrigger>
   )

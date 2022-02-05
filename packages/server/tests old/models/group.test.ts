@@ -1,6 +1,6 @@
 import app from '../../packages/server/src/app'
 
-describe('CRUD operation on \'Group\' model', () => {
+describe("CRUD operation on 'Group' model", () => {
   const model = (app.service('group') as any).Model
 
   it('Create', () => {
@@ -18,10 +18,7 @@ describe('CRUD operation on \'Group\' model', () => {
   })
 
   it('Update', () => {
-    model.update(
-      { name: 'test1' },
-      { where: { name: 'test' } }
-    )
+    model.update({ name: 'test1' }, { where: { name: 'test' } })
   })
 
   it('Delete', () => {

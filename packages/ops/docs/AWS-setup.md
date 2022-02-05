@@ -100,16 +100,18 @@ You need to make those repositories in the same AWS region where the EKS cluster
 
 Go to the ECR link above and click Get Started under Create a Repository. If you're very concerned about any of your
 XREngine project codebase(s) getting out, you can choose Private for Visibility Settings, but normally Public is fine.
-You'll be needing to create multiple repositories for each deployment, e.g. a couple of repos for a `dev` deployment,
-a couple more for a `prod` deployment, etc.
+You'll be needing to create multiple repositories for each deployment, e.g. several repos for a `dev` deployment,
+several more for a `prod` deployment, etc.
 
-Assuming you're first doing a `dev` deployment, name the first repo `xrengine-dev` under Repository Name. You shouldn't
-need to change any other settings, though if you're using a Private repo and want to turn on Tag Immutability, that's
-fine. The image tags that are generated should never collide, but it will prevent any manual overwriting of a tag.
-Click Create Repository.
+Assuming you're first doing a `dev` deployment, name the first repo `xrengine-<deployment_name>-builder` under Repository
+Name, e.g. `xrengine-dev-builder`. You shouldn't need to change any other settings, though if you're using a Private 
+repo and want to turn on Tag Immutability, that's fine. The image tags that are generated should never collide, but it
+will prevent any manual overwriting of a tag. Click Create Repository.
 
-You'll need to make a second repo called `<name>-<deployment_name>-builder`, e.g. `xrengine-dev-builder` as well. 
-Everything else can be left alone for that one, too.
+You will need to make four more repos for each of the services that are deployed as part of the XREngine stack -
+`api`, `analytics`, `client`, and `gameserver`, which are also in the form `xrengine-<deployment_name>-<service_name>`.
+e.g. `xrengine-dev-api`, `xrengine-dev-analytics`, `xrengine-dev-client`, and `xrengine-dev-gameserver`.
+Everything else can be left alone for those, too.
 
 On the [repositories page](https://us-west-1.console.aws.amazon.com/ecr/repositories), you should see both of 
 the repositories you made. If you don't see any, you may be on the wrong tab up top - click Private or Public to switch
@@ -511,9 +513,9 @@ this page to make a new one. You will need to make several Secrets with the foll
 * AWS_SECRET -> The secret key of the Github-Actions-User IAM user
 * CLUSTER_NAME -> The name of the EKS cluster
 * DEPLOYMENTS_ENABLED -> Set to `true`
-* DEV_REPO_NAME -> The name of the base dev ECR repository, e.g. `xrengine-dev` (any references to the builder repo will append `-builder` to this value)
+* DEV_REPO_NAME -> The base name of the dev ECR repository, e.g. `xrengine-dev` (all references to the builder and service repos will append `-builder`/`-<service>` to this value)
 * DOCKER_LABEL -> This can be almost anything, but you can use `lagunalabs/xrengine`
-* ECR_URL -> The root ECR_URL for your repos, i.e. everything before the `/xrengine-dev(-builder)`, e.g. `11111111111.dkr.ecr.us-west-1.amazonaws.com` or `public.ecr.aws/a1b2c3d4`
+* ECR_URL -> The root ECR_URL for your repos, i.e. everything before the `/xrengine-dev-builder`, e.g. `11111111111.dkr.ecr.us-west-1.amazonaws.com` or `public.ecr.aws/a1b2c3d4`
 * PRIVATE_ECR -> Set this to `true` if your ECR repos are private, if they're public you don't need to set this at all
 
 If you go to the Actions Tab, you might see a few workflow runs with green checkmarks. If so, you'll be re-running the
@@ -561,7 +563,9 @@ configuration values, and then letting the deployment process fill in the rest.
 ### Fill in Helm config file with variables
 Template Helm config files for dev and prod deployments can be found at packages/ops/configs/<dev/prod>.template.values.yaml.
 Before filling them in, make a copy elsewhere, call that '<dev/prod>.values.yaml', and edit that copy.
-There's also a <dev/prod>.builder.template.values.yaml template, which should also be filled in.
+Both the builder and main deployments should use the same config file. When the builder seeds the database,
+it needs a number of values that only need to be configured for the other services, so all of the values
+need to be defined in one config file.
 
 There are many fields to fill in, most marked with <>. Not all are necessary for all situations - if you're not
 using social login, for instance, you don't need credentials for Github/Google/Facebook/etc.
@@ -595,14 +599,15 @@ initial nodegroup.
 If you're using a private ECR repo, set this to "true" in the builder config file.
 
 #### (everything).image.repository
-You'll need to replace every <repository_name> with the ECR_URL of your non-builder repo, e.g. `abcd1234efgh.dkr.ecr.us-west-1.amazonaws.com/xrengine-dev`
+You'll need to replace every <repository_name> with the full ECR_URL of your non-builder repos, e.g. `abcd1234efgh.dkr.ecr.us-west-1.amazonaws.com/xrengine-dev-api`.
+Each services has to have the proper `-<service>` suffix on it, e.g. `-api`, `-client`, etc.
 
 ### Run Helm install
-Run ```helm install -f </path/to/*.builder.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
+Run ```helm install -f </path/to/*.values.yaml> <stage_name>-builder xrengine/xrengine-builder```
 and the run ```helm install -f </path/to/*.values.yaml> <stage_name> xrengine/xrengine```
 
-This will spin up the main and builder deployments using their respective Helm config files, <dev/prod>.builder.values.yaml and
-<dev/prod>.values.yaml. Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
+This will spin up the main and builder deployments using the Helm config file, <dev/prod>.values.yaml.
+Neither will fully work yet, since there's no valid image in the repos yet. The GitHub
 Actions and builder processes will make those images and update the deployments with the tags of the images they've built
 so that they can pull down and use those images.
 
@@ -624,10 +629,10 @@ The full build and deployment process works like this:
     for the database being seeded; if it does not exist, it seeds the database with the basic XREngine schema,
     seeds the default project into the database and storage provider, and seeds various types.
 6. The builder downloads any XREngine projects that the deployment has added.
-7. The builder builds the client files using these projects, as well as copying them so that the api and gameservers have access to them.
-8. The builder pushes this final Docker image to the repo `xrengine-<release>` in ECR
-9. The builder updates the main deployment to point to the final image it just created.
-10. The main deployment spins up the final Docker image for the api, analytics, client, and gameserver services.
+7. The builder builds the Docker image for each service concurrently using these projects, building them into the client files as well as copying them so that the api and gameservers have access to them.
+8. The builder pushes these final Docker images to the repos `xrengine-<release>-<service>` in ECR
+9. The builder updates the main deployment to point to the final images it just created.
+10. The main deployment spins up the final Docker images for the api, analytics, client, and gameserver services.
 
 ### Upgrading an existing Helm deployment
 One of the features of Helm is being able to easily upgrade deployments with new values. The command to

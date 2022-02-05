@@ -12,7 +12,7 @@ import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
 import { useDispatch } from '../../../store'
 import { Dropdown } from 'semantic-ui-react'
-import Snackbar from '@mui/material/Snackbar'
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
 import _ from 'lodash'
 import Grid from '@mui/material/Grid'
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center'
   },
   input: {
-    marginLeft: theme.spacing(1),
+    marginLeft: 1,
     flex: 1,
     color: '#f1f1f1'
   },
@@ -224,7 +224,7 @@ const InviteModel = (props: Props) => {
     const value = e.target.value.trim()
   }
 
-  const handleCloseSnabar = (event?: React.SyntheticEvent, reason?: string) => {
+  const handleCloseSnabar = (event: React.SyntheticEvent, reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
     }
@@ -295,8 +295,8 @@ const InviteModel = (props: Props) => {
                     required
                     variant="outlined"
                   >
-                    {currencies.map((option) => (
-                      <option key={option.value} value={option.value}>
+                    {currencies.map((option, index) => (
+                      <option key={option.value + index} value={option.value}>
                         {option.label}
                       </option>
                     ))}
@@ -317,8 +317,8 @@ const InviteModel = (props: Props) => {
                     required
                     variant="outlined"
                   >
-                    {provide.map((option) => (
-                      <option key={option.value} value={option.value}>
+                    {provide.map((option, element) => (
+                      <option key={option.value + element} value={option.value}>
                         {option.label}
                       </option>
                     ))}

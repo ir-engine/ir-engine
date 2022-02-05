@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
 import { client } from '@xrengine/client-core/src/feathers'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { OpenMatchTicketAssignment } from '@xrengine/engine/tests/mathmaker/interfaces'
+import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const Page = () => {

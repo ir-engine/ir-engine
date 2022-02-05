@@ -1,7 +1,7 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
-import InputManager from '../controls/InputManager'
+import InputManager from './InputManager'
 import { addInputActionMapping, removeInputActionMapping } from '../functions/parseInputActionMapping'
 import { SceneManager } from '../managers/SceneManager'
 import { ActionSets, EditorMapping, FlyMapping } from './input-mappings'

@@ -1,14 +1,9 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
-import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
+import { createState, useState } from '@speigg/hookstate'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
-import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
-import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -22,7 +17,8 @@ const state = createState({
   retrieving: false,
   fetched: false,
   updateNeeded: true,
-  skipGuests: false
+  skipGuests: false,
+  lastFetched: 0
 })
 
 store.receptors.push((action: UserActionType): any => {
@@ -40,9 +36,7 @@ store.receptors.push((action: UserActionType): any => {
           lastFetched: Date.now()
         })
       case 'USER_ADMIN_REMOVED':
-        let userRemove = [...s.users.value]
-        userRemove = userRemove.filter((user) => user.id !== action.data.id)
-        return s.merge({ users: userRemove, updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'USER_ADMIN_CREATED':
         return s.merge({ updateNeeded: true })
       case 'USER_ADMIN_PATCHED':
@@ -73,7 +67,7 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement') => {
+  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
@@ -88,13 +82,14 @@ export const UserService = {
               $sort: {
                 name: 1
               },
-              $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+              $skip: skip,
               $limit: limit,
-              action: 'admin'
+              action: 'admin',
+              search: value
             }
           }
           if (skipGuests) {
-            params.query.userRole = {
+            ;(params.query as any).userRole = {
               $ne: 'guest'
             }
           }

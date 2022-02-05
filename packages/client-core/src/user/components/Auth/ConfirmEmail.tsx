@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
-import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import styles from './Auth.module.scss'
@@ -13,7 +12,6 @@ import styles from './Auth.module.scss'
 interface Props {}
 
 const ConfirmEmail = (props: Props): any => {
-  const dispatch = useDispatch()
   const auth = useAuthState()
   const { t } = useTranslation()
   const handleResendEmail = (e: any): any => {

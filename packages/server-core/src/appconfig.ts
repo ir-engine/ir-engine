@@ -51,7 +51,6 @@ db.url =
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED === 'true',
   mode: process.env.SERVER_MODE!,
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
@@ -94,7 +93,6 @@ server.url = process.env.SERVER_URL || url.format(obj)
  * Client / frontend
  */
 const client = {
-  enabled: process.env.CLIENT_ENABLED === 'true',
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
   url:
@@ -108,7 +106,7 @@ const client = {
 // TODO: rename to 'instanceserver'
 const gameserver = {
   clientHost: process.env.APP_HOST!,
-  enabled: process.env.GAMESERVER_ENABLED === 'true',
+  hostname: process.env.GAMESERVER_HOST,
   rtc_start_port: parseInt(process.env.RTC_START_PORT!),
   rtc_end_port: parseInt(process.env.RTC_END_PORT!),
   rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
@@ -126,7 +124,6 @@ const gameserver = {
  * Analytics generator
  */
 const analytics = {
-  enabled: process.env.ANALYTICS_ENABLED === 'true',
   port: process.env.ANALYTICS_PORT!,
   processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS!
 }
@@ -163,7 +160,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -175,6 +172,7 @@ const authentication = {
     numBytes: 16
   },
   callback: {
+    discord: process.env.DISCORD_CALLBACK_URL || `${client.url}/auth/oauth/discord`,
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
@@ -188,6 +186,14 @@ const authentication = {
           ? server.hostname
           : server.hostname + ':' + server.port,
       protocol: 'https'
+    },
+    discord: {
+      key: process.env.DISCORD_CLIENT_ID!,
+      secret: process.env.DISCORD_CLIENT_SECRET!,
+      scope: ['identify', 'email'],
+      custom_params: {
+        prompt: 'none'
+      }
     },
     facebook: {
       key: process.env.FACEBOOK_CLIENT_ID!,
@@ -232,6 +238,7 @@ const aws = {
   },
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
+    endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,

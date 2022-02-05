@@ -1,14 +1,14 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
-import { System } from '../classes/System'
 import { SystemUpdateType } from './SystemUpdateType'
+import { accessEngineState } from '../classes/EngineService'
 
 /**
  * System for running simulation logic with fixed time intervals
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function FixedPipelineSystem(world: World, args: { tickRate: number }): Promise<System> {
+export default async function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   let accumulator = 0
 
   const timestep = 1 / args.tickRate
@@ -31,6 +31,7 @@ export default async function FixedPipelineSystem(world: World, args: { tickRate
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       world.fixedElapsedTime += world.fixedDelta
       world.fixedTick += 1
+      accessEngineState().fixedTick.set(world.fixedTick)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()

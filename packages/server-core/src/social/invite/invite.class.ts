@@ -94,7 +94,7 @@ export class Invite extends Service {
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params.preventUserRelationshipRemoval) {
       const selfUser = extractLoggedInUserFromParams(params)
-      const relatedUserId = invite.userId === selfUser.userId ? invite.inviteeId : invite.userId
+      const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service('user-relationship').remove(relatedUserId, params)
     }
     return super.remove(id)

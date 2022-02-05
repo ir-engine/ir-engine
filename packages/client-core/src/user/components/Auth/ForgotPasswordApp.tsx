@@ -3,7 +3,6 @@ import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Typography from '@mui/material/Typography'
-import { useDispatch } from '../../../store'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthService } from '../../services/AuthService'
@@ -15,7 +14,6 @@ interface Props {
 
 const ForgotPasswordComponent = (props: Props): any => {
   const { classes } = props
-  const dispatch = useDispatch()
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 

@@ -1,6 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import type { Network } from '@xrengine/engine/src/networking/classes/Network'
 
 export const Views = {
   Closed: '',
@@ -29,7 +28,7 @@ export interface UserMenuProps {
   showDialog?: Function
   alertSuccess?: Function
   currentScene?: any
-  provisionInstanceServer?: any
+  provisionServer?: any
   uploadAvatarModel?: Function
   fetchAvatarList?: Function
   updateUserSettings?: Function

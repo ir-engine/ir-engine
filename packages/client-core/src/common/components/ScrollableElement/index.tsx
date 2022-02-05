@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, JSXElementConstructor } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './ScrollableElement.module.scss'
 
 type ScrollableElementPropsType = {
@@ -10,7 +10,7 @@ type ScrollableElementPropsType = {
 }
 
 const ScrollableElement = (props: ScrollableElementPropsType) => {
-  const scrollElement = useRef()
+  const scrollElement = useRef(null!)
   const [shadows, setShadows] = useState({
     top: false,
     bottom: false
@@ -23,7 +23,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
   const adjustShadows = (e?: any) => {
     if (e) e.stopPropagation()
 
-    const el = scrollElement.current as HTMLElement
+    const el = scrollElement.current! as HTMLElement
 
     if (el.clientHeight >= el.scrollHeight) {
       setShadows({ top: false, bottom: false })

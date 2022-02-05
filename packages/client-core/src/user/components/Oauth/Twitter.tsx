@@ -3,13 +3,11 @@ import React, { useState, useEffect } from 'react'
 import { AuthService } from '../../services/AuthService'
 import Container from '@mui/material/Container'
 import { useAuthState } from '../../services/AuthService'
-import { useDispatch } from '../../../store'
 import { useTranslation } from 'react-i18next'
 
 const TwitterCallbackComponent = (props): any => {
   const { loginUserByJwt, refreshConnections } = props
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)
   const search = new URLSearchParams(useLocation().search)
@@ -24,7 +22,7 @@ const TwitterCallbackComponent = (props): any => {
     if (!error) {
       if (type === 'connection') {
         const user = useAuthState().user
-        AuthService.refreshConnections(user.id.value)
+        AuthService.refreshConnections(user.id.value!)
       } else {
         let redirectSuccess = `${path}`
         if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`

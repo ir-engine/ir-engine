@@ -1,89 +1,69 @@
-import i18n from 'i18next'
-import { Matrix4 } from 'three'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Vector3 } from 'three'
 import Command, { CommandParams } from './Command'
 import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import reverseDepthFirstTraverse from '../functions/reverseDepthFirstTraverse'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
-  parents?: any
+  parents: EntityTreeNode | EntityTreeNode[]
 
   /** Child object before which all objects will be added */
-  befores?: any
+  befores?: EntityTreeNode | EntityTreeNode[]
 
-  positions?: any
+  positions?: Vector3[]
 }
 
 export default class ReparentCommand extends Command {
-  undoObjects: any[]
+  parents: EntityTreeNode[]
 
-  newParents: any
+  befores?: EntityTreeNode[]
 
-  newBefores: any
+  positions?: Vector3[]
 
-  newPositions: any
+  oldParents: EntityTreeNode[]
 
-  oldParents: any[]
+  oldBefores: EntityTreeNode[]
 
-  oldBefores: any[]
+  oldPositions: Vector3[]
 
-  oldPositions: any[]
-
-  constructor(objects?: any | any[], params?: ReparentCommandParams) {
+  constructor(objects: EntityTreeNode[], params: ReparentCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = []
-    this.undoObjects = []
-    this.newParents = Array.isArray(params.parents) ? params.parents : [params.parents]
-    this.newBefores = Array.isArray(params.befores) ? params.befores : [params.befores]
-    this.newPositions = params.positions
-    this.oldParents = []
-    this.oldBefores = []
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    this.parents = Array.isArray(params.parents) ? params.parents : [params.parents]
+    this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
+    this.positions = params.positions
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
+    if (this.keepHistory) {
+      this.oldParents = []
+      this.oldBefores = []
+      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
 
-    this.oldPositions = objects.map((o) => o.position.clone())
-
-    Engine.scene.traverse((object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.affectedObjects.push(object)
-      }
-    })
-
-    // Sort objects, parents, and befores with a depth first search so that undo adds nodes in the correct order
-    reverseDepthFirstTraverse(Engine.scene, (object) => {
-      if (objects.indexOf(object) !== -1) {
-        this.undoObjects.push(object)
-        this.oldParents.push(object.parent)
-        if (object.parent) {
-          const siblings = object.parent.children
-          const index = siblings.indexOf(object)
-          if (index + 1 < siblings.length) {
-            this.oldBefores.push(siblings[index + 1])
-          } else {
-            this.oldBefores.push(undefined)
-          }
+      for (let i = objects.length - 1; i >= 0; i--) {
+        const obj = objects[i]
+        if (obj.parentNode) {
+          this.oldParents.push(obj.parentNode)
+          this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
         }
       }
-    })
+    }
   }
 
   execute() {
     this.emitBeforeExecuteEvent()
 
-    this.reparent(this.affectedObjects, this.newParents, this.newBefores)
+    this.reparent(this.affectedObjects, this.parents, this.befores)
 
-    if (this.newPositions) {
+    if (this.positions) {
       CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
-        positions: this.newPositions,
+        positions: this.positions,
         space: TransformSpace.Local
       })
     }
@@ -98,7 +78,7 @@ export default class ReparentCommand extends Command {
     this.shouldEmitEvent = true
     this.isSelected = true
 
-    if (this.newPositions) {
+    if (this.positions) {
       CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
         positions: this.oldPositions,
         space: TransformSpace.Local,
@@ -117,7 +97,7 @@ export default class ReparentCommand extends Command {
   toString() {
     return `${this.constructor.name} id: ${this.id} objects: ${serializeObject3DArray(
       this.affectedObjects
-    )} newParent: ${serializeObject3D(this.newParents)} newBefore: ${serializeObject3D(this.newBefores)}`
+    )} newParent: ${serializeObject3D(this.parents)} newBefore: ${serializeObject3D(this.befores)}`
   }
 
   emitBeforeExecuteEvent() {
@@ -135,50 +115,17 @@ export default class ReparentCommand extends Command {
     }
   }
 
-  reparent(objects?: any[], parents?: any, before?: any): void {
+  reparent(objects: EntityTreeNode[], parents: EntityTreeNode[], befores?: EntityTreeNode[]): void {
     for (let i = 0; i < objects.length; i++) {
+      const parent = parents[i] ?? parents[0]
+      if (!parent) continue
+
       const object = objects[i]
+      const before = befores ? befores[i] ?? befores[0] : undefined
+      const index = before ? parent.children?.indexOf(before) : undefined
 
-      if (!object.parent) {
-        throw new Error(i18n.t('editor:errors.noParent', { node: object.nodeName || object.type, name: object.name }))
-      }
-
-      const newParent = parents[i] ?? parents[0]
-
-      if (!newParent) {
-        throw new Error(i18n.t('editor:errors.undefinedParent'))
-      }
-
-      if (newParent !== object.parent) {
-        // Maintain world position when reparenting.
-        newParent.updateMatrixWorld()
-
-        const tempMatrix1 = new Matrix4()
-        tempMatrix1.copy(newParent.matrixWorld).invert()
-
-        object.parent.updateMatrixWorld()
-        tempMatrix1.multiply(object.parent.matrixWorld)
-
-        object.applyMatrix(tempMatrix1)
-
-        object.updateWorldMatrix(false, false)
-      }
-
-      const objectIndex = object.parent.children.indexOf(object)
-      object.parent.children.splice(objectIndex, 1)
-
-      const newBefore = Array.isArray(before) ? before[i] : before
-
-      if (newBefore) {
-        const newObjectIndex = newParent.children.indexOf(newBefore)
-        newParent.children.splice(newObjectIndex, 0, object)
-      } else {
-        newParent.children.push(object)
-      }
-
-      object.parent = newParent
-
-      object.updateMatrixWorld(true)
+      object.reparent(parent, index)
+      reparentObject3D(object, parent, before)
     }
 
     if (this.isSelected) {

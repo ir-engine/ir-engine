@@ -42,7 +42,7 @@ const ProjectsPage = () => {
    *
    */
   return (
-    <>
+    <div style={{ zIndex: 1, pointerEvents: 'auto' }}>
       {!authUser ? (
         <StyledProjectsSection>
           <StyledProjectsContainer>
@@ -79,7 +79,7 @@ const ProjectsPage = () => {
           </div>
         </ClickAwayListener>
       )}
-    </>
+    </div>
   )
 }
 

@@ -155,7 +155,9 @@ describe('match maker functions', () => {
         async () => {
           await getTicketsAssignment(ticketId)
         },
-        { message: `request to ${FRONTEND_SERVICE_URL}/tickets/${ticketId}/assignments failed, reason: ${errorMessage}` }
+        {
+          message: `request to ${FRONTEND_SERVICE_URL}/tickets/${ticketId}/assignments failed, reason: ${errorMessage}`
+        }
       )
     })
   })

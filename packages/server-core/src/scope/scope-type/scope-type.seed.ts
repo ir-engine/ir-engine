@@ -35,6 +35,12 @@ export const scopeTypeSeed = {
       type: 'globalAvatars:write'
     },
     {
+      type: 'benchmarking:read'
+    },
+    {
+      type: 'benchmarking:write'
+    },
+    {
       type: 'groups:read'
     },
     {

@@ -3,7 +3,6 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { useDispatch } from '../../../store'
 import { AuthService } from '../../services/AuthService'
 import Grid from '@mui/material/Grid'
 import styles from './Auth.module.scss'
@@ -15,7 +14,6 @@ interface Props {
 
 const ForgotPasswordComponent = (props: Props): any => {
   const { classes } = props
-  const dispatch = useDispatch()
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 

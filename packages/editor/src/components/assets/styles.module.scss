@@ -1,3 +1,23 @@
+@use "../theme.scss" as theme;
+
 .assetsPanel {
     height: 100%;
+}
+
+.fileListItemContainer  {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 5px;
+    color: white;
+    cursor: pointer;
+
+    &:hover {
+        background: theme.$hover;
+    }
+
+    .fileNameContainer {
+        margin-right: 3px;
+    }
 }

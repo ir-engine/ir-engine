@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import Lottie from 'react-lottie'
 import { randomNumber } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 import styles from '../Loader.module.scss'
 

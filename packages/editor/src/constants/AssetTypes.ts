@@ -42,7 +42,6 @@ export const ItemTypes = {
   //TODO: Need to check if following types are really used or not.
   Node: 'Node',
   Model: 'Model',
-  Shopify: 'Shopify',
   Image: 'Image',
   Video: 'Video',
   Volumetric: 'Volumetric',
@@ -58,7 +57,6 @@ export const ItemTypes = {
  */
 export const AssetTypes = [
   ItemTypes.Model,
-  ItemTypes.Shopify,
   ItemTypes.Image,
   ItemTypes.Video,
   ItemTypes.Audio,

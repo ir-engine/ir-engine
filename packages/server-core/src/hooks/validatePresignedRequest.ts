@@ -5,7 +5,7 @@ import {
   MIN_THUMBNAIL_FILE_SIZE,
   MAX_THUMBNAIL_FILE_SIZE
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { Hook, HookContext } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 
 export const validateGet = async (context: HookContext): Promise<HookContext> => {
   const q = context.params.query!

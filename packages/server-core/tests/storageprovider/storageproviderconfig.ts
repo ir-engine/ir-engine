@@ -55,6 +55,7 @@ const clearS3TestFolder = (provider: S3Provider, testFolderName: string): Promis
 }
 const s3StorageBeforeTest = async (provider: S3Provider): Promise<any> => {
   provider.bucket = process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
+
   let bucketExists
   try {
     bucketExists = await provider.provider.headBucket({ Bucket: provider.bucket }).promise()

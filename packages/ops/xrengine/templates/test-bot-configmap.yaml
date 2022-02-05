@@ -1,0 +1,15 @@
+{{- if .Values.testbot.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine.testbot.fullname" . }}
+  labels:
+    {{- include "xrengine.testbot.labels" . | nindent 4 }}
+data:
+{{- if .Values.testbot.extraEnv }}
+{{ toYaml .Values.testbot.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.testbot.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.testbot.config }}'
+{{- end }}
+{{- end }}

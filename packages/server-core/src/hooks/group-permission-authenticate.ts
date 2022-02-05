@@ -15,7 +15,7 @@ export default () => {
     const groupId =
       path === 'group-user' && method === 'find' ? params.query!.groupId : fetchedGroupId != null ? fetchedGroupId : id
     params.query!.groupId = groupId
-    const userId = path === 'group' ? loggedInUser.userId : params.query!.userId || loggedInUser.userId
+    const userId = path === 'group' ? loggedInUser.id : params.query!.userId || loggedInUser.id
     const groupUserCountResult = await app.service('group-user').find({
       query: {
         groupId: groupId,
@@ -37,7 +37,7 @@ export default () => {
         params.groupUsersRemoved !== true &&
         groupUser.groupUserRank !== 'owner' &&
         groupUser.groupUserRank !== 'admin' &&
-        groupUser.userId !== loggedInUser.userId
+        groupUser.userId !== loggedInUser.id
       ) {
         throw new Forbidden('You must be the owner or an admin of this group to perform that action')
       }

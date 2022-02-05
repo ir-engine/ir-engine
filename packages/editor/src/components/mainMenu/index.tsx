@@ -3,7 +3,7 @@ import ToolButton from '../toolbar/ToolButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import { ContextMenu, MenuItem, SubMenu, showMenu } from '../layout/ContextMenu'
 import { useState } from 'react'
-import Hotkeys from 'react-hot-keys'
+import Hotkeys, { OnKeyFun } from 'react-hot-keys'
 
 interface Command {
   name: string
@@ -49,7 +49,7 @@ const MainMenu = (props: MainMenuProp) => {
 
       if (command.hotkey) {
         return (
-          <Hotkeys key={command.name} keyName={command.hotkey} onKeyUp={command.action}>
+          <Hotkeys key={command.name} keyName={command.hotkey} onKeyUp={command.action as OnKeyFun}>
             {menuItem}
           </Hotkeys>
         )

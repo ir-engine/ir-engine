@@ -7,19 +7,23 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { getSystemsFromSceneData } from '@xrengine/projects/loader'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import {
+  createEngine,
+  initializeCoreSystems,
+  initializeMediaServerSystems,
+  initializeNode,
+  initializeProjectSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type InstanceMetadata = {
   currentUsers: number
@@ -33,15 +37,25 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
-  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
-    const options: InitializeOptions = {
-      type: EngineSystemPresets.SERVER,
-      publicPath: config.client.url,
-      systems
-    }
-    await initializeEngine(options)
+    const systems = await getSystemsFromSceneData(projectName, sceneData, false)
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    Engine.publicPath = config.client.url
+    createEngine()
+    initializeNode()
+    await initializeCoreSystems()
+    await initializeRealtimeSystems()
+    await initializeSceneSystems()
+    await initializeProjectSystems(projects, systems)
+
+    const world = useWorld()
+    const userId = 'server' as UserId
+    Engine.userId = userId
+    const hostIndex = world.userIndexCount++
+    world.clients.set(userId, { userId, name: 'server', userIndex: hostIndex })
+    world.userIdToUserIndex.set(userId, hostIndex)
+    world.userIndexToUserId.set(hostIndex, userId)
   }
 
   let entitiesLeft = -1
@@ -53,13 +67,19 @@ const loadScene = async (app: Application, scene: string) => {
     }
   }, 1000)
 
-  const onEntityLoaded = (left) => {
-    entitiesLeft = left.entitiesLeft
+  const receptor = (action: EngineActionType) => {
+    switch (action.type) {
+      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
+        entitiesLeft = action.entitiesLeft
+        break
+    }
   }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
-
+  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
-  EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_ENTITY_LOADED, onEntityLoaded)
+
+  ///remove receptor
+  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
+  Engine.currentWorld.receptors.splice(receptorIndex, 1)
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
@@ -156,7 +176,7 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
   const existingInstanceResult = await app.service('instance').find({
     query: existingInstanceQuery
   })
-  console.log('existingInstanceResult', existingInstanceResult.data)
+  // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
@@ -192,18 +212,19 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
-    await initializeEngine({
-      type: EngineSystemPresets.MEDIA,
-      publicPath: config.client.url
-    })
+    Engine.publicPath = config.client.url
+    Engine.userId = 'media' as UserId
+    createEngine()
+    initializeNode()
+    await initializeMediaServerSystems()
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    await initializeProjectSystems(projects, [])
     Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded(true) as any)
     dispatchLocal(EngineActions.joinedWorld(true) as any)
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
-    Engine.isLoading = true
     await loadScene(app, sceneId)
-    Engine.isLoading = false
   }
 }
 
@@ -212,6 +233,7 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+  let engineStarted = false
 
   const shouldLoadGameserver =
     (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -258,6 +280,7 @@ export default (app: Application): void => {
 
         const isReady = status.state === 'Ready'
         const isNeedingNewServer =
+          !engineStarted &&
           !config.kubernetes.enabled &&
           (status.state === 'Shutdown' ||
             app.instance == null ||
@@ -275,8 +298,9 @@ export default (app: Application): void => {
         }
 
         if (isReady || isNeedingNewServer) {
+          engineStarted = true
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)
-          if (sceneId != null && !Engine.sceneLoaded && !Engine.isLoading) await loadEngine(app, sceneId)
+          if (sceneId != null) await loadEngine(app, sceneId)
         } else {
           try {
             const instance = await app.service('instance').get(app.instance.id)
@@ -438,7 +462,8 @@ export default (app: Application): void => {
         console.log('user instanceId: ' + user.instanceId)
 
         if (instanceId != null && instance != null) {
-          const activeUsers = Engine.currentWorld.clients
+          const activeClients = Engine.currentWorld.clients
+          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== 'server'))
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {

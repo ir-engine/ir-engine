@@ -1,66 +1,87 @@
-import i18n from 'i18next'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Command, { CommandParams } from './Command'
 import { serializeObject3D } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
-import getDetachedObjectsRoots from '../functions/getDetachedObjectsRoots'
+import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
-import { NodeManager } from '../managers/NodeManager'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 
 export interface AddObjectCommandParams extends CommandParams {
+  prefabTypes?: ScenePrefabTypes | ScenePrefabTypes[]
+
+  sceneData?: SceneJson | SceneJson[]
+
   /** Parent object which will hold objects being added by this command */
-  parents?: any
+  parents?: EntityTreeNode | EntityTreeNode[]
 
   /** Child object before which all objects will be added */
-  befores?: any
+  befores?: EntityTreeNode | EntityTreeNode[]
 
   /** Whether to use unique name or not */
   useUniqueName?: boolean
 }
 
 export default class AddObjectCommand extends Command {
-  /** Parent object which will hold objects being added by this command */
-  parents: any
-
-  /** Child object before which all objects will be added */
-  befores: any
+  parents?: EntityTreeNode[]
+  befores?: EntityTreeNode[]
+  prefabTypes?: ScenePrefabTypes[]
+  sceneData?: SceneJson[]
 
   /** Whether to use unique name or not */
   useUniqueName?: boolean
 
-  duplicateObjects?: any[]
-
-  constructor(objects?: any | any[], params?: AddObjectCommandParams) {
+  constructor(objects: EntityTreeNode[], params: AddObjectCommandParams) {
     super(objects, params)
 
-    this.affectedObjects = Array.isArray(objects) ? objects : [objects]
-    this.parents = Array.isArray(params.parents) ? params.parents : [params.parents]
-    this.befores = Array.isArray(params.befores) ? params.befores : [params.befores]
+    this.parents = params.parents ? (Array.isArray(params.parents) ? params.parents : [params.parents]) : undefined
+    this.befores = params.befores ? (Array.isArray(params.befores) ? params.befores : [params.befores]) : undefined
     this.useUniqueName = params.useUniqueName ?? true
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+
+    this.sceneData = params.sceneData
+      ? Array.isArray(params.sceneData)
+        ? params.sceneData
+        : [params.sceneData]
+      : undefined
+
+    this.prefabTypes = params.prefabTypes
+      ? Array.isArray(params.prefabTypes)
+        ? params.prefabTypes
+        : [params.prefabTypes]
+      : undefined
+
+    if (this.keepHistory) {
+      this.oldSelection = CommandManager.instance.selected.slice(0)
+    }
   }
 
   execute(): void {
     this.emitBeforeExecuteEvent()
-
-    this.addObject(this.affectedObjects, this.parents, this.befores)
-
+    this.addObject(this.affectedObjects, this.prefabTypes, this.sceneData, this.parents, this.befores)
     this.emitAfterExecuteEvent()
   }
 
   undo(): void {
     CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
-      deselectObject: false
+      deselectObject: false,
+      skipSerialization: true
     })
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+
+    if (this.oldSelection) {
+      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+    }
   }
 
   toString(): string {
-    return `AddObjectCommand id: ${this.id} object: ${serializeObject3D(
-      this.affectedObjects
-    )} parent: ${serializeObject3D(this.parents)} before: ${serializeObject3D(this.befores)}`
+    return `AddObjectCommand id: ${this.id} object: ${serializeObject3D(this.affectedObjects)} parent: ${
+      this.parents
+    } before: ${serializeObject3D(this.befores)}`
   }
 
   emitBeforeExecuteEvent() {
@@ -70,53 +91,46 @@ export default class AddObjectCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
-      }
+      if (this.isSelected) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
 
       CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
     }
   }
 
-  addObject(objects: any[], parents: any[], befores: any[]): void {
-    const rootObjects = getDetachedObjectsRoots(objects)
-
+  addObject(
+    objects: EntityTreeNode[],
+    prefabTypes?: ScenePrefabTypes[],
+    sceneData?: SceneJson[],
+    parents?: EntityTreeNode[],
+    befores?: EntityTreeNode[]
+  ): void {
+    const rootObjects = getDetachedObjectsRoots(objects) as EntityTreeNode[]
+    const world = useWorld()
+    console.log(objects, prefabTypes, sceneData)
     for (let i = 0; i < rootObjects.length; i++) {
       const object = rootObjects[i]
-      object.saveParent = true
 
-      const parent = parents ? parents[i] ?? parents[0] : undefined
-      const before = befores ? befores[i] ?? befores[0] : undefined
+      if (prefabTypes) {
+        createNewEditorNode(object.entity, prefabTypes[i] ?? prefabTypes[0])
+      } else if (sceneData) {
+        const data = sceneData[i] ?? sceneData[0]
 
-      if (parent) {
-        if (before) {
-          const index = parent.children.indexOf(before)
-
-          if (index === -1) {
-            throw new Error(i18n.t('editor:errors.addObject'))
-          }
-
-          parent.children.splice(index, 0, object)
-          object.parent = parent
-        } else {
-          parent.add(object)
-        }
-      } else if (object !== Engine.scene) {
-        Engine.scene.add(object)
+        object.traverse((node) => {
+          node.entity = createEntity()
+          loadSceneEntity(node, data.entities[node.uuid])
+          if (node.uuid !== data.root) reparentObject3D(node, node.parentNode)
+        })
       }
 
-      object.traverse((child) => {
-        if (child.isNode) {
-          if (this.useUniqueName) {
-            makeUniqueName(Engine.scene, child)
-          }
+      let parent = parents ? parents[i] ?? parents[0] : world.entityTree.rootNode
+      let before = befores ? befores[i] ?? befores[0] : undefined
 
-          child.onAdd()
-          NodeManager.instance.add(child)
-        }
-      })
+      const index = before ? parent.children?.indexOf(before) : undefined
+      world.entityTree.addEntityNode(object, parent, index)
 
-      object.updateMatrixWorld(true)
+      reparentObject3D(object, parent, before)
+
+      if (this.useUniqueName) object.traverse((node) => makeUniqueName(node, world))
     }
 
     if (this.isSelected) {

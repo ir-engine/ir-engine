@@ -257,7 +257,7 @@ export class WalkState extends AnimationState {
   ] as any
 
   updateWeights = (): void => {
-    const { velocity, distanceFromGround } = this.weightParams.movement
+    const { velocity, distanceFromGround } = this.weightParams.movement!
 
     const maxWeight = distanceFromGround ? 0.5 : 1 // In Air wieght
 
@@ -291,7 +291,7 @@ export class RunState extends AnimationState {
   ] as any
 
   updateWeights = (): void => {
-    const { velocity, distanceFromGround } = this.weightParams.movement
+    const { velocity, distanceFromGround } = this.weightParams.movement!
 
     const maxWeight = distanceFromGround ? 0.5 : 1 // In Air wieght
 

@@ -1,7 +1,7 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
 import styles from './Projects.module.scss'
-import { ProjectService } from '../../services/ProjectService'
+import { ProjectService } from '../../../common/services/ProjectService'
 import { useDispatch } from '../../../store'
 import Button from '@mui/material/Button'
 import Fade from '@mui/material/Fade'

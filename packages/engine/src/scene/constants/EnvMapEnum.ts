@@ -1,5 +1,3 @@
-import { CubemapBakeSettings } from '../../scene/types/CubemapBakeSettings'
-
 export const enum EnvMapSourceType {
   'Default',
   'Texture',
@@ -9,13 +7,4 @@ export const enum EnvMapSourceType {
 export const enum EnvMapTextureType {
   'Cubemap',
   'Equirectangular'
-}
-
-export type EnvMapProps = {
-  type: EnvMapSourceType
-  envMapIntensity: number
-  envMapSourceURL?: string
-  envMapTextureType?: EnvMapTextureType
-  envMapSourceColor?: string
-  envMapCubemapBake?: CubemapBakeSettings
 }

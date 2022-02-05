@@ -18,13 +18,12 @@ interface Props {}
 
 const UserSettings = (props: Props): JSX.Element => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
-  const selfUser = useAuthState().user
+  const selfUser = useAuthState().user.value
   const [volume, setvolume] = useState<number>(
-    selfUser?.user_setting?.volume.value != null ? selfUser.user_setting.volume.value : 30
+    selfUser?.user_setting?.volume != null ? selfUser.user_setting.volume : 30
   )
   const [audio, setAudio] = useState<number>(
-    selfUser?.user_setting?.microphone.value != null ? selfUser.user_setting.microphone.value : 30
+    selfUser?.user_setting?.microphone != null ? selfUser.user_setting.microphone : 30
   )
   const [radiovalue, setradiovalue] = useState('high')
   const [useSpatialAudio, setUseSpatialAudio] = useState(
@@ -49,11 +48,9 @@ const UserSettings = (props: Props): JSX.Element => {
   // };
   const handleSpatialAudioChange = (event: any, newValue: boolean): void => {
     setUseSpatialAudio(newValue)
-    dispatch(
-      AuthService.updateUserSettings(selfUser.user_setting.id.value, {
-        spatialAudioEnabled: newValue
-      })
-    )
+    AuthService.updateUserSettings(selfUser?.user_setting?.id, {
+      spatialAudioEnabled: newValue
+    })
     // if (Engine.spatialAudio) {
     // TODO
     // if (newValue === true) PositionalAudioSystem.instance.resume()
@@ -89,13 +86,13 @@ const UserSettings = (props: Props): JSX.Element => {
               className={styles.controlsSvg}
               value="high"
               control={<Radio color="primary" />}
-              label={t('user:profile.userSettings.high')}
+              label={t('user:profile.userSettings.high') as string}
             />
             <FormControlLabel
               className={styles.controlsSvg}
               value="low"
               control={<Radio color="primary" />}
-              label={t('user:profile.userSettings.low')}
+              label={t('user:profile.userSettings.low') as string}
             />
           </RadioGroup>
         </span>
@@ -104,7 +101,7 @@ const UserSettings = (props: Props): JSX.Element => {
         <SurroundSound color="primary" />
         <FormControlLabel
           control={<Checkbox checked={true} onChange={handleSpatialAudioChange} />}
-          label={t('user:profile.userSettings.spatialAudio')}
+          label={t('user:profile.userSettings.spatialAudio') as string}
         />
       </section>
       {/* <section className={styles.settingRow}>

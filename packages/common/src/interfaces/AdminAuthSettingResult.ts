@@ -1,6 +1,6 @@
 import { AdminAuthSetting } from './AdminAuthSetting'
 
-export interface AdminRedisSettingResult {
+export interface AdminAuthSettingResult {
   data: AdminAuthSetting[]
   total: number
   limit: number

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Card from './CardNumber'
 
 import clsx from 'clsx'
@@ -10,7 +10,6 @@ import createStyles from '@mui/styles/createStyles'
 import Paper from '@mui/material/Paper'
 import UserGraph from './UserGraph'
 import ActivityGraph from './ActivityGraph'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
@@ -74,7 +73,6 @@ const useStyles = makeStyles((theme: Theme) =>
  */
 
 const Analytics = (props: Props) => {
-  const dispatch = useDispatch()
   const [refetch, setRefetch] = useState(false)
   const [graphSelector, setGraphSelector] = useState('activity')
   let isDataAvailable = false
@@ -89,8 +87,10 @@ const Analytics = (props: Props) => {
   const dailyUsers = analyticsState.dailyUsers.value
   const dailyNewUsers = analyticsState.dailyNewUsers.value
 
+  const isMounted = useRef(false)
   const fetchTick = () => {
     setTimeout(() => {
+      if (!isMounted.current) return
       setRefetch(true)
       fetchTick()
     }, 5000)
@@ -165,7 +165,11 @@ const Analytics = (props: Props) => {
   }, [authState.isLoggedIn.value])
 
   useEffect(() => {
+    isMounted.current = true
     fetchTick()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   const classes = useStyles()

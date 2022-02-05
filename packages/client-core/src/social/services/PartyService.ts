@@ -2,17 +2,16 @@
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
-import { Config } from '@xrengine/common/src/config'
 import { AlertService } from '../../common/services/AlertService'
 import { UserAction } from '../../user/services/UserService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
-import { accessInstanceConnectionState } from '../../common/services/InstanceConnectionService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
 //State
@@ -113,9 +112,7 @@ export const PartyService = {
   getParties: async (): Promise<void> => {
     let socketId: any
     const parties = await client.service('party').find()
-    console.log('PARTIES', parties)
     const userId = accessAuthState().user.id.value
-    console.log('USERID: ', userId)
     if ((client as any).io && socketId === undefined) {
       ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)
@@ -207,7 +204,7 @@ export const PartyService = {
   }
 }
 
-if (!Config.publicRuntimeConfig.offlineMode) {
+if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('party-user').on('created', async (params) => {
     const selfUser = accessAuthState().user
     if (accessPartyState().party == null) {
@@ -220,13 +217,13 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       if (
         party.instanceId != null &&
         party.instanceId !== dbUser.instanceId &&
-        accessInstanceConnectionState().instanceProvisioning.value === false
+        accessLocationInstanceConnectionState().provisioning.value === false
       ) {
         const updateUser = dbUser
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))
         // TODO: Reenable me!
-        // await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+        // await provisionServer(instance.locationId, instance.id)(store.dispatch, store.getState);
       }
     }
   })

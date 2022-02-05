@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { FlexColumn, FlexRow } from '../layout/Flex'
+import { FlexRow } from '../layout/Flex'
 import AssetDropZone from './AssetDropZone'
 import styles from './styles.module.scss'
 import NodesListPanel from './NodesListPanel'

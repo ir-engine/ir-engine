@@ -1,5 +1,5 @@
-import { User } from './User'
 import { MessageStatus } from './MessageStatus'
+import { User } from './User'
 import { UserId } from './UserId'
 
 export type Message = {

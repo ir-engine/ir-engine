@@ -27,6 +27,13 @@ export const moveViewCursor = (v: ViewCursor, where: number) => {
   return v
 }
 
+export const rewindViewCursor = (v: ViewCursor) => {
+  const where = v.cursor
+  return () => {
+    v.cursor = where
+  }
+}
+
 /* Writers */
 
 export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
@@ -38,11 +45,9 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
 export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   const { shadowMap } = v
 
-  const shadowInit = !shadowMap.has(prop)
-
   const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
-  const changed = shadowInit || shadow[entity] !== prop[entity]
+  const changed = shadow[entity] !== prop[entity]
 
   shadow[entity] = prop[entity]
 
@@ -58,6 +63,12 @@ export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Enti
 export const writeFloat32 = (v: ViewCursor, value: number) => {
   v.setFloat32(v.cursor, value)
   v.cursor += Float32Array.BYTES_PER_ELEMENT
+  return v
+}
+
+export const writeUint64 = (v, value) => {
+  v.setUint32(v.cursor, value)
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
   return v
 }
 
@@ -77,6 +88,15 @@ export const writeUint8 = (v: ViewCursor, value: number) => {
   v.setUint8(v.cursor, value)
   v.cursor += Uint8Array.BYTES_PER_ELEMENT
   return v
+}
+
+export const spaceUint64 = (v) => {
+  const savePoint = v.cursor
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
+  return (value) => {
+    v.setUint32(savePoint, value)
+    return v
+  }
 }
 
 export const spaceUint32 = (v: ViewCursor) => {
@@ -122,6 +142,12 @@ export const readProp = (v: ViewCursor, prop: TypedArray) => {
 export const readFloat32 = (v: ViewCursor) => {
   const val = v.getFloat32(v.cursor)
   v.cursor += Float32Array.BYTES_PER_ELEMENT
+  return val
+}
+
+export const readUint64 = (v) => {
+  const val = v.getBigUint64(v.cursor)
+  v.cursor += BigUint64Array.BYTES_PER_ELEMENT
   return val
 }
 

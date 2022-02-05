@@ -6,11 +6,9 @@
  */
 
 import { DirectionalLight, Object3D, PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EngineEvents } from './EngineEvents'
-import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
@@ -21,7 +19,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
  * This is the base class which holds all the data related to the scene, camera,system etc.
  * Data is holded statically hence will be available everywhere.
  *
- * @author Shaw, Josh, Vyacheslav, Gheric and the XREngine Team
+ * @author Josh, Vyacheslav, Gheric and the XREngine Team
  */
 export class Engine {
   /** The uuid of the logged-in user */
@@ -46,7 +44,6 @@ export class Engine {
 
   /**
    * Reference to the three.js renderer object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null!
   static effectComposer: EffectComposerWithSchema = null!
@@ -57,11 +54,9 @@ export class Engine {
   static directionalLights: DirectionalLight[] = []
   /**
    * Reference to the three.js scene object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null!
   static sceneLoaded = false
-  static isLoading = false
   static sceneLoadPromises: Promise<void>[] = []
 
   /**
@@ -72,7 +67,6 @@ export class Engine {
 
   /**
    * Reference to the three.js perspective camera object.
-   * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera | OrthographicCamera = null!
   static activeCameraEntity: Entity
@@ -88,6 +82,7 @@ export class Engine {
   static prevInputState = new Map<any, InputValue>()
 
   static isInitialized = false
+  static isReady = false
 
   static hasJoinedWorld = false
 
@@ -100,11 +95,6 @@ export class Engine {
   static keyboardInputEnabled = true
 
   static xrFrame: XRFrame
-}
 
-export const awaitEngineLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if (Engine.isInitialized) resolve()
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
-  })
+  static isEditor = false
 }

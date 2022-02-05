@@ -5,8 +5,8 @@ import Typography from '@mui/material/Typography'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from '../../../store'
-import { AlertAction } from '../../../common/services/AlertActions'
-import { DialogAction } from '../../../common/services/DialogActions'
+import { AlertAction } from '../../../common/services/AlertService'
+import { DialogAction } from '../../../common/services/DialogService'
 import MagicLinkEmail from '../Auth/MagicLinkEmail'
 import PasswordLogin from '../Auth/PasswordLogin'
 import { AuthService } from '../../services/AuthService'
@@ -39,7 +39,7 @@ const SingleConnection = (props: Props): any => {
 
     setState({
       ...state,
-      identityProvider: user.identityProviders.find((v) => v.type === connectionType) || IdentityProviderSeed
+      identityProvider: user.identityProviders?.find((v) => v.type === connectionType) || IdentityProviderSeed
     })
   }, [])
 

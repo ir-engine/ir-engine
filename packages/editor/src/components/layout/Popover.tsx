@@ -2,7 +2,7 @@ import React, { useRef, useCallback, ReactNode } from 'react'
 import Portal from './Portal'
 import Positioner from './Positioner'
 import Overlay from './Overlay'
-import { useHookstate } from '@hookstate/core'
+import { useHookstate } from '@speigg/hookstate'
 
 interface PopoverProp {
   children?: ReactNode
@@ -24,7 +24,7 @@ interface PopoverProp {
  * @returns
  */
 export function Popover({ children, padding, position, renderContent, disabled, ...rest }: PopoverProp) {
-  const popoverTriggerRef = useRef()
+  const popoverTriggerRef = useRef(null)
   const state = useHookstate({
     isOpen: false
   })

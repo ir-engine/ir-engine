@@ -1,7 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { Action, ActionCacheOptions, ActionRecipients } from '../interfaces/Action'
+import { Action, ActionCacheOptions, ActionRecipients } from '../../ecs/functions/Action'
 
 /**
  * Dispatch an action from a given user.

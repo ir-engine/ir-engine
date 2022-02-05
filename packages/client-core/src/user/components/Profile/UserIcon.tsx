@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import Button from '@mui/material/Button'
-import { useDispatch } from '../../../store'
 import styles from './Profile.module.scss'
 import TextField from '@mui/material/TextField'
 import classNames from 'classnames'
@@ -18,7 +17,6 @@ const UserProfile = (props: Props): any => {
   const { auth } = props
   const user = useAuthState().user
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const [file, setFile] = useState({})
   const [fileUrl, setFileUrl] = useState('')
   const [username, setUsername] = useState(user.name.value)
@@ -49,7 +47,7 @@ const UserProfile = (props: Props): any => {
     setUsername(name)
   }
   const updateUsername = async (): Promise<void> => {
-    await AuthService.updateUsername(user.id.value, username)
+    await AuthService.updateUsername(user.id.value!, username)
   }
   return (
     <div className={styles['user-container']}>
@@ -77,7 +75,7 @@ const UserProfile = (props: Props): any => {
       <div className={styles.uploadform}>
         {fileUrl ? (
           <img
-            src={URL.createObjectURL(fileUrl)}
+            src={fileUrl}
             className={classNames({
               [styles.rounded]: true,
               [styles['mx-auto']]: true,

@@ -166,7 +166,6 @@ export class Location extends Service {
       }
     } else if (adminnedLocations) {
       const loggedInUser = extractLoggedInUserFromParams(params)
-      const selfUser = await this.app.service('user').get(loggedInUser.userId)
       const include = [
         {
           model: (this.app.service('location-settings') as any).Model,
@@ -178,11 +177,11 @@ export class Location extends Service {
         }
       ]
 
-      if (selfUser.userRole !== 'admin') {
+      if (loggedInUser.userRole !== 'admin') {
         ;(include as any).push({
           model: (this.app.service('location-admin') as any).Model,
           where: {
-            userId: loggedInUser.userId
+            userId: loggedInUser.id
           }
         })
       }
@@ -257,7 +256,7 @@ export class Location extends Service {
         await (this.app.service('location-admin') as any).Model.create(
           {
             locationId: location.id,
-            userId: loggedInUser.userId
+            userId: loggedInUser.id
           },
           { transaction: t }
         )
@@ -343,7 +342,7 @@ export class Location extends Service {
 
   async remove(id: string, params: Params): Promise<any> {
     if (id != null) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const selfUser = extractLoggedInUserFromParams(params)
       const location = await this.app.service('location').get(id)
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
@@ -351,7 +350,7 @@ export class Location extends Service {
         await this.app.service('location-admin').remove(null, {
           query: {
             locationId: id,
-            userId: loggedInUser.userId
+            userId: selfUser.id
           }
         })
       } catch (err) {
@@ -362,8 +361,7 @@ export class Location extends Service {
   }
 
   async makeLobby(params: Params, t): Promise<void> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-    const selfUser = await this.app.service('user').get(loggedInUser.userId)
+    const selfUser = extractLoggedInUserFromParams(params)
 
     if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
 

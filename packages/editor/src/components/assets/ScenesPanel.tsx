@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
 import { AssetPanelContentContainer } from './AssetsPanel'
 import { useTranslation } from 'react-i18next'
 import { ProjectGrid } from '../projects/ProjectGrid'
 import { getScenes } from '../../functions/sceneFunctions'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 /**
  * Displays the scenes that exist in the current project.
@@ -17,14 +18,12 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
   const { t } = useTranslation()
   const panelRef = useRef(null)
   const [loading, setLoading] = useState(true)
-  const [scenes, setScenes] = useState([])
-  const [currentSceneName, setCurrentSceneName] = useState<string>()
+  const [scenes, setScenes] = useState<SceneDetailInterface[]>([])
 
   const fetchItems = async () => {
     setLoading(true)
     try {
       const data = await getScenes(projectName)
-      console.log(data)
       setScenes(data ?? [])
       setLoading(false)
     } catch (error) {
@@ -37,11 +36,8 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
     fetchItems()
   }, [toggleRefetchScenes])
 
-  const onClickExisting = (scene) => {
-    if (currentSceneName !== scene.name) {
-      loadScene(scene.name)
-      setCurrentSceneName(scene.name)
-    }
+  const onClickExisting = async (scene) => {
+    loadScene(scene.name)
   }
 
   useEffect(() => {
@@ -55,6 +51,7 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
           <ProjectGrid
             newProjectLabel={t('editor:newScene')}
             loading={loading}
+            projectName={projectName}
             projects={scenes}
             onClickNew={newScene}
             onClickExisting={onClickExisting}

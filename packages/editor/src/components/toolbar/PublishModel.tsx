@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
 import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
 import { useParams } from 'react-router-dom'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 interface Props {
   open: boolean
@@ -38,10 +39,10 @@ const LocationModal = (props: Props): any => {
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
-  const [scene, setScene] = useState(null)
+  const [scene, setScene] = useState<SceneDetailInterface>(null!)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = useSceneState().scenes
-  const locationTypes = useLocationState().locationTypes.locationTypes
+  const locationTypes = useLocationState().locationTypes
   const dispatch = useDispatch()
   const [state, setState] = React.useState({
     feature: false,
@@ -69,7 +70,7 @@ const LocationModal = (props: Props): any => {
       scene: {
         model_file_id: 'model_file_id',
         screenshot_file_id: 'screenshot_file_id',
-        id: scene.id
+        id: (scene as any).id
       }
     }
 
@@ -111,11 +112,11 @@ const LocationModal = (props: Props): any => {
 
   useEffect(() => {
     if (currentScene) {
-      const temp = adminScenes.value.find((el) => el.sid === (currentScene as any).projectId)
+      const temp = adminScenes.value.find((el) => (el as any).sid === (currentScene as any).projectId)
       //console.log('====================================')
       //console.log(temp)
       //console.log('====================================')
-      setScene(temp)
+      if (temp) setScene(temp)
     }
   }, [adminScenes, currentScene])
 
@@ -187,7 +188,7 @@ const LocationModal = (props: Props): any => {
                 label={t('admin:components.locationModel.lbl-scene')}
                 name="scene"
                 required
-                value={`${scene.name} (${scene.sid})`}
+                value={`${scene.name} (${(scene as any).sid})`}
                 onChange={(e) => setSceneId(e.target.value as string)}
                 disabled
               />
@@ -201,7 +202,9 @@ const LocationModal = (props: Props): any => {
                   onChange={(e) => setSceneId(e.target.value as string)}
                 >
                   {adminScenes.value.map((scene) => (
-                    <MenuItem key={scene.sid} value={scene.sid}>{`${scene.name} (${scene.sid})`}</MenuItem>
+                    <MenuItem key={(scene as any).sid} value={(scene as any).sid}>{`${scene.name} (${
+                      (scene as any).sid
+                    })`}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -233,7 +236,7 @@ const LocationModal = (props: Props): any => {
                       name="videoEnabled"
                     />
                   }
-                  label={t('admin:components.locationModel.lbl-ve')}
+                  label={t('admin:components.locationModel.lbl-ve') as string}
                 />
               </FormControl>
             </FormGroup>
@@ -248,7 +251,7 @@ const LocationModal = (props: Props): any => {
                       name="instanceMediaChatEnabled"
                     />
                   }
-                  label={t('admin:components.locationModel.lbl-gme')}
+                  label={t('admin:components.locationModel.lbl-gme') as string}
                 />
               </FormControl>
             </FormGroup>
@@ -256,12 +259,12 @@ const LocationModal = (props: Props): any => {
             {!location.isLobby && (
               <FormControlLabel
                 control={<Checkbox checked={state.lobby} onChange={handleChange} name="lobby" color="primary" />}
-                label={t('admin:components.locationModel.lbl-lobby')}
+                label={t('admin:components.locationModel.lbl-lobby') as string}
               />
             )}
             <FormControlLabel
               control={<Checkbox checked={state.feature} onChange={handleChange} name="feature" color="primary" />}
-              label={t('admin:components.locationModel.lbl-featured')}
+              label={t('admin:components.locationModel.lbl-featured') as string}
             />
             <FormGroup row className={styles.locationModalButtons}>
               {editing === true && (
@@ -279,7 +282,7 @@ const LocationModal = (props: Props): any => {
               </Button>
               {editing === true && (
                 <Tooltip
-                  title={state.lobby ? t('admin:components.locationModel.tooltipCanNotBeDeleted') : ''}
+                  title={state.lobby ? t('admin:components.locationModel.tooltipCanNotBeDeleted') || '' : ''}
                   arrow
                   placement="top"
                 >

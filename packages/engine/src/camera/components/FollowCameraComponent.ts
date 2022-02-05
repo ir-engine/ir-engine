@@ -19,6 +19,10 @@ export type FollowCameraComponentType = {
   theta: number
   /** Rotation around Z axis */
   phi: number
+  /** Minimum phi value */
+  minPhi: number
+  /** Maximum phi value */
+  maxPhi: number
   /** Whether looking over left or right shoulder */
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
@@ -36,6 +40,8 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   maxDistance: 7,
   theta: Math.PI,
   phi: 0,
+  minPhi: -70,
+  maxPhi: 85,
   shoulderSide: true,
   locked: true,
   raycaster: new Raycaster()

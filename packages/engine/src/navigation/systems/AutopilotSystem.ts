@@ -1,6 +1,5 @@
 import { Intersection, Quaternion, Raycaster, Vector3 } from 'three'
 import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -20,7 +19,6 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import createSpeedFunction from '../functions/createSpeedFunction'
 import { Entity } from '../../ecs/classes/Entity'
@@ -47,7 +45,7 @@ interface ClickResult {
   entity: Entity
 }
 
-export default async function AutopilotSystem(world: World): Promise<System> {
+export default async function AutopilotSystem(world: World) {
   const GAMEPAD_STICK = GamepadAxis.Left
   const raycaster = new Raycaster()
   const quat = new Quaternion()

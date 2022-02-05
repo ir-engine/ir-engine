@@ -1,16 +1,21 @@
-export function forEachMaterial(object3D, fn) {
-  if (!object3D.material) return
-  if (Array.isArray(object3D.material)) {
-    object3D.material.forEach(fn)
+import { Material, Mesh } from 'three'
+
+export function forEachMaterial(mesh: Mesh, fn: (material: Material) => void) {
+  if (!mesh.material) return
+
+  if (Array.isArray(mesh.material)) {
+    mesh.material.forEach(fn)
   } else {
-    fn(object3D.material)
+    fn(mesh.material)
   }
 }
-export function traverseMaterials(object3D, fn) {
-  object3D.traverse((obj) => forEachMaterial(obj, fn))
+
+export function traverseMaterials(mesh: Mesh, fn: (material: Material) => void) {
+  mesh.traverse((m: Mesh) => forEachMaterial(m, fn))
 }
-export function collectUniqueMaterials(object3D) {
-  const materials = new Set()
-  traverseMaterials(object3D, (material) => materials.add(material))
+
+export function collectUniqueMaterials(mesh: Mesh) {
+  const materials = new Set<Material>()
+  traverseMaterials(mesh, (material) => materials.add(material))
   return Array.from(materials)
 }

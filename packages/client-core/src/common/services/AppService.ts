@@ -1,19 +1,5 @@
-import { createState, DevTools, useState, none, Downgraded } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
-
-/*
-type AppState = {
-  loaded: boolean
-  inVrMode: boolean
-  viewport: {
-    width: number
-    height: number
-  }
-  onBoardingStep: number
-  isTutorial: boolean | false
-  userHasInteracted: boolean
-  loadPercent: number
-}*/
 
 export enum GeneralStateList {
   START_STATE,
@@ -35,7 +21,6 @@ const state = createState({
   },
   onBoardingStep: GeneralStateList.START_STATE,
   isTutorial: false,
-  userHasInteracted: false,
   loadPercent: 0
 })
 
@@ -50,8 +35,6 @@ store.receptors.push((action: AppActionType): void => {
         return s.merge({ viewport: { width: action.width, height: action.height } })
       case 'SET_IN_VR_MODE':
         return s.merge({ inVrMode: action.inVrMode })
-      case 'SET_USER_HAS_INTERACTED':
-        return s.merge({ userHasInteracted: true })
       case 'SET_APP_ONBOARDING_STEP':
         return action.onBoardingStep === GeneralStateList.ALL_DONE
           ? s.merge({
@@ -128,11 +111,6 @@ export const AppAction = {
     return {
       type: 'SET_IN_VR_MODE' as const,
       inVrMode
-    }
-  },
-  setUserHasInteracted: () => {
-    return {
-      type: 'SET_USER_HAS_INTERACTED' as const
     }
   }
 }

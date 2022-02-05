@@ -1,5 +1,3 @@
-import config from '../../appconfig'
-
 export const locationTypeSeed = {
   path: 'location-type',
   templates: [

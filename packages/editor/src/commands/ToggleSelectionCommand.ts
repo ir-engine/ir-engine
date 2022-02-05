@@ -3,17 +3,15 @@ import { serializeObject3DArray } from '../functions/debug'
 import EditorCommands from '../constants/EditorCommands'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export default class ToggleSelectionCommand extends Command {
-  constructor(objects?: any | any[], params?: CommandParams) {
+  constructor(objects: EntityTreeNode[], params: CommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = objects.slice(0)
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    if (this.keepHistory) this.oldSelection = CommandManager.instance.selected.slice(0)
   }
 
   execute() {
@@ -22,17 +20,12 @@ export default class ToggleSelectionCommand extends Command {
     for (let i = 0; i < this.affectedObjects.length; i++) {
       const object = this.affectedObjects[i]
       const index = CommandManager.instance.selected.indexOf(object)
+
       if (index > -1) {
         CommandManager.instance.selected.splice(index, 1)
-
-        if (object.isNode) {
-          object.onDeselect()
-        }
+        removeComponent(object.entity, SelectTagComponent)
       } else {
-        if (object.isNode) {
-          object.onSelect()
-        }
-
+        addComponent(object.entity, SelectTagComponent, {})
         CommandManager.instance.selected.push(object)
       }
     }
@@ -45,6 +38,8 @@ export default class ToggleSelectionCommand extends Command {
   }
 
   undo() {
+    if (!this.oldSelection) return
+
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
   }
 

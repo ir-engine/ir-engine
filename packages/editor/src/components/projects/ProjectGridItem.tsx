@@ -1,9 +1,22 @@
-import React, { Component } from 'react'
+import React from 'react'
+import { useHistory } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { showMenu } from '../layout/ContextMenu'
-import { MenuButton } from '../inputs/Button'
-import StylableContextMenuTrigger from './StylableContextMenuTrigger'
+import { deleteScene, renameScene } from '../../functions/sceneFunctions'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import StylableContextMenuTrigger from './StylableContextMenuTrigger'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { EditorAction } from '../../services/EditorServices'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
+import { useStyle } from './style'
 
 /**
  *
@@ -114,6 +127,7 @@ type Props = {
   onClickExisting: any
   contextMenuId: any
   project: any
+  projectName?: any
 }
 
 /**
@@ -121,22 +135,42 @@ type Props = {
  * @author Robert Long
  */
 export const ProjectGridItem = (props: Props) => {
-  const { onClickExisting, contextMenuId, project } = props
+  const { onClickExisting, contextMenuId, project, projectName } = props
+  const classes = useStyle()
+  const { t } = useTranslation()
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const dispatch = useDispatch()
+  const history = useHistory()
+  const [warningModelOpen, setWarningModelOpen] = React.useState(false)
+  const [sceneTodelete, setSceneToDelete] = React.useState('')
+  const [oldSceneName, setOldSceneName] = React.useState('')
+  const [newSceneName, setNewSceneName] = React.useState('')
 
-  const onShowMenu = (event) => {
-    event.preventDefault()
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
 
-    const x = event.clientX || (event.touches && event.touches[0].pageX)
-    const y = event.clientY || (event.touches && event.touches[0].pageY)
-    showMenu({
-      position: { x, y },
-      target: event.currentTarget,
-      id: contextMenuId,
-      data: {
-        project: project
-      }
-    })
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleChange = (e) => {
+    setNewSceneName(e.target.value)
+  }
+
+  const handleOnRename = (project) => {
+    handleClose()
+    setOldSceneName(project)
+    setNewSceneName(project)
+  }
+
+  const handleOnDelete = async () => {
+    await deleteScene(projectName, sceneTodelete)
+    setSceneToDelete('')
+    dispatch(EditorAction.sceneLoaded(null))
+    history.push(`/editor/${projectName}`)
   }
 
   const content = (
@@ -146,24 +180,105 @@ export const ProjectGridItem = (props: Props) => {
       </ThumbnailContainer>
       <TitleContainer>
         <Col>
-          <h3>{project.name}</h3>
+          {oldSceneName.length == 0 ? (
+            <h3>{project.name.replaceAll('-', ' ')}</h3>
+          ) : (
+            <Paper component="div" className={classes.inputContainer}>
+              <InputBase
+                className={classes.input}
+                name="name"
+                style={{ color: '#fff' }}
+                autoComplete="off"
+                value={newSceneName}
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}
+                onChange={(e) => handleChange(e)}
+                onKeyPress={async (e) => {
+                  if (e.key == 'Enter') {
+                    await renameScene(projectName, newSceneName, oldSceneName)
+                    dispatch(EditorAction.sceneLoaded(newSceneName))
+                    history.push(`/editor/${projectName}/${newSceneName}`)
+                  }
+                }}
+              />
+            </Paper>
+          )}
         </Col>
-        {contextMenuId && (
-          <MenuButton onClick={onShowMenu}>
-            <MoreVertIcon />
-          </MenuButton>
-        )}
+        <IconButton
+          aria-label="more"
+          id="button"
+          aria-controls={open ? 'menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-haspopup="true"
+          onClick={handleClick}
+        >
+          <MoreVertIcon style={{ color: '#f1f1f1' }} />
+        </IconButton>
       </TitleContainer>
     </>
   )
 
   if (contextMenuId) {
     return (
-      <StyledProjectGridItem as="a" onClick={() => onClickExisting(project)}>
-        <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
-          {content}
-        </StyledContextMenuTrigger>
-      </StyledProjectGridItem>
+      <>
+        <StyledProjectGridItem as="a" onClick={() => onClickExisting(project)}>
+          <StyledContextMenuTrigger id={contextMenuId} project={project} collect={collectMenuProps} holdToDisplay={-1}>
+            {content}
+          </StyledContextMenuTrigger>
+        </StyledProjectGridItem>
+        <Menu
+          id="menu"
+          MenuListProps={{
+            'aria-labelledby': 'long-button'
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          classes={{ paper: classes.rootMenu }}
+        >
+          <MenuItem classes={{ root: classes.itemRoot }} onClick={() => handleOnRename(project.name)}>
+            {t('editor:hierarchy.lbl-rename')}
+          </MenuItem>
+          <MenuItem
+            classes={{ root: classes.itemRoot }}
+            onClick={() => {
+              setWarningModelOpen(true), setSceneToDelete(project.name), handleClose()
+            }}
+          >
+            {t('editor:hierarchy.lbl-delete')}
+          </MenuItem>
+        </Menu>
+        <Dialog
+          open={warningModelOpen}
+          onClose={() => setWarningModelOpen(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: classes.paperDialog }}
+        >
+          <DialogTitle id="alert-dialog-title">Are sure you want to delete this scene?</DialogTitle>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setWarningModelOpen(false), setSceneToDelete('')
+              }}
+              className={classes.spanNone}
+            >
+              Cancel
+            </Button>
+            <Button
+              className={classes.spanDange}
+              onClick={async () => {
+                handleOnDelete()
+                setWarningModelOpen(false)
+              }}
+              autoFocus
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
     )
   } else {
     return (

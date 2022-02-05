@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { useStyles } from './styles'
-import { Paper, Button, Typography } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import { useClientSettingState } from '../../services/Setting/ClientSettingService'
-import { ClientSettingService } from '../../services/Setting/ClientSettingService'
+import Switch from '@mui/material/Switch'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
+import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
+import { useStyles } from './styles'
 
 interface clientProps {}
 
@@ -22,17 +21,8 @@ const Client = (props: clientProps) => {
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
 
-  const [enabled, setEnabled] = React.useState({
-    checkedA: true,
-    checkedB: true
-  })
-
   const authState = useAuthState()
   const user = authState.user
-
-  const handleEnable = (event) => {
-    setEnabled({ ...enabled, [event.target.name]: event.target.checked })
-  }
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -40,7 +30,7 @@ const Client = (props: clientProps) => {
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
-      ClientSettingService.fetchedClientSettings()
+      ClientSettingService.fetchClientSettings()
     }
   }, [authState?.user?.id?.value, clientSettingState?.updateNeeded?.value])
 
@@ -89,17 +79,6 @@ const Client = (props: clientProps) => {
         <Typography component="h1" className={classes.settingsHeading}>
           CLIENT
         </Typography>
-        <label>Enabled</label>
-        <Paper component="div" className={classes.createInput}>
-          <Switch
-            disabled
-            checked={enabled.checkedB}
-            onChange={handleEnable}
-            color="primary"
-            name="checkedB"
-            inputProps={{ 'aria-label': 'primary checkbox' }}
-          />
-        </Paper>
         <label>Title</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
@@ -190,11 +169,11 @@ const Client = (props: clientProps) => {
             value={clientSetting?.releaseName || ''}
           />
         </Paper>
-        <Button variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+        <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
           Cancel
         </Button>
         &nbsp;&nbsp;
-        <Button variant="contained" type="submit" onClick={handleSubmit}>
+        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
           Save
         </Button>
       </form>

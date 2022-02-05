@@ -1,9 +1,7 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { UserNameComponent } from '../../scene/components/UserNameComponent'
-import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export function getUserEntityByName(name: string, localUserId) {

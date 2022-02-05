@@ -1,0 +1,86 @@
+{{- if .Values.director.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrengine.director.fullname" . }}
+  namespace: {{ include "xrengine.matchmaking-namespace" . }}
+  labels:
+    {{- include "xrengine.director.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.director.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "xrengine.director.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "xrengine.director.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/director-configmap.yaml") . | sha256sum }}
+    spec:
+    {{- with .Values.director.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "xrengine.director.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.director.podSecurityContext | nindent 8 }}
+      {{- $releaseName := .Release.Name }}
+      {{ if not (empty .Values.release) }}
+      {{- $releaseName = .Values.release.name | default .Release.Name }}
+      {{ end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.director.securityContext | nindent 12 }}
+          image: "{{ .Values.director.image.repository }}:{{ .Values.director.image.tag }}"
+          imagePullPolicy: {{ .Values.director.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "xrengine.director.fullname" . }}
+                optional: true
+          env:
+            - name: KUBERNETES
+              value: "true"
+            - name: RELEASE_NAME
+              value: {{ $releaseName }}
+            - name: TAG
+              value: {{ .Values.director.image.tag }}
+            - name: MATCHFUNCTION_PORT
+              value: {{ quote .Values.matchfunction.service.port }}
+            - name: RELEASE_FULLNAME
+              value: {{ include "xrengine.matchfunction.fullname" . }}
+            - name: NAMESPACE
+              value : {{ include "xrengine.matchmaking-namespace" . }}
+          ports:
+            - name: http
+              containerPort: 3030
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8086
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8086
+            initialDelaySeconds: 30
+          resources:
+            {{- toYaml .Values.director.resources | nindent 12 }}
+      volumes:
+      - name: dind-storage
+        emptyDir: {}
+      {{- with .Values.director.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.director.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.director.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

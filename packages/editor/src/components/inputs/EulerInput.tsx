@@ -1,7 +1,7 @@
 import React from 'react'
 import NumericInput from './NumericInput'
 import { MathUtils as _Math, Euler } from 'three'
-import { Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
+import { UniformButtonContainer, Vector3InputContainer, Vector3Scrubber } from './Vector3Input'
 const { RAD2DEG, DEG2RAD } = _Math
 
 /**
@@ -28,14 +28,15 @@ type EulerInputProps = {
  */
 export const EulerInput = (props: EulerInputProps) => {
   const onChange = (x, y, z) => {
-    props.onChange(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
+    props.onChange?.(new Euler(x * DEG2RAD, y * DEG2RAD, z * DEG2RAD))
   }
 
   // creating view for component
   const { value, ...rest } = props
-  const vx = value ? (value.x || 0) * RAD2DEG : 0
-  const vy = value ? (value.y || 0) * RAD2DEG : 0
-  const vz = value ? (value.z || 0) * RAD2DEG : 0
+
+  const vx = value ? Math.round((value.x || 0) * RAD2DEG) : 0
+  const vy = value ? Math.round((value.y || 0) * RAD2DEG) : 0
+  const vz = value ? Math.round((value.z || 0) * RAD2DEG) : 0
 
   return (
     <Vector3InputContainer>
@@ -51,6 +52,7 @@ export const EulerInput = (props: EulerInputProps) => {
         Z:
       </Vector3Scrubber>
       <NumericInput {...rest} value={vz} onChange={(z) => onChange(vx, vy, z)} />
+      <UniformButtonContainer />
     </Vector3InputContainer>
   )
 }

@@ -17,6 +17,12 @@ const AssetHeading = styled.div`
   padding-bottom: 20px;
 `
 
+export type AssetSelectionChangePropsType = {
+  resourceUrl: string
+  name: string
+  contentTypes: string
+}
+
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
  *
@@ -25,9 +31,8 @@ const AssetHeading = styled.div`
 
 export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({ onLayoutChanged, onSelectionChanged }))
-  const [layoutStateChanged, useLayoutStateChanged] = useState(0)
   const [previewPanel, usePreviewPanel] = useState({
-    PreviewSource: null,
+    PreviewSource: null as any,
     resourceProps: { resourceUrl: '', name: '' }
   })
 
@@ -35,7 +40,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
     console.log('Layout is Changed:')
   }
 
-  const onSelectionChanged = (props) => {
+  const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     renderPreview(props)
   }
 

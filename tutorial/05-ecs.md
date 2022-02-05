@@ -58,3 +58,34 @@ The engine uses a very similar model to Unity's update loop (found here https://
 `exit queries`
 
 
+### Examples
+
+#### Tag Components
+
+Tag components are how booleans are represented in the ECS pattern. An entity either has a specific tag component, or it doesn't. The SceneObjectSystem includes queries for Object3DComponent and VisibleComponent. Any entities with an Object3DComponent that has a VisibleComponent added, will have the 'visible' property of the Object3D referenced in Object3DComponent.value set to 'true', and set to 'false' when the VisibleComponent is removed.
+
+
+```ts
+
+const visibleEntity = createEntity()
+
+const obj3d = new Object3D()
+obj3d.visible = false // since threejs defaults .visible to true, we must set it manually to sync up with the ECS
+
+addComponent(entity, Object3D, { value: obj3d })
+
+console.log(obj3d.visible) // false
+
+addComponent(entity, VisibleComponent)
+
+// iterate logic loop
+
+console.log(obj3d.visible) // true
+
+removeComponent(entity, VisibleComponent)
+
+// iterate logic loop
+
+console.log(obj3d.visible) // false
+
+```

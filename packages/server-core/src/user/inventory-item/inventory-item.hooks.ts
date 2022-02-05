@@ -1,7 +1,6 @@
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import { HookContext } from '@feathersjs/feathers'
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 
 const logRequest = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
@@ -15,8 +14,6 @@ const logRequest = (options = {}) => {
     return context
   }
 }
-
-const { authenticate } = authentication.hooks
 
 export default {
   before: {

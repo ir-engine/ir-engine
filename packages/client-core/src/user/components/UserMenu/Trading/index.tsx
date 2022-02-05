@@ -1,8 +1,10 @@
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import React, { useEffect, useState } from 'react'
 import { client } from '../../../../feathers'
+import { useDispatch, store } from '../../../../store'
 import TradingContent from './TradingContent'
 import styles from '../UserMenu.module.scss'
+import { TradingAction, TradingService, useTradingState } from '../../../services/TradingService'
 
 interface Props {
   changeActiveMenu?: any
@@ -10,17 +12,9 @@ interface Props {
 }
 
 export const Trading = (props: Props): any => {
-  const [state, setState] = useState<any>({
-    data: [],
-    data1: [],
-    data0: [],
-    inventory: [],
-    user: [],
-    type: [],
-    isLoading: true,
-    isLoadingtransfer: false
-  })
-  const { data, user, type, isLoading, isLoadingtransfer, inventory, data1, data0 } = state
+  const tradingState = useTradingState()
+  const dispatch = useDispatch()
+  let { data, user, type, isLoading, isLoadingtransfer, inventory, data1, data0 } = tradingState.value
 
   const authState = useAuthState()
 
@@ -30,272 +24,46 @@ export const Trading = (props: Props): any => {
 
   useEffect(() => {
     if (authState.isLoggedIn.value) {
-      fetchInventoryList()
-      fetchfromTradingList()
-      fetchtoTradingList(), fetchUserList()
+      TradingService.fetchInventoryList(props.id)
+      TradingService.fetchfromTradingList(props.id)
+      TradingService.fetchtoTradingList(props.id)
+      TradingService.fetchUserList(props.id)
     }
   }, [authState.isLoggedIn.value])
-
-  const handleTransfer = async (ids, items) => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoadingtransfer: true
-    }))
-    const data = {
-      fromUserId: props.id,
-      toUserId: ids,
-      fromUserInventoryIds: [...items],
-      fromUserStatus: 'REQUEST',
-      toUserStatus: 'REQUEST'
-    }
-
-    try {
-      const response = await client.service('user-trade').create(data)
-      if (response) {
-        fetchInventoryList()
-        fetchfromTradingList()
-        fetchtoTradingList()
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        isLoadingtransfer: false
-      }))
-    }
-  }
-
-  const acceptOfferSent = async (tradeId, items) => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoadingtransfer: true
-    }))
-    const data = {
-      fromUserInventoryIds: items,
-      fromUserStatus: 'ACCEPT'
-    }
-
-    try {
-      const response = await client.service('user-trade').patch(tradeId, data)
-      if (response) {
-        fetchInventoryList()
-        fetchfromTradingList()
-        fetchtoTradingList()
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        isLoadingtransfer: false
-      }))
-      localStorage.removeItem('tradeId')
-    }
-  }
-
-  const acceptOfferReceived = async (tradeId, items) => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoadingtransfer: true
-    }))
-    const data = {
-      toUserInventoryIds: items,
-      toUserStatus: 'ACCEPT'
-    }
-
-    try {
-      const response = await client.service('user-trade').patch(tradeId, data)
-      if (response) {
-        fetchInventoryList()
-        fetchfromTradingList()
-        fetchtoTradingList()
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        isLoadingtransfer: false
-      }))
-      localStorage.removeItem('tradeId')
-    }
-  }
-
-  const rejectOfferSent = async (tradeId, items) => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoadingtransfer: true
-    }))
-    const data = {
-      fromUserStatus: 'REJECT'
-    }
-
-    try {
-      const response = await client.service('user-trade').patch(tradeId, data)
-      if (response) {
-        fetchInventoryList()
-        fetchfromTradingList()
-        fetchtoTradingList()
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        isLoadingtransfer: false
-      }))
-      localStorage.removeItem('tradeId')
-    }
-  }
-
-  const rejectOfferReceived = async (tradeId, items) => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoadingtransfer: true
-    }))
-    const data = {
-      toUserStatus: 'REJECT'
-    }
-
-    try {
-      const response = await client.service('user-trade').patch(tradeId, data)
-      if (response) {
-        fetchInventoryList()
-        fetchfromTradingList()
-        fetchtoTradingList()
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    } finally {
-      setState((prevState) => ({
-        ...prevState,
-        isLoadingtransfer: false
-      }))
-      localStorage.removeItem('tradeId')
-    }
-  }
-
-  const fetchfromTradingList = async () => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoading: true
-    }))
-    try {
-      const response = await client.service('user-trade').find({ query: { fromUserId: props.id } })
-      setState((prevState) => ({
-        ...prevState,
-        data0: [...response.data],
-        isLoading: false
-      }))
-    } catch (err) {
-      console.error(err, 'error')
-    }
-  }
-
-  const fetchtoTradingList = async () => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoading: true
-    }))
-    try {
-      const response = await client.service('user-trade').find({ query: { toUserId: props.id } })
-      setState((prevState) => ({
-        ...prevState,
-        data1: [...response.data],
-        isLoading: false
-      }))
-    } catch (err) {
-      console.error(err, 'error')
-    }
-  }
-
-  const fetchInventoryList = async () => {
-    setState((prevState) => ({
-      ...prevState,
-      isLoading: true
-    }))
-    try {
-      const response = await client.service('user').get(props.id)
-      setState((prevState) => ({
-        ...prevState,
-        inventory: [...response.inventory_items.filter((val) => val.isCoin === false)],
-        isLoading: false
-      }))
-    } catch (err) {
-      console.error(err, 'error')
-    }
-  }
 
   const removeiteminventory = (index) => {
     const inventorytemp = [...inventory]
     inventorytemp.splice(index, 1)
-    setState((prevState) => ({
-      ...prevState,
-      inventory: [...inventorytemp]
-    }))
+    dispatch(TradingAction.setinventorydata(inventorytemp))
   }
 
   const removeofferinventory = (index) => {
     const datatemp = [...data0]
     datatemp.splice(index, 1)
-    setState((prevState) => ({
-      ...prevState,
-      data0: [...datatemp]
-    }))
+    dispatch(TradingAction.fromTradingList(datatemp))
   }
   const removereceiveinventory = (index) => {
     const datatemp = [...data1]
     datatemp.splice(index, 1)
-
-    setState((prevState) => ({
-      ...prevState,
-      data1: [...datatemp]
-    }))
+    dispatch(TradingAction.toTradingList(datatemp))
   }
 
   const additeminventory = (values) => {
     const inventorytemp = [...inventory]
     inventorytemp.push(values)
-    setState((prevState) => ({
-      ...prevState,
-      inventory: [...inventorytemp]
-    }))
+    dispatch(TradingAction.setinventorydata(inventorytemp))
   }
 
   const addofferiteminventory = (values) => {
     const datatemp = [...data0]
     datatemp.push(values)
-    setState((prevState) => ({
-      ...prevState,
-      data0: [...datatemp]
-    }))
+    dispatch(TradingAction.fromTradingList(datatemp))
   }
 
   const addreceiveiteminventory = (values) => {
     const datatemp = [...data1]
     datatemp.push(values)
-    setState((prevState) => ({
-      ...prevState,
-      data1: [...datatemp]
-    }))
-  }
-
-  const fetchUserList = async () => {
-    try {
-      const response = await client.service('inventory-item').find()
-      const prevData = [...response.data.filter((val: any) => val.isCoin === true)[0].users]
-      if (response.data && response.data.length !== 0) {
-        const activeUser = prevData.filter((val: any) => val.inviteCode !== null && val.id !== props.id)
-        setState((prevState: any) => ({
-          ...prevState,
-          user: [...activeUser],
-          isLoading: false
-        }))
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    }
+    dispatch(TradingAction.toTradingList(datatemp))
   }
 
   return (
@@ -310,6 +78,7 @@ export const Trading = (props: Props): any => {
           inventory={inventory}
           user={user}
           type={type}
+          propid={props.id}
           changeActiveMenu={props.changeActiveMenu}
           removeiteminventory={removeiteminventory}
           removeofferinventory={removeofferinventory}
@@ -317,12 +86,12 @@ export const Trading = (props: Props): any => {
           additeminventory={additeminventory}
           addofferiteminventory={addofferiteminventory}
           addreceiveiteminventory={addreceiveiteminventory}
-          handleTransfer={handleTransfer}
-          acceptOfferSent={acceptOfferSent}
-          acceptOfferReceived={acceptOfferReceived}
+          handleTransfer={TradingService.handleTransfer}
+          acceptOfferSent={TradingService.acceptOfferSent}
+          acceptOfferReceived={TradingService.acceptOfferReceived}
           isLoadingtransfer={isLoadingtransfer}
-          rejectOfferSent={rejectOfferSent}
-          rejectOfferReceived={rejectOfferReceived}
+          rejectOfferSent={TradingService.rejectOfferSent}
+          rejectOfferReceived={TradingService.rejectOfferReceived}
         />
       )}
     </div>

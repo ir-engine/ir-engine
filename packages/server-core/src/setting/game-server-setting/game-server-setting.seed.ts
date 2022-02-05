@@ -3,7 +3,6 @@ export const gameServerSeed = {
   templates: [
     {
       clientHost: process.env.APP_HOST,
-      enabled: process.env.GAMESERVER_ENABLED === 'true',
       rtc_start_port: parseInt(process.env.RTC_START_PORT!),
       rtc_end_port: parseInt(process.env.RTC_END_PORT!),
       rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),

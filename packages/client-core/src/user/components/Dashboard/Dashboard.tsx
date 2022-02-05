@@ -1,18 +1,17 @@
-import React from 'react'
-import clsx from 'clsx'
-import { useTheme } from '@mui/material/styles'
-import Drawer from '@mui/material/Drawer'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import CssBaseline from '@mui/material/CssBaseline'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
+import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
+import CssBaseline from '@mui/material/CssBaseline'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import { useTheme } from '@mui/material/styles'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import clsx from 'clsx'
+import React from 'react'
 import { useAuthState } from '../../services/AuthService'
-
-import { useStylesForDashboard } from './styles'
 import DashboardMenuItem from './DashboardMenuItem'
+import { useStylesForDashboard } from './styles'
 
 interface Props {
   children?: any
@@ -45,12 +44,7 @@ const Dashboard = ({ children }: Props) => {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open
-        })}
-      >
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar className={classes.header}>
           <IconButton
             color="inherit"

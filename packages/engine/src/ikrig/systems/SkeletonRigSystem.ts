@@ -4,7 +4,6 @@ import { IKPoseComponent } from '../components/IKPoseComponent'
 import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
 
 import { World } from '../../ecs/classes/World'
-import { System } from '../../ecs/classes/System'
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { Quaternion, Vector3 } from 'three'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -14,7 +13,6 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { random } from 'lodash'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { applyCameraLook } from '../functions/IKSolvers'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -56,13 +54,13 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal(NetworkWorldAction.createClient({ $from: userId, name: 'user' }))
-    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ parameters }), networkId })
+    dispatchLocal(NetworkWorldAction.createClient({ $from: userId, name: 'user', index: networkId }))
+    dispatchLocal({ ...NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: networkId }), networkId })
     dispatchLocal(NetworkWorldAction.avatarDetails({ avatarDetail }))
   }
 }
 
-export default async function SkeletonRigSystem(world: World): Promise<System> {
+export default async function SkeletonRigSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
   // mockAvatars()

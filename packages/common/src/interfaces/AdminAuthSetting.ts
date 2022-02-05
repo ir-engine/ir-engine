@@ -42,6 +42,7 @@ interface Callback {
   google: string
   linkedin: string
   twitter: string
+  discord: string
 }
 
 interface Oauth {
@@ -51,11 +52,16 @@ interface Oauth {
   google: Google
   linkedin: Linkedin
   twitter: Twitter
+  discord: Discord
 }
 
 interface Defaults {
   host: string
   protocol: string
+}
+interface Discord {
+  key: string
+  secret: string
 }
 
 interface Facebook {

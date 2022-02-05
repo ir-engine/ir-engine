@@ -5,12 +5,14 @@ import { v1 as uuidv1 } from 'uuid'
 import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
-import axios from 'axios'
 import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
 import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 
 interface Data {}
 
@@ -38,8 +40,25 @@ export class IdentityProvider extends Service {
    */
   async create(data: any, params: Params): Promise<any> {
     let { token, type, password } = data
+    let user
 
-    if (params.provider && type !== 'password' && type !== 'email' && type !== 'sms') type = 'guest' //Non-password/magiclink create requests must always be for guests
+    if (params.authentication) {
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: params.authentication.accessToken },
+        {}
+      )
+      if (authResult[config.authentication.entity]?.userId) {
+        user = await this.app.service('user').get(authResult[config.authentication.entity]?.userId)
+      }
+    }
+    if (
+      (!user || user.userRole !== 'admin') &&
+      params.provider &&
+      type !== 'password' &&
+      type !== 'email' &&
+      type !== 'sms'
+    )
+      type = 'guest' //Non-password/magiclink create requests must always be for guests
     let userId = data.userId
     let identityProvider: any
 
@@ -88,6 +107,12 @@ export class IdentityProvider extends Service {
         }
         break
       case 'linkedin':
+        identityProvider = {
+          token: token,
+          type
+        }
+        break
+      case 'discord':
         identityProvider = {
           token: token,
           type
@@ -143,19 +168,37 @@ export class IdentityProvider extends Service {
       }
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
-    const result = await super.create(
-      {
-        ...data,
-        ...identityProvider,
-        user: {
-          id: userId,
-          userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
-          inviteCode: type === 'guest' ? null : code,
-          avatarId: avatars[random(avatars.length - 1)].avatarId
-        }
-      },
-      params
-    )
+
+    let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
+
+    if (adminCount === 0) {
+      // in dev mode make the first guest an admin
+      // otherwise make the first logged in user an admin
+      if (isDev || role === 'user') {
+        type = 'admin'
+        role = 'admin'
+      }
+    }
+
+    let result
+    try {
+      result = await super.create(
+        {
+          ...data,
+          ...identityProvider,
+          user: {
+            id: userId,
+            userRole: role,
+            inviteCode: type === 'guest' ? null : code,
+            avatarId: avatars[random(avatars.length - 1)].avatarId
+          }
+        },
+        params
+      )
+    } catch (err) {
+      await this.app.service('user').remove(userId)
+      throw err
+    }
     // DRC
     try {
       if (result.user.userRole !== 'guest') {
@@ -198,12 +241,23 @@ export class IdentityProvider extends Service {
       const authService = new AuthenticationService(this.app, 'authentication')
       // this.app.service('authentication')
       result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
+    } else if (isDev && type === 'admin') {
+      // in dev mode, add all scopes to the first user made an admin
+
+      for (const { type } of scopeTypeSeed.templates) {
+        await this.app.service('scope').create({ userId: userId, type })
+      }
+
+      const authService = new AuthenticationService(this.app, 'authentication')
+      // this.app.service('authentication')
+      result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
     }
     return result
   }
 
   async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    if (params.provider) params.query!.userId = params['identity-provider'].userId
+    const loggedInUser = extractLoggedInUserFromParams(params)
+    if (params.provider) params.query!.userId = loggedInUser.id
     return super.find(params)
   }
 }

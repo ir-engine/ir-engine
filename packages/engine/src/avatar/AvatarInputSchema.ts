@@ -26,7 +26,13 @@ import { InputAlias } from '../input/types/InputAlias'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
-import { equipEntity, getAttachmentPoint, unequipEntity } from '../interaction/functions/equippableFunctions'
+import {
+  changeHand,
+  equipEntity,
+  getAttachmentPoint,
+  getParity,
+  unequipEntity
+} from '../interaction/functions/equippableFunctions'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -35,6 +41,8 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { EquippedComponent } from '../interaction/components/EquippedComponent'
+import { Engine } from '../ecs/classes/Engine'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -79,14 +87,34 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if (equipperComponent?.equippedEntity) {
+    const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+    const attachmentPoint = equippedComponent.attachmentPoint
+    const currentParity = getParity(attachmentPoint)
+    if (currentParity !== parityValue) {
+      changeHand(entity, getAttachmentPoint(parityValue))
+    } else {
+      drop(entity, inputKey, inputValue, delta)
+    }
+    return
+  }
+
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
   const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
   // TODO: Define interaction types in some enum?
-  if (interactiveComponent.data.interactionType === 'equippable') {
-    const attachmentPoint = getAttachmentPoint(parityValue)
-    equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+  if (interactiveComponent.interactionType === 'equippable') {
+    if (
+      !interactiveComponent.validUserId ||
+      (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.userId)
+    ) {
+      const attachmentPoint = getAttachmentPoint(parityValue)
+      equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
+    } else {
+      console.warn('Invalid user is trying to equip.')
+    }
   } else {
     addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
   }
@@ -163,7 +191,7 @@ export const switchShoulderSide: InputBehaviorType = (
   }
 }
 
-export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number) => {
+export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
   const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
@@ -171,11 +199,12 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
       phiVelocity: { value: 0 },
       theta: theta,
       thetaVelocity: { value: 0 },
-      time: 0.3
+      time: time
     })
   } else {
     cameraRotationTransition.phi = phi
     cameraRotationTransition.theta = theta
+    cameraRotationTransition.time = time
   }
 }
 
@@ -321,7 +350,6 @@ const moveByInputAxis: InputBehaviorType = (
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-
   if (inputValue.type === InputType.TWODIM) {
     controller.localMovementDirection.z = inputValue.value[0]
     controller.localMovementDirection.x = inputValue.value[1]
@@ -421,29 +449,34 @@ const lookFromXRInputs: InputBehaviorType = (
   transform.rotation.multiply(quat)
 }
 
+const axisLookSensitivity = 320
+
 const lookByInputAxis: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
   delta: number
 ): void => {
-  const followCamera = getComponent(entity, FollowCameraComponent)
-
-  if (hasComponent(entity, TargetCameraRotationComponent)) {
-    removeComponent(entity, TargetCameraRotationComponent)
-  }
-
-  if (followCamera) {
-    followCamera.theta -= inputValue.value[0] * 100
-    followCamera.phi -= inputValue.value[1] * 100
-  }
+  const target = getComponent(entity, TargetCameraRotationComponent) || getComponent(entity, FollowCameraComponent)
+  if (target)
+    setTargetCameraRotation(
+      entity,
+      target.phi - inputValue.value[1] * axisLookSensitivity,
+      target.theta - inputValue.value[0] * axisLookSensitivity,
+      0.1
+    )
 }
 
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
-  // TODO: fix this
-  console.log('gamepadLook', data)
+  if (data.lifecycleState === LifecycleValue.Ended) {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
+      type: data.type,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.Changed
+    })
+  }
   if (data.type === InputType.TWODIM) {
     input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
@@ -492,6 +525,8 @@ export const createAvatarInput = () => {
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
   map.set(GamepadButtons.B, BaseInput.JUMP)
+  // map.set(GamepadButtons.X, BaseInput.JUMP)
+  // map.set(GamepadButtons.Y, BaseInput.INTERACT)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)
   map.set(GamepadButtons.LBumper, BaseInput.GRIP_LEFT)

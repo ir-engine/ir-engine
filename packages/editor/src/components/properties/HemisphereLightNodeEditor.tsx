@@ -1,55 +1,38 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 import NodeEditor from './NodeEditor'
 import InputGroup from '../inputs/InputGroup'
 import ColorInput from '../inputs/ColorInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
-
-type HemisphereLightNodeEditorProps = {
-  node?: any
-}
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
- * HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode.
+ * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.
  *
  * @author Robert Long
- * @type {class Compoment}
  */
-export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps) => {
-  const [, updateState] = useState()
+export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const forceUpdate = useCallback(() => updateState({}), [])
+  const lightComponent = getComponent(props.node.entity, HemisphereLightComponent)
 
-  //function handle change in skyColor property
-  const onChangeSkyColor = (skyColor) => {
-    CommandManager.instance.setPropertyOnSelection('skyColor', skyColor)
-    forceUpdate()
-  }
-
-  //function to handle changes in ground property
-  const onChangeGroundColor = (groundColor) => {
-    CommandManager.instance.setPropertyOnSelection('groundColor', groundColor)
-    forceUpdate()
-  }
-
-  //function to handle changes in intensity property
-  const onChangeIntensity = (intensity) => {
-    CommandManager.instance.setPropertyOnSelection('intensity', intensity)
-    forceUpdate()
-  }
-
-  //renders view to customize HemisphereLightNode
-  const node = props.node
   return (
-    <NodeEditor {...props} description={t('editor:properties.hemisphere.description')}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.hemisphere.name')}
+      description={t('editor:properties.hemisphere.description')}
+    >
       <InputGroup name="Sky Color" label={t('editor:properties.hemisphere.lbl-skyColor')}>
-        <ColorInput value={node.skyColor} onChange={onChangeSkyColor} />
+        <ColorInput value={lightComponent.skyColor} onChange={updateProperty(HemisphereLightComponent, 'skyColor')} />
       </InputGroup>
       <InputGroup name="Ground Color" label={t('editor:properties.hemisphere.lbl-groundColor')}>
-        <ColorInput value={node.groundColor} onChange={onChangeGroundColor} />
+        <ColorInput
+          value={lightComponent.groundColor}
+          onChange={updateProperty(HemisphereLightComponent, 'groundColor')}
+        />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -58,8 +41,8 @@ export const HemisphereLightNodeEditor = (props: HemisphereLightNodeEditorProps)
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={node.intensity}
-        onChange={onChangeIntensity}
+        value={lightComponent.intensity}
+        onChange={updateProperty(HemisphereLightComponent, 'intensity')}
         unit="cd"
       />
     </NodeEditor>

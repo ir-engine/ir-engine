@@ -9,23 +9,25 @@ import {
   ProjectGridHeaderRow
 } from './ProjectGrid'
 import templates from './templates'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { withRouter } from 'react-router-dom'
 import { StyledProjectsContainer, StyledProjectsSection, WelcomeContainer } from '../../pages/projectUtility'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getProjects } from '../../functions/projectFunctions'
 import { CreateProjectModal } from './CreateProjectModal'
-import { ProjectService } from '@xrengine/client-core/src/admin/services/ProjectService'
+import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { EditorAction } from '../../services/EditorServices'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
 const contextMenuId = 'project-menu'
 
 const ProjectsPage = (props) => {
-  const [projects, setProjects] = useState([]) // constant projects initialized with an empty array.
+  const [projects, setProjects] = useState<ProjectInterface[]>([] as ProjectInterface[]) // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false) // constant loading initialized with false.
   const [error, setError] = useState(null) // constant error initialized with null.
+  const unmounted = useRef(false)
 
   const authState = useAuthState()
   const authUser = authState.authUser // authUser initialized by getting property from authState object.
@@ -39,10 +41,14 @@ const ProjectsPage = (props) => {
     setLoading(true)
     try {
       const data = await getProjects()
+      if (unmounted.current) return
+
       console.log(data)
       setProjects(data ?? [])
       setLoading(false)
     } catch (error) {
+      if (unmounted.current) return
+
       console.error(error)
       setError(error)
     }
@@ -52,6 +58,10 @@ const ProjectsPage = (props) => {
   useEffect(() => {
     if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
       fetchItems()
+    }
+
+    return () => {
+      unmounted.current = true
     }
   }, [authUser.accessToken.value])
 
@@ -117,7 +127,7 @@ const ProjectsPage = (props) => {
   const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu)
 
   // Declaring an array
-  const topTemplates = []
+  const topTemplates = [] as any[]
 
   // Adding first four templates of tamplates array to topTemplate array.
   for (let i = 0; i < templates.length && i < 4; i++) {

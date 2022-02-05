@@ -11,7 +11,6 @@ import {
   Object3D,
   Texture,
   TubeGeometry,
-  Vector2,
   Vector3
 } from 'three'
 
@@ -76,7 +75,7 @@ export class PortalEffect extends Object3D {
     // @ts-ignore
     this.tubeMaterial.map.wrapT = MirroredRepeatWrapping
     // @ts-ignore
-    this.tubeMaterial.map.repeat.set(1, 10)
+    if (this.tubeMaterial.map.repeat) this.tubeMaterial.map.repeat.set(1, 10)
 
     const radialSegments = 24
     const tubularSegments = this.numPoints / 10

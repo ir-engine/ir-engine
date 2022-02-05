@@ -1,4 +1,5 @@
 aws/
+awscliv2.zip
 .git/
 *docker-compose*
 node_modules

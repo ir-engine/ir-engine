@@ -10,6 +10,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   Object3D,
+  Scene,
   Material,
   SkinnedMesh,
   Texture
@@ -20,8 +21,8 @@ import { KTX2Loader } from './KTX2Loader'
 
 export interface GLTF {
   animations: AnimationClip[]
-  scene: Group
-  scenes: Group[]
+  scene: Scene
+  scenes: Scene[]
   cameras: Camera[]
   asset: {
     copyright?: string | undefined
@@ -49,8 +50,8 @@ export class GLTFLoader extends Loader {
 
   setDRACOLoader(dracoLoader: DRACOLoader): GLTFLoader
 
-  register(callback: (parser: GLTFParser) => GLTFLoaderPlugin): GLTFLoader
-  unregister(callback: (parser: GLTFParser) => GLTFLoaderPlugin): GLTFLoader
+  register(callback: (parser: any) => any): GLTFLoader
+  unregister(callback: (parser: any) => any): GLTFLoader
 
   setKTX2Loader(ktx2Loader: KTX2Loader): GLTFLoader
   setMeshoptDecoder(meshoptDecoder: /* MeshoptDecoder */ any): GLTFLoader

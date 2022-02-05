@@ -1,14 +1,9 @@
 import { disallow } from 'feathers-hooks-common'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
-import { HookContext } from '@feathersjs/feathers'
-import * as authentication from '@feathersjs/authentication'
-import axios from 'axios'
-import config from '../../appconfig'
-const { authenticate } = authentication.hooks
+import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [],
     get: [],
     create: [],

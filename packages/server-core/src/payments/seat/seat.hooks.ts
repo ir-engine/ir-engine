@@ -1,16 +1,14 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import { HookContext } from '@feathersjs/feathers'
 import { BadRequest, NotFound } from '@feathersjs/errors'
-import * as commonHooks from 'feathers-hooks-common'
+import { iff, isProvider } from 'feathers-hooks-common'
 // Don't remove this comment. It's needed to format import lines nicely.
-
-const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [
-      commonHooks.iff(commonHooks.isProvider('external'), (async (context: HookContext): Promise<any> => {
+      iff(isProvider('external'), (async (context: HookContext): Promise<any> => {
         const { app, params } = context
 
         const ownedSubscription = await app.service('subscription').find({

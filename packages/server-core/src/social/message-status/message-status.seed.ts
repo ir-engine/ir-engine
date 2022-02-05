@@ -1,5 +1,3 @@
-import config from '../../appconfig'
-
 export const messageStatusSeed = {
   path: 'message-status',
   templates: [

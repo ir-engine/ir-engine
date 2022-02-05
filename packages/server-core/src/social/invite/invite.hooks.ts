@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import { disallow } from 'feathers-hooks-common'
 import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode'
 import sendInvite from '@xrengine/server-core/src/hooks/send-invite'
@@ -6,26 +6,18 @@ import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-us
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { HookContext } from '@feathersjs/feathers'
 import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate'
-import * as commonHooks from 'feathers-hooks-common'
+import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
-
-const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [],
-    find: [authenticate('jwt'), attachOwnerIdInQuery('userId')],
-    get: [
-      commonHooks.iff(
-        commonHooks.isProvider('external'),
-        authenticate('jwt') as any,
-        attachOwnerIdInQuery('userId') as any
-      )
-    ],
-    create: [authenticate('jwt'), attachOwnerIdInBody('userId'), generateInvitePasscode()],
+    find: [authenticate(), attachOwnerIdInQuery('userId')],
+    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any)],
+    create: [authenticate(), attachOwnerIdInBody('userId'), generateInvitePasscode()],
     update: [disallow()],
     patch: [disallow()],
-    remove: [authenticate('jwt'), inviteRemoveAuthenticate()]
+    remove: [authenticate(), inviteRemoveAuthenticate()]
   },
 
   after: {

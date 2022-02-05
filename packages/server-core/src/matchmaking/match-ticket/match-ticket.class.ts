@@ -4,7 +4,6 @@ import { Application } from '../../../declarations'
 import { createTicket, deleteTicket, getTicket } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
 import config from '@xrengine/server-core/src/appconfig'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { emulate_createTicket, emulate_getTicket } from '../emulate'
 
 interface Data {}
@@ -61,7 +60,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     return ticket as OpenMatchTicket
   }
 
-  async create(data: unknown, params: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
+  async create(data: unknown, params?: Params): Promise<OpenMatchTicket | OpenMatchTicket[]> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params) as OpenMatchTicket))
     }
@@ -79,17 +78,17 @@ export class MatchTicket implements ServiceMethods<Data> {
     return await createTicket(data.gamemode, data.attributes)
   }
 
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     // not implemented for tickets
     return data
   }
 
-  async remove(id: Id, params: Params): Promise<Data> {
+  async remove(id: Id, params?: Params): Promise<Data> {
     // skip delete in emulation, user-match will be deleted in hook
     if (!config.server.matchmakerEmulationMode) {
       await deleteTicket(String(id))

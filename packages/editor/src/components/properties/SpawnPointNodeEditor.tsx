@@ -2,28 +2,25 @@ import React from 'react'
 import NodeEditor from './NodeEditor'
 import { useTranslation } from 'react-i18next'
 import StreetviewIcon from '@mui/icons-material/Streetview'
+import { EditorComponentType } from './Util'
 
 /**
- * SpawnPointNodeEditorProps declaring properties for SpawnPointNodeEditor.
- *
- * @author Robert Long
- * @type {Object}
- */
-type SpawnPointNodeEditorProps = {
-  node?: object
-}
-
-/**
- * SpawnPointNodeEditor component used to provide the editor view to customize SpawnPointNode properties.
+ * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
  *
  * @author Robert Long
  * @type {Class component}
  */
-export const SpawnPointNodeEditor = (props: SpawnPointNodeEditorProps) => {
+export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   // initializing iconComponent icon name
-  return <NodeEditor description={t('editor:properties.spawnPoint.description')} {...props} />
+  return (
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.spawnPoint.name')}
+      description={t('editor:properties.spawnPoint.description')}
+    />
+  )
 }
 
 SpawnPointNodeEditor.iconComponent = StreetviewIcon

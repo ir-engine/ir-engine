@@ -60,7 +60,7 @@ export const config = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: '192.168.0.81', announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.gameserver.hostname as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
     }
@@ -119,7 +119,7 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: '192.168.0.81', announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.gameserver.hostname as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 800000,
       maxIncomingBitrate: 150000
     }

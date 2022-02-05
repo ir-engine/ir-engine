@@ -4,7 +4,6 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
-import { useDispatch } from '../../../store'
 import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/Login.module.scss'
 
@@ -16,7 +15,6 @@ const ConfirmEmail = (props: Props): any => {
   const history = useHistory()
   const auth = useAuthState()
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   const handleResendEmail = (e: any): any => {
     e.preventDefault()

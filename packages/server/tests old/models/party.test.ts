@@ -6,7 +6,7 @@
 
 import app from '../../packages/server/src/app'
 
-describe.skip('CRUD operation on \'Party\' model', () => {
+describe.skip("CRUD operation on 'Party' model", () => {
   const model = (app.service('party') as any).Model
   const userModel = (app.service('user') as any).Model
   // const partyUserModel = (app.service('party-user') as any).Model

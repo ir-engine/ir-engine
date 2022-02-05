@@ -2,7 +2,7 @@ import { client } from '../../../feathers'
 import { AlertService } from '../../../common/services/AlertService'
 import { useDispatch, store } from '../../../store'
 import { GameServerSettingResult } from '@xrengine/common/src/interfaces/GameServerSettingResult'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { GameServerSetting } from '@xrengine/common/src/interfaces/GameServerSetting'
 
 //State

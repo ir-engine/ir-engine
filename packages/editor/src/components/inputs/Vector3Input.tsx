@@ -11,23 +11,30 @@ export const Vector3InputContainer = (styled as any).div`
   display: flex;
   flex-direction: row;
   flex: 1 1 auto;
-  width: 70%;
   justify-content: flex-start;
 `
 
 export const Vector3Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
-  padding: 0 8px;
   color: ${(props) => props.theme.text2};
+
+  &:not(:first-child) {
+      padding: 0 6px;
+  }
+  &:first-child {
+    padding-right: 6px;
+  }
 `
 
-const UniformButtonContainer = (styled as any).div`
+export const UniformButtonContainer = (styled as any).div`
   display: flex;
   align-items: center;
+  width: 12px;
+  margin-left: 6px;
 
   svg {
-    width: 12px;
+    width: 100%;
   }
 
   label {
@@ -104,14 +111,6 @@ export const Vector3Input = (props: Vector3InputProp) => {
 
   return (
     <Vector3InputContainer>
-      {uniformScaling && (
-        <UniformButtonContainer>
-          <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
-          <label title="Uniform Scale" htmlFor={checkboxId}>
-            {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
-          </label>
-        </UniformButtonContainer>
-      )}
       <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX}>
         {!hideLabels && <div>X:</div>}
       </Vector3Scrubber>
@@ -124,6 +123,16 @@ export const Vector3Input = (props: Vector3InputProp) => {
         {!hideLabels && <div>Z:</div>}
       </Vector3Scrubber>
       <NumericInput {...rest} value={vz} onChange={onChangeZ} />
+      <UniformButtonContainer>
+        {uniformScaling && (
+          <>
+            <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+            <label title="Uniform Scale" htmlFor={checkboxId}>
+              {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
+            </label>
+          </>
+        )}
+      </UniformButtonContainer>
     </Vector3InputContainer>
   )
 }

@@ -2,17 +2,15 @@ import Command, { CommandParams } from './Command'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import EditorEvents from '../constants/EditorEvents'
+import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 export default class ReplaceSelectionCommand extends Command {
-  constructor(objects?: any | any[], params?: CommandParams) {
+  constructor(objects: EntityTreeNode[], params: CommandParams) {
     super(objects, params)
 
-    if (!Array.isArray(objects)) {
-      objects = [objects]
-    }
-
-    this.affectedObjects = objects.slice(0)
-    this.oldSelection = CommandManager.instance.selected.slice(0)
+    if (this.keepHistory) this.oldSelection = CommandManager.instance.selected.slice(0)
   }
 
   execute() {
@@ -22,6 +20,8 @@ export default class ReplaceSelectionCommand extends Command {
   }
 
   undo() {
+    if (!this.oldSelection) return
+
     this.emitBeforeExecuteEvent()
     this.replaceSelection(this.oldSelection)
     this.emitAfterExecuteEvent()
@@ -39,7 +39,7 @@ export default class ReplaceSelectionCommand extends Command {
     if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
   }
 
-  replaceSelection(objects?: any[]): void {
+  replaceSelection(objects: EntityTreeNode[]): void {
     // Check whether selection is changed or not
     if (objects.length === CommandManager.instance.selected.length) {
       let isSame = true
@@ -54,14 +54,11 @@ export default class ReplaceSelectionCommand extends Command {
       if (isSame) return
     }
 
-    const prevSelected = CommandManager.instance.selected.slice(0)
-
     // Fire deselect event for old objects
-    for (let i = 0; i < prevSelected.length; i++) {
+    for (let i = 0; i < CommandManager.instance.selected.length; i++) {
       const object = CommandManager.instance.selected[i]
-
-      if (object.isNode && !objects.includes(object)) {
-        object.onDeselect()
+      if (!objects.includes(object)) {
+        removeComponent(object.entity, SelectTagComponent)
       }
     }
 
@@ -73,8 +70,8 @@ export default class ReplaceSelectionCommand extends Command {
 
       CommandManager.instance.selected.push(object)
 
-      if (object.isNode && !prevSelected.includes(object)) {
-        object.onSelect()
+      if (!hasComponent(object.entity, SelectTagComponent)) {
+        addComponent(object.entity, SelectTagComponent, {})
       }
     }
 
