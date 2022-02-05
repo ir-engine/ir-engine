@@ -90,9 +90,8 @@ const UpdateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const data: Instance[] = []
-  instanceData.value.forEach((element) => {
-    data.push(element)
+  const data: Instance[] = instanceData.value.map((element) => {
+    return element
   })
 
   useEffect(() => {

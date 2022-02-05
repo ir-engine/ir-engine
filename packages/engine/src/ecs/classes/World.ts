@@ -25,6 +25,8 @@ import EntityTree from './EntityTree'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Network } from '../../networking/classes/Network'
+import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -198,12 +200,27 @@ export class World {
    * @param elapsedTime
    */
   execute(delta: number, elapsedTime: number) {
+    const start = nowMilliseconds()
+    const incomingActions = Array.from(this.incomingActions.values())
+    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
+
     this.delta = delta
     this.elapsedTime = elapsedTime
+
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
     for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
+
+    const end = nowMilliseconds()
+    const duration = end - start
+    if (duration > 50) {
+      console.warn(
+        `Long frame execution detected. Delta: ${delta} \n Duration: ${duration}. \n Incoming Buffer Length: ${incomingBufferLength} \n Incoming actions: `,
+        incomingActions
+      )
+    }
   }
 }
 

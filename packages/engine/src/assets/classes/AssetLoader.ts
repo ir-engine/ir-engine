@@ -1,14 +1,57 @@
-import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three'
-import { getLoader as getGLTFLoader, loadExtensions } from '../functions/LoadGLTF'
+import {
+  FileLoader,
+  MeshPhysicalMaterial,
+  Object3D,
+  LOD,
+  TextureLoader,
+  Loader,
+  AnimationClip,
+  Group,
+  Mesh
+} from 'three'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
 import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
+import { isClient } from '../../common/functions/isClient'
+import { createGLTFLoader } from '../functions/createGLTFLoader'
+import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
+import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 // import { instanceGLTF } from '../functions/transformGLTF'
 
-export const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
+/**
+ * Interface for result of the GLTF Asset load.
+ */
+export interface LoadGLTFResultInterface {
+  animations: AnimationClip[]
+  scene: Object3D | Group | Mesh
+  json: any
+  stats: any
+}
+
+// TODO: refactor global scope
+const loader = createGLTFLoader()
+export function getGLTFLoader(): GLTFLoader {
+  return loader
+}
+
+export function disposeDracoLoaderWorkers(): void {
+  loader.dracoLoader?.dispose()
+}
+
+export const loadExtensions = async (gltf: GLTF) => {
+  if (isClient) {
+    const bvhTraverse: Promise<void>[] = []
+    gltf.scene.traverse((mesh) => {
+      bvhTraverse.push(generateMeshBVH(mesh))
+    })
+    await Promise.all(bvhTraverse)
+  }
+}
+
+const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
   asset.traverse((child) => {
     if (!child.isMesh) return
@@ -46,7 +89,7 @@ export const processModelAsset = (asset: any, params: AssetLoaderParamType): voi
  * @param asset Asset on which LOD will apply.
  * @returns LOD handled asset.
  */
-export const handleLODs = (asset: Object3D): Object3D => {
+const handleLODs = (asset: Object3D): Object3D => {
   const haveAnyLODs = !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
   if (!haveAnyLODs) {
     return asset
@@ -88,7 +131,7 @@ export const handleLODs = (asset: Object3D): Object3D => {
  * @param assetFileName Name of the Asset file.
  * @returns Asset type of the file.
  */
-export const getAssetType = (assetFileName: string): AssetType => {
+const getAssetType = (assetFileName: string): AssetType => {
   if (/\.(?:gltf|glb)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
@@ -102,7 +145,7 @@ export const getAssetType = (assetFileName: string): AssetType => {
  * @param assetFileName Name of the Asset file.
  * @returns Asset class of the file.
  */
-export const getAssetClass = (assetFileName: string): AssetClass => {
+const getAssetClass = (assetFileName: string): AssetClass => {
   if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model
   } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
@@ -112,6 +155,7 @@ export const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+//@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
@@ -141,26 +185,39 @@ type AssetLoaderParamType = {
 }
 
 const assetLoadCallback =
-  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
+  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (model) => {
     if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+      await loadExtensions(model)
     }
 
-    const assetClass = getAssetClass(url)
+    let asset: any
+    if (assetType === AssetType.VRM) {
+      asset = model.userData.vrm
+    } else {
+      asset = model
+    }
+
+    const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      processModelAsset(asset.scene, params)
+      AssetLoader.processModelAsset(asset.scene ? asset.scene : asset, params)
     }
 
     params.cache && AssetLoader.Cache.set(url, asset)
 
-    onLoad(asset)
+    if (asset.scene) {
+      asset.scene.userData.type = assetType
+    } else {
+      asset.userData.type = assetType
+    }
+
+    onLoad(asset.scene ? asset : { scene: asset })
   }
 
 const load = async (
   params: AssetLoaderParamType,
-  onLoad: (response: any) => void,
-  onProgress: (request: ProgressEvent) => void,
-  onError: (event: ErrorEvent | Error) => void
+  onLoad = (response: any) => {},
+  onProgress = (request: ProgressEvent) => {},
+  onError = (event: ErrorEvent | Error) => {}
 ) => {
   params.cache = typeof params.cache === 'undefined' || params.cache
   if (!params.url) {
@@ -173,7 +230,7 @@ const load = async (
     onLoad(AssetLoader.Cache.get(url))
   }
 
-  const assetType = getAssetType(url)
+  const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 
@@ -189,32 +246,28 @@ const load = async (
   }
 }
 
-export class AssetLoader {
-  static Cache = new Map<string, any>()
-  static loaders = new Map<number, any>()
-  static LOD_DISTANCES = DEFAULT_LOD_DISTANCES
+const loadAsync = async (params: AssetLoaderParamType) => {
+  return new Promise<any>((resolve, reject) => {
+    load(params, resolve, () => {}, resolve)
+  })
+}
 
-  assetType: AssetType
-  assetClass: AssetClass
-  result: any
+// TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
+const getFromCache = (url: string) => {
+  return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
+}
 
-  static load(
-    params: AssetLoaderParamType,
-    onLoad = (response: any) => {},
-    onProgress = (request: ProgressEvent) => {},
-    onError = (event: ErrorEvent | Error) => {}
-  ) {
-    load(params, onLoad, onProgress, onError)
-  }
-
-  static async loadAsync(params: AssetLoaderParamType) {
-    return new Promise<any>((resolve, reject) => {
-      load(params, resolve, () => {}, resolve)
-    })
-  }
-
-  // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
-  static getFromCache(url: string) {
-    return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
-  }
+export const AssetLoader = {
+  Cache: new Map<string, any>(),
+  loaders: new Map<number, any>(),
+  LOD_DISTANCES: DEFAULT_LOD_DISTANCES,
+  processModelAsset,
+  handleLODs,
+  getAssetType,
+  getAssetClass,
+  getLoader,
+  assetLoadCallback,
+  load,
+  loadAsync,
+  getFromCache
 }
