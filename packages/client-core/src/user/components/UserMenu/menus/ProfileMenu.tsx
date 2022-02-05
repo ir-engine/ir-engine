@@ -1,9 +1,5 @@
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import StoreIcon from '@mui/icons-material/Store'
-import StorefrontIcon from '@mui/icons-material/Storefront'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -371,32 +367,7 @@ const ProfileMenu = (props: Props): any => {
                     }
                   }
                 }}
-              >
-                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
-                  <InventoryIcon />
-                  <Typography component="div" variant="button">
-                    {t('user:inventory.myInventory')}
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
-                  <StoreIcon />
-                  <Typography component="div" variant="button">
-                    {t('user:inventory.myTrading')}
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
-                  <AccountBalanceWalletIcon />
-                  <Typography component="div" variant="button">
-                    {t('user:inventory.myWallet')}
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => goToEthNFT()}>
-                  <StorefrontIcon />
-                  <Typography component="div" variant="button">
-                    {t('user:inventory.openEthNftMarketplace')}
-                  </Typography>
-                </Button>
-              </Grid>
+              ></Grid>
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
