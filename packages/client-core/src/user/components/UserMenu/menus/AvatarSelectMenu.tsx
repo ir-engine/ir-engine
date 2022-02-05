@@ -15,7 +15,6 @@ import {
   THUMBNAIL_WIDTH,
   REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import React, { useEffect, useState } from 'react'
@@ -26,6 +25,7 @@ import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 
 interface Props {
   changeActiveMenu: Function
@@ -106,10 +106,8 @@ export const AvatarSelectMenu = (props: Props) => {
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
-      const loader = getLoader()
-      loader.load(event.target.value, (gltf) => {
+      AssetLoader.load(event.target.value, (gltf) => {
         gltf.scene.name = 'avatar'
-        loadExtensions(gltf)
         scene.add(gltf.scene)
         renderScene()
         const error = validate(gltf.scene)
@@ -211,11 +209,10 @@ export const AvatarSelectMenu = (props: Props) => {
     const reader = new FileReader()
     reader.onload = (fileData) => {
       try {
-        if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
-          const loader = getLoader()
-          loader.parse(fileData.target?.result!, '', (gltf) => {
+        const assetType = AssetLoader.getAssetType(file.name)
+        if (assetType) {
+          ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
             gltf.scene.name = 'avatar'
-            loadExtensions(gltf)
             scene.add(gltf.scene)
             renderScene()
             const error = validate(gltf.scene)
