@@ -2,7 +2,7 @@ import assert from 'assert'
 import { Mesh, MeshStandardMaterial, Texture } from 'three'
 // import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 
-describe('loadGLTF', async () => {
+describe('lightmap integration support', async () => {
   describe('load lightmaps', () => {
     // todo: we basically need to polyfill the whole browser api to make this work
     // it.skip('should load lightmapped gltf', async () => {
