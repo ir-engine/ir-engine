@@ -65,7 +65,7 @@ export const setAvatarLayer = (obj: Object3D) => {
   setObjectLayers(obj, ObjectLayers.Render, ObjectLayers.Avatar)
 }
 
-const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any) => {
+export const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any) => {
   const assetType = model.scene.userData.type
 
   const world = useWorld()
@@ -86,9 +86,7 @@ const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any)
     rootBone.children[0].scale.setScalar(0.01)
   } else if (assetType == AssetType.VRM) {
     if (model) {
-      //@ts-ignore
       addComponent(entity, UpdatableComponent, {})
-      //@ts-ignore
       const object3DComponent = getComponent(entity, Object3DComponent)
       if (object3DComponent.value) {
         ;(object3DComponent.value as unknown as Updatable).update = function () {
@@ -115,17 +113,23 @@ const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any)
   if (avatarAnimationComponent.currentState) {
     AnimationRenderer.mountCurrentState(entity)
   }
-
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(world.delta)
+
   if (retargeted.LeftEye) {
     retargeted.Neck.updateMatrixWorld(true)
     const transform = getComponent(entity, TransformComponent)
     avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
   }
-
+  const materialList = setupAvatarMaterials(root)
   // Material
-  let materialList: Array<MaterialMap> = []
+  loadGrowingEffectObject(entity, materialList)
+  root.children.forEach((child) => avatar.modelContainer.add(child))
+}
+
+export const setupAvatarMaterials = (root) => {
+  const materialList: Array<MaterialMap> = []
+
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     setAvatarLayer(object)
@@ -143,11 +147,11 @@ const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any)
       object.material = DissolveEffect.getDissolveTexture(object)
     }
   })
-  loadGrowingEffectObject(entity, materialList)
-  root.children.forEach((child) => avatar.modelContainer.add(child))
+
+  return materialList
 }
 
-const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
+export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
   const textureLight = AssetLoader.getFromCache('/itemLight.png')
   const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
 
@@ -227,7 +231,7 @@ export function getDefaultSkeleton(): SkinnedMesh {
  * @param material
  * @param boneIndex
  */
-const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
+export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
   material.transparent = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndex }
