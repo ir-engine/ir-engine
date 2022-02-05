@@ -1,7 +1,6 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
+import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
