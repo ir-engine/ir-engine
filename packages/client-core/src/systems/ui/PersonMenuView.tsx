@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@speigg/hookstate'
-import { useUserState } from '../../user/services/UserService'
+import { useUserState, UserService } from '../../user/services/UserService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useAuthState } from '../../user/services/AuthService'
 
 const styles = {
   root: {
@@ -94,11 +95,28 @@ type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
 const AvatarContextMenu = () => {
   const detailState = useXRUIState() as AvatarContextMenuState
 
-  const userState = useUserState()
   const engineState = useEngineState()
-  const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
+  const userState = useUserState()
 
+  const authState = useAuthState()
+  const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
+
+  const blockUser = () => {
+    if (authState.user?.id?.value !== null && user) {
+      const selfId = authState.user.id?.value ?? ''
+      const blockUserId = user.id?.value ?? ''
+      UserService.blockUser(selfId, blockUserId)
+    }
+  }
+
+  const addAsFriend = () => {
+    if (authState.user?.id?.value !== null && user) {
+      const selfId = authState.user.id?.value ?? ''
+      const blockUserId = user.id?.value ?? ''
+      UserService.requestFriend(selfId, blockUserId)
+    }
+  }
 
   return user && engineState.avatarTappedId.value === user.id.value ? (
     <div style={styles.root}>
@@ -108,17 +126,13 @@ const AvatarContextMenu = () => {
           <Button
             style={styles.button as {}}
             onClick={() => {
+              UserService.getUserRelationship(authState.user.id?.value ?? '')
               console.log('Invite to Party')
             }}
           >
             {t('user:personMenu.inviteToParty')}
           </Button>
-          <Button
-            style={styles.button as {}}
-            onClick={() => {
-              console.log('Add as a friend')
-            }}
-          >
+          <Button style={styles.button as {}} onClick={addAsFriend}>
             {t('user:personMenu.addAsFriend')}
           </Button>
           <Button
@@ -145,18 +159,13 @@ const AvatarContextMenu = () => {
           >
             {t('user:personMenu.mute')}
           </Button>
-          <Button
-            style={styles.buttonRed as {}}
-            onClick={() => {
-              console.log('Block')
-            }}
-          >
+          <Button style={styles.buttonRed as {}} onClick={blockUser}>
             {t('user:personMenu.block')}
           </Button>
         </section>
       </div>
     </div>
   ) : (
-    <div></div>
+    <div>&nbsp;</div>
   )
 }
