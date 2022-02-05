@@ -34,12 +34,6 @@ export class User extends Service {
 
     delete query.search
 
-    // this is a privacy & security vulnerability, please rethink the implementation here and on the front end.
-    // if (action === 'inventory') {
-    //   delete params.query?.action
-    //   // WARNING: we probably dont want to do this
-    //   return await super.find(params)
-    // } else
     if (action === 'friends') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)

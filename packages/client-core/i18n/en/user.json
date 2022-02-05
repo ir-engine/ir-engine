@@ -259,21 +259,7 @@
   "personMenu":{
     "inviteToParty":"Invite To Party",
     "addAsFriend":"Add As Friend",
-    "trade":"Trade",
-    "pay":"Pay",
     "mute":"Mute",
     "block":"Block"
-  },
-  "inventory":{
-    "inventory":"Inventory",
-    "myInventory":"My Inventory",
-    "myTrading":"My Trading",
-    "myWallet":"My Wallet",
-    "openEthNftMarketplace":"Open ETH NFT Marketplace",
-    "noDataFound":"No Data Found",
-    "user":"User",
-    "transfer":"Transfer",
-    "noItemSelected":"No item selected",
-    "noItemsFound":"No items found"
   }
 }
