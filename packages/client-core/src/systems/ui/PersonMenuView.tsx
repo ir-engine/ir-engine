@@ -138,22 +138,6 @@ const AvatarContextMenu = () => {
           <Button
             style={styles.button as {}}
             onClick={() => {
-              console.log('Trade')
-            }}
-          >
-            {t('user:personMenu.trade')}
-          </Button>
-          <Button
-            style={styles.button as {}}
-            onClick={() => {
-              console.log('Pay')
-            }}
-          >
-            {t('user:personMenu.pay')}
-          </Button>
-          <Button
-            style={styles.button as {}}
-            onClick={() => {
               console.log('Mute')
             }}
           >
