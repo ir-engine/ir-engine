@@ -325,6 +325,7 @@ export const handleJoinWorld = async (
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
   for (const action of world.cachedActions as Set<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = world.userIndexToUserId.get(action.ownerIndex)
       if (ownerId) {
