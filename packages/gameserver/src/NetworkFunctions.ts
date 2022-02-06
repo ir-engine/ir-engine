@@ -324,7 +324,18 @@ export const handleJoinWorld = async (
 
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
-  for (const action of world.cachedActions) {
+  for (const action of world.cachedActions as Set<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
+      const ownerId = world.userIndexToUserId.get(action.ownerIndex)
+      if (ownerId) {
+        const entity = world.getNetworkObject(ownerId, action.networkId)
+        if (typeof entity !== 'undefined') {
+          const transform = getComponent(entity, TransformComponent)
+          action.parameters.position = transform.position
+          action.parameters.rotation = transform.rotation
+        }
+      }
+    }
     if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push(action)
   }
 
