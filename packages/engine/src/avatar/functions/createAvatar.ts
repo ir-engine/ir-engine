@@ -47,6 +47,10 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   transform.rotation.copy(spawnAction.parameters.rotation)
   transform.scale.copy(new Vector3(1, 1, 1))
 
+  // set cached action refs to the new components so they stay up to date with future movements
+  spawnAction.parameters.position = position
+  spawnAction.parameters.rotation = rotation
+
   const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
   addComponent(entity, VelocityComponent, {
