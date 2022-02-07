@@ -2,7 +2,8 @@
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import { Bone, Matrix4, Quaternion, Vector3 } from 'three'
+import { Bone, Matrix4, Quaternion, Vector3, SkinnedMesh, Skeleton } from 'three'
+import { bonesData2 } from '@xrengine/engine/src/avatar/DefaultSkeletonBones'
 
 export type BoneNames =
   | 'Root'
@@ -399,6 +400,46 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
   })
 }
 
+function getAllSkeleton(rootObject) {
+  let bones: any[] = []
+
+  rootObject.traverse((object) => {
+    if (object instanceof SkinnedMesh && object.skeleton != null) {
+      object.skeleton.bones.forEach((bone) => {
+        if (bones.indexOf(bone) == -1) {
+          if (bone.parent && bone.parent.type !== 'Bone') {
+            bones.unshift(bone)
+          } else {
+            bones.push(bone)
+          }
+        }
+      })
+    }
+  })
+
+  let reOrderedBones: any[] = []
+
+  bonesData2.forEach((value) => {
+    const selected = bones.find((bone) => bone.name == value.name)
+    if (selected) {
+      reOrderedBones.push(selected)
+    }
+  })
+
+  bones.forEach((value) => {
+    const selected = reOrderedBones.find((bone) => bone.name == value.name)
+    if (!selected) {
+      reOrderedBones.push(value)
+    }
+  })
+
+  // const skeleton = new Skeleton(reOrderedBones)
+  // return skeleton
+  return {
+    bones: reOrderedBones
+  }
+}
+
 function getSkeleton(model) {
   let skeletonSkinnedMesh
   model.traverse((o) => {
@@ -411,9 +452,17 @@ function getSkeleton(model) {
   return skeleton
 }
 
+const foundRoot = (bone) => {
+  if (bone.parent && bone.parent.parent) {
+    return foundRoot(bone.parent)
+  } else {
+    return bone.parent
+  }
+}
+
 export default function AvatarBoneMatching(model): BoneStructure {
   try {
-    const skeleton = getSkeleton(model)
+    const skeleton = getAllSkeleton(model)
     const Hips = _findHips(skeleton)
     const armature = _findArmature(Hips)
     const tailBones = _getTailBones(skeleton)
@@ -621,17 +670,19 @@ export default function AvatarBoneMatching(model): BoneStructure {
     model.traverse((o) => {
       if (o.isSkinnedMesh) {
         try {
-          o.bind(
-            o.skeleton.bones.length === skeleton.bones.length &&
-              o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
-              ? skeleton
-              : o.skeleton
-          )
+          // o.bind(
+          //   o.skeleton.bones.length === skeleton.bones.length &&
+          //     o.skeleton.bones.every((bone, i) => bone === skeleton.bones[i])
+          //     ? skeleton
+          //     : o.skeleton
+          // )
+          o.bind(o.skeleton)
         } catch (error) {
           console.error(error)
         }
       }
     })
+
     if (flipY) {
       modelBones.Hips.quaternion.premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2))
     }
@@ -655,8 +706,10 @@ export default function AvatarBoneMatching(model): BoneStructure {
       bone.initialQuaternion = bone.quaternion.clone()
     })
 
+    const Root = foundRoot(Hips)
+
     const targetModelBones = {
-      Root: Hips.parent ? Hips.parent : Hips,
+      Root,
       Hips,
       Spine,
       Spine1,
