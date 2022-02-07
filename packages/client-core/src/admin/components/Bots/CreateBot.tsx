@@ -97,9 +97,8 @@ const CreateBot = (props: Props) => {
     setOpen(false)
   }
 
-  const data: Instance[] = []
-  instanceData.value.forEach((element) => {
-    data.push(element)
+  const data: Instance[] = instanceData.value.map((element) => {
+    return element
   })
 
   useEffect(() => {
@@ -166,20 +165,18 @@ const CreateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const locationMenu: Menu[] = []
-  locationData.value.forEach((el) => {
-    locationMenu.push({
+  const locationMenu: Menu[] = locationData.value.map((el) => {
+    return {
       value: el.id,
       label: el.name
-    })
+    }
   })
 
-  const instanceMenu: Menu[] = []
-  currentInstance.forEach((el) => {
-    instanceMenu.push({
+  const instanceMenu: Menu[] = currentInstance.map((el) => {
+    return {
       value: el.id,
       label: el.ipAddress
-    })
+    }
   })
 
   return (

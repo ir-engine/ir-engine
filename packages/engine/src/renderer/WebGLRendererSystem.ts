@@ -153,7 +153,6 @@ export class EngineRenderer {
     window.addEventListener('resize', this.onResize, false)
     this.onResize()
 
-    this.needsResize = true
     Engine.renderer.autoClear = true
     Engine.effectComposer = new EffectComposer(Engine.renderer)
 
@@ -202,8 +201,8 @@ export class EngineRenderer {
           }
 
           state.qualityLevel.value > 0 && Engine.csm?.updateFrustums()
-          Engine.renderer.setSize(width, height, false)
-          Engine.effectComposer.setSize(width, height, false)
+          // Effect composer calls renderer.setSize internally
+          Engine.effectComposer.setSize(width, height, true)
           this.needsResize = false
         }
 

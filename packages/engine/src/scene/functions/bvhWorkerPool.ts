@@ -1,9 +1,10 @@
 import { Mesh } from 'three'
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
+import { isClient } from '../../common/functions/isClient'
+
+let poolSize = isClient ? 2 : 1
 
 //TODO: Find number of cores on server side
-let poolSize = 2
-
 // if (isClient) {
 //   poolSize = window.navigator?.hardwareConcurrency || 2
 // }

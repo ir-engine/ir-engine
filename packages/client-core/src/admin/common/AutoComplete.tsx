@@ -157,7 +157,9 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
     getOptionLabel: (option) => option.type,
     onChange: (event: React.ChangeEvent<{}>, value: any) => {
       handleChangeScopeType(value)
-    }
+    },
+    getOptionDisabled: (option) => !!option.disabled,
+    isOptionEqualToValue: (option, value) => option.type === value.type
   })
   return (
     <Root>

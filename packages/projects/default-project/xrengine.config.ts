@@ -27,15 +27,6 @@ const config: ProjectConfigInterface = {
     },
     '/examples': {
       component: () => import('@xrengine/client/src/pages/examples/index')
-    },
-    '/inventory': {
-      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Inventory/index')
-    },
-    '/trading': {
-      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Trading/index')
-    },
-    '/wallet': {
-      component: () => import('@xrengine/client-core/src/user/components/UserMenu/Wallet/index')
     }
   },
   services: undefined,
