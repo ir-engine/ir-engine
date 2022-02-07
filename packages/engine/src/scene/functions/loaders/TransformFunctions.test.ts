@@ -8,7 +8,8 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { deserializeTransform } from './TransformFunctions'
 
-const EPSILON = 10e-9
+// need to control for rounding point errors with SoA
+const EPSILON = 10e-5
 
 describe('TransformFunctions', () => {
   it('deserializeTransform', () => {
@@ -42,8 +43,8 @@ describe('TransformFunctions', () => {
     assert(Math.abs(rotation.z) - Math.abs(quat.z) < EPSILON)
     assert(Math.abs(rotation.w) - Math.abs(quat.w) < EPSILON)
 
-    assert.equal(scale.x, 0.1)
-    assert.equal(scale.y, 0.2)
-    assert.equal(scale.z, 0.3)
+    assert(scale.x - 0.1 < EPSILON)
+    assert(scale.y - 0.2 < EPSILON)
+    assert(scale.z - 0.3 < EPSILON)
   })
 })
