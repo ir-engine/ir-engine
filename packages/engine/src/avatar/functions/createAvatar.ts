@@ -39,15 +39,17 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
 
   const position = createVector3Proxy(TransformComponent.position, entity)
-
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  // todo: figure out why scale makes avatar disappear
-  // const scale = createVector3Proxy(TransformComponent.scale, entity)
-  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
 
   const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
   transform.position.copy(spawnAction.parameters.position)
   transform.rotation.copy(spawnAction.parameters.rotation)
+  transform.scale.copy(new Vector3(1, 1, 1))
+
+  // set cached action refs to the new components so they stay up to date with future movements
+  spawnAction.parameters.position = position
+  spawnAction.parameters.rotation = rotation
 
   const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 

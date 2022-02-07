@@ -5,7 +5,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { getLoader, loadExtensions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useState } from 'react'
@@ -106,8 +106,6 @@ export const ReadyPlayerMenu = (props: Props) => {
       setAvatarUrl(url)
 
       try {
-        const loader = getLoader()
-
         var avatarResult = await new Promise((resolve, reject) => {
           fetch(url)
             .then((response) => {
@@ -124,10 +122,10 @@ export const ReadyPlayerMenu = (props: Props) => {
         })
 
         var avatarArrayBuffer = await new Response(avatarResult as any).arrayBuffer()
-        loader.parse(avatarArrayBuffer, '', (gltf) => {
-          var avatarName = avatarUrl.substring(avatarUrl.lastIndexOf('/') + 1, avatarUrl.length)
+        const assetType = AssetLoader.getAssetType(url)
+        ;(AssetLoader.getLoader(assetType) as any).parse(avatarArrayBuffer, '', (gltf) => {
+          var avatarName = url.substring(url.lastIndexOf('/') + 1, url.length)
           gltf.scene.name = 'avatar'
-          loadExtensions(gltf)
           scene.add(gltf.scene)
           renderScene()
           const error = validate(gltf.scene)

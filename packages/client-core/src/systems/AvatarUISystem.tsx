@@ -45,12 +45,15 @@ export default async function AvatarUISystem(world: World) {
       const contextMenuUI = AvatarContextMenuUI.get(userEntity)!
       const contextMenuXRUI = getComponent(contextMenuUI.entity, XRUIComponent)
       if (!contextMenuXRUI) return
+
       contextMenuXRUI.container.scale.setScalar(
         Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3)
       )
       contextMenuXRUI.container.position.copy(userTransform.position)
       contextMenuXRUI.container.position.y += avatarHeight - 0.3
-      contextMenuXRUI.container.position.x += 1
+      contextMenuXRUI.container.position.x += 0.1
+      contextMenuXRUI.container.position.z +=
+        contextMenuXRUI.container.position.z > Engine.camera.position.z ? -0.4 : 0.4
       contextMenuXRUI.container.rotation.setFromRotationMatrix(Engine.camera.matrix)
     }
 
