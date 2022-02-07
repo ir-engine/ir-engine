@@ -136,7 +136,7 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // periodically listening for users spatially near
   useEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
-  }, [selfUser, userState.layerUsersUpdateNeeded.value])
+  }, [selfUser?.instanceId.value, userState.layerUsersUpdateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it
   useEffect(() => {

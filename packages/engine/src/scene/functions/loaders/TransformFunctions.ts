@@ -6,6 +6,7 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
 export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
@@ -22,7 +23,15 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   json: ComponentJson<TransformComponentType>
 ) => {
   const props = parseTransformProperties(json.props)
-  addComponent(entity, TransformComponent, props)
+
+  const position = createVector3Proxy(TransformComponent.position, entity)
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  transform.position.copy(props.position)
+  transform.rotation.copy(props.rotation)
+  transform.scale.copy(props.scale)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }

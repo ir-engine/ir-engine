@@ -16,8 +16,7 @@ import {
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
-import { generateImageFileThumbnail, generateVideoFileThumbnail, getCanvasBlob } from '../functions/thumbnails'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getCanvasBlob } from '../functions/thumbnails'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from './CommandManager'
 import EditorCommands from '../constants/EditorCommands'
@@ -265,39 +264,6 @@ export class SceneManager {
     Engine.renderer.shadowMap.needsUpdate = true
 
     CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
-  }
-
-  /**
-   * Function generateFileThumbnail used to create thumbnail from audio as well video file.
-   *
-   * @author Robert Long
-   * @param  {any}  file
-   * @param  {any}  width
-   * @param  {any}  height
-   * @return {Promise}        [generated thumbnail data as blob]
-   */
-  async generateFileThumbnail(file, width?: number, height?: number): Promise<any> {
-    const url = URL.createObjectURL(file)
-
-    let blob
-
-    const fileName = file.name.toLowerCase()
-    if (fileName.endsWith('.glb')) {
-      const { scene } = await LoadGLTF(url)
-
-      blob = await ThumbnailRenderer.instance.generateThumbnail(scene, width, height)
-    } else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].some((ext) => fileName.endsWith(ext))) {
-      blob = await generateImageFileThumbnail(file)
-    } else if (file.name.toLowerCase().endsWith('.mp4')) {
-      blob = await generateVideoFileThumbnail(file)
-    }
-
-    URL.revokeObjectURL(url)
-
-    if (!blob) {
-      throw new Error(i18n.t('editor:errors.fileTypeNotSupported', { name: file.name }))
-    }
-    return blob
   }
 
   /**

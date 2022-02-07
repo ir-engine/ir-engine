@@ -18,6 +18,7 @@ export const dispatchFrom = <A extends Action>(userId: UserId, actionCb: () => A
     action.$from = action.$from ?? Engine.userId
     action.$to = action.$to ?? 'all'
     action.$tick = action.$tick ?? Engine.currentWorld.fixedTick + 2
+    Engine.currentWorld.isHosting && Engine.currentWorld.incomingActions.add(action as any)
     Engine.currentWorld.outgoingActions.add(action)
   }
 
