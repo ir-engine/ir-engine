@@ -3,6 +3,7 @@ import { nowMilliseconds } from './nowMilliseconds'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActionType } from '../../ecs/classes/EngineService'
+import { ServerLoop } from './ServerLoop'
 
 type TimerUpdateCallback = (delta: number, elapsedTime: number) => any
 
@@ -40,7 +41,7 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
-  let serverLoop
+  let serverLoop = null! as ServerLoop
 
   function onFrame(time, xrFrame) {
     timerRuns += 1
@@ -139,23 +140,17 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
     prevTimerRuns = timerRuns
   }
 
-  const expectedDelta = 1000 / 60
-
   function start() {
     elapsedTime = 0
     lastTime = null
     if (isClient) {
       Engine.renderer.setAnimationLoop(onFrame)
     } else {
-      serverLoop = () => {
+      const _update = () => {
         const time = nowMilliseconds()
-        if (time - lastTime! >= expectedDelta) {
-          onFrame(time, null)
-          lastTime = time
-        }
-        setImmediate(serverLoop)
+        onFrame(time, null)
       }
-      serverLoop()
+      serverLoop = new ServerLoop(_update, 60).start()
     }
     tpsReset()
   }
@@ -164,7 +159,7 @@ export function Timer(update: TimerUpdateCallback, _config: Partial<typeof Timer
     if (isClient) {
       Engine.renderer.setAnimationLoop(null)
     } else {
-      clearImmediate(serverLoop)
+      serverLoop.stop()
     }
   }
 

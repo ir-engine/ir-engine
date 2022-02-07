@@ -1,4 +1,4 @@
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 export default class GLTFCache {
   cache: Map<any, any>
   constructor() {
@@ -9,7 +9,7 @@ export default class GLTFCache {
     if (this.cache.has(absoluteURL)) {
       return this.cache.get(absoluteURL)
     } else {
-      const loadPromise = LoadGLTF(url)
+      const loadPromise = AssetLoader.loadAsync(url)
       this.cache.set(absoluteURL, loadPromise)
       loadPromise.catch((e) => {
         this.cache.delete(absoluteURL)

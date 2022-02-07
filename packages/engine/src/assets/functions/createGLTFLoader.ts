@@ -4,6 +4,9 @@ import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { isClient } from '../../common/functions/isClient'
+import { VRMLoaderPlugin } from '@pixiv/three-vrm'
+import { GLTFHubsLightMapExtension } from '../classes/GLTFHubsLightMapExtension'
+import { GLTFHubsComponentsExtension } from '../classes/GLTFHubsComponentsExtension'
 
 export const createGLTFLoader = (keepMaterials = false) => {
   const loader = new GLTFLoader()
@@ -13,6 +16,9 @@ export const createGLTFLoader = (keepMaterials = false) => {
   }
 
   loader.register((parser) => new GLTFInstancingExtension(parser))
+  loader.register((parser) => new GLTFHubsLightMapExtension(parser))
+  loader.register((parser) => new GLTFHubsComponentsExtension(parser))
+  loader.register((parser) => new VRMLoaderPlugin(parser))
 
   const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
   // const dracoLoader = new DRACOLoader()
