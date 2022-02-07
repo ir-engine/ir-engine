@@ -33,7 +33,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
-import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
 // threejs overrides
 
 // @ts-ignore
@@ -139,12 +139,24 @@ export const initializeMediaServerSystems = async () => {
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: Promise.resolve({
+        // media servers dont need to send actions anywhere
+        default: async function ClearOutgoingActionsSystem(world: World) {
+          return () => {
+            world.outgoingActions.clear()
+          }
+        }
+      })
     }
   )
 
   const world = useWorld()
+
   await initSystems(world, coreSystems)
 
   const executeWorlds = (delta, elapsedTime) => {
@@ -152,6 +164,8 @@ export const initializeMediaServerSystems = async () => {
       world.execute(delta, elapsedTime)
     }
   }
+
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -169,7 +183,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
     },
     {
@@ -183,6 +197,10 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
@@ -232,7 +250,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = useWorld()
-  world.receptors.push(incomingNetworkReceptor)
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 

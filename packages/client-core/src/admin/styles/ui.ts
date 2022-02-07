@@ -420,8 +420,44 @@ export const useStyles = makeStyles((theme: Theme) =>
       }
     },
     typoFontTitle: {
+      color: '#f1f1f1 !important',
       [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
+      }
+    },
+    groupRootPaper: {
+      maxWidth: '80%',
+      minWidth: '60%',
+      backgroundColor: '#43484F ',
+      color: '#f1f1f1',
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      }
+    },
+    itemAlign: {
+      textAlign: 'center'
+    },
+    scopeFlex: {
+      display: 'grid',
+      gridTemplateColumns: '2fr 2fr',
+      gridGap: '10px',
+      marginTop: '4%',
+      [theme.breakpoints.down('sm')]: {
+        display: 'grid',
+        gridTemplateColumns: '4fr'
+      }
+    },
+    rootList: {
+      width: '100%',
+      backgroundColor: '#43484F'
+    },
+    paperGroupHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41',
+      [theme.breakpoints.down('md')]: {
+        height: '20vh'
       }
     }
   })

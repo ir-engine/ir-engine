@@ -1,7 +1,6 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
+import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -14,7 +13,6 @@ import { configureEffectComposer } from '../../renderer/functions/configureEffec
 import { EntityTreeNode } from '../classes/EntityTree'
 import { unloadSystems } from './SystemFunctions'
 import { World } from '../classes/World'
-import { removeClient } from '../../networking/functions/incomingNetworkReceptor'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

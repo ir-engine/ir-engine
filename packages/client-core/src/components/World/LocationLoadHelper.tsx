@@ -102,7 +102,6 @@ const injectedSystems: SystemModuleType<any>[] = [
 
 export const initEngine = async () => {
   if (Engine.isInitialized) return
-  Network.instance = new Network()
   Network.instance.transportHandler = new ClientTransportHandler()
   createEngine()
   initializeBrowser()
