@@ -144,14 +144,7 @@ export const initializeMediaServerSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: Promise.resolve({
-        // media servers dont need to send actions anywhere
-        default: async function ClearOutgoingActionsSystem(world: World) {
-          return () => {
-            world.outgoingActions.clear()
-          }
-        }
-      })
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
