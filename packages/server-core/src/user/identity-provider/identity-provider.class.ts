@@ -9,8 +9,6 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
-import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
-import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 
@@ -198,24 +196,6 @@ export class IdentityProvider extends Service {
     } catch (err) {
       await this.app.service('user').remove(userId)
       throw err
-    }
-    // DRC
-    try {
-      if (result.user.userRole !== 'guest') {
-        let response: any = await blockchainTokenGenerator()
-        const accessToken = response?.data?.accessToken
-        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
-
-        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
-        let invenDataId = invenData.data[0].dataValues.inventoryItemId
-        let resp = await this.app.service('user-inventory').create({
-          userId: result.user.id,
-          inventoryItemId: invenDataId,
-          quantity: 10
-        })
-      }
-    } catch (err) {
-      console.error(err, 'error')
     }
     // DRC
 

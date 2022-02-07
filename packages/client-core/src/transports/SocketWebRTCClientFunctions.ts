@@ -68,6 +68,10 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
     dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
     return
   }
+  if (!ConnectToWorldResponse) {
+    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    return
+  }
   const { routerRtpCapabilities } = ConnectToWorldResponse as any
   dispatchLocal(EngineActions.connectToWorld(true) as any)
 

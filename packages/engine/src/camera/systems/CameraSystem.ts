@@ -78,7 +78,7 @@ export const setAvatarOpacity = (entity: Entity, opacity: number): void => {
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData.shader) return
+    if (!material.userData || !material.userData.shader) return
     const shader = material.userData.shader
     shader.uniforms.boneOpacity.value = opacity
   })
