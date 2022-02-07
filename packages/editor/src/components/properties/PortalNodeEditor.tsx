@@ -14,6 +14,7 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Euler } from 'three'
+import BooleanInput from '../inputs/BooleanInput'
 
 type PortalOptions = {
   name: string
@@ -38,13 +39,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
-
-  const onChangeValue = (prop) => (value) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
-      component: PortalComponent,
-      properties: { [prop]: value }
-    })
-  }
 
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
@@ -95,6 +89,9 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           }}
           getOptionLabel={(data) => data.name}
         />
+      </InputGroup>
+      <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
+        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
       </InputGroup>
       {/* TODO */}
       {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>

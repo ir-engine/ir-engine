@@ -1,105 +1,83 @@
-import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import Paper from '@mui/material/Paper'
+import React, { useEffect, useState } from 'react'
+import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
-import { Edit, Save } from '@mui/icons-material'
-import Skeleton from '@mui/material/Skeleton'
-import TextField from '@mui/material/TextField'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import Button from '@mui/material/Button'
-import Autocomplete from '@mui/material/Autocomplete'
-import { useAuthState } from '../../../user/services/AuthService'
-import { UserService } from '../../services/UserService'
-import { useDispatch } from '../../../store'
-import InputBase from '@mui/material/InputBase'
-
-import { useUserStyles, useUserStyle } from './styles'
-import { useUserState } from '../../services/UserService'
-import { validateUserForm } from './validation'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import MenuItem from '@mui/material/MenuItem'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
+import Grid from '@mui/material/Grid'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import { useScopeState } from '../../services/ScopeService'
-import { AuthService } from '../../../user/services/AuthService'
-import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
-import { useUserRoleState, UserROleService } from '../../services/UserRoleService'
-import { useSingleUserState, SingleUserService } from '../../services/SingleUserService'
-import { useStaticResourceState, staticResourceService } from '../../services/StaticResourceService'
+import Skeleton from '@mui/material/Skeleton'
+import Typography from '@mui/material/Typography'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { useAuthState } from '../../../user/services/AuthService'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
+import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { UserService, useUserState } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
+import { validateUserForm } from './validation'
+import AlertMessage from '../../common/AlertMessage'
+import AutoComplete from '../../common/AutoComplete'
+import _ from 'lodash'
+import InputSelect from '../../common/InputSelect'
+import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 
 interface Props {
   openView: boolean
   userAdmin: any
   closeViewModel?: any
-  //doLoginAuto?: any
 }
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
+interface ScopeData {
+  type: string
+}
+
+interface InputSelectProps {
+  value: string
+  label: string
 }
 
 const ViewUser = (props: Props) => {
-  const classx = useUserStyle()
-  const classes = useUserStyles()
-  const dispatch = useDispatch()
+  const classes = useStyles()
+  const { openView, closeViewModel, userAdmin } = props
+  const [editMode, setEditMode] = useState(false)
+  const [refetch, setRefetch] = useState(0)
 
-  const {
-    openView,
-    closeViewModel,
-    userAdmin
-    //doLoginAuto
-  } = props
-  const [openDialog, setOpenDialog] = React.useState(false)
-  const [status, setStatus] = React.useState('')
-  const [editMode, setEditMode] = React.useState(false)
-  const [refetch, setRefetch] = React.useState(0)
-
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     avatar: '',
-    scopeTypes: [] as AdminScopeType[],
+    userRole: '',
+    scopes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
-      scopeTypes: ''
+      userRole: '',
+      scopes: ''
     }
   })
-  const [error, setError] = React.useState('')
-  const [openWarning, setOpenWarning] = React.useState(false)
+  const [error, setError] = useState('')
+  const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const userRole = useUserRoleState()
-  const userRoleData = userRole ? userRole.userRole.value : []
   const singleUser = useSingleUserState()
   const singleUserData = singleUser.singleUser
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
-  const adminScopeState = useScopeState()
   const adminScopeTypeState = useScopeTypeState()
+  const userRole = useUserRoleState()
 
-  const handleClick = () => {
-    setOpenDialog(true)
-  }
-  const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
-
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
-      AuthService.doLoginAuto(false)
-      await UserROleService.fetchUserRole()
+      await UserRoleService.fetchUserRole()
     }
     if (userRole.updateNeeded.value === true && user.id.value) fetchData()
+
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
       SingleUserService.fetchSingleUserAdmin(userAdmin.id)
     }
@@ -114,50 +92,41 @@ const ViewUser = (props: Props) => {
     user.id.value,
     refetch,
     singleUser.updateNeeded.value,
-    adminScopeTypeState.updateNeeded.value
+    adminScopeTypeState.updateNeeded.value,
+    userRole.updateNeeded.value
   ])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!refetch) {
       setRefetch(refetch + 1)
     }
   }, [userAdmin.id, refetch])
 
-  React.useEffect(() => {
+  const initiateData = () => {
+    const temp: ScopeData[] = userAdmin.scopes.map((el) => {
+      return {
+        type: el.type
+      }
+    })
+    setState({
+      ...state,
+      name: userAdmin.name || '',
+      avatar: userAdmin.avatarId || '',
+      userRole: userAdmin.userRole || '',
+      scopes: temp as any
+    })
+  }
+
+  useEffect(() => {
     if (singleUserData?.value) {
-      setState({
-        ...state,
-        name: userAdmin.name || '',
-        avatar: userAdmin.avatarId || '',
-        scopeTypes: userAdmin.scopes || []
-      })
+      initiateData()
     }
   }, [singleUserData?.id?.value])
-
-  const defaultProps = {
-    options: userRoleData,
-    getOptionLabel: (option: any) => option.role
-  }
-
-  const patchUserRole = async (user: any, role: string) => {
-    await UserROleService.updateUserRole(user, role)
-    handleCloseDialog()
-    setRefetch(refetch + 1)
-  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'avatar':
-        temp.avatar = value.length < 2 ? 'Avatar is required!' : ''
-        break
-      default:
-        break
-    }
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -165,31 +134,18 @@ const ViewUser = (props: Props) => {
     const data = {
       name: state.name,
       avatarId: state.avatar,
-      scopeTypes: state.scopeTypes
+      userRole: state.userRole,
+      scopes: state.scopes
     }
-
     let temp = state.formErrors
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.avatar) {
-      temp.avatar = "Avatar can't be empty"
-    }
-    if (!state.scopeTypes) {
-      temp.scopeTypes = "Scope type can't be empty"
-    }
-    if (!state.scopeTypes.length) {
-      temp.scopeTypes = "Scope can't be empty"
-    }
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
+    temp.userRole = !state.userRole ? "User role can't be empty" : ''
+    temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
     if (validateUserForm(state, state.formErrors)) {
       UserService.patchUser(userAdmin.id, data)
-      setState({
-        ...state,
-        name: '',
-        avatar: '',
-        scopeTypes: []
-      })
+      setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
       closeViewModel(false)
     } else {
@@ -198,7 +154,7 @@ const ViewUser = (props: Props) => {
     }
   }
 
-  const handleCloseWarning = (event, reason) => {
+  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
@@ -215,16 +171,39 @@ const ViewUser = (props: Props) => {
         ...state.formErrors,
         name: '',
         avatar: '',
-        scopeTypes: ''
+        userRole: '',
+        scopes: ''
       }
     })
   }
 
+  const handleChangeScopeType = (scope) => {
+    setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
+  }
+
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
+      type: el.type
+    }
+  })
+
+  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+    return {
+      value: el.role,
+      label: el.role
+    }
+  })
+
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawer()} classes={{ paper: classx.paper }}>
+      <Drawer
+        anchor="right"
+        open={openView}
+        onClose={() => handleCloseDrawer()}
+        classes={{ paper: classes.paperDrawer }}
+      >
         {userAdmin && (
-          <Paper elevation={3} className={classes.paperHeight}>
+          <Paper elevation={3} className={classes.rootPaper}>
             <Container maxWidth="sm" className={classes.pad}>
               <Grid container spacing={2} className={classes.centering}>
                 <Grid item xs={4}>
@@ -243,61 +222,21 @@ const ViewUser = (props: Props) => {
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={singleUserData?.userRole?.value} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={userAdmin.userRole} className={classes.spanWhite} />
                     ) : (
-                      <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label="None" />
                     )}
                   </div>
                 </Grid>
               </Grid>
             </Container>
-
-            <Dialog
-              open={openDialog}
-              onClose={handleCloseDialog}
-              aria-labelledby="form-dialog-title"
-              classes={{ paper: classx.paperDialog }}
-            >
-              <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  In order to change role for {userAdmin.name} search from the list or select user role and submit.
-                </DialogContentText>
-                <Autocomplete
-                  onChange={(e, newValue) => {
-                    if (newValue) {
-                      setStatus(newValue.role as string)
-                    } else {
-                      setStatus('')
-                    }
-                  }}
-                  {...defaultProps}
-                  id="debug"
-                  renderInput={(params) => <TextField {...params} label="User Role" />}
-                />
-              </DialogContent>
-              <DialogActions className={classes.marginTop}>
-                <Button onClick={handleCloseDialog} className={classx.spanDange}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    patchUserRole(userAdmin.id, status)
-                  }}
-                  color="primary"
-                >
-                  Submit
-                </Button>
-              </DialogActions>
-            </Dialog>
           </Paper>
         )}
         <Container maxWidth="sm">
           {editMode ? (
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                {' '}
-                Update personal Information{' '}
+                Update personal Information
               </Typography>
               <label>Name</label>
               <Paper
@@ -329,7 +268,7 @@ const ViewUser = (props: Props) => {
                     onChange={handleInputChange}
                     className={classes.select}
                     name="avatar"
-                    MenuProps={{ classes: { paper: classx.selectPaper } }}
+                    MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>Select avatar</em>
@@ -342,37 +281,27 @@ const ViewUser = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-
-              <label>Grant scope</label>
-              <Paper
-                component="div"
-                className={state.formErrors.scopeTypes.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <Autocomplete
-                  onChange={(event, value) =>
-                    setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-                  }
-                  multiple
-                  value={state.scopeTypes}
-                  className={classes.selector}
-                  classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
-                  id="tags-standard"
-                  options={adminScopeTypeState.scopeTypes.value}
-                  disableCloseOnSelect
-                  filterOptions={(options) =>
-                    options.filter(
-                      (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
-                    )
-                  }
-                  getOptionLabel={(option) => option.type}
-                  renderInput={(params) => <TextField {...params} placeholder="Select scope" />}
+              <label>User role</label>
+              {user.id.value !== userAdmin.id && (
+                <InputSelect
+                  handleInputChange={handleInputChange}
+                  value={state.userRole}
+                  name="userRole"
+                  menu={userRoleData}
+                  formErrors={state.formErrors.userRole}
                 />
-              </Paper>
+              )}
+              <AutoComplete
+                data={scopeData}
+                label="Grant Scope"
+                handleChangeScopeType={handleChangeScopeType}
+                scopes={state.scopes as any}
+              />
             </div>
           ) : (
             <Grid container spacing={3} className={classes.mt5}>
               <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Personal Information{' '}
+                Personal Information
               </Typography>
               <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
@@ -390,16 +319,16 @@ const ViewUser = (props: Props) => {
               </Grid>
               <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.party?.location?.name || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.avatarId || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.inviteCode || <span className={classes.spanNone}>None</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}
+                  {userAdmin?.party?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
                 </Typography>
               </Grid>
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
@@ -413,7 +342,7 @@ const ViewUser = (props: Props) => {
                       container
                       spacing={3}
                       style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}
-                      key={el.id}
+                      key={index}
                     >
                       <Grid item xs={8}>
                         <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
@@ -432,15 +361,16 @@ const ViewUser = (props: Props) => {
           <DialogActions className={classes.mb10}>
             {editMode ? (
               <div className={classes.marginTop}>
-                <Button onClick={handleSubmit} className={classx.saveBtn}>
+                <Button onClick={handleSubmit} className={classes.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>{' '}
                   Submit
                 </Button>
                 <Button
-                  className={classx.saveBtn}
+                  className={classes.saveBtn}
                   onClick={() => {
+                    initiateData()
                     setEditMode(false)
                   }}
                 >
@@ -450,38 +380,22 @@ const ViewUser = (props: Props) => {
             ) : (
               <div className={classes.marginTop}>
                 <Button
-                  className={classx.saveBtn}
+                  className={classes.saveBtn}
                   onClick={() => {
                     setEditMode(true)
-                    setState({
-                      ...state,
-                      name: userAdmin.name || '',
-                      avatar: userAdmin.avatarId || '',
-                      scopeTypes: userAdmin.scopes || []
-                    })
                   }}
                 >
                   EDIT
                 </Button>
-                <Button onClick={() => handleCloseDrawer()} className={classx.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
                   CANCEL
                 </Button>
               </div>
             )}
           </DialogActions>
         </Container>
-        <Snackbar
-          open={openWarning}
-          autoHideDuration={6000}
-          onClose={handleCloseWarning}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert onClose={handleCloseWarning} severity="warning">
-            {' '}
-            {error}{' '}
-          </Alert>
-        </Snackbar>
       </Drawer>
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

@@ -33,7 +33,7 @@ import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
 import { useWorld } from './ecs/functions/SystemHooks'
 import { isClient } from './common/functions/isClient'
-import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
 // threejs overrides
 
 // @ts-ignore
@@ -139,12 +139,24 @@ export const initializeMediaServerSystems = async () => {
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: Promise.resolve({
+        // media servers dont need to send actions anywhere
+        default: async function ClearOutgoingActionsSystem(world: World) {
+          return () => {
+            world.outgoingActions.clear()
+          }
+        }
+      })
     }
   )
 
   const world = useWorld()
+
   await initSystems(world, coreSystems)
 
   const executeWorlds = (delta, elapsedTime) => {
@@ -152,6 +164,8 @@ export const initializeMediaServerSystems = async () => {
       world.execute(delta, elapsedTime)
     }
   }
+
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -169,7 +183,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
     },
     {
@@ -183,18 +197,22 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.POST_RENDER,
         systemModulePromise: import('./renderer/WebGLRendererSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       },
       {
         type: SystemUpdateType.UPDATE,
@@ -232,7 +250,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = useWorld()
-  world.receptors.push(incomingNetworkReceptor)
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 
@@ -263,6 +281,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./navigation/systems/AutopilotSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
       },
       {
         type: SystemUpdateType.UPDATE,

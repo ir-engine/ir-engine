@@ -33,6 +33,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   const dispatch = useDispatch()
 
   const isWorldConnection = networkTransport.type === TransportTypes.world
+  console.log('onConnectToInstance', TransportTypes.world)
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected())
@@ -64,6 +65,10 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
     ])
   } catch (err) {
     console.log(err)
+    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    return
+  }
+  if (!ConnectToWorldResponse) {
     dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
     return
   }
@@ -159,8 +164,8 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
   })
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
-    networkTransport.reconnecting = true
-    // console.log('socket reconnect')
+    networkTransport.reconnecting = false
+    console.log('socket reconnect')
   })
 
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
@@ -182,6 +187,8 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   })
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
+    networkTransport.reconnecting = false
+    console.log('socket reconnect')
   })
 
   networkTransport.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {

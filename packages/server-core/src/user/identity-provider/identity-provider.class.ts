@@ -5,12 +5,12 @@ import { v1 as uuidv1 } from 'uuid'
 import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
-import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
-import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 
 interface Data {}
 
@@ -166,6 +166,18 @@ export class IdentityProvider extends Service {
       }
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
+
+    let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
+
+    if (adminCount === 0) {
+      // in dev mode make the first guest an admin
+      // otherwise make the first logged in user an admin
+      if (isDev || role === 'user') {
+        type = 'admin'
+        role = 'admin'
+      }
+    }
+
     let result
     try {
       result = await super.create(
@@ -174,7 +186,7 @@ export class IdentityProvider extends Service {
           ...identityProvider,
           user: {
             id: userId,
-            userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
+            userRole: role,
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }
@@ -184,24 +196,6 @@ export class IdentityProvider extends Service {
     } catch (err) {
       await this.app.service('user').remove(userId)
       throw err
-    }
-    // DRC
-    try {
-      if (result.user.userRole !== 'guest') {
-        let response: any = await blockchainTokenGenerator()
-        const accessToken = response?.data?.accessToken
-        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
-
-        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
-        let invenDataId = invenData.data[0].dataValues.inventoryItemId
-        let resp = await this.app.service('user-inventory').create({
-          userId: result.user.id,
-          inventoryItemId: invenDataId,
-          quantity: 10
-        })
-      }
-    } catch (err) {
-      console.error(err, 'error')
     }
     // DRC
 
@@ -222,6 +216,16 @@ export class IdentityProvider extends Service {
             userId: userId
           })
         })
+      }
+
+      const authService = new AuthenticationService(this.app, 'authentication')
+      // this.app.service('authentication')
+      result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
+    } else if (isDev && type === 'admin') {
+      // in dev mode, add all scopes to the first user made an admin
+
+      for (const { type } of scopeTypeSeed.templates) {
+        await this.app.service('scope').create({ userId: userId, type })
       }
 
       const authService = new AuthenticationService(this.app, 'authentication')
