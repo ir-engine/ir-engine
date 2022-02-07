@@ -10,6 +10,7 @@ import {
   Mesh,
   MeshStandardMaterial,
   Object3D,
+  Scene,
   Material,
   SkinnedMesh,
   Texture
