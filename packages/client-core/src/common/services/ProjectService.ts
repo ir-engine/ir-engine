@@ -64,6 +64,15 @@ export const ProjectService = {
   triggerReload: async () => {
     const result = await client.service('project-build').patch({ rebuild: true })
     console.log('Remove project result', result)
+  },
+
+  invalidateProjectCache: async (projectName: string) => {
+    try {
+      await client.service('project-invalidate').patch({ projectName })
+      ProjectService.fetchProjects()
+    } catch (err) {
+      console.log(err)
+    }
   }
 }
 // TODO
