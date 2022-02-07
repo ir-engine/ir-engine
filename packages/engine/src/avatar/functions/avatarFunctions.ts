@@ -39,8 +39,6 @@ import { insertAfterString, insertBeforeString } from '../../common/functions/st
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { UpdatableComponent } from '@xrengine/engine/src/scene/components/UpdatableComponent'
 import { Updatable } from '@xrengine/engine/src/scene/interfaces/Updatable'
 const vec3 = new Vector3()
