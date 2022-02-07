@@ -120,11 +120,10 @@ const setupAvatar = (entity: Entity, root: any, avatarURL?: string, model?: any)
 
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(world.delta)
-  if (retargeted.LeftEye) {
-    retargeted.Neck.updateMatrixWorld(true)
-    const transform = getComponent(entity, TransformComponent)
-    avatar.avatarHeight = retargeted.LeftEye.getWorldPosition(vec3).y - transform.position.y
-  }
+
+  const eyeTarget = retargeted.LeftEye ?? retargeted.Head ?? retargeted.Neck
+  root.updateMatrixWorld(true)
+  avatar.avatarHeight = eyeTarget.getWorldPosition(vec3).y - root.getWorldPosition(vec3).y
 
   // Material
   let materialList: Array<MaterialMap> = []
