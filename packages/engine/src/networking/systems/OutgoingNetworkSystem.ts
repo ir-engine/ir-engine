@@ -38,22 +38,6 @@ const serializeAndSend = (world: World, serialize: Function, sendData: Function)
   }
 }
 
-const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
-  const { outgoingActions } = world
-
-  for (const o of outgoingActions) console.log('OUTGOING', o)
-
-  try {
-    transport.sendActions(outgoingActions)
-  } catch (e) {
-    console.error(e)
-  }
-
-  outgoingActions.clear()
-
-  return world
-}
-
 const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
   try {
     transport.sendData(data)
@@ -64,16 +48,12 @@ const sendDataOnTransport = (transport: NetworkTransport) => (data) => {
 
 export default async function OutgoingNetworkSystem(world: World) {
   const worldTransport = Network.instance.transportHandler.getWorldTransport()
-  const sendActions = sendActionsOnTransport(worldTransport)
   const sendData = sendDataOnTransport(worldTransport)
 
   const serialize = createDataWriter()
 
   return () => {
     if (!Engine.isInitialized) return
-
-    // side effect - network IO
-    sendActions(world)
 
     serializeAndSend(world, serialize, sendData)
   }

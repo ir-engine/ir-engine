@@ -13,10 +13,7 @@ export const Views = {
   Location: 'Location',
   Emote: 'Emote',
   NewLocation: 'NewLocation',
-  ReadyPlayer: 'ReadyPlayer',
-  Inventory: 'Inventory',
-  Wallet: 'Wallet',
-  Trading: 'Trading'
+  ReadyPlayer: 'ReadyPlayer'
 }
 
 export interface UserMenuProps {
