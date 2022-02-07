@@ -4,7 +4,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkWorldAction } from './NetworkWorldAction'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { dispatchLocal } from './dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { World } from '../../ecs/classes/World'
@@ -77,7 +77,7 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
       entity = createEntity()
     }
   }
-  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+  if (isOwnedByMe) addComponent(entity, NetworkObjectAuthorityTag, {})
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,

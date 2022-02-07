@@ -6,26 +6,18 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { createDataWriter } from '../serialization/DataWriter'
-import { NetworkObjectAuthorizedTag } from '../components/NetworkObjectAuthorizedTag'
 
 /***********
  * QUERIES *
  **********/
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
-const ownedNetworkTransformsQuery = defineQuery([NetworkObjectOwnedTag, NetworkObjectComponent, TransformComponent])
-const authorizedNetworkTransformsQuery = defineQuery([
-  NetworkObjectAuthorizedTag,
-  NetworkObjectComponent,
-  TransformComponent
-])
+const ownedNetworkTransformsQuery = defineQuery([NetworkObjectAuthorityTag, NetworkObjectComponent, TransformComponent])
 
 const serializeAndSend = (world: World, serialize: Function, sendData: Function) => {
-  const ownedEnts = ownedNetworkTransformsQuery(world)
-  const authorizedEnts = authorizedNetworkTransformsQuery(world)
-  const ents = isClient ? ownedNetworkTransformsQuery(world) : [...new Set([...ownedEnts, ...authorizedEnts])] //networkTransformsQuery(world)
+  const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
   if (ents.length > 0) {
     const data = serialize(world, ents)
 
