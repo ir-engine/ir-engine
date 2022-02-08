@@ -318,7 +318,6 @@ export class XREngineBot {
       args: [
         this.headless ? '--headless' : '--enable-webgl',
         '--enable-features=NetworkService',
-        '--enable-features=RTCUnifiedPlanByDefault',
         '--ignore-certificate-errors',
         `--no-sandbox`,
         `--disable-dev-shm-usage`,
