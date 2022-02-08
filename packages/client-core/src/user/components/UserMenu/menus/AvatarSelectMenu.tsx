@@ -523,6 +523,8 @@ export const AvatarSelectMenu = (props: Props) => {
           </button>
         </div>
       </TabPanel>
+
+      <div></div>
     </div>
   )
 }

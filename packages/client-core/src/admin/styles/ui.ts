@@ -459,6 +459,10 @@ export const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down('md')]: {
         height: '20vh'
       }
+    },
+    positionRight: {
+      position: 'absolute',
+      right: '10px'
     }
   })
 )

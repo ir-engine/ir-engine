@@ -16,6 +16,7 @@ import styles from './Avatars.module.scss'
 import { useAvatarState } from '../../services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { AvatarService } from '../../services/AvatarService'
+import AvatarCreate from './AvatarCreate'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -119,6 +120,16 @@ const Avatars = (props: Props) => {
     width: window.innerWidth
   })
 
+  const [open, setOpen] = useState(false)
+
+  const handleClickOpen = () => {
+    setOpen(true)
+  }
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
@@ -184,7 +195,7 @@ const Avatars = (props: Props) => {
               type="button"
               variant="contained"
               color="primary"
-              onClick={() => setAvatarSelectMenuOpen(true)}
+              onClick={handleClickOpen}
             >
               Upload Avatar
             </Button>
@@ -247,9 +258,10 @@ const Avatars = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        {avatarSelectMenuOpen && (
+        <AvatarCreate handleClose={handleClose} open={open} />
+        {/* {avatarSelectMenuOpen && (
           <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
-        )}
+        )} */}
       </Paper>
     </div>
   )
