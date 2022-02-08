@@ -1,74 +1,143 @@
 import assert from 'assert'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
-import { Group } from 'three'
-import fs from 'fs'
-import path from 'path'
-import { getLoader } from '../../assets/functions/LoadGLTF'
-import { setupAvatar, setupAvatarIKRig } from './avatarFunctions'
+import {
+  setupAvatarModel,
+  rigAvatarModel,
+  loadAvatarForUser,
+  boneMatchAvatarModel,
+  animateAvatarModel
+} from './avatarFunctions'
 import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import appRootPath from 'app-root-path'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { AnimationClip, Group, Quaternion, Vector3 } from 'three'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { createAvatar } from './createAvatar'
+import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
-import { ArmatureType } from '../../ikrig/enums/ArmatureType'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
+import { AnimationState } from '../animations/AnimationState'
 
-const testVRMModel = path.join(appRootPath.path, '/packages/projects/default-project/public/avatars/CyberbotRed.glb')
-const testRealModel = path.join(appRootPath.path, '/packages/projects/default-project/public/avatars/CyberbotRed.glb')
-const testMixamoModel = path.join(appRootPath.path, '/packages/projects/default-project/public/avatars/CyberbotRed.glb')
+const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
+const assetPaths = ['reallusion/Allison.glb', 'mixamo/vanguard.fbx', 'mixamo/vanguard.glb', 'vrm/test2.vrm']
 
-describe('avatarFunctions', async () => {
+before(async () => {
   await loadDRACODecoder()
+})
 
-  const loadAsset = async (url) => {
-    return new Promise((resolve, reject) => {
-      AssetLoader.load(
-        {
-          url,
-          castShadow: true,
-          receiveShadow: true
-        },
-        (model: any) => {
-          const parent = new Group()
-          const root = new Group()
-          root.add(model.scene)
-          parent.add(root)
-          resolve(parent)
-        }
+describe('avatarFunctions Integration', async () => {
+  beforeEach(async () => {
+    const world = createWorld()
+    Engine.currentWorld = world
+    await Engine.currentWorld.physics.createScene({ verbose: true })
+  })
+
+  describe('loadAvatarForEntity', () => {
+    it('should bone match, and rig avatar', async () => {
+      // clear cache to not potentially leak data between tests
+      AssetLoader.Cache.clear()
+      const world = useWorld()
+      Engine.userId = world.hostId
+      Engine.hasJoinedWorld = true
+
+      await Promise.all(
+        assetPaths.map(async (asset, i) => {
+          // set up avatar entity
+          const entity = createEntity()
+          const networkObject = addComponent(entity, NetworkObjectComponent, {
+            // remote owner
+            ownerId: Engine.userId,
+            ownerIndex: 0,
+            networkId: i as NetworkId,
+            prefab: '',
+            parameters: {}
+          })
+
+          createAvatar({
+            prefab: 'avatar',
+            parameters: { position: new Vector3(), rotation: new Quaternion() },
+            type: 'network.SPAWN_OBJECT',
+            networkId: networkObject.networkId,
+            ownerIndex: 0,
+            $from: Engine.userId,
+            $to: 'all',
+            $tick: Engine.currentWorld.fixedTick,
+            $cache: true
+          })
+
+          const avatar = getComponent(entity, AvatarComponent)
+          // make sure this is set later on
+          avatar.avatarHeight = 0
+          avatar.avatarHalfHeight = 0
+
+          try {
+            // run setup
+            await loadAvatarForUser(entity, githubPath + asset)
+          } catch (e) {
+            console.log('\n\nloadAvatarForEntity failed', asset, e, '\n\n')
+            // silently fail if files cannot be loaded in time, we dont want to break tests, they will pass on CI/CD as it has a better connection
+            if (!hasComponent(entity, IKRigComponent)) return
+          }
+
+          assert(hasComponent(entity, IKRigComponent))
+          assert(hasComponent(entity, IKPoseComponent))
+          assert(hasComponent(entity, IKRigTargetComponent))
+          const avatarComponent = getComponent(entity, AvatarComponent)
+
+          assert(avatarComponent.modelContainer.children.length)
+          assert(avatarComponent.avatarHeight > 0)
+          assert(avatarComponent.avatarHalfHeight > 0)
+
+          const { boneStructure } = getComponent(entity, IKRigComponent)
+          assert(boneStructure)
+          assert(boneStructure.Hips)
+          assert(boneStructure.Head)
+          assert(boneStructure.Neck)
+          assert(boneStructure.Spine || boneStructure.Spine1 || boneStructure.Spine2)
+          assert(boneStructure.LeftFoot)
+          assert(boneStructure.RightFoot)
+          assert((boneStructure.RightArm || boneStructure.RightForeArm) && boneStructure.RightHand)
+          assert((boneStructure.LeftArm || boneStructure.LeftForeArm) && boneStructure.LeftHand)
+          assert((boneStructure.RightUpLeg || boneStructure.RightLeg) && boneStructure.RightFoot)
+          assert((boneStructure.LeftUpLeg || boneStructure.LeftLeg) && boneStructure.LeftFoot)
+
+          // TODO: this currently isn't working, the update method doesnt show up in the VRM object
+          // assert.equal(hasComponent(entity, UpdatableComponent), asset.split('.').pop() === 'vrm')
+        })
       )
-    })
-  }
+    }).timeout(60 * 1000)
+  })
+})
 
-  const loadVRM = async () => {
-    return loadAsset(testVRMModel)
-  }
+const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
 
-  const loadReallusion = async () => {
-    return loadAsset(testRealModel)
-  }
-
-  const loadMixamo = async () => {
-    return loadAsset(testMixamoModel)
-  }
-
+describe('avatarFunctions Unit', async () => {
   beforeEach(async () => {
     const world = createWorld()
     Engine.currentWorld = world
   })
 
-  afterEach(async () => {})
+  let assetModel
+  before(async () => {
+    assetModel = await loadGLTFAssetNode(testGLTF)
+  })
 
-  describe('setupAvatar', () => {
+  describe('boneMatchAvatarModel', () => {
     it('should set up bone matching', async () => {
-      // get asset data
-      const asset = (await loadMixamo()) as any
-      const boneStructure = AvatarBoneMatching(SkeletonUtils.clone(asset))
+      const entity = createEntity()
+      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+
       assert(boneStructure.Hips)
       assert(boneStructure.Head)
       assert(boneStructure.Neck)
@@ -80,59 +149,40 @@ describe('avatarFunctions', async () => {
       assert((boneStructure.RightUpLeg || boneStructure.RightLeg) && boneStructure.RightFoot)
       assert((boneStructure.LeftUpLeg || boneStructure.LeftLeg) && boneStructure.LeftFoot)
     })
+  })
 
-    it('should set up ikrig', async () => {
-      // get asset data
-      const asset = (await loadMixamo()) as any
+  describe('rigAvatarModel', () => {
+    it('should add rig to skeleton', async () => {
       const entity = createEntity()
-      const boneStructure = AvatarBoneMatching(SkeletonUtils.clone(asset))
-      const rootSkeleton = setupAvatarIKRig(entity, ArmatureType.MIXAMO, boneStructure)
-      assert(rootSkeleton)
-      assert(getComponent(entity, IKPoseComponent))
+      const boneStructure = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      const rootSkeleton = rigAvatarModel(entity)(boneStructure)
+
+      assert.equal(typeof rootSkeleton, 'object')
+      assert(hasComponent(entity, IKPoseComponent))
     })
+  })
 
-    it('should set up mixamo', async () => {
-      // get asset data
-      const asset = (await loadMixamo()) as any
-
-      // mock avatar entity
-
+  describe('animateAvatarModel', () => {
+    it('should assign passed group as new animation mixer root', () => {
       const entity = createEntity()
 
-      setupAvatar(entity, SkeletonUtils.clone(asset))
+      addComponent(entity, AnimationComponent, {
+        mixer: null!,
+        animations: [] as AnimationClip[],
+        animationSpeed: 1
+      })
 
-      // assert something
-      assert(getComponent(entity, AvatarComponent))
-      assert(getComponent(entity, AnimationComponent))
-      assert(getComponent(entity, AvatarAnimationComponent))
-    })
+      addComponent(entity, AvatarAnimationComponent, {
+        animationGraph: new AvatarAnimationGraph(),
+        currentState: new AnimationState(),
+        prevState: new AnimationState(),
+        prevVelocity: new Vector3()
+      })
 
-    it('should set up vrm', async () => {
-      // get asset data
-      const asset = (await loadVRM()) as any
+      const group = new Group()
+      animateAvatarModel(entity)(group)
 
-      // mock avatar entity
-
-      const entity = createEntity()
-      setupAvatar(entity, SkeletonUtils.clone(asset))
-      // assert something
-      assert(getComponent(entity, AvatarComponent))
-      assert(getComponent(entity, AnimationComponent))
-      assert(getComponent(entity, AvatarAnimationComponent))
-    })
-
-    it('should set up reallusion', async () => {
-      // get asset data
-      const asset = (await loadReallusion()) as any
-
-      // mock avatar entity
-
-      const entity = createEntity()
-      setupAvatar(entity, SkeletonUtils.clone(asset))
-      // assert something
-      assert(getComponent(entity, AvatarComponent))
-      assert(getComponent(entity, AnimationComponent))
-      assert(getComponent(entity, AvatarAnimationComponent))
+      assert.equal(getComponent(entity, AnimationComponent).mixer.getRoot(), group)
     })
   })
 })
