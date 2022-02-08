@@ -36,6 +36,7 @@ import {
   writeVector3,
   writeVector4
 } from './DataWriter'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 
 describe('DataReader', () => {
   before(() => {
@@ -426,6 +427,8 @@ describe('DataReader', () => {
       prefab: '',
       parameters: {}
     })
+
+    addComponent(entity, NetworkObjectAuthorityTag, {})
 
     writeEntity(view, userIndex, networkId, entity)
 
