@@ -153,7 +153,7 @@ export const createApp = (): Application => {
         )
       })
       app.agonesSDK = agonesSDK
-      setInterval(() => agonesSDK.health(), 1000)
+      setInterval(() => agonesSDK.health(), 6001000)
 
       app.configure(channels)
     } else {
