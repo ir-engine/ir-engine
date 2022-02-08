@@ -51,6 +51,8 @@ COPY packages/server-core/package.json ./packages/server-core/
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 RUN npm run install-test-e2e
+    
+RUN apt-get update
 
 # copy then compile the code
 COPY . .
