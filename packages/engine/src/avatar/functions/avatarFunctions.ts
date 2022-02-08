@@ -49,7 +49,12 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
     castShadow: true,
     receiveShadow: true
   })
-  setupAvatarForUser(entity, SkeletonUtils.clone(model.scene))
+  const parent = new Group()
+  const root = new Group()
+  root.add(model.scene)
+  parent.add(root)
+  parent.userData = model.scene.userData
+  setupAvatarForUser(entity, SkeletonUtils.clone(parent))
 }
 
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
