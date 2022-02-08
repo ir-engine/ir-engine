@@ -1,4 +1,4 @@
-@import "../../../styles/imports.module.scss";
+@import '../../../styles/imports.module.scss';
 
 .admin {
   display: flex;
@@ -24,7 +24,7 @@
   }
 }
 
-.buttonConatiner{
+.buttonConatiner {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -88,21 +88,21 @@
 .thead {
   .trow {
     .tcell {
-      color: lighten(white, 0.80);
+      color: lighten(white, 0.8);
       background-color: #343b41;
     }
 
     .tcellSelectable {
-      .currentUser{
-        color: lighten(white, 0.80);
+      .currentUser {
+        color: lighten(white, 0.8);
         background-color: $FacebookBlue;
         padding-top: 5px;
         padding-bottom: 5px;
         &:hover {
-          background-color: #145cee;;
+          background-color: #145cee;
           cursor: pointer;
         }
-       }
+      }
     }
   }
 
@@ -110,7 +110,7 @@
     cursor: pointer;
 
     .tcell {
-      color: lighten(white, 0.80);
+      color: lighten(white, 0.8);
       background-color: black;
     }
   }
@@ -119,11 +119,12 @@
 .tableContainer {
   flex-grow: 1;
   width: 100%;
-  background-color: #43484F;
+  background-color: #43484f;
   //color: #f1f1f1 !important;
 
   * {
     color: #f1f1f1 !important;
+    text-align: center;
   }
 }
 .tablePagination {
@@ -134,7 +135,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #15171B !important;
+  background-color: #15171b !important;
   color: #fff !important;
 }
 
@@ -215,7 +216,7 @@
 }
 
 .checkbox {
-  margin: 0px; 
+  margin: 0px;
   padding: 0px;
   color: white;
 }

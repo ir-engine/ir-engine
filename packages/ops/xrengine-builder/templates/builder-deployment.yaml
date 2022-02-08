@@ -65,7 +65,7 @@ spec:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: { { $releaseName } }-redis
+                  name: {{ $releaseName }}-redis
                   key: redis-password
             - name: RELEASE_NAME
               value: {{ $releaseName }}
