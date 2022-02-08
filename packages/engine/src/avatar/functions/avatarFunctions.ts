@@ -44,7 +44,6 @@ import { Updatable } from '@xrengine/engine/src/scene/interfaces/Updatable'
 const vec3 = new Vector3()
 
 export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) => {
-  avatarDetail.avatarURL = 'https://172.160.10.156:8642/avatars/public/new/mixamo/erika_archer.fbx'
   AssetLoader.load(
     {
       url: avatarDetail.avatarURL,
@@ -53,7 +52,6 @@ export const loadAvatarForEntity = (entity: Entity, avatarDetail: AvatarProps) =
     },
     (model: any) => {
       const parent = new Group()
-      parent.add(model.scene)
       const root = new Group()
       root.add(model.scene)
       parent.add(root)
