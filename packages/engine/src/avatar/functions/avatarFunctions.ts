@@ -17,7 +17,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarComponent, AvatarComponentType } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -34,7 +34,7 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+import AvatarBoneMatching, { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Vector3 } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -165,11 +165,12 @@ export const setupAvatarIKRig = (entity, armatureType, boneStructure) => {
   return sourceSkeletonRoot
 }
 
-export const setupAvatarHeight = (entity, avatar, boneStructure) => {
+export const setupAvatarHeight = (entity: Entity, avatar: AvatarComponentType, boneStructure: BoneStructure) => {
   if (!boneStructure.LeftEye) return
   boneStructure.Neck.updateMatrixWorld(true)
-  const transform = getComponent(entity, TransformComponent)
-  avatar.avatarHeight = boneStructure.LeftEye.getWorldPosition(vec3).y - transform.position.y
+  const eyeTarget = boneStructure.LeftEye ?? boneStructure.Head ?? boneStructure.Neck
+  boneStructure.Root.updateMatrixWorld(true)
+  avatar.avatarHeight = eyeTarget.getWorldPosition(vec3).y - boneStructure.Root.getWorldPosition(vec3).y
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {

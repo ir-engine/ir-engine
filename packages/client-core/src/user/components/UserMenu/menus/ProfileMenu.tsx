@@ -1,9 +1,5 @@
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import StoreIcon from '@mui/icons-material/Store'
-import StorefrontIcon from '@mui/icons-material/Storefront'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -371,32 +367,7 @@ const ProfileMenu = (props: Props): any => {
                     }
                   }
                 }}
-              >
-                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
-                  <InventoryIcon />
-                  <Typography component="div" variant="button">
-                    My Inventory
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
-                  <StoreIcon />
-                  <Typography component="div" variant="button">
-                    My Trading
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
-                  <AccountBalanceWalletIcon />
-                  <Typography component="div" variant="button">
-                    My Wallet
-                  </Typography>
-                </Button>
-                <Button size="small" onClick={() => goToEthNFT()}>
-                  <StorefrontIcon />
-                  <Typography component="div" variant="button">
-                    Open ETH NFT Marketplace
-                  </Typography>
-                </Button>
-              </Grid>
+              ></Grid>
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
@@ -416,7 +387,7 @@ const ProfileMenu = (props: Props): any => {
         {showUserId && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              User id
+              {t('user:usermenu.profile.userIcon.userId')}
             </Typography>
 
             <form>
@@ -452,7 +423,7 @@ const ProfileMenu = (props: Props): any => {
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              API key
+              {t('user:usermenu.profile.apiKey')}
             </Typography>
 
             <form>

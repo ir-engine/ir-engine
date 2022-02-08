@@ -6,7 +6,6 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { dispatchLocal } from './dispatchFrom'
-import { isHost } from '../../common/functions/isHost'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { World } from '../../ecs/classes/World'
 
@@ -18,7 +17,7 @@ const removeAllNetworkClients = (world: World, removeSelf = false) => {
 
 const addClientNetworkActionReceptor = (world: World, userId: UserId, name: string, index: number) => {
   // host adds the client manually during connectToWorld
-  if (isHost()) return
+  if (world.isHosting) return
 
   world.clients.set(userId, {
     userId: userId,

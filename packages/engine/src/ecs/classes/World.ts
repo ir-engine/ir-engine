@@ -41,9 +41,6 @@ export class World {
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
 
-    this.userIdToUserIndex = new Map()
-    this.userIndexToUserId = new Map()
-
     if (!Engine.currentWorld) Engine.currentWorld = this
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
@@ -90,10 +87,10 @@ export class World {
   actionHistory = new Set<Action>()
 
   /** Map of numerical user index to user client IDs */
-  userIndexToUserId: Map<number, UserId>
+  userIndexToUserId = new Map<number, UserId>()
 
   /** Map of user client IDs to numerical user index */
-  userIdToUserIndex: Map<UserId, number>
+  userIdToUserIndex = new Map<UserId, number>()
 
   userIndexCount = 0
 
@@ -202,7 +199,7 @@ export class World {
   execute(delta: number, elapsedTime: number) {
     const start = nowMilliseconds()
     const incomingActions = Array.from(this.incomingActions.values())
-    const incomingBufferLength = Network.instance.incomingMessageQueueUnreliable.getBufferLength()
+    const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
     this.delta = delta
     this.elapsedTime = elapsedTime
