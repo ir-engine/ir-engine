@@ -119,7 +119,7 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
-  if (avatarAnimationComponent.currentState) {
+  if (avatarAnimationComponent?.currentState) {
     AnimationRenderer.mountCurrentState(entity)
   }
   // advance animation for a frame to eliminate potential t-pose

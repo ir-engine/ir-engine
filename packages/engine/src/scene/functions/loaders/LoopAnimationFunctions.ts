@@ -1,8 +1,10 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
+import { boneMatchAvatarModel, rigAvatarModel, setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -29,18 +31,19 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   component: ComponentJson<LoopAnimationComponentType>
 ) => {
   if (!isClient) return
+  const object3d = getComponent(entity, Object3DComponent)?.value
 
   const props = parseLoopAnimationProperties(component.props)
   addComponent(entity, LoopAnimationComponent, props)
   addComponent(entity, AnimationComponent, {
     animations: [],
-    mixer: null!,
+    mixer: new AnimationMixer(object3d),
     animationSpeed: 1
   })
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
 
-  if (accessEngineState().sceneLoaded) {
+  if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
     receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
@@ -53,14 +56,18 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
   const object3d = getComponent(entity, Object3DComponent)?.value
   if (!object3d) {
     console.warn('Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?')
+    return
   }
 
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
 
-  if (!animationComponent.mixer) {
-    animationComponent.mixer = new AnimationMixer(object3d)
+  if (component.hasAvatarAnimations) {
+    const setupLoopableAvatarModel = setupAvatarModel(entity)
+    setupLoopableAvatarModel(object3d)
   }
+
+  animationComponent.mixer = new AnimationMixer(object3d)
 
   animationComponent.animations = component.hasAvatarAnimations
     ? AnimationManager.instance._animations

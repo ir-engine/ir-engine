@@ -7,7 +7,8 @@ import {
   createEngine,
   initializeBrowser,
   initializeCoreSystems,
-  initializeProjectSystems
+  initializeProjectSystems,
+  initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
@@ -80,14 +81,6 @@ const EditorProtectedRoutes = () => {
     {
       systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
       type: SystemUpdateType.PRE_RENDER
-    },
-    {
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('@xrengine/engine/src/debug/systems/DebugHelpersSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('@xrengine/engine/src/physics/systems/PhysicsSystem')
     }
   ]
 
@@ -103,8 +96,10 @@ const EditorProtectedRoutes = () => {
       createEngine()
       initializeBrowser()
       initializeCoreSystems(systems).then(() => {
-        const projects = projectState.projects.value.map((project) => project.name)
-        initializeProjectSystems(projects)
+        initializeSceneSystems().then(() => {
+          const projects = projectState.projects.value.map((project) => project.name)
+          initializeProjectSystems(projects)
+        })
       })
     }
   }, [projectState.projects.value])

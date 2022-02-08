@@ -301,9 +301,10 @@ export default async function CameraSystem(world: World) {
       camRayCastCache.maxDistance = -1
     }
 
-    for (const entity of followCameraQuery(world)) {
-      updateFollowCamera(entity, delta)
-      updateAvatarOpacity(entity)
+    const [followCameraEntity] = followCameraQuery(world)
+    if (followCameraEntity !== undefined) {
+      updateFollowCamera(followCameraEntity, delta)
+      updateAvatarOpacity(followCameraEntity)
     }
 
     for (const entity of targetCameraRotationQuery(world)) {
@@ -312,7 +313,7 @@ export default async function CameraSystem(world: World) {
 
     if (Engine.xrManager?.isPresenting) {
       Engine.xrManager.updateCamera(Engine.camera)
-    } else if (Engine.activeCameraEntity !== undefined) {
+    } else if (followCameraEntity !== undefined) {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)
       Engine.camera.quaternion.copy(transform.rotation)
