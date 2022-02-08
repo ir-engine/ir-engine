@@ -19,7 +19,7 @@ const state = createState({
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: null! as string,
+  avatarTappedId: '',
   userHasInteracted: false,
   interactionData: null! as InteractableComponentType,
   errorEntities: {} as { [key: Entity]: boolean }

@@ -1,4 +1,4 @@
-import Hls from 'hls.js'
+import type Hls from 'hls.js'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VideoComponentType = {
