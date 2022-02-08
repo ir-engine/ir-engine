@@ -1,14 +1,14 @@
 import assert from 'assert'
 import Sinon from 'sinon'
 // import rewire from 'rewire'
-import { AssetLoader, getAssetClass, getAssetType, processModelAsset } from '../../../src/assets/classes/AssetLoader'
-import { AssetClass } from '../../../src/assets/enum/AssetClass'
-import { AssetType } from '../../../src/assets/enum/AssetType'
+import { AssetLoader } from './AssetLoader'
+import { AssetClass } from '../enum/AssetClass'
+import { AssetType } from '../enum/AssetType'
 
 /**
  * tests
  */
-describe('AssetLoader', () => {
+describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
       const asset = {
@@ -21,38 +21,38 @@ describe('AssetLoader', () => {
         receiveShadow: true
       }
 
-      assert.doesNotThrow(() => processModelAsset(asset, params))
+      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset, params))
     })
   })
 
   describe('getAssetType', () => {
     it('should work for gltf asset', async () => {
       const url = 'www.test.com/file.gltf'
-      const type = getAssetType(url)
+      const type = AssetLoader.getAssetType(url)
       assert.equal(type, AssetType.glTF)
     })
 
     it('should work for fbx asset', async () => {
       const url = 'www.test.com/file.fbx'
-      const type = getAssetType(url)
+      const type = AssetLoader.getAssetType(url)
       assert.equal(type, AssetType.FBX)
     })
 
     it('should work for vrm asset', async () => {
       const url = 'www.test.com/file.vrm'
-      const type = getAssetType(url)
+      const type = AssetLoader.getAssetType(url)
       assert.equal(type, AssetType.VRM)
     })
 
     it('should work for png asset', async () => {
       const url = 'www.test.com/file.png'
-      const type = getAssetType(url)
+      const type = AssetLoader.getAssetType(url)
       assert.equal(type, AssetType.PNG)
     })
 
     it('should work for jpeg asset', async () => {
       const url = 'www.test.com/file.jpeg'
-      const type = getAssetType(url)
+      const type = AssetLoader.getAssetType(url)
       assert.equal(type, AssetType.JPEG)
     })
   })
@@ -60,19 +60,19 @@ describe('AssetLoader', () => {
   describe('getAssetClass', () => {
     it('should work for model asset', async () => {
       const url = 'www.test.com/file.gltf'
-      const type = getAssetClass(url)
+      const type = AssetLoader.getAssetClass(url)
       assert.equal(type, AssetClass.Model)
     })
 
     it('should work for image asset', async () => {
       const url = 'www.test.com/file.png'
-      const type = getAssetClass(url)
+      const type = AssetLoader.getAssetClass(url)
       assert.equal(type, AssetClass.Image)
     })
 
     it('should work for unsupported asset', async () => {
       const url = 'www.test.com/file.pdf'
-      const type = getAssetClass(url)
+      const type = AssetLoader.getAssetClass(url)
       assert.equal(type, null)
     })
   })

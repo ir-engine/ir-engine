@@ -22,6 +22,7 @@ export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
   location: '',
   isPlayerInPortal: false,
   helper: null!,
+  redirect: false,
   spawnPosition: new Vector3(),
   spawnRotation: new Quaternion(),
   remoteSpawnPosition: new Vector3(),
@@ -99,6 +100,7 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
     props: {
       location: portalComponent.location,
       linkedPortalId: portalComponent.linkedPortalId,
+      redirect: portalComponent.redirect,
       // cubemapBakeId: component.cubemapBakeId, // TODO
       spawnPosition: helperTransform.position,
       spawnRotation: new Euler().setFromQuaternion(helperTransform.rotation).toVector3()
@@ -111,6 +113,7 @@ const parsePortalProperties = (props): PortalComponentType => {
     location: props.location ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.location,
     linkedPortalId: props.linkedPortalId ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.linkedPortalId,
     helper: null!,
+    redirect: props.redirect ?? false,
     isPlayerInPortal: false,
     spawnPosition: new Vector3().copy(props.spawnPosition),
     spawnRotation: new Quaternion().setFromEuler(new Euler().setFromVector3(props.spawnRotation)),

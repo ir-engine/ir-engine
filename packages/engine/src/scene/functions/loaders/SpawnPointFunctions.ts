@@ -1,5 +1,5 @@
 import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
-import { LoadGLTF } from '../../../assets/functions/LoadGLTF'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -31,7 +31,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
     if (!spawnPointHelperModel) {
-      const { scene } = await LoadGLTF(GLTF_PATH)
+      const { scene } = await AssetLoader.loadAsync({ url: GLTF_PATH })
       spawnPointHelperModel = scene
     }
 

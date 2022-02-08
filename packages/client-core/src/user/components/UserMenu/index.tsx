@@ -22,9 +22,6 @@ import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import Inventory from './Inventory'
-import Trading from './Trading'
-import Wallet from './Wallet'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -64,10 +61,7 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Location]: LocationMenu,
     [Views.NewLocation]: CreateLocationMenu,
     [Views.ReadyPlayer]: ReadyPlayerMenu,
-    [Views.Emote]: EmoteMenu,
-    [Views.Inventory]: Inventory,
-    [Views.Trading]: Trading,
-    [Views.Wallet]: Wallet
+    [Views.Emote]: EmoteMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
@@ -211,24 +205,6 @@ const UserMenu = (props: UserMenuProps): any => {
           changeActiveMenu: changeActiveMenu,
           uploadAvatarModel: handleUploadAvatarModel,
           isPublicAvatar: false
-        }
-        break
-      case Views.Inventory:
-        args = {
-          id: selfUser.id.value,
-          changeActiveMenu: changeActiveMenu
-        }
-        break
-      case Views.Trading:
-        args = {
-          id: selfUser.id.value,
-          changeActiveMenu: changeActiveMenu
-        }
-        break
-      case Views.Wallet:
-        args = {
-          id: selfUser.id.value,
-          changeActiveMenu: changeActiveMenu
         }
         break
       default:

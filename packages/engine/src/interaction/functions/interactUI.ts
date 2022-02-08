@@ -8,7 +8,6 @@ import { InteractableComponent } from '../components/InteractableComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 
 import { hideInteractText, showInteractText, createInteractText } from './interactText'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'
@@ -17,6 +16,7 @@ import Hls from 'hls.js'
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>
@@ -98,7 +98,7 @@ export const createInteractUI = (entity: Entity) => {
             }
 
             //load glb file
-            LoadGLTF(mediaData[mediaIndex].path).then((model) => {
+            AssetLoader.loadAsync({ url: mediaData[mediaIndex].path }).then((model) => {
               const object3d = new Object3D()
               model.scene.traverse((mesh) => {
                 //@ts-ignore
