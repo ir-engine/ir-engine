@@ -1,4 +1,5 @@
 import Cached from '@mui/icons-material/Cached'
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import Cross from '@mui/icons-material/Cancel'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -36,6 +37,7 @@ const Projects = () => {
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
     { id: 'update', numeric: false, disablePadding: true, label: 'Update' },
+    { id: 'invalidate', numeric: false, disablePadding: false, label: 'Invalidate Cache' },
     { id: 'remove', numeric: false, disablePadding: false, label: 'Remove' }
   ]
 
@@ -124,6 +126,7 @@ const Projects = () => {
     width: window.innerWidth
   })
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
+  const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
   const [project, setProject] = useState<ProjectInterface>(null!)
 
@@ -177,6 +180,14 @@ const Projects = () => {
       console.log(err)
     }
   }
+  const handleInvalidateCache = async () => {
+    try {
+      setPopupInvalidateConfirmOpen(false)
+      await ProjectService.invalidateProjectCache(project.name)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const onOpenUploadModal = () => {
     GithubAppService.fetchGithubAppRepos()
@@ -213,6 +224,11 @@ const Projects = () => {
     setPopupReuploadConfirmOpen(true)
   }
 
+  const handleOpenInvaliateConfirmation = (row) => {
+    setProject(row)
+    setPopupInvalidateConfirmOpen(true)
+  }
+
   const handleOpenRemoveConfirmation = (row) => {
     setProject(row)
     setPopupRemoveConfirmOpen(true)
@@ -221,6 +237,11 @@ const Projects = () => {
   const handleCloseReuploadModel = () => {
     setProject(null!)
     setPopupReuploadConfirmOpen(false)
+  }
+
+  const handleCloseInvalidateModel = () => {
+    setProject(null!)
+    setPopupInvalidateConfirmOpen(false)
   }
 
   const handleCloseRemoveModel = () => {
@@ -297,6 +318,18 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
+                          onClick={() => handleOpenInvaliateConfirmation(row)}
+                          name="stereoscopic"
+                          color="primary"
+                        >
+                          <CleaningServicesIcon />
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole.value === 'admin' && (
+                        <Button
+                          className={styles.checkbox}
                           onClick={() => handleOpenRemoveConfirmation(row)}
                           name="stereoscopic"
                           color="primary"
@@ -336,6 +369,14 @@ const Projects = () => {
           name={project?.name}
           label={'project'}
           type="rebuild"
+        />
+        <ConfirmModel
+          popConfirmOpen={popupInvalidateConfirmOpen}
+          handleCloseModel={handleCloseInvalidateModel}
+          submit={handleInvalidateCache}
+          name={project?.name}
+          label={"storage provider's cache of"}
+          type="invalidates"
         />
         <ConfirmModel
           popConfirmOpen={popupRemoveConfirmOpen}
