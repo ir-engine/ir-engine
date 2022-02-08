@@ -117,7 +117,6 @@ export default async function AvatarSystem(world: World) {
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      proxifyXRInputs(entity, xrInputSourceComponent)
       initializeXRInputs(entity)
 
       xrInputSourceComponent.container.add(
@@ -131,6 +130,7 @@ export default async function AvatarSystem(world: World) {
 
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
+        proxifyXRInputs(entity, xrInputSourceComponent)
         addComponent(entity, CameraIKComponent, {
           boneIndex: 5, // Head bone
           camera: xrInputSourceComponent.head,

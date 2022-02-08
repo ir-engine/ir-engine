@@ -2,7 +2,6 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
-import { delay } from '../../common/functions/delay'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -35,7 +34,7 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
 
   for (let i = 0; i < 2; i++) {
     const j = 1 - i
-    const inputSource = session.inputSources[i]
+    const inputSource = session?.inputSources[i]
     if (!inputSource) {
       console.log('No xr input source available for index', i)
       continue
@@ -122,20 +121,35 @@ export const startWebXR = async (): Promise<void> => {
   assignControllerAndGrip(Engine.xrManager, controllerLeft, controllerGripLeft, 0)
   assignControllerAndGrip(Engine.xrManager, controllerRight, controllerGripRight, 1)
 
+  const controllerLeftParent = controllerLeft.parent as Group,
+    controllerGripLeftParent = controllerGripLeft.parent as Group,
+    controllerRightParent = controllerRight.parent as Group,
+    controllerGripRightParent = controllerGripRight.parent as Group
+
   const inputData = {
     head,
     container,
     controllerLeft,
     controllerRight,
     controllerGripLeft,
-    controllerGripRight
+    controllerGripRight,
+    controllerLeftParent,
+    controllerGripLeftParent,
+    controllerRightParent,
+    controllerGripRightParent
   }
 
-  // Map input sources
-  // Sometimes the input sources are not available immidiately
-  await delay(1000)
-  mapXRControllers(inputData as any)
-  addComponent(world.localClientEntity, XRInputSourceComponent, inputData as any)
+  const inputSourceChanged = (event) => {
+    // Map input sources
+    mapXRControllers(inputData)
+    // Proxify only after input handedness is determined
+    proxifyXRInputs(world.localClientEntity, inputData)
+    Engine.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
+  }
+
+  Engine.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
+
+  addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
   dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
   bindXRHandEvents()
 }
@@ -146,9 +160,9 @@ export const startWebXR = async (): Promise<void> => {
  */
 
 export const endXR = (): void => {
-  Engine.xrSession.end()
+  Engine.xrSession?.end()
   Engine.xrSession = null!
-  Engine.xrManager.setSession(null)
+  Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
 
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)

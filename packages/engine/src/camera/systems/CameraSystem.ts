@@ -294,7 +294,8 @@ export default async function CameraSystem(world: World) {
     }
 
     if (Engine.xrManager?.isPresenting) {
-      Engine.xrManager.updateCamera(Engine.camera)
+      // Current WebXRManager.updateCamera() typedef is incorrect
+      ;(Engine.xrManager as any).updateCamera(Engine.camera)
     } else if (Engine.activeCameraEntity !== undefined) {
       const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
       Engine.camera.position.copy(transform.position)

@@ -28,7 +28,8 @@ const startXRSession = async () => {
     Engine.xrManager.setFoveation(1)
     dispatchLocal(EngineActions.xrSession() as any)
 
-    Engine.xrManager.getCamera().layers.enableAll()
+    // Current WebXRManager.getCamera() typedef is incorrect
+    ;(Engine.xrManager as any).getCamera().layers.enableAll()
 
     Engine.xrManager.addEventListener('sessionend', async () => {
       dispatchLocal(EngineActions.xrEnd() as any)

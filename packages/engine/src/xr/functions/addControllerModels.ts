@@ -43,7 +43,6 @@ const setupController = (inputSource, controller) => {
 export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  const session = Engine.xrManager.getSession()
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
@@ -66,8 +65,12 @@ export const initializeXRInputs = (entity: Entity) => {
         }
       })
 
-      const inputSource = session.inputSources[i]
-      setupController(inputSource, controller)
+      const session = Engine.xrManager.getSession()
+
+      if (session) {
+        const inputSource = session.inputSources[i]
+        setupController(inputSource, controller)
+      }
     })
   }
 
