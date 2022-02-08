@@ -8,6 +8,7 @@ import PkgConfig from 'vite-plugin-package-config'
 import { injectHtml } from 'vite-plugin-html'
 import dotenv from 'dotenv'
 import { getClientSetting } from './scripts/getClientSettings'
+import appRootPath from 'app-root-path'
 
 const copyProjectDependencies = () => {
   if(!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))){
@@ -58,7 +59,9 @@ const getDependenciesToOptimize = () => {
 
 export default defineConfig(async (command) => {
   const env = loadEnv('', process.cwd() + '../../');
-  dotenv.config()
+  dotenv.config({
+    path: appRootPath.path + '/.env.local'
+  })
   const clientSetting = await getClientSetting()
   process.env = {
     ...process.env,
@@ -131,7 +134,7 @@ export default defineConfig(async (command) => {
        })
    ]
   }
-  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') { 
+  if(command.command !=='build' || process.env.VITE_LOCAL_BUILD === 'true') {
     returned.define = {
       'process.env': process.env,
       'process.browser': process.browser,
