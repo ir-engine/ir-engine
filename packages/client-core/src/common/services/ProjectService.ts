@@ -66,6 +66,7 @@ export const ProjectService = {
     console.log('Remove project result', result)
   },
 
+  // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
       await client.service('project-invalidate').patch({ projectName })

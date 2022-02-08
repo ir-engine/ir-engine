@@ -51,6 +51,12 @@ export default (app: Application): void => {
     }
   })
 
+  app.service('project-invalidate').hooks({
+    before: {
+      patch: [authenticate(), restrictUserRole('admin')]
+    }
+  })
+
   const service = app.service('project')
 
   service.hooks(hooks)
