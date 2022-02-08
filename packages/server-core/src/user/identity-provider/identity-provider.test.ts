@@ -4,7 +4,7 @@ import app from '../../../../server/src/app'
 
 let providers: any = []
 
-describe.only('identity-provider service', () => {
+describe('identity-provider service', () => {
   before(async () => {
     await app.setup()
   })
