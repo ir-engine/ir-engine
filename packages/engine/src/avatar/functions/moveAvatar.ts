@@ -152,21 +152,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     z: newVelocity.z
   }
 
-  const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
-
-  const collisionFlags = controller.controller.move(
-    displacement,
-    0.001,
-    timeStep,
-    filters,
-    world.physics.obstacleContext
-  )
-
-  controller.collisions = [
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
-  ]
+  moveAvatarController(world, entity, displacement)
 
   return displacement
 }
@@ -210,8 +196,12 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
     z: tempVec2.z
   }
 
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.velocity.setX(displacement.x)
+  velocity.velocity.setZ(displacement.z)
+
   // Rotate around camera
-  moveAvatarControllerHorizontally(world, entity, displacement)
+  moveAvatarController(world, entity, displacement)
 }
 
 /**
@@ -222,7 +212,7 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
  * @param position Out, camera position
  */
 export const getAvatarCameraPosition = (entity: Entity, offset: Vector3, position: Vector3) => {
-  getAvatarBoneWorldPosition(entity, 'neck', position)
+  getAvatarBoneWorldPosition(entity, 'Neck', position)
   const avatarTransform = getComponent(entity, TransformComponent)
   tempVec2.copy(offset)
   tempVec2.applyQuaternion(avatarTransform.rotation)
@@ -258,20 +248,14 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
-const moveAvatarControllerHorizontally = (world: World, entity: Entity, displacement: any) => {
+const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
   const {
     fixedDelta,
     physics: { timeScale }
   } = world
 
   const timeStep = timeScale * fixedDelta
-
-  const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-
-  velocity.velocity.setX(displacement.x)
-  velocity.velocity.setZ(displacement.z)
-
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
 
   const collisionFlags = controller.controller.move(
@@ -326,5 +310,9 @@ export const moveXRAvatar = (
     z: tempVec1.z
   }
 
-  moveAvatarControllerHorizontally(world, entity, displacement)
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.velocity.setX(displacement.x)
+  velocity.velocity.setZ(displacement.z)
+
+  moveAvatarController(world, entity, displacement)
 }

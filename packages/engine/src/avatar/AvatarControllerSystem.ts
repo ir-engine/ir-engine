@@ -31,7 +31,6 @@ export default async function AvatarControllerSystem(world: World) {
   const tempVec = new Vector3(),
     lastCamPos = new Vector3(),
     displacement = new Vector3()
-  let localCameraInitialized = false
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
@@ -47,35 +46,10 @@ export default async function AvatarControllerSystem(world: World) {
       }
     }
 
-    for (const entity of localXRInputQuery.enter(world)) {
-      // TODO: The opacity value does not set immidiately
-      setTimeout(() => setAvatarHeadOpacity(entity, 0), 1000)
-
-      // The Engine.camera.position has an update delay
-      setTimeout(() => {
-        tempVec.subVectors(Engine.camera.position, Engine.camera.parent!.position)
-
-        alignXRCameraPositionWithAvatar(entity, Engine.camera)
-        alignXRCameraRotationWithAvatar(entity, Engine.camera)
-
-        // Calculate new camera world position
-        tempVec.add(Engine.camera.parent!.position)
-
-        Engine.camera.position.copy(tempVec)
-        lastCamPos.copy(tempVec)
-        localCameraInitialized = true
-      }, world.fixedDelta * 2000) // 2 frames
-    }
-
-    for (const entity of localXRInputQuery.exit(world)) {
-      localCameraInitialized = false
-    }
-
     for (const entity of localXRInputQuery(world)) {
-      if (localCameraInitialized) {
-        moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-        rotateXRAvatar(world, entity, Engine.camera)
-      }
+      setAvatarHeadOpacity(entity, 0)
+      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.camera)
     }
 
     for (const entity of controllerQuery(world)) {

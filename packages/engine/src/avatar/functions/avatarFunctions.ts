@@ -286,16 +286,12 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   })
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, name: string, position: Vector3): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  let found = false
-  object3DComponent?.value.traverse((obj) => {
-    const bone = obj as Bone
-    // TODO: Cache the neck bone reference
-    if (found || !bone.isBone || !bone.name.toLowerCase().includes(name)) return
-    bone.updateWorldMatrix(true, false)
-    const el = bone.matrixWorld.elements
-    position.set(el[12], el[13], el[14])
-    found = true
-  })
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+  const rig = getComponent(entity, IKRigComponent)
+  const bone = rig.boneStructure[boneName]
+  if (!bone) return false
+  bone.updateWorldMatrix(true, false)
+  const el = bone.matrixWorld.elements
+  position.set(el[12], el[13], el[14])
+  return true
 }
