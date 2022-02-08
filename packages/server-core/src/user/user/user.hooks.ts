@@ -22,7 +22,7 @@ const restrictUserPatch = (context: HookContext) => {
   const data = {} as any
   // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
   if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
-  if (typeof context.data.name !== 'undefined') data.avatarId = context.data.name
+  if (typeof context.data.name !== 'undefined') data.name = context.data.name
   context.data = data
   return context
 }
