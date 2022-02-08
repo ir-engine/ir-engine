@@ -25,7 +25,8 @@ export class User extends Service {
    * @returns {@Array} of found users
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
+    if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!
 
@@ -34,12 +35,6 @@ export class User extends Service {
 
     delete query.search
 
-    // this is a privacy & security vulnerability, please rethink the implementation here and on the front end.
-    // if (action === 'inventory') {
-    //   delete params.query?.action
-    //   // WARNING: we probably dont want to do this
-    //   return await super.find(params)
-    // } else
     if (action === 'friends') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
@@ -121,8 +116,8 @@ export class User extends Service {
     }
   }
 
-  async create(params: Params): Promise<any> {
-    const data = params
+  async create(params?: Params): Promise<any> {
+    const data = params ?? {}
     data.inviteCode = Math.random().toString(36).slice(2)
     return await super.create(data)
   }

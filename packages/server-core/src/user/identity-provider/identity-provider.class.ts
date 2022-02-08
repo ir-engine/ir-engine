@@ -9,8 +9,6 @@ import { isDev } from '@xrengine/common/src/utils/isDev'
 import config from '../../appconfig'
 import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
-import blockchainTokenGenerator from '../../util/blockchainTokenGenerator'
-import blockchainUserWalletGenerator from '../../util/blockchainUserWalletGenerator'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import type IdentityProviderModel from './identity-provider.model'
@@ -25,7 +23,7 @@ interface Data {}
  * @author Vyacheslav Solovjov
  */
 
-export class IdentityProvider<T = Model> extends Service<T> {
+export class IdentityProvider<T = Model> extends Service {
   public app: Application
   public docs: any
 
@@ -203,24 +201,6 @@ export class IdentityProvider<T = Model> extends Service<T> {
       throw err
     }
     // DRC
-    try {
-      if (result.user.userRole !== 'guest') {
-        let response: any = await blockchainTokenGenerator()
-        const accessToken = response?.data?.accessToken
-        let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
-
-        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
-        let invenDataId = invenData.data[0].dataValues.inventoryItemId
-        let resp = await this.app.service('user-inventory').create({
-          userId: result.user.id,
-          inventoryItemId: invenDataId,
-          quantity: 10
-        })
-      }
-    } catch (err) {
-      console.error(err, 'error')
-    }
-    // DRC
 
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
@@ -258,9 +238,11 @@ export class IdentityProvider<T = Model> extends Service<T> {
     return result
   }
 
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-    if (params.provider) params.query!.userId = loggedInUser.id
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
+    if (params) {
+      const loggedInUser = extractLoggedInUserFromParams(params)
+      if (params.provider) params.query!.userId = loggedInUser.id
+    }
     return super.find(params)
   }
 }

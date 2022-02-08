@@ -1,23 +1,10 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
-
-type IdentityProvider = {
-  id: string
-  token: string
-  password: string
-  isVerified: string
-  verifyToken: string
-  verifyShortToken: string
-  verifyExpires: string
-  verifyChanges: string
-  resetToken: string
-  resetExpires: string
-  type: string
-}
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const identityProvider = sequelizeClient.define<Model<IdentityProvider>>(
+  const identityProvider = sequelizeClient.define<Model<IdentityProviderInterface>>(
     'identity_provider',
     {
       id: {
