@@ -4,7 +4,7 @@ import app from '../../../../server/src/app'
 
 let users: any = []
 
-describe.only('user service', () => {
+describe('user service', () => {
   before(async () => {
     await app.setup()
   })
