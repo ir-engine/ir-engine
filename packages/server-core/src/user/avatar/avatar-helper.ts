@@ -14,23 +14,31 @@ export type AvatarUploadArguments = {
   avatar: Buffer
   thumbnail: Buffer
   avatarName: string
+  avatarFileType?: string
   isPublicAvatar?: boolean
   userId?: string
 }
 
+// todo: move this somewhere else
+const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
+
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   const avatarsToInstall = fs
     .readdirSync(avatarsFolder, { withFileTypes: true })
-    .filter((dirent) => dirent.name.split('.').pop() === 'glb')
+    .filter((dirent) => supportedAvatars.includes(dirent.name.split('.').pop()!))
     .map((dirent) => {
-      const avatarName = dirent.name.replace(/\..+$/, '') // remove extension
+      const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.')) // remove extension
+      const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
+
       const thumbnail = fs.existsSync(path.join(avatarsFolder, avatarName + '.png'))
         ? fs.readFileSync(path.join(avatarsFolder, avatarName + '.png'))
         : Buffer.from([])
+
       return {
         avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
         thumbnail,
         avatarName,
+        avatarFileType,
         isPublicAvatar: true
       }
     })
@@ -51,7 +59,7 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
 
   const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, {
     userId: data.userId!,
-    key: `${key}.glb`,
+    key: `${key}.${data.avatarFileType ?? 'glb'}`,
     staticResourceType: 'avatar',
     contentType: CommonKnownContentTypes.glb,
     name

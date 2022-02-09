@@ -4,7 +4,7 @@ import { Scope } from './scope.class'
 import createModel from './scope.model'
 import scopeDocs from './scope.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     scope: Scope
   }

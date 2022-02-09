@@ -4,7 +4,7 @@ import hooks from './match-instance.hooks'
 import matchTicketDocs from './match-instance.docs'
 import createModel from './match-instance.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'match-instance': MatchInstance
   }

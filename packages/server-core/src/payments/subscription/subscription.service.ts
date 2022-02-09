@@ -4,7 +4,7 @@ import createModel from './subscription.model'
 import hooks from './subscription.hooks'
 import subscription from './subscription.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     subscription: Subscription
   }

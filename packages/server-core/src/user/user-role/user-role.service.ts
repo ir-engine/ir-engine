@@ -4,7 +4,7 @@ import createModel from './user-role.model'
 import hooks from './user-role.hooks'
 import userRoleDocs from './user-role.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-role': UserRole
   }

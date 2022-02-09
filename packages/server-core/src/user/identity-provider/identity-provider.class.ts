@@ -11,16 +11,16 @@ import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
-interface Data {}
+export type IdentityProviderDataType = IdentityProviderInterface & { userId: string }
 
 /**
  * A class for identity-provider service
  *
  * @author Vyacheslav Solovjov
  */
-
-export class IdentityProvider extends Service {
+export class IdentityProvider<T = IdentityProviderDataType> extends Service<T> {
   public app: Application
   public docs: any
 
@@ -36,7 +36,7 @@ export class IdentityProvider extends Service {
    * @param params
    * @returns accessToken
    */
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params: Params = {}): Promise<T & { accessToken?: string }> {
     let { token, type, password } = data
     let user
 
@@ -143,14 +143,14 @@ export class IdentityProvider extends Service {
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
-      return await super.create(
+      return (await super.create(
         {
           ...data,
           ...identityProvider,
           userId
         },
         params
-      )
+      )) as T
     }
 
     // create with user association
@@ -235,9 +235,9 @@ export class IdentityProvider extends Service {
     return result
   }
 
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
-    if (params.provider) params.query!.userId = loggedInUser.id
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    const loggedInUser = extractLoggedInUserFromParams(params!)
+    if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }
 }

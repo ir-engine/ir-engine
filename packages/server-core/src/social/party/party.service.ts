@@ -4,7 +4,7 @@ import createModel from './party.model'
 import hooks from './party.hooks'
 import partyDocs from './party.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     party: Party
   }

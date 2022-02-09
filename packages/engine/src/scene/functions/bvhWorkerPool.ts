@@ -43,7 +43,7 @@ function runBVHGenerator() {
     worker.generate(mesh.geometry).then((bvh) => {
       ;(mesh.geometry as any).boundsTree = bvh
       runBVHGenerator()
-      console.log('resolvePromiseBVH')
+      // console.log('resolvePromiseBVH')
       ;(mesh as any).resolvePromiseBVH && (mesh as any).resolvePromiseBVH()
     })
   }

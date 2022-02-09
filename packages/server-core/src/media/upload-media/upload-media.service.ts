@@ -9,7 +9,7 @@ import dauria from 'dauria'
 import config from '../../appconfig'
 const multipartMiddleware = multer()
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     media: any
   }

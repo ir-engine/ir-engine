@@ -2,6 +2,12 @@ import { Application } from '../../../declarations'
 import { getTestbotPod, runTestbotJob } from './testbot-helper'
 import hooks from './testbot.hooks'
 
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    testbot: any
+  }
+}
+
 export default (app: Application): void => {
   app.use('testbot', {
     get: async () => {

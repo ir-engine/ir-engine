@@ -6,7 +6,7 @@ import createModel from './instance-authorized-user.model'
 import hooks from './instance-authorized-user.hooks'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'instance-authorized-user': InstanceAuthorizedUser
   }

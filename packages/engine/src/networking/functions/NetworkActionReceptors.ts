@@ -1,11 +1,11 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkWorldAction } from './NetworkWorldAction'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { dispatchLocal } from './dispatchFrom'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { dispatchFrom, dispatchLocal } from './dispatchFrom'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { World } from '../../ecs/classes/World'
 
@@ -77,7 +77,7 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
       entity = createEntity()
     }
   }
-  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+  if (isOwnedByMe) addComponent(entity, NetworkObjectAuthorityTag, {})
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -103,6 +103,76 @@ const destroyObjectNetworkActionReceptor = (
   removeEntity(entity)
 }
 
+const requestAuthorityOverObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.requestAuthorityOverObject>
+) => {
+  // Authority request can only be processed by host
+  if (Engine.currentWorld.isHosting === false) return
+
+  const ownerId = action.object.ownerId
+  const entity = world.getNetworkObject(ownerId, action.object.networkId)
+  if (!entity)
+    return console.log(
+      `Warning - tried to get entity belonging to ${action.object.ownerId} with ID ${action.object.networkId}, but it doesn't exist`
+    )
+
+  // If any custom logic is required in future around which client can request authority over which objects, that can be handled here.
+  dispatchFrom(Engine.userId, () =>
+    NetworkWorldAction.transferAuthorityOfObject({
+      object: action.object,
+      newAuthor: action.requester
+    })
+  )
+}
+
+const transferAuthorityOfObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.transferAuthorityOfObject>
+) => {
+  // Transfer authority action can only be originated from host
+  if (action.$from !== Engine.currentWorld.hostId) return
+
+  const ownerId = action.object.ownerId
+  const entity = world.getNetworkObject(ownerId, action.object.networkId)
+  if (!entity)
+    return console.log(
+      `Warning - tried to get entity belonging to ${action.object.ownerId} with ID ${action.object.networkId}, but it doesn't exist`
+    )
+
+  if (Engine.userId === action.newAuthor) {
+    if (getComponent(entity, NetworkObjectAuthorityTag))
+      return console.warn(`Warning - User ${Engine.userId} already has authority over entity ${entity}.`)
+
+    addComponent(entity, NetworkObjectAuthorityTag, {})
+  } else {
+    removeComponent(entity, NetworkObjectAuthorityTag)
+  }
+}
+
+const setEquippedObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.setEquippedObject>
+) => {
+  if (Engine.currentWorld.isHosting === false) return
+
+  if (action.equip) {
+    dispatchLocal(
+      NetworkWorldAction.requestAuthorityOverObject({
+        object: action.object,
+        requester: action.$from
+      })
+    )
+  } else {
+    dispatchLocal(
+      NetworkWorldAction.requestAuthorityOverObject({
+        object: action.object,
+        requester: Engine.currentWorld.hostId
+      })
+    )
+  }
+}
+
 /**
  * @author Gheric Speiginer <github.com/speigg>
  * @author Josh Field <github.com/HexaField>
@@ -116,6 +186,13 @@ const createNetworkActionReceptor = (world: World) =>
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClientNetworkActionReceptor(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObjectNetworkActionReceptor(world, a))
       .when(NetworkWorldAction.destroyObject.matches, (a) => destroyObjectNetworkActionReceptor(world, a))
+      .when(NetworkWorldAction.requestAuthorityOverObject.matches, (a) =>
+        requestAuthorityOverObjectNetworkActionReceptor(world, a)
+      )
+      .when(NetworkWorldAction.transferAuthorityOfObject.matches, (a) =>
+        transferAuthorityOfObjectNetworkActionReceptor(world, a)
+      )
+      .when(NetworkWorldAction.setEquippedObject.matches, (a) => setEquippedObjectNetworkActionReceptor(world, a))
   })
 
 export const NetworkActionReceptors = {
@@ -125,6 +202,9 @@ export const NetworkActionReceptors = {
   removeClientNetworkActionReceptor,
   spawnObjectNetworkActionReceptor,
   destroyObjectNetworkActionReceptor,
+  requestAuthorityOverObjectNetworkActionReceptor,
+  transferAuthorityOfObjectNetworkActionReceptor,
+  setEquippedObjectNetworkActionReceptor,
 
   createNetworkActionReceptor
 }

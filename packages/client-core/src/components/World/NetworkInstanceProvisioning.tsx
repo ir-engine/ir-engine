@@ -73,6 +73,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           instanceId = parsed
         }
 
+        // start listening for users joining or leaving the location
+        AuthService.listenForUserPatch()
+
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,
           instanceId || undefined,

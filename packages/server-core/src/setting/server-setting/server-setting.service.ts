@@ -4,9 +4,9 @@ import { ServerSetting } from './server-setting.class'
 import createModel from './server-setting.model'
 import { refreshAppConfig } from '../../updateAppConfig'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    server: ServerSetting
+    'server-setting': ServerSetting
   }
 }
 

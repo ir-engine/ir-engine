@@ -4,7 +4,7 @@ import createModel from './seat-status.model'
 import hooks from './seat-status.hooks'
 import seatStatusDocs from './seat-status.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'seat-status': SeatStatus
   }
