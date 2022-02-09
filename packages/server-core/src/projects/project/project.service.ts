@@ -5,6 +5,7 @@ import createModel from './project.model'
 import projectDocs from './project.docs'
 import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import authenticate from '../../hooks/authenticate'
 
 declare module '../../../declarations' {
@@ -36,7 +37,21 @@ export default (app: Application): void => {
     }
   })
 
+  app.use('project-invalidate', {
+    patch: async ({ projectName }, params) => {
+      if (projectName) {
+        return await useStorageProvider().createInvalidation([`projects/${projectName}*`])
+      }
+    }
+  })
+
   app.service('project-build').hooks({
+    before: {
+      patch: [authenticate(), restrictUserRole('admin')]
+    }
+  })
+
+  app.service('project-invalidate').hooks({
     before: {
       patch: [authenticate(), restrictUserRole('admin')]
     }
