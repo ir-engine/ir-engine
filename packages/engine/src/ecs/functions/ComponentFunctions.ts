@@ -104,7 +104,7 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   getRemoved = false,
   world = useWorld()
 ): T & SoAProxy<S> => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
   }
   if (bitECS.hasComponent(world, component, entity) || getRemoved) return component.get(entity)
@@ -117,7 +117,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   args: T & Partial<SoAProxy<S>>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
   }
   if (hasComponent(entity, component)) throw new Error('component already exists' + entity + component._name)
@@ -136,7 +136,7 @@ export const hasComponent = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[hasComponent]: entity is undefined')
   }
   return bitECS.hasComponent(world, component, entity)
@@ -147,7 +147,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   world = useWorld()
 ) => {
-  if (typeof entity === 'undefined') {
+  if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove

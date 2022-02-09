@@ -181,7 +181,6 @@ type AssetLoaderParamType = {
   castShadow?: boolean
   receiveShadow?: boolean
   instanced?: boolean
-  [key: string]: any
 }
 
 const assetLoadCallback =

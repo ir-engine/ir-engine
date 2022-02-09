@@ -25,7 +25,7 @@ import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/fu
 import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { isClient } from '../common/functions/isClient'
-import { loadAvatarForEntity } from './functions/avatarFunctions'
+import { loadAvatarForUser } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
 
 function avatarActionReceptor(action) {
@@ -38,7 +38,7 @@ function avatarActionReceptor(action) {
       if (client.avatarDetail?.avatarURL === avatarDetail.avatarURL) return
       if (isClient) {
         const entity = world.getUserAvatarEntity($from)
-        loadAvatarForEntity(entity, avatarDetail)
+        loadAvatarForUser(entity, avatarDetail.avatarURL)
       }
     })
 
