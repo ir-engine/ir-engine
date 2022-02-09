@@ -2,15 +2,17 @@ import { Network } from '../../networking/classes/Network'
 import { NetworkTransport } from '../../networking/interfaces/NetworkTransport'
 import { World } from '../classes/World'
 
-const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) => {
+const sendOutgoingActions = (transport: NetworkTransport, world: World) => {
   const { outgoingActions } = world
 
   for (const o of outgoingActions) console.log('OUTGOING', o)
 
-  try {
-    transport.sendActions(outgoingActions)
-  } catch (e) {
-    console.error(e)
+  if (transport) {
+    try {
+      transport.sendActions(outgoingActions)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   outgoingActions.clear()
@@ -19,10 +21,8 @@ const sendActionsOnTransport = (transport: NetworkTransport) => (world: World) =
 }
 
 export default async function ActionDispatchSystem(world: World) {
-  const worldTransport = Network.instance.transportHandler.getWorldTransport()
-  const sendActions = sendActionsOnTransport(worldTransport)
-
   return () => {
-    sendActions(world)
+    const worldTransport = Network.instance.transportHandler?.getWorldTransport()
+    sendOutgoingActions(worldTransport, world)
   }
 }

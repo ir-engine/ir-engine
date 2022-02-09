@@ -144,14 +144,11 @@ export const initializeMediaServerSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: Promise.resolve({
-        // media servers dont need to send actions anywhere
-        default: async function ClearOutgoingActionsSystem(world: World) {
-          return () => {
-            world.outgoingActions.clear()
-          }
-        }
-      })
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+    },
+    {
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./networking/systems/MediaStreamSystem')
     }
   )
 
@@ -348,15 +345,8 @@ export const initializeSceneSystems = async () => {
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeRealtimeSystems = async (media = true, pose = true) => {
+export const initializeRealtimeSystems = async (pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
-
-  if (media) {
-    systemsToLoad.push({
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
-    })
-  }
 
   if (pose) {
     systemsToLoad.push(
