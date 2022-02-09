@@ -27,8 +27,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
     .readdirSync(avatarsFolder, { withFileTypes: true })
     .filter((dirent) => supportedAvatars.includes(dirent.name.split('.').pop()!))
     .map((dirent) => {
-      const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.') + 1) // remove extension
-      const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // remove extension
+      const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.')) // remove extension
+      const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
 
       const thumbnail = fs.existsSync(path.join(avatarsFolder, avatarName + '.png'))
         ? fs.readFileSync(path.join(avatarsFolder, avatarName + '.png'))
