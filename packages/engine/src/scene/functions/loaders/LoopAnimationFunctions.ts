@@ -65,9 +65,9 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
   if (component.hasAvatarAnimations) {
     const setupLoopableAvatarModel = setupAvatarModel(entity)
     setupLoopableAvatarModel(object3d)
+  } else {
+    animationComponent.mixer = new AnimationMixer(object3d)
   }
-
-  animationComponent.mixer = new AnimationMixer(object3d)
 
   animationComponent.animations = component.hasAvatarAnimations
     ? AnimationManager.instance._animations

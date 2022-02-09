@@ -28,6 +28,7 @@ const EditorProtectedRoutes = () => {
   const engineState = useEngineState()
   const projectState = useProjectState()
   const [clientInitialized, setClientInitialized] = useState(false)
+  const [engineReady, setEngineReady] = useState(false)
 
   const canvasStyle = {
     zIndex: -1,
@@ -95,11 +96,11 @@ const EditorProtectedRoutes = () => {
       Engine.isEditor = true
       createEngine()
       initializeBrowser()
-      initializeCoreSystems(systems).then(() => {
-        initializeSceneSystems().then(() => {
-          const projects = projectState.projects.value.map((project) => project.name)
-          initializeProjectSystems(projects)
-        })
+      initializeCoreSystems(systems).then(async () => {
+        await initializeSceneSystems()
+        const projects = projectState.projects.value.map((project) => project.name)
+        await initializeProjectSystems(projects)
+        setEngineReady(true)
       })
     }
   }, [projectState.projects.value])
@@ -110,7 +111,7 @@ const EditorProtectedRoutes = () => {
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&
         user?.id.value != null &&
-        engineState.isEngineInitialized.value && <EditorContainer />
+        engineReady && <EditorContainer />
       ) : (
         <Projects />
       )}
