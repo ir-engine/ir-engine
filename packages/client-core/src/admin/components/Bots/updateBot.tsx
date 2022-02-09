@@ -109,7 +109,7 @@ const UpdateBot = (props: Props) => {
   const handleUpdate = () => {
     const data: CreateBotAsAdmin = {
       name: state.name,
-      instanceId: state.instance,
+      instanceId: state.instance || null,
       userId: user.id.value,
       description: state.description,
       locationId: state.location

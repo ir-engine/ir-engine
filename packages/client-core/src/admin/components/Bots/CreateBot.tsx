@@ -115,7 +115,7 @@ const CreateBot = (props: Props) => {
   const handleSubmit = () => {
     const data: CreateBotAsAdmin = {
       name: state.name,
-      instanceId: state.instance,
+      instanceId: state.instance || null,
       userId: user.id.value,
       command: commandData,
       description: state.description,

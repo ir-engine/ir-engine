@@ -46,7 +46,7 @@ export interface Instance {
 
 export interface CreateBotAsAdmin {
   name: string
-  instanceId?: string
+  instanceId?: string | null
   userId?: string
   command?: Array<{
     id: string
