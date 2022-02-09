@@ -19,7 +19,8 @@ export class UserRelationship extends Service {
     this.app = app
   }
 
-  async findAll(params: Params): Promise<any> {
+  async findAll(params?: Params): Promise<any> {
+    if (!params) params = {}
     const UserRelationshipModel = this.getModel(params)
     const UserRelationshipTypeService = this.app.service('user-relationship-type')
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
@@ -66,7 +67,8 @@ export class UserRelationship extends Service {
     return result
   }
 
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<any> {
+    if (!params) params = {}
     const loggedInUserEntity: string = config.authentication.entity
 
     const userId = data.userId || params[loggedInUserEntity].userId
@@ -101,7 +103,8 @@ export class UserRelationship extends Service {
     return result
   }
 
-  async patch(id: NullableId, data: any, params: Params): Promise<any> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<any> {
+    if (!params) params = {}
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
@@ -123,7 +126,8 @@ export class UserRelationship extends Service {
     })
   }
 
-  async remove(id: NullableId, params: Params): Promise<any> {
+  async remove(id: NullableId, params?: Params): Promise<any> {
+    if (!params) params = {}
     const loggedInUserEntity: string = config.authentication.entity
 
     const authUser = params[loggedInUserEntity]

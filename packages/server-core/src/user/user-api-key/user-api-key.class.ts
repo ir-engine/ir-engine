@@ -17,9 +17,9 @@ export class UserApiKey extends Service {
     this.app = app
   }
 
-  async patch(id: string | null, data: any, params: Params) {
+  async patch(id: string | null, data: any, params?: Params) {
     const loggedInUser = await extractLoggedInUserFromParams(params)
-    if (loggedInUser.userRole === 'admin' && id != null) return super.patch(id, params)
+    if (loggedInUser.userRole === 'admin' && id != null && params) return super.patch(id, params)
     const userApiKey = await this.app.service('user-api-key').Model.findOne({
       where: {
         userId: loggedInUser.id

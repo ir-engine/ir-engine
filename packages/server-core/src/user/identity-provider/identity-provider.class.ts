@@ -11,16 +11,15 @@ import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
-import type { IdentityProviderModel } from './identity-provider.model'
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
-export type IdentityProviderDataType = IdentityProviderModel & { userId: string }
+export type IdentityProviderDataType = IdentityProviderInterface & { userId: string }
 
 /**
  * A class for identity-provider service
  *
  * @author Vyacheslav Solovjov
  */
-
 export class IdentityProvider<T = IdentityProviderDataType> extends Service<T> {
   public app: Application
   public docs: any

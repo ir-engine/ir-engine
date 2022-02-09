@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { GroupUserRankInterface } from '@xrengine/common/src/dbmodels/GroupUserRank'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const groupUserRank = sequelizeClient.define(
+  const groupUserRank = sequelizeClient.define<Model<GroupUserRankInterface>>(
     'group_user_rank',
     {
       rank: {

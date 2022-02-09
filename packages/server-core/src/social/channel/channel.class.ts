@@ -22,7 +22,8 @@ export class Channel extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
+    if (!params) params = {}
     const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10
