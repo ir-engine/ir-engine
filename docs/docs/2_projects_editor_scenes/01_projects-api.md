@@ -4,7 +4,7 @@ Projects are folders that contain all your custom code, assets and scenes. They 
 
 Pictured below is an example of 4 projects installed. By default, only the 'default-project' is installed, which in a production environment is read only. You can find the default project under `/packages/projects/default-project/`
 
-![](./images/03-projects-folder.png)
+![](./images/projects-folder.png)
 
 ## Configuration
 
@@ -40,9 +40,9 @@ This will create a folder name `myrepo` which must contain an `xrengine.config.t
 
 Projects can also be installed and managed from the /admin/projects route. Click the 'Add Project' 
 
-![](./images/03-projects-admin-install-new.png)
+![](./images/projects-admin-install-new.png)
 
-![](./images/03-projects-admin.png)
+![](./images/projects-admin.png)
 
 This runs `git clone` in the background, same as above, but will then upload all of the repository's files to the storage provider. These files will then be downloaded and installed to the local file system each time the docker builder pod runs. This allows full version controlled access for local development flow and version locking for production deployment.
 

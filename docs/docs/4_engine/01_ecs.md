@@ -1,3 +1,10 @@
+---
+id: ecs
+title: Entity Component System Overview
+sidebar_label: Entity Component System Overview
+slug: /
+---
+
 ## What is an ECS?
 
 ECS stands for Entity Component System. It is a pattern for organising data and objects that allows for composition over inheritance. An entity is simply a number that points to a particular set of data contained in components. Systems then operate logic on these entities and components.
@@ -9,7 +16,7 @@ Some references
 
 ### Example
 
-![](./images/05-ecs-example.png)
+![](./images/ecs-example.png)
 
 This code creates a TimerComponent, creates a new entity and adds the component to it, creates a system that will then add the world delta for the current frame each update.
 
