@@ -18,6 +18,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
@@ -52,6 +53,8 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   }
 }
 
+let lastModelSrc = ''
+
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {
   const object3d = getComponent(entity, Object3DComponent)?.value
   if (!object3d) {
@@ -61,10 +64,14 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
 
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
+  const modelSrc = getComponent(entity, ModelComponent).src
 
   if (component.hasAvatarAnimations) {
-    const setupLoopableAvatarModel = setupAvatarModel(entity)
-    setupLoopableAvatarModel(object3d)
+    if (lastModelSrc !== modelSrc) {
+      lastModelSrc = modelSrc
+      const setupLoopableAvatarModel = setupAvatarModel(entity)
+      setupLoopableAvatarModel(object3d)
+    }
   } else {
     animationComponent.mixer = new AnimationMixer(object3d)
   }
