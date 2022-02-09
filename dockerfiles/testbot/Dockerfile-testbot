@@ -13,6 +13,7 @@ RUN apt update && apt install -y libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6
 COPY package.json .
 COPY packages/bot/package.json ./packages/bot/
 COPY packages/engine/package.json ./packages/engine/
+COPY packages/server-core/package.json ./packages/server-core/
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 RUN npm run install-test-e2e
