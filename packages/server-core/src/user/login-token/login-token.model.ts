@@ -1,11 +1,12 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { LoginTokenInterface } from '@xrengine/common/src/dbmodels/LoginToken'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const loginToken = sequelizeClient.define(
+  const loginToken = sequelizeClient.define<Model<LoginTokenInterface>>(
     'login_token',
     {
       id: {
