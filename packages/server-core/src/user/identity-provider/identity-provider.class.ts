@@ -11,11 +11,9 @@ import { Params } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
-import type IdentityProviderModel from './identity-provider.model'
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
-type Model = InstanceType<ReturnType<typeof IdentityProviderModel>>
-
-interface Data {}
+export type IdentityProviderDataType = IdentityProviderInterface & { userId: string }
 
 /**
  * A class for identity-provider service
@@ -23,7 +21,7 @@ interface Data {}
  * @author Vyacheslav Solovjov
  */
 
-export class IdentityProvider<T = Model> extends Service {
+export class IdentityProvider<T = IdentityProviderDataType> extends Service<T> {
   public app: Application
   public docs: any
 
@@ -238,11 +236,9 @@ export class IdentityProvider<T = Model> extends Service {
     return result
   }
 
-  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
-    if (params) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
-      if (params.provider) params.query!.userId = loggedInUser.id
-    }
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    const loggedInUser = extractLoggedInUserFromParams(params!)
+    if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }
 }

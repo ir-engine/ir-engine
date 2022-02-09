@@ -5,7 +5,7 @@ import createModel from './analytics.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Analytics: Analytics
+    'analytics-setting': Analytics
   }
 }
 

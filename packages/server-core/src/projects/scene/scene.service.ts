@@ -14,6 +14,9 @@ declare module '@xrengine/common/declarations' {
     scene: Scene
   }
   interface ServiceTypes {
+    portal: any
+  }
+  interface ServiceTypes {
     scenes: {
       get: ReturnType<typeof getScenesForProject>
       find: ReturnType<typeof getAllScenes>

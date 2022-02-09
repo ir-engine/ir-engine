@@ -5,7 +5,7 @@ import createModel from './chargebee-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Chargebee: ChargebeeSetting
+    'chargebee-setting': ChargebeeSetting
   }
 }
 

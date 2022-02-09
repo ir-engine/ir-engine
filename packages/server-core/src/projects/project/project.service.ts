@@ -11,6 +11,8 @@ import authenticate from '../../hooks/authenticate'
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     project: Project
+    'project-build': any
+    'project-invalidate': any
   }
   interface Models {
     project: ReturnType<typeof createModel>
@@ -28,6 +30,8 @@ export default (app: Application): void => {
   projectClass.docs = projectDocs
 
   app.use('project', projectClass)
+
+  // TODO: move these to sub-methods of 'project' service
 
   app.use('project-build', {
     patch: async ({ rebuild }, params) => {

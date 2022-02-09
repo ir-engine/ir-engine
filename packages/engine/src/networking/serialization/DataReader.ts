@@ -18,6 +18,8 @@ import {
   readUint64,
   scrollViewCursor
 } from './ViewCursor'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
@@ -145,12 +147,14 @@ export const readEntity = (v: ViewCursor, world: World) => {
   const userId = world.userIndexToUserId.get(userIndex)!
   const netId = readUint32(v) as NetworkId
 
-  // ignore data for our avatar
-  if (userId === Engine.userId) {
+  const entity = world.getNetworkObject(userId, netId)
+
+  // don't apply input state if we have authority
+  const weHaveAuthority = hasComponent(entity, NetworkObjectAuthorityTag)
+  if (weHaveAuthority) {
     scrollViewCursor(v, EntityDataByteLength)
     return
   }
-  const entity = world.getNetworkObject(userId, netId)
 
   const changeMask = readUint8(v)
 

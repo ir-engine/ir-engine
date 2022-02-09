@@ -26,6 +26,7 @@ import { useStyles } from '../../styles/ui'
 import AlertMessage from '../../common/AlertMessage'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 
 interface Props {
   open: boolean
@@ -106,7 +107,7 @@ const UpdateBot = (props: Props) => {
   }, [state.location, adminInstanceState.instances.value.length])
 
   const handleUpdate = () => {
-    const data = {
+    const data: CreateBotAsAdmin = {
       name: state.name,
       instanceId: state.instance || null,
       userId: user.id.value,

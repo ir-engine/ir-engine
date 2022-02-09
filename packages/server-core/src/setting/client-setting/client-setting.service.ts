@@ -5,7 +5,7 @@ import createModel from './client-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    client: ClientSetting
+    'client-setting': ClientSetting
   }
 }
 

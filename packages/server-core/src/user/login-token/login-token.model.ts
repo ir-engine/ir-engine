@@ -20,6 +20,9 @@ export default (app: Application) => {
       },
       expiresAt: {
         type: DataTypes.DATE
+      },
+      identityProviderId: {
+        type: DataTypes.CHAR
       }
     },
     {

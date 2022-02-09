@@ -6,7 +6,7 @@ import { refreshAppConfig } from '../../updateAppConfig'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    server: ServerSetting
+    'server-setting': ServerSetting
   }
 }
 
