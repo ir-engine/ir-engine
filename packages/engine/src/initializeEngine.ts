@@ -139,12 +139,21 @@ export const initializeMediaServerSystems = async () => {
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+    },
+    {
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./networking/systems/MediaStreamSystem')
     }
   )
 
   const world = useWorld()
+
   await initSystems(world, coreSystems)
 
   const executeWorlds = (delta, elapsedTime) => {
@@ -152,6 +161,8 @@ export const initializeMediaServerSystems = async () => {
       world.execute(delta, elapsedTime)
     }
   }
+
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -169,7 +180,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
     },
     {
@@ -183,6 +194,10 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
@@ -330,15 +345,8 @@ export const initializeSceneSystems = async () => {
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeRealtimeSystems = async (media = true, pose = true) => {
+export const initializeRealtimeSystems = async (pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
-
-  if (media) {
-    systemsToLoad.push({
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
-    })
-  }
 
   if (pose) {
     systemsToLoad.push(

@@ -22,7 +22,7 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type InstanceMetadata = {
@@ -213,12 +213,21 @@ const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
     Engine.publicPath = config.client.url
-    Engine.userId = 'media' as UserId
+    const userId = 'media' as HostUserId
+    Engine.userId = userId
     createEngine()
+    const world = useWorld()
+    world.hostId = userId
     initializeNode()
     await initializeMediaServerSystems()
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await initializeProjectSystems(projects, [])
+
+    const hostIndex = world.userIndexCount++
+    world.clients.set(userId, { userId, name: 'media', userIndex: hostIndex })
+    world.userIdToUserIndex.set(userId, hostIndex)
+    world.userIndexToUserId.set(hostIndex, userId)
+
     Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded(true) as any)
     dispatchLocal(EngineActions.joinedWorld(true) as any)
@@ -244,6 +253,8 @@ export default (app: Application): void => {
 
   let shutdownTimeout
   app.on('connection', async (connection) => {
+    console.log('connection')
+
     clearTimeout(shutdownTimeout)
     const token = (connection as any).socketQuery?.token
     if (token != null) {
@@ -463,7 +474,9 @@ export default (app: Application): void => {
 
         if (instanceId != null && instance != null) {
           const activeClients = Engine.currentWorld.clients
-          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== 'server'))
+          const activeUsers = new Map(
+            [...activeClients].filter(([, v]) => v.userId !== Engine.userId && v.userId !== user.id)
+          )
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {
@@ -473,7 +486,6 @@ export default (app: Application): void => {
             console.log('Failed to patch instance user count, likely because it was destroyed')
           }
 
-          const user = await app.service('user').get(userId)
           const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
           // Patch the user's (channel)instanceId to null if they're leaving this instance.
           // But, don't change their (channel)instanceId if it's already something else.
@@ -513,6 +525,7 @@ export default (app: Application): void => {
 
           if (activeUsersCount < 1) {
             shutdownTimeout = setTimeout(async () => {
+              engineStarted = false
               console.log('Deleting instance ' + instanceId)
               try {
                 await app.service('instance').patch(instanceId, {
