@@ -1,12 +1,11 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM zenika/alpine-chrome:with-puppeteer
+FROM buildkite/puppeteer:latest
 
-RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN apt-get -y install python3-pip
+# RUN apt-get -y install python3-pip
 
 COPY package.json .
 COPY packages/bot/package.json ./packages/bot/
