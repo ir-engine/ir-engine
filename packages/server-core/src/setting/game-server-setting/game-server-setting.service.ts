@@ -5,7 +5,7 @@ import createModel from './game-server-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    GameServer: GameServerSetting
+    'game-server-setting': GameServerSetting
   }
 }
 

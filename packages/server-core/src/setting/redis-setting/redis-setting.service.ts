@@ -5,7 +5,7 @@ import createModel from './redis-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Redis: RedisSetting
+    'redis-setting': RedisSetting
   }
 }
 

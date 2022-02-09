@@ -5,7 +5,7 @@ import createModel from './aws-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Aws: Aws
+    'aws-setting': Aws
   }
 }
 

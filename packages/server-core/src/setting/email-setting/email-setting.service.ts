@@ -5,7 +5,7 @@ import createModel from './email-setting.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Email: EmailSetting
+    'email-setting': EmailSetting
   }
 }
 
