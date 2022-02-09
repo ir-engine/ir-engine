@@ -43,7 +43,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   const authState = accessAuthState()
   const token = authState.authUser.accessToken.value
-  const payload = { userId: Engine.userId, accessToken: token }
+  const payload = { accessToken: token }
 
   const { success } = await new Promise<any>((resolve) => {
     const interval = setInterval(async () => {
