@@ -21,14 +21,6 @@ const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 function preventDefault(e) {
   e.preventDefault()
 }
-
-function preventDefaultForScrollKeys(e) {
-  if (keys[e.keyCode]) {
-    preventDefault(e)
-    return false
-  }
-}
-
 interface ListenerBindingData {
   domElement: any
   eventName: string
@@ -42,7 +34,6 @@ export const addClientInputListeners = () => {
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
-  window.addEventListener('keydown', preventDefaultForScrollKeys, false)
   window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
 
   const addListener = (
@@ -103,7 +94,6 @@ export const removeClientInputListeners = () => {
   if (!boundListeners.length) return
 
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
-  window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
   window.removeEventListener('touchmove', preventDefault, { capture: true })
 
   boundListeners.forEach(({ domElement, eventName, callback }) => {
@@ -111,3 +101,5 @@ export const removeClientInputListeners = () => {
   })
   boundListeners.splice(0, boundListeners.length - 1)
 }
+
+export default {}
