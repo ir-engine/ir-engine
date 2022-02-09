@@ -88,7 +88,7 @@ export default async function AvatarLoadingSystem(world: World) {
             const object = getComponent(entity, Object3DComponent).value
             const bbox = new Box3().setFromObject(object.children[0])
             let scale = 1
-            if (object.userData && object.userData.scale) {
+            if (object.userData?.scale) {
               scale = object.userData.scale
             }
             addComponent(entity, AvatarDissolveComponent, {
