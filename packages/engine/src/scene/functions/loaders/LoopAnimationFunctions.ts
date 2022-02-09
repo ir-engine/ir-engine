@@ -1,6 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer } from 'three'
+import { AnimationClip, AnimationMixer, Group } from 'three'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
@@ -53,7 +53,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   }
 }
 
-let lastModelSrc = ''
+let lastModel: Group = null!
 
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {
   const object3d = getComponent(entity, Object3DComponent)?.value
@@ -64,11 +64,10 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
 
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-  const modelSrc = getComponent(entity, ModelComponent).src
 
   if (component.hasAvatarAnimations) {
-    if (lastModelSrc !== modelSrc) {
-      lastModelSrc = modelSrc
+    if (lastModel !== object3d) {
+      lastModel = object3d as Group
       const setupLoopableAvatarModel = setupAvatarModel(entity)
       setupLoopableAvatarModel(object3d)
     }
