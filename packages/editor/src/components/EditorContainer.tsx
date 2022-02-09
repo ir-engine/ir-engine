@@ -39,6 +39,10 @@ import { AppContext } from './Search/context'
 import * as styles from './styles.module.scss'
 import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { DndWrapper } from './dnd/DndWrapper'
+import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
+import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { prepareSceneForBake } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
+import { uploadProjectAsset } from '../functions/assetFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 /**
@@ -297,6 +301,15 @@ const EditorContainer = (props) => {
       let saveProjectFlag = true
       if (sceneName || modified) {
         const blob = await SceneManager.instance.takeScreenshot(512, 320)
+        const scene = prepareSceneForBake()
+        const cubemapCaptured = new CubemapCapturer(Engine.renderer, scene, 512).cubeRenderTarget
+        const { blob: cubeMapblob } = await convertCubemapToEquiImageData(
+          Engine.renderer,
+          cubemapCaptured,
+          512,
+          512,
+          true
+        )
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
@@ -309,6 +322,8 @@ const EditorContainer = (props) => {
         })) as any
         if (result && projectName) {
           await saveScene(projectName, result.name, blob, abortController.signal)
+          if (cubeMapblob)
+            await uploadProjectAsset(projectName, [new File([cubeMapblob], `${sceneName}-CubemapBake.png`)])
           SceneManager.instance.sceneModified = false
         } else {
           saveProjectFlag = false
@@ -460,11 +475,16 @@ const EditorContainer = (props) => {
     await new Promise((resolve) => setTimeout(resolve, 5))
 
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
+    const scene = prepareSceneForBake()
+    const cubemapCaptured = new CubemapCapturer(Engine.renderer, scene, 512).cubeRenderTarget
+    const { blob: cubeMapblob } = await convertCubemapToEquiImageData(Engine.renderer, cubemapCaptured, 512, 512, true)
 
     try {
       if (projectName) {
         await saveScene(projectName, sceneName, blob, abortController.signal)
         await saveProject(projectName)
+        if (cubeMapblob)
+          await uploadProjectAsset(projectName, [new File([cubeMapblob], `${sceneName}-CubemapBake.png`)])
       }
 
       SceneManager.instance.sceneModified = false
