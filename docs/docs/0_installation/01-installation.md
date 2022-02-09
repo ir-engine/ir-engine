@@ -259,3 +259,5 @@ Alternate Method:
 3. Suggested: beekeeperstudio.io
 
 Test user Admin privileges by going to `/admin`
+
+[Next =>>](./01.1-install-troubleshooting.md)
