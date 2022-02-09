@@ -25,6 +25,7 @@ import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 
 interface Props {}
 interface Menu {
@@ -112,7 +113,7 @@ const CreateBot = (props: Props) => {
   }, [state.location, adminInstanceState.instances.value.length])
 
   const handleSubmit = () => {
-    const data = {
+    const data: CreateBotAsAdmin = {
       name: state.name,
       instanceId: state.instance || null,
       userId: user.id.value,

@@ -78,6 +78,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
   // }
 
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+  if (!interactableComponent) return null!
 
   const renderInfoBoxOptions = () => {
     return (
