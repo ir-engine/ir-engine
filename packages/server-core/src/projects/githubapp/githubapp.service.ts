@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { GitHubAppService } from './githubapp.class'
 import hooks from './githubapp.hooks'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'github-app': GitHubAppService
   }

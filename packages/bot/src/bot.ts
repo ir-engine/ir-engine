@@ -88,7 +88,7 @@ export class XREngineBot {
   pageUtils: PageUtils
 
   constructor(args: BotProps = {}) {
-    this.verbose = args.verbose
+    this.verbose = args.verbose!
     this.headless = args.headless ?? true
     this.ci = typeof process.env.CI === 'string' && process.env.CI === 'true'
     console.log('headless', this.headless)
@@ -338,7 +338,7 @@ export class XREngineBot {
     this.page = await this.browser.newPage()
     this.page.on('close', () => {
       console.log('[XRENGINE BOT]: page closed')
-      this.page = undefined
+      this.page = undefined!
     })
 
     if (this.verbose) {
@@ -435,7 +435,7 @@ export class XREngineBot {
     await this.page.waitForFunction("document.querySelector('#user-id')", { timeout: 1000000 })
     const userId = await new Promise((resolve) => {
       const interval = setInterval(async () => {
-        const id = await this.page.evaluate(() => document.querySelector('#user-id').getAttribute('value'))
+        const id = await this.page.evaluate(() => document.querySelector('#user-id')!.getAttribute('value'))
         if (id !== '') {
           clearInterval(interval)
           resolve(id)

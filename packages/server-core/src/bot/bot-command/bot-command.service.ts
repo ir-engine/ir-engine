@@ -4,7 +4,7 @@ import { BotCommand } from './bot-command.class'
 import createModel from './bot-command.model'
 import docs from './bot-command.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'bot-command': BotCommand
   }

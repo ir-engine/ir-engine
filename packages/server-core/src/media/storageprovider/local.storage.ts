@@ -18,7 +18,7 @@ export class LocalStorage implements StorageProviderInterface {
   PATH_PREFIX: string
 
   cacheDomain = config.server.localStorageProvider
-  _store: fsStore
+  _store: typeof fsStore
 
   constructor() {
     this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this.STORAGE_DIR)

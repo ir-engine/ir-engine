@@ -3,9 +3,9 @@ import { Application } from '../../../declarations'
 import { Aws } from './aws-setting.class'
 import createModel from './aws-setting.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    Aws: Aws
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'aws-setting': Aws
   }
 }
 

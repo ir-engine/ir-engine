@@ -4,7 +4,7 @@ import createModel from './user-relationship-type.model'
 import hooks from './user-relationship-type.hooks'
 import userRelationshipTypeDocs from './user-relationship-type.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-relationship-type': UserRelationshipType
   }
