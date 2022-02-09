@@ -48,3 +48,5 @@ describe('interactiveSystem', () => {
   //   assert(!hasComponent(entity, InteractedComponent))
   // })
 })
+
+export {}
