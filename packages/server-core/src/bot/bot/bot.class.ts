@@ -28,4 +28,9 @@ export class Bot extends Service {
       data: bots
     }
   }
+
+  async create(data): Promise<any> {
+    data.instanceId = data.instanceId ? data.instanceId : null
+    return await super.create(data)
+  }
 }
