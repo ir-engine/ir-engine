@@ -199,9 +199,11 @@ const assetLoadCallback =
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
       AssetLoader.processModelAsset(asset.scene ? asset.scene : asset, params)
+      //TODO: we should probably change whichever loader this is needed for to return { scene: asset }
+      params.cache && AssetLoader.Cache.set(url, asset.scene ? asset : { scene: asset })
+    } else {
+      params.cache && AssetLoader.Cache.set(url, asset)
     }
-
-    params.cache && AssetLoader.Cache.set(url, asset)
 
     if (asset.scene) {
       asset.scene.userData.type = assetType
@@ -226,8 +228,7 @@ const load = async (
   const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
   if (params.cache && AssetLoader.Cache.has(url)) {
-    const asset = AssetLoader.Cache.get(url)
-    onLoad(asset.scene ? asset : { scene: asset })
+    onLoad(AssetLoader.Cache.get(url))
   }
 
   const assetType = AssetLoader.getAssetType(url)
