@@ -226,7 +226,8 @@ const load = async (
   const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
   if (params.cache && AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
+    const asset = AssetLoader.Cache.get(url)
+    onLoad(asset.scene ? asset : { scene: asset })
   }
 
   const assetType = AssetLoader.getAssetType(url)
