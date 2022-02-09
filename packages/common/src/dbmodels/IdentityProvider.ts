@@ -2,12 +2,12 @@ export interface IdentityProviderInterface {
   id: string
   token: string
   password: string
-  isVerified: boolean
+  isVerified: string
   verifyToken: string
   verifyShortToken: string
-  verifyExpires: Date
+  verifyExpires: string
   verifyChanges: string
   resetToken: string
-  resetExpires: Date
+  resetExpires: string
   type: string
 }

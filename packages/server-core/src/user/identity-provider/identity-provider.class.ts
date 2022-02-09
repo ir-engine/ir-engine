@@ -20,7 +20,6 @@ export type IdentityProviderDataType = IdentityProviderInterface & { userId: str
  *
  * @author Vyacheslav Solovjov
  */
-
 export class IdentityProvider<T = IdentityProviderDataType> extends Service<T> {
   public app: Application
   public docs: any
