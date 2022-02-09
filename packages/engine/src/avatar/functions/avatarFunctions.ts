@@ -4,6 +4,7 @@ import {
   Bone,
   DoubleSide,
   Group,
+  Material,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -11,7 +12,8 @@ import {
   RGBAFormat,
   Skeleton,
   SkinnedMesh,
-  sRGBEncoding
+  sRGBEncoding,
+  Vector3
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -31,12 +33,11 @@ import { addRig, addTargetRig } from '../../ikrig/functions/RigFunctions'
 import { defaultIKPoseComponentValues, IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import AvatarBoneMatching, { BoneStructure } from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { Vector3 } from 'three'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { UpdatableComponent } from '@xrengine/engine/src/scene/components/UpdatableComponent'
-import { Updatable } from '@xrengine/engine/src/scene/interfaces/Updatable'
+import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
+import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { Updatable } from '../../scene/interfaces/Updatable'
 import { pipe } from 'bitecs'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { isClient } from '../../common/functions/isClient'
@@ -293,4 +294,25 @@ export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
 
     material.userData.shader = shader
   }
+}
+
+export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
+  const object3DComponent = getComponent(entity, Object3DComponent)
+  object3DComponent?.value.traverse((obj) => {
+    if (!(obj as SkinnedMesh).isSkinnedMesh) return
+    const material = (obj as SkinnedMesh).material as Material
+    if (!material.userData.shader) return
+    const shader = material.userData.shader
+    shader.uniforms.boneOpacity.value = opacity
+  })
+}
+
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+  const rig = getComponent(entity, IKRigComponent)
+  const bone = rig.boneStructure[boneName]
+  if (!bone) return false
+  bone.updateWorldMatrix(true, false)
+  const el = bone.matrixWorld.elements
+  position.set(el[12], el[13], el[14])
+  return true
 }
