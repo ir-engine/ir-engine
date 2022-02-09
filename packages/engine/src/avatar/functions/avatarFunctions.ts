@@ -49,7 +49,12 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
     castShadow: true,
     receiveShadow: true
   })
-  setupAvatarForUser(entity, SkeletonUtils.clone(model.scene))
+  const parent = new Group()
+  const root = new Group()
+  root.add(model.scene)
+  parent.add(root)
+  parent.userData = model.scene.userData
+  setupAvatarForUser(entity, SkeletonUtils.clone(parent))
 }
 
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
@@ -82,8 +87,10 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
     rootBone.children[0].scale.setScalar(0.01)
   } else if (assetType == AssetType.VRM) {
     if (model) {
+      //@ts-ignore
       const object3DComponent = getComponent(entity, Object3DComponent)
       if (object3DComponent.value && (model as UpdateableObject3D).update) {
+        //@ts-ignore
         addComponent(entity, UpdatableComponent, {})
         ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
           ;(model as UpdateableObject3D).update(delta)
