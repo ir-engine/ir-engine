@@ -2,7 +2,7 @@ import { Application } from '../../../declarations'
 import { FileBrowserService } from './file-browser.class'
 import hooks from './file-browser.hooks'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'file-browser': FileBrowserService
   }

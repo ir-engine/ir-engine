@@ -204,7 +204,6 @@ class Pose {
 
     const skeleton = new Skeleton(reOrderedBones)
 
-    console.log(skeleton)
     return skeleton
   }
 
@@ -277,8 +276,6 @@ class Pose {
 
   // Make sure this is properly named
   setChildFromParent(parent: Object3D, child: Object3D): Pose {
-    console.log('parent, child', parent, child)
-
     // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
     // TODO: Make sure this matrix isn't flipped
     const v: Vector3 = new Vector3()
@@ -286,9 +283,6 @@ class Pose {
       .multiply(child.position) // parent.scale * child.position;
       .applyQuaternion(parent.quaternion) //Vec3.transformQuat( v, tp.quaternion, v );
     this.childPosition = new Vector3().copy(parent.position).add(v) // Vec3.add( tp.position, v, this.position );
-
-    console.log('v is', v)
-    console.log('this.childPosition', this.childPosition)
 
     // SCALE - parent.scale * child.scale
     // TODO: not flipped, right?

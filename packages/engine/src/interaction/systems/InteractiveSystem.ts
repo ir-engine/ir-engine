@@ -35,11 +35,17 @@ import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export default async function InteractiveSystem(world: World) {
   const interactorsQuery = defineQuery([InteractorComponent])
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
+  const interactiveQuery = defineQuery([
+    InteractableComponent,
+    Object3DComponent,
+    Not(EquippedComponent),
+    Not(AvatarComponent)
+  ])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
