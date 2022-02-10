@@ -4,7 +4,7 @@ import Button from '@mui/material/Button'
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import LocationTable from './LocationTable'
-import CreateLocation from './createLocation'
+import CreateLocation from './CreateLocation'
 
 const Location = () => {
   const classes = useStyles()
