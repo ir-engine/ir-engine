@@ -2,12 +2,9 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
-// TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
-import { AlertService } from '../../../common/services/AlertService'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
@@ -16,24 +13,21 @@ import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
-import LocationMenu from './menus/LocationMenu'
-import CreateLocationMenu from './menus/CreateLocationMenu'
 import styles from './UserMenu.module.scss'
 import { UserMenuProps, Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { UserSetting } from '@xrengine/common/src/interfaces/User'
 
-type StateType = {
-  currentActiveMenu: any
-  profileMenuOpen: boolean
-  username: any
-  userSetting: any
-  graphics: any
-  hideLogin: boolean
-}
+export const menuPanel = new Map<string, (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element>()
+
+menuPanel.set(Views.Profile, ProfileMenu)
+menuPanel.set(Views.Settings, SettingMenu)
+menuPanel.set(Views.Share, ShareMenu)
+menuPanel.set(Views.Avatar, AvatarMenu)
+menuPanel.set(Views.AvatarUpload, AvatarSelectMenu)
+menuPanel.set(Views.ReadyPlayer, ReadyPlayerMenu)
+menuPanel.set(Views.Emote, EmoteMenu)
 
 const UserMenu = (props: UserMenuProps): any => {
   const { enableSharing, hideLogin } = props
@@ -43,67 +37,30 @@ const UserMenu = (props: UserMenuProps): any => {
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
     { id: Views.Emote, imageNode: '/static/EmoteIcon.svg' }
-    //  { id: Views.Location, iconNode: FilterHdrIcon },
   ]
 
   if (enableSharing === false) {
-    const share = menus.find((el) => el.id === Views.Share)
-    // @ts-ignore
+    const share = menus.find((el) => el.id === Views.Share)!
     menus = menus.filter((el) => el.id !== share.id)
-  }
-
-  const menuPanel = {
-    [Views.Profile]: ProfileMenu,
-    [Views.Settings]: SettingMenu,
-    [Views.Share]: ShareMenu,
-    [Views.Avatar]: AvatarMenu,
-    [Views.AvatarUpload]: AvatarSelectMenu,
-    [Views.Location]: LocationMenu,
-    [Views.NewLocation]: CreateLocationMenu,
-    [Views.ReadyPlayer]: ReadyPlayerMenu,
-    [Views.Emote]: EmoteMenu
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
   const authState = useAuthState()
   const selfUser = authState.user
-  const avatarList = authState.avatarList.value
 
   const [currentActiveMenu, setCurrentActiveMenu] = useState(enableSharing === false ? (menus[0] as any) : null)
-  const [activeLocation, setActiveLocation] = useState(null)
 
-  const [userSetting, setUserSetting] = useState(selfUser?.user_setting.value)
+  const [userSetting, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
   const engineState = useEngineState()
 
   useEffect(() => {
     setEngineLoaded(true)
   }, [engineState.isEngineInitialized.value])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
-    if (selfUser?.value) {
-      // @ts-ignore
-      AuthService.updateUserAvatarId(selfUser.id.value, avatarId, avatarURL, thumbnailURL)
-    }
-  }
-
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting }
     setUserSetting(setting)
-    // @ts-ignore
-    AuthService.updateUserSettings(selfUser.user_setting.id.value, setting)
-  }
-
-  const handleFetchAvatarList = (): any => {
-    return AuthService.fetchAvatarList()
-  }
-
-  const handleUploadAvatarModel = (model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean): any => {
-    return AuthService.uploadAvatarModel(model, thumbnail, avatarName!, isPublicAvatar)
-  }
-
-  const handleRemoveAvatar = (keys: [string]): any => {
-    return AuthService.removeAvatar(keys)
+    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
   }
 
   const setActiveMenu = (e): void => {
@@ -129,19 +86,6 @@ const UserMenu = (props: UserMenuProps): any => {
     setCurrentActiveMenu(menu ? { id: menu } : null)
   }
 
-  const changeActiveLocation = (location) => {
-    setActiveLocation(location)
-    setCurrentActiveMenu({ id: Views.NewLocation })
-  }
-
-  const updateLocationDetail = (location) => {
-    setActiveLocation({ ...location })
-  }
-
-  const alertSuccess = (message) => {
-    AlertService.alertSuccess(message)
-  }
-
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
@@ -149,26 +93,18 @@ const UserMenu = (props: UserMenuProps): any => {
     switch (currentActiveMenu.id) {
       case Views.Profile:
         args = {
-          changeActiveMenu: changeActiveMenu,
+          changeActiveMenu,
           hideLogin
         }
         break
       case Views.Avatar:
         args = {
-          setAvatar: setAvatar,
-          changeActiveMenu: changeActiveMenu,
-          removeAvatar: handleRemoveAvatar,
-          fetchAvatarList: handleFetchAvatarList,
-          avatarList: avatarList,
-          avatarId: selfUser?.avatarId?.value,
-          enableSharing: enableSharing
+          changeActiveMenu
         }
         break
       case Views.Emote:
         args = {
-          location: activeLocation,
-          changeActiveMenu,
-          updateLocationDetail
+          changeActiveMenu
         }
         break
       case Views.Settings:
@@ -178,43 +114,25 @@ const UserMenu = (props: UserMenuProps): any => {
         }
         break
       case Views.Share:
-        args = { alertSuccess: alertSuccess }
         break
       case Views.AvatarUpload:
         args = {
-          userId: selfUser?.id.value,
-          changeActiveMenu: changeActiveMenu,
-          uploadAvatarModel: handleUploadAvatarModel
-        }
-        break
-      case Views.Location:
-        args = {
-          changeActiveLocation
-        }
-        break
-      case Views.NewLocation:
-        args = {
-          location: activeLocation,
-          changeActiveMenu,
-          updateLocationDetail
+          userId: selfUser?.id.value
         }
         break
       case Views.ReadyPlayer:
         args = {
-          userId: selfUser?.id.value,
-          changeActiveMenu: changeActiveMenu,
-          uploadAvatarModel: handleUploadAvatarModel,
-          isPublicAvatar: false
+          userId: selfUser?.id.value
         }
         break
       default:
         return null
     }
 
-    const Panel = menuPanel[currentActiveMenu.id]
+    const Panel = menuPanel.get(currentActiveMenu.id)
 
     // @ts-ignore
-    return <Panel {...args} />
+    return <Panel changeActiveMenu={changeActiveMenu} {...args} />
   }
 
   return (

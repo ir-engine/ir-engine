@@ -7,12 +7,10 @@ export const Views = {
   Settings: 'Settings',
   Share: 'Share',
   DeleteAccount: 'accountDelete',
-  Login: 'login',
+  Login: 'Login',
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
-  Location: 'Location',
   Emote: 'Emote',
-  NewLocation: 'NewLocation',
   ReadyPlayer: 'ReadyPlayer'
 }
 

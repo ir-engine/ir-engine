@@ -127,7 +127,7 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const { isPublicAvatar, changeActiveMenu, uploadAvatarModel } = props
+  const { isPublicAvatar, changeActiveMenu } = props
 
   const [fileSelected, setFileSelected] = React.useState(false)
   const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
