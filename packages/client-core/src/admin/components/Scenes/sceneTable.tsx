@@ -1,31 +1,15 @@
-import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
-import { useSceneStyles, useSceneStyle } from './styles'
-import { sceneColumns, SceneData } from './variables'
-import TablePagination from '@mui/material/TablePagination'
-import { SceneService } from '../../services/SceneService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useSceneState } from '../../services/SceneService'
-import ViewScene from './ViewScene'
-import { SCENE_PAGE_LIMIT } from '../../services/SceneService'
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import React from 'react'
+import { useAuthState } from '../../../user/services/AuthService'
+import ConfirmModel from '../../common/ConfirmModel'
+import TableComponent from '../../common/Table'
+import { sceneColumns, SceneData, SceneProps } from '../../common/variables/scene'
+import { SceneService, SCENE_PAGE_LIMIT, useSceneState } from '../../services/SceneService'
+import { useStyles } from '../../styles/ui'
+import ViewScene from './ViewScene'
 
-interface Props {}
-
-const SceneTable = (props: Props) => {
-  const classx = useSceneStyles()
-  const classes = useSceneStyle()
+const SceneTable = (props: SceneProps) => {
+  const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
 
@@ -34,7 +18,8 @@ const SceneTable = (props: Props) => {
   const sceneCount = scene?.total
   const [singleScene, setSingleScene] = React.useState<SceneDetailInterface>(null!)
   const [open, setOpen] = React.useState(false)
-  const [showWarning, setShowWarning] = React.useState(false)
+  const [sceneName, setSceneName] = React.useState<any>('')
+  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(SCENE_PAGE_LIMIT)
@@ -67,18 +52,13 @@ const SceneTable = (props: Props) => {
     }
   }
 
-  const handleShowWarning = (id: string) => {
-    setSceneId(id)
-    setShowWarning(true)
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
   }
 
-  const handleCloseWarning = () => {
-    setShowWarning(false)
-  }
-
-  const deleteSceneHandler = () => {
-    setShowWarning(false)
-    SceneService.deleteScene(sceneId)
+  const submitRemoveLocation = async () => {
+    await SceneService.deleteScene(sceneId)
+    setPopConfirmOpen(false)
   }
 
   const createData = (
@@ -103,9 +83,16 @@ const SceneTable = (props: Props) => {
               View
             </span>
           </a>
-          <a href="#h" className={classes.actionStyle} onClick={() => handleShowWarning(id)}>
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setPopConfirmOpen(true)
+              setSceneId(id)
+              setSceneName(name)
+            }}
+          >
+            <span className={classes.spanDange}>Delete</span>
           </a>
         </>
       )
@@ -118,82 +105,32 @@ const SceneTable = (props: Props) => {
       el.name || <span className={classes.spanNone}>None</span>,
       el.type || <span className={classes.spanNone}>None</span>,
       el.description || <span className={classes.spanNone}>None</span>,
-      el.entities.length || <span className={classes.spanNone}>None</span>,
+      el.entities?.length || <span className={classes.spanNone}>None</span>,
       el.version || <span className={classes.spanNone}>None</span>
     )
   })
 
   return (
-    <div className={classes.root}>
-      <TableContainer className={classes.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {sceneColumns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classx.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row, id) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-                  {sceneColumns.map((column) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[SCENE_PAGE_LIMIT]}
-        component="div"
-        count={sceneCount?.value || 12}
-        rowsPerPage={rowsPerPage}
+    <React.Fragment>
+      <TableComponent
+        rows={rows}
+        column={sceneColumns}
         page={page}
-        onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
-        className={classx.tableFooter}
+        rowsPerPage={rowsPerPage}
+        count={sceneCount?.value}
+        handlePageChange={handlePageChange}
+        handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <Dialog
-        open={showWarning}
-        onClose={handleCloseWarning}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle className={classes.alert} id="alert-dialog-title">
-          {'Confirm to delete this scene!'}
-        </DialogTitle>
-        <DialogContent className={classes.alert}>
-          <DialogContentText className={classes.alert} id="alert-dialog-description">
-            Deleting scene can not be recovered!
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions className={classes.alert}>
-          <Button onClick={handleCloseWarning} className={classes.spanNone}>
-            Cancel
-          </Button>
-          <Button className={classes.spanDange} onClick={deleteSceneHandler} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveLocation}
+        name={sceneName}
+        label={'scene'}
+      />
       {singleScene && <ViewScene adminScene={singleScene} viewModal={open} closeViewModal={handleClose} />}
-    </div>
+    </React.Fragment>
   )
 }
+
 export default SceneTable
