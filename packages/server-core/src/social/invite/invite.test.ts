@@ -5,7 +5,7 @@ import app from '../../../../server/src/app'
 let invites: any = []
 let user: any = null
 
-describe.only('invite service', () => {
+describe('invite service', () => {
   before(async () => {
     await app.setup()
 
