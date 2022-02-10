@@ -21,7 +21,7 @@ import Switch from '@mui/material/Switch'
 import { useSceneState } from '../../services/SceneService'
 import { useDispatch } from '../../../store'
 import { useLocationState } from '../../services/LocationService'
-import { validateUserForm } from '../Users/validation'
+import { validateForm } from '../../common/validation/formValidation'
 import { LocationService } from '../../services/LocationService'
 import MuiAlert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
@@ -153,7 +153,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = "Type can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       LocationService.patchLocation(location.id, locationData)
       setState({
         ...state,

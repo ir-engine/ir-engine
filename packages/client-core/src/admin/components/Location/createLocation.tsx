@@ -20,7 +20,7 @@ import { useAlertState } from '../../../common/services/AlertService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
-import { validateUserForm } from '../Users/validation'
+import { validateForm } from '../../common/validation/formValidation'
 import AlertMessage from '../../common/AlertMessage'
 
 interface Props {
@@ -150,7 +150,7 @@ const CreateLocation = (props: Props) => {
     }
     console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)
       closeViewModel(false)
     } else {
