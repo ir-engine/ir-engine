@@ -369,6 +369,16 @@ export const setWalking: InputBehaviorType = (
   controller.isWalking = inputValue.lifecycleState !== LifecycleValue.Ended
 }
 
+export const setRunning: InputBehaviorType = (
+  entity: Entity,
+  inputKey: InputAlias,
+  inputValue: InputValue,
+  delta: number
+): void => {
+  const controller = getComponent(entity, AvatarControllerComponent)
+  controller.isWalking = inputValue.lifecycleState == LifecycleValue.Ended
+}
+
 const setLocalMovementDirection: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
@@ -560,7 +570,7 @@ export const createAvatarInput = () => {
   map.set('KeyE', BaseInput.INTERACT)
   map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
-  map.set('ShiftLeft', BaseInput.WALK)
+  map.set('ShiftLeft', BaseInput.RUN)
   map.set('KeyP', BaseInput.POINTER_LOCK)
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
@@ -595,6 +605,7 @@ export const createBehaviorMap = () => {
 
   map.set(BaseInput.JUMP, setLocalMovementDirection)
   map.set(BaseInput.WALK, setWalking)
+  map.set(BaseInput.RUN, setRunning)
   map.set(BaseInput.FORWARD, setLocalMovementDirection)
   map.set(BaseInput.BACKWARD, setLocalMovementDirection)
   map.set(BaseInput.LEFT, setLocalMovementDirection)
