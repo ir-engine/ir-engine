@@ -28,9 +28,7 @@
   },
   "exclude": [
     "**/node_modules/**",
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js"
+    "./packages/server/upload/**"
   ],
   "include": [
     "./**/*.ts",

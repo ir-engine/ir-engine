@@ -199,9 +199,11 @@ const assetLoadCallback =
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
       AssetLoader.processModelAsset(asset.scene ? asset.scene : asset, params)
+      //TODO: we should probably change whichever loader this is needed for to return { scene: asset }
+      params.cache && AssetLoader.Cache.set(url, asset.scene ? asset : { scene: asset })
+    } else {
+      params.cache && AssetLoader.Cache.set(url, asset)
     }
-
-    params.cache && AssetLoader.Cache.set(url, asset)
 
     if (asset.scene) {
       asset.scene.userData.type = assetType
