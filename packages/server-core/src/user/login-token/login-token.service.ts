@@ -6,7 +6,7 @@ import hooks from './login-token.hooks'
 import loginTokenDocs from './login-token.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'login-token': LoginToken
   }

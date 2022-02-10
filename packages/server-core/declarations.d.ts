@@ -5,14 +5,7 @@ import '@feathersjs/transport-commons'
 import * as k8s from '@kubernetes/client-node'
 import type SocketIO from 'socket.io'
 import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ServiceTypes {
-  [x: string]: any // TODO: fix this
-}
-
-// TODO: fix sequlize typings for this
-export interface Models {}
+import { ServiceTypes } from '@xrengine/common/declarations'
 
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common

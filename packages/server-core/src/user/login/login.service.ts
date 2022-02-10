@@ -7,7 +7,7 @@ import logger from '../../logger'
 import loginDocs from './login.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     login: Login
   }

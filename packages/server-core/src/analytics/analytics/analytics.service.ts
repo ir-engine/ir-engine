@@ -6,7 +6,7 @@ import instanceProvisionDocs from './analytics.docs'
 import hooks from './analytics.hooks'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     analytics: Analytics
   }
