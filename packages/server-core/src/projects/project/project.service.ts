@@ -5,11 +5,14 @@ import createModel from './project.model'
 import projectDocs from './project.docs'
 import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import authenticate from '../../hooks/authenticate'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     project: Project
+    'project-build': any
+    'project-invalidate': any
   }
   interface Models {
     project: ReturnType<typeof createModel>
@@ -28,6 +31,8 @@ export default (app: Application): void => {
 
   app.use('project', projectClass)
 
+  // TODO: move these to sub-methods of 'project' service
+
   app.use('project-build', {
     patch: async ({ rebuild }, params) => {
       if (rebuild) {
@@ -36,7 +41,21 @@ export default (app: Application): void => {
     }
   })
 
+  app.use('project-invalidate', {
+    patch: async ({ projectName }, params) => {
+      if (projectName) {
+        return await useStorageProvider().createInvalidation([`projects/${projectName}*`])
+      }
+    }
+  })
+
   app.service('project-build').hooks({
+    before: {
+      patch: [authenticate(), restrictUserRole('admin')]
+    }
+  })
+
+  app.service('project-invalidate').hooks({
     before: {
       patch: [authenticate(), restrictUserRole('admin')]
     }

@@ -5,7 +5,7 @@ import hooks from './party-user.hooks'
 import logger from '../../logger'
 import partyUserDocs from './party-user.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'party-user': PartyUser
   }

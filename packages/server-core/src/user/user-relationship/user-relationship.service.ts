@@ -6,7 +6,7 @@ import { Op } from 'sequelize'
 import logger from '../../logger'
 import userRalationshipDocs from './user-ralationship.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'user-relationship': UserRelationship
   }

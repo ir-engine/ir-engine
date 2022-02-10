@@ -6,7 +6,7 @@ import hooks from './invite-type.hooks'
 import inviteTypeDocs from './invite-type.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'invite-type': InviteType
   }
