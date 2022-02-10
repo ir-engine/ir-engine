@@ -86,6 +86,8 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   if (assetType == AssetType.FBX) {
     rootBone.children[0].scale.setScalar(0.01)
+    const object3DComponent = getComponent(entity, Object3DComponent)
+    object3DComponent.value!.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model) {
       //@ts-ignore
@@ -144,9 +146,7 @@ export const setupAvatarMaterials = (root) => {
       // Transparency fix
       object.material.format = RGBAFormat
       const material = object.material.clone()
-
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
-
       materialList.push({
         id: object.uuid,
         material: material
@@ -301,9 +301,11 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData.shader) return
+    if (!material.userData?.shader) return
     const shader = material.userData.shader
-    shader.uniforms.boneOpacity.value = opacity
+    if (shader?.uniforms) {
+      shader.uniforms.boneOpacity.value = opacity
+    }
   })
 }
 
