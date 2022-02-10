@@ -20,7 +20,7 @@ export class Subscription extends Service {
    * @author
    */
   async create(data: any, params?: Params): Promise<any> {
-    const userId = (params as any).connection['identity-provider'].userId || params.body.userId
+    const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId
     if (userId == null) {
       throw new Error('Invalid user')
     }
