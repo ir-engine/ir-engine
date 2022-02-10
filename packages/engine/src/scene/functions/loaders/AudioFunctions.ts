@@ -193,7 +193,7 @@ export const toggleAudio = (entity: Entity) => {
   else audioEl.play()
 }
 
-const parseAudioProperties = (props): AudioComponentType => {
+export const parseAudioProperties = (props): AudioComponentType => {
   return {
     audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
     volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
