@@ -14,7 +14,6 @@ import Select from '@mui/material/Select'
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
@@ -32,7 +31,6 @@ interface Props {
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
-  const dispatch = useDispatch()
   const classes = useStyles()
   const [state, setState] = useState({
     name: '',

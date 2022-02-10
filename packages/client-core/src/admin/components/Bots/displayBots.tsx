@@ -17,9 +17,7 @@ import { BotService, useBotState } from '../../services/BotsService'
 import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
 
-interface Props {}
-
-const DisplayBots = (props: Props) => {
+const DisplayBots = () => {
   const classes = useStyles()
   const [expanded, setExpanded] = useState<string | false>('panel0')
   const [command, setCommand] = useState({

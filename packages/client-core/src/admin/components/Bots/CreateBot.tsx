@@ -25,13 +25,12 @@ import { InstanceService, useInstanceState } from '../../services/InstanceServic
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useStyles } from '../../styles/ui'
 
-interface Props {}
 interface Menu {
   value: string
   label: string
 }
 
-const CreateBot = (props: Props) => {
+const CreateBot = () => {
   const [command, setCommand] = useState({
     id: '',
     name: '',
