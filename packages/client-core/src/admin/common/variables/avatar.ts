@@ -23,6 +23,7 @@ export const avatarColumns: AvatarColumn[] = [
 ]
 
 export interface AvatarData {
+  el: any
   sid: any
   name: string
   key: string

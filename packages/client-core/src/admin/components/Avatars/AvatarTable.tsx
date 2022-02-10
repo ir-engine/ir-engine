@@ -6,6 +6,8 @@ import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
+import ConfirmModel from '../../common/ConfirmModel'
+import ViewAvatar from './viewAvatar'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -15,7 +17,7 @@ interface Props {
   locationState?: any
 }
 
-const Avatars = (props: Props) => {
+const AvatarTable = (props: Props) => {
   const adminAvatarState = useAvatarState()
   const authState = useAuthState()
   const user = authState.user
@@ -26,11 +28,20 @@ const Avatars = (props: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [avatarId, setAvatarId] = useState('')
+  const [avatarName, setAvatarName] = useState('')
+  const [viewModel, setViewModel] = useState(false)
+  const [avatarAdmin, setAvatarAdmin] = useState(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     AvatarService.fetchAdminAvatars(incDec)
     setPage(newPage)
+  }
+
+  const handleCloseModel = () => {
+    setPopConfirmOpen(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,17 +56,34 @@ const Avatars = (props: Props) => {
     setRefetch(false)
   }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
-  const createData = (sid: any, name: string, key: string): AvatarData => {
+  const createData = (el: any, sid: any, name: string, key: string): AvatarData => {
+    console.log(el)
     return {
+      el,
       sid,
       name,
       key,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setAvatarAdmin(el)
+              setViewModel(true)
+            }}
+          >
             <span className={classes.spanWhite}>View</span>
           </a>
-          <a href="#h" className={classes.actionStyle}>
+          <a
+            href="#h"
+            className={classes.actionStyle}
+            onClick={() => {
+              setPopConfirmOpen(true)
+              setAvatarId(el.id)
+              setAvatarName(name)
+            }}
+          >
             <span className={classes.spanDange}>Delete</span>
           </a>
         </>
@@ -64,8 +92,17 @@ const Avatars = (props: Props) => {
   }
 
   const rows = adminAvatars.value.map((el) => {
-    return createData(el.sid, el.name, el.key)
+    return createData(el, el.sid, el.name, el.key)
   })
+
+  const submitRemoveAvatar = async () => {
+    await AvatarService.removeAdminAvatar(avatarId)
+    setPopConfirmOpen(false)
+  }
+
+  const closeViewModel = (open) => {
+    setViewModel(open)
+  }
 
   return (
     <React.Fragment>
@@ -81,8 +118,19 @@ const Avatars = (props: Props) => {
       {/* {avatarSelectMenuOpen && (
           <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
         )} */}
+
+      <ConfirmModel
+        popConfirmOpen={popConfirmOpen}
+        handleCloseModel={handleCloseModel}
+        submit={submitRemoveAvatar}
+        name={avatarName}
+        label={'avatar'}
+      />
+      {avatarAdmin && viewModel && (
+        <ViewAvatar openView={viewModel} avatarData={avatarAdmin} closeViewModel={closeViewModel} />
+      )}
     </React.Fragment>
   )
 }
 
-export default Avatars
+export default AvatarTable

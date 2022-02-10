@@ -3,7 +3,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
-import AvatarTable from './Avatars'
+import AvatarTable from './AvatarTable'
 import AvatarCreate from './AvatarCreate'
 
 const Avatar = () => {

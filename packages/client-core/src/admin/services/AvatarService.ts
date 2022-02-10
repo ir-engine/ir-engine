@@ -37,6 +37,8 @@ store.receptors.push((action: AvatarActionType): any => {
         })
       case 'AVATAR_CREATED':
         s.merge({ updateNeeded: true })
+      case 'AVATAR_REMOVED':
+        s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -74,6 +76,15 @@ export const AvatarService = {
     } catch (error) {
       console.error(error)
     }
+  },
+  removeAdminAvatar: async (id) => {
+    const dispatch = useDispatch()
+    try {
+      const result = await client.service('static-resource').remove(id)
+      dispatch(AvatarAction.avatarRemoved(result))
+    } catch (err) {
+      console.error(err)
+    }
   }
 }
 
@@ -88,6 +99,12 @@ export const AvatarAction = {
   avatarCreated: (avatar: AvatarResult) => {
     return {
       type: 'AVATAR_CREATED' as const,
+      avatar: avatar
+    }
+  },
+  avatarRemoved: (avatar: AvatarResult) => {
+    return {
+      type: 'AVATAR_REMOVED' as const,
       avatar: avatar
     }
   }
