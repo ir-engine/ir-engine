@@ -3,7 +3,12 @@ import { Engine } from '../ecs/classes/Engine'
 import { createWorld } from '../ecs/classes/World'
 import { addComponent, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
-import { fixedCameraBehindAvatar, setTargetCameraRotation, setWalking, switchShoulderSide } from './AvatarInputSchema'
+import {
+  fixedCameraBehindAvatar,
+  setTargetCameraRotation,
+  toggleRunning,
+  switchShoulderSide
+} from './AvatarInputSchema'
 import { InputType } from '../input/enums/InputType'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { NumericalType } from '../common/types/NumericalTypes'
@@ -135,7 +140,7 @@ describe('avatarInputSchema', () => {
 
     const firstValue = c.isWalking
 
-    setWalking(
+    toggleRunning(
       entity,
       'Test',
       {
