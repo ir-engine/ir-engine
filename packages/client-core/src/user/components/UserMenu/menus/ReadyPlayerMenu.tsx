@@ -15,7 +15,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-
+import { validate, initializer } from './helperFunctions'
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -40,43 +40,10 @@ export const ReadyPlayerMenu = (props: Props) => {
   const [obj, setObj] = useState<any>(null)
 
   useEffect(() => {
-    const container = document.getElementById('stage')!
-    const bounds = container?.getBoundingClientRect()!
-
-    camera = new THREE.PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
-    camera.position.set(0, 1.25, 1.25)
-
-    scene = new THREE.Scene()
-
-    const backLight = new THREE.DirectionalLight(0xfafaff, 1)
-    backLight.position.set(1, 3, -1)
-    backLight.target.position.set(0, 1.5, 0)
-    const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7)
-    frontLight.position.set(-1, 3, 1)
-    frontLight.target.position.set(0, 1.5, 0)
-    const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
-    scene.add(backLight)
-    scene.add(backLight.target)
-    scene.add(frontLight)
-    scene.add(frontLight.target)
-    scene.add(hemi)
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
-    renderer.setSize(bounds.width, bounds.height)
-    renderer.outputEncoding = THREE.sRGBEncoding
-    renderer.domElement.id = 'avatarCanvas'
-    container.appendChild(renderer.domElement)
-
-    controls = getOrbitControls(camera, renderer.domElement)
-    ;(controls as any).addEventListener('change', renderScene) // use if there is no animation loop
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
-
-    window.addEventListener('resize', onWindowResize)
-    window.addEventListener('message', handleMessageEvent)
+    const init = initializer()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
 
     return () => {
       ;(controls as any).removeEventListener('change', renderScene)
@@ -149,28 +116,6 @@ export const ReadyPlayerMenu = (props: Props) => {
   const closeMenu = (e) => {
     e.preventDefault()
     changeActiveMenu(null)
-  }
-
-  const validate = (vScene) => {
-    const objBoundingBox = new THREE.Box3().setFromObject(vScene)
-    if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
-      return t('user:usermenu.avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
-
-    if (renderer.info.render.triangles <= 0) return t('user:usermenu.avatar.emptyObj')
-
-    const size = new THREE.Vector3().subVectors(maxBB, objBoundingBox.getSize(new THREE.Vector3()))
-    if (size.x <= 0 || size.y <= 0 || size.z <= 0) return t('user:usermenu.avatar.outOfBound')
-
-    let bone = false
-    let skinnedMesh = false
-    vScene.traverse((o) => {
-      if (o.type.toLowerCase() === 'bone') bone = true
-      if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-    })
-
-    if (!bone || !skinnedMesh) return t('user:usermenu.avatar.noBone')
-
-    return ''
   }
 
   const uploadAvatar = () => {

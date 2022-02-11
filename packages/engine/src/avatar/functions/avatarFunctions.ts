@@ -44,7 +44,7 @@ import { isClient } from '../../common/functions/isClient'
 
 const vec3 = new Vector3()
 
-export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+const loadAvatar = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync({
     url: avatarURL,
     castShadow: true,
@@ -55,7 +55,18 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
   root.add(model.scene)
   parent.add(root)
   parent.userData = model.scene.userData
+
+  return parent
+}
+
+export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatar(avatarURL)
   setupAvatarForUser(entity, SkeletonUtils.clone(parent))
+}
+
+export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatar(avatarURL)
+  setupAvatarModel(entity)(SkeletonUtils.clone(parent))
 }
 
 export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
