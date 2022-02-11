@@ -71,13 +71,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.onConnection = this.onConnection.bind(this)
   }
 
-  mediasoupDevice = new mediasoupClient.Device(
-    Engine.isBot
-      ? {
-          handlerName: 'Chrome74'
-        }
-      : undefined
-  )
+  mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
   leaving = false
   left = false
   reconnecting = false
