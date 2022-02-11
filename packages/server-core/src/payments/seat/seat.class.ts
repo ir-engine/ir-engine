@@ -17,7 +17,7 @@ export class Seat extends Service {
   }
 
   async create(data: any, params?: Params): Promise<any> {
-    const userId = params?.userId || params?.connection['identity-provider']?.userId
+    const userId = (params?.userId || params?.connection['identity-provider']?.userId) ?? null
     if (userId == null) {
       throw new Error('Invalid user')
     }
