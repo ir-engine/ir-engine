@@ -25,25 +25,6 @@ interface Props {
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen
-  }),
-  marginLeft: `-12.5rem`,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    }),
-    marginLeft: 0
-  })
-}))
-
 const Dashboard = ({ children }: Props) => {
   const authState = useAuthState()
   const classes = useStylesForDashboard()
@@ -52,14 +33,16 @@ const Dashboard = ({ children }: Props) => {
   const admin = authState.user
   const isLoggedIn = authState.isLoggedIn.value
 
-  const handleDrawerOpen = () => {
-    setOpen(true)
+  const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    console.log('....................')
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
+    setOpen(open)
   }
-
-  const handleDrawerClose = () => {
-    setOpen(false)
-  }
-
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -69,7 +52,7 @@ const Dashboard = ({ children }: Props) => {
             color="inherit"
             style={{ color: 'white' }}
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={handleDrawerOpen(true)}
             edge="start"
             className={clsx(classes.menuButton, {
               [classes.hide]: open
@@ -92,7 +75,7 @@ const Dashboard = ({ children }: Props) => {
         </Toolbar>
       </AppBar>
       <Drawer
-        variant="permanent"
+        variant={open ? 'temporary' : 'permanent'}
         className={clsx(classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open
@@ -104,23 +87,23 @@ const Dashboard = ({ children }: Props) => {
           })
         }}
         open={open}
+        onClose={handleDrawerOpen(false)}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }} size="large">
+          <IconButton onClick={handleDrawerOpen(false)} style={{ color: '#fff' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
         </div>
         <DashboardMenuItem />
       </Drawer>
-      <Main
+      <main
         className={clsx(classes.content, {
           [classes.contentWidthDrawerOpen]: open,
           [classes.contentWidthDrawerClosed]: !open
         })}
-        open={open}
       >
-        <div style={{ marginLeft: '12.2rem' }}>{children}</div>
-      </Main>
+        <div>{children}</div>
+      </main>
     </div>
   )
 }
