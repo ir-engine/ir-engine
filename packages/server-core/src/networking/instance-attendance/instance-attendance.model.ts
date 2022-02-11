@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { InstanceAttendanceInterface } from '@xrengine/common/src/dbmodels/InstanceAttendance'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const instanceAttendance = sequelizeClient.define(
+  const instanceAttendance = sequelizeClient.define<Model<InstanceAttendanceInterface>>(
     'instance_attendance',
     {
       id: {
