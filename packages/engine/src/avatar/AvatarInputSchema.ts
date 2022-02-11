@@ -359,24 +359,15 @@ const moveByInputAxis: InputBehaviorType = (
     controller.localMovementDirection.x = inputValue.value[0]
   }
 }
-export const setWalking: InputBehaviorType = (
-  entity: Entity,
-  inputKey: InputAlias,
-  inputValue: InputValue,
-  delta: number
-): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.Ended
-}
 
-export const setRunning: InputBehaviorType = (
+export const toggleRunning: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  controller.isWalking = inputValue.lifecycleState == LifecycleValue.Ended
+  if (inputValue.lifecycleState === LifecycleValue.Started) controller.isWalking = !controller.isWalking
 }
 
 const setLocalMovementDirection: InputBehaviorType = (
@@ -604,8 +595,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GRIP_RIGHT, grip)
 
   map.set(BaseInput.JUMP, setLocalMovementDirection)
-  map.set(BaseInput.WALK, setWalking)
-  map.set(BaseInput.RUN, setRunning)
+  map.set(BaseInput.RUN, toggleRunning)
   map.set(BaseInput.FORWARD, setLocalMovementDirection)
   map.set(BaseInput.BACKWARD, setLocalMovementDirection)
   map.set(BaseInput.LEFT, setLocalMovementDirection)
