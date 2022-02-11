@@ -98,4 +98,22 @@ export class NetworkWorldAction {
     }),
     pose: matchPose
   })
+
+  static requestAuthorityOverObject = defineActionCreator({
+    type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    requester: matchesUserId
+  })
+
+  static transferAuthorityOfObject = defineActionCreator({
+    type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
+    object: matches.shape({
+      ownerId: matchesUserId,
+      networkId: matchesNetworkId
+    }),
+    newAuthor: matchesUserId
+  })
 }

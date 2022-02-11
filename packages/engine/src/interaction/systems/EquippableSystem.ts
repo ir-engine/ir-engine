@@ -17,7 +17,7 @@ import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { Engine } from '../../ecs/classes/Engine'
 import { getParity } from '../functions/equippableFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
 import { BodyType } from '../../physics/types/PhysicsTypes'
 
 function equippableActionReceptor(action) {
@@ -90,7 +90,7 @@ export default async function EquippableSystem(world: World) {
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippedEntity = equipperComponent.equippedEntity
       if (equippedEntity) {
-        const isOwnedByMe = getComponent(equippedEntity, NetworkObjectOwnedTag)
+        const isOwnedByMe = getComponent(equippedEntity, NetworkObjectAuthorityTag)
         if (isOwnedByMe) {
           const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
           const attachmentPoint = equippedComponent.attachmentPoint

@@ -1,4 +1,4 @@
-import { sRGBEncoding, Quaternion, Vector3 } from 'three'
+import { sRGBEncoding } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
@@ -11,8 +11,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { initializeXRInputs, cleanXRInputs } from '../functions/addControllerModels'
+import { cleanXRInputs } from '../functions/addControllerModels'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -29,7 +28,8 @@ const startXRSession = async () => {
     Engine.xrManager.setFoveation(1)
     dispatchLocal(EngineActions.xrSession() as any)
 
-    Engine.xrManager.getCamera().layers.enableAll()
+    // Current WebXRManager.getCamera() typedef is incorrect
+    ;(Engine.xrManager as any).getCamera().layers.enableAll()
 
     Engine.xrManager.addEventListener('sessionend', async () => {
       dispatchLocal(EngineActions.xrEnd() as any)
@@ -50,9 +50,6 @@ export default async function XRSystem(world: World) {
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
-  const quat = new Quaternion()
-  const vector3 = new Vector3()
-
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
 
   // TEMPORARY - precache controller model
@@ -70,7 +67,7 @@ export default async function XRSystem(world: World) {
         startXRSession()
         break
       case EngineEvents.EVENTS.XR_END:
-        for (const entity of localXRControllerQuery()) {
+        for (const entity of xrControllerQuery()) {
           cleanXRInputs(entity)
         }
         endXR()
@@ -118,10 +115,6 @@ export default async function XRSystem(world: World) {
       }
     }
 
-    for (const entity of localXRControllerQuery.enter()) {
-      initializeXRInputs(entity)
-    }
-
     //XR Controller mesh animation update
     for (const entity of xrControllerQuery()) {
       const inputSource = getComponent(entity, XRInputSourceComponent)
@@ -130,17 +123,9 @@ export default async function XRSystem(world: World) {
 
     for (const entity of localXRControllerQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      xrInputSourceComponent.container.updateWorldMatrix(true, true)
-
-      quat.copy(transform.rotation).invert()
-      xrInputSourceComponent.head.quaternion.copy(Engine.camera.quaternion).premultiply(quat)
-
-      vector3.subVectors(Engine.camera.position, transform.position)
-      vector3.applyQuaternion(quat)
-      xrInputSourceComponent.head.position.copy(vector3)
+      const head = xrInputSourceComponent.head
+      head.quaternion.copy(Engine.camera.quaternion)
+      head.position.copy(Engine.camera.position)
     }
   }
-  // TODO: add and remove controller models from grips
 }

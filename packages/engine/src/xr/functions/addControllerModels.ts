@@ -13,10 +13,10 @@ import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
-import { mapXRControllers } from './WebXRFunctions'
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
@@ -43,33 +43,36 @@ const setupController = (inputSource, controller) => {
 export const initializeXRInputs = (entity: Entity) => {
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-  const session = Engine.xrManager.getSession()
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
-  controllers.forEach((controller: any, i) => {
-    if (controller.userData.initialized) {
-      return
-    }
-    controller.userData.initialized = true
-
-    controller.parent.addEventListener('connected', (ev) => {
-      mapXRControllers(xrInputSourceComponent)
-
-      const xrInputSource = ev.data as XRInputSource
-
-      if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
+  if (isEntityLocalClient(entity)) {
+    controllers.forEach((controller: any, i) => {
+      if (controller.userData.initialized) {
         return
       }
+      controller.userData.initialized = true
 
-      if (!controller.targetRay) {
-        setupController(ev.data, controller)
+      controller.parent.addEventListener('connected', (ev) => {
+        const xrInputSource = ev.data as XRInputSource
+
+        if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
+          return
+        }
+
+        if (!controller.targetRay) {
+          setupController(ev.data, controller)
+        }
+      })
+
+      const session = Engine.xrManager.getSession()
+
+      if (session) {
+        const inputSource = session.inputSources[i]
+        setupController(inputSource, controller)
       }
     })
-
-    const inputSource = session.inputSources[i]
-    setupController(inputSource, controller)
-  })
+  }
 
   controllersGrip.forEach((controller: any) => {
     if (controller.userData.initialized) {

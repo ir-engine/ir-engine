@@ -1,5 +1,9 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
+body {
+    overflow: hidden;
+}
+
 .container {
     display: flex;
     flex-direction: row;

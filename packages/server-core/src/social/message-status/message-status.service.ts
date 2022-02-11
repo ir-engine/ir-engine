@@ -4,7 +4,7 @@ import createModel from './message-status.model'
 import hooks from './message-status.hooks'
 import messageStatusDocs from './message-status.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'message-status': MessageStatus
   }
