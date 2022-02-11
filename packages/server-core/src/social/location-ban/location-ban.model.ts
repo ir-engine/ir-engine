@@ -3,10 +3,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+import { LocationBanInterface } from '@xrengine/common/src/dbmodels/LocationBan'
 
-export default function (app: Application): typeof Model {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const locationBan = sequelizeClient.define(
+  const locationBan = sequelizeClient.define<Model<LocationBanInterface>>(
     'location_ban',
     {
       id: {
