@@ -34,7 +34,6 @@ const Dashboard = ({ children }: Props) => {
   const isLoggedIn = authState.isLoggedIn.value
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    console.log('....................')
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
