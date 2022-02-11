@@ -50,15 +50,16 @@ export default async function XRUISystem(world: World) {
   // to the appropriate child Web3DLayer, and finally (back) to the
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
+    console.log(evt)
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
       if (hit) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
+        return
       }
     }
-
     for (const entity of avatar(world)) {
       const modelContainer = getComponent(entity, AvatarComponent).modelContainer
       const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
@@ -68,7 +69,7 @@ export default async function XRUISystem(world: World) {
         return
       }
     }
-    dispatchLocal(EngineActions.userAvatarTapped(''))
+    dispatchLocal(EngineActions.userAvatarTapped(null!))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -128,6 +129,7 @@ export default async function XRUISystem(world: World) {
     if (!addedEventListeners) {
       const canvas = Engine.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
+      canvas.addEventListener('contextmenu', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
     }

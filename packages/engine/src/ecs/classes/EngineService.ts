@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
-import { PortalComponent, PortalComponentType } from '../../scene/components/PortalComponent'
 import { EngineEvents } from './EngineEvents'
 import { Entity } from './Entity'
 
@@ -19,7 +19,7 @@ const state = createState({
   leaveWorld: false,
   socketInstance: false,
   connectionTimeoutInstance: false,
-  avatarTappedId: '',
+  avatarTappedId: null! as UserId,
   userHasInteracted: false,
   interactionData: null! as InteractableComponentType,
   errorEntities: {} as { [key: Entity]: boolean }

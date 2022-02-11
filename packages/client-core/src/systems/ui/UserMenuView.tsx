@@ -8,6 +8,7 @@ import { useUserState, UserService } from '../../user/services/UserService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useAuthState } from '../../user/services/AuthService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 const styles = {
   root: {
@@ -80,20 +81,16 @@ const styles = {
   }
 }
 
-export function createAvatarContextMenuView(id: string) {
-  return createXRUI(AvatarContextMenu, createAvatarContextMenuState(id))
+export function createAvatarContextMenuView() {
+  return createXRUI(AvatarContextMenu, UserMenuState)
 }
 
-function createAvatarContextMenuState(id: string) {
-  return createState({
-    id
-  })
-}
-
-type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
+export const UserMenuState = createState({
+  id: null! as UserId
+})
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState() as AvatarContextMenuState
+  const detailState = useXRUIState() as typeof UserMenuState
 
   const engineState = useEngineState()
   const userState = useUserState()
@@ -118,7 +115,13 @@ const AvatarContextMenu = () => {
     }
   }
 
-  return user && engineState.avatarTappedId.value === user.id.value ? (
+  useEffect(() => {
+    console.log('engineState.avatarTappedId.value', engineState.avatarTappedId.value)
+    detailState.id.set(engineState.avatarTappedId.value)
+  }, [engineState.avatarTappedId.value])
+
+  console.log('user?.id.value', user?.id.value)
+  return user?.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
