@@ -19,23 +19,26 @@ import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import * as THREE from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { validate, initializer } from './helperFunctions'
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
   isPublicAvatar?: boolean
 }
 
-let camera: THREE.PerspectiveCamera
-let scene: THREE.Scene
-let renderer: THREE.WebGLRenderer
+let camera: PerspectiveCamera
+let scene: Scene
+let renderer: WebGLRenderer = null!
 
 const Input = styled('input')({
   display: 'none'
@@ -83,7 +86,8 @@ export const AvatarSelectMenu = (props: Props) => {
   const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
-
+  const world = useWorld()
+  const entity = world.getUserAvatarEntity(Engine.userId)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -101,19 +105,21 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const handleAvatarUrlChange = (event) => {
+  const handleAvatarUrlChange = async (event) => {
     event.preventDefault()
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
-      AssetLoader.load(event.target.value, (gltf) => {
-        gltf.scene.name = 'avatar'
-        scene.add(gltf.scene)
-        renderScene()
-        const error = validate(gltf.scene)
-        setError(error)
-        setObj(gltf.scene)
-      })
+      // AssetLoader.load({ url: event.target.value }, (gltf) => {
+      //   gltf.scene.name = 'avatar'
+      //   scene.add(gltf.scene)
+      //   renderScene()
+      //   const error = validate(gltf.scene)
+      //   setError(error)
+      //   setObj(gltf.scene)
+      // })
+
+      await loadAvatarForPreview(entity, event.target.value)
 
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -131,7 +137,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const [fileSelected, setFileSelected] = React.useState(false)
   const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
-  let maxBB = new THREE.Vector3(2, 2, 2)
+  // let maxBB = new THREE.Vector3(2, 2, 2)
 
   const { t } = useTranslation()
 
@@ -151,41 +157,17 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   useEffect(() => {
-    const container = document.getElementById('stage')!
-    const bounds = container.getBoundingClientRect()
-
-    camera = new THREE.PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
-    camera.position.set(0, 1.25, 1.25)
-
-    scene = new THREE.Scene()
-
-    const backLight = new THREE.DirectionalLight(0xfafaff, 1)
-    backLight.position.set(1, 3, -1)
-    backLight.target.position.set(0, 1.5, 0)
-    const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7)
-    frontLight.position.set(-1, 3, 1)
-    frontLight.target.position.set(0, 1.5, 0)
-    const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
-    scene.add(backLight)
-    scene.add(backLight.target)
-    scene.add(frontLight)
-    scene.add(frontLight.target)
-    scene.add(hemi)
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
-    renderer.setSize(bounds.width, bounds.height)
-    renderer.outputEncoding = THREE.sRGBEncoding
-    renderer.domElement.id = 'avatarCanvas'
-    container.appendChild(renderer.domElement)
-
+    const init = initializer()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
     const controls = getOrbitControls(camera, renderer.domElement)
+
     ;(controls as any).addEventListener('change', renderScene) // use if there is no animation loop
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
     controls.update()
-
     window.addEventListener('resize', onWindowResize)
 
     return () => {
@@ -293,28 +275,6 @@ export const AvatarSelectMenu = (props: Props) => {
       console.error(e)
       setError(t('user:avatar.selectValidThumbnail'))
     }
-  }
-
-  const validate = (vScene) => {
-    const objBoundingBox = new THREE.Box3().setFromObject(vScene)
-    if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
-      return t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
-
-    if (renderer.info.render.triangles <= 0) return t('user:avatar.emptyObj')
-
-    const size = new THREE.Vector3().subVectors(maxBB, objBoundingBox.getSize(new THREE.Vector3()))
-    if (size.x <= 0 || size.y <= 0 || size.z <= 0) return t('user:avatar.outOfBound')
-
-    let bone = false
-    let skinnedMesh = false
-    vScene.traverse((o) => {
-      if (o.type.toLowerCase() === 'bone') bone = true
-      if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-    })
-
-    if (!bone || !skinnedMesh) return t('user:avatar.noBone')
-
-    return ''
   }
 
   const openAvatarMenu = (e) => {
