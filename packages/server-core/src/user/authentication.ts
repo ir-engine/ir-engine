@@ -10,7 +10,7 @@ import { MyLocalStrategy } from './strategies/local'
 import { MyJwtStrategy } from './strategies/jwt'
 import TwitterStrategy from './strategies/twitter'
 
-declare module '../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     authentication: AuthenticationService
   }

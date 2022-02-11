@@ -6,7 +6,7 @@ import hooks from './location-settings.hooks'
 import locationSettingsDocs from './location-settings-docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'location-settings': LocationSettings
   }

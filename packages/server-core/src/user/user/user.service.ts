@@ -7,7 +7,7 @@ import logger from '../../logger'
 import userDocs from './user.docs'
 import config from '../../appconfig'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   /**
    * Interface for users input
    */

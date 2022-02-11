@@ -3,9 +3,9 @@ import { Application } from '../../../declarations'
 import { GameServerSetting } from './game-server-setting.class'
 import createModel from './game-server-setting.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    GameServer: GameServerSetting
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'game-server-setting': GameServerSetting
   }
 }
 

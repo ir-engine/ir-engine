@@ -4,7 +4,7 @@ import createModel from './instance-attendance.model'
 import hooks from './instance-attendance.hooks'
 import instanceAttendanceDocs from './instance-attendance.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'instance-attendance': InstanceAttendance
   }

@@ -97,17 +97,19 @@ export const readXRContainerRotation = readVector4(XRInputSourceComponent.contai
 export const readXRHeadPosition = readVector3(XRInputSourceComponent.head.position)
 export const readXRHeadRotation = readVector4(XRInputSourceComponent.head.quaternion)
 
-export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeft.position)
-export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeft.quaternion)
+export const readXRControllerLeftPosition = readVector3(XRInputSourceComponent.controllerLeftParent.position)
+export const readXRControllerLeftRotation = readVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
 
-export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeft.position)
-export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeft.quaternion)
+export const readXRControllerGripLeftPosition = readVector3(XRInputSourceComponent.controllerGripLeftParent.position)
+export const readXRControllerGripLeftRotation = readVector4(XRInputSourceComponent.controllerGripLeftParent.quaternion)
 
-export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRight.position)
-export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRight.quaternion)
+export const readXRControllerRightPosition = readVector3(XRInputSourceComponent.controllerRightParent.position)
+export const readXRControllerRightRotation = readVector4(XRInputSourceComponent.controllerRightParent.quaternion)
 
-export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRight.position)
-export const readXRControllerGripRightRotation = readVector4(XRInputSourceComponent.controllerGripRight.quaternion)
+export const readXRControllerGripRightPosition = readVector3(XRInputSourceComponent.controllerGripRightParent.position)
+export const readXRControllerGripRightRotation = readVector4(
+  XRInputSourceComponent.controllerGripRightParent.quaternion
+)
 
 export const readXRInputs = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)

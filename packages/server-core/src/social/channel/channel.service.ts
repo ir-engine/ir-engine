@@ -6,7 +6,7 @@ import logger from '../../logger'
 import channelDocs from './channel.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     channel: Channel
   }

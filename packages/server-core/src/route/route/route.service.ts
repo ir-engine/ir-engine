@@ -9,7 +9,7 @@ import path from 'path'
 import { InstalledRoutesInterface, ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     route: Route
   }

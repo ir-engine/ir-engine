@@ -5,7 +5,7 @@ import hooks from './group-user.hooks'
 import logger from '../../logger'
 import groupUserDocs from './group-user.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'group-user': GroupUser
   }

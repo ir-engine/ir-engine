@@ -3,9 +3,9 @@ import { Application } from '../../../declarations'
 import { EmailSetting } from './email-setting.class'
 import createModel from './email-setting.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    Email: EmailSetting
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'email-setting': EmailSetting
   }
 }
 
