@@ -4,7 +4,7 @@ import Avatar from '@mui/material/Avatar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import { useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import clsx from 'clsx'
@@ -24,6 +24,25 @@ interface Props {
  * @returns @ReactDomElements
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+  open?: boolean
+}>(({ theme, open }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(3),
+  transition: theme.transitions.create('margin', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen
+  }),
+  marginLeft: `-12.5rem`,
+  ...(open && {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    marginLeft: 0
+  })
+}))
 
 const Dashboard = ({ children }: Props) => {
   const authState = useAuthState()
@@ -84,6 +103,7 @@ const Dashboard = ({ children }: Props) => {
             [classes.drawerClose]: !open
           })
         }}
+        open={open}
       >
         <div className={classes.toolbar}>
           <IconButton onClick={handleDrawerClose} style={{ color: '#fff' }} size="large">
@@ -92,14 +112,15 @@ const Dashboard = ({ children }: Props) => {
         </div>
         <DashboardMenuItem />
       </Drawer>
-      <main
+      <Main
         className={clsx(classes.content, {
           [classes.contentWidthDrawerOpen]: open,
           [classes.contentWidthDrawerClosed]: !open
         })}
+        open={open}
       >
-        <div>{children}</div>
-      </main>
+        <div style={{ marginLeft: '12.2rem' }}>{children}</div>
+      </Main>
     </div>
   )
 }
