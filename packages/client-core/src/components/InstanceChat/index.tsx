@@ -15,7 +15,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import defaultStyles from './InstanceChat.module.scss'
@@ -171,12 +171,12 @@ const InstanceChat = (props: Props): any => {
                     activeChannel.messages?.length
                   )
                   .map((message) => {
-                    if (!isBot(window) && isCommand(message.text)) return undefined
+                    if (!Engine.isBot && isCommand(message.text)) return undefined
                     const system = getChatMessageSystem(message.text)
                     let chatMessage = message.text
 
                     if (system !== 'none') {
-                      if (isBot(window) || system === 'jl_system') {
+                      if (Engine.isBot || system === 'jl_system') {
                         chatMessage = removeMessageSystem(message.text)
                       } else {
                         return undefined

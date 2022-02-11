@@ -7,7 +7,7 @@ import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../../common/components/LazyImage'
 import { Views } from '../util'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 const AvatarMenu = (props: any): any => {
   const MAX_AVATARS_PER_PAGE = 6
@@ -82,7 +82,7 @@ const AvatarMenu = (props: any): any => {
   const selectAvatar = (avatarResources: any) => {
     const avatar = avatarResources.avatar
     setSelectedAvatarId(avatar.name)
-    if (!isBot(window) && props.avatarId !== avatar.name) {
+    if (!Engine.isBot && props.avatarId !== avatar.name) {
       props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
     }
   }
