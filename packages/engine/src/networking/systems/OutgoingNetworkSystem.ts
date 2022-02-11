@@ -14,10 +14,14 @@ import { createDataWriter } from '../serialization/DataWriter'
  **********/
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
-const ownedNetworkTransformsQuery = defineQuery([NetworkObjectAuthorityTag, NetworkObjectComponent, TransformComponent])
+const authoritativeNetworkTransformsQuery = defineQuery([
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  TransformComponent
+])
 
 const serializeAndSend = (world: World, serialize: Function, sendData: Function) => {
-  const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
+  const ents = authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
     const data = serialize(world, ents)
 

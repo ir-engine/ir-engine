@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { RedisSettingInterface } from '@xrengine/common/src/dbmodels/RedisSetting'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const RedisSetting = sequelizeClient.define('redisSetting', {
+  const RedisSetting = sequelizeClient.define<Model<RedisSettingInterface>>('redisSetting', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,

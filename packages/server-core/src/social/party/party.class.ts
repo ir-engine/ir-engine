@@ -21,8 +21,8 @@ export class Party extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    const { action, $skip, $limit, search, ...query } = params.query!
+  async find(params?: Params): Promise<any> {
+    const { action, $skip, $limit, search, ...query } = params?.query ?? {}
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 10
     if (action === 'admin') {
@@ -77,7 +77,7 @@ export class Party extends Service {
    * @returns {@Object} of single party
    * @author Vyacheslav Solovjov
    */
-  async get(id: string, params: Params): Promise<any> {
+  async get(id: string, params?: Params): Promise<any> {
     if (id == null) {
       const loggedInUser = extractLoggedInUserFromParams(params)
       const partyUserResult = await this.app.service('party-user').find({

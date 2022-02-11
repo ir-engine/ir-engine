@@ -3,10 +3,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+import { LocationAdminInterface } from '@xrengine/common/src/dbmodels/LocationAdmin'
 
-export default function (app: Application): typeof Model {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const locationAdmin = sequelizeClient.define(
+  const locationAdmin = sequelizeClient.define<Model<LocationAdminInterface>>(
     'location_admin',
     {
       id: {
