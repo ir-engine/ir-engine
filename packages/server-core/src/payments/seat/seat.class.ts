@@ -17,7 +17,7 @@ export class Seat extends Service {
   }
 
   async create(data: any, params?: Params): Promise<any> {
-    const userId: string | undefined = params?.userId || params?.connection['identity-provider']?.userId
+    const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == undefined) {
       throw new Error('Invalid user')
     }
