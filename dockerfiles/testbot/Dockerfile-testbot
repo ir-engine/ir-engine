@@ -1,12 +1,27 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster
+FROM node:16-buster-slim as builder
 
 RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN apt-get -y install python3-pip
+RUN apt-get -y install python3-pip  git
+
+COPY package.json .
+COPY packages/bot/package.json ./packages/bot/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/server-core/package.json ./packages/server-core/
+RUN npm install --production=false --loglevel notice --legacy-peer-deps
+RUN npm run install-test-e2e
+# copy then compile the code
+COPY . .
+
+ENV APP_ENV=production
+
+FROM node:16-buster-slim as runner
+
+WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y wget gnupg \
@@ -16,18 +31,7 @@ RUN apt-get update \
     && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
-    
-COPY package.json .
-COPY packages/bot/package.json ./packages/bot/
-COPY packages/engine/package.json ./packages/engine/
-COPY packages/server-core/package.json ./packages/server-core/
 
-RUN npm install --production=false --loglevel notice --legacy-peer-deps
-RUN npm run install-test-e2e
-
-# copy then compile the code
-COPY . .
-
-ENV APP_ENV=production
+COPY --from=builder /app ./
 
 CMD ["scripts/start-testbot.sh"]
