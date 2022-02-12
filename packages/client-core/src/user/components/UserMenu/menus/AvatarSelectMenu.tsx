@@ -26,9 +26,9 @@ import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
 interface Props {
   changeActiveMenu: Function
@@ -39,6 +39,7 @@ interface Props {
 let camera: PerspectiveCamera
 let scene: Scene
 let renderer: WebGLRenderer = null!
+let entity: Entity
 
 const Input = styled('input')({
   display: 'none'
@@ -86,8 +87,6 @@ export const AvatarSelectMenu = (props: Props) => {
   const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
-  // const world = useWorld()
-  // const entity = world.getUserAvatarEntity(Engine.userId)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -110,16 +109,15 @@ export const AvatarSelectMenu = (props: Props) => {
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
-      AssetLoader.load({ url: event.target.value }, (gltf) => {
-        gltf.scene.name = 'avatar'
-        scene.add(gltf.scene)
-        renderScene({ scene, camera, renderer })
-        const error = validate(gltf.scene)
-        setError(error)
-        setObj(gltf.scene)
-      })
 
-      // await loadAvatarForPreview(entity, event.target.value)
+      loadAvatarForPreview(entity, event.target.value).then((obj) => {
+        obj.name = 'avatar'
+        scene.add(obj)
+        renderScene({ scene, camera, renderer })
+        const error = validate(obj)
+        setError(error)
+        setObj(obj)
+      })
 
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -142,6 +140,7 @@ export const AvatarSelectMenu = (props: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
+    entity = createEntity()
     const init = initializer()
     scene = init.scene
     camera = init.camera
@@ -178,13 +177,21 @@ export const AvatarSelectMenu = (props: Props) => {
       try {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
-          ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
-            gltf.scene.name = 'avatar'
-            scene.add(gltf.scene)
+          // ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
+          //   gltf.scene.name = 'avatar'
+          //   scene.add(gltf.scene)
+          //   renderScene({ scene, camera, renderer })
+          //   const error = validate(gltf.scene)
+          //   setError(error)
+          //   setObj(gltf.scene)
+          // })
+          loadAvatarForPreview(entity, file.name).then((obj) => {
+            obj.name = 'avatar'
+            scene.add(obj)
             renderScene({ scene, camera, renderer })
-            const error = validate(gltf.scene)
+            const error = validate(obj)
             setError(error)
-            setObj(gltf.scene)
+            setObj(obj)
           })
         } else {
           //@ts-ignore
@@ -263,6 +270,8 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const openAvatarMenu = (e) => {
+    removeEntity(entity)
+    console.log('EEEEEEEEEEEEE', entity)
     e.preventDefault()
     changeActiveMenu(Views.Avatar)
   }
