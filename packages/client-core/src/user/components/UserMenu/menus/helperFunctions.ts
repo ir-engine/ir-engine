@@ -67,7 +67,6 @@ export const initializer = () => {
   scene.add(frontLight)
   scene.add(frontLight.target)
   scene.add(hemi)
-
   renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(bounds.width, bounds.height)
