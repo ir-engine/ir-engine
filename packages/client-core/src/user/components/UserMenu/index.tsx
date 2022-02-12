@@ -3,8 +3,6 @@ import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import React, { useState, useEffect } from 'react'
-import { useAuthState } from '../../services/AuthService'
-import { AuthService } from '../../services/AuthService'
 import AvatarMenu from './menus/AvatarMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
@@ -15,11 +13,9 @@ import styles from './UserMenu.module.scss'
 import { Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
 
 export interface UserMenuProps {
   enableSharing?: boolean
-  hideLogin?: boolean
 }
 
 // panels that can be open
@@ -44,86 +40,27 @@ HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
 const UserMenu = (props: UserMenuProps): any => {
-  const { enableSharing, hideLogin } = props
+  const { enableSharing } = props
 
   if (enableSharing === false && HotbarMenu.has(Views.Share)) {
     HotbarMenu.delete(Views.Share)
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
-  const authState = useAuthState()
-  const selfUser = authState.user
-
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 
-  const [userSetting, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
   const engineState = useEngineState()
 
   useEffect(() => {
     setEngineLoaded(true)
   }, [engineState.isEngineInitialized.value])
 
-  const setUserSettings = (newSetting: any): void => {
-    const setting = { ...userSetting, ...newSetting }
-    setUserSetting(setting)
-    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
-  }
-
-  const changeActiveMenu = (menu) => {
-    console.log(menu)
-    setCurrentActiveMenu(menu)
-  }
-
-  const renderMenuPanel = () => {
-    if (!currentActiveMenu) return null
-
-    let args = {}
-    switch (currentActiveMenu) {
-      case Views.Profile:
-        args = {
-          changeActiveMenu,
-          hideLogin
-        }
-        break
-      case Views.Avatar:
-        args = {
-          changeActiveMenu
-        }
-        break
-      case Views.Emote:
-        args = {
-          changeActiveMenu
-        }
-        break
-      case Views.Settings:
-        args = {
-          setting: userSetting,
-          setUserSettings: setUserSettings
-        }
-        break
-      case Views.Share:
-        break
-      case Views.AvatarUpload:
-        args = {
-          userId: selfUser?.id.value
-        }
-        break
-      case Views.ReadyPlayer:
-        args = {
-          userId: selfUser?.id.value
-        }
-        break
-    }
-
-    const Panel = UserMenuPanels.get(currentActiveMenu)!
-
-    return <Panel changeActiveMenu={changeActiveMenu} {...args} />
-  }
+  const Panel = UserMenuPanels.get(currentActiveMenu!)!
 
   return (
     <>
       {engineLoaded && (
-        <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseDown">
+        <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
           <section className={styles.settingContainer}>
             <div className={styles.iconContainer}>
               {Array.from(HotbarMenu.keys()).map((id, index) => {
@@ -132,7 +69,7 @@ const UserMenu = (props: UserMenuProps): any => {
                   <span
                     key={index}
                     id={id + '_' + index}
-                    onClick={() => changeActiveMenu(id)}
+                    onClick={() => setCurrentActiveMenu(id)}
                     className={`${styles.materialIconBlock} ${
                       currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
                     }`}
@@ -142,7 +79,7 @@ const UserMenu = (props: UserMenuProps): any => {
                 )
               })}
             </div>
-            {currentActiveMenu ? renderMenuPanel() : null}
+            {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
           </section>
         </ClickAwayListener>
       )}
