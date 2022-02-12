@@ -1,4 +1,4 @@
-import Projects from '../components/Project/ProjectTable'
+import Projects from '../components/Project'
 import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
 
