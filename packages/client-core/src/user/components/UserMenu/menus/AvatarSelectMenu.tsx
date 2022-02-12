@@ -29,7 +29,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { validate, initializer } from './helperFunctions'
+import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -86,8 +86,8 @@ export const AvatarSelectMenu = (props: Props) => {
   const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
-  const world = useWorld()
-  const entity = world.getUserAvatarEntity(Engine.userId)
+  // const world = useWorld()
+  // const entity = world.getUserAvatarEntity(Engine.userId)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -110,16 +110,16 @@ export const AvatarSelectMenu = (props: Props) => {
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
-      // AssetLoader.load({ url: event.target.value }, (gltf) => {
-      //   gltf.scene.name = 'avatar'
-      //   scene.add(gltf.scene)
-      //   renderScene()
-      //   const error = validate(gltf.scene)
-      //   setError(error)
-      //   setObj(gltf.scene)
-      // })
+      AssetLoader.load({ url: event.target.value }, (gltf) => {
+        gltf.scene.name = 'avatar'
+        scene.add(gltf.scene)
+        renderScene({ scene, camera, renderer })
+        const error = validate(gltf.scene)
+        setError(error)
+        setObj(gltf.scene)
+      })
 
-      await loadAvatarForPreview(entity, event.target.value)
+      // await loadAvatarForPreview(entity, event.target.value)
 
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -141,21 +141,6 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const { t } = useTranslation()
 
-  const renderScene = () => {
-    renderer.render(scene, camera)
-  }
-
-  const onWindowResize = () => {
-    const container = document.getElementById('stage')!
-    const bounds = container.getBoundingClientRect()
-    camera.aspect = bounds.width / bounds.height
-    camera.updateProjectionMatrix()
-
-    renderer?.setSize(bounds.width, bounds.height)
-
-    renderScene()
-  }
-
   useEffect(() => {
     const init = initializer()
     scene = init.scene
@@ -163,15 +148,15 @@ export const AvatarSelectMenu = (props: Props) => {
     renderer = init.renderer
     const controls = getOrbitControls(camera, renderer.domElement)
 
-    ;(controls as any).addEventListener('change', renderScene) // use if there is no animation loop
+    ;(controls as any).addEventListener('change', () => renderScene({ scene, camera, renderer })) // use if there is no animation loop
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
     controls.update()
-    window.addEventListener('resize', onWindowResize)
+    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
 
     return () => {
-      window.removeEventListener('resize', onWindowResize)
+      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
     }
   }, [])
 
@@ -196,7 +181,7 @@ export const AvatarSelectMenu = (props: Props) => {
           ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
             gltf.scene.name = 'avatar'
             scene.add(gltf.scene)
-            renderScene()
+            renderScene({ scene, camera, renderer })
             const error = validate(gltf.scene)
             setError(error)
             setObj(gltf.scene)
@@ -207,7 +192,7 @@ export const AvatarSelectMenu = (props: Props) => {
           const scene = loader.parse(fileData.target!.result, file.name)
           scene.name = 'avatar'
           scene.add(scene)
-          renderScene()
+          renderScene({ scene, camera, renderer })
           const error = validate(scene)
           setError(error)
           setObj(scene)

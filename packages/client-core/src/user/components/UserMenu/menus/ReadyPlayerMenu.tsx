@@ -15,7 +15,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { validate, initializer } from './helperFunctions'
+import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -46,26 +46,11 @@ export const ReadyPlayerMenu = (props: Props) => {
     renderer = init.renderer
 
     return () => {
-      ;(controls as any).removeEventListener('change', renderScene)
-      window.removeEventListener('resize', onWindowResize)
+      ;(controls as any).removeEventListener('change', () => renderScene({ scene, camera, renderer }))
+      window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
       window.removeEventListener('message', handleMessageEvent)
     }
   }, [])
-
-  const onWindowResize = () => {
-    const container = document.getElementById('stage')
-    const bounds = container?.getBoundingClientRect()!
-    camera.aspect = bounds.width / bounds.height
-    camera.updateProjectionMatrix()
-
-    renderer.setSize(bounds.width, bounds.height)
-
-    renderScene()
-  }
-
-  const renderScene = () => {
-    renderer.render(scene, camera)
-  }
 
   const handleMessageEvent = async (event) => {
     const url = event.data
@@ -94,7 +79,7 @@ export const ReadyPlayerMenu = (props: Props) => {
           var avatarName = url.substring(url.lastIndexOf('/') + 1, url.length)
           gltf.scene.name = 'avatar'
           scene.add(gltf.scene)
-          renderScene()
+          renderScene({ camera, scene, renderer })
           const error = validate(gltf.scene)
           setError(error)
           setObj(gltf.scene)

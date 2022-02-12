@@ -12,6 +12,12 @@ import {
   sRGBEncoding
 } from 'three'
 
+interface SceneProps {
+  scene: Scene
+  camera: PerspectiveCamera
+  renderer: WebGLRenderer
+}
+
 let scene: Scene = null!
 let renderer: WebGLRenderer = null!
 let camera: PerspectiveCamera = null!
@@ -61,7 +67,7 @@ export const initializer = () => {
   scene.add(frontLight)
   scene.add(frontLight.target)
   scene.add(hemi)
-  //   https://localhost:3000/projects/default-project/avatars/CyberbotGreen.glb
+
   renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(bounds.width, bounds.height)
@@ -74,4 +80,19 @@ export const initializer = () => {
     camera,
     renderer
   }
+}
+
+export const onWindowResize = (props: SceneProps) => {
+  const container = document.getElementById('stage')
+  const bounds = container?.getBoundingClientRect()!
+  props.camera.aspect = bounds.width / bounds.height
+  props.camera.updateProjectionMatrix()
+
+  props.renderer.setSize(bounds.width, bounds.height)
+
+  renderScene(props)
+}
+
+export const renderScene = (props: SceneProps) => {
+  props.renderer.render(props.scene, props.camera)
 }
