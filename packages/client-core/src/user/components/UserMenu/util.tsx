@@ -14,25 +14,6 @@ export const Views = {
   ReadyPlayer: 'ReadyPlayer'
 }
 
-export interface UserMenuProps {
-  login?: boolean
-  authState?: any
-  instanceConnectionState?: any
-  locationState?: any
-  updateUserAvatarId?: Function
-  showDialog?: Function
-  alertSuccess?: Function
-  currentScene?: any
-  provisionServer?: any
-  uploadAvatarModel?: Function
-  fetchAvatarList?: Function
-  updateUserSettings?: Function
-  removeAvatar?: Function
-  getLocations?: Function
-  enableSharing?: boolean
-  hideLogin?: boolean
-}
-
 export interface SettingMenuProps {
   activeMenu: any
   setActiveMenu?: Function

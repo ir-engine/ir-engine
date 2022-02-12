@@ -2,8 +2,6 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import React, { useState, useEffect } from 'react'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
@@ -14,41 +12,49 @@ import ProfileMenu from './menus/ProfileMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import styles from './UserMenu.module.scss'
-import { UserMenuProps, Views } from './util'
+import { Views } from './util'
 import EmoteMenu from './menus//EmoteMenu'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 
-export const menuPanel = new Map<string, (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element>()
+export interface UserMenuProps {
+  enableSharing?: boolean
+  hideLogin?: boolean
+}
 
-menuPanel.set(Views.Profile, ProfileMenu)
-menuPanel.set(Views.Settings, SettingMenu)
-menuPanel.set(Views.Share, ShareMenu)
-menuPanel.set(Views.Avatar, AvatarMenu)
-menuPanel.set(Views.AvatarUpload, AvatarSelectMenu)
-menuPanel.set(Views.ReadyPlayer, ReadyPlayerMenu)
-menuPanel.set(Views.Emote, EmoteMenu)
+// panels that can be open
+export const UserMenuPanels = new Map<
+  string,
+  (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
+>()
+
+UserMenuPanels.set(Views.Profile, ProfileMenu)
+UserMenuPanels.set(Views.Settings, SettingMenu)
+UserMenuPanels.set(Views.Share, ShareMenu)
+UserMenuPanels.set(Views.Avatar, AvatarMenu)
+UserMenuPanels.set(Views.AvatarUpload, AvatarSelectMenu)
+UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
+UserMenuPanels.set(Views.Emote, EmoteMenu)
+
+// menus to be shown as icons at bottom of screen
+export const HotbarMenu = new Map<string, any>()
+HotbarMenu.set(Views.Profile, PersonIcon)
+HotbarMenu.set(Views.Settings, SettingsIcon)
+HotbarMenu.set(Views.Share, LinkIcon)
+HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
 const UserMenu = (props: UserMenuProps): any => {
   const { enableSharing, hideLogin } = props
 
-  let menus = [
-    { id: Views.Profile, iconNode: PersonIcon },
-    { id: Views.Settings, iconNode: SettingsIcon },
-    { id: Views.Share, iconNode: LinkIcon },
-    { id: Views.Emote, imageNode: '/static/EmoteIcon.svg' }
-  ]
-
-  if (enableSharing === false) {
-    const share = menus.find((el) => el.id === Views.Share)!
-    menus = menus.filter((el) => el.id !== share.id)
+  if (enableSharing === false && HotbarMenu.has(Views.Share)) {
+    HotbarMenu.delete(Views.Share)
   }
 
   const [engineLoaded, setEngineLoaded] = useState(false)
   const authState = useAuthState()
   const selfUser = authState.user
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState(enableSharing === false ? (menus[0] as any) : null)
+  const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 
   const [userSetting, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
   const engineState = useEngineState()
@@ -63,34 +69,16 @@ const UserMenu = (props: UserMenuProps): any => {
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
   }
 
-  const setActiveMenu = (e): void => {
-    const identity = e.currentTarget.id.split('_')
-    const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
-    setCurrentActiveMenu(enabled ? null : menus[identity[1]])
-    if (EngineEvents.instance)
-      enableInput({
-        keyboard: enabled,
-        mouse: enabled
-      })
-  }
-
   const changeActiveMenu = (menu) => {
-    if (currentActiveMenu !== null) {
-      const enabled = Boolean(menu)
-      if (EngineEvents.instance)
-        enableInput({
-          keyboard: !enabled,
-          mouse: !enabled
-        })
-    }
-    setCurrentActiveMenu(menu ? { id: menu } : null)
+    console.log(menu)
+    setCurrentActiveMenu(menu)
   }
 
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null
 
     let args = {}
-    switch (currentActiveMenu.id) {
+    switch (currentActiveMenu) {
       case Views.Profile:
         args = {
           changeActiveMenu,
@@ -125,13 +113,10 @@ const UserMenu = (props: UserMenuProps): any => {
           userId: selfUser?.id.value
         }
         break
-      default:
-        return null
     }
 
-    const Panel = menuPanel.get(currentActiveMenu.id)
+    const Panel = UserMenuPanels.get(currentActiveMenu)!
 
-    // @ts-ignore
     return <Panel changeActiveMenu={changeActiveMenu} {...args} />
   }
 
@@ -141,17 +126,18 @@ const UserMenu = (props: UserMenuProps): any => {
         <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseDown">
           <section className={styles.settingContainer}>
             <div className={styles.iconContainer}>
-              {menus.map((menu, index) => {
+              {Array.from(HotbarMenu.keys()).map((id, index) => {
+                const IconNode = HotbarMenu.get(id)
                 return (
                   <span
                     key={index}
-                    id={menu.id + '_' + index}
-                    onClick={setActiveMenu}
+                    id={id + '_' + index}
+                    onClick={() => changeActiveMenu(id)}
                     className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null
+                      currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
                     }`}
                   >
-                    {menu.iconNode ? <menu.iconNode className={styles.icon} /> : <img src={menu.imageNode} />}
+                    {typeof IconNode === 'string' ? <img src={IconNode} /> : <IconNode className={styles.icon} />}
                   </span>
                 )
               })}
