@@ -275,13 +275,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
    */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     try {
       let userId
-      const locationId = params.query!.locationId
-      const instanceId = params.query!.instanceId
-      const channelId = params.query!.channelId
-      const token = params.query!.token
+      const locationId = params?.query?.locationId
+      const instanceId = params?.query?.instanceId
+      const channelId = params?.query?.channelId
+      const token = params?.query?.token
       if (channelId != null) {
         // Check if JWT resolves to a user
         if (token != null) {
@@ -505,7 +505,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns id and text
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
@@ -520,7 +520,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns data of instance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(data: Data, params: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -536,7 +536,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns data of updated instance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -547,7 +547,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @param params
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -559,7 +559,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @returns id
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

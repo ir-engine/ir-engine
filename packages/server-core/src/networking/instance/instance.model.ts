@@ -1,10 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
-// import Location from './location.model'
+import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const instance = sequelizeClient.define(
+  const instance = sequelizeClient.define<Model<InstanceInterface>>(
     'instance',
     {
       id: {
