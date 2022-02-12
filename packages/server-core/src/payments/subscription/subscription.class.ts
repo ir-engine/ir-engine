@@ -19,8 +19,8 @@ export class Subscription extends Service {
    * @returns {@Object} of created new subscription
    * @author
    */
-  async create(data: any, params: Params): Promise<any> {
-    const userId = (params as any).connection['identity-provider'].userId || params.body.userId
+  async create(data: any, params?: Params): Promise<any> {
+    const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId
     if (userId == null) {
       throw new Error('Invalid user')
     }
