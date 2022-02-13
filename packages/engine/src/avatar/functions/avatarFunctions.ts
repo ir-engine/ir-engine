@@ -13,8 +13,12 @@ import {
   Skeleton,
   SkinnedMesh,
   sRGBEncoding,
-  Vector3
+  Vector3,
+  AnimationClip
 } from 'three'
+import { AnimationManager } from '../../avatar/AnimationManager'
+import { LoopAnimationComponent, LoopAnimationComponentType } from '../../avatar/components/LoopAnimationComponent'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -44,11 +48,12 @@ import { isClient } from '../../common/functions/isClient'
 
 const vec3 = new Vector3()
 
-const loadAvatarModelAsset = async (avatarURL: string) => {
+const loadAvatarModelAsset = async (avatarURL: string, fileName = null) => {
   const model = await AssetLoader.loadAsync({
     url: avatarURL,
     castShadow: true,
-    receiveShadow: true
+    receiveShadow: true,
+    fileName
   })
   const parent = new Group()
   const root = new Group()
@@ -62,8 +67,9 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
   setupAvatarForUser(entity, parent)
 }
 
-export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
+export const loadAvatarForPreview = async (entity: Entity, avatarURL: string, fileName = null) => {
+  const parent = await loadAvatarModelAsset(avatarURL, fileName)
+  // animateModel(entity)
   return parent
 }
 
@@ -134,7 +140,6 @@ export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure)
 export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
@@ -143,6 +148,17 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   }
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)
+}
+
+export const animateModel = (entity: Entity) => {
+  const component = getComponent(entity, LoopAnimationComponent)
+  const animationComponent = getComponent(entity, AnimationComponent)
+  animationComponent.animations = AnimationManager.instance._animations
+
+  if (component.action) component.action.stop()
+  component.action = animationComponent.mixer
+    .clipAction(AnimationClip.findByName(animationComponent.animations, animationComponent.animations['wave'].name))
+    .play()
 }
 
 export const setupAvatarMaterials = (root) => {

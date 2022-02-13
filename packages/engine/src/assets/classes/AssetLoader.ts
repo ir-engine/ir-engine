@@ -7,7 +7,8 @@ import {
   Loader,
   AnimationClip,
   Group,
-  Mesh
+  Mesh,
+  LoaderUtils
 } from 'three'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
@@ -177,6 +178,7 @@ const getLoader = (assetType: AssetType) => {
 
 type AssetLoaderParamType = {
   url: string
+  fileName?: string | null
   cache?: boolean
   castShadow?: boolean
   receiveShadow?: boolean
@@ -230,8 +232,7 @@ const load = async (
   if (params.cache && AssetLoader.Cache.has(url)) {
     onLoad(AssetLoader.Cache.get(url))
   }
-
-  const assetType = AssetLoader.getAssetType(url)
+  const assetType = params.fileName ? AssetLoader.getAssetType(params.fileName) : AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 

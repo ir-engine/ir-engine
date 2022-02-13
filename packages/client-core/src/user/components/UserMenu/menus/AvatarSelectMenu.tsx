@@ -39,7 +39,6 @@ interface Props {
 let camera: PerspectiveCamera
 let scene: Scene
 let renderer: WebGLRenderer = null!
-let entity: Entity
 
 const Input = styled('input')({
   display: 'none'
@@ -87,6 +86,7 @@ export const AvatarSelectMenu = (props: Props) => {
   const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
+  const [entity, setEntity] = React.useState<any>(null)
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -135,12 +135,11 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const [fileSelected, setFileSelected] = React.useState(false)
   const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
-  // let maxBB = new THREE.Vector3(2, 2, 2)
 
   const { t } = useTranslation()
 
   useEffect(() => {
-    entity = createEntity()
+    setEntity(createEntity())
     const init = initializer()
     scene = init.scene
     camera = init.camera
@@ -177,15 +176,8 @@ export const AvatarSelectMenu = (props: Props) => {
       try {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
-          // ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
-          //   gltf.scene.name = 'avatar'
-          //   scene.add(gltf.scene)
-          //   renderScene({ scene, camera, renderer })
-          //   const error = validate(gltf.scene)
-          //   setError(error)
-          //   setObj(gltf.scene)
-          // })
-          loadAvatarForPreview(entity, file.name).then((obj) => {
+          const objectURL = URL.createObjectURL(file)
+          loadAvatarForPreview(entity, objectURL, file.name).then((obj) => {
             obj.name = 'avatar'
             scene.add(obj)
             renderScene({ scene, camera, renderer })
@@ -193,17 +185,18 @@ export const AvatarSelectMenu = (props: Props) => {
             setError(error)
             setObj(obj)
           })
-        } else {
-          //@ts-ignore
-          const loader = new FBXLoader()
-          const scene = loader.parse(fileData.target!.result, file.name)
-          scene.name = 'avatar'
-          scene.add(scene)
-          renderScene({ scene, camera, renderer })
-          const error = validate(scene)
-          setError(error)
-          setObj(scene)
         }
+        // } else {
+        //   //@ts-ignore
+        //   const loader = new FBXLoader()
+        //   const scene = loader.parse(fileData.target!.result, file.name)
+        //   scene.name = 'avatar'
+        //   scene.add(scene)
+        //   renderScene({ scene, camera, renderer })
+        //   const error = validate(scene)
+        //   setError(error)
+        //   setObj(scene)
+        // }
       } catch (error) {
         console.error(error)
         setError(t('user:avatar.selectValidFile'))
@@ -271,7 +264,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const openAvatarMenu = (e) => {
     removeEntity(entity)
-    console.log('EEEEEEEEEEEEE', entity)
+    setEntity(null)
     e.preventDefault()
     changeActiveMenu(Views.Avatar)
   }
