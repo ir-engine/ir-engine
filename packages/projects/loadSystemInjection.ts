@@ -1,6 +1,6 @@
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
+import type { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import type { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
 
 export const getSystemsFromSceneData = (
   project: string,
