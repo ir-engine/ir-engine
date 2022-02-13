@@ -1,4 +1,4 @@
-import { ProjectConfigInterface } from './ProjectConfigInterface'
+import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
 export const loadWebappInjection = async (props: any, projects: string[]) => {
   return Promise.all(

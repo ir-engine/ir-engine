@@ -1,39 +1,36 @@
-import React, { useEffect, useState } from 'react'
+import { Autorenew, Face, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
+import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
-import { Autorenew, Face, Save } from '@mui/icons-material'
-import { useStyles } from '../../styles/ui'
-import { InstanceService } from '../../services/InstanceService'
-import { useInstanceState } from '../../services/InstanceService'
-import { LocationService } from '../../services/LocationService'
+import Typography from '@mui/material/Typography'
+import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { BotService } from '../../services/BotsService'
-import { useLocationState } from '../../services/LocationService'
-import { validateForm } from './validation'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import AlertMessage from '../../common/AlertMessage'
 import AddCommand from '../../common/AddCommand'
-import InputText from '../../common/InputText'
-import InputSelect from '../../common/InputSelect'
-import _ from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
+import AlertMessage from '../../common/AlertMessage'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import InputSelect from '../../common/InputSelect'
+import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
+import { BotService } from '../../services/BotsService'
+import { InstanceService, useInstanceState } from '../../services/InstanceService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 
-interface Props {}
 interface Menu {
   value: string
   label: string
 }
 
-const CreateBot = (props: Props) => {
+const CreateBot = () => {
   const [command, setCommand] = useState({
     id: '',
     name: '',

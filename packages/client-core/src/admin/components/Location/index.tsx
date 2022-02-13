@@ -1,10 +1,10 @@
-import React from 'react'
-import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import React from 'react'
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
+import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
-import CreateLocation from './createLocation'
 
 const Location = () => {
   const classes = useStyles()

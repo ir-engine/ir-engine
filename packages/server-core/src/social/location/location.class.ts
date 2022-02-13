@@ -119,8 +119,8 @@ export class Location extends Service {
    * @returns {@Array} of all locations
    * @author Vyacheslav Solovjov
    */
-  async find(params: Params): Promise<any> {
-    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query!
+  async find(params?: Params): Promise<any> {
+    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params?.query ?? {}
 
     if ($skip == null) $skip = 0
     if ($limit == null) $limit = 10
@@ -226,7 +226,7 @@ export class Location extends Service {
    * @returns new location object
    * @author Vyacheslav Solovjov
    */
-  async create(data: LocationType, params: Params): Promise<any> {
+  async create(data: LocationType, params?: Params): Promise<any> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
@@ -235,7 +235,7 @@ export class Location extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params)
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
-      if (locationData.isLobby) await this.makeLobby(params, t)
+      if (locationData.isLobby) await this.makeLobby(t, params)
 
       const location = await this.Model.create(locationData, { transaction: t })
       await (this.app.service('location-settings') as any).Model.create(
@@ -283,7 +283,7 @@ export class Location extends Service {
    * @returns updated location
    * @author Vyacheslav Solovjov
    */
-  async patch(id: string, data: LocationType, params: Params): Promise<any> {
+  async patch(id: string, data: LocationType, params?: Params): Promise<any> {
     const t = await this.app.get('sequelizeClient').transaction()
 
     try {
@@ -298,7 +298,7 @@ export class Location extends Service {
       const oldSettings = old.location_setting ?? old.location_settings
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true })
-      if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t)
+      if (!old.isLobby && locationData.isLobby) await this.makeLobby(t, params)
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
@@ -340,7 +340,7 @@ export class Location extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async remove(id: string, params: Params): Promise<any> {
+  async remove(id: string, params?: Params): Promise<any> {
     if (id != null) {
       const selfUser = extractLoggedInUserFromParams(params)
       const location = await this.app.service('location').get(id)
@@ -360,7 +360,7 @@ export class Location extends Service {
     return super.remove(id)
   }
 
-  async makeLobby(params: Params, t): Promise<void> {
+  async makeLobby(t, params?: Params): Promise<void> {
     const selfUser = extractLoggedInUserFromParams(params)
 
     if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')

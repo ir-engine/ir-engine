@@ -1,17 +1,10 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
-
-export type ProjectModelType = {
-  id: string
-  name: string
-  thumbnail: string
-  storageProviderPath: string
-  repositoryPath: string
-}
+import { ProjectInterface } from '@xrengine/common/src/dbmodels/Project'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Project = sequelizeClient.define<Model<ProjectModelType>>(
+  const Project = sequelizeClient.define<Model<ProjectInterface>>(
     'project',
     {
       id: {

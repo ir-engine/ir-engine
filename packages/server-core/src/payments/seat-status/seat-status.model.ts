@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { SeatStatusInterface } from '@xrengine/common/src/dbmodels/SeatStatus'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const seatStatus = sequelizeClient.define(
+  const seatStatus = sequelizeClient.define<Model<SeatStatusInterface>>(
     'seat_status',
     {
       status: {

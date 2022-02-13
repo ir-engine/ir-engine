@@ -20,7 +20,7 @@ export class Message extends Service {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<any> {
     let channel, channelId
     let userIdList: any[] = []
     const loggedInUser = extractLoggedInUserFromParams(params)
