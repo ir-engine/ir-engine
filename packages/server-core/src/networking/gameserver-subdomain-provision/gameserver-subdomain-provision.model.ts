@@ -3,10 +3,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+import { GameserverSubdomainProvisionInterface } from '@xrengine/common/src/dbmodels/GameserverSubdomainProvision'
 
-export default function (app: Application): typeof Model {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const gameserverSubdomainProvision = sequelizeClient.define(
+  const gameserverSubdomainProvision = sequelizeClient.define<Model<GameserverSubdomainProvisionInterface>>(
     'gameserver_subdomain_provision',
     {
       id: {

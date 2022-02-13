@@ -12,6 +12,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
 import { AnimationType, AvatarStates, MovementType, WeightsParameterType } from './Util'
+import { AvatarSettings } from '../AvatarControllerSystem'
 
 const vector2 = new Vector2()
 
@@ -169,12 +170,12 @@ export class AnimationGraph {
         // TODO: The transition between walk and run animations is not smooth
         // Most probably because they're not in sync with each other and a very short transition time
 
-        // newStateName =
-        //   speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed
-        //     ? AvatarStates.WALK
-        //     : AvatarStates.RUN
+        newStateName =
+          speedSqr < AvatarSettings.instance.walkSpeed * AvatarSettings.instance.walkSpeed + 1
+            ? AvatarStates.WALK
+            : AvatarStates.RUN
 
-        newStateName = AvatarStates.RUN
+        // newStateName = AvatarStates.RUN
       } else {
         newStateName = AvatarStates.IDLE
       }

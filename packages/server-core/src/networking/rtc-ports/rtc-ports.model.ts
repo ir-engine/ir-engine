@@ -3,10 +3,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+import { RtcPortsInterface } from '@xrengine/common/src/dbmodels/RtcPorts'
 
-export default function (app: Application): typeof Model {
+export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const rtcPorts = sequelizeClient.define(
+  const rtcPorts = sequelizeClient.define<Model<RtcPortsInterface>>(
     'rtc_ports',
     {
       id: {

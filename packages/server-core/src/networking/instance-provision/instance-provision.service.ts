@@ -29,7 +29,7 @@ export default (app: Application) => {
   /**
    * Get our initialized service so that we can register hooks
    */
-  const service = app.service('instance-provision')
+  const service: any = app.service('instance-provision')
 
   service.hooks(hooks)
 

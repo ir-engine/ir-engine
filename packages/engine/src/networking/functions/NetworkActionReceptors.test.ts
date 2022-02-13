@@ -291,4 +291,141 @@ describe('IncomingNetworkReceptors', () => {
   })
 
   describe('destroyObject', () => {})
+
+  describe('transfer ownership of object', () => {
+    it('should transfer ownership of object from host to client', () => {
+      const world = createWorld()
+      Engine.currentWorld = world
+
+      const hostUserId = 'server' as HostUserId
+      world.hostId = hostUserId
+      const hostIndex = 0
+      world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
+
+      const userId = 'user id' as UserId
+      const userName = 'user name'
+      const userIndex = 1
+
+      // Run as host
+      Engine.userId = hostUserId
+      NetworkActionReceptors.addClientNetworkActionReceptor(world, userId, userName, userIndex)
+
+      const objParams = 123
+      const objNetId = 3 as NetworkId
+      const objPrefab = 'generic prefab'
+
+      NetworkActionReceptors.spawnObjectNetworkActionReceptor(world, {
+        $from: world.hostId, // from host
+        prefab: objPrefab, // generic prefab
+        ownerIndex: hostIndex, // owned by server
+        parameters: objParams, // arbitrary
+        type: 'network.SPAWN_OBJECT', // plain object
+        networkId: objNetId,
+        $to: 'all',
+        $tick: 0,
+        $cache: true
+      })
+
+      const networkObjectQuery = defineQuery([NetworkObjectComponent])
+      const networkObjectOwnedQuery = defineQuery([NetworkObjectAuthorityTag])
+
+      const networkObjectEntities = networkObjectQuery(world)
+      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 1)
+
+      NetworkActionReceptors.requestAuthorityOverObjectNetworkActionReceptor(world, {
+        $from: userId, // from client
+        type: 'network.REQUEST_AUTHORITY_OVER_OBJECT', // plain object
+        object: {
+          ownerId: world.hostId,
+          networkId: objNetId
+        },
+        requester: userId,
+        $to: 'all',
+        $tick: 0,
+        $cache: true
+      })
+
+      NetworkActionReceptors.createNetworkActionReceptor(world)
+      mockProgressWorldForNetworkActions(world)
+      world.execute(0, 0)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, hostIndex)
+      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
+    })
+
+    it('should not transfer ownership of object (only host can process ownership transfer)', () => {
+      const world = createWorld()
+      Engine.currentWorld = world
+      const hostUserId = 'server' as HostUserId
+      world.hostId = hostUserId
+      const hostIndex = 0
+      world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
+
+      const userId = 'user id' as UserId
+      const userName = 'user name'
+      const userIndex = 1
+
+      // Run as client
+      Engine.userId = userId
+      NetworkActionReceptors.addClientNetworkActionReceptor(world, userId, userName, userIndex)
+
+      const objParams = 123
+      const objNetId = 3 as NetworkId
+      const objPrefab = 'generic prefab'
+
+      NetworkActionReceptors.spawnObjectNetworkActionReceptor(world, {
+        $from: world.hostId, // from host
+        prefab: objPrefab, // generic prefab
+        ownerIndex: hostIndex, // owned by server
+        parameters: objParams, // arbitrary
+        type: 'network.SPAWN_OBJECT', // plain object
+        networkId: objNetId,
+        $to: 'all',
+        $tick: 0,
+        $cache: true
+      })
+
+      const networkObjectQuery = defineQuery([NetworkObjectComponent])
+      const networkObjectOwnedQuery = defineQuery([NetworkObjectAuthorityTag])
+
+      const networkObjectEntities = networkObjectQuery(world)
+      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      NetworkActionReceptors.requestAuthorityOverObjectNetworkActionReceptor(world, {
+        $from: Engine.userId, // from client
+        type: 'network.REQUEST_AUTHORITY_OVER_OBJECT', // plain object
+        object: {
+          ownerId: world.hostId,
+          networkId: objNetId
+        },
+        requester: Engine.userId,
+        $to: 'all',
+        $tick: 0,
+        $cache: true
+      })
+
+      NetworkActionReceptors.createNetworkActionReceptor(world)
+      mockProgressWorldForNetworkActions(world)
+      world.execute(0, 0)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, hostIndex)
+      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
+    })
+  })
 })

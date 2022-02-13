@@ -10,7 +10,7 @@ export class Aws extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const awsSetting = (await super.find()) as any
     const data = awsSetting.data.map((el) => {
       return {

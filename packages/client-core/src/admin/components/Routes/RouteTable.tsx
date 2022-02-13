@@ -3,27 +3,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
+import { routeColumns } from '../../common/variables/route'
 import { ActiveRouteService, useActiveRouteState } from '../../services/ActiveRouteService'
 import { RouteService, useRouteState } from '../../services/RouteService'
 import { useStyles } from '../../styles/ui'
-
-export interface RouteColumn {
-  id: 'project' | 'route' | 'active'
-  label: string
-  minWidth?: number
-  align?: 'right'
-}
-
-export const routeColumns: RouteColumn[] = [
-  { id: 'project', label: 'Project', minWidth: 65 },
-  { id: 'route', label: 'Route', minWidth: 65 },
-  {
-    id: 'active',
-    label: 'Active',
-    minWidth: 65,
-    align: 'right'
-  }
-]
 
 /**
  * Temporary

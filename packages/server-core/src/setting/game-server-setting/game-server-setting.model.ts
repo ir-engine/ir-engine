@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { GameServerSettingInterface } from '@xrengine/common/src/dbmodels/GameServerSetting'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const gameServerSetting = sequelizeClient.define(
+  const gameServerSetting = sequelizeClient.define<Model<GameServerSettingInterface>>(
     'gameServerSetting',
     {
       id: {

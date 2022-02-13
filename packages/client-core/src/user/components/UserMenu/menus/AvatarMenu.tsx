@@ -7,7 +7,6 @@ import styles from '../UserMenu.module.scss'
 import { useTranslation } from 'react-i18next'
 import { LazyImage } from '../../../../common/components/LazyImage'
 import { Views } from '../util'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -102,7 +101,7 @@ const AvatarMenu = (props: Props) => {
   const selectAvatar = (avatarResources: any) => {
     const avatar = avatarResources.avatar
     setSelectedAvatarId(avatar.name)
-    if (!isBot(window) && avatarId !== avatar.name) {
+    if (avatarId !== avatar.name) {
       setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
     }
   }
