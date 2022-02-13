@@ -39,9 +39,9 @@
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "mocha": "9.2.0",
-    "nock": "13.2.2",
-    "ts-node": "10.4.0",
+    "nock": "13.2.4",
+    "ts-node": "10.5.0",
     "typescript": "4.5.5",
-    "vite": "2.7.13"
+    "vite": "2.8.1"
   }
 }

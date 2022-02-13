@@ -77,7 +77,12 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
-    loadComponent(entityNode.entity, component)
+    try {
+      loadComponent(entityNode.entity, component)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
+      console.error(e)
+    }
   })
 
   if (!hasComponent(entityNode.entity, TransformComponent))
