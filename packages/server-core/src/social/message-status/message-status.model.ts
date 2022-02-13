@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { MessageStatusInterface } from '@xrengine/common/src/dbmodels/MessageStatus'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const messageStatus = sequelizeClient.define(
+  const messageStatus = sequelizeClient.define<Model<MessageStatusInterface>>(
     'message_status',
     {
       status: {

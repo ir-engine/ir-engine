@@ -6,7 +6,7 @@ import instanceProvisionDocs from './instance-provision.docs'
 import hooks from './instance-provision.hooks'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'instance-provision': InstanceProvision
   }
@@ -29,7 +29,7 @@ export default (app: Application) => {
   /**
    * Get our initialized service so that we can register hooks
    */
-  const service = app.service('instance-provision')
+  const service: any = app.service('instance-provision')
 
   service.hooks(hooks)
 

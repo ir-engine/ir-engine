@@ -114,17 +114,23 @@ export const writeXRContainerRotation = writeVector4(XRInputSourceComponent.cont
 export const writeXRHeadPosition = writeVector3(XRInputSourceComponent.head.position)
 export const writeXRHeadRotation = writeVector4(XRInputSourceComponent.head.quaternion)
 
-export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeft.position)
-export const writeXRControllerLeftRotation = writeVector4(XRInputSourceComponent.controllerLeft.quaternion)
+export const writeXRControllerLeftPosition = writeVector3(XRInputSourceComponent.controllerLeftParent.position)
+export const writeXRControllerLeftRotation = writeVector4(XRInputSourceComponent.controllerLeftParent.quaternion)
 
-export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeft.position)
-export const writeXRControllerGripLeftRotation = writeVector4(XRInputSourceComponent.controllerGripLeft.quaternion)
+export const writeXRControllerGripLeftPosition = writeVector3(XRInputSourceComponent.controllerGripLeftParent.position)
+export const writeXRControllerGripLeftRotation = writeVector4(
+  XRInputSourceComponent.controllerGripLeftParent.quaternion
+)
 
-export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRight.position)
-export const writeXRControllerRightRotation = writeVector4(XRInputSourceComponent.controllerRight.quaternion)
+export const writeXRControllerRightPosition = writeVector3(XRInputSourceComponent.controllerRightParent.position)
+export const writeXRControllerRightRotation = writeVector4(XRInputSourceComponent.controllerRightParent.quaternion)
 
-export const writeXRControllerGripRightPosition = writeVector3(XRInputSourceComponent.controllerGripRight.position)
-export const writeXRControllerGripRightRotation = writeVector4(XRInputSourceComponent.controllerGripRight.quaternion)
+export const writeXRControllerGripRightPosition = writeVector3(
+  XRInputSourceComponent.controllerGripRightParent.position
+)
+export const writeXRControllerGripRightRotation = writeVector4(
+  XRInputSourceComponent.controllerGripRightParent.quaternion
+)
 
 export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, XRInputSourceComponent)) return

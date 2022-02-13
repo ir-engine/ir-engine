@@ -438,7 +438,7 @@ export default (app: Application): void => {
       } catch (err) {
         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
           const jwtDecoded = decode(token)!
-          const idProvider = await app.service('identityProvider').get(jwtDecoded.sub as string)
+          const idProvider = await app.service('identity-provider').get(jwtDecoded.sub as string)
           authResult = {
             'identity-provider': idProvider
           }
@@ -474,7 +474,9 @@ export default (app: Application): void => {
 
         if (instanceId != null && instance != null) {
           const activeClients = Engine.currentWorld.clients
-          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== Engine.userId))
+          const activeUsers = new Map(
+            [...activeClients].filter(([, v]) => v.userId !== Engine.userId && v.userId !== user.id)
+          )
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {
@@ -484,7 +486,6 @@ export default (app: Application): void => {
             console.log('Failed to patch instance user count, likely because it was destroyed')
           }
 
-          const user = await app.service('user').get(userId)
           const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
           // Patch the user's (channel)instanceId to null if they're leaving this instance.
           // But, don't change their (channel)instanceId if it's already something else.
@@ -524,6 +525,7 @@ export default (app: Application): void => {
 
           if (activeUsersCount < 1) {
             shutdownTimeout = setTimeout(async () => {
+              engineStarted = false
               console.log('Deleting instance ' + instanceId)
               try {
                 await app.service('instance').patch(instanceId, {

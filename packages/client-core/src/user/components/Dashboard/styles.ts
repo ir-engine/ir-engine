@@ -8,7 +8,7 @@ const drawerWidth = 200
 export const useStylesForDashboard = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: 'flex'
+      // display: 'flex'
     },
     header: {
       height: '64px !important'
@@ -86,10 +86,12 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       height: 'calc(100vh - 64px)'
     },
     contentWidthDrawerOpen: {
-      width: `calc(100vw - ${drawerWidth}px)`
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      width: `calc(100vw - (${theme.spacing(7)} + 1px))`
     },
     contentWidthDrawerClosed: {
-      width: `calc(100vw - ${theme.spacing(7) + 1}px)`
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      width: `calc(100vw - (${theme.spacing(7)} + 1px))`
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,

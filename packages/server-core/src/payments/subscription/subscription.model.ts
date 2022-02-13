@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscription'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const subscription = sequelizeClient.define(
+  const subscription = sequelizeClient.define<Model<SubscriptionInterface>>(
     'subscription',
     {
       id: {

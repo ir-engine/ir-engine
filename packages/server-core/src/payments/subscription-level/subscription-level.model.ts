@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { SubscriptionLevelInterface } from '@xrengine/common/src/dbmodels/SubscriptionLevel'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const subscriptionLevel = sequelizeClient.define(
+  const subscriptionLevel = sequelizeClient.define<Model<SubscriptionLevelInterface>>(
     'subscription_level',
     {
       level: {

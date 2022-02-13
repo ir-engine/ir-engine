@@ -68,7 +68,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...world.clients.get(userId)?.avatarDetail,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     modelContainer,
@@ -78,7 +77,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, NameComponent, {
     name: userId as string
   })
-  console.log('userID: ' + userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -178,7 +176,6 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
-  console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)

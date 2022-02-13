@@ -15,7 +15,7 @@ import Paper from '@mui/material/Paper'
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
-import { validateForm } from '../../common/Validation/formValidation'
+import { validateForm } from '../../common/validation/formValidation'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 

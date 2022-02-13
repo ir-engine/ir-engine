@@ -8,7 +8,6 @@ import { MessageResult } from '@xrengine/common/src/interfaces/MessageResult'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { isBot } from '@xrengine/engine/src/common/functions/isBot'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import { AlertService } from '../../common/services/AlertService'
@@ -378,16 +377,15 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
           const system = getChatMessageSystem(message.text)
           if (system !== 'none') {
             message.text = removeMessageSystem(message.text)
-            if (!isBot(window) && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+            if (!Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
           }
         }
       } else {
         const system = getChatMessageSystem(message.text)
         if (system !== 'none') {
           message.text = removeMessageSystem(message.text)
-          if (!isBot(window) && !Engine.isBot && !Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system))
-            return
-        } else if (isCommand(message.text) && !Engine.isBot && !isBot(window)) return
+          if (!Engine.isBot && !hasSubscribedToChatSystem(selfUser.id, system)) return
+        } else if (isCommand(message.text) && !Engine.isBot) return
       }
     }
 

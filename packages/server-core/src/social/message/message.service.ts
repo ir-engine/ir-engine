@@ -4,7 +4,7 @@ import createModel from './message.model'
 import hooks from './message.hooks'
 import messageDocs from './message.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     message: Message
   }

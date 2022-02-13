@@ -4,7 +4,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
-import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 
 //State
 export const BOTS_PAGE_LIMIT = 100
@@ -47,7 +47,7 @@ export const useBotState = () => useState(state) as any as typeof state
 
 //Service
 export const BotService = {
-  createBotAsAdmin: async (data: any) => {
+  createBotAsAdmin: async (data: CreateBotAsAdmin) => {
     const dispatch = useDispatch()
     try {
       const bot = await client.service('bot').create(data)
@@ -88,7 +88,7 @@ export const BotService = {
       console.error(error)
     }
   },
-  updateBotAsAdmin: async (id: string, bot: any) => {
+  updateBotAsAdmin: async (id: string, bot: CreateBotAsAdmin) => {
     const dispatch = useDispatch()
     try {
       const result = await client.service('bot').patch(id, bot)
