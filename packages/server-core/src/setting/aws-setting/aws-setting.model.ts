@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { AwsInterface } from '@xrengine/common/src/dbmodels/Aws'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Aws = sequelizeClient.define('Aws', {
+  const Aws = sequelizeClient.define<Model<AwsInterface>>('Aws', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,

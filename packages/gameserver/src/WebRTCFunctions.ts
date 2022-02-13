@@ -293,6 +293,9 @@ export async function createInternalDataConsumer(
     consumer.on('message', (message) => {
       Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
       Network.instance.incomingMessageQueueUnreliableIDs.add(userId)
+      // forward data to clients in world immediately
+      // TODO: need to include the userId (or index), so consumers can validate
+      Network.instance.transportHandler.getWorldTransport().sendData(message)
     })
     return consumer
   } catch (err) {

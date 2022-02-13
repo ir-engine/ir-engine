@@ -1,12 +1,13 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import { HookReturn } from 'sequelize/types/lib/hooks'
+import { LocationTypeInterface } from '@xrengine/common/src/dbmodels/LocationType'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const locationType = sequelizeClient.define(
+  const locationType = sequelizeClient.define<Model<LocationTypeInterface>>(
     'location_type',
     {
       type: {

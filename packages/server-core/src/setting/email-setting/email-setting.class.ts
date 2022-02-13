@@ -10,7 +10,7 @@ export class EmailSetting extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const emailSetting = (await super.find()) as any
     const data = emailSetting.data.map((el) => {
       return {

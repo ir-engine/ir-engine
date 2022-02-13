@@ -25,9 +25,10 @@ export default (app: Application) => {
    */
   const event = new Channel(options, app)
   event.docs = channelDocs
+
   app.use('channel', event)
 
-  const service = app.service('channel')
+  const service: any = app.service('channel')
 
   service.hooks(hooks)
 

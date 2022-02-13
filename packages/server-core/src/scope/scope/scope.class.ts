@@ -11,9 +11,9 @@ export class Scope extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
+  async find(params?: Params): Promise<any> {
+    const skip = params?.query?.$skip ? params.query.$skip : 0
+    const limit = params?.query?.$limit ? params.query.$limit : 10
     const scope = await (this.app.service('scope') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,

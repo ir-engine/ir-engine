@@ -1,4 +1,4 @@
-import { ProjectConfigInterface } from './ProjectConfigInterface'
+import type { ProjectConfigInterface } from './ProjectConfigInterface'
 import { lazy } from 'react'
 interface RouteData {
   component: ReturnType<typeof lazy>
