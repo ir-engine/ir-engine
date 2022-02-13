@@ -99,7 +99,9 @@ export default async function SceneObjectSystem(world: World) {
       }
 
       processObject3d(entity)
-      if (!hasComponent(entity, VisibleComponent)) obj3d.visible = false
+
+      /** @todo this breaks a bunch of stuff */
+      // obj3d.visible = hasComponent(entity, VisibleComponent)
     }
 
     for (const entity of sceneObjectQuery.exit()) {

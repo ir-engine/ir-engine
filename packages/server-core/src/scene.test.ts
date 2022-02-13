@@ -33,7 +33,7 @@ describe('scene.test', () => {
       },
       params
     )
-    assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === 'empty')!.scene)
+    assert.deepStrictEqual(parsedData, data.find((entry) => entry.name === defaultSceneName)!.scene)
   })
 
   it('should get default scene data', async function () {
