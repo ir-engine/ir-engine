@@ -137,7 +137,7 @@ describe('AudioFunctions', () => {
     })
 
     describe('Client vs Server', () => {
-      it('will add audio component while running on clienn', () => {
+      it('will add audio component while running on client', () => {
         audioFunctions.deserializeAudio(entity, sceneComponent)
         assert(hasComponent(entity, AudioComponent))
       })

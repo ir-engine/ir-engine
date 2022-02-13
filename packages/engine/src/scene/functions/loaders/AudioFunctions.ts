@@ -87,9 +87,11 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   updateAudio(entity, props)
 
   const mediaComponent = getComponent(entity, MediaComponent)
-  obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
-  obj3d.userData.audioEl.setLoop(mediaComponent.loop)
-  updateAutoStartTimeForMedia(entity)
+  if (mediaComponent) {
+    obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
+    obj3d.userData.audioEl.setLoop(mediaComponent.loop)
+    updateAutoStartTimeForMedia(entity)
+  }
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
