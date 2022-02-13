@@ -18,11 +18,10 @@ export interface UserMenuProps {
   enableSharing?: boolean
 }
 
+type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
+
 // panels that can be open
-export const UserMenuPanels = new Map<
-  string,
-  (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
->()
+export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
@@ -39,13 +38,7 @@ HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
-const UserMenu = (props: UserMenuProps): any => {
-  const { enableSharing } = props
-
-  if (enableSharing === false && HotbarMenu.has(Views.Share)) {
-    HotbarMenu.delete(Views.Share)
-  }
-
+const UserMenu = (): any => {
   const [engineLoaded, setEngineLoaded] = useState(false)
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 
@@ -59,30 +52,28 @@ const UserMenu = (props: UserMenuProps): any => {
 
   return (
     <>
-      {engineLoaded && (
-        <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-          <section className={styles.settingContainer}>
-            <div className={styles.iconContainer}>
-              {Array.from(HotbarMenu.keys()).map((id, index) => {
-                const IconNode = HotbarMenu.get(id)
-                return (
-                  <span
-                    key={index}
-                    id={id + '_' + index}
-                    onClick={() => setCurrentActiveMenu(id)}
-                    className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
-                    }`}
-                  >
-                    {typeof IconNode === 'string' ? <img src={IconNode} /> : <IconNode className={styles.icon} />}
-                  </span>
-                )
-              })}
-            </div>
-            {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
-          </section>
-        </ClickAwayListener>
-      )}
+      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
+        <section className={styles.settingContainer}>
+          <div className={styles.iconContainer}>
+            {Array.from(HotbarMenu.keys()).map((id, index) => {
+              const IconNode = HotbarMenu.get(id)
+              return (
+                <span
+                  key={index}
+                  id={id + '_' + index}
+                  onClick={() => setCurrentActiveMenu(id)}
+                  className={`${styles.materialIconBlock} ${
+                    currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
+                  }`}
+                >
+                  {typeof IconNode === 'string' ? <img src={IconNode} /> : <IconNode className={styles.icon} />}
+                </span>
+              )
+            })}
+          </div>
+          {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+        </section>
+      </ClickAwayListener>
     </>
   )
 }
