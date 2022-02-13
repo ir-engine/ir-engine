@@ -1,12 +1,10 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt'), iff(isProvider('external'), restrictUserRole('admin') as any)],
+    all: [authenticate(), iff(isProvider('external'), restrictUserRole('admin') as any)],
     find: [],
     get: [],
     create: [],

@@ -1,10 +1,10 @@
-import { Engine } from '../../src/ecs/classes/Engine'
-import { applyIncomingActions } from '../../src/networking/systems/IncomingNetworkSystem'
+import { World } from '../../src/ecs/classes/World'
+import { applyIncomingActions } from '../../src/ecs/functions/ActionDispatchSystem'
 
-export const mockProgressWorldForNetworkActions = () => {
+export const mockProgressWorldForNetworkActions = (world: World) => {
   // increment tick
-  Engine.currentWorld!.fixedTick += 2 // TODO: figure out why we need to dispatch two ticks ahead
+  world.fixedTick += 2 // TODO: figure out why we need to dispatch two ticks ahead
 
   // incoming
-  applyIncomingActions(Engine.currentWorld!)
+  applyIncomingActions(world)
 }

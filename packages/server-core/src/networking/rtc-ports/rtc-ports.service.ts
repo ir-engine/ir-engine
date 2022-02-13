@@ -6,7 +6,7 @@ import hooks from './rtc-ports.hooks'
 import rtcPortsDocs from './rtc-ports.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'rtc-ports': RtcPorts
   }

@@ -16,13 +16,11 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import {
   createInteractUI,
   showInteractUI,
   hideInteractUI,
-  getInteractUI,
   updateInteractUI,
   setUserDataInteractUI,
   InteractiveUI
@@ -37,11 +35,17 @@ import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
-export default async function InteractiveSystem(world: World): Promise<System> {
+export default async function InteractiveSystem(world: World) {
   const interactorsQuery = defineQuery([InteractorComponent])
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactiveQuery = defineQuery([InteractableComponent, Object3DComponent, Not(EquippedComponent)])
+  const interactiveQuery = defineQuery([
+    InteractableComponent,
+    Object3DComponent,
+    Not(EquippedComponent),
+    Not(AvatarComponent)
+  ])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
@@ -54,16 +58,20 @@ export default async function InteractiveSystem(world: World): Promise<System> {
       if (!hasComponent(entity, BoundingBoxComponent)) {
         createBoxComponent(entity)
       }
-      if (interactionData.interactionType !== 'equippable' && !getInteractUI(entity)) {
+      if (interactionData.interactionType !== 'equippable' && !InteractiveUI.get(entity)) {
         createInteractUI(entity)
       }
     }
 
     for (const entity of interactiveQuery.exit(world)) {
-      // TODO: Does the Box3 object need to be destroyed before this?
-      removeComponent(entity, BoundingBoxComponent)
-      removeComponent(entity, InteractiveFocusedComponent)
-      removeComponent(entity, SubFocusedComponent)
+      // this getComponent check is required for handling cases when multiple setEquippedObject cached network action are received
+      // and this exit query could get called with EquippedComponent not being present on the entity
+      if (getComponent(entity, EquippedComponent)) {
+        removeComponent(entity, BoundingBoxComponent)
+      }
+
+      hasComponent(entity, InteractableComponent) && removeComponent(entity, InteractiveFocusedComponent)
+      hasComponent(entity, SubFocusedComponent) && removeComponent(entity, SubFocusedComponent)
     }
 
     const interactives = interactiveQuery(world)

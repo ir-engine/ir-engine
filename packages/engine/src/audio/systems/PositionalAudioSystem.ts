@@ -5,22 +5,22 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../../scene/components/AudioSettingsComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
-import { AudioComponentType } from '../components/AudioComponent'
-import { System } from '../../ecs/classes/System'
+import { AudioComponent, AudioComponentType } from '../components/AudioComponent'
 import { World } from '../../ecs/classes/World'
 import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import {
   deserializeAudio,
   SCENE_COMPONENT_AUDIO,
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
+  updateAudio
 } from '../../scene/functions/loaders/AudioFunctions'
 import { AudioType } from '../constants/AudioConstants'
 
@@ -36,7 +36,7 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 
-export default async function PositionalAudioSystem(world: World): Promise<System> {
+export default async function PositionalAudioSystem(world: World) {
   const avatarAudioQuery = defineQuery([AudioTagComponent, AvatarComponent])
   const audioQuery = defineQuery([AudioTagComponent])
   const settingsQuery = defineQuery([PositionalAudioSettingsComponent])
@@ -97,7 +97,7 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
 
     for (const entity of audioQuery.exit()) {
       const obj3d = getComponent(entity, Object3DComponent, true)
-      if (obj3d && obj3d.value.userData.audioEl) obj3d.value.userData.audioEl.disconnect()
+      if (obj3d && obj3d.value.userData.audioEl?.source) obj3d.value.userData.audioEl.disconnect()
     }
 
     for (const entity of avatarAudioQuery.enter()) {
@@ -112,8 +112,9 @@ export default async function PositionalAudioSystem(world: World): Promise<Syste
         }
       }
 
-      const props = applyMediaAudioSettings({ ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
-      deserializeAudio(entity, { name: SCENE_COMPONENT_AUDIO, props })
+      const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
+      addComponent(entity, AudioComponent, props)
+      updateAudio(entity, props)
     }
 
     for (const entity of avatarAudioQuery.exit()) {

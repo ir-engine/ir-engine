@@ -2,12 +2,11 @@ import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 
-export default async function AudioSystem(world: World): Promise<System> {
+export default async function AudioSystem(world: World) {
   const soundEffectQuery = defineQuery([SoundEffect])
   const musicQuery = defineQuery([BackgroundMusic])
   const playQuery = defineQuery([SoundEffect, PlaySoundEffect])

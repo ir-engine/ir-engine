@@ -43,3 +43,16 @@ export interface Instance {
   updatedAt: string
   locationId?: string
 }
+
+export interface CreateBotAsAdmin {
+  name: string
+  instanceId?: string | null
+  userId?: string
+  command?: Array<{
+    id: string
+    name: string
+    description: string
+  }>
+  description: string
+  locationId: string
+}

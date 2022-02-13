@@ -1,9 +1,9 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 /**
  * This class used to find user
@@ -25,17 +25,16 @@ export class User extends Service {
    * @returns {@Array} of found users
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
+    if (!params) params = {}
     if (!params.query) params.query = {}
-    const action = params.query.action
-    const skip = params.query.$skip ? params.query.$skip : 0
-    const limit = params.query.$limit ? params.query.$limit : 10
-    // this is a privacy & security vulnerability, please rethink the implementation here and on the front end.
-    // if (action === 'inventory') {
-    //   delete params.query?.action
-    //   // WARNING: we probably dont want to do this
-    //   return await super.find(params)
-    // } else
+    const { action, $skip, $limit, search, ...query } = params.query!
+
+    const skip = $skip ? $skip : 0
+    const limit = $limit ? $limit : 10
+
+    delete query.search
+
     if (action === 'friends') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
@@ -47,7 +46,7 @@ export class User extends Service {
           {
             model: (this.app.service('user-relationship') as any).Model,
             where: {
-              relatedUserId: loggedInUser.userId,
+              relatedUserId: loggedInUser.id,
               userRelationshipType: 'friend'
             }
           }
@@ -61,24 +60,34 @@ export class User extends Service {
     } else if (action === 'layer-users') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      params.query.instanceId = params.query.instanceId || user.instanceId || 'intentionalBadId'
+      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'channel-users') {
       delete params.query.action
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      params.query.channelInstanceId = params.query.channelInstanceId || user.channelInstanceId || 'intentionalBadId'
+      params.query.channelInstanceId =
+        params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'admin') {
       delete params.query.action
+      delete params.query.search
       const loggedInUser = extractLoggedInUserFromParams(params)
-      const user = await super.get(loggedInUser.userId)
-      if (user.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
+      if (loggedInUser.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
 
-      // return await super.find(params)
+      const searchedUser = await (this.app.service('user') as any).Model.findAll({
+        where: {
+          name: {
+            [Op.like]: `%${search}%`
+          }
+        },
+        raw: true
+      })
+
+      if (search) {
+        params.query.id = {
+          $in: searchedUser.map((user) => user.id)
+        }
+      }
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data
@@ -101,17 +110,15 @@ export class User extends Service {
       return super.find(params)
     } else {
       const loggedInUser = extractLoggedInUserFromParams(params)
-      let user
-      if (loggedInUser) user = await super.get(loggedInUser.userId)
-      if (user?.userRole !== 'admin' && params.isInternal != true)
+      if (loggedInUser?.userRole !== 'admin' && params.isInternal != true)
         return new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }
   }
 
-  // async create (params: Params): Promise<any> {
-  //   const data = params;
-  //   data.inviteCode =  Math.random().toString(36).slice(2);
-  //   return await super.create(data);
-  // }
+  async create(params?: Params): Promise<any> {
+    const data = params ?? {}
+    data.inviteCode = Math.random().toString(36).slice(2)
+    return await super.create(data)
+  }
 }

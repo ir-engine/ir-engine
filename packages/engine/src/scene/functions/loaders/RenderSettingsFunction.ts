@@ -19,22 +19,23 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
 export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
+export const SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES = {
+  LODs: { x: 5, y: 15, z: 30 },
+  overrideRendererSettings: false,
+  csm: true,
+  toneMapping: LinearToneMapping,
+  toneMappingExposure: 0.2,
+  shadowMapType: PCFSoftShadowMap
+}
 
 export const deserializeRenderSetting: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<RenderSettingComponentType>
 ) => {
-  const LODs = new Vector3()
-  if (json.props.LODs) {
-    LODs.set(json.props.LODs.x, json.props.LODs.y, json.props.LODs.z)
-  }
-  addComponent(entity, RenderSettingComponent, {
-    ...json.props,
-    LODs,
-    csm: !!json.props.csm
-  })
+  const props = parseRenderSettingsProperties(json.props)
+  addComponent(entity, RenderSettingComponent, props)
 
-  Engine.isCSMEnabled = !!json.props.csm
+  Engine.isCSMEnabled = props.csm
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity)
@@ -65,18 +66,19 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
     Engine.renderer.shadowMap.enabled = false
   }
 
-  if (component.csm && !Engine.isHMD && Engine.renderer.shadowMap.enabled) {
+  if (component.csm && Engine.renderer.shadowMap.enabled) {
     if (accessEngineState().sceneLoaded.value) initializeCSM()
     else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
   }
 }
 
 export const initializeCSM = () => {
-  Engine.csm = new CSM({
-    camera: Engine.camera as PerspectiveCamera,
-    parent: Engine.scene,
-    lights: Engine.directionalLights
-  })
+  if (!Engine.isHMD)
+    Engine.csm = new CSM({
+      camera: Engine.camera as PerspectiveCamera,
+      parent: Engine.scene,
+      lights: Engine.directionalLights
+    })
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {
@@ -113,4 +115,21 @@ export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
       shadowMapType: component.shadowMapType
     }
   }
+}
+
+const parseRenderSettingsProperties = (props): RenderSettingComponentType => {
+  const result = {
+    overrideRendererSettings:
+      props.overrideRendererSettings ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.overrideRendererSettings,
+    csm: props.csm ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.csm,
+    toneMapping: props.toneMapping ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.toneMapping,
+    toneMappingExposure:
+      props.toneMappingExposure ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.toneMappingExposure,
+    shadowMapType: props.shadowMapType ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.shadowMapType
+  } as RenderSettingComponentType
+
+  const tempV3 = props.LODs ?? SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES.LODs
+  result.LODs = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+
+  return result
 }

@@ -1,44 +1,43 @@
-import React from 'react'
-import { useStyles } from './styles'
-import { Typography, Grid } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import MenuIcon from '@mui/icons-material/Menu'
+import { Grid, IconButton, Typography } from '@mui/material'
+import Button from '@mui/material/Button'
+import React, { useEffect, useRef, useState } from 'react'
+import Analytics from './Analytics'
 import Authentication from './Authentication'
-import Email from './Email'
-import GameServer from './GameServer'
-import Server from './Server'
-import Client from './Client'
 import Aws from './Aws'
 import ChargeBee from './Chargebee'
+import Client from './Client'
+import Email from './Email'
+import GameServer from './GameServer'
 import Redis from './Redis'
+import Server from './Server'
 import Sidebar from './SideBar'
-import MenuIcon from '@mui/icons-material/Menu'
-import Button from '@mui/material/Button'
-import Badge from '@mui/material/Badge'
-import IconButton from '@mui/material/IconButton'
-import ClearIcon from '@mui/icons-material/Clear'
-import Analytics from './Analytics'
+import { useStyles } from './styles'
 
 const Setting = () => {
   const classes = useStyles()
-  const [isAws, setIsAws] = React.useState(false)
-  const [isServer, setIsSever] = React.useState(false)
-  const [isEmail, setIsEmail] = React.useState(false)
-  const [isGame, setIsGame] = React.useState(false)
-  const [isClient, setIsClient] = React.useState(false)
-  const [isAuth, setIsAuth] = React.useState(false)
-  const [isChargebee, setIsChargebee] = React.useState(false)
-  const [isRedis, setIsRedis] = React.useState(false)
-  const [isAnalytics, setIsAnalytics] = React.useState(true)
-  const [Contents, setContents] = React.useState(<Analytics />)
-  const [awsFocused, setAwsFocused] = React.useState(false)
-  const [serverFocused, setServerFocused] = React.useState(false)
-  const [emailFocused, setEmailFocused] = React.useState(false)
-  const [gameFocused, setGameFocused] = React.useState(false)
-  const [clientFocused, setClientFocused] = React.useState(false)
-  const [authFocused, setAuthFocused] = React.useState(false)
-  const [chargebeeFocused, setChargebeeFocused] = React.useState(false)
-  const [redisFocused, setRedisFocused] = React.useState(false)
-  const [menuVisible, setMenuVisible] = React.useState(false)
-  const [analyticsFocused, setAnalyticsFocused] = React.useState(true)
+  const rootRef = useRef<any>()
+  const [isAws, setIsAws] = useState(false)
+  const [isServer, setIsSever] = useState(false)
+  const [isEmail, setIsEmail] = useState(false)
+  const [isGame, setIsGame] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [isAuth, setIsAuth] = useState(false)
+  const [isChargebee, setIsChargebee] = useState(false)
+  const [isRedis, setIsRedis] = useState(false)
+  const [isAnalytics, setIsAnalytics] = useState(true)
+  const [Contents, setContents] = useState(<Analytics />)
+  const [awsFocused, setAwsFocused] = useState(false)
+  const [serverFocused, setServerFocused] = useState(false)
+  const [emailFocused, setEmailFocused] = useState(false)
+  const [gameFocused, setGameFocused] = useState(false)
+  const [clientFocused, setClientFocused] = useState(false)
+  const [authFocused, setAuthFocused] = useState(false)
+  const [chargebeeFocused, setChargebeeFocused] = useState(false)
+  const [redisFocused, setRedisFocused] = useState(false)
+  const [menuVisible, setMenuVisible] = useState(false)
+  const [analyticsFocused, setAnalyticsFocused] = useState(true)
 
   // const handleNotAutoFocused = ()=>{
   //   setIsFocused(!isFocused)
@@ -62,9 +61,10 @@ const Setting = () => {
     setClientFocused(false)
     setChargebeeFocused(false)
     setRedisFocused(false)
-    setMenuVisible(false)
+    !isAuth && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
+
   const handleAws = () => {
     setIsAws(!isAws)
     setAwsFocused(!awsFocused)
@@ -83,7 +83,7 @@ const Setting = () => {
     setChargebeeFocused(false)
     setRedisFocused(false)
     setAuthFocused(false)
-    setMenuVisible(false)
+    !isAws && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
   const handleChargebee = () => {
@@ -104,7 +104,7 @@ const Setting = () => {
     setAwsFocused(false)
     setRedisFocused(false)
     setAuthFocused(false)
-    setMenuVisible(false)
+    !isChargebee && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
   const handleRedis = () => {
@@ -125,7 +125,7 @@ const Setting = () => {
     setAwsFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
-    setMenuVisible(false)
+    !isRedis && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
 
@@ -147,7 +147,7 @@ const Setting = () => {
     setRedisFocused(false)
     setAuthFocused(false)
     setChargebeeFocused(false)
-    setMenuVisible(false)
+    !isEmail && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
   const handleClient = () => {
@@ -168,9 +168,10 @@ const Setting = () => {
     setAuthFocused(false)
     setChargebeeFocused(false)
     setEmailFocused(false)
-    setMenuVisible(false)
+    !isClient && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
+
   const handleGameServer = () => {
     setIsGame(!isGame)
     setGameFocused(!gameFocused)
@@ -188,9 +189,10 @@ const Setting = () => {
     setAuthFocused(false)
     setChargebeeFocused(false)
     setEmailFocused(false)
-    setMenuVisible(false)
+    !isGame && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
+
   const handleServer = () => {
     setIsSever(!isServer)
     setServerFocused(!serverFocused)
@@ -209,7 +211,7 @@ const Setting = () => {
     setChargebeeFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
-    setMenuVisible(false)
+    !isServer && setMenuVisible(false)
     setAnalyticsFocused(false)
   }
 
@@ -231,10 +233,15 @@ const Setting = () => {
     setChargebeeFocused(false)
     setEmailFocused(false)
     setGameFocused(false)
+    !isAnalytics && setMenuVisible(false)
     setServerFocused(false)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
+    rootRef?.current?.scrollIntoView()
+  }, [menuVisible])
+
+  useEffect(() => {
     if (isAuth) setContents(<Authentication />)
     if (isAws) setContents(<Aws />)
     if (isChargebee) setContents(<ChargeBee />)
@@ -247,22 +254,36 @@ const Setting = () => {
   }, [isAws, isChargebee, isRedis, isServer, isEmail, isGame, isClient, isAnalytics])
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} ref={rootRef}>
       <div className={classes.invisible}>
-        <div style={{ position: 'fixed' }}>
+        <div style={{ position: 'fixed', zIndex: 1 }}>
           <Button
+            size="medium"
             onClick={() => setMenuVisible(!menuVisible)}
-            style={{ color: '#fff', fontSize: '3rem', background: '#43484F', position: 'fixed' }}
+            style={{ color: '#fff', fontSize: '3rem', background: '#393d42', position: 'fixed' }}
           >
             <MenuIcon />
           </Button>
         </div>
         {menuVisible && (
-          <div className={classes.settings}>
-            <Typography variant="h6" className={classes.settingsHeading}>
-              {' '}
-              Settings
-            </Typography>
+          <div className={classes.hoverSettings}>
+            <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
+              <Typography variant="h6" className={classes.hoverSettingsHeading}>
+                Settings
+              </Typography>
+              <IconButton
+                onClick={() => setMenuVisible(!menuVisible)}
+                style={{
+                  color: 'orange',
+                  fontSize: '3rem',
+                  background: 'transparent',
+                  position: 'absolute',
+                  right: '10px'
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Grid>
             <Sidebar
               handleAuth={handleAuth}
               handleAws={handleAws}
@@ -289,7 +310,6 @@ const Setting = () => {
       <Grid container spacing={3}>
         <Grid item sm={3} lg={3} className={classes.visible}>
           <Typography variant="h6" className={classes.settingsHeading}>
-            {' '}
             Settings
           </Typography>
           <Sidebar
@@ -313,7 +333,7 @@ const Setting = () => {
             analyticsFocused={analyticsFocused}
           />
         </Grid>
-        <Grid item xs={12} sm={9} lg={9}>
+        <Grid item xs={12} sm={12} md={12} lg={9}>
           <div className={classes.contents}>{Contents}</div>
         </Grid>
       </Grid>

@@ -3,16 +3,16 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
-import { System } from '../../ecs/classes/System'
 import { PortalComponent } from '../components/PortalComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { isClient } from '../../common/functions/isClient'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
 
-export default async function TriggerSystem(world: World): Promise<System> {
+export default async function TriggerSystem(world: World) {
   const triggerCollidedQuery = defineQuery([TriggerDetectedComponent])
   const sceneEntityCaches: any = []
 
@@ -22,8 +22,13 @@ export default async function TriggerSystem(world: World): Promise<System> {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (Engine.currentWorld.isInPortal) continue
-        dispatchLocal(EngineActions.portalRedirectEvent(portalComponent) as any)
+        if (isClient && portalComponent.redirect) {
+          window.location.href = Engine.publicPath + '/location/' + portalComponent.location
+          continue
+        }
+        world.activePortal = portalComponent
+        dispatchLocal(EngineActions.setTeleporting(true))
+        continue
       }
 
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)

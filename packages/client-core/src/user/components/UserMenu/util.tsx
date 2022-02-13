@@ -13,10 +13,7 @@ export const Views = {
   Location: 'Location',
   Emote: 'Emote',
   NewLocation: 'NewLocation',
-  ReadyPlayer: 'ReadyPlayer',
-  Inventory: 'Inventory',
-  Wallet: 'Wallet',
-  Trading: 'Trading'
+  ReadyPlayer: 'ReadyPlayer'
 }
 
 export interface UserMenuProps {
@@ -28,7 +25,7 @@ export interface UserMenuProps {
   showDialog?: Function
   alertSuccess?: Function
   currentScene?: any
-  provisionInstanceServer?: any
+  provisionServer?: any
   uploadAvatarModel?: Function
   fetchAvatarList?: Function
   updateUserSettings?: Function

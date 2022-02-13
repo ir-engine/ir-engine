@@ -62,12 +62,10 @@ export class ParticleEmitterMesh extends Mesh {
   count: number
   src: string = '/static/editor/dot.png'
 
-  constructor(args: any) {
+  constructor(args: any, texture: Texture) {
     super()
     // TODO: refactor this to use registerSceneLoadPromise
-    loadTexture(args.src).then((texture: Texture) => {
-      this.createParticles(args, texture)
-    })
+    this.createParticles(args, texture)
   }
 
   createParticles(args, texture: Texture) {

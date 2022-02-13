@@ -4,7 +4,6 @@ import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapCom
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
-import { convertEquiToCubemap } from '../../classes/ImageUtils'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -28,8 +27,18 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
+import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
+export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
+  type: 1,
+  envMapTextureType: 0,
+  envMapSourceColor: '#000000',
+  envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
+  envMapIntensity: 1,
+  envMapCubemapBake: {}
+}
 
 const tempVector = new Vector3()
 const tempColor = new Color()
@@ -40,11 +49,8 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  addComponent(entity, EnvmapComponent, {
-    ...json.props,
-    envMapSourceColor: new Color(json.props.envMapSourceColor),
-    envMapTextureType: json.props.envMapTextureType ?? EnvMapTextureType.Cubemap
-  })
+  const props = parseEnvMapProperties(json.props)
+  addComponent(entity, EnvmapComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
 
@@ -82,15 +88,14 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
               const EnvMap = getPmremGenerator().fromCubemap(texture).texture
               EnvMap.encoding = sRGBEncoding
               Engine.scene.environment = EnvMap
-              component.errorWhileLoading = false
+              removeError(entity, 'envmapError')
               texture.dispose()
             },
             (_res) => {
               /* console.log(_res) */
             },
-            (error) => {
-              component.errorWhileLoading = true
-              console.warn('Skybox texture could not be found!', error)
+            (_) => {
+              addError(entity, 'envmapError', 'Skybox texture could not be found!')
             }
           )
           break
@@ -102,15 +107,14 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
               Engine.scene.environment = EnvMap
-              component.errorWhileLoading = false
+              removeError(entity, 'envmapError')
               texture.dispose()
             },
             (_res) => {
               /* console.log(_res) */
             },
-            (error) => {
-              component.errorWhileLoading = true
-              console.warn('Skybox texture could not be found!', error)
+            (_) => {
+              addError(entity, 'envmapError', 'Skybox texture could not be found!')
             }
           )
           break
@@ -127,10 +131,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
-            textureLoader.load(options.envMapOrigin, (texture) => {
-              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
-              texture.dispose()
-            })
+            updateCubemapBakeTexture(options)
 
             break
           case CubemapBakeTypes.Realtime:
@@ -176,10 +177,23 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
     props: {
       type: component.type,
       envMapTextureType: component.envMapTextureType,
-      envMapSourceColor: component.envMapSourceColor,
+      envMapSourceColor: component.envMapSourceColor.getHex(),
       envMapSourceURL: component.envMapSourceURL,
       envMapIntensity: component.envMapIntensity,
       envMapCubemapBake: component.envMapCubemapBake
     }
+  }
+}
+
+const parseEnvMapProperties = (props): EnvmapComponentType => {
+  return {
+    type: props.type ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.type,
+    envMapTextureType: props.envMapTextureType ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapTextureType,
+    envMapSourceColor: new Color(props.envMapSourceColor ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceColor),
+    envMapSourceURL: props.envMapSourceURL ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceURL,
+    envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
+    envMapCubemapBake: parseCubemapBakeProperties({
+      options: props.envMapCubemapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapCubemapBake
+    }).options
   }
 }

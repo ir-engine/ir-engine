@@ -1,4 +1,4 @@
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { DialogSeed } from '@xrengine/common/src/interfaces/Dialog'
 import { store } from '../../store'
 import { Dialog } from '@xrengine/common/src/interfaces/Dialog'

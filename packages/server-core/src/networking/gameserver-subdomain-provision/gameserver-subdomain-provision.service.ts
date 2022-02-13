@@ -6,7 +6,7 @@ import hooks from './gameserver-subdomain-provision.hooks'
 import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'gameserver-subdomain-provision': GameserverSubdomainProvision
   }

@@ -4,7 +4,7 @@ import createModel from './location.model'
 import hooks from './location.hooks'
 import locationDocs from './location.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     location: Location
   }

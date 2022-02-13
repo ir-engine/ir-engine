@@ -22,10 +22,6 @@ export const getClientSetting = async () => {
   })
   await sequelizeClient.sync()
   const clientSettingSchema = sequelizeClient.define('clientSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
     logo: {
       type: DataTypes.STRING,
       allowNull: true
@@ -68,7 +64,6 @@ export const getClientSetting = async () => {
     .findAll()
     .then(([dbClient]) => {
       const dbClientConfig = dbClient && {
-        enabled: dbClient.enabled,
         logo: dbClient.logo,
         title: dbClient.title,
         url: dbClient.url,
@@ -79,7 +74,6 @@ export const getClientSetting = async () => {
         icon192px: dbClient.icon192px,
         icon512px: dbClient.icon512px
       } || {
-        enabled: true,
         logo: './logo.svg',
         title: 'XREngine',
         url: 'https://local.theoverlay.io',

@@ -39,7 +39,7 @@ export default (app: Application) => {
   )
 
   ;(MatchUser as any).associate = (models: any): void => {
-    ;(MatchUser as any).belongsTo(models.user, { as: 'user', allowNull: false })
+    ;(MatchUser as any).belongsTo(models.user, { as: 'user', required: true })
   }
 
   return MatchUser

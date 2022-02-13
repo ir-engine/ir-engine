@@ -34,7 +34,9 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<CameraPropertiesComponentType>
 ): void => {
-  addComponent(entity, CameraPropertiesComponent, { ...json.props })
+  const props = parseCameraPropertiesProperties(json.props)
+  addComponent(entity, CameraPropertiesComponent, props)
+
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
   if (isClient && !Engine.isEditor) {
@@ -69,5 +71,24 @@ export const serializeCameraProperties: ComponentSerializeFunction = (entity) =>
       maxPhi: component.maxPhi,
       startPhi: component.startPhi
     }
+  }
+}
+
+const parseCameraPropertiesProperties = (props): CameraPropertiesComponentType => {
+  return {
+    fov: props.fov ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.fov,
+    cameraNearClip: props.cameraNearClip ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.cameraNearClip,
+    cameraFarClip: props.cameraFarClip ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.cameraFarClip,
+    projectionType: props.projectionType ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.projectionType,
+    minCameraDistance: props.minCameraDistance ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.minCameraDistance,
+    maxCameraDistance: props.maxCameraDistance ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.maxCameraDistance,
+    startCameraDistance:
+      props.startCameraDistance ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startCameraDistance,
+    cameraMode: props.cameraMode ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.cameraMode,
+    cameraModeDefault: props.cameraModeDefault ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.cameraModeDefault,
+    startInFreeLook: props.startInFreeLook ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startInFreeLook,
+    minPhi: props.minPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.minPhi,
+    maxPhi: props.maxPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.maxPhi,
+    startPhi: props.startPhi ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.startPhi
   }
 }

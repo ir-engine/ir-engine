@@ -3,7 +3,7 @@ import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/Net
 import * as https from 'https'
 import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/types'
 import { startWebRTC } from './WebRTCFunctions'
-import { Action } from '@xrengine/engine/src/networking/interfaces/Action'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Application } from '@xrengine/server-core/declarations'

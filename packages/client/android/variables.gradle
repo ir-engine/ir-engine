@@ -2,7 +2,7 @@ ext {
     minSdkVersion = 24
     compileSdkVersion = 29
     targetSdkVersion = 29
-    androidxAppCompatVersion = '1.4.0'
+    androidxAppCompatVersion = '1.4.1'
     androidxCoreVersion =  '1.2.0'
     androidxMaterialVersion =  '1.1.0-rc02'
     androidxBrowserVersion =  '1.2.0'

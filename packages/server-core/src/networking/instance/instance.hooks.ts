@@ -1,13 +1,11 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import restrictUserRole from '../../hooks/restrict-user-role'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [
       addAssociations({
         models: [

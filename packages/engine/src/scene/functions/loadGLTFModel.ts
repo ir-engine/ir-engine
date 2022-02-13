@@ -24,6 +24,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 
 export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -97,7 +98,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData.name
 
     // apply root mesh's world transform to this mesh locally
-    // applyTransformToMeshWorld(entity, mesh)
+    applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
@@ -202,7 +203,11 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     const node = world.entityTree.findNodeFromEid(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
-        NetworkWorldAction.spawnObject({ prefab: '', parameters: { sceneEntityId: node.uuid } })
+        NetworkWorldAction.spawnObject({
+          prefab: '',
+          parameters: { sceneEntityId: node.uuid },
+          ownerIndex: world.clients.get(world.hostId)!.userIndex
+        })
       ).cache()
     }
   } else {
@@ -215,6 +220,9 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   parseObjectComponentsFromGLTF(entity, obj3d)
+
+  const modelComponent = getComponent(entity, ModelComponent)
+  if (modelComponent) modelComponent.parsed = true
 }
 
 export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
@@ -222,7 +230,7 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
 
   return new Promise<GLTF | undefined>((resolve, reject) => {
     AssetLoader.load(
-      { url: modelComponent.src, entity, instanced: modelComponent.isUsingGPUInstancing },
+      { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
       (res) => {
         if (res.scene instanceof Object3D) {
           // TODO: refactor this
@@ -230,12 +238,11 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
           res.scene.animations = res.animation
           resolve(res)
         } else {
-          reject()
+          reject({ message: 'Not a valid object' })
         }
       },
       null!,
       (err) => {
-        modelComponent.error = err.message
         reject(err)
       }
     )

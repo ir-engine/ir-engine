@@ -1,4 +1,3 @@
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -13,7 +12,7 @@ const ORBIT_SPEED = 5
 /**
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function GizmoSystem(world: World): Promise<System> {
+export default async function GizmoSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()
@@ -48,12 +47,18 @@ export default async function GizmoSystem(world: World): Promise<System> {
           distance = 10
         } else {
           box.makeEmpty()
-          for (const object of cameraComponent.focusedObjects) box.expandByObject(object)
+          for (const object of cameraComponent.focusedObjects) {
+            const obj3d = getComponent(object.entity, Object3DComponent)?.value
+            if (obj3d) box.expandByObject(obj3d)
+          }
 
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
-            cameraComponent.center.setFromMatrixPosition(cameraComponent.focusedObjects[0].matrixWorld)
-            distance = 0.1
+            const obj3d = getComponent(cameraComponent.focusedObjects[0].entity, Object3DComponent)?.value
+            if (obj3d) {
+              cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
+              distance = 0.1
+            }
           } else {
             box.getCenter(cameraComponent.center)
             distance = box.getBoundingSphere(sphere).radius

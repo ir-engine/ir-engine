@@ -5,12 +5,10 @@ import TuneIcon from '@mui/icons-material/Tune'
 import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import Modal from 'react-modal'
+import Dialog from '@mui/material/Dialog'
 import styled from 'styled-components'
-import { getScene, saveScene } from '../functions/sceneFunctions'
+import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import AssetsPanel from './assets/AssetsPanel'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
@@ -38,35 +36,10 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Search from './Search/Search'
 import { AppContext } from './Search/context'
-
-/**
- * StyledEditorContainer component is used as root element of new project page.
- * On this page we have an editor to create a new or modifing an existing project.
- *
- * @author Robert Long
- * @type {Styled component}
- */
-const StyledEditorContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-`
-
-/**
- *Styled component used as workspace container.
- *
- * @author Robert Long
- * @type {type}
- */
-const WorkspaceContainer = (styled as any).div`
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  margin: 0px;
-`
+import * as styles from './styles.module.scss'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { DndWrapper } from './dnd/DndWrapper'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 /**
  *Styled component used as dock container.
@@ -201,8 +174,20 @@ const EditorContainer = (props) => {
     }
   }, [editorReady, sceneLoaded])
 
-  const reRouteToLoadScene = (sceneName) => {
-    projectName && sceneName && history.push(`/editor/${projectName}/${sceneName}`)
+  const reRouteToLoadScene = async (newSceneName) => {
+    if (sceneName === newSceneName) return
+
+    await uploadCurrentScene()
+
+    projectName && newSceneName && history.push(`/editor/${projectName}/${newSceneName}`)
+  }
+
+  const uploadCurrentScene = async () => {
+    if (!Engine.sceneLoaded) return
+
+    ProjectManager.instance.dispose()
+
+    return unloadScene(useWorld(), true)
   }
 
   const loadScene = async (sceneName) => {
@@ -233,15 +218,17 @@ const EditorContainer = (props) => {
   }
 
   const newScene = async () => {
+    if (!projectName) return
+
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
     setSceneLoaded(false)
-    try {
-      // TODO: replace with better template functionality
-      const project = await getScene('default-project', 'empty', false)
 
-      if (!project.scene) return
-      await ProjectManager.instance.loadProject(project.scene)
+    try {
+      const newProject = await createNewScene(projectName)
+      if (!newProject) return
+
+      reRouteToLoadScene(newProject.sceneName)
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -254,10 +241,6 @@ const EditorContainer = (props) => {
         />
       )
     }
-    dispatch(EditorAction.sceneLoaded(sceneName))
-    SceneManager.instance.sceneModified = true
-    updateModifiedState()
-    setSceneLoaded(true)
   }
 
   const updateModifiedState = (then?) => {
@@ -269,22 +252,6 @@ const EditorContainer = (props) => {
     } else if (then) {
       then()
     }
-  }
-
-  const setDebuginfo = () => {
-    const gl = Engine.renderer.getContext()
-
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
-
-    let webglVendor = 'Unknown'
-    let webglRenderer = 'Unknown'
-
-    if (debugInfo) {
-      webglVendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)
-      webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
-    }
-
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
   }
 
   /**
@@ -319,6 +286,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveAs = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     const abortController = new AbortController()
     try {
       let saveProjectFlag = true
@@ -457,6 +430,12 @@ const EditorContainer = (props) => {
   }
 
   const onSaveScene = async () => {
+    // Do not save scene if scene is not loaded or some error occured while loading the scene to prevent data lose
+    if (!Engine.sceneLoaded) {
+      setDialogComponent(<ErrorDialog title={t('editor:savingError')} message={t('editor:savingSceneErrorMsg')} />)
+      return
+    }
+
     if (!sceneName) {
       if (modified) {
         onSaveAs()
@@ -528,7 +507,6 @@ const EditorContainer = (props) => {
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), setDebuginfo)
       CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })
@@ -682,12 +660,12 @@ const EditorContainer = (props) => {
     }
   }
   return (
-    <StyledEditorContainer style={{ pointerEvents: 'none' }} id="editor-container">
+    <div className={styles.editorContainer} id="editor-container">
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-        <DndProvider backend={HTML5Backend}>
+        <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <WorkspaceContainer>
+          <div className={styles.workspaceContainer}>
             <ViewportPanelContainer />
             <AppContext.Provider value={{ searchElement, searchHierarchy }}>
               <DockContainer>
@@ -698,20 +676,17 @@ const EditorContainer = (props) => {
                 />
               </DockContainer>
             </AppContext.Provider>
-          </WorkspaceContainer>
-          <Modal
-            ariaHideApp={false}
-            isOpen={!!DialogComponent}
-            onRequestClose={() => setDialogComponent(null)}
-            shouldCloseOnOverlayClick={true}
-            className="Modal"
-            overlayClassName="Overlay"
+          </div>
+          <Dialog
+            open={!!DialogComponent}
+            onClose={() => setDialogComponent(null)}
+            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
           >
             {DialogComponent}
-          </Modal>
-        </DndProvider>
+          </Dialog>
+        </DndWrapper>
       </DialogContext.Provider>
-    </StyledEditorContainer>
+    </div>
   )
 }
 

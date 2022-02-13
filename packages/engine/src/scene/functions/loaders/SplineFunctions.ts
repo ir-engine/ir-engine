@@ -23,9 +23,10 @@ export const deserializeSpline: ComponentDeserializeFunction = (
   json: ComponentJson<SplineComponentType>
 ) => {
   const obj3d = new Object3D()
+  const props = parseSplineProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, SplineComponent, json.props)
+  addComponent(entity, SplineComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
@@ -34,13 +35,13 @@ export const deserializeSpline: ComponentDeserializeFunction = (
     obj3d.add(helper)
     obj3d.userData.helper = helper
 
-    helper.init(json.props.splinePositions)
+    helper.init(props.splinePositions)
   }
 
-  updateSpline(entity)
+  updateSpline(entity, props)
 }
 
-export const updateSpline: ComponentUpdateFunction = (_: Entity, properties: SplineComponentType) => {}
+export const updateSpline: ComponentUpdateFunction = (_: Entity, _properties: SplineComponentType) => {}
 
 export const serializeSpline: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, SplineComponent) as SplineComponentType
@@ -52,4 +53,14 @@ export const serializeSpline: ComponentSerializeFunction = (entity) => {
       splinePositions: component.splinePositions
     }
   }
+}
+
+const parseSplineProperties = (props: any): SplineComponentType => {
+  const result = { splinePositions: [] as Vector3[] }
+
+  if (!props.splinePositions) return result
+
+  props.splinePositions.forEach((pos) => result.splinePositions.push(new Vector3(pos.x, pos.y, pos.z)))
+
+  return result
 }

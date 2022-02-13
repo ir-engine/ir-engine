@@ -104,23 +104,24 @@ export const sendCurrentProducers = async (
   if (selfClient?.socketId != null) {
     for (const [userId, client] of world.clients) {
       if (
-        userId === selfUserId ||
-        (userIds.length > 0 && userIds.includes(userId) === false) ||
-        client.media == null ||
-        client.socketId == null
+        !(
+          userId === selfUserId ||
+          (userIds.length > 0 && !userIds.includes(userId)) ||
+          client.media == null ||
+          client.socketId == null
+        )
       )
-        return
-      Object.entries(client.media).map(([subName, subValue]) => {
-        if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
-          selfClient.socket!.emit(
-            MessageTypes.WebRTCCreateProducer.toString(),
-            client.userId,
-            subName,
-            (subValue as any).producerId,
-            channelType,
-            channelId
-          )
-      })
+        Object.entries(client.media).map(([subName, subValue]) => {
+          if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
+            selfClient.socket!.emit(
+              MessageTypes.WebRTCCreateProducer.toString(),
+              client.userId,
+              subName,
+              (subValue as any).producerId,
+              channelType,
+              channelId
+            )
+        })
     }
   }
 }
@@ -225,7 +226,7 @@ export async function closeConsumer(consumer): Promise<void> {
 
   const world = Engine.currentWorld
   for (const [, client] of world.clients) {
-    client.socket!.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
+    if (client.socket) client.socket!.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
   }
 
   delete world.clients.get(consumer.appData.peerId)?.consumerLayers![consumer.id]
@@ -292,6 +293,9 @@ export async function createInternalDataConsumer(
     consumer.on('message', (message) => {
       Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message))
       Network.instance.incomingMessageQueueUnreliableIDs.add(userId)
+      // forward data to clients in world immediately
+      // TODO: need to include the userId (or index), so consumers can validate
+      Network.instance.transportHandler.getWorldTransport().sendData(message)
     })
     return consumer
   } catch (err) {
@@ -348,8 +352,13 @@ export async function handleWebRtcTransportCreate(
   const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
   if (config.kubernetes.enabled) {
-    const serverResult = await networkTransport.app.k8AgonesClient.get('gameservers')
-    const thisGs = serverResult.items.find(
+    const serverResult = await networkTransport.app.k8AgonesClient.listNamespacedCustomObject(
+      'agones.dev',
+      'v1',
+      'default',
+      'gameservers'
+    )
+    const thisGs = (serverResult?.body! as any).items.find(
       (server) => server.metadata.name === networkTransport.app.gameServer.objectMeta.name
     )
 
@@ -530,7 +539,7 @@ export async function handleWebRtcSendTrack(networkTransport, socket, data, call
     }
 
     for (const [clientUserId, client] of world.clients) {
-      if (clientUserId !== userId)
+      if (clientUserId !== userId && client.socket)
         client.socket!.emit(
           MessageTypes.WebRTCCreateProducer.toString(),
           userId,
@@ -709,7 +718,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
       world.clients.get(userId)!.media![producer.appData.mediaTag].paused = false
       world.clients.get(userId)!.media![producer.appData.mediaTag].globalMute = false
       const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
-        return client.media![producer.appData.mediaTag]?.producerId === producerId
+        return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
       })!
       hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
     }
@@ -736,7 +745,7 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
       world.clients.get(userId)!.media![producer.appData.mediaTag].globalMute = globalMute || false
       if (globalMute === true) {
         const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
-          return client.media![producer.appData.mediaTag]?.producerId === producerId
+          return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
         })!
         hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
       }

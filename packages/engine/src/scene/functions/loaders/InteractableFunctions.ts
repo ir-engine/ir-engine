@@ -19,11 +19,12 @@ export const deserializeInteractable: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<InteractableComponentType>
 ) => {
-  addComponent(entity, InteractableComponent, { ...json.props })
+  const props = parseInteractableProperties(json.props)
+  addComponent(entity, InteractableComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
 
-  updateInteractable(entity, json.props)
+  updateInteractable(entity, props)
 }
 
 export const updateInteractable: ComponentUpdateFunction = async (
@@ -52,5 +53,12 @@ export const serializeInteractable: ComponentSerializeFunction = (entity) => {
       mediaIndex: component.mediaIndex,
       intensity: component.intensity
     }
+  }
+}
+
+const parseInteractableProperties = (props): InteractableComponentType => {
+  return {
+    ...props,
+    interactable: props.interactable ?? SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES.interactable
   }
 }

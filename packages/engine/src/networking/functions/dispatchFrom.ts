@@ -1,7 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '../../ecs/classes/Engine'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { Action, ActionCacheOptions, ActionRecipients } from '../interfaces/Action'
+import { Action, ActionCacheOptions, ActionRecipients } from '../../ecs/functions/Action'
 
 /**
  * Dispatch an action from a given user.
@@ -18,6 +18,7 @@ export const dispatchFrom = <A extends Action>(userId: UserId, actionCb: () => A
     action.$from = action.$from ?? Engine.userId
     action.$to = action.$to ?? 'all'
     action.$tick = action.$tick ?? Engine.currentWorld.fixedTick + 2
+    Engine.currentWorld.isHosting && Engine.currentWorld.incomingActions.add(action as any)
     Engine.currentWorld.outgoingActions.add(action)
   }
 

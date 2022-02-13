@@ -26,11 +26,12 @@ import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 const avatarRadius = 0.25
-const avatarHeight = 1.8
-const capsuleHeight = avatarHeight - avatarRadius * 2
-export const avatarHalfHeight = avatarHeight / 2
+const defaultAvatarHeight = 1.8
+const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
+export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.matches._TYPE): Entity => {
   const world = useWorld()
@@ -38,15 +39,17 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)
 
   const position = createVector3Proxy(TransformComponent.position, entity)
-
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  // todo: figure out why scale makes avatar disappear
-  // const scale = createVector3Proxy(TransformComponent.scale, entity)
-  const scale = new Vector3().copy(new Vector3(1, 1, 1))
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
 
   const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
   transform.position.copy(spawnAction.parameters.position)
   transform.rotation.copy(spawnAction.parameters.rotation)
+  transform.scale.copy(new Vector3(1, 1, 1))
+
+  // set cached action refs to the new components so they stay up to date with future movements
+  spawnAction.parameters.position = position
+  spawnAction.parameters.rotation = rotation
 
   const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
 
@@ -57,7 +60,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
   tiltContainer.name = 'Actor (tiltContainer)' + entity
-  tiltContainer.position.setY(avatarHalfHeight)
+  tiltContainer.position.setY(defaultAvatarHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   const modelContainer = new Group()
@@ -65,9 +68,8 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   tiltContainer.add(modelContainer)
 
   addComponent(entity, AvatarComponent, {
-    ...world.clients.get(userId)?.avatarDetail,
-    avatarHalfHeight,
-    avatarHeight,
+    avatarHalfHeight: defaultAvatarHalfHeight,
+    avatarHeight: defaultAvatarHeight,
     modelContainer,
     isGrounded: false
   })
@@ -75,7 +77,6 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   addComponent(entity, NameComponent, {
     name: userId as string
   })
-  console.log('userID: ' + userId)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -91,10 +92,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-  tiltContainer.traverse((o) => {
-    o.layers.disable(ObjectLayers.Scene)
-    o.layers.enable(ObjectLayers.Avatar)
-  })
+  setObjectLayers(tiltContainer, ObjectLayers.Render, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
@@ -105,9 +103,9 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     filterData,
     type: SceneQueryType.Closest,
     hits: [],
-    origin: new Vector3(0, avatarHalfHeight, 0),
+    origin: new Vector3(0, defaultAvatarHalfHeight, 0),
     direction: new Vector3(0, -1, 0),
-    maxDistance: avatarHalfHeight + 0.05,
+    maxDistance: defaultAvatarHalfHeight + 0.05,
     flags
   })
 
@@ -135,7 +133,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     transform: {
       translation: {
         x: transform.position.x,
-        y: transform.position.y + avatarHalfHeight,
+        y: transform.position.y + defaultAvatarHalfHeight,
         z: transform.position.z
       },
       rotation: new Quaternion()
@@ -166,7 +164,7 @@ export const createAvatarController = (entity: Entity) => {
     material: world.physics.createMaterial(),
     position: {
       x: position.x,
-      y: position.y + avatarHalfHeight,
+      y: position.y + defaultAvatarHalfHeight,
       z: position.z
     },
     contactOffset: 0.01,
@@ -178,10 +176,9 @@ export const createAvatarController = (entity: Entity) => {
       entity
     }
   }) as PhysX.PxCapsuleController
-  console.log(controller.getPosition())
 
   const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
-  frustumCamera.position.setY(avatarHalfHeight)
+  frustumCamera.position.setY(defaultAvatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
   value.add(frustumCamera)
@@ -206,7 +203,7 @@ export const createAvatarController = (entity: Entity) => {
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
-      isWalking: false,
+      isWalking: true,
       localMovementDirection: new Vector3(),
       velocitySimulator
     })

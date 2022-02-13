@@ -28,7 +28,7 @@ export class S3Provider implements StorageProviderInterface {
   bucketAssetURL =
     config.server.storageProvider === 'aws'
       ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com/`
-      : `https://${this.cacheDomain}/${this.bucket}/`
+      : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,

@@ -1,9 +1,10 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const identityProvider = sequelizeClient.define(
+  const identityProvider = sequelizeClient.define<Model<IdentityProviderInterface>>(
     'identity_provider',
     {
       id: {

@@ -65,7 +65,7 @@ If you find bugs, mistakes, inconsistencies in the project's code or documents, 
 
 The [XREngine](https://github.com/XRFoundation/XREngine) issues use a template that will guide you through the process of reporting a bug. We will be adding this kind of issue template to other repositories as bug reports become more common.
 
-For all other questions/discussions, please find us on [Discord](https://discord.gg/gsfcuzdwrG).
+For all other questions/discussions, please find us on [Discord](https://discord.gg/xrf).
 
 ### Community Tooling Improvement
 

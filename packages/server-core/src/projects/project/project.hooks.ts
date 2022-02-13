@@ -1,18 +1,16 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { iff, isProvider } from 'feathers-hooks-common'
-
-const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [],
     find: [],
     get: [],
-    create: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    update: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    patch: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    remove: [authenticate('jwt'), iff(isProvider('external'), verifyScope('editor', 'write') as any)]
+    create: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    update: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    patch: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    remove: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)]
   },
 
   after: {

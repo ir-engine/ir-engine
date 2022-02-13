@@ -1,5 +1,4 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -19,7 +18,7 @@ const IDENTITY = new Matrix4().identity()
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function FlyControlSystem(world: World): Promise<System> {
+export default async function FlyControlSystem(world: World) {
   const flyControlQuery = defineQuery([FlyControlComponent])
   const direction = new Vector3()
   const parentInverse = new Matrix4()

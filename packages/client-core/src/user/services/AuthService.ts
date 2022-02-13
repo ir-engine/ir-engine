@@ -1,10 +1,11 @@
-import { createState, Downgraded, useState } from '@hookstate/core'
+import { createState, Downgraded, useState } from '@speigg/hookstate'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
+import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -105,6 +106,9 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
       }
       case 'USERNAME_UPDATED': {
         return s.user.merge({ name: action.name })
+      }
+      case 'USER_API_KEY_UPDATED': {
+        return s.user.merge({ apiKey: action.apiKey })
       }
       case 'USERAVATARID_UPDATED': {
         return s.user.merge({ avatarId: action.avatarId })
@@ -625,7 +629,10 @@ export const AuthService = {
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
     }
   },
-  addConnectionByOauth: async (oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter', userId: string) => {
+  addConnectionByOauth: async (
+    oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
+    userId: string
+  ) => {
     const dispatch = useDispatch()
     {
       window.open(
@@ -799,6 +806,36 @@ export const AuthService = {
       })
       AuthService.logoutUser()
     }
+  },
+
+  updateApiKey: async () => {
+    const dispatch = useDispatch()
+    const apiKey = await client.service('user-api-key').patch()
+    dispatch(AuthAction.apiKeyUpdated(apiKey))
+  },
+  listenForUserPatch: () => {
+    console.log('listenForUserPatch')
+    client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
+    client.service('location-ban').on('created', async (params) => {
+      const selfUser = accessAuthState().user
+      const party = accessPartyState().party.value
+      const selfPartyUser =
+        party && party.partyUsers
+          ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
+          : ({} as any)
+      const currentLocation = accessLocationState().currentLocation.location
+      const locationBan = params.locationBan
+      if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        // TODO: Decouple and reenable me!
+        // endVideoChat({ leftParty: true });
+        // leave(true);
+        if (selfPartyUser != undefined && selfPartyUser?.id != null) {
+          await client.service('party-user').remove(selfPartyUser.id)
+        }
+        const user = resolveUser(await client.service('user').get(selfUser.id.value))
+        store.dispatch(AuthAction.userUpdated(user))
+      }
+    })
   }
 }
 
@@ -811,28 +848,6 @@ const parseUserWalletCredentials = (wallet) => {
       // session // this will contain the access token and helper methods
     }
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
-  client.service('location-ban').on('created', async (params) => {
-    const selfUser = accessAuthState().user
-    const party = accessPartyState().party.value
-    const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : ({} as any)
-    const currentLocation = accessLocationState().currentLocation.location
-    const locationBan = params.locationBan
-    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
-      // TODO: Decouple and reenable me!
-      // endVideoChat({ leftParty: true });
-      // leave(true);
-      if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-        await client.service('party-user').remove(selfPartyUser.id)
-      }
-      const user = resolveUser(await client.service('user').get(selfUser.id.value))
-      store.dispatch(AuthAction.userUpdated(user))
-    }
-  })
 }
 
 // Action
@@ -996,6 +1011,12 @@ export const AuthAction = {
     return {
       type: 'AVATAR_FETCHED' as const,
       avatarList
+    }
+  },
+  apiKeyUpdated: (apiKey: UserApiKey) => {
+    return {
+      type: 'USER_API_KEY_UPDATED' as const,
+      apiKey: apiKey
     }
   }
 }

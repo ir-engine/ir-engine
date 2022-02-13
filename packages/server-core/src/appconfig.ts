@@ -51,7 +51,6 @@ db.url =
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED === 'true',
   mode: process.env.SERVER_MODE!,
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
@@ -94,7 +93,6 @@ server.url = process.env.SERVER_URL || url.format(obj)
  * Client / frontend
  */
 const client = {
-  enabled: process.env.CLIENT_ENABLED === 'true',
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
   url:
@@ -109,7 +107,6 @@ const client = {
 const gameserver = {
   clientHost: process.env.APP_HOST!,
   hostname: process.env.GAMESERVER_HOST,
-  enabled: process.env.GAMESERVER_ENABLED === 'true',
   rtc_start_port: parseInt(process.env.RTC_START_PORT!),
   rtc_end_port: parseInt(process.env.RTC_END_PORT!),
   rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
@@ -127,7 +124,6 @@ const gameserver = {
  * Analytics generator
  */
 const analytics = {
-  enabled: process.env.ANALYTICS_ENABLED === 'true',
   port: process.env.ANALYTICS_PORT!,
   processInterval: process.env.ANALYTICS_PROCESS_INTERVAL_SECONDS!
 }

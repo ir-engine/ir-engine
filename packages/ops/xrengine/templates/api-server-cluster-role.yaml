@@ -12,6 +12,7 @@ rules:
       - pods
       - endpoints
       - deployments
+      - jobs
     verbs:
       - get
       - list
@@ -24,6 +25,18 @@ rules:
       - "apps"
     resources:
       - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
     verbs:
       - get
       - list

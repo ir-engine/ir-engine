@@ -9,7 +9,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EquipperComponent } from '../components/EquipperComponent'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import matches from 'ts-matches'
@@ -18,7 +17,7 @@ import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { Engine } from '../../ecs/classes/Engine'
 import { getParity } from '../functions/equippableFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
 import { BodyType } from '../../physics/types/PhysicsTypes'
 
 function equippableActionReceptor(action) {
@@ -77,7 +76,7 @@ export function equippableQueryExit(entity) {
  * @author Josh Field <github.com/HexaField>
  * @author Hamza Mushtaq <github.com/hamzzam>
  */
-export default async function EquippableSystem(world: World): Promise<System> {
+export default async function EquippableSystem(world: World) {
   world.receptors.push(equippableActionReceptor)
 
   const equippableQuery = defineQuery([EquipperComponent])
@@ -91,7 +90,7 @@ export default async function EquippableSystem(world: World): Promise<System> {
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippedEntity = equipperComponent.equippedEntity
       if (equippedEntity) {
-        const isOwnedByMe = getComponent(equippedEntity, NetworkObjectOwnedTag)
+        const isOwnedByMe = getComponent(equippedEntity, NetworkObjectAuthorityTag)
         if (isOwnedByMe) {
           const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
           const attachmentPoint = equippedComponent.attachmentPoint

@@ -1,18 +1,18 @@
-import React from 'react'
-import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
-import { useGroupStyles, useGroupStyle } from './styles'
-import DialogTitle from '@mui/material/DialogTitle'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import { formValid } from './validation'
-import Autocomplete from '@mui/material/Autocomplete'
-import { GroupService } from '../../services/GroupService'
-import TextField from '@mui/material/TextField'
-import { useScopeTypeState, ScopeTypeService } from '../../services/ScopeTypeService'
+import DialogTitle from '@mui/material/DialogTitle'
+import Drawer from '@mui/material/Drawer'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
+import AutoComplete from '../../common/AutoComplete'
+import { validateForm } from '../../common/validation/formValidation'
+import { GroupService } from '../../services/GroupService'
+import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -20,15 +20,18 @@ interface Props {
   adminGroupState?: any
 }
 
+interface ScopeData {
+  type: string
+}
+
 const CreateGroup = (props: Props) => {
   const { open, handleClose } = props
-  const classes = useGroupStyles()
-  const classx = useGroupStyle()
+  const classes = useStyles()
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const adminScopeTypes = adminScopeTypeState.scopeTypes
 
-  const [state, setState] = React.useState({
+  const [state, setState] = useState({
     name: '',
     description: '',
     scopeTypes: [] as any[],
@@ -39,7 +42,7 @@ const CreateGroup = (props: Props) => {
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
       ScopeTypeService.getScopeTypeService()
     }
@@ -48,15 +51,7 @@ const CreateGroup = (props: Props) => {
   const handleChange = (event) => {
     const { name, value } = event.target
     let temp = state.formErrors
-
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required' : ''
-        break
-      case 'description':
-        temp.description = value.length < 2 ? 'Description is required' : ''
-    }
-
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -64,15 +59,10 @@ const CreateGroup = (props: Props) => {
     event.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
-
-    if (!state.name) {
-      temp.name = "Name can't be empty"
-    }
-    if (!state.description) {
-      temp.description = "Description can't be empty"
-    }
+    temp.name = !state.name ? "Name can't be empty" : ''
+    temp.description = !state.description ? "Description can't be empty" : ''
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       GroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,
@@ -80,13 +70,23 @@ const CreateGroup = (props: Props) => {
         description: '',
         scopeTypes: []
       })
+      handleClose(false)
     }
-    handleClose(false)
+  }
+
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
+      type: el.type
+    }
+  })
+
+  const handleChangeScopeType = (scope) => {
+    if (scope.length) setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
   }
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paper }} anchor="right" open={open} onClose={() => handleClose(false)}>
+      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
             <DialogTitle id="form-dialog-title" className={classes.texAlign}>
@@ -122,29 +122,7 @@ const CreateGroup = (props: Props) => {
                 onChange={handleChange}
               />
             </Paper>
-
-            <label>Grant access</label>
-            <Paper component="div" className={classes.createInput}>
-              <Autocomplete
-                onChange={(event, value) =>
-                  setState({ ...state, scopeTypes: value, formErrors: { ...state.formErrors, scopeTypes: '' } })
-                }
-                multiple
-                className={classes.selector}
-                classes={{ paper: classx.selectPaper, inputRoot: classes.select }}
-                id="tags-standard"
-                options={adminScopeTypes.value}
-                disableCloseOnSelect
-                filterOptions={(options: any) =>
-                  options.filter(
-                    (option) => state.scopeTypes.find((scopeType) => scopeType.type === option.type) == null
-                  )
-                }
-                getOptionLabel={(option: any) => option.type}
-                renderInput={(params) => <TextField {...params} placeholder="Select access" />}
-              />
-            </Paper>
-
+            <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
             <DialogActions className={classes.marginTp}>
               <Button type="submit" className={classes.saveBtn}>
                 Submit

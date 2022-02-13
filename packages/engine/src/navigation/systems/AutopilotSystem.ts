@@ -19,7 +19,6 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import createSpeedFunction from '../functions/createSpeedFunction'
 import { Entity } from '../../ecs/classes/Entity'
@@ -46,7 +45,7 @@ interface ClickResult {
   entity: Entity
 }
 
-export default async function AutopilotSystem(world: World): Promise<System> {
+export default async function AutopilotSystem(world: World) {
   const GAMEPAD_STICK = GamepadAxis.Left
   const raycaster = new Raycaster()
   const quat = new Quaternion()

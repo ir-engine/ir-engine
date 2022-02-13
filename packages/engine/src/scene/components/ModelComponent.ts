@@ -8,7 +8,7 @@ export type ModelComponentType = {
   isUsingGPUInstancing: boolean
   isDynamicObject: boolean
   curScr?: string
-  error?: string
+  parsed?: boolean
 }
 
 export const ModelComponent = createMappedComponent<ModelComponentType>('ModelComponent')

@@ -104,7 +104,7 @@ const initializeValue = (
 
   const inputs = Object.keys(source)
   for (const input of inputs) {
-    if (!Object.prototype.hasOwnProperty.call(source, input)) continue
+    if (typeof source[input] === 'undefined') continue
 
     const key = source[input].key
     defualtValues[key] = source[input].defaultValue
@@ -126,7 +126,7 @@ const initializeValue = (
 const deleteValues = (state: ActionState, mappingObj: InputMapping): void => {
   const actionNames = Object.keys(mappingObj)
   for (const actionName of actionNames) {
-    if (!Object.prototype.hasOwnProperty.call(mappingObj, actionName)) continue
+    if (typeof mappingObj[actionName] === 'undefined') continue
 
     delete state[mappingObj[actionName].key]
   }
@@ -205,7 +205,7 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
     if (keyboard.hotkeys) {
       const bindings = Object.keys(keyboard.hotkeys)
       for (const binding of bindings) {
-        if (Object.prototype.hasOwnProperty.call(keyboard.hotkeys, binding)) {
+        if (typeof keyboard.hotkeys[binding] !== 'undefined') {
           Mousetrap.unbind(binding)
         }
       }
@@ -214,7 +214,7 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
     if (keyboard.globalHotkeys) {
       const bindings = Object.keys(keyboard.globalHotkeys)
       for (const binding of bindings) {
-        if (Object.prototype.hasOwnProperty.call(keyboard.globalHotkeys, binding)) {
+        if (typeof keyboard.globalHotkeys[binding] !== 'undefined') {
           Mousetrap.unbindGlobal(binding)
         }
       }

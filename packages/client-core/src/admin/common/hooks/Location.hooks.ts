@@ -27,3 +27,11 @@ export const useFetchLocationTypes = (user, adminLocationState, LocationService)
     }
   }, [adminLocationState.updateNeeded.value, user?.id?.value])
 }
+
+export const useFetchAdminLocations = (user, adminLocationState, LocationService) => {
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      LocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
+}

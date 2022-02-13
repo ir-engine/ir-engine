@@ -1,6 +1,6 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import React, { KeyboardEvent, useCallback, useEffect } from 'react'
+import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -17,6 +17,8 @@ import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * getNodeElId function provides id for node.
@@ -49,14 +51,16 @@ export type HierarchyTreeNodeData = {
 export type HierarchyTreeNodeProps = {
   index: number
   data: HierarchyTreeNodeData
+  style: StyleHTMLAttributes<HTMLLIElement>
 }
 
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
+  const engineState = useEngineState()
 
   const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  if (!nameComponent) return null
+  const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -192,12 +196,13 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editor = getNodeEditorsForEntity(node.entityNode.entity)
+  const editors = getNodeEditorsForEntity(node.entityNode.entity)
+  const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
 
   return (
-    <li>
+    <li style={props.style}>
       <ContextMenuTrigger holdToDisplay={-1} id="hierarchy-node-menu" collect={collectNodeMenuProps}>
         <div
           ref={drag}
@@ -228,7 +233,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             )}
 
             <div className={styles.selectTarget}>
-              {editor ? <editor.iconComponent className={styles.nodeIcon} /> : null}
+              {IconComponent ? <IconComponent className={styles.nodeIcon} /> : null}
               <div className={styles.labelContainer}>
                 {renaming ? (
                   <div className={styles.renameInputContainer}>
@@ -248,7 +253,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 )}
               </div>
-              {/* {node.entitynode.issues && node.entitynode.issues.length > 0 && <NodeIssuesIcon node={node.entitynode} />} */}
+              {engineState.errorEntities[node.entityNode.entity].get() && (
+                <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
+              )}
             </div>
           </div>
 

@@ -11,7 +11,8 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { loadGLTFModel, overrideTexture, parseGLTFModel } from '../loadGLTFModel'
+import { addError, removeError } from '../ErrorFunctions'
+import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
@@ -28,12 +29,13 @@ export const deserializeModel: ComponentDeserializeFunction = (
   entity: Entity,
   component: ComponentJson<ModelComponentType>
 ) => {
+  const props = parseModelProperties(component.props)
   addComponent(entity, Object3DComponent, { value: new Object3D() }) // Temperarily hold a value
-  addComponent(entity, ModelComponent, { ...component.props })
+  addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
 
-  registerSceneLoadPromise(updateModel(entity, component.props) as any as Promise<void>)
+  registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
 export const updateModel: ComponentUpdateFunction = async (
@@ -44,13 +46,26 @@ export const updateModel: ComponentUpdateFunction = async (
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh
 
   if (properties.src) {
-    const gltf = await loadGLTFModel(entity)
-    if (gltf && gltf.scene) {
-      parseGLTFModel(entity, component, gltf.scene)
+    try {
+      await loadGLTFModel(entity)
+      removeError(entity, 'srcError')
+    } catch (err) {
+      addError(entity, 'srcError', err.message)
+      Promise.resolve(err)
     }
   }
 
-  if (Object.hasOwnProperty.call(properties, 'textureOverride')) {
+  if (properties.envMapOverride) {
+    try {
+      // ToDo: Add right method to load envMap
+      removeError(entity, 'envMapError')
+    } catch (err) {
+      addError(entity, 'envMapError', err.message)
+      Promise.resolve(err)
+    }
+  }
+
+  if (component.parsed && typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity, obj3d)
   }
 }
@@ -68,5 +83,16 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject
     }
+  }
+}
+
+const parseModelProperties = (props): ModelComponentType => {
+  return {
+    src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
+    envMapOverride: props.envMapOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.envMapOverride,
+    textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
+    matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
+    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
+    isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
   }
 }

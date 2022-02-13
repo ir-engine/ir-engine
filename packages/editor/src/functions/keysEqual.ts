@@ -4,13 +4,13 @@ export default function keysEqual(a, b) {
 
   const aKeys = Object.keys(a)
   for (const aKey of aKeys) {
-    if (Object.prototype.hasOwnProperty.call(a, aKey)) aKeyCount++
-    if (!Object.prototype.hasOwnProperty.call(b, aKey)) return false
+    if (typeof a[aKey] !== 'undefined') aKeyCount++
+    if (typeof b[aKey] === 'undefined') return false
   }
 
   const bKeys = Object.keys(a)
   for (const bKey of bKeys) {
-    if (Object.prototype.hasOwnProperty.call(b, bKey)) bKeyCount++
+    if (typeof b[bKey] !== 'undefined') bKeyCount++
   }
 
   return aKeyCount === bKeyCount

@@ -15,7 +15,7 @@ export default function seeder(services: Array<ServicesSeedConfig>) {
       }
       copyDefaultProject()
       await app.service('project')._seedProject('default-project')
-      await uploadLocalProjectToProvider('default-project', app)
+      await uploadLocalProjectToProvider('default-project')
     }
   }
 }

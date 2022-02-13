@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize/types'
-import { Application, Models } from '../../declarations'
+import { Application } from '../../declarations'
+import { Models } from '@xrengine/common/declarations'
 
 export const useSequelizeClient = (app: Application): Sequelize => {
   return app.get('sequelizeClient')

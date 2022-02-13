@@ -9,7 +9,7 @@ export default () => {
     const { params, app } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
     const groupId = params.query!.groupId
-    const userId = params.query!.userId || loggedInUser.userId
+    const userId = params.query!.userId || loggedInUser.id
     const paramsClone = _.cloneDeep(context.params)
     paramsClone.provider = null!
     if (params.groupUsersRemoved !== true) {

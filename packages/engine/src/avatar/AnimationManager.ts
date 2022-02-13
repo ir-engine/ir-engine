@@ -1,6 +1,5 @@
 import { AnimationClip, SkinnedMesh } from 'three'
-import { getLoader } from '../assets/functions/LoadGLTF'
-import { isClient } from '../common/functions/isClient'
+import { AssetLoader } from '../assets/classes/AssetLoader'
 import { Engine } from '../ecs/classes/Engine'
 import { getDefaultSkeleton } from './functions/avatarFunctions'
 
@@ -15,38 +14,27 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  getAnimations(): Promise<AnimationClip[]> {
-    return new Promise((resolve) => {
-      if (this._animations) {
-        resolve(this._animations)
+  async getAnimations(): Promise<AnimationClip[]> {
+    if (this._animations) {
+      return this._animations
+    }
+    const gltf = await AssetLoader.loadAsync({ url: Engine.publicPath + '/default_assets/Animations.glb' })
+    gltf.scene.traverse((child: SkinnedMesh) => {
+      if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
+        this._defaultSkeleton = child
       }
-      if (!isClient) {
-        resolve([])
-      }
-      getLoader().load(
-        Engine.publicPath + '/default_assets/Animations.glb',
-        (gltf) => {
-          gltf.scene.traverse((child) => {
-            if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
-              this._defaultSkeleton = child
-            }
-          })
-
-          if (!this._defaultSkeleton) {
-            // reconstruct skeleton from stored data
-            this._defaultSkeleton = getDefaultSkeleton()
-          }
-
-          this._animations = gltf.animations
-          this._animations?.forEach((clip) => {
-            // TODO: make list of morph targets names
-            clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
-          })
-          resolve(this._animations)
-        },
-        console.log,
-        console.error
-      )
     })
+
+    if (!this._defaultSkeleton) {
+      // reconstruct skeleton from stored data
+      this._defaultSkeleton = getDefaultSkeleton()
+    }
+
+    this._animations = gltf.animations
+    this._animations?.forEach((clip) => {
+      // TODO: make list of morph targets names
+      clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
+    })
+    return this._animations
   }
 }

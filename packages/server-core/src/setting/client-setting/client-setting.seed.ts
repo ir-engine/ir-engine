@@ -5,7 +5,6 @@ export const clientSeed = {
       logo: process.env.APP_LOGO,
       title: process.env.APP_TITLE,
       releaseName: process.env.RELEASE_NAME || null,
-      enabled: process.env.CLIENT_ENABLED === 'true',
       siteDescription: process.env.SITE_DESC,
       url:
         process.env.APP_URL ||

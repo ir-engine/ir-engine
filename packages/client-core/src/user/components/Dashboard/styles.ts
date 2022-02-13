@@ -1,14 +1,14 @@
-import { Theme } from '@mui/material/styles'
-import makeStyles from '@mui/styles/makeStyles'
-import createStyles from '@mui/styles/createStyles'
 import { deepOrange } from '@mui/material/colors'
+import { Theme } from '@mui/material/styles'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 const drawerWidth = 200
 
 export const useStylesForDashboard = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: 'flex'
+      // display: 'flex'
     },
     header: {
       height: '64px !important'
@@ -20,14 +20,6 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
         duration: theme.transitions.duration.leavingScreen
       }),
       backgroundColor: '#43484F'
-    },
-    appBarShift: {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen
-      })
     },
     menuButton: {
       marginRight: 36,
@@ -42,11 +34,14 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       whiteSpace: 'nowrap'
     },
     drawerOpen: {
+      position: 'absolute',
       width: `${drawerWidth}px !important`,
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen
       }),
+      height: '100%',
+      zIndex: 9999,
       backgroundColor: '#1f252d'
     },
     drawerClose: {
@@ -91,10 +86,12 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       height: 'calc(100vh - 64px)'
     },
     contentWidthDrawerOpen: {
-      width: `calc(100vw - ${drawerWidth}px)`
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      width: `calc(100vw - (${theme.spacing(7)} + 1px))`
     },
     contentWidthDrawerClosed: {
-      width: `calc(100vw - ${theme.spacing(7) + 1}px)`
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      width: `calc(100vw - (${theme.spacing(7)} + 1px))`
     },
     backdrop: {
       zIndex: theme.zIndex.drawer + 1,

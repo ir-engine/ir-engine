@@ -12,10 +12,18 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import {
+  createEngine,
+  initializeCoreSystems,
+  initializeMediaServerSystems,
+  initializeNode,
+  initializeProjectSystems,
+  initializeRealtimeSystems,
+  initializeSceneSystems
+} from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 type InstanceMetadata = {
   currentUsers: number
@@ -29,17 +37,25 @@ const loadScene = async (app: Application, scene: string) => {
   // const sceneRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
   const sceneResult = await app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
   const sceneData = sceneResult.data.scene as any // SceneData
-  const systems = await getSystemsFromSceneData(projectName, sceneData, false)
 
   if (!Engine.isInitialized) {
-    const projects = await app.service('project').find(null!)
-    const options: InitializeOptions = {
-      type: EngineSystemPresets.SERVER,
-      publicPath: config.client.url,
-      projects: projects.data.map((project) => project.name),
-      systems
-    }
-    await initializeEngine(options)
+    const systems = await getSystemsFromSceneData(projectName, sceneData, false)
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    Engine.publicPath = config.client.url
+    createEngine()
+    initializeNode()
+    await initializeCoreSystems()
+    await initializeRealtimeSystems()
+    await initializeSceneSystems()
+    await initializeProjectSystems(projects, systems)
+
+    const world = useWorld()
+    const userId = 'server' as UserId
+    Engine.userId = userId
+    const hostIndex = world.userIndexCount++
+    world.clients.set(userId, { userId, name: 'server', userIndex: hostIndex })
+    world.userIdToUserIndex.set(userId, hostIndex)
+    world.userIndexToUserId.set(hostIndex, userId)
   }
 
   let entitiesLeft = -1
@@ -160,7 +176,7 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
   const existingInstanceResult = await app.service('instance').find({
     query: existingInstanceQuery
   })
-  console.log('existingInstanceResult', existingInstanceResult.data)
+  // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
@@ -196,10 +212,22 @@ const handleInstance = async (app: Application, status, locationId, channelId, a
 const loadEngine = async (app: Application, sceneId: string) => {
   if (app.isChannelInstance) {
     Network.instance.transportHandler.mediaTransports.set('media' as UserId, app.transport)
-    await initializeEngine({
-      type: EngineSystemPresets.MEDIA,
-      publicPath: config.client.url
-    })
+    Engine.publicPath = config.client.url
+    const userId = 'media' as HostUserId
+    Engine.userId = userId
+    createEngine()
+    const world = useWorld()
+    world.hostId = userId
+    initializeNode()
+    await initializeMediaServerSystems()
+    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
+    await initializeProjectSystems(projects, [])
+
+    const hostIndex = world.userIndexCount++
+    world.clients.set(userId, { userId, name: 'media', userIndex: hostIndex })
+    world.userIdToUserIndex.set(userId, hostIndex)
+    world.userIndexToUserId.set(hostIndex, userId)
+
     Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded(true) as any)
     dispatchLocal(EngineActions.joinedWorld(true) as any)
@@ -214,6 +242,7 @@ export default (app: Application): void => {
     // If no real-time functionality has been configured just return
     return
   }
+  let engineStarted = false
 
   const shouldLoadGameserver =
     (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
@@ -224,6 +253,8 @@ export default (app: Application): void => {
 
   let shutdownTimeout
   app.on('connection', async (connection) => {
+    console.log('connection')
+
     clearTimeout(shutdownTimeout)
     const token = (connection as any).socketQuery?.token
     if (token != null) {
@@ -260,6 +291,7 @@ export default (app: Application): void => {
 
         const isReady = status.state === 'Ready'
         const isNeedingNewServer =
+          !engineStarted &&
           !config.kubernetes.enabled &&
           (status.state === 'Shutdown' ||
             app.instance == null ||
@@ -277,9 +309,9 @@ export default (app: Application): void => {
         }
 
         if (isReady || isNeedingNewServer) {
+          engineStarted = true
           await handleInstance(app, status, locationId, channelId, agonesSDK, identityProvider)
-          if (sceneId != null && !accessEngineState().sceneLoaded.value && !accessEngineState().sceneLoading.value)
-            await loadEngine(app, sceneId)
+          if (sceneId != null) await loadEngine(app, sceneId)
         } else {
           try {
             const instance = await app.service('instance').get(app.instance.id)
@@ -406,7 +438,7 @@ export default (app: Application): void => {
       } catch (err) {
         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
           const jwtDecoded = decode(token)!
-          const idProvider = await app.service('identityProvider').get(jwtDecoded.sub as string)
+          const idProvider = await app.service('identity-provider').get(jwtDecoded.sub as string)
           authResult = {
             'identity-provider': idProvider
           }
@@ -442,7 +474,9 @@ export default (app: Application): void => {
 
         if (instanceId != null && instance != null) {
           const activeClients = Engine.currentWorld.clients
-          const activeUsers = new Map([...activeClients].filter(([, v]) => v.name !== 'server'))
+          const activeUsers = new Map(
+            [...activeClients].filter(([, v]) => v.userId !== Engine.userId && v.userId !== user.id)
+          )
           const activeUsersCount = activeUsers.size
           try {
             await app.service('instance').patch(instanceId, {
@@ -452,7 +486,6 @@ export default (app: Application): void => {
             console.log('Failed to patch instance user count, likely because it was destroyed')
           }
 
-          const user = await app.service('user').get(userId)
           const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
           // Patch the user's (channel)instanceId to null if they're leaving this instance.
           // But, don't change their (channel)instanceId if it's already something else.
@@ -492,6 +525,7 @@ export default (app: Application): void => {
 
           if (activeUsersCount < 1) {
             shutdownTimeout = setTimeout(async () => {
+              engineStarted = false
               console.log('Deleting instance ' + instanceId)
               try {
                 await app.service('instance').patch(instanceId, {

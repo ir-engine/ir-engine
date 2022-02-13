@@ -7,7 +7,9 @@ import {
   ColorRepresentation,
   DirectionalLight
 } from 'three'
+import { ObjectLayers } from '../constants/ObjectLayers'
 import { addIsHelperFlag } from '../functions/addIsHelperFlag'
+import { setObjectLayers } from '../functions/setObjectLayers'
 
 export default class EditorDirectionalLightHelper extends Object3D {
   color: ColorRepresentation
@@ -71,7 +73,6 @@ export default class EditorDirectionalLightHelper extends Object3D {
     )
 
     this.lightPlane = new LineSegments(geometry, material)
-    this.lightPlane.layers.set(1)
     this.add(this.lightPlane)
 
     geometry = new BufferGeometry()
@@ -82,9 +83,9 @@ export default class EditorDirectionalLightHelper extends Object3D {
     )
 
     this.targetLine = new LineSegments(geometry, material)
-    this.targetLine.layers.set(1)
     this.add(this.targetLine)
 
+    setObjectLayers(this, ObjectLayers.NodeHelper)
     addIsHelperFlag(this)
   }
 

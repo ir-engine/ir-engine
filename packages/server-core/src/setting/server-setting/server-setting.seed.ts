@@ -5,7 +5,6 @@ import url from 'url'
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
 const server = {
-  enabled: process.env.SERVER_ENABLED === 'true',
   mode: process.env.SERVER_MODE!,
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,

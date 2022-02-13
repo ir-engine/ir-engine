@@ -47,7 +47,7 @@ function createTicket(gameMode: string, attributes?: Record<string, string>): Pr
     }
   }
 
-  console.log('TICKET.CREATE --------- searchFields', searchFields)
+  // console.log('TICKET.CREATE --------- searchFields', searchFields)
 
   return axiosInstance
     .post(`/tickets`, {
@@ -83,7 +83,7 @@ async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<Op
       signal: controller.signal
     })
 
-    data = await readStreamFirstData(response.body)
+    data = await readStreamFirstData(response.body!)
   } catch (error) {
     if (error.name === 'AbortError') {
       // no assignment yet

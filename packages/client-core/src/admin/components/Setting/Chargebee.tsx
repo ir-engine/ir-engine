@@ -26,7 +26,6 @@ const ChargeBee = (props: Props) => {
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          {' '}
           CHARGEBEE
         </Typography>
         <Paper component="div" className={classes.createInput}>

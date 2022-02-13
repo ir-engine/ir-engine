@@ -46,13 +46,23 @@ export const getScene = async (
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
-  // try {
-  //   await client.service('scene').remove({ projectName, sceneName })
-  // } catch (error) {
-  //   console.log('Error in Getting Project:' + error)
-  //   throw new Error(error)
-  // }
-  // return true
+  try {
+    await client.service('scene').remove({ projectName, sceneName })
+  } catch (error) {
+    console.log('Error in deleting Project:' + error)
+    throw new Error(error)
+  }
+  return true
+}
+
+export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
+  try {
+    await client.service('scene').patch(null, { newSceneName, oldSceneName, projectName })
+  } catch (error) {
+    console.log('Error in renaming Project:' + error)
+    throw new Error(error)
+  }
+  return true
 }
 
 /**
@@ -82,6 +92,15 @@ export const saveScene = async (
     return (await client
       .service('scene')
       .update(projectName, { sceneName, sceneData, thumbnailBuffer })) as SceneDetailInterface
+  } catch (error) {
+    console.error('Error in Getting Project:' + error)
+    throw new Error(error)
+  }
+}
+
+export const createNewScene = async (projectName: string) => {
+  try {
+    return client.service('scene').create({ projectName })
   } catch (error) {
     console.error('Error in Getting Project:' + error)
     throw new Error(error)

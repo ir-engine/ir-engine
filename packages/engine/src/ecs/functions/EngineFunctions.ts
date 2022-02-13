@@ -1,7 +1,6 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { disposeDracoLoaderWorkers } from '../../assets/functions/LoadGLTF'
+import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -12,6 +11,8 @@ import { hasComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { EntityTreeNode } from '../classes/EntityTree'
+import { unloadSystems } from './SystemFunctions'
+import { World } from '../classes/World'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -53,7 +54,6 @@ export async function reset(): Promise<void> {
     Engine.scene = null!
   }
   Engine.sceneLoaded = false
-  Engine.isLoading = false
 
   Engine.camera = null!
 
@@ -70,26 +70,27 @@ export async function reset(): Promise<void> {
   Engine.prevInputState.clear()
 }
 
-export type UnloadSceneParams = {
-  removePersisted?: boolean
-  keepSystems?: boolean
+export const unloadScene = async (world: World, removePersisted = false) => {
+  unloadAllEntities(world, removePersisted)
+
+  Engine.sceneLoaded = false
+
+  Engine.scene.background = new Color('black')
+  Engine.scene.environment = null
+
+  isClient && configureEffectComposer()
 }
 
-export const unloadScene = async (params: UnloadSceneParams = {}): Promise<void> => {
-  Engine.engineTimer.stop()
-  Engine.sceneLoaded = false
-  Engine.isLoading = false
-
-  const world = useWorld()
+export const unloadAllEntities = (world: World, removePersisted = false) => {
   const entitiesToRemove = [] as Entity[]
   const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
 
   world.entityQuery().forEach((entity) => {
-    if (params.removePersisted || !hasComponent(entity, PersistTagComponent)) entitiesToRemove.push(entity)
+    if (removePersisted || !hasComponent(entity, PersistTagComponent)) entitiesToRemove.push(entity)
   })
 
-  if (params.removePersisted) {
+  if (removePersisted) {
     world.entityTree.empty()
   } else {
     world.entityTree.traverse((node) => {
@@ -108,29 +109,6 @@ export const unloadScene = async (params: UnloadSceneParams = {}): Promise<void>
 
     entityNodesToRemove.forEach((node) => node.removeFromParent())
   }
-
-  const { delta } = Engine.currentWorld
-
-  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
-
-  if (!params.keepSystems) {
-    Object.entries(world.pipelines).forEach(([type, pipeline]) => {
-      const systemsToRemove: any[] = []
-      pipeline.forEach((s) => {
-        if (s.sceneSystem) {
-          systemsToRemove.push(s)
-        }
-      })
-
-      systemsToRemove.forEach((s) => {
-        const i = pipeline.indexOf(s)
-        pipeline.splice(i, 1)
-      })
-    })
-  }
-
-  Engine.scene.background = new Color('black')
-  Engine.scene.environment = null
 
   Engine.scene.traverse((o: any) => {
     if (!o.entity) return
@@ -155,11 +133,4 @@ export const unloadScene = async (params: UnloadSceneParams = {}): Promise<void>
 
   sceneObjectsToRemove.forEach((o) => Engine.scene.remove(o))
   entitiesToRemove.forEach((entity) => removeEntity(entity, true))
-
-  isClient && configureEffectComposer()
-
-  Engine.currentWorld.execute(delta, Engine.currentWorld.elapsedTime + delta)
-  Engine.engineTimer.start()
-
-  // world.physics.clear() // TODO:
 }

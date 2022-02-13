@@ -1,9 +1,9 @@
 import assert from 'assert'
-import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
-import { Color, PointLight } from "three"
-import { createEntity } from "../../../ecs/functions/EntityFunctions"
-import { createWorld } from "../../../ecs/classes/World"
-import { Engine } from "../../../ecs/classes/Engine"
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Color, PointLight } from 'three'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { createWorld } from '../../../ecs/classes/World'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { deserializePointLight } from './PointLightFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -31,7 +31,5 @@ describe('PointLightFunctions', () => {
     assert((getComponent(entity, Object3DComponent).value as PointLight).color instanceof Color)
     assert.deepEqual((getComponent(entity, Object3DComponent).value as PointLight).color.toArray(), color.toArray())
     assert.deepEqual((getComponent(entity, Object3DComponent).value as PointLight).intensity, 5)
-
   })
-  
 })

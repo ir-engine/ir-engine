@@ -27,6 +27,10 @@ import { loadAudio } from '../../../assets/functions/loadAudio'
 import loadTexture from '../../../assets/functions/loadTexture'
 import { isClient } from '../../../common/functions/isClient'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { addError, removeError } from '../ErrorFunctions'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
+import { MediaComponent } from '../../components/MediaComponent'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
@@ -54,7 +58,8 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
   if (!isClient) return
 
-  addComponent(entity, AudioComponent, { ...json.props })
+  const props = parseAudioProperties(json.props)
+  addComponent(entity, AudioComponent, props)
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
@@ -63,21 +68,28 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
       new PlaneBufferGeometry(),
       new MeshBasicMaterial({ transparent: true, side: DoubleSide })
     )
-
     obj3d.add(obj3d.userData.textureMesh)
+    obj3d.userData.textureMesh.userData.disableOutline = true
 
     if (!audioTexture) {
       // can't use await since component should have to be deserialize for media component to work properly
       loadTexture(AUDIO_TEXTURE_PATH).then((texture) => {
         audioTexture = texture!
         obj3d.userData.textureMesh.material.map = audioTexture
+        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
       })
     } else {
       obj3d.userData.textureMesh.material.map = audioTexture
+      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
     }
   }
 
-  updateAudio(entity, json.props)
+  updateAudio(entity, props)
+
+  const mediaComponent = getComponent(entity, MediaComponent)
+  obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
+  obj3d.userData.audioEl.setLoop(mediaComponent.loop)
+  updateAutoStartTimeForMedia(entity)
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
@@ -85,7 +97,7 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
   const component = getComponent(entity, AudioComponent)
   let audioTypeChanged = false
 
-  if (properties.hasOwnProperty('audioType')) {
+  if (typeof properties.audioType !== 'undefined') {
     if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
     obj3d.userData.audioEl =
       component.audioType === AudioType.Stereo
@@ -99,7 +111,12 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.audioSource) {
     try {
-      const { url } = await resolveMedia(component.audioSource)
+      const { url, contentType } = await resolveMedia(component.audioSource)
+      if (!contentType) {
+        addError(entity, 'error', 'Error while loading audio')
+        return
+      }
+
       const audioBuffer = await loadAudio(url)
       if (!audioBuffer) return
 
@@ -107,28 +124,30 @@ export const updateAudio: ComponentUpdateFunction = async (entity: Entity, prope
 
       obj3d.userData.audioEl.setBuffer(audioBuffer)
       if (!audioTypeChanged) updateAutoStartTimeForMedia(entity)
+      removeError(entity, 'error')
     } catch (error) {
+      addError(entity, 'error', error.message)
       console.error(error)
     }
   }
 
-  if (properties.hasOwnProperty('volume')) {
+  if (typeof properties.volume !== 'undefined') {
     obj3d.userData.audioEl.setVolume(component.volume)
   }
 
   if (component.audioType === AudioType.Positional) {
     const audioEl = obj3d.userData.audioEl as PositionalAudio
-    if (audioTypeChanged || properties.hasOwnProperty('distanceModel'))
+    if (audioTypeChanged || typeof properties.distanceModel !== 'undefined')
       audioEl.setDistanceModel(component.distanceModel)
-    if (audioTypeChanged || properties.hasOwnProperty('rolloffFactor'))
+    if (audioTypeChanged || typeof properties.rolloffFactor !== 'undefined')
       audioEl.setRolloffFactor(component.rolloffFactor)
-    if (audioTypeChanged || properties.hasOwnProperty('refDistance')) audioEl.setRefDistance(component.refDistance)
-    if (audioTypeChanged || properties.hasOwnProperty('maxDistance')) audioEl.setMaxDistance(component.maxDistance)
-    if (audioTypeChanged || properties.hasOwnProperty('coneInnerAngle'))
+    if (audioTypeChanged || typeof properties.refDistance !== 'undefined') audioEl.setRefDistance(component.refDistance)
+    if (audioTypeChanged || typeof properties.maxDistance !== 'undefined') audioEl.setMaxDistance(component.maxDistance)
+    if (audioTypeChanged || typeof properties.coneInnerAngle !== 'undefined')
       audioEl.panner.coneInnerAngle = component.coneInnerAngle
-    if (audioTypeChanged || properties.hasOwnProperty('coneOuterAngle'))
+    if (audioTypeChanged || typeof properties.coneOuterAngle !== 'undefined')
       audioEl.panner.coneOuterAngle = component.coneOuterAngle
-    if (audioTypeChanged || properties.hasOwnProperty('coneOuterGain'))
+    if (audioTypeChanged || typeof properties.coneOuterGain !== 'undefined')
       audioEl.panner.coneOuterGain = component.coneOuterGain
   }
 }
@@ -172,4 +191,19 @@ export const toggleAudio = (entity: Entity) => {
 
   if (audioEl.isPlaying) audioEl.stop()
   else audioEl.play()
+}
+
+const parseAudioProperties = (props): AudioComponentType => {
+  return {
+    audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
+    volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
+    audioType: props.audioType ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType,
+    distanceModel: props.distanceModel ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel,
+    rolloffFactor: props.rolloffFactor ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.rolloffFactor,
+    refDistance: props.refDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.refDistance,
+    maxDistance: props.maxDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.maxDistance,
+    coneInnerAngle: props.coneInnerAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneInnerAngle,
+    coneOuterAngle: props.coneOuterAngle ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterAngle,
+    coneOuterGain: props.coneOuterGain ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.coneOuterGain
+  }
 }

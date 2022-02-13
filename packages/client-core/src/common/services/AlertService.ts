@@ -1,5 +1,5 @@
 import { store, useDispatch } from '../../store'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { AlertColor } from '@mui/material/Alert'
 //State
 const state = createState({

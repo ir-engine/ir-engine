@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { GameServerSettingInterface } from '@xrengine/common/src/dbmodels/GameServerSetting'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const gameServerSetting = sequelizeClient.define(
+  const gameServerSetting = sequelizeClient.define<Model<GameServerSettingInterface>>(
     'gameServerSetting',
     {
       id: {
@@ -14,10 +15,6 @@ export default (app: Application) => {
       },
       clientHost: {
         type: DataTypes.STRING,
-        allowNull: true
-      },
-      enabled: {
-        type: DataTypes.BOOLEAN,
         allowNull: true
       },
       rtc_start_port: {

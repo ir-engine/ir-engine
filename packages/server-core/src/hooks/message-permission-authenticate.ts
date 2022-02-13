@@ -11,7 +11,7 @@ export default () => {
       const match = await (app.service('message') as any).Model.findOne({
         where: {
           id: id,
-          senderId: loggedInUser.userId
+          senderId: loggedInUser.id
         }
       })
 

@@ -25,15 +25,16 @@ export class Group extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
+    const skip = params?.query?.$skip ? params.query.$skip : 0
+    const limit = params?.query?.$limit ? params.query.$limit : 10
+    const search = params?.query?.search
     const include: any = [
       {
         model: (this.app.service('user') as any).Model,
         where: {
-          id: loggedInUser.userId
+          id: loggedInUser.id
         }
       },
       {
@@ -41,11 +42,11 @@ export class Group extends Service {
         require: false
       }
     ]
-    if (params.query?.invitable === true) {
+    if (params?.query?.invitable === true) {
       include.push({
         model: (this.app.service('group-user') as any).Model,
         where: {
-          userId: loggedInUser.userId,
+          userId: loggedInUser.id,
           [Op.or]: [
             {
               groupUserRank: 'owner'
@@ -57,12 +58,18 @@ export class Group extends Service {
         }
       })
     }
+    let q = {}
+    if (search) {
+      q = { name: { [Op.like]: `%${search}%` } }
+    }
     const groupResult = await (this.app.service('group') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,
       order: [['name', 'ASC']],
-      include: include
+      include: include,
+      where: q
     })
+
     await Promise.all(
       groupResult.rows.map((group) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor

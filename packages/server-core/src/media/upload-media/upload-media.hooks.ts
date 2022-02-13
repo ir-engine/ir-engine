@@ -1,4 +1,4 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import { disallow } from 'feathers-hooks-common'
 import { SYNC } from 'feathers-sync'
 
@@ -11,14 +11,12 @@ import setResponseStatus from '@xrengine/server-core/src/hooks/set-response-stat
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
     all: [logRequest()],
     find: [disallow()],
     get: [],
-    create: [authenticate('jwt'), attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
+    create: [authenticate(), attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
     remove: [disallow()]

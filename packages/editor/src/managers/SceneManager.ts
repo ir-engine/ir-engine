@@ -16,8 +16,7 @@ import {
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
-import { generateImageFileThumbnail, generateVideoFileThumbnail, getCanvasBlob } from '../functions/thumbnails'
-import { LoadGLTF } from '@xrengine/engine/src/assets/functions/LoadGLTF'
+import { getCanvasBlob } from '../functions/thumbnails'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from './CommandManager'
 import EditorCommands from '../constants/EditorCommands'
@@ -30,11 +29,9 @@ import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import makeRenderer from '../renderer/makeRenderer'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { EngineRenderer, EngineRendererProps } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createGizmoEntity } from '../functions/createGizmoEntity'
@@ -54,8 +51,8 @@ import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLT
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { applyAndArchiveIncomingAction } from '@xrengine/engine/src/networking/systems/IncomingNetworkSystem'
-import { accessEditorState } from '../services/EditorServices'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -80,7 +77,6 @@ export class SceneManager {
   gizmoEntity: Entity
   editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
-  screenshotRenderer: WebGLRenderer = makeRenderer(1920, 1080)
   renderMode: RenderModesType
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
@@ -99,6 +95,9 @@ export class SceneManager {
 
     Engine.camera.position.set(0, 5, 10)
     Engine.camera.lookAt(new Vector3())
+    Engine.camera.layers.enable(ObjectLayers.Scene)
+    Engine.camera.layers.enable(ObjectLayers.NodeHelper)
+    Engine.camera.layers.enable(ObjectLayers.Gizmos)
 
     this.grid = new EditorInfiniteGridHelper()
     this.transformGizmo = new TransformGizmo()
@@ -136,15 +135,14 @@ export class SceneManager {
     console.log('initializeRenderer')
     try {
       ControlManager.instance.initControls()
-      applyAndArchiveIncomingAction(
-        useWorld(),
+      dispatchLocal(
         EngineActions.enableScene({
           renderer: true,
           physics: true
         }) as any
       )
 
-      applyAndArchiveIncomingAction(useWorld(), EngineActions.setPhysicsDebug(true) as any)
+      dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
@@ -157,6 +155,9 @@ export class SceneManager {
       EngineRenderer.instance.disableUpdate = false
 
       ThumbnailRenderer.instance = new ThumbnailRenderer()
+
+      accessEngineRendererState().automatic.set(false)
+      dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
     } catch (error) {
       console.error(error)
     }
@@ -172,6 +173,8 @@ export class SceneManager {
    */
   async takeScreenshot(width: number, height: number) {
     EngineRenderer.instance.disableUpdate = true
+    const size = new Vector2()
+    Engine.renderer.getSize(size)
 
     let scenePreviewCamera: PerspectiveCamera = null!
     const query = defineQuery([ScenePreviewCameraTagComponent])
@@ -195,13 +198,13 @@ export class SceneManager {
     const prevAspect = scenePreviewCamera.aspect
     scenePreviewCamera.aspect = width / height
     scenePreviewCamera.updateProjectionMatrix()
-    scenePreviewCamera.layers.disable(ObjectLayers.Scene)
-    this.screenshotRenderer.setSize(width, height, true)
-    this.screenshotRenderer.render(Engine.scene, scenePreviewCamera)
-    const blob = await getCanvasBlob(this.screenshotRenderer.domElement)
+    scenePreviewCamera.layers.set(ObjectLayers.Render)
+    Engine.renderer.setSize(width, height, false)
+    Engine.renderer.render(Engine.scene, scenePreviewCamera)
+    const blob = await getCanvasBlob(Engine.renderer.domElement)
     scenePreviewCamera.aspect = prevAspect
     scenePreviewCamera.updateProjectionMatrix()
-    scenePreviewCamera.layers.enable(ObjectLayers.Scene)
+    Engine.renderer.setSize(size.x, size.y, false)
     EngineRenderer.instance.disableUpdate = false
     return blob
   }
@@ -261,39 +264,6 @@ export class SceneManager {
     Engine.renderer.shadowMap.needsUpdate = true
 
     CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
-  }
-
-  /**
-   * Function generateFileThumbnail used to create thumbnail from audio as well video file.
-   *
-   * @author Robert Long
-   * @param  {any}  file
-   * @param  {any}  width
-   * @param  {any}  height
-   * @return {Promise}        [generated thumbnail data as blob]
-   */
-  async generateFileThumbnail(file, width?: number, height?: number): Promise<any> {
-    const url = URL.createObjectURL(file)
-
-    let blob
-
-    const fileName = file.name.toLowerCase()
-    if (fileName.endsWith('.glb')) {
-      const { scene } = await LoadGLTF(url)
-
-      blob = await ThumbnailRenderer.instance.generateThumbnail(scene, width, height)
-    } else if (['.png', '.jpg', '.jpeg', '.gif', '.webp'].some((ext) => fileName.endsWith(ext))) {
-      blob = await generateImageFileThumbnail(file)
-    } else if (file.name.toLowerCase().endsWith('.mp4')) {
-      blob = await generateVideoFileThumbnail(file)
-    }
-
-    URL.revokeObjectURL(url)
-
-    if (!blob) {
-      throw new Error(i18n.t('editor:errors.fileTypeNotSupported', { name: file.name }))
-    }
-    return blob
   }
 
   /**
@@ -385,7 +355,7 @@ export class SceneManager {
       const userData = object.userData
       const keys = Object.keys(userData)
       for (const key of keys) {
-        if (Object.prototype.hasOwnProperty.call(userData, key)) {
+        if (typeof userData[key] !== 'undefined') {
           return true
         }
       }
@@ -509,21 +479,35 @@ export class SceneManager {
     if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
     if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)
     if (this.editorEntity) removeEntity(this.editorEntity, true)
-    if (this.grid) Engine.scene?.remove(this.grid)
+
+    if (Engine.scene) {
+      if (this.grid) Engine.scene.remove(this.grid)
+
+      // Empty existing scene
+      Engine.scene.traverse((child: any) => {
+        if (child.geometry) child.geometry.dispose()
+
+        if (child.material) {
+          if (child.material.length) {
+            for (let i = 0; i < child.material.length; ++i) {
+              child.material[i].dispose()
+            }
+          } else {
+            child.material.dispose()
+          }
+        }
+      })
+
+      Engine.scene.clear()
+    }
 
     CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false
   }
 }
 
-export default async function EditorRendererSystem(world: World, props: EngineRendererProps): Promise<System> {
-  new EngineRenderer({ canvas: props.canvas, enabled: true })
-
+export default async function EditorInfoSystem(world: World) {
   return () => {
-    if (!accessEditorState().sceneName.value || !EngineRenderer.instance || EngineRenderer.instance.disableUpdate)
-      return
-    EngineRenderer.instance.execute(world.delta)
-
     if (SceneManager.instance.onUpdateStats) {
       Engine.renderer.info.reset()
       const renderStat = Engine.renderer.info.render as any

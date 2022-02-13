@@ -1,7 +1,6 @@
 import { Euler } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { System } from '../../ecs/classes/System'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -18,7 +17,7 @@ euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
-export default async function TransformSystem(world: World): Promise<System> {
+export default async function TransformSystem(world: World) {
   const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
   const childQuery = defineQuery([TransformChildComponent, TransformComponent])
   const copyTransformQuery = defineQuery([CopyTransformComponent])

@@ -27,7 +27,6 @@ client:
     NODE_ENV: production
     NON_CORS_PROXY_DOMAINS: "reticulum.io,<domain>,amazonaws.com"
     ROUTER_BASE_PATH: /spoke
-    SERVER_ENABLED: "false"
     SITE_DESC: Connected Worlds for Everyone
     SITE_TITLE: TheOverlay
     THUMBNAIL_ROUTE: /thumbnail/
@@ -114,7 +113,6 @@ api:
     LINKEDIN_CIENT_SECRET: "<LINKEDIN_OAUTH_CLIENT_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SERVER_ENABLED: "true"
     SERVER_HOST: "api.<domain>"
     SERVER_MODE: "api"
     SERVER_PORT: "3030"
@@ -232,7 +230,6 @@ media:
     GOOGLE_CLIENT_SECRET: "<GOOGLE_OAUTH_SECRET>"
     MAGICLINK_EMAIL_SUBJECT: Login to TheOverlay
     MAIL_FROM: info@login.<domain>
-    SERVER_ENABLED: "true"
     SERVER_HOST: "api.<domain>"
     SMTP_FROM_EMAIL: info@login.<domain>
     SMTP_FROM_NAME: noreply
@@ -282,7 +279,6 @@ gameserver:
     APP_HOST: <domain>
     AUTH_SECRET: <SAME_AUTH_SECRET_AS_IN_API>
     APP_URL: https://<domain>
-    GAMESERVER_ENABLED: "true"
     ROUTE53_ACCESS_KEY_ID: <ROUTE53_USER_ACCESS_KEY>
     ROUTE53_ACCESS_KEY_SECRET: <ROUTE53_USER_SECRET>
     ROUTE53_HOSTED_ZONE_ID: <ROUTE53_HOSTED_ZONE_ID>

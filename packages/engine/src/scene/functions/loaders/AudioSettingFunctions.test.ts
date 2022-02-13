@@ -50,6 +50,5 @@ describe('AudioSettingFunctions', () => {
     assert.equal(sceneComponentData.mediaRolloffFactor, component.mediaRolloffFactor)
     assert.equal(sceneComponentData.mediaVolume, component.mediaVolume)
     assert.equal(sceneComponentData.usePositionalAudio, component.usePositionalAudio)
-
   })
 })

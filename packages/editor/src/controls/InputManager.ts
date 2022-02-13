@@ -39,7 +39,7 @@ export default class InputManager {
 
     const actionNames = Object.keys(inputMapping)
     for (const actionName of actionNames) {
-      if (!Object.prototype.hasOwnProperty.call(inputMapping, actionName)) continue
+      if (typeof inputMapping[actionName] === 'undefined') continue
 
       const key = inputMapping[actionName].key
       this.handleActionCallback(inputMapping[actionName], event)
@@ -177,7 +177,7 @@ export default class InputManager {
 
     const actionNames = Object.keys(mouseMove)
     for (const actionName of actionNames) {
-      if (!Object.prototype.hasOwnProperty.call(mouseMove, actionName)) continue
+      if (typeof mouseMove[actionName] === 'undefined') continue
 
       const key = mouseMove[actionName].key
 
@@ -209,8 +209,7 @@ export default class InputManager {
 
     const actionNames = Object.keys(mouseWheel)
     for (const actionName of actionNames) {
-      if (!Object.prototype.hasOwnProperty.call(mouseWheel, actionName)) continue
-
+      if (typeof mouseWheel[actionName] === 'undefined') continue
       const key = mouseWheel[actionName].key
 
       if (actionName === 'deltaX' || actionName === 'deltaY') {
@@ -266,7 +265,7 @@ export default class InputManager {
 
     const keys = Object.keys(defaultState)
     for (const key of keys) {
-      if (Object.prototype.hasOwnProperty.call(defaultState, key)) {
+      if (typeof defaultState[key] !== 'undefined') {
         this.inputComponent.actionState[key] = defaultState[key]
       }
     }

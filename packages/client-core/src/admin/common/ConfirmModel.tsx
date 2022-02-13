@@ -1,8 +1,8 @@
-import React from 'react'
+import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
+import React from 'react'
 import { useStyles } from '../styles/ui'
 
 interface Props {
@@ -11,11 +11,12 @@ interface Props {
   submit: () => void
   name: string
   label: string
+  type?: string
 }
 
 const ConfirmModel = (props: Props) => {
   const classes = useStyles()
-  const { popConfirmOpen, handleCloseModel, submit, name, label } = props
+  const { popConfirmOpen, handleCloseModel, submit, name, label, type } = props
   return (
     <Dialog
       open={popConfirmOpen}
@@ -25,7 +26,7 @@ const ConfirmModel = (props: Props) => {
       classes={{ paper: classes.paperDialog }}
     >
       <DialogTitle id="alert-dialog-title">
-        Do you want to delete {label} <b>{name}</b> ?
+        Do you want to {type || 'delete'} {label} <b>{name}</b> ?
       </DialogTitle>
       <DialogActions>
         <Button onClick={handleCloseModel} className={classes.spanNone}>

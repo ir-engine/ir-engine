@@ -1,18 +1,16 @@
-import * as authentication from '@feathersjs/authentication'
+import authenticate from '../../hooks/authenticate'
 import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 
-const { authenticate } = authentication.hooks
-
 export default {
   before: {
-    all: [authenticate('jwt')],
+    all: [authenticate()],
     find: [],
     get: [],
-    create: [authenticate('jwt'), verifyScope('editor', 'write')],
-    update: [authenticate('jwt'), verifyScope('editor', 'write')],
-    patch: [authenticate('jwt'), verifyScope('editor', 'write')],
-    remove: [authenticate('jwt'), verifyScope('editor', 'write')]
+    create: [authenticate(), verifyScope('editor', 'write')],
+    update: [authenticate(), verifyScope('editor', 'write')],
+    patch: [authenticate(), verifyScope('editor', 'write')],
+    remove: [authenticate(), verifyScope('editor', 'write')]
   },
 
   after: {

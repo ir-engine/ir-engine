@@ -15,7 +15,7 @@ const Search = (props: Props) => {
   const classes = useStyles()
 
   return (
-    <Paper component="form" className={classes.searchRoot}>
+    <Paper component="div" className={classes.searchRoot}>
       <InputBase
         className={classes.input}
         placeholder={`Search for ${text}`}

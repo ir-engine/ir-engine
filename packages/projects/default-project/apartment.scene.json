@@ -13,11 +13,7 @@
           "name": "fog",
           "props": {
             "type": "linear",
-            "color": {
-              "r": 1,
-              "g": 1,
-              "b": 1
-            },
+            "color": 16777215,
             "near": 1,
             "far": 200,
             "density": 0.040000000000000036
@@ -26,6 +22,7 @@
         {
           "name": "audio-settings",
           "props": {
+            "usePositionalAudio": true,
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,
@@ -60,9 +57,31 @@
           "props": {
             "type": 1,
             "envMapTextureType": 1,
-            "envMapSourceColor": {},
+            "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/city.jpg",
-            "envMapIntensity": 1
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 512,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
           }
         }
       ],
@@ -80,7 +99,7 @@
             },
             "rotation": {
               "x": -2.7229010822088258,
-              "y": -0.3808815577267056,
+              "y": -0.3808815577267057,
               "z": -2.9776519604320537
             },
             "scale": {
@@ -181,12 +200,14 @@
         {
           "name": "ground-plane",
           "props": {
-            "color": 3561699
+            "color": 3561699,
+            "generateNavmesh": false
           }
         },
         {
           "name": "shadow",
           "props": {
+            "cast": true,
             "receive": true
           }
         }
@@ -461,7 +482,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
             "textureOverride": "",
-            "matrixAutoUpdate": true
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
           }
         },
         {
@@ -473,7 +496,9 @@
         },
         {
           "name": "interactable",
-          "props": {}
+          "props": {
+            "interactable": false
+          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -609,7 +634,7 @@
             "scale": {
               "x": 13.580000000000002,
               "y": 6.080000000000001,
-              "z": -0.23999999999999844
+              "z": 0.23999999999999844
             }
           }
         },
@@ -646,7 +671,7 @@
             "scale": {
               "x": 13.580000000000002,
               "y": 6.080000000000001,
-              "z": -0.23999999999999844
+              "z": 0.23999999999999844
             }
           }
         },
@@ -683,7 +708,7 @@
             "scale": {
               "x": 6.080000000000001,
               "y": 6.080000000000001,
-              "z": -0.23999999999999844
+              "z": 0.23999999999999844
             }
           }
         },
@@ -713,7 +738,7 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.836515972906815e-18,
+              "x": -5.836515972906806e-18,
               "y": 0.057595865315813045,
               "z": 2.7795419234960425e-16
             },
@@ -776,15 +801,15 @@
       "index": 15,
       "name": "Box Collider 32"
     },
-    "BF989CD9-DEFB-41D0-B536-0F723D5A8DBD": {
+    "765FACFA-A706-4511-8006-60A46D7D15E4": {
       "components": [
         {
           "name": "transform",
           "props": {
             "position": {
-              "x": -11.5,
-              "y": 0,
-              "z": 15
+              "x": 0,
+              "y": 2.5,
+              "z": 0
             },
             "rotation": {
               "x": 0,
@@ -803,13 +828,79 @@
           "props": {}
         },
         {
-          "name": "portal",
+          "name": "cubemapbake",
           "props": {
-            "linkedPortalId": "A4B9313F-C244-4A83-813D-281C43B671BE",
-            "spawnPosition": {
+            "options": {
+              "bakeType": 1,
+              "resolution": 512,
+              "refreshMode": 0,
+              "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 16,
+      "name": "CubemapBake"
+    },
+    "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -12,
+              "y": 0,
+              "z": 14
+            },
+            "rotation": {
               "x": 0,
               "y": 0,
               "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "portal",
+          "props": {
+            "location": "sky-station",
+            "linkedPortalId": "2803BAE7-F4F7-42FC-A95E-BC0F028492F2",
+            "spawnPosition": {
+              "x": -12,
+              "y": 0,
+              "z": 11
             },
             "spawnRotation": {
               "x": 0,
@@ -817,11 +908,70 @@
               "z": 0
             }
           }
+        },
+        {
+          "name": "trigger-volume",
+          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 16,
+      "index": 17,
       "name": "Portal"
+    },
+    "BE903182-9BF6-4761-BD32-3DDCD4638D57": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -12,
+              "y": -1,
+              "z": 14
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/portal_frame.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 18,
+      "name": "Model"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

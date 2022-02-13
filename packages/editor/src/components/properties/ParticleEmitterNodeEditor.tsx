@@ -13,7 +13,9 @@ import { useTranslation } from 'react-i18next'
 import GrainIcon from '@mui/icons-material/Grain'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
 import { EditorComponentType, updateProperty } from './Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 //creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
@@ -23,8 +25,12 @@ const CurveOptions = Object.keys(EasingFunctions).map((name) => ({
 
 export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const particleComponent = getComponent(props.node.entity, ParticleEmitterComponent)
+  const engineState = useEngineState()
+  const entity = props.node.entity
+  const particleComponent = getComponent(entity, ParticleEmitterComponent)
+  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
+  if (!particleComponent) return <></>
   return (
     <NodeEditor {...props} description={t('editor:properties.partileEmitter.description')}>
       <NumericInputGroup
@@ -40,6 +46,9 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Image" label={t('editor:properties.partileEmitter.lbl-image')}>
         <ImageInput value={particleComponent.src} onChange={updateProperty(ParticleEmitterComponent, 'src')} />
+        {hasError && (
+          <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.partileEmitter.error-url')}</div>
+        )}
       </InputGroup>
 
       <NumericInputGroup

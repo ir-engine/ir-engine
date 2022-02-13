@@ -13,7 +13,7 @@
           "name": "fog",
           "props": {
             "type": "disabled",
-            "color": {},
+            "color": 16777215,
             "near": 0.0025,
             "far": 1000,
             "density": 0.0025
@@ -22,6 +22,7 @@
         {
           "name": "audio-settings",
           "props": {
+            "usePositionalAudio": true,
             "avatarDistanceModel": "inverse",
             "avatarRolloffFactor": 2,
             "avatarRefDistance": 1,
@@ -56,9 +57,31 @@
           "props": {
             "type": 1,
             "envMapTextureType": 0,
-            "envMapSourceColor": {},
-            "envMapSourceURL": "/hdr/cubemap/Bridge2/",
-            "envMapIntensity": 1
+            "envMapSourceColor": 16777215,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapCubemapBake": {
+              "bakeType": 1,
+              "resolution": 512,
+              "refreshMode": 0,
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
           }
         }
       ],
@@ -129,9 +152,9 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "/hdr/city.jpg",
-            "cubemapPath": "/hdr/cubemap/Bridge2/",
-            "backgroundType": 3,
+            "equirectangularPath": "",
+            "cubemapPath": "/hdr/cubemap/skyboxsun25deg/",
+            "backgroundType": 1,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -177,12 +200,14 @@
         {
           "name": "ground-plane",
           "props": {
-            "color": 8311585
+            "color": 8311585,
+            "generateNavmesh": false
           }
         },
         {
           "name": "shadow",
           "props": {
+            "cast": true,
             "receive": true
           }
         }
@@ -202,9 +227,9 @@
               "z": 0
             },
             "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": -3.141592653589793,
+              "y": 1.2246467991473532e-16,
+              "z": -3.1415926535897922
             },
             "scale": {
               "x": 1,
@@ -212,10 +237,6 @@
               "z": 1
             }
           }
-        },
-        {
-          "name": "visible",
-          "props": {}
         },
         {
           "name": "spawn-point",
@@ -392,7 +413,7 @@
             "rotation": {
               "x": -0.5235987755982988,
               "y": 0.2617993877991494,
-              "z": -7.183671577107885e-17
+              "z": -1.005714020795104e-16
             },
             "scale": {
               "x": 1,

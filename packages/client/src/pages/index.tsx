@@ -70,7 +70,7 @@ export const HomePage = (): any => {
 
         <div className="link-container">
           <div className="link-block">
-            <a target="_blank" className="icon" href="https://discord.gg/mQ3D4FE">
+            <a target="_blank" className="icon" href="https://discord.gg/xrf">
               <img src="static/discord.svg" />
             </a>
             <a target="_blank" className="icon" href="https://github.com/XRFoundation">

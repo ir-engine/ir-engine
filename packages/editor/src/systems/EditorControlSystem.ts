@@ -1,5 +1,4 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -47,7 +46,7 @@ const SELECT_SENSITIVITY = 0.001
 /**
  * @author Nayankumar Patel <github.com/NPatel10>
  */
-export default async function EditorControlSystem(_: World): Promise<System> {
+export default async function EditorControlSystem(_: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
 
   const raycaster = new Raycaster()
@@ -193,8 +192,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
         editorControlComponent.selectStartPosition.copy(getInput(EditorActionSet.selectStartPosition))
 
         if (gizmoObj.activeControls) {
-          raycaster.setFromCamera(editorControlComponent.selectStartPosition, Engine.camera)
-          gizmoObj.selectAxisWithRaycaster(raycaster)
+          gizmoObj.selectAxisWithRaycaster(editorControlComponent.selectStartPosition)
 
           if (gizmoObj.selectedAxis) {
             planeNormal.copy(gizmoObj.selectedPlaneNormal!).applyQuaternion(gizmoObj.quaternion).normalize()
@@ -205,8 +203,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           }
         }
       } else if (gizmoObj.activeControls && !editorControlComponent.dragging) {
-        raycaster.setFromCamera(cursorPosition, Engine.camera)
-        gizmoObj.highlightHoveredAxis(raycaster)
+        gizmoObj.highlightHoveredAxis(cursorPosition)
       }
 
       const modifier = getInput(EditorActionSet.modifier)
@@ -415,10 +412,12 @@ export default async function EditorControlSystem(_: World): Promise<System> {
           if (editorControlComponent.selectStartPosition.distanceTo(selectEndPosition) < SELECT_SENSITIVITY) {
             const result = getIntersectingNodeOnScreen(raycaster, selectEndPosition)
             if (result) {
-              CommandManager.instance.executeCommandWithHistory(
-                shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
-                result.node!
-              )
+              if (result.node) {
+                CommandManager.instance.executeCommandWithHistory(
+                  shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
+                  result.node
+                )
+              }
             } else if (!shift) {
               CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
             }
@@ -493,7 +492,7 @@ export default async function EditorControlSystem(_: World): Promise<System> {
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
-        if (result) {
+        if (result && result.node) {
           cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true

@@ -1,7 +1,7 @@
 import { store, useDispatch } from '../../store'
 import { client } from '../../feathers'
 import { AlertService } from '../../common/services/AlertService'
-import { createState, useState } from '@hookstate/core'
+import { createState, useState } from '@speigg/hookstate'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 /**
@@ -36,6 +36,7 @@ store.receptors.push((action: GroupActionType): any => {
           group: action.list.data,
           skip: action.list.skip,
           limit: action.list.limit,
+          total: action.list.total,
           retrieving: false,
           fetched: true,
           updateNeeded: false,
@@ -57,7 +58,7 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (incDec?: 'increment' | 'decrement') => {
+  getGroupService: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
     const dispatch = useDispatch()
     {
       const skip = accessGroupState().skip.value
@@ -66,8 +67,9 @@ export const GroupService = {
         dispatch(GroupAction.fetchingGroup())
         const list = await client.service('group').find({
           query: {
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
+            $skip: skip,
+            $limit: limit,
+            search: search
           }
         })
         dispatch(GroupAction.setAdminGroup(list))

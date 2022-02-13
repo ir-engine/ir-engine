@@ -22,71 +22,69 @@ export const createApp = (): Application => {
 
   app.set('nextReadyEmitter', emitter)
 
-  if (config.analytics.enabled) {
-    try {
-      //Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
-      //Doesn't appear anything else uses it.
-      app.set('env', 'production')
-      //Feathers authentication-oauth will only append the port in production, but then it will also
-      //hard-code http as the protocol, so manually mashing host + port together if in local.
-      app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
-      app.set('port', config.server.port)
-      app.set('paginate', config.server.paginate)
-      app.set('authentication', config.authentication)
+  try {
+    //Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
+    //Doesn't appear anything else uses it.
+    app.set('env', 'production')
+    //Feathers authentication-oauth will only append the port in production, but then it will also
+    //hard-code http as the protocol, so manually mashing host + port together if in local.
+    app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
+    app.set('port', config.server.port)
+    app.set('paginate', config.server.paginate)
+    app.set('authentication', config.authentication)
 
-      app.configure(sequelize)
+    app.configure(sequelize)
 
-      // Enable security, CORS, compression, favicon and body parsing
-      app.use(helmet())
-      app.use(
-        cors({
-          origin: true,
-          credentials: true
-        })
-      )
-      app.use(compress())
-      app.use(json())
-      app.use(urlencoded({ extended: true }))
-
-      app.configure(rest())
-      app.configure(
-        socketio(
-          {
-            serveClient: false,
-            cors: {
-              origin: [
-                'https://' + config.server.clientHost,
-                'capacitor://' + config.server.clientHost,
-                'ionic://' + config.server.clientHost,
-                'https://localhost:3001'
-              ],
-              methods: ['OPTIONS', 'GET', 'POST'],
-              allowedHeaders: '*',
-              credentials: true
-            }
-          },
-          (io) => {
-            io.use((socket, next) => {
-              ;(socket as any).feathers.socketQuery = socket.handshake.query
-              ;(socket as any).socketQuery = socket.handshake.query
-              next()
-            })
-          }
-        )
-      )
-      // Configure other middleware (see `middleware/index.js`)
-      app.configure(authentication)
-      // Set up our services (see `services/index.js`)
-      app.configure(feathersLogger(winston))
-      app.configure(services)
-
-      app.use('/healthcheck', (req, res) => {
-        res.sendStatus(200)
+    // Enable security, CORS, compression, favicon and body parsing
+    app.use(helmet())
+    app.use(
+      cors({
+        origin: true,
+        credentials: true
       })
-    } catch (err) {
-      console.log('Server init failure')
-      console.log(err)
-    }
+    )
+    app.use(compress())
+    app.use(json())
+    app.use(urlencoded({ extended: true }))
+
+    app.configure(rest())
+    app.configure(
+      socketio(
+        {
+          serveClient: false,
+          cors: {
+            origin: [
+              'https://' + config.server.clientHost,
+              'capacitor://' + config.server.clientHost,
+              'ionic://' + config.server.clientHost,
+              'https://localhost:3001'
+            ],
+            methods: ['OPTIONS', 'GET', 'POST'],
+            allowedHeaders: '*',
+            credentials: true
+          }
+        },
+        (io) => {
+          io.use((socket, next) => {
+            ;(socket as any).feathers.socketQuery = socket.handshake.query
+            ;(socket as any).socketQuery = socket.handshake.query
+            next()
+          })
+        }
+      )
+    )
+    // Configure other middleware (see `middleware/index.js`)
+    app.configure(authentication)
+    // Set up our services (see `services/index.js`)
+    app.configure(feathersLogger(winston))
+    app.configure(services)
+
+    app.use('/healthcheck', (req, res) => {
+      res.sendStatus(200)
+    })
+  } catch (err) {
+    console.log('Server init failure')
+    console.log(err)
   }
 
   app.use(errorHandler({ logger } as any))

@@ -350,7 +350,6 @@ const moveByInputAxis: InputBehaviorType = (
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-
   if (inputValue.type === InputType.TWODIM) {
     controller.localMovementDirection.z = inputValue.value[0]
     controller.localMovementDirection.x = inputValue.value[1]
@@ -360,14 +359,15 @@ const moveByInputAxis: InputBehaviorType = (
     controller.localMovementDirection.x = inputValue.value[0]
   }
 }
-export const setWalking: InputBehaviorType = (
+
+export const toggleRunning: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.Ended
+  if (inputValue.lifecycleState === LifecycleValue.Started) controller.isWalking = !controller.isWalking
 }
 
 const setLocalMovementDirection: InputBehaviorType = (
@@ -450,6 +450,8 @@ const lookFromXRInputs: InputBehaviorType = (
   transform.rotation.multiply(quat)
 }
 
+const axisLookSensitivity = 320
+
 const lookByInputAxis: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
@@ -460,8 +462,8 @@ const lookByInputAxis: InputBehaviorType = (
   if (target)
     setTargetCameraRotation(
       entity,
-      target.phi - inputValue.value[1] * 20000 * delta,
-      target.theta - inputValue.value[0] * 20000 * delta,
+      target.phi - inputValue.value[1] * axisLookSensitivity,
+      target.theta - inputValue.value[0] * axisLookSensitivity,
       0.1
     )
 }
@@ -469,8 +471,13 @@ const lookByInputAxis: InputBehaviorType = (
 const gamepadLook: InputBehaviorType = (entity: Entity): void => {
   const input = getComponent(entity, InputComponent)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
-  // TODO: fix this
-  console.log('gamepadLook', data)
+  if (data.lifecycleState === LifecycleValue.Ended) {
+    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
+      type: data.type,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.Changed
+    })
+  }
   if (data.type === InputType.TWODIM) {
     input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
       type: data.type,
@@ -519,6 +526,8 @@ export const createAvatarInput = () => {
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
   map.set(GamepadButtons.B, BaseInput.JUMP)
+  // map.set(GamepadButtons.X, BaseInput.JUMP)
+  // map.set(GamepadButtons.Y, BaseInput.INTERACT)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)
   map.set(GamepadButtons.LBumper, BaseInput.GRIP_LEFT)
@@ -552,7 +561,7 @@ export const createAvatarInput = () => {
   map.set('KeyE', BaseInput.INTERACT)
   map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
-  map.set('ShiftLeft', BaseInput.WALK)
+  map.set('ShiftLeft', BaseInput.RUN)
   map.set('KeyP', BaseInput.POINTER_LOCK)
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
@@ -586,7 +595,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GRIP_RIGHT, grip)
 
   map.set(BaseInput.JUMP, setLocalMovementDirection)
-  map.set(BaseInput.WALK, setWalking)
+  map.set(BaseInput.RUN, toggleRunning)
   map.set(BaseInput.FORWARD, setLocalMovementDirection)
   map.set(BaseInput.BACKWARD, setLocalMovementDirection)
   map.set(BaseInput.LEFT, setLocalMovementDirection)

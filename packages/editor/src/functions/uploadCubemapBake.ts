@@ -8,11 +8,14 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
-import { prepareSceneForBake } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
+import {
+  prepareSceneForBake,
+  updateCubemapBakeTexture
+} from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-export const uploadBakeToServer = async (entity: Entity, projectID: string, upload?: boolean) => {
+export const uploadBakeToServer = async (entity: Entity) => {
   const bakeComponent = getComponent(entity, CubemapBakeComponent)
   const transformComponent = getComponent(entity, TransformComponent)
 
@@ -34,8 +37,6 @@ export const uploadBakeToServer = async (entity: Entity, projectID: string, uplo
 
   Engine.scene.environment = renderTarget.texture
 
-  if (!upload) return
-
   const { blob } = await convertCubemapToEquiImageData(
     Engine.renderer,
     renderTarget,
@@ -47,10 +48,13 @@ export const uploadBakeToServer = async (entity: Entity, projectID: string, uplo
   if (!blob) return
 
   const nameComponent = getComponent(entity, NameComponent)
-  const sceneName = accessEditorState().sceneName.value
-  const value = await uploadProjectAsset(projectID, [
+  const sceneName = accessEditorState().sceneName.value!
+  const projectName = accessEditorState().projectName.value!
+  const value = await uploadProjectAsset(projectName, [
     new File([blob], `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`)
   ])
 
   bakeComponent.options.envMapOrigin = value[0].url
+
+  updateCubemapBakeTexture(bakeComponent.options)
 }

@@ -4,7 +4,7 @@ import createModel from './group.model'
 import hooks from './group.hooks'
 import groupDocs from './group.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     group: Group
   }

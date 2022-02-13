@@ -8,7 +8,7 @@ import logger from '../../logger'
 /**
  * accept invite service
  */
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'a-i': AcceptInvite
   }

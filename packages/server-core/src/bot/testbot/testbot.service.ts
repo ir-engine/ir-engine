@@ -1,11 +1,26 @@
 import { Application } from '../../../declarations'
+import { getTestbotPod, runTestbotJob } from './testbot-helper'
+import hooks from './testbot.hooks'
+
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    testbot: any
+  }
+}
 
 export default (app: Application): void => {
   app.use('testbot', {
-    create: () => {
-      return { name: 'Hello' }
+    get: async () => {
+      const result = await getTestbotPod(app)
+      return result
+    },
+    create: async () => {
+      const result = await runTestbotJob(app)
+      return result
     }
   })
 
-  // TODO: Need to put authenticate hooks
+  const service = app.service('testbot')
+
+  service.hooks(hooks)
 }
