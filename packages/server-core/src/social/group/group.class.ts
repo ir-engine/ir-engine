@@ -25,11 +25,11 @@ export class Group extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const loggedInUser = extractLoggedInUserFromParams(params)
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
-    const search = params.query?.search
+    const skip = params?.query?.$skip ? params.query.$skip : 0
+    const limit = params?.query?.$limit ? params.query.$limit : 10
+    const search = params?.query?.search
     const include: any = [
       {
         model: (this.app.service('user') as any).Model,
@@ -42,7 +42,7 @@ export class Group extends Service {
         require: false
       }
     ]
-    if (params.query?.invitable === true) {
+    if (params?.query?.invitable === true) {
       include.push({
         model: (this.app.service('group-user') as any).Model,
         where: {

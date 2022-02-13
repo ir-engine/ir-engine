@@ -7,7 +7,7 @@ import logger from '../../logger'
 import locationBanDocs from './location-ban.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'location-ban': LocationBan
   }

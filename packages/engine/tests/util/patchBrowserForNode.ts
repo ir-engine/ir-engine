@@ -20,8 +20,11 @@ if (!globalThis.window) (globalThis as any).window = {}
 Object.assign((globalThis as any).window, {
   innerWidth: 1920,
   innerHeight: 1080,
-  addEventListener
+  addEventListener,
+  URL
 })
+
+class Image {}
 
 // patch three ImageLoader
 if (!globalThis.document) (globalThis as any).document = {}
@@ -33,6 +36,7 @@ Object.assign((globalThis as any).document, {
         return
     }
   },
+  URL,
   createElementNS: (ns, type) => {
     if (type === 'img') {
       const img = new Image() as any

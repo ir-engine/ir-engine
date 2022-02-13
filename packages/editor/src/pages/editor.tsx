@@ -7,7 +7,8 @@ import {
   createEngine,
   initializeBrowser,
   initializeCoreSystems,
-  initializeProjectSystems
+  initializeProjectSystems,
+  initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { useEditorState } from '../services/EditorServices'
 import { Route, Switch } from 'react-router-dom'
@@ -27,6 +28,7 @@ const EditorProtectedRoutes = () => {
   const engineState = useEngineState()
   const projectState = useProjectState()
   const [clientInitialized, setClientInitialized] = useState(false)
+  const [engineReady, setEngineReady] = useState(false)
 
   const canvasStyle = {
     zIndex: -1,
@@ -80,14 +82,6 @@ const EditorProtectedRoutes = () => {
     {
       systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
       type: SystemUpdateType.PRE_RENDER
-    },
-    {
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('@xrengine/engine/src/debug/systems/DebugHelpersSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('@xrengine/engine/src/physics/systems/PhysicsSystem')
     }
   ]
 
@@ -102,9 +96,11 @@ const EditorProtectedRoutes = () => {
       Engine.isEditor = true
       createEngine()
       initializeBrowser()
-      initializeCoreSystems(systems).then(() => {
+      initializeCoreSystems(systems).then(async () => {
+        await initializeSceneSystems()
         const projects = projectState.projects.value.map((project) => project.name)
-        initializeProjectSystems(projects)
+        await initializeProjectSystems(projects)
+        setEngineReady(true)
       })
     }
   }, [projectState.projects.value])
@@ -115,7 +111,7 @@ const EditorProtectedRoutes = () => {
         authUser?.accessToken.value != null &&
         authUser.accessToken.value.length > 0 &&
         user?.id.value != null &&
-        engineState.isEngineInitialized.value && <EditorContainer />
+        engineReady && <EditorContainer />
       ) : (
         <Projects />
       )}

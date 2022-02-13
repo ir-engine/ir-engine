@@ -6,7 +6,7 @@ import hooks from './location-admin.hooks'
 import locationAdminDocs from './location-admin.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'location-admin': LocationAdmin
   }

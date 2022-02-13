@@ -19,7 +19,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { InstanceService } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { validateForm } from '../../common/Validation/formValidation'
+import { validateForm } from '../../common/validation/formValidation'
 import { PartyService } from '../../services/PartyService'
 
 interface Props {

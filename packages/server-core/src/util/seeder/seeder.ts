@@ -27,7 +27,7 @@ const seed = async (app: Application, cfg: ServicesSeedConfig) => {
     throw new Error('You must specify an array of templates for seeded objects.')
   }
 
-  const service = app.service(cfg.path)
+  const service = app.service(cfg.path as any)
   await service.remove(null, null)
 
   const pushPromise = async (template) => {

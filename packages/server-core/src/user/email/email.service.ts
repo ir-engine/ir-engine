@@ -6,7 +6,7 @@ import Mailer from 'feathers-mailer'
 import config from '../../appconfig'
 import emailDocs from './email.docs'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     email: Email
   }

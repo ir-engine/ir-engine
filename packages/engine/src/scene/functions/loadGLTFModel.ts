@@ -230,7 +230,7 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
 
   return new Promise<GLTF | undefined>((resolve, reject) => {
     AssetLoader.load(
-      { url: modelComponent.src, entity, instanced: modelComponent.isUsingGPUInstancing },
+      { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
       (res) => {
         if (res.scene instanceof Object3D) {
           // TODO: refactor this

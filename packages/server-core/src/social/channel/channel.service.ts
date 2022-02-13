@@ -6,7 +6,7 @@ import logger from '../../logger'
 import channelDocs from './channel.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     channel: Channel
   }
@@ -25,9 +25,10 @@ export default (app: Application) => {
    */
   const event = new Channel(options, app)
   event.docs = channelDocs
+
   app.use('channel', event)
 
-  const service = app.service('channel')
+  const service: any = app.service('channel')
 
   service.hooks(hooks)
 

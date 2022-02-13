@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { ScopeTypeInterface } from '@xrengine/common/src/dbmodels/ScopeType'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ScopeType = sequelizeClient.define(
+  const ScopeType = sequelizeClient.define<Model<ScopeTypeInterface>>(
     'scopeType',
     {
       type: {

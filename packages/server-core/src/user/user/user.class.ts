@@ -25,7 +25,8 @@ export class User extends Service {
    * @returns {@Array} of found users
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
+    if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!
 
@@ -115,8 +116,8 @@ export class User extends Service {
     }
   }
 
-  async create(params: Params): Promise<any> {
-    const data = params
+  async create(params?: Params): Promise<any> {
+    const data = params ?? {}
     data.inviteCode = Math.random().toString(36).slice(2)
     return await super.create(data)
   }

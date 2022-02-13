@@ -12,11 +12,11 @@ export class Avatar implements ServiceMethods<any> {
   }
   async setup() {}
 
-  async get(name: string, params: Params): Promise<any> {
+  async get(name: string, params?: Params): Promise<any> {
     return (await getAvatarFromStaticResources(this.app, name))[0]
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     return await getAvatarFromStaticResources(this.app)
   }
 
@@ -24,9 +24,9 @@ export class Avatar implements ServiceMethods<any> {
     return uploadAvatarStaticResource(this.app, data, params)
   }
 
-  async update(id: string, data: any, params: Params): Promise<void> {}
-  async patch(id: string, data: any, params: Params): Promise<void> {}
-  async remove(id: string, params: Params): Promise<void> {
+  async update(id: string, data: any, params?: Params): Promise<void> {}
+  async patch(id: string, data: any, params?: Params): Promise<void> {}
+  async remove(id: string, params?: Params): Promise<void> {
     // TODO: implement avatar removal
   }
 }

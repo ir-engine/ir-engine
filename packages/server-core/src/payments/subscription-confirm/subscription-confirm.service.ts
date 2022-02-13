@@ -5,7 +5,7 @@ import config from '../../appconfig'
 import subscriptionConfirmDocs from './subscription-confirm.docs'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'subscription-confirm': SubscriptionConfirm
   }
