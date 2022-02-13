@@ -18,14 +18,14 @@ import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('volumetric/Player').default.prototype
+    player: typeof import('volumetric/player').default.prototype
   }
 }
 
-let DracosisPlayer = null! as typeof import('volumetric/Player').default
+let DracosisPlayer = null! as typeof import('volumetric/player').default
 
 if (isClient) {
-  Promise.all([import('volumetric/Player')]).then(([module1]) => {
+  Promise.all([import('volumetric/player')]).then(([module1]) => {
     DracosisPlayer = module1.default
   })
 }
