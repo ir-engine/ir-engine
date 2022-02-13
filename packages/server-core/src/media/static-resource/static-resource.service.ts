@@ -1,15 +1,16 @@
 import { Application } from '../../../declarations'
 import { StaticResource } from './static-resource.class'
-import createModel, { StaticResourceModelType } from './static-resource.model'
+import createModel from './static-resource.model'
 import hooks from './static-resource.hooks'
 import staticResourceDocs from './static-resource.docs'
+import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource
   }
   interface Models {
-    static_resource: ReturnType<typeof createModel> & StaticResourceModelType
+    static_resource: ReturnType<typeof createModel> & StaticResourceInterface
   }
 }
 

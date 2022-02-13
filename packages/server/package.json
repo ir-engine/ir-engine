@@ -49,7 +49,7 @@
     "@feathersjs/feathers": "5.0.0-pre.10",
     "@feathersjs/socketio": "5.0.0-pre.10",
     "@feathersjs/transport-commons": "5.0.0-pre.10",
-    "@kubernetes/client-node": "0.16.2",
+    "@kubernetes/client-node": "^0.16.2",
     "@xrengine/server-core": "^0.5.0",
     "aws-sdk": "2.1067.0",
     "compression": "1.7.4",

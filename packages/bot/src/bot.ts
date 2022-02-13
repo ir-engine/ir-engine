@@ -366,6 +366,7 @@ export class XREngineBot {
       throw Error('Cannot navigate without a browser!')
     }
 
+    url += url.includes('?') ? '&bot' : '?bot'
     let parsedUrl = new URL(url)
     const context = this.browser.defaultBrowserContext()
     console.log('permission allow for ', parsedUrl.origin)

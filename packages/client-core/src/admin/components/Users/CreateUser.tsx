@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
@@ -6,21 +5,22 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
 import { useAlertState } from '../../../common/services/AlertService'
 import { useAuthState } from '../../../user/services/AuthService'
+import AlertMessage from '../../common/AlertMessage'
+import AutoComplete from '../../common/AutoComplete'
+import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../../common/hooks/User.hooks'
+import InputSelect from '../../common/InputSelect'
+import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
-import { validateUserForm } from './validation'
-import AutoComplete from '../../common/AutoComplete'
-import AlertMessage from '../../common/AlertMessage'
-import _ from 'lodash'
-import InputText from '../../common/InputText'
-import InputSelect from '../../common/InputSelect'
-import { useFetchUserRole, useFetchStaticResource, useFetchScopeType } from '../../common/hooks/User.hooks'
 
 interface Props {
   open: boolean
@@ -128,7 +128,7 @@ const CreateUser = (props: Props) => {
     temp.userRole = !state.userRole ? "User role can't be empty" : ''
     temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       UserService.createUser(data)
       closeViewModel(false)
       clearState()

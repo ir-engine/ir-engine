@@ -18,6 +18,7 @@ import {
   XRSession
 } from 'three'
 import { CSM } from '../../assets/csm/CSM'
+import { isBot } from '../../common/functions/isBot'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { World } from '../classes/World'
@@ -36,7 +37,7 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
   public static xrSupported = false
-  public static isBot = false
+  public static isBot = 'window' in globalThis ? isBot(window) : false
 
   public static isHMD = false
 
