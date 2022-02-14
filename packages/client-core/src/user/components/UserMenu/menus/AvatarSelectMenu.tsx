@@ -15,21 +15,27 @@ import {
   THUMBNAIL_WIDTH,
   REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { AnimationMixer, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -80,13 +86,15 @@ export const AvatarSelectMenu = (props: Props) => {
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
   const classes = useStyle()
-  const [value, setValue] = React.useState(0)
-  const [avatarUrl, setAvatarUrl] = React.useState('')
-  const [thumbNailUrl, setThumbNailUrl] = React.useState('')
-  const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
-  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
-  const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
-  const [entity, setEntity] = React.useState<any>(null)
+  const [value, setValue] = useState(0)
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [thumbNailUrl, setThumbNailUrl] = useState('')
+  const [validAvatarUrl, setValidAvatarUrl] = useState(false)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
+  const [entity, setEntity] = useState<any>(null)
+  const panelRef = useRef<any>()
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -113,7 +121,6 @@ export const AvatarSelectMenu = (props: Props) => {
       loadAvatarForPreview(entity, event.target.value).then((obj) => {
         obj.name = 'avatar'
         scene.add(obj)
-        renderScene({ scene, camera, renderer })
         const error = validate(obj)
         setError(error)
         setObj(obj)
@@ -131,7 +138,7 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const { isPublicAvatar, changeActiveMenu, uploadAvatarModel } = props
+  const { isPublicAvatar, changeActiveMenu } = props
 
   const [fileSelected, setFileSelected] = React.useState(false)
   const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
@@ -139,14 +146,43 @@ export const AvatarSelectMenu = (props: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    setEntity(createEntity())
+    const world = useWorld()
+    const entity = createEntity()
+    addComponent(entity, AnimationComponent, {
+      // empty object3d as the mixer gets replaced when model is loaded
+      mixer: new AnimationMixer(new Object3D()),
+      animations: [],
+      animationSpeed: 1
+    })
+    addComponent(entity, LoopAnimationComponent, {
+      activeClipIndex: 0,
+      hasAvatarAnimations: true,
+      action: null!
+    })
+    setEntity(entity)
+
+    async function AvatarSelectRenderSystem(world: World) {
+      return () => {
+        // only render if this menu is open
+        if (!!panelRef.current) {
+          renderer.render(scene, camera)
+        }
+      }
+    }
+
+    initSystems(world, [
+      {
+        type: SystemUpdateType.POST_RENDER,
+        systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
+      }
+    ])
+
     const init = initializer()
     scene = init.scene
     camera = init.camera
     renderer = init.renderer
     const controls = getOrbitControls(camera, renderer.domElement)
 
-    ;(controls as any).addEventListener('change', () => renderScene({ scene, camera, renderer })) // use if there is no animation loop
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
@@ -180,23 +216,11 @@ export const AvatarSelectMenu = (props: Props) => {
           loadAvatarForPreview(entity, objectURL, file.name).then((obj) => {
             obj.name = 'avatar'
             scene.add(obj)
-            renderScene({ scene, camera, renderer })
             const error = validate(obj)
             setError(error)
             setObj(obj)
           })
         }
-        // } else {
-        //   //@ts-ignore
-        //   const loader = new FBXLoader()
-        //   const scene = loader.parse(fileData.target!.result, file.name)
-        //   scene.name = 'avatar'
-        //   scene.add(scene)
-        //   renderScene({ scene, camera, renderer })
-        //   const error = validate(scene)
-        //   setError(error)
-        //   setObj(scene)
-        // }
       } catch (error) {
         console.error(error)
         setError(t('user:avatar.selectValidFile'))
@@ -277,24 +301,23 @@ export const AvatarSelectMenu = (props: Props) => {
       return
     }
 
-    const canvas = document.createElement('canvas')
-    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
-    const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
-
-    if (selectedThumbnail == null)
+    if (selectedThumbnail == null) {
+      const canvas = document.createElement('canvas')
+      ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+      const newContext = canvas.getContext('2d')
+      newContext?.drawImage(renderer.domElement, 0, 0)
       canvas.toBlob(async (blob) => {
         await AuthService.uploadAvatarModel(selectedFile, blob!, avatarName, isPublicAvatar)
         changeActiveMenu(Views.Profile)
       })
-    else {
+    } else {
       AuthService.uploadAvatarModel(selectedFile, selectedThumbnail, avatarName, isPublicAvatar)
       changeActiveMenu(Views.Profile)
     }
   }
 
   return (
-    <div className={styles.avatarUploadPanel}>
+    <div ref={panelRef} className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
         <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />

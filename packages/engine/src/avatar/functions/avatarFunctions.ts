@@ -69,7 +69,8 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string, fileName = null) => {
   const parent = await loadAvatarModelAsset(avatarURL, fileName)
-  // animateModel(entity)
+  setupAvatarModel(entity)(parent)
+  animateModel(entity)
   return parent
 }
 
@@ -154,10 +155,10 @@ export const animateModel = (entity: Entity) => {
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   animationComponent.animations = AnimationManager.instance._animations
-
+  console.log(animationComponent.animations)
   if (component.action) component.action.stop()
   component.action = animationComponent.mixer
-    .clipAction(AnimationClip.findByName(animationComponent.animations, animationComponent.animations['wave'].name))
+    .clipAction(AnimationClip.findByName(animationComponent.animations, 'dance1'))
     .play()
 }
 
