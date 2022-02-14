@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import { Edit } from '@mui/icons-material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
-import Typography from '@mui/material/Typography'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import IconButton from '@mui/material/IconButton'
-import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid'
-import { Edit } from '@mui/icons-material'
-import { BotService } from '../../services/BotsService'
-import { BotCommandService } from '../../services/BotsCommand'
-import { useDispatch } from '../../../store'
-import { useBotState } from '../../services/BotsService'
-import { useBotCommandState } from '../../services/BotsCommand'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
-import UpdateBot from './updateBot'
-import ConfirmModel from '../../common/ConfirmModel'
-import { useStyles } from '../../styles/ui'
-import AlertMessage from '../../common/AlertMessage'
 import AddCommand from '../../common/AddCommand'
+import AlertMessage from '../../common/AlertMessage'
+import ConfirmModel from '../../common/ConfirmModel'
+import { BotCommandService, useBotCommandState } from '../../services/BotsCommand'
+import { BotService, useBotState } from '../../services/BotsService'
+import { useStyles } from '../../styles/ui'
+import UpdateBot from './UpdateBot'
 
-interface Props {}
-
-const DisplayBots = (props: Props) => {
-  const dispatch = useDispatch()
+const DisplayBots = () => {
   const classes = useStyles()
   const [expanded, setExpanded] = useState<string | false>('panel0')
   const [command, setCommand] = useState({

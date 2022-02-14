@@ -1,21 +1,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
-
-export type StaticResourceModelType = {
-  id: string
-  sid: string
-  name: string
-  description: string
-  url: string
-  key: number
-  mimeType: string
-  metadata: any
-}
+import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const staticResource = sequelizeClient.define<Model<StaticResourceModelType>>(
+  const staticResource = sequelizeClient.define<Model<StaticResourceInterface>>(
     'static_resource',
     {
       id: {

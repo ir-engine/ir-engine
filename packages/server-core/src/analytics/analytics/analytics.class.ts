@@ -16,8 +16,8 @@ export class Analytics extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    if (params.query!.action === 'dailyUsers') {
+  async find(params?: Params): Promise<any> {
+    if (params?.query!.action === 'dailyUsers') {
       const limit = params.query!.$limit || 30
       const returned = {
         total: limit,
@@ -41,7 +41,7 @@ export class Analytics extends Service {
         })
       }
       return returned
-    } else if (params.query!.action === 'dailyNewUsers') {
+    } else if (params?.query!.action === 'dailyNewUsers') {
       const limit = params.query!.$limit || 30
       const returned = {
         total: limit,

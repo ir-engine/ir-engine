@@ -4,9 +4,9 @@ import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
+import { columns, Data } from '../../common/variables/group'
 import { GroupService, GROUP_PAGE_LIMIT, useGroupState } from '../../services/GroupService'
 import { useStyles } from '../../styles/ui'
-import { columns, Data } from './Variables'
 import ViewGroup from './ViewGroup'
 
 interface Props {

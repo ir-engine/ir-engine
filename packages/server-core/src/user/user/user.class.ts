@@ -102,7 +102,7 @@ export class User extends Service {
         nest: true
       })
       params.query.id = {
-        $in: searchUser.map((user) => user.id)
+        $in: searchedUser.map((user) => user.id)
       }
       return super.find(params)
     } else if (action === 'invite-code-lookup') {
