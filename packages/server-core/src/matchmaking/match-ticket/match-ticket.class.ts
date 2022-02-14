@@ -37,11 +37,11 @@ export class MatchTicket implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params: Params): Promise<Data[]> {
+  async find(params?: Params): Promise<Data[]> {
     return []
   }
 
-  async get(id: Id, params: Params): Promise<OpenMatchTicket> {
+  async get(id: Id, params?: Params): Promise<OpenMatchTicket> {
     if (typeof id !== 'string' || id.length === 0) {
       throw new BadRequest('Invalid ticket id, not empty string is expected')
     }
@@ -49,7 +49,7 @@ export class MatchTicket implements ServiceMethods<Data> {
     let ticket
     if (config.server.matchmakerEmulationMode) {
       // emulate response from open-match-api
-      ticket = await emulate_getTicket(this.app, id, params.body.userId)
+      ticket = await emulate_getTicket(this.app, id, params?.body?.userId)
     } else {
       ticket = getTicket(String(id))
     }

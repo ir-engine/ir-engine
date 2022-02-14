@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
-import { DataTypes, Sequelize } from 'sequelize'
-
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import appConfig from './appconfig'
 
 dotenv.config()

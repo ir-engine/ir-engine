@@ -10,7 +10,7 @@ export class Bot extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const bots = await (this.app.service('bot') as any).Model.findAll({
       include: [
         {

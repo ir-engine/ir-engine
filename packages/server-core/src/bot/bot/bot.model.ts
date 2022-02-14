@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Sequelize, Model } from 'sequelize'
 import { Application } from '../../../declarations'
+import { BotInterface } from '@xrengine/common/src/dbmodels/Bot'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Bot = sequelizeClient.define(
+  const Bot = sequelizeClient.define<Model<BotInterface>>(
     'bot',
     {
       id: {
