@@ -155,7 +155,7 @@ export const animateModel = (entity: Entity) => {
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
   animationComponent.animations = AnimationManager.instance._animations
-  console.log(animationComponent.animations)
+
   if (component.action) component.action.stop()
   component.action = animationComponent.mixer
     .clipAction(AnimationClip.findByName(animationComponent.animations, 'dance1'))

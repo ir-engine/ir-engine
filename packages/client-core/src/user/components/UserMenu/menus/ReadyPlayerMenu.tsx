@@ -8,14 +8,22 @@ import {
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import * as THREE from 'three'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { AnimationMixer, Object3D, PerspectiveCamera, Scene, WebGLRenderer, Vector3 } from 'three'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -29,7 +37,7 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   let scene: Scene = null!
   let renderer: WebGLRenderer = null!
-  let maxBB = new THREE.Vector3(2, 2, 2)
+  // let maxBB = Vector3(2, 2, 2)
   let camera: PerspectiveCamera = null!
   let controls: OrbitControls = null!
 
@@ -38,15 +46,46 @@ export const ReadyPlayerMenu = (props: Props) => {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
+  const [entity, setEntity] = useState<any>(null)
+  const panelRef = useRef<any>()
 
   useEffect(() => {
+    const world = useWorld()
+    const entity = createEntity()
+    addComponent(entity, AnimationComponent, {
+      // empty object3d as the mixer gets replaced when model is loaded
+      mixer: new AnimationMixer(new Object3D()),
+      animations: [],
+      animationSpeed: 1
+    })
+    addComponent(entity, LoopAnimationComponent, {
+      activeClipIndex: 0,
+      hasAvatarAnimations: true,
+      action: null!
+    })
+    setEntity(entity)
+
+    async function AvatarSelectRenderSystem(world: World) {
+      return () => {
+        // only render if this menu is open
+        if (!!panelRef.current) {
+          renderer.render(scene, camera)
+        }
+      }
+    }
+
+    initSystems(world, [
+      {
+        type: SystemUpdateType.POST_RENDER,
+        systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
+      }
+    ])
     const init = initializer()
     scene = init.scene
     camera = init.camera
     renderer = init.renderer
 
     controls = getOrbitControls(camera, renderer.domElement)
-    ;(controls as any).addEventListener('change', () => renderScene({ scene, camera, renderer })) // use if there is no animation loop
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
@@ -56,7 +95,6 @@ export const ReadyPlayerMenu = (props: Props) => {
     window.addEventListener('message', handleMessageEvent)
 
     return () => {
-      ;(controls as any).removeEventListener('change', () => renderScene({ scene, camera, renderer }))
       window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
       window.removeEventListener('message', handleMessageEvent)
     }
@@ -68,34 +106,16 @@ export const ReadyPlayerMenu = (props: Props) => {
       setAvatarUrl(url)
 
       try {
-        var avatarResult = await new Promise((resolve, reject) => {
-          fetch(url)
-            .then((response) => {
-              if (!response.ok) {
-                throw Error(response.statusText)
-              }
-              return response
-            })
-            .then((response) => response.blob())
-            .then((blob) => resolve(blob))
-            .catch((error) => {
-              reject(error)
-            })
-        })
-
-        var avatarArrayBuffer = await new Response(avatarResult as any).arrayBuffer()
         const assetType = AssetLoader.getAssetType(url)
-        ;(AssetLoader.getLoader(assetType) as any).parse(avatarArrayBuffer, '', (gltf) => {
-          var avatarName = url.substring(url.lastIndexOf('/') + 1, url.length)
-          gltf.scene.name = 'avatar'
-          scene.add(gltf.scene)
-          renderScene({ camera, scene, renderer })
-          const error = validate(gltf.scene)
-          setError(error)
-          setObj(gltf.scene)
-          setSelectedFile(new File([avatarResult as any], avatarName))
-          uploadAvatar()
-        })
+        if (assetType) {
+          loadAvatarForPreview(entity, url).then((obj) => {
+            obj.name = 'avatar'
+            scene.add(obj)
+            const error = validate(obj)
+            setError(error)
+            setObj(obj)
+          })
+        }
       } catch (error) {
         console.error(error)
         setError(t('user:usermenu.avatar.selectValidFile'))
@@ -134,7 +154,7 @@ export const ReadyPlayerMenu = (props: Props) => {
   }
 
   return (
-    <div className={styles.ReadyPlayerPanel}>
+    <div ref={panelRef} className={styles.ReadyPlayerPanel}>
       <div
         id="stage"
         className={styles.stage}
@@ -147,7 +167,7 @@ export const ReadyPlayerMenu = (props: Props) => {
         }}
       ></div>
       {avatarUrl ? (
-        <iframe src={`https://${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`} />
+        <iframe src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`} />
       ) : (
         <div className={styles.centerProgress}>
           <CircularProgress />
