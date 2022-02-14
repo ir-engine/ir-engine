@@ -31,7 +31,7 @@ const GroupTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(incDec)
+    GroupService.getGroupService(incDec, null, newPage)
     setPage(newPage)
   }
 
