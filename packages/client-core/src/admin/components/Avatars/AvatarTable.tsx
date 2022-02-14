@@ -15,6 +15,7 @@ if (!global.setImmediate) {
 
 interface Props {
   locationState?: any
+  search: string
 }
 
 const AvatarTable = (props: Props) => {
@@ -56,7 +57,7 @@ const AvatarTable = (props: Props) => {
     setRefetch(false)
   }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
-  const createData = (el: any, sid: any, name: string, key: string): AvatarData => {
+  const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
     return {
       el,
       sid,
@@ -80,7 +81,7 @@ const AvatarTable = (props: Props) => {
             onClick={() => {
               setPopConfirmOpen(true)
               setAvatarId(el.id)
-              setAvatarName(name)
+              setAvatarName(name as any)
             }}
           >
             <span className={classes.spanDange}>Delete</span>
