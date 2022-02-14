@@ -11,7 +11,6 @@ export default (propertyName: string) => {
       ...context.params.query,
       [propertyName]: loggedInUser?.id || null
     }
-
     return context
   }
 }
