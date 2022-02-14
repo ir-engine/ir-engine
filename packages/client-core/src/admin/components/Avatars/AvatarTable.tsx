@@ -7,7 +7,7 @@ import { useStyles } from '../../styles/ui'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import ConfirmModel from '../../common/ConfirmModel'
-import ViewAvatar from './viewAvatar'
+import ViewAvatar from './ViewAvatar'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -57,7 +57,6 @@ const AvatarTable = (props: Props) => {
   }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
   const createData = (el: any, sid: any, name: string, key: string): AvatarData => {
-    console.log(el)
     return {
       el,
       sid,

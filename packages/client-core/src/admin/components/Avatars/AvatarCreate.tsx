@@ -13,6 +13,9 @@ import Drawer from '@mui/material/Drawer'
 import Container from '@mui/material/Container'
 import { styled } from '@mui/material/styles'
 import { AvatarService } from '../../services/AvatarService'
+import _ from 'lodash'
+import { validateForm } from '../../common/Validation/formValidation'
+import AlertMessage from '../../common/AlertMessage'
 
 const Input = styled('input')({
   display: 'none'
@@ -21,29 +24,59 @@ const Input = styled('input')({
 const AvatarCreate = ({ handleClose, open }) => {
   const { t } = useTranslation()
   const classes = useStyles()
-  const [avatarName, setAvatarName] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const [newAvatar, setNewAvatar] = useState({
+    avatarName: '',
+    avatarUrl: '',
+    description: ''
+  })
+  const [formErrors, setFormErrors] = useState({
+    avatarName: '',
+    avatarUrl: '',
+    description: ''
+  })
   const [selectUse, setSelectUse] = useState(false)
-  const [description, setDescription] = useState('')
+  const [openAlter, setOpenAlter] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleAvatarNameChange = (e) => {
-    e.preventDefault()
-    setAvatarName(e.target.value)
+  const handleChangeInput = (e) => {
+    const names = e.target.name
+    const value = e.target.value
+    let temp = formErrors
+    temp[names] = value.length < 2 ? `${_.upperFirst(names)} is required` : ''
+    setFormErrors(temp)
+    setNewAvatar({ ...newAvatar, [names]: value })
   }
 
-  const handleAvatarUrlChange = (event) => {
-    event.preventDefault()
-    setAvatarUrl(event.target.value)
+  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpenAlter(false)
   }
 
   const uploadByUrls = async () => {
     const data = {
-      name: avatarName,
-      description: description,
-      url: avatarUrl,
+      name: newAvatar.avatarName,
+      description: newAvatar.description,
+      url: newAvatar.avatarUrl,
       staticResourceType: 'avatar'
     }
-    await AvatarService.createAdminAvatar(data)
+    let temp = formErrors
+    if (!newAvatar.avatarName) {
+      temp.avatarName = "Name can't be empty"
+    }
+    if (!newAvatar.description) {
+      temp.description = "Description can't be empty"
+    }
+    if (!newAvatar.avatarUrl) {
+      temp.avatarUrl = "avatar url can't be empty"
+    }
+    if (validateForm(newAvatar, formErrors)) {
+      await AvatarService.createAdminAvatar(data)
+    } else {
+      setError('Please fill all required field')
+      setOpenAlter(true)
+    }
   }
 
   return (
@@ -63,23 +96,28 @@ const AvatarCreate = ({ handleClose, open }) => {
 
             <div style={{ marginTop: '2rem' }}>
               <InputText
-                value={avatarName}
-                handleInputChange={handleAvatarNameChange}
-                name="avatarname"
-                formErrors={[]}
+                value={newAvatar.avatarName}
+                handleInputChange={handleChangeInput}
+                name="avatarName"
+                formErrors={formErrors.avatarName}
               />
               <InputText
-                value={description}
-                handleInputChange={(e) => setDescription(e.target.value)}
+                value={newAvatar.description}
+                handleInputChange={handleChangeInput}
                 name="description"
-                formErrors={[]}
+                formErrors={formErrors.description}
               />
 
               <Button className={classes.saveBtn} onClick={() => setSelectUse(!selectUse)} style={{ width: '97%' }}>
                 {!selectUse ? 'Upload files' : 'Use url instead'}
               </Button>
               {!selectUse ? (
-                <InputText value={avatarUrl} handleInputChange={handleAvatarUrlChange} formErrors={[]} name="avatar" />
+                <InputText
+                  value={newAvatar.avatarUrl}
+                  handleInputChange={handleChangeInput}
+                  formErrors={formErrors.avatarUrl}
+                  name="avatarUrl"
+                />
               ) : (
                 <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                   <Input
@@ -110,6 +148,7 @@ const AvatarCreate = ({ handleClose, open }) => {
           </DialogActions>
         </Container>
       </Drawer>
+      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </React.Fragment>
   )
 }
