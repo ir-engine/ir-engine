@@ -47,6 +47,20 @@ const AvatarCreate = ({ handleClose, open }) => {
     setNewAvatar({ ...newAvatar, [names]: value })
   }
 
+  const clearState = () => {
+    setNewAvatar({
+      ...newAvatar,
+      avatarName: '',
+      avatarUrl: '',
+      description: ''
+    })
+    setFormErrors({
+      ...formErrors,
+      avatarName: '',
+      avatarUrl: '',
+      description: ''
+    })
+  }
   const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return
@@ -73,6 +87,7 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
     if (validateForm(newAvatar, formErrors)) {
       await AvatarService.createAdminAvatar(data)
+      clearState()
     } else {
       setError('Please fill all required field')
       setOpenAlter(true)
@@ -142,7 +157,13 @@ const AvatarCreate = ({ handleClose, open }) => {
             <Button className={classes.saveBtn} onClick={uploadByUrls}>
               Upload
             </Button>
-            <Button onClick={handleClose} className={classes.saveBtn}>
+            <Button
+              onClick={() => {
+                handleClose()
+                clearState()
+              }}
+              className={classes.saveBtn}
+            >
               Cancel
             </Button>
           </DialogActions>
