@@ -298,7 +298,7 @@ export class XREngineBot {
       if (fs.existsSync(chromePath)) {
         options.executablePath = chromePath
       } else {
-        console.warn('Warning! Please install Google Chrome to make bot workiing correctly in headless mode.\n')
+        console.warn('Warning! Please install Google Chrome to make bot work correctly in headless mode.\n')
       }
     }
     return options
@@ -366,6 +366,7 @@ export class XREngineBot {
       throw Error('Cannot navigate without a browser!')
     }
 
+    url += url.includes('?') ? '&bot' : '?bot'
     let parsedUrl = new URL(url)
     const context = this.browser.defaultBrowserContext()
     console.log('permission allow for ', parsedUrl.origin)

@@ -1,4 +1,3 @@
-import MuiAlert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
@@ -12,16 +11,15 @@ import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import Snackbar from '@mui/material/Snackbar'
 import Switch from '@mui/material/Switch'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAlertState } from '../../../common/services/AlertService'
+import AlertMessage from '../../common/AlertMessage'
+import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
-import { validateUserForm } from '../Users/validation'
-import AlertMessage from '../../common/AlertMessage'
 
 interface Props {
   open: boolean
@@ -150,7 +148,7 @@ const CreateLocation = (props: Props) => {
     }
     console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)
       closeViewModel(false)
     } else {

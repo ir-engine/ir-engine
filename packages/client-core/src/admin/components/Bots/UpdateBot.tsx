@@ -1,32 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import { Autorenew, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import FormControl from '@mui/material/FormControl'
-import InputBase from '@mui/material/InputBase'
-import { Save, Autorenew } from '@mui/icons-material'
-import { useLocationState } from '../../services/LocationService'
-import { useInstanceState } from '../../services/InstanceService'
-import { useDispatch } from '../../../store'
-import { validateForm } from './validation'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import { BotService } from '../../services/BotsService'
-import { useAuthState } from '../../../user/services/AuthService'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import { InstanceService } from '../../services/InstanceService'
-import { LocationService } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
-import AlertMessage from '../../common/AlertMessage'
-
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import React, { useEffect, useState } from 'react'
+import { useAuthState } from '../../../user/services/AuthService'
+import AlertMessage from '../../common/AlertMessage'
+import { validateForm } from '../../common/validation/formValidation'
+import { BotService } from '../../services/BotsService'
+import { InstanceService, useInstanceState } from '../../services/InstanceService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -37,7 +31,6 @@ interface Props {
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
-  const dispatch = useDispatch()
   const classes = useStyles()
   const [state, setState] = useState({
     name: '',

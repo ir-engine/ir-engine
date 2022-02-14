@@ -18,7 +18,7 @@ export class Seat extends Service {
 
   async create(data: any, params?: Params): Promise<any> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
-    if (userId == null) {
+    if (userId == undefined) {
       throw new Error('Invalid user')
     }
     const subscription = await this.app.service('subscription').find({

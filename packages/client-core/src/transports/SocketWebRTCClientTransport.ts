@@ -13,6 +13,7 @@ import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 // import { encode, decode } from 'msgpackr'
@@ -70,7 +71,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.onConnection = this.onConnection.bind(this)
   }
 
-  mediasoupDevice = new mediasoupClient.Device()
+  mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
   leaving = false
   left = false
   reconnecting = false
