@@ -161,7 +161,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
     `}</style>
       <div id="loading-container" xr-layer="true">
         <div id="thumbnail">
-          <img xr-layer="true" xr-pixel-ratio="2" src={thumbnailUrl} crossOrigin="anonymous" />
+          <img xr-layer="true" xr-pixel-ratio="1" src={thumbnailUrl} crossOrigin="anonymous" />
         </div>
         <div id="loading-ui" xr-layer="true">
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">

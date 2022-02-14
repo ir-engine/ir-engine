@@ -9,10 +9,10 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { useStyles } from '../../styles/ui'
-import { formValid } from './validation'
 
 interface Props {
   open: boolean
@@ -62,7 +62,7 @@ const CreateGroup = (props: Props) => {
     temp.name = !state.name ? "Name can't be empty" : ''
     temp.description = !state.description ? "Description can't be empty" : ''
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       GroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,

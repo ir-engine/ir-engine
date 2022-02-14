@@ -26,6 +26,8 @@ import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import IconButton from '@mui/material/IconButton'
+import InputText from '../../../../admin/common/InputText'
 
 interface Props {
   changeActiveMenu: Function
@@ -349,9 +351,9 @@ export const AvatarSelectMenu = (props: Props) => {
   return (
     <div className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
-        <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
+        <IconButton className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
-        </button>
+        </IconButton>
         <h2>{t('user:avatar.title')}</h2>
       </div>
       <div
@@ -387,7 +389,8 @@ export const AvatarSelectMenu = (props: Props) => {
           <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <Paper className={classes.paper2}>
+      <InputText value={avatarName} handleInputChange={handleAvatarNameChange} name="avatarname" formErrors={[]} />
+      {/* <Paper className={classes.paper2}>
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#ccc' }}
           inputProps={{ 'aria-label': 'avatar url' }}
@@ -399,7 +402,7 @@ export const AvatarSelectMenu = (props: Props) => {
           onChange={handleAvatarNameChange}
           placeholder="Avatar Name"
         />
-      </Paper>
+      </Paper> */}
       <div>
         <Tabs
           value={value}
@@ -414,7 +417,11 @@ export const AvatarSelectMenu = (props: Props) => {
             classes={{ root: classes.tabRoot }}
           />
           <Tab
-            style={value == 1 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            style={
+              value == 1
+                ? { color: '#f1f1f1', fontWeight: 'bold', cursor: 'pointer', border: '1px solid red' }
+                : { color: '#54585d' }
+            }
             label="Upload Files"
             {...a11yProps(1)}
           />
@@ -423,7 +430,14 @@ export const AvatarSelectMenu = (props: Props) => {
       <TabPanel value={value} index={0}>
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
-            <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+            <InputText value={avatarUrl} handleInputChange={handleAvatarUrlChange} formErrors={[]} name="avatar" />
+            <InputText
+              value={thumbNailUrl}
+              handleInputChange={handleThumbnailUrlChange}
+              formErrors={[]}
+              name="thumbnail"
+            />
+            {/* <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
               <InputBase
                 sx={{ ml: 1, flex: 1, color: '#ccc' }}
                 placeholder="Paste Avatar Url..."
@@ -432,8 +446,8 @@ export const AvatarSelectMenu = (props: Props) => {
                 value={avatarUrl}
                 onChange={handleAvatarUrlChange}
               />
-            </Paper>
-            <Paper className={classes.paper} style={{ padding: '4px 0' }}>
+            </Paper> */}
+            {/* <Paper className={classes.paper} style={{ padding: '4px 0' }}>
               <InputBase
                 sx={{ ml: 1, flex: 1, color: '#ccc' }}
                 placeholder="Paste Thumbnail Url..."
@@ -442,7 +456,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 value={thumbNailUrl}
                 onChange={handleThumbnailUrlChange}
               />
-            </Paper>
+            </Paper> */}
           </div>
           <button
             type="button"
@@ -509,6 +523,8 @@ export const AvatarSelectMenu = (props: Props) => {
           </button>
         </div>
       </TabPanel>
+
+      <div></div>
     </div>
   )
 }

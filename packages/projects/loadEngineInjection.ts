@@ -1,5 +1,5 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { ProjectConfigInterface } from './ProjectConfigInterface'
+import type { World } from '@xrengine/engine/src/ecs/classes/World'
+import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
 export const loadEngineInjection = async (world: World, projects: string[]) => {
   return Promise.all(
