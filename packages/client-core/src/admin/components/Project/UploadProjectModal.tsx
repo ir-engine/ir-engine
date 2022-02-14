@@ -1,21 +1,18 @@
-import classNames from 'classnames'
-import React, { useState } from 'react'
-import styles from './Projects.module.scss'
-import { ProjectService } from '../../../common/services/ProjectService'
-import { useDispatch } from '../../../store'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import GroupIcon from '@mui/icons-material/Group'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Modal from '@mui/material/Modal'
 import MenuItem from '@mui/material/MenuItem'
+import Modal from '@mui/material/Modal'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-import CircularProgress from '@mui/material/CircularProgress'
-import GroupIcon from '@mui/icons-material/Group'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import { useAuthState, AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
+import classNames from 'classnames'
+import React, { useState } from 'react'
+import { ProjectService } from '../../../common/services/ProjectService'
+import { useDispatch } from '../../../store'
+import styles from './Projects.module.scss'
 
 interface Props {
   open: boolean
@@ -27,9 +24,6 @@ interface Props {
 }
 
 const UploadProjectModal = (props: Props): any => {
-  const authState = useAuthState()
-  const authType = useAuthState().authUser.identityProvider.type.value
-
   const { open, handleClose, scenes, repos } = props
 
   const [processing, setProcessing] = useState(false)

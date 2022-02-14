@@ -381,6 +381,30 @@ export const useStyles = makeStyles((theme: Theme) =>
         height: '80px'
       }
     },
+    center: {
+      margin: '3rem auto',
+      textAlign: 'center'
+    },
+    mb40px: {
+      marginBottom: '40px'
+    },
+    typoFontsm: {
+      width: '100%',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.05rem'
+      }
+    },
+    groupContainer: {
+      overflowY: 'scroll',
+      height: '300px'
+    },
+    viewEntityTable: {
+      minWidth: 650
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
     pad: {
       padding: '20px'
     },

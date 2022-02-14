@@ -1,36 +1,26 @@
-import React from 'react'
 import Grid from '@mui/material/Grid'
-import SearchScene from './SearchScene'
-import SceneTable from './sceneTable'
-import { useSceneStyles } from './styles'
+import React from 'react'
+import Search from '../../common/Search'
+import { useStyles } from '../../styles/ui'
+import SceneTable from './SceneTable'
 
 const Scenes = () => {
-  const classes = useSceneStyles()
-  const [userModalOpen, setUserModalOpen] = React.useState(false)
+  const classes = useStyles()
+  const [search, setSearch] = React.useState('')
 
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setUserModalOpen(open)
-  }
-
-  const closeViewModel = (open: boolean) => {
-    setUserModalOpen(open)
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
   }
 
   return (
     <div>
       <Grid container spacing={3} className={classes.marginBottom}>
         <Grid item xs={12}>
-          <SearchScene />
+          <Search text="scene" handleChange={handleChange} />
         </Grid>
       </Grid>
       <div>
-        <SceneTable />
+        <SceneTable search={search} />
       </div>
     </div>
   )

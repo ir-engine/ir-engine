@@ -48,11 +48,11 @@
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
     "helmet": "5.0.2",
-    "winston": "3.5.1"
+    "winston": "3.6.0"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
-    "@types/node": "16.11.22",
+    "@types/node": "16.11.24",
     "cross-env": "7.0.3",
     "ts-node-dev": "1.1.8",
     "typescript": "4.5.5"
