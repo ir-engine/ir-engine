@@ -7,6 +7,7 @@ const { authenticate } = authentication.hooks
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params } = context
+
     if (!context.params) context.params = {}
     const authHeader = params.headers?.authorization
     let authSplit
