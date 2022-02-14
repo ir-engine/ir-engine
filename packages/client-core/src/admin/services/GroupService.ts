@@ -12,7 +12,7 @@ import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
  */
 
 //State
-export const GROUP_PAGE_LIMIT = 3
+export const GROUP_PAGE_LIMIT = 12
 
 export const state = createState({
   group: [] as Array<Group>,

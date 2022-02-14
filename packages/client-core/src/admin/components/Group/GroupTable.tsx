@@ -27,7 +27,7 @@ const GroupTable = (props: Props) => {
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
-  const adminGroupCount = adminGroupState.total
+  const adminGroupCount = adminGroupState.total.value
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -109,7 +109,7 @@ const GroupTable = (props: Props) => {
         column={columns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminGroups.length}
+        count={adminGroupCount}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
