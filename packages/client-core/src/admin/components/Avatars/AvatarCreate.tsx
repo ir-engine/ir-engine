@@ -14,7 +14,7 @@ import Container from '@mui/material/Container'
 import { styled } from '@mui/material/styles'
 import { AvatarService } from '../../services/AvatarService'
 import _ from 'lodash'
-import { validateForm } from '../../common/Validation/formValidation'
+import { validateForm } from '../../common/validation/formValidation'
 import AlertMessage from '../../common/AlertMessage'
 
 const Input = styled('input')({
