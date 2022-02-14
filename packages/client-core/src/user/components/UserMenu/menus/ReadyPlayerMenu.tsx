@@ -46,7 +46,7 @@ export const ReadyPlayerMenu = (props: Props) => {
     renderer = init.renderer
 
     controls = getOrbitControls(camera, renderer.domElement)
-    ;(controls as any).addEventListener('change', renderScene) // use if there is no animation loop
+    ;(controls as any).addEventListener('change', () => renderScene({ scene, camera, renderer })) // use if there is no animation loop
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
