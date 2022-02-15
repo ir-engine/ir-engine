@@ -194,10 +194,6 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "ground-plane",
           "props": {
             "color": 8311585,
@@ -446,6 +442,40 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 6,
       "name": "directional light"
+    },
+    "1C72663A-8256-43B4-AE01-EE399D960FC2": {
+      "components": [
+        {
+          "name": "system",
+          "props": {
+            "filePath": "__$project$__/default-project/mg-scripts/CloudFlooring.ts",
+            "systemUpdateType": "FIXED",
+            "enableClient": true,
+            "enableServer": true,
+            "args": {}
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7,
+      "name": "System"
+    },
+    "0D3D5639-4C6E-4858-A8C4-E2550A24C008": {
+      "components": [
+        {
+          "name": "system",
+          "props": {
+            "filePath": "__$project$__/default-project/mg-scripts/EnvironmentLighting.ts",
+            "systemUpdateType": "FIXED",
+            "enableClient": true,
+            "enableServer": true,
+            "args": {}
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 8,
+      "name": "System 2"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
