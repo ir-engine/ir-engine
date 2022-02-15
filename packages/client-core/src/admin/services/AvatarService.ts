@@ -8,7 +8,7 @@ import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 
 //State
-export const AVATAR_PAGE_LIMIT = 100
+export const AVATAR_PAGE_LIMIT = 12
 
 const state = createState({
   avatars: [] as Array<AvatarInterface>,
@@ -49,19 +49,18 @@ export const useAvatarState = () => useState(state) as any as typeof state
 
 //Service
 export const AvatarService = {
-  fetchAdminAvatars: async (incDec?: 'increment' | 'decrement') => {
+  fetchAdminAvatars: async (incDec?: 'increment' | 'decrement', skip = accessAvatarState().skip.value) => {
     const dispatch = useDispatch()
     {
       const adminAvatarState = accessAvatarState()
       const limit = adminAvatarState.limit.value
-      const skip = adminAvatarState.skip.value
       const avatars = await client.service('static-resource').find({
         query: {
           $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
           staticResourceType: 'avatar',
           userId: null,
           $limit: limit,
-          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $skip: skip * AVATAR_PAGE_LIMIT,
           getAvatarThumbnails: true
         }
       })

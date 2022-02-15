@@ -156,6 +156,6 @@ invalid cert to get to the login page. You'll next have to open the dev tools fo
 the console and/or Network tab. There should be errors on https://api-local.theoverlay.io; open that link
 in a new tab and accept the invalid certificate for that, too.
 
-When you go to https://local.theoverlay.io/location/test, you'll have to open the console again, find the
+When you go to https://local.theoverlay.io/location/default, you'll have to open the console again, find the
 erroring https://gameserver-local.theoverlay.io, open that link in a new tab, and accept the invalid certificate
 for that domain, as well.

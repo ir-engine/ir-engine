@@ -13,14 +13,12 @@ import { extractLoggedInUserFromParams } from '../auth-management/auth-managemen
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 
-export type IdentityProviderDataType = IdentityProviderInterface & { userId: string }
-
 /**
  * A class for identity-provider service
  *
  * @author Vyacheslav Solovjov
  */
-export class IdentityProvider<T = IdentityProviderDataType> extends Service<T> {
+export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> {
   public app: Application
   public docs: any
 
