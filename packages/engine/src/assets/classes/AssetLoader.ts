@@ -182,7 +182,6 @@ type AssetLoaderParamType = {
   castShadow?: boolean
   receiveShadow?: boolean
   instanced?: boolean
-  fileName?: string | null
 }
 
 const assetLoadCallback =
@@ -233,7 +232,7 @@ const load = async (
     onLoad(AssetLoader.Cache.get(url))
   }
 
-  const assetType = params.fileName ? AssetLoader.getAssetType(params.fileName) : AssetLoader.getAssetType(url)
+  const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, params, onLoad)
 

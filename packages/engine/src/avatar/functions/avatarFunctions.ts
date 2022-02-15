@@ -48,12 +48,11 @@ import { isClient } from '../../common/functions/isClient'
 
 const vec3 = new Vector3()
 
-const loadAvatarModelAsset = async (avatarURL: string, fileName = null) => {
+const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync({
     url: avatarURL,
     castShadow: true,
-    receiveShadow: true,
-    fileName
+    receiveShadow: true
   })
   const parent = new Group()
   const root = new Group()
@@ -67,8 +66,8 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
   setupAvatarForUser(entity, parent)
 }
 
-export const loadAvatarForPreview = async (entity: Entity, avatarURL: string, fileName = null) => {
-  const parent = await loadAvatarModelAsset(avatarURL, fileName)
+export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
   setupAvatarModel(entity)(parent)
   animateModel(entity)
   return parent
