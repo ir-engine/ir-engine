@@ -1,6 +1,11 @@
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
 import { useTranslation } from 'react-i18next'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   Box3,
   Vector3,
@@ -9,8 +14,12 @@ import {
   WebGLRenderer,
   DirectionalLight,
   HemisphereLight,
-  sRGBEncoding
+  sRGBEncoding,
+  AnimationMixer,
+  Object3D
 } from 'three'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 interface SceneProps {
   scene: Scene
@@ -46,10 +55,41 @@ export const validate = ({ vScene, renderer }) => {
   return ''
 }
 
-export const initializer = () => {
+export const addAnimationLogic = (entity: Entity, world: World, setEntity: any, panelRef: any) => {
+  addComponent(entity, AnimationComponent, {
+    // empty object3d as the mixer gets replaced when model is loaded
+    mixer: new AnimationMixer(new Object3D()),
+    animations: [],
+    animationSpeed: 1
+  })
+  addComponent(entity, LoopAnimationComponent, {
+    activeClipIndex: 0,
+    hasAvatarAnimations: true,
+    action: null!
+  })
+
+  setEntity(entity)
+
+  async function AvatarSelectRenderSystem(world: World) {
+    return () => {
+      // only render if this menu is open
+      if (!!panelRef.current) {
+        renderer.render(scene, camera)
+      }
+    }
+  }
+
+  initSystems(world, [
+    {
+      type: SystemUpdateType.POST_RENDER,
+      systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
+    }
+  ])
+}
+
+export const initialize3D = () => {
   const container = document.getElementById('stage')!
   const bounds = container.getBoundingClientRect()
-
   camera = new PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
   camera.position.set(0, 1.25, 1.25)
 

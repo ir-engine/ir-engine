@@ -18,7 +18,7 @@ import {
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimationMixer, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
@@ -27,14 +27,8 @@ import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { validate, initialize3D, onWindowResize, addAnimationLogic } from './helperFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
 
 interface Props {
   changeActiveMenu: Function
@@ -148,36 +142,9 @@ export const AvatarSelectMenu = (props: Props) => {
   useEffect(() => {
     const world = useWorld()
     const entity = createEntity()
-    addComponent(entity, AnimationComponent, {
-      // empty object3d as the mixer gets replaced when model is loaded
-      mixer: new AnimationMixer(new Object3D()),
-      animations: [],
-      animationSpeed: 1
-    })
-    addComponent(entity, LoopAnimationComponent, {
-      activeClipIndex: 0,
-      hasAvatarAnimations: true,
-      action: null!
-    })
-    setEntity(entity)
+    addAnimationLogic(entity, world, setEntity, panelRef)
 
-    async function AvatarSelectRenderSystem(world: World) {
-      return () => {
-        // only render if this menu is open
-        if (!!panelRef.current) {
-          renderer.render(scene, camera)
-        }
-      }
-    }
-
-    initSystems(world, [
-      {
-        type: SystemUpdateType.POST_RENDER,
-        systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
-      }
-    ])
-
-    const init = initializer()
+    const init = initialize3D()
     scene = init.scene
     camera = init.camera
     renderer = init.renderer

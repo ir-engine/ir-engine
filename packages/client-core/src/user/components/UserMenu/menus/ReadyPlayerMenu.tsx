@@ -1,4 +1,5 @@
-import { ArrowBack } from '@mui/icons-material'
+import { ArrowBack, Check, Help } from '@mui/icons-material'
+import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import CircularProgress from '@mui/material/CircularProgress'
 import {
   MAX_ALLOWED_TRIANGLES,
@@ -10,18 +11,12 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimationMixer, Object3D, PerspectiveCamera, Scene, WebGLRenderer, Vector3 } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer, Vector3 } from 'three'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { validate, initializer, onWindowResize, renderScene } from './helperFunctions'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { validate, initialize3D, onWindowResize, addAnimationLogic } from './helperFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 interface Props {
@@ -30,20 +25,19 @@ interface Props {
   isPublicAvatar?: boolean
 }
 
+let scene: Scene
+let camera: PerspectiveCamera
+let renderer: WebGLRenderer = null!
+
 export const ReadyPlayerMenu = (props: Props) => {
   const { t } = useTranslation()
 
   const { isPublicAvatar, changeActiveMenu } = props
-
-  let scene: Scene = null!
-  let renderer: WebGLRenderer = null!
-  // let maxBB = Vector3(2, 2, 2)
-  let camera: PerspectiveCamera = null!
-  let controls: OrbitControls = null!
-
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [hover, setHover] = useState(false)
+  const [showLoading, setShowLoading] = useState(true)
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
   const [entity, setEntity] = useState<any>(null)
@@ -52,59 +46,32 @@ export const ReadyPlayerMenu = (props: Props) => {
   useEffect(() => {
     const world = useWorld()
     const entity = createEntity()
-    addComponent(entity, AnimationComponent, {
-      // empty object3d as the mixer gets replaced when model is loaded
-      mixer: new AnimationMixer(new Object3D()),
-      animations: [],
-      animationSpeed: 1
-    })
-    addComponent(entity, LoopAnimationComponent, {
-      activeClipIndex: 0,
-      hasAvatarAnimations: true,
-      action: null!
-    })
-    setEntity(entity)
-
-    async function AvatarSelectRenderSystem(world: World) {
-      return () => {
-        // only render if this menu is open
-        if (!!panelRef.current) {
-          renderer.render(scene, camera)
-        }
-      }
-    }
-
-    initSystems(world, [
-      {
-        type: SystemUpdateType.POST_RENDER,
-        systemModulePromise: Promise.resolve({ default: AvatarSelectRenderSystem })
-      }
-    ])
-    const init = initializer()
+    addAnimationLogic(entity, world, setEntity, panelRef)
+    const init = initialize3D()
     scene = init.scene
     camera = init.camera
     renderer = init.renderer
-
-    controls = getOrbitControls(camera, renderer.domElement)
+    const controls = getOrbitControls(camera, renderer.domElement)
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
     controls.update()
 
     window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    window.addEventListener('message', handleMessageEvent)
+    window.addEventListener('message', (event) => handleMessageEvent(event, entity))
 
     return () => {
       window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
-      window.removeEventListener('message', handleMessageEvent)
+      window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
     }
   }, [])
 
-  const handleMessageEvent = async (event) => {
+  const handleMessageEvent = async (event, entity) => {
     const url = event.data
+    setShowLoading(false)
     if (url != null && url.toString().toLowerCase().startsWith('http')) {
+      setShowLoading(true)
       setAvatarUrl(url)
-
       try {
         const assetType = AssetLoader.getAssetType(url)
         if (assetType) {
@@ -115,6 +82,14 @@ export const ReadyPlayerMenu = (props: Props) => {
             setError(error)
             setObj(obj)
           })
+          setShowLoading(false)
+          fetch(avatarUrl)
+            .then((res) => res.blob())
+            .then((data) => setSelectedFile(data))
+            .catch((err) => {
+              setError(err.message)
+              console.log(err.message)
+            })
         }
       } catch (error) {
         console.error(error)
@@ -130,11 +105,11 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   const closeMenu = (e) => {
     e.preventDefault()
+    uploadAvatar()
     changeActiveMenu(null)
   }
 
   const uploadAvatar = () => {
-    const error = validate(obj)
     if (error) {
       return
     }
@@ -155,34 +130,41 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   return (
     <div ref={panelRef} className={styles.ReadyPlayerPanel}>
+      <section className={styles.controlContainer}>
+        <div className={styles.actionBlock}>
+          <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
+            <ArrowBack />
+          </button>
+          {selectedFile && (
+            <button
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
+              type="button"
+              style={{ color: hover ? '#fff' : '#00f' }}
+              className={styles.iconBlock}
+              onClick={closeMenu}
+            >
+              <Check />
+            </button>
+          )}
+        </div>
+      </section>
       <div
         id="stage"
         className={styles.stage}
         style={{
           width: THUMBNAIL_WIDTH + 'px',
           height: THUMBNAIL_HEIGHT + 'px',
-          position: 'absolute',
-          top: '0',
-          right: '100%'
+          margin: '100px auto'
         }}
       ></div>
-      {avatarUrl ? (
-        <iframe src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`} />
-      ) : (
-        <div className={styles.centerProgress}>
-          <CircularProgress />
-        </div>
+      {!avatarUrl && (
+        <iframe
+          style={{ position: 'absolute', top: '0', left: '0' }}
+          src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
+        />
       )}
-      <section className={styles.controlContainer}>
-        <div className={styles.actionBlock}>
-          <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
-            <ArrowBack />
-          </button>
-          {/*<button type="button" className={styles.iconBlock} onClick={closeMenu}>
-              <Check />
-            </button>*/}
-        </div>
-      </section>
+      {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}
     </div>
   )
 }
