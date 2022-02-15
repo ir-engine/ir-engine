@@ -138,47 +138,48 @@ export default async function EditorControlSystem(_: World) {
       } else {
         const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
         const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent)?.value
-        if (!lastSelectedObj3d) continue
-        const isChanged =
-          editorControlComponent.selectionChanged ||
-          editorControlComponent.transformModeChanged ||
-          editorControlComponent.transformPropertyChanged
+        if (lastSelectedObj3d) {
+          const isChanged =
+            editorControlComponent.selectionChanged ||
+            editorControlComponent.transformModeChanged ||
+            editorControlComponent.transformPropertyChanged
 
-        if (isChanged || editorControlComponent.transformPivotChanged) {
-          if (editorControlComponent.transformPivot === TransformPivot.Selection) {
-            lastSelectedObj3d.getWorldPosition(gizmoObj.position)
-          } else {
-            box.makeEmpty()
+          if (isChanged || editorControlComponent.transformPivotChanged) {
+            if (editorControlComponent.transformPivot === TransformPivot.Selection) {
+              lastSelectedObj3d.getWorldPosition(gizmoObj.position)
+            } else {
+              box.makeEmpty()
 
-            for (let i = 0; i < selectedTransformRoots.length; i++) {
-              box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
-            }
+              for (let i = 0; i < selectedTransformRoots.length; i++) {
+                box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
+              }
 
-            box.getCenter(gizmoObj.position)
-            if (editorControlComponent.transformPivot === TransformPivot.Bottom) {
-              gizmoObj.position.y = box.min.y
+              box.getCenter(gizmoObj.position)
+              if (editorControlComponent.transformPivot === TransformPivot.Bottom) {
+                gizmoObj.position.y = box.min.y
+              }
             }
           }
-        }
 
-        if (isChanged || editorControlComponent.transformSpaceChanged) {
-          if (editorControlComponent.transformSpace === TransformSpace.LocalSelection) {
-            lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
-          } else {
-            gizmoObj.rotation.set(0, 0, 0)
+          if (isChanged || editorControlComponent.transformSpaceChanged) {
+            if (editorControlComponent.transformSpace === TransformSpace.LocalSelection) {
+              lastSelectedObj3d.getWorldQuaternion(gizmoObj.quaternion)
+            } else {
+              gizmoObj.rotation.set(0, 0, 0)
+            }
+
+            inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
           }
 
-          inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
-        }
+          if (
+            (editorControlComponent.transformModeChanged || editorControlComponent.transformSpaceChanged) &&
+            editorControlComponent.transformMode === TransformMode.Scale
+          ) {
+            gizmoObj.setLocalScaleHandlesVisible(editorControlComponent.transformSpace !== TransformSpace.World)
+          }
 
-        if (
-          (editorControlComponent.transformModeChanged || editorControlComponent.transformSpaceChanged) &&
-          editorControlComponent.transformMode === TransformMode.Scale
-        ) {
-          gizmoObj.setLocalScaleHandlesVisible(editorControlComponent.transformSpace !== TransformSpace.World)
+          gizmoObj.visible = true
         }
-
-        gizmoObj.visible = true
       }
 
       const cursorPosition = getInput(EditorActionSet.cursorPosition)

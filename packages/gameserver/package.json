@@ -50,7 +50,7 @@
     "@xrengine/engine": "^0.5.0",
     "@xrengine/projects": "^0.5.0",
     "@xrengine/server-core": "^0.5.0",
-    "aws-sdk": "2.1067.0",
+    "aws-sdk": "2.1073.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
@@ -63,15 +63,15 @@
     "serve-favicon": "2.5.0",
     "socket.io": "4.4.1",
     "trace-unhandled": "2.0.1",
-    "winston": "3.5.1"
+    "winston": "3.6.0"
   },
   "devDependencies": {
     "@types/compression": "1.7.2",
     "@types/cors": "2.8.12",
-    "@types/node": "16.11.22",
+    "@types/node": "16.11.24",
     "@types/serve-favicon": "2.5.3",
     "cross-env": "7.0.3",
-    "ts-node": "10.4.0",
+    "ts-node": "10.5.0",
     "ts-node-dev": "1.1.8",
     "typescript": "4.5.5"
   },

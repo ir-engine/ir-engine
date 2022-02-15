@@ -10,16 +10,22 @@ export class EmailSetting extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     const emailSetting = (await super.find()) as any
     const data = emailSetting.data.map((el) => {
+      let smtp = JSON.parse(el.smtp)
+      let subject = JSON.parse(el.subject)
+
+      if (typeof smtp === 'string') smtp = JSON.parse(smtp)
+      if (typeof subject === 'string') subject = JSON.parse(subject)
+
       return {
         ...el,
         smtp: {
-          ...JSON.parse(JSON.parse(el.smtp)),
-          auth: JSON.parse(JSON.parse(JSON.parse(el.smtp)).auth)
+          ...smtp,
+          auth: JSON.parse(smtp.auth)
         },
-        subject: JSON.parse(JSON.parse(el.subject))
+        subject: subject
       }
     })
 

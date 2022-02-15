@@ -153,7 +153,7 @@ export class Project extends Service {
     }
   }
 
-  async create(data: { name: string }, params: Params) {
+  async create(data: { name: string }, params?: Params) {
     const projectName = cleanString(data.name)
 
     if (fs.existsSync(path.resolve(projectsRootFolder, projectName)))
@@ -199,7 +199,7 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string }, params: Params) {
+  async update(data: { url: string }, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project', true)
@@ -264,7 +264,7 @@ export class Project extends Service {
    * @param app
    * @returns
    */
-  async patch(projectName: string, data: { files: string[] }, params: Params) {
+  async patch(projectName: string, data: { files: string[] }, params?: Params) {
     const projectConfig = await getProjectConfig(projectName)
     if (!projectConfig) return
 
@@ -293,7 +293,7 @@ export class Project extends Service {
     }
   }
 
-  async remove(id: Id, params: Params) {
+  async remove(id: Id, params?: Params) {
     if (id) {
       try {
         const { name } = await super.get(id, params)
@@ -315,7 +315,7 @@ export class Project extends Service {
     }
   }
 
-  async get(name: string, params: Params): Promise<{ data: ProjectInterface }> {
+  async get(name: string, params?: Params): Promise<{ data: ProjectInterface }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     const project = data.find((e) => e.name === name)
     if (!project) return null!
@@ -325,7 +325,7 @@ export class Project extends Service {
   }
 
   //@ts-ignore
-  async find(params: Params): Promise<{ data: ProjectInterface[] }> {
+  async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

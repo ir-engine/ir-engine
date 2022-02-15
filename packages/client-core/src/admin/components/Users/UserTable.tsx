@@ -3,9 +3,9 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
+import { userColumns, UserData, UserProps } from '../../common/variables/user'
 import { UserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
-import { userColumns, UserData, UserProps } from './Variables'
 import ViewUser from './ViewUser'
 
 const UserTable = (props: UserProps) => {
@@ -28,12 +28,12 @@ const UserTable = (props: UserProps) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(incDec)
+    UserService.fetchUsersAsAdmin(incDec, null, newPage)
     setPage(newPage)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
+    setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
 
