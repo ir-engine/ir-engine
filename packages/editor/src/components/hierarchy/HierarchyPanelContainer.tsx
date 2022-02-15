@@ -77,15 +77,14 @@ export default function HierarchyPanel() {
     })
   }
 
-  const updateNodeHierarchy = useCallback(
-    (world = useWorld()) => {
-      if (!world.entityTree) return
-      setNodes(Array.from(heirarchyTreeWalker(world.entityTree.rootNode, collapsedNodes)))
-    },
-    [collapsedNodes]
-  )
+  const updateNodeHierarchy = useCallback((collapsedNodes: HeirarchyTreeCollapsedNodeType, world = useWorld()) => {
+    if (!world.entityTree) return
+    setNodes(Array.from(heirarchyTreeWalker(world.entityTree.rootNode, collapsedNodes)))
+  }, [])
 
-  useEffect(() => updateNodeHierarchy(collapsedNodes), [collapsedNodes])
+  const updateHierarchy = useCallback(() => updateNodeHierarchy(collapsedNodes), [collapsedNodes])
+
+  useEffect(updateHierarchy, [collapsedNodes])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
@@ -113,14 +112,6 @@ export default function HierarchyPanel() {
     },
     [collapsedNodes]
   )
-
-  const onExpandAllNodes = useCallback(() => setCollapsedNodes({}), [setCollapsedNodes])
-
-  const onCollapseAllNodes = useCallback(() => {
-    const newCollapsedNodes = {}
-    useWorld().entityTree.traverse((child: any) => (newCollapsedNodes[child.id] = true))
-    setCollapsedNodes(newCollapsedNodes)
-  }, [])
   /* Expand & Collapse Functions */
 
   const onObjectChanged = useCallback(
@@ -131,13 +122,13 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
+    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
     CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateNodeHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateNodeHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
+      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
       CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
     }
   }, [])
@@ -231,11 +222,11 @@ export default function HierarchyPanel() {
 
         case 'Delete':
         case 'Backspace':
-          selectedNode && onDeleteNode(e, selectedNode)
+          if (selectedNode && !renamingNode) onDeleteNode(e, selectedNode)
           break
       }
     },
-    [nodes, expandNode, collapseNode, expandChildren, collapseChildren]
+    [nodes, expandNode, collapseNode, expandChildren, collapseChildren, renamingNode, selectedNode]
   )
 
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
@@ -380,8 +371,12 @@ export default function HierarchyPanel() {
           </MenuItem>
         </Hotkeys>
         <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
-        <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
-        <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
+        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => expandChildren(node)}>
+          {t('editor:hierarchy.lbl-expandAll')}
+        </MenuItem>
+        <MenuItem onClick={(_, node: HeirarchyTreeNodeType) => collapseChildren(node)}>
+          {t('editor:hierarchy.lbl-collapseAll')}
+        </MenuItem>
       </ContextMenu>
     </>
   )

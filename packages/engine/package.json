@@ -81,9 +81,9 @@
     "@types/yuka": "0.7.1",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
-    "url-polyfill": "1.1.12",
     "mocha": "9.2.0",
     "mock-require": "3.0.3",
+    "proxyquire": "^2.1.3",
     "rollup": "2.66.1",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-sass": "1.2.10",
@@ -91,7 +91,8 @@
     "sinon": "12.0.1",
     "trace-unhandled": "2.0.1",
     "typedoc": "0.22.11",
-    "typescript": "4.5.5"
+    "typescript": "4.5.5",
+    "url-polyfill": "1.1.12"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

@@ -61,7 +61,7 @@ export const shouldDeserializeAmbientLight: ComponentShouldDeserializeFunction =
   return getComponentCountOfType(AmbientLightComponent) <= 0
 }
 
-const parseAmbientLightProperties = (props): AmbientLightComponentType => {
+export const parseAmbientLightProperties = (props): AmbientLightComponentType => {
   return {
     color: new Color(props.color ?? SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES.color),
     intensity: props.intensity ?? SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES.intensity
