@@ -10,11 +10,6 @@ import { World } from '../../ecs/classes/World'
 import { handleGamepads } from '../functions/GamepadInput'
 import { addClientInputListeners } from '../functions/clientInputListeners'
 
-export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
-  if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
-  if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
-}
-
 export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
