@@ -99,10 +99,6 @@ export class Engine {
 
   static workers = [] as any[]
   static simpleMaterials = false
-
-  static mouseInputEnabled = true
-  static keyboardInputEnabled = true
-
   static xrFrame: XRFrame
 
   static isEditor = false

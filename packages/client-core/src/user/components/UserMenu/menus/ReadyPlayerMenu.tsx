@@ -105,8 +105,8 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    uploadAvatar()
     changeActiveMenu(null)
+    uploadAvatar()
   }
 
   const uploadAvatar = () => {

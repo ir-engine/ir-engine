@@ -1,9 +1,11 @@
+import { UserId } from './UserId'
+
 export interface IdentityProvider {
   id: number
   token: string
   type: string
   isVerified: boolean
-  userId: string
+  userId: UserId
 }
 
 export const IdentityProviderSeed: IdentityProvider = {
@@ -11,5 +13,5 @@ export const IdentityProviderSeed: IdentityProvider = {
   token: '',
   type: '',
   isVerified: false,
-  userId: ''
+  userId: '' as UserId
 }
