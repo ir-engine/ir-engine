@@ -92,25 +92,6 @@ export const StyledProjectsContainer = (styled as any).div`
 `
 
 /**
- * Creating styled component using section inheriting {ProjectsContainer}.
- * Used when user is newly onboard and has no existing projects.
- * @ProjectsContainer
- * @WelcomeContainer
- */
-export const WelcomeContainer = styled(StyledProjectsContainer)`
-  align-items: center;
-  & > * {
-    text-align: center;
-  }
-  & > *:not(:first-child) {
-    margin-top: 20px;
-  }
-  h2 {
-    max-width: 480px;
-  }
-`
-
-/**
  * Creating styled component using div.
  * Used to show the projects page header content.
  * @ProjectsHeader
