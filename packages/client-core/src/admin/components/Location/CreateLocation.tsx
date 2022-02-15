@@ -61,23 +61,27 @@ const CreateLocation = (props: Props) => {
   const errorType = alertState.type
   const errorMessage = alertState.message
 
+  const clearState = () => {
+    setState({
+      ...state,
+      name: '',
+      maxUsers: 10,
+      scene: '',
+      type: 'private',
+      videoEnabled: false,
+      audioEnabled: false,
+      screenSharingEnabled: false,
+      faceStreamingEnabled: false,
+      globalMediaEnabled: false,
+      isLobby: false,
+      isFeatured: false
+    })
+  }
+
   React.useEffect(() => {
     if (location.created.value) {
       closeViewModel(false)
-      setState({
-        ...state,
-        name: '',
-        maxUsers: 10,
-        scene: '',
-        type: 'private',
-        videoEnabled: false,
-        audioEnabled: false,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false,
-        globalMediaEnabled: false,
-        isLobby: false,
-        isFeatured: false
-      })
+      clearState()
     }
   }, [location.created.value])
 
@@ -150,6 +154,7 @@ const CreateLocation = (props: Props) => {
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)
+      clearState()
       closeViewModel(false)
     } else {
       setError('Please fill all required field')
@@ -362,7 +367,13 @@ const CreateLocation = (props: Props) => {
             <Button className={classes.saveBtn} onClick={handleSubmit}>
               Submit
             </Button>
-            <Button onClick={handleClose(false)} className={classes.saveBtn}>
+            <Button
+              onClick={() => {
+                clearState()
+                closeViewModel(false)
+              }}
+              className={classes.saveBtn}
+            >
               Cancel
             </Button>
           </DialogActions>
