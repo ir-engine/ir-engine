@@ -53,7 +53,7 @@ export default async function XRUISystem(world: World) {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
-      if (hit) {
+      if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
       }
