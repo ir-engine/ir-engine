@@ -1,4 +1,5 @@
-import { ShaderMaterial, Object3D, Mesh } from 'three'
+import { ShaderMaterial, Object3D, Mesh, Material, MeshBasicMaterial } from 'three'
+import * as ExtendMaterials from '../common/functions/ExtendMaterial'
 
 export class DissolveEffect {
   time = 0
@@ -117,26 +118,39 @@ export class DissolveEffect {
     ].join('\n')
 
     const hasUV = object.geometry.hasAttribute('uv')
-    const hasTexture = (<any>object.material).map !== null
+    const material = object.material as any
+    const hasTexture = !!material.map
+    console.log(material, hasUV)
 
-    const mat = new ShaderMaterial({
-      uniforms: {
-        color: {
-          value: (<any>object.material).color
-        },
-        origin_texture: {
-          value: (<any>object.material).map
-        },
-        // texture_dissolve: {
-        //   value: textureNoise
-        // },
-        time: {
-          value: -200
-        }
-      },
-      vertexShader: hasUV ? vertexUVShader : vertexNonUVShader,
-      fragmentShader: hasTexture ? fragmentTextureShader : fragmentColorShader
+    const mat = ExtendMaterials.extendMaterial(material, {
+      material: {
+        skinning: true
+      }
+      // uniforms: {
+      // color: {
+      //   value: material.color
+      // },
+      // origin_texture: {
+      //   value: material.map
+      // },
+      // texture_dissolve: {
+      //   value: textureNoise
+      // },
+      // time: {
+      //   value: -200
+      // }
+      // },
+      // vertex: {
+
+      // },
+      // fragment: {
+
+      // }
+      // vertexShader: hasUV ? vertexUVShader : vertexNonUVShader,
+      // fragmentShader: hasTexture ? fragmentTextureShader : fragmentColorShader
     })
+
+    console.log(mat)
 
     return mat
   }
