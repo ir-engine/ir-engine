@@ -12,10 +12,10 @@
         {
           "name": "fog",
           "props": {
-            "type": "disabled",
-            "color": 16777215,
-            "near": 0.0025,
-            "far": 1000,
+            "type": "linear",
+            "color": 2363195,
+            "near": 1,
+            "far": 750,
             "density": 0.0025
           }
         },
@@ -151,10 +151,10 @@
         {
           "name": "skybox",
           "props": {
-            "backgroundColor": 0,
+            "backgroundColor": 3083598,
             "equirectangularPath": "",
             "cubemapPath": "/hdr/cubemap/skyboxsun25deg/",
-            "backgroundType": 1,
+            "backgroundType": 0,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -162,7 +162,7 @@
               "mieCoefficient": 0.004999999999999893,
               "mieDirectionalG": 0.99,
               "inclination": 0.10471975511965978,
-              "azimuth": 0.16666666666666666
+              "azimuth": 0.5
             }
           }
         }
@@ -187,16 +187,16 @@
               "z": 0
             },
             "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
+              "x": 2.220446049250313e-16,
+              "y": 2.220446049250313e-16,
+              "z": 2.220446049250313e-16
             }
           }
         },
         {
           "name": "ground-plane",
           "props": {
-            "color": 8311585,
+            "color": 0,
             "generateNavmesh": false
           }
         },
@@ -204,7 +204,7 @@
           "name": "shadow",
           "props": {
             "cast": true,
-            "receive": true
+            "receive": false
           }
         }
       ],
@@ -425,8 +425,8 @@
         {
           "name": "directional-light",
           "props": {
-            "color": 16777215,
-            "intensity": 1,
+            "color": 6981631,
+            "intensity": 15,
             "castShadow": true,
             "shadowMapResolution": [
               512,
@@ -443,39 +443,444 @@
       "index": 6,
       "name": "directional light"
     },
-    "1C72663A-8256-43B4-AE01-EE399D960FC2": {
+    "06543DB1-C5C7-436D-8564-E8FF03C127C7": {
       "components": [
         {
-          "name": "system",
+          "name": "transform",
           "props": {
-            "filePath": "__$project$__/default-project/mg-scripts/CloudFlooring.ts",
-            "systemUpdateType": "FIXED",
-            "enableClient": true,
-            "enableServer": true,
-            "args": {}
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/World%20Stages%202%20Box%20Colliders.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 7,
-      "name": "System"
+      "name": "Model"
     },
-    "0D3D5639-4C6E-4858-A8C4-E2550A24C008": {
+    "428A784C-5E8E-488E-9C51-4AA35A83C177": {
       "components": [
         {
-          "name": "system",
+          "name": "transform",
           "props": {
-            "filePath": "__$project$__/default-project/mg-scripts/EnvironmentLighting.ts",
-            "systemUpdateType": "FIXED",
-            "enableClient": true,
-            "enableServer": true,
-            "args": {}
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": -250
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/star.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "exponentialInOut",
+            "startSize": 5,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 1000,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 8,
-      "name": "System 2"
+      "name": "Particle Emitter 280"
+    },
+    "14CD98C3-6BB2-4795-8EB4-1146FB23E364": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 250
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/star.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "exponentialInOut",
+            "startSize": 5,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 1000,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 9,
+      "name": "Particle Emitter 281"
+    },
+    "61512CE7-ADC2-4A45-9BA5-BF0309CDA805": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 250,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 1.5707963267948966,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/star.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "exponentialInOut",
+            "startSize": 5,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 1000,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 10,
+      "name": "Particle Emitter 282"
+    },
+    "E313D9FC-A0F0-48C3-8A7D-EBBCE59BBD1F": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -250,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 1.5707963267948966,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/star.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "exponentialInOut",
+            "startSize": 5,
+            "endSize": 0.25,
+            "sizeRandomness": 0,
+            "ageRandomness": 10,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 1000,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0.5
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 11,
+      "name": "Particle Emitter 283"
+    },
+    "81986CAF-2D88-42A1-8F3E-53B6D573B472": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -22.5,
+              "y": 244.5,
+              "z": -399.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/Aurora1.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "linear",
+            "startSize": 400,
+            "endSize": 400,
+            "sizeRandomness": 0,
+            "ageRandomness": 1,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 10,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 3
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 12,
+      "name": "Particle Emitter 284"
+    },
+    "C2004A53-D944-4E8D-92A8-30CEA4B4E275": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -22.5,
+              "y": 244.5,
+              "z": -399.5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 500,
+              "y": 500,
+              "z": 500
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "particle-emitter",
+          "props": {
+            "src": "/static/editor/Aurora2.png",
+            "startColor": 16777215,
+            "middleColor": 16777215,
+            "endColor": 16777215,
+            "startOpacity": 0,
+            "middleOpacity": 1,
+            "endOpacity": 0,
+            "colorCurve": "linear",
+            "sizeCurve": "linear",
+            "startSize": 400,
+            "endSize": 400,
+            "sizeRandomness": 0,
+            "ageRandomness": 1,
+            "lifetime": 5,
+            "lifetimeRandomness": 5,
+            "particleCount": 10,
+            "startVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "endVelocity": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "velocityCurve": "linear",
+            "angularVelocity": 3
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 13,
+      "name": "Particle Emitter 285"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
