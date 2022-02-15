@@ -214,8 +214,9 @@ export const AvatarSelectMenu = (props: Props) => {
       try {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
-          const objectURL = URL.createObjectURL(file)
-          loadAvatarForPreview(entity, objectURL, file.name).then((obj) => {
+          // add # + file.name allows us to both resolve the blob as well as the asset type
+          const objectURL = URL.createObjectURL(file) + '#' + file.name
+          loadAvatarForPreview(entity, objectURL).then((obj) => {
             obj.name = 'avatar'
             scene.add(obj)
             const error = validate(obj)
