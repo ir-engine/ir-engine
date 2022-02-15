@@ -37,7 +37,7 @@ const AvatarTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    AvatarService.fetchAdminAvatars(incDec)
+    AvatarService.fetchAdminAvatars(incDec, newPage)
     setPage(newPage)
   }
 

@@ -49,7 +49,7 @@ const LocationTable = (props: LocationProps) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(incDec)
+    LocationService.fetchAdminLocations(incDec, null, newPage)
     setPage(newPage)
   }
 
