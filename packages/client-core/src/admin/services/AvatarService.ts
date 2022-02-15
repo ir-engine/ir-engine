@@ -35,6 +35,10 @@ store.receptors.push((action: AvatarActionType): any => {
           updateNeeded: false,
           lastFetched: Date.now()
         })
+      case 'AVATAR_CREATED':
+        s.merge({ updateNeeded: true })
+      case 'AVATAR_REMOVED':
+        s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -63,6 +67,24 @@ export const AvatarService = {
       })
       dispatch(AvatarAction.avatarsFetched(avatars))
     }
+  },
+  createAdminAvatar: async (data: any) => {
+    const dispatch = useDispatch()
+    try {
+      const result = await client.service('static-resource').create(data)
+      dispatch(AvatarAction.avatarCreated(result))
+    } catch (error) {
+      console.error(error)
+    }
+  },
+  removeAdminAvatar: async (id) => {
+    const dispatch = useDispatch()
+    try {
+      const result = await client.service('static-resource').remove(id)
+      dispatch(AvatarAction.avatarRemoved(result))
+    } catch (err) {
+      console.error(err)
+    }
   }
 }
 
@@ -73,6 +95,19 @@ export const AvatarAction = {
       type: 'AVATARS_RETRIEVED' as const,
       avatars: avatars
     }
+  },
+  avatarCreated: (avatar: AvatarResult) => {
+    return {
+      type: 'AVATAR_CREATED' as const,
+      avatar: avatar
+    }
+  },
+  avatarRemoved: (avatar: AvatarResult) => {
+    return {
+      type: 'AVATAR_REMOVED' as const,
+      avatar: avatar
+    }
   }
 }
+
 export type AvatarActionType = ReturnType<typeof AvatarAction[keyof typeof AvatarAction]>

@@ -109,13 +109,15 @@ export const initEngine = async () => {
 }
 
 export const initClient = async (project) => {
-  await initializeRealtimeSystems()
-  await initializeSceneSystems()
-
   const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
-  const systems = await getSystemsFromSceneData(project, sceneData, true)
+  const systems = getSystemsFromSceneData(project, sceneData, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
-  await initializeProjectSystems(projects, systems)
+
+  await Promise.all([
+    initializeRealtimeSystems(),
+    initializeSceneSystems(),
+    initializeProjectSystems(projects, systems)
+  ])
 
   // add extraneous receptors
   useWorld().receptors.push((action) => {

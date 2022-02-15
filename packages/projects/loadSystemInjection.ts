@@ -1,19 +1,19 @@
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
+import type { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import type { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import type { SystemComponentType } from '@xrengine/engine/src/scene/components/SystemComponent'
 
-export const getSystemsFromSceneData = async (
+export const getSystemsFromSceneData = (
   project: string,
   sceneData: SceneJson,
   isClient: boolean
-): Promise<SystemModuleType<any>[]> => {
+): SystemModuleType<any>[] => {
   const systems: SystemModuleType<any>[] = []
   for (const entity of Object.values(sceneData.entities)) {
     for (const component of entity.components) {
       if (component.name === 'system') {
         const data: SystemComponentType = component.props
         if ((isClient && data.enableClient) || (!isClient && data.enableServer)) {
-          systems.push(await importSystem(project, data))
+          systems.push(importSystem(project, data))
         }
       }
     }
@@ -21,7 +21,7 @@ export const getSystemsFromSceneData = async (
   return systems
 }
 
-export const importSystem = async (project: string, data: SystemComponentType): Promise<SystemModuleType<any>> => {
+export const importSystem = (project: string, data: SystemComponentType): SystemModuleType<any> => {
   console.info(`Loading Project ${project} with data`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
