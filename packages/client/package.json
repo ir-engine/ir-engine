@@ -37,7 +37,7 @@
     "@mui/icons-material": "5.4.2",
     "@mui/material": "5.4.2",
     "@mui/styled-engine-sc": "5.4.2",
-    "@mui/styles": "5.4.1",
+    "@mui/styles": "5.4.2",
     "@rollup/plugin-inject": "4.0.4",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react": "17.0.39",
