@@ -1,7 +1,7 @@
 import { RethrownError } from './errors'
 import i18n from 'i18next'
-import { getToken } from './getToken'
 import { client } from '../feathers'
+import { accessAuthState } from '../user/services/AuthService'
 
 const serverURL =
   process.env.APP_ENV === 'development'
@@ -27,7 +27,8 @@ export const upload = (
   signal?,
   params: any = {}
 ): Promise<any> => {
-  const token = getToken()
+  const state = accessAuthState()
+  const token = state.authUser.accessToken.value
 
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
@@ -90,7 +91,8 @@ export const uploadStaticResource = (
   signal?,
   params: any = {}
 ): Promise<any> => {
-  const token = getToken()
+  const state = accessAuthState()
+  const token = state.authUser.accessToken.value
 
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
@@ -171,8 +173,4 @@ export function matchesFileTypes(file, fileTypes) {
     }
   }
   return false
-}
-
-export function uploadBlob(blob: Blob, params: any = {}) {
-  client.service('upload').create('')
 }

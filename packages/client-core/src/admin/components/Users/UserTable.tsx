@@ -28,12 +28,12 @@ const UserTable = (props: UserProps) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(incDec)
+    UserService.fetchUsersAsAdmin(incDec, null, newPage)
     setPage(newPage)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
+    setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
 

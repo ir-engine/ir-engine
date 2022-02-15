@@ -11,6 +11,11 @@ REGION=$5
 if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
+  aws ecr describe-repositories --repository-names $REPO_NAME-analytics --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-analytics --region $REGION
+  aws ecr describe-repositories --repository-names $REPO_NAME-api --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-api --region $REGION
+  aws ecr describe-repositories --repository-names $REPO_NAME-client --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-client --region $REGION
+  aws ecr describe-repositories --repository-names $REPO_NAME-gameserver --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-gameserver --region $REGION
+  aws ecr describe-repositories --repository-names $REPO_NAME-testbot --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-testbot --region $REGION
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-analytics --region $REGION
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-api --region $REGION
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-client --region $REGION
@@ -18,6 +23,11 @@ then
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-testbot --region $REGION
 else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-analytics --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-analytics --region us-east-1
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-api --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-api --region us-east-1
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-client --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-client --region us-east-1
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-gameserver --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-gameserver --region us-east-1
+  aws ecr-public describe-repositories --repository-names $REPO_NAME-testbot --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-testbot --region us-east-1
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-analytics --region us-east-1 --public
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-api --region us-east-1 --public
   node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-client --region us-east-1 --public

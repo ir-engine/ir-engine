@@ -1,4 +1,5 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 /**
@@ -10,10 +11,10 @@ export default {
     all: [],
     find: [disallow('external')],
     get: [],
-    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any)],
-    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any)]
+    create: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    update: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    patch: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],
+    remove: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)]
   },
 
   after: {
