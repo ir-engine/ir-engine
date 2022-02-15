@@ -2,4 +2,4 @@
 *.bat text eol=crlf
 design/** binary 
 *.ai binary
-
+*.glb filter=lfs diff=lfs merge=lfs -text
