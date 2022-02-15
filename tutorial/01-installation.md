@@ -102,7 +102,7 @@ This is because on Apple chips the node-darwin sometimes doesn't get installed p
 
 This will open the mariaDB and SQL scripts on the docker and will start the servers 
 
-3. To make sure your environment is set and running properly just go to https://localhost:3000/location/test and you should see the editor 
+3. To make sure your environment is set and running properly just go to https://localhost:3000/location/default and you should be able to walk around an empty 3D scene
 
 ```
 Note : Make sure you are on Node >= 16 and have docker running. 
@@ -138,9 +138,9 @@ npm run dev
 
 This will automatically setup (if necessary) and run redis/mariadb docker containers, and XRengine client/server/game-server instances.
 
-In a browser, navigate to https://127.0.0.1:3000/location/test
+In a browser, navigate to https://127.0.0.1:3000/location/default
 
-The database seeding process creates a test empty location called 'test'. It can be navigated to by going to 'https://127.0.0.1:3000/location/test'
+The database seeding process creates a test empty location called 'test'. It can be navigated to by going to 'https://127.0.0.1:3000/location/default'
 
 As of this writing, the cert provided in the xrengine package for local use is not adequately signed. Browsers will throw up warnings about going to insecure pages. You should be able to tell the browser to ignore it, usually by clicking on some sort of 'advanced options' button or link and then something along the lines of 'go there anyway'.
 
@@ -229,9 +229,9 @@ The default username is 'server', the default password is 'password', the defaul
    In the final tab, go to /packages/client and run ```npm run dev```.
    If you are on windows you need to use ```npm run dev-windows``` instead of ```npm run dev```.
 
-### 7. In a browser, navigate to https://127.0.0.1:3000/location/test
-   The database seeding process creates a test empty location called 'test'.
-   It can be navigated to by going to 'https://127.0.0.1:3000/location/test'.
+### 7. In a browser, navigate to https://127.0.0.1:3000/location/default
+   The database seeding process creates a default empty location called 'default'.
+   It can be navigated to by going to 'https://127.0.0.1:3000/location/default'.
 As of this writing, the cert provided in the XREngine package for local use is not adequately signed. You can create signed certificates and replace the default ones, but most developers just ignore the warnings. Browsers will throw up warnings about going to insecure pages. You should be able to tell the browser to ignore it, usually by clicking on some sort of 'advanced options' button or link and then something along the lines of 'go there anyway'.
 
 ### Admin System
