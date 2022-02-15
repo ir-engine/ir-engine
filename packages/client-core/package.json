@@ -34,7 +34,7 @@
     "@google/model-viewer": "1.10.1",
     "@mui/icons-material": "5.4.2",
     "@mui/material": "5.4.2",
-    "@mui/styled-engine-sc": "5.4.1",
+    "@mui/styled-engine-sc": "5.4.2",
     "@mui/styles": "5.4.1",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react-router-dom": "5.3.3",
