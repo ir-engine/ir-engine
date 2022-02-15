@@ -7,8 +7,6 @@ import { InputType } from '../enums/InputType'
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import normalizeWheel from '../functions/normalizeWheel'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
 
 export let prevTouchPosition: [number, number] = [0, 0]
 let lastTap = Date.now()
@@ -30,7 +28,7 @@ export const usingThumbstick = () => {
 }
 
 export const handleTouchMove = (event: TouchEvent): void => {
-  if (!Engine.mouseInputEnabled || event.touches.length <= 0) {
+  if (event.touches.length <= 0) {
     return
   }
 
@@ -154,9 +152,6 @@ export const handleTouchMove = (event: TouchEvent): void => {
  * @param args is argument object
  */
 export const handleTouch = (event: TouchEvent): void => {
-  if (!Engine.mouseInputEnabled) {
-    return
-  }
   if (event.targetTouches.length) {
     const mappedInputKey = TouchInputs.Touch
     if (event.type === 'touchstart') {
@@ -317,10 +312,6 @@ export function handleTouchGamepadButton(event: CustomEvent): any {
  */
 
 export const handleMouseWheel = (event: WheelEvent): void => {
-  if (!Engine.mouseInputEnabled) {
-    return
-  }
-
   if (event?.target !== EngineRenderer.instance.canvas) return
 
   const normalizedValues = normalizeWheel(event)
@@ -364,10 +355,6 @@ function normalizeMouseMovement(x: number, y: number, elementWidth: number, elem
 let callback
 
 export const handleMouseMovement = (event: MouseEvent): void => {
-  if (!Engine.mouseInputEnabled) {
-    return
-  }
-
   if (callback) {
     clearTimeout(callback)
     callback = null
@@ -427,11 +414,6 @@ export const handleMouseMovement = (event: MouseEvent): void => {
 export const handleMouseButton = (event: MouseEvent): void => {
   const mousedown = event.type === 'mousedown'
 
-  // For if mouse is over UI, disable button clicks for engine
-  if (mousedown && !Engine.mouseInputEnabled) {
-    return
-  }
-
   const mousePosition: [number, number] = [0, 0]
   mousePosition[0] = (event.clientX / window.innerWidth) * 2 - 1
   mousePosition[1] = (event.clientY / window.innerHeight) * -2 + 1
@@ -485,11 +467,6 @@ export const handleMouseButton = (event: MouseEvent): void => {
 
 export const handleKey = (event: KeyboardEvent): any => {
   const keydown = event.type === 'keydown'
-
-  // For if mouse is over UI, disable button clicks for engine
-  if (keydown && !Engine.keyboardInputEnabled) {
-    return
-  }
 
   const element = event.target as HTMLElement
   // Сheck which excludes the possibility of controlling the avatar (car, etc.) when typing a text

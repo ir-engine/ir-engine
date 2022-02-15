@@ -1,6 +1,6 @@
 import assert from 'assert'
 import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
-import sceneJson from '@xrengine/projects/default-project/empty.scene.json'
+import sceneJson from '@xrengine/projects/default-project/default.scene.json'
 import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
 import { Engine } from '../../src/ecs/classes/Engine'
