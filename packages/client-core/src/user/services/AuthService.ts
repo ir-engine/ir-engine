@@ -720,7 +720,7 @@ export const AuthService = {
         })
     }
   },
-  removeAvatar: async (keys: [string]) => {
+  removeAvatar: async (keys: string) => {
     const dispatch = useDispatch()
     {
       await client
