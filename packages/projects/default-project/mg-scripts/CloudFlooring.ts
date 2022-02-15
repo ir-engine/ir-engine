@@ -19,12 +19,12 @@ import {
   NormalBlending,
   Clock
 } from 'three'
-import { Entity } from '../../packages/engine/src/ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../packages/engine/src/ecs/functions/ComponentFunctions'
-import { RaycastComponent } from '../../packages/engine/src/physics/components/RaycastComponent'
-import { Engine } from '../../packages/engine/src/ecs/classes/Engine'
-import { useWorld } from '../../packages/engine/src/ecs/functions/SystemHooks'
-import { World } from '../../packages/engine/src/ecs/classes/World'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '@xrengine/engine/src/physics/components/RaycastComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import debug from 'debug'
 import { update } from 'lodash'
 //import { System } from '../../packages/engine/src/ecs/classes/'
