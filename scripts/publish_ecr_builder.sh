@@ -6,7 +6,7 @@ STAGE=$1
 TAG=$2
 LABEL=$3
 PRIVATE_ECR=$4
-REGION=$5
+REGION=ap-south-1
 
 if [ $PRIVATE_ECR == "true" ]
 then
