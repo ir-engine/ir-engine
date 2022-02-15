@@ -46,7 +46,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   controller.velocitySimulator.target.copy(vec3)
 
   // step the velocity sim
-  controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 0.2))
+  controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 1))
 
   // newVelocity = velocity sim position * moveSpeed
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
@@ -75,6 +75,23 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   // apply quat to avatar velocity (= velocity sim position * moveSpeed)
   newVelocity.applyQuaternion(quat)
 
+  if (
+    // if controller jump input pressed
+    controller.localMovementDirection.y > 0 //&&
+    // and we are on the ground
+    //velocity.velocity.y <= onGroundVelocity.y &&
+    // and we are not already jumping
+    //!controller.isJumping
+  ) {
+    // jump
+    console.log('falling')
+    velocity.velocity.y = (AvatarSettings.instance.jumpHeight * 1) / 60
+    controller.isJumping = false
+  } else if (controller.isJumping) {
+    // reset isJumping the following frame
+    controller.isJumping = false
+  }
+
   if (onGround) {
     // if we are falling
     if (velocity.velocity.y < 0) {
@@ -95,22 +112,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
         onGroundVelocity.applyMatrix4(mat4)
         velocity.velocity.y = onGroundVelocity.y
       }
-    }
-
-    if (
-      // if controller jump input pressed
-      controller.localMovementDirection.y > 0 &&
-      // and we are on the ground
-      velocity.velocity.y <= onGroundVelocity.y &&
-      // and we are not already jumping
-      !controller.isJumping
-    ) {
-      // jump
-      velocity.velocity.y = (AvatarSettings.instance.jumpHeight * 1) / 60
-      controller.isJumping = true
-    } else if (controller.isJumping) {
-      // reset isJumping the following frame
-      controller.isJumping = false
     }
 
     // TODO: make a proper resizing function if we ever need it
