@@ -26,14 +26,10 @@ import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/E
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 interface Props {
   changeActiveMenu: Function
-  uploadAvatarModel?: Function
-  isPublicAvatar?: boolean
 }
 
 export const ReadyPlayerMenu = (props: Props) => {
   const { t } = useTranslation()
-
-  const { isPublicAvatar, changeActiveMenu } = props
 
   let scene: Scene = null!
   let renderer: WebGLRenderer = null!
@@ -125,12 +121,12 @@ export const ReadyPlayerMenu = (props: Props) => {
 
   const openProfileMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(Views.Profile)
+    props.changeActiveMenu(Views.Profile)
   }
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(null)
+    props.changeActiveMenu(null)
   }
 
   const uploadAvatar = () => {
@@ -148,8 +144,8 @@ export const ReadyPlayerMenu = (props: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
-      changeActiveMenu(Views.Profile)
+      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+      props.changeActiveMenu(Views.Profile)
     })
   }
 
