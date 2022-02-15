@@ -4,12 +4,15 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+import { Paginated } from '@feathersjs/feathers/lib'
 
+export type UserDataType = UserInterface
 /**
  * This class used to find user
  * and returns founded users
  */
-export class User extends Service {
+export class User<T = UserDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -25,7 +28,7 @@ export class User extends Service {
    * @returns {@Array} of found users
    */
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!
@@ -111,14 +114,13 @@ export class User extends Service {
     } else {
       const loggedInUser = extractLoggedInUserFromParams(params)
       if (loggedInUser?.userRole !== 'admin' && params.isInternal != true)
-        return new Forbidden('Must be system admin to execute this action')
+        throw new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }
   }
 
-  async create(params?: Params): Promise<any> {
-    const data = params ?? {}
+  async create(data: any, params?: Params): Promise<T | T[]> {
     data.inviteCode = Math.random().toString(36).slice(2)
-    return await super.create(data)
+    return await super.create(data, params)
   }
 }

@@ -9,7 +9,7 @@ export interface AvatarInterface {
 }
 
 export type AvatarProps = {
-  avatarId: string
+  avatarId?: string
   avatarURL: string
   thumbnailURL?: string
 }
