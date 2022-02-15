@@ -44,7 +44,7 @@ export default class ReparentCommand extends Command {
       this.oldParents = []
       this.oldBefores = []
       this.oldSelection = CommandManager.instance.selected.slice(0)
-      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent).position.clone())
+      this.oldPositions = objects.map((o) => getComponent(o.entity, TransformComponent)?.position.clone())
 
       for (let i = objects.length - 1; i >= 0; i--) {
         const obj = objects[i]

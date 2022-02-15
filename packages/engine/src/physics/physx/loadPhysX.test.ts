@@ -2,6 +2,10 @@ import { loadPhysX } from './loadPhysX'
 import assert from 'assert'
 
 describe('loadPhysX', () => {
+  after(() => {
+    delete (globalThis as any).PhysX
+  })
+
   let originalPhysX
   it('should load physx', async () => {
     await loadPhysX()
