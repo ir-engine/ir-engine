@@ -2,7 +2,6 @@ import TouchAppIcon from '@mui/icons-material/TouchApp'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
 import { handleTouch, handleTouchMove } from '@xrengine/engine/src/input/schema/ClientInputSchema'
-import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
@@ -67,14 +66,6 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
         style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
       }
     }
-
-    const targetElement = stickLeft[0].ui.el
-    targetElement.addEventListener('touchstart', (ev) => {
-      enableInput({ mouse: false })
-    })
-    targetElement.addEventListener('touchend', (ev) => {
-      enableInput({ mouse: true })
-    })
 
     stickLeft.on('move', (e, data) => {
       const event = new CustomEvent('touchstickmove', {

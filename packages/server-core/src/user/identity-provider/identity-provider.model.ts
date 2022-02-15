@@ -27,7 +27,7 @@ export default (app: Application) => {
         allowNull: false,
         values: ['email', 'sms', 'password', 'discord', 'github', 'google', 'facebook', 'twitter', 'linkedin', 'auth0']
       }
-    },
+    } as any as IdentityProviderInterface,
     {
       hooks: {
         beforeCount(options: any): void {

@@ -22,16 +22,29 @@ export class Authentication extends Service {
           service: el.service,
           authStrategies: JSON.parse(JSON.parse(el.authStrategies))
         }
-      const oauth = JSON.parse(JSON.parse(el.oauth))
+      let oauth = JSON.parse(el.oauth)
+      let authStrategies = JSON.parse(el.authStrategies)
+      let local = JSON.parse(el.local)
+      let jwtOptions = JSON.parse(el.jwtOptions)
+      let bearerToken = JSON.parse(el.bearerToken)
+      let callback = JSON.parse(el.callback)
+
+      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
+      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
+      if (typeof local === 'string') local = JSON.parse(local)
+      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
+      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
+      if (typeof callback === 'string') callback = JSON.parse(callback)
+
       const returned = {
         ...el,
-        authStrategies: JSON.parse(JSON.parse(el.authStrategies)),
-        local: JSON.parse(JSON.parse(el.local)),
-        jwtOptions: JSON.parse(JSON.parse(el.jwtOptions)),
-        bearerToken: JSON.parse(JSON.parse(el.bearerToken)),
-        callback: JSON.parse(JSON.parse(el.callback)),
+        authStrategies: authStrategies,
+        local: local,
+        jwtOptions: jwtOptions,
+        bearerToken: bearerToken,
+        callback: callback,
         oauth: {
-          ...JSON.parse(JSON.parse(el.oauth))
+          oauth
         }
       }
       if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)

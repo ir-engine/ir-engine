@@ -5,7 +5,7 @@ import PrivateRoute from '../Private'
 import { AuthService, useAuthState } from '../user/services/AuthService'
 
 const analytic = React.lazy(() => import('./pages/index'))
-const avatars = React.lazy(() => import('./pages/avatars'))
+const avatars = React.lazy(() => import('./pages/Avatars'))
 const benchmarking = React.lazy(() => import('./pages/benchmarking'))
 const groups = React.lazy(() => import('./pages/groups'))
 const instance = React.lazy(() => import('./pages/instance'))

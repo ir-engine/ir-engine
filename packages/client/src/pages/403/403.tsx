@@ -10,7 +10,7 @@ const UnauthorisedPage = (props) => {
     <div className={classx.paper}>
       <div className={classes.notFound}>
         <p className={classes.typo}>{props.message}</p>
-        <Link style={{ textDecoration: 'none' }} to="/location/test">
+        <Link style={{ textDecoration: 'none' }} to="/location/default">
           <Button className={classes.Btn}>location page</Button>
         </Link>
       </div>

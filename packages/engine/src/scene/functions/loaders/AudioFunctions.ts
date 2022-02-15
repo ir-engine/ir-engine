@@ -87,9 +87,11 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   updateAudio(entity, props)
 
   const mediaComponent = getComponent(entity, MediaComponent)
-  obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
-  obj3d.userData.audioEl.setLoop(mediaComponent.loop)
-  updateAutoStartTimeForMedia(entity)
+  if (mediaComponent) {
+    obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
+    obj3d.userData.audioEl.setLoop(mediaComponent.loop)
+    updateAutoStartTimeForMedia(entity)
+  }
 }
 
 export const updateAudio: ComponentUpdateFunction = async (entity: Entity, properties: AudioComponentType) => {
@@ -193,7 +195,7 @@ export const toggleAudio = (entity: Entity) => {
   else audioEl.play()
 }
 
-const parseAudioProperties = (props): AudioComponentType => {
+export const parseAudioProperties = (props): AudioComponentType => {
   return {
     audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
     volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,

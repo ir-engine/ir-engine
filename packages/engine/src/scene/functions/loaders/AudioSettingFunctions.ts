@@ -60,7 +60,7 @@ export const serializeAudioSetting: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseAudioSettingProperties = (props): PositionalAudioSettingsComponentType => {
+export const parseAudioSettingProperties = (props): PositionalAudioSettingsComponentType => {
   return {
     usePositionalAudio: props.usePositionalAudio ?? SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio,
     avatarDistanceModel: props.avatarDistanceModel ?? SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.avatarDistanceModel,
