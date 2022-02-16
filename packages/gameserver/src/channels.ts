@@ -595,22 +595,9 @@ export default (app: Application): void => {
 
   if (!shouldLoadGameserver) return
 
-  app.service('gameserver-load').on('patched', async (params) => {
-    const { id, ipAddress, podName, locationId, sceneId } = params
-
-    if (app.instance && app.instance.id !== id) {
-      return
-    }
-
+  app.service('gameserver-load').on('patched', async ({ id, locationId, sceneId }) => {
     const gsResult = await app.agonesSDK.getGameServer()
-    const gsName = gsResult.objectMeta.name
     const status = gsResult.status as GameserverStatus
-
-    // Validate if pod name match
-    if (gsName !== podName) {
-      return
-    }
-
     loadGameserver(app, status, locationId, null!, sceneId, null!)
   })
 

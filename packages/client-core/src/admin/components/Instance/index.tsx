@@ -1,9 +1,6 @@
-import React, { useEffect } from 'react'
-
+import React from 'react'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-
-import AlertMessage from '../../common/AlertMessage'
 import Search from '../../common/Search'
 import { useGameserverState } from '../../services/GameserverService'
 import styles from '../../styles/admin.module.scss'
@@ -13,6 +10,7 @@ import PatchGameserver from './PatchGameserver'
 
 const Instance = () => {
   const classes = useStyles()
+  const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
   const [openAlert, setOpenAlert] = React.useState(false)
@@ -46,6 +44,20 @@ const Instance = () => {
     setOpenAlert(false)
   }
 
+  const openPatchModal = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
+    setPatchGameserverOpen(open)
+  }
+
+  const closePatchModal = (open: boolean) => {
+    setPatchGameserverOpen(open)
+  }
+
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -57,7 +69,7 @@ const Instance = () => {
           <Search text="instance" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
+          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
             Patch Gameserver
           </Button>
         </Grid>
@@ -65,15 +77,7 @@ const Instance = () => {
       <div className={classes.rootTableWithSearch}>
         <InstanceTable search={search} />
       </div>
-      {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModel={closePatchModal} />}
-      {patch && openAlert && (
-        <AlertMessage
-          open
-          handleClose={handleCloseAlert}
-          severity={patch.status === true ? 'success' : 'warning'}
-          message={patch.message}
-        />
-      )}
+      <PatchGameserver open={patchGameserverOpen} handleClose={openPatchModal} closeViewModel={closePatchModal} />
     </React.Fragment>
   )
 }

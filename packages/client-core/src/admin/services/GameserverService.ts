@@ -1,15 +1,12 @@
-import { createState, useState } from '@speigg/hookstate'
-
-import { GameServerPatch } from '@xrengine/common/src/interfaces/Instance'
-
-import { client } from '../../feathers'
 import { useDispatch } from '../../store'
+import { client } from '../../feathers'
+import { createState, useState } from '@speigg/hookstate'
 import { store } from '../../store'
 
 //State
 const state = createState({
-  patch: undefined as undefined | GameServerPatch,
   fetched: false,
+  spawning: false,
   lastFetched: Date.now()
 })
 
@@ -18,14 +15,11 @@ store.receptors.push((action: GameserverActionType): void => {
     switch (action.type) {
       case 'GAMESERVER_PATCH':
         return s.merge({
-          patch: undefined,
-          fetched: false
+          spawning: true
         })
       case 'GAMESERVER_PATCHED':
         return s.merge({
-          patch: action.patch,
-          fetched: true,
-          lastFetched: Date.now()
+          spawning: false
         })
     }
   }, action.type)
@@ -41,8 +35,8 @@ export const GameserverService = {
     const dispatch = useDispatch()
     try {
       dispatch(GameserverAction.patchGameserver())
-      const patch = await client.service('gameserver-provision').patch({ locationId })
-      dispatch(GameserverAction.patchedGameserver(patch))
+      await client.service('gameserver-provision').patch({ locationId })
+      dispatch(GameserverAction.patchedGameserver())
     } catch (error) {
       console.error(error)
     }
@@ -56,10 +50,9 @@ export const GameserverAction = {
       type: 'GAMESERVER_PATCH' as const
     }
   },
-  patchedGameserver: (patch: GameServerPatch) => {
+  patchedGameserver: () => {
     return {
-      type: 'GAMESERVER_PATCHED' as const,
-      patch
+      type: 'GAMESERVER_PATCHED' as const
     }
   }
 }
