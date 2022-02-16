@@ -46,7 +46,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
-  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
+  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
 
   const colors = useHookstate({
     main: '',
