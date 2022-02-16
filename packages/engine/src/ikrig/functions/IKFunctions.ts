@@ -348,7 +348,6 @@ export function applyPoseToRig(targetRig: IKRigComponentType) {
     armatureBone.quaternion.copy(poseBone.local.quaternion)
     armatureBone.scale.copy(poseBone.local.scale)
   }
-  targetRig.pose.skeleton.update()
 }
 
 /**
