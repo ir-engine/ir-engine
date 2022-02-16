@@ -46,7 +46,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
-  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
+  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
 
   const colors = useHookstate({
     main: '',
@@ -55,7 +55,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   })
 
   useEffect(() => {
-    const thumbnail = sceneState?.currentScene?.thumbnailUrl?.value
+    const thumbnail = thumbnailUrl
     const img = new Image()
 
     if (thumbnail) {
@@ -83,7 +83,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
     return () => {
       img.onload = null
     }
-  }, [sceneState?.currentScene?.thumbnailUrl?.value])
+  }, [thumbnailUrl])
 
   useEffect(() => {
     const hasScene = !!sceneState.currentScene
@@ -92,7 +92,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
     props.onStateChange({
       hasSceneColors: (hasScene && hasThumbnail && hasColors) || (hasScene && !hasThumbnail && hasColors)
     })
-  }, [colors, sceneState?.currentScene?.thumbnailUrl?.value])
+  }, [colors, thumbnailUrl])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
 
