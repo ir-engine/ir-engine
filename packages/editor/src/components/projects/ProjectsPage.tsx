@@ -28,16 +28,16 @@ const OfficialProjectData = [
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'Maps',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Maps',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js'
   },
   {
     id: '1570ae12-889a-11ec-886e-b126f7590685',
     name: 'Inventory',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Inventory',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
       'Item inventory, trade & cirtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradeable items.'
@@ -45,8 +45,8 @@ const OfficialProjectData = [
   {
     id: '1570ae13-889a-11ec-886e-b126f7590685',
     name: 'e-commerce',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-e-commerce',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
       'Join the digital economy with 3D storefronts full of perchasable items from Shopify, Wucommerce and more!'
@@ -54,16 +54,16 @@ const OfficialProjectData = [
   {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Enchance your virtual worlds with GPT-3 backed AI agents!'
   },
   {
     id: '1570ae15-889a-11ec-886e-b126f7590685',
     name: 'harmony',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/XRFoundation/harmony',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
       'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.'
@@ -74,8 +74,8 @@ const CommunityProjectData = [
   {
     id: '1570ae16-889a-11ec-886e-b126f7590685',
     name: 'puttclub',
-    repositoryPath: '',
-    storageProviderPath: 'https://localhost:8642/projects/default-project/',
+    repositoryPath: 'https://github.com/puttclub/puttclub',
+    storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Mini-golf in WebXR!'
   }
