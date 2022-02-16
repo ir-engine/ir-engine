@@ -42,7 +42,6 @@ describe('matchmaking match-instance service', () => {
 
   before(async () => {
     scope = nock(FRONTEND_SERVICE_URL)
-    await app.setup()
 
     const ticketsService = app.service('match-ticket')
 
