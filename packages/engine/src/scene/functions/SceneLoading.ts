@@ -1,4 +1,3 @@
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -8,16 +7,14 @@ import { NameComponent } from '../components/NameComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import EntityTree, { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { registerDefaultSceneFunctions } from './registerSceneFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
-import { reparentObject3D } from './ReparentFunction'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
-import { delay } from '../../common/functions/delay'
+import { Object3DComponent } from '../components/Object3DComponent'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -53,6 +50,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
+  addComponent(world.entityTree.rootNode.entity, Object3DComponent, { value: Engine.scene })
   addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
   if (Engine.isEditor) {
     getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
@@ -77,7 +75,12 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   if (Engine.isEditor) addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   sceneEntity.components.forEach((component) => {
-    loadComponent(entityNode.entity, component)
+    try {
+      loadComponent(entityNode.entity, component)
+    } catch (e) {
+      console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
+      console.error(e)
+    }
   })
 
   if (!hasComponent(entityNode.entity, TransformComponent))

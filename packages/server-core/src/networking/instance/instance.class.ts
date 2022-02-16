@@ -21,11 +21,11 @@ export class Instance extends Service {
    * @param params of query with an acton or user role
    * @returns user object
    */
-  async find(params: Params): Promise<any> {
-    const action = params.query?.action
-    const search = params.query?.search
-    const skip = params.query?.$skip ? params.query.$skip : 0
-    const limit = params.query?.$limit ? params.query.$limit : 10
+  async find(params?: Params): Promise<any> {
+    const action = params?.query?.action
+    const search = params?.query?.search
+    const skip = params?.query?.$skip ? params.query.$skip : 0
+    const limit = params?.query?.$limit ? params.query.$limit : 10
 
     if (action === 'admin') {
       //TODO: uncomment here

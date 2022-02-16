@@ -149,6 +149,11 @@ export const readEntity = (v: ViewCursor, world: World) => {
 
   const entity = world.getNetworkObject(userId, netId)
 
+  if (!entity) {
+    scrollViewCursor(v, EntityDataByteLength)
+    return
+  }
+
   // don't apply input state if we have authority
   const weHaveAuthority = hasComponent(entity, NetworkObjectAuthorityTag)
   if (weHaveAuthority) {

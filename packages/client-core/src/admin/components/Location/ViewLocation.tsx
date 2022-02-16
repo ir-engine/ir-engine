@@ -1,32 +1,30 @@
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import Drawer from '@mui/material/Drawer'
-import { useStyles } from '../../styles/ui'
-import Paper from '@mui/material/Paper'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
+import { Save } from '@mui/icons-material'
+import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import InputBase from '@mui/material/InputBase'
-import { Edit, Save } from '@mui/icons-material'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import FormGroup from '@mui/material/FormGroup'
+import Grid from '@mui/material/Grid'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
-import { useSceneState } from '../../services/SceneService'
+import Typography from '@mui/material/Typography'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useDispatch } from '../../../store'
-import { useLocationState } from '../../services/LocationService'
-import { validateUserForm } from '../Users/validation'
-import { LocationService } from '../../services/LocationService'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
+import { validateForm } from '../../common/validation/formValidation'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: any
@@ -153,7 +151,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = "Type can't be empty"
     }
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       LocationService.patchLocation(location.id, locationData)
       setState({
         ...state,

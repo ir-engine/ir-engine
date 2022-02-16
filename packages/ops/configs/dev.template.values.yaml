@@ -130,7 +130,7 @@ api:
     STORAGE_S3_REGION: us-east-1
     STORAGE_S3_STATIC_RESOURCE_BUCKET: <S3_STATIC_RESOURCES_BUCKET_NAME>
     STORAGE_S3_AVATAR_DIRECTORY: avatars
-    TWITTER_CALLBACK_URL: https://dev.theoverlay.io/auth/oauth/linkedin
+    TWITTER_CALLBACK_URL: https://dev.theoverlay.io/auth/oauth/twitter
     TWITTER_CLIENT_ID: "<TWITTER_OAUTH_CLIENT_ID>"
     TWITTER_CIENT_SECRET: "<TWITTER_OAUTH_CLIENT_ID>"
     DEFAULT_AVATAR_ID: Allison

@@ -1,14 +1,14 @@
-import React, { useState } from 'react'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
+import React, { useState } from 'react'
 import Search from '../../common/Search'
 import { UserService } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
-import { useStyles } from '../../styles/ui'
 
 const Users = () => {
   const classes = useStyles()
