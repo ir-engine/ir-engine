@@ -528,7 +528,7 @@ const ProfileMenu = (props: Props): any => {
                     </a>
                   )}
                   {authState?.linkedin && (
-                    <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
+                    <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}

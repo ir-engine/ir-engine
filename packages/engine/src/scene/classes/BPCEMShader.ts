@@ -110,7 +110,7 @@ ${cubemapInsertion}
 `
 
 export const beforeMaterialCompile = (bakeScale, bakePositionOffset) => {
-  return function (shader) {
+  return function BPCEMonBeforeCompile(shader) {
     shader.uniforms.cubeMapSize = { value: bakeScale }
     shader.uniforms.cubeMapPos = { value: bakePositionOffset }
     shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader

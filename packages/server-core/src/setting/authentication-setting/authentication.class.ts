@@ -47,7 +47,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
         bearerToken: bearerToken,
         callback: callback,
         oauth: {
-          oauth
+          ...oauth
         }
       }
       if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)

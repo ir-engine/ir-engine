@@ -42,25 +42,21 @@ export const useAdminAuthSettingState = () => useState(state) as any as typeof s
 export const AuthSettingService = {
   fetchAuthSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        await waitForClientAuthenticated()
-        const authSetting = await client.service('authentication-setting').find()
-        dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await waitForClientAuthenticated()
+      const authSetting = await client.service('authentication-setting').find()
+      dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchAuthSetting: async (data: any, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('authentication-setting').patch(id, data)
-        dispatch(AuthSettingAction.authSettingPatched())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      await client.service('authentication-setting').patch(id, data)
+      dispatch(AuthSettingAction.authSettingPatched())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
