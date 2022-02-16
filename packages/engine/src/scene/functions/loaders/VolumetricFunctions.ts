@@ -65,13 +65,12 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         obj3d.userData.player.mesh.removeFromParent()
         obj3d.userData.player.dispose()
       }
-
+      // document.body.prepend(element)
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
         renderer: Engine.renderer,
         paths,
         playMode: component.playMode as any,
-        autoplay: true,
         onMeshBuffering: (_progress) => {},
         onFrameShow: () => {}
       })
@@ -120,12 +119,16 @@ export const toggleVolumetric = (entity: Entity): boolean => {
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
   if (!obj3d) return false
 
-  if (obj3d.userData.player.hasPlayed) {
-    obj3d.userData.player.stopOnNextFrame = true
+  if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
+    obj3d.userData.player.paused = true
     return false
   } else {
     obj3d.userData.player.stopOnNextFrame = false
-    obj3d.userData.player.play()
+    if (obj3d.userData.player.paused) {
+      obj3d.userData.player.paused = false
+    } else {
+      obj3d.userData.player.play()
+    }
     return true
   }
 }
