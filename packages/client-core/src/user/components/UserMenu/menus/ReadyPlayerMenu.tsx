@@ -64,7 +64,7 @@ export const ReadyPlayerMenu = (props: Props) => {
       window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
       window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
     }
-  }, [])
+  }, [avatarUrl])
 
   const handleMessageEvent = async (event, entity) => {
     const url = event.data
@@ -129,40 +129,67 @@ export const ReadyPlayerMenu = (props: Props) => {
   }
 
   return (
-    <div ref={panelRef} className={styles.ReadyPlayerPanel}>
-      <section className={styles.controlContainer}>
-        <div className={styles.actionBlock}>
-          <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
-            <ArrowBack />
-          </button>
-          {selectedFile && (
+    <div
+      ref={panelRef}
+      className={styles.ReadyPlayerPanel}
+      style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '100px 0' : '0' }}
+    >
+      {selectedFile && (
+        <section className={styles.controlContainer}>
+          <div className={styles.actionBlock}>
             <button
-              onMouseEnter={() => setHover(true)}
-              onMouseLeave={() => setHover(false)}
               type="button"
-              style={{ color: hover ? '#fff' : '#00f' }}
               className={styles.iconBlock}
-              onClick={closeMenu}
+              style={{
+                borderRadius: '50%',
+                height: '40px',
+                width: '40px',
+                background: 'transparent'
+              }}
+              onClick={openProfileMenu}
             >
-              <Check />
+              <ArrowBack />
             </button>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
+      {!avatarUrl && (
+        <iframe
+          style={{ width: '100%', height: '100%' }}
+          src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
+        />
+      )}
       <div
         id="stage"
         className={styles.stage}
         style={{
           width: THUMBNAIL_WIDTH + 'px',
           height: THUMBNAIL_HEIGHT + 'px',
-          margin: '100px auto'
+          margin: 'auto',
+          display: !avatarUrl ? 'none' : 'block'
         }}
       ></div>
-      {!avatarUrl && (
-        <iframe
-          style={{ position: 'absolute', top: '0', left: '0' }}
-          src={`${globalThis.process.env['VITE_READY_PLAYER_ME_URL']}`}
-        />
+      {selectedFile && (
+        <button
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+          type="button"
+          className={styles.iconBlock}
+          style={{
+            color: hover ? '#fff' : '#5f5ff1',
+            position: 'absolute',
+            top: '90%',
+            left: '45%',
+            border: 'none',
+            borderRadius: '50%',
+            height: '50px',
+            width: '50px',
+            background: hover ? '#5f5ff1' : '#fff'
+          }}
+          onClick={closeMenu}
+        >
+          <Check />
+        </button>
       )}
       {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}
     </div>

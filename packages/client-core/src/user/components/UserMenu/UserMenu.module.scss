@@ -177,7 +177,7 @@
     bottom: 75px;
     padding: 0 30px;
     border-radius: 20px;
-    background: #43484F !important;
+    background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -1401,7 +1401,9 @@
 
 .ReadyPlayerPanel {
   @include panel-popup-container-styling();
-  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+  padding: 0;
   .controlContainer {
     display: flex;
     justify-content: space-between;
@@ -1419,6 +1421,7 @@
 
   .iconBlock {
     @include icon-block-styling();
+    background: transparent;
   }
 
   iframe {
@@ -1444,7 +1447,7 @@
 
   @media screen and (min-width: 768px) {
     width: 600px;
-    min-height: 600px;
+    min-height: 208px;
   }
 }
 

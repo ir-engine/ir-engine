@@ -142,8 +142,8 @@ export const AvatarSelectMenu = (props: Props) => {
   useEffect(() => {
     const world = useWorld()
     const entity = createEntity()
-    addAnimationLogic(entity, world, setEntity, panelRef)
 
+    addAnimationLogic(entity, world, setEntity, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera
