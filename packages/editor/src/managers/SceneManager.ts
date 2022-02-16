@@ -77,7 +77,7 @@ export class SceneManager {
   gizmoEntity: Entity
   editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
-  renderMode: RenderModesType
+  renderMode: RenderModesType = RenderModes.SHADOW
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
     EngineRenderer.instance.disableUpdate = true

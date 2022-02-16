@@ -1,7 +1,7 @@
-import { Plugins, registerWebPlugin } from '@capacitor/core'
+// import { Plugins, registerWebPlugin } from '@capacitor/core'
 import React, { useEffect, useState } from 'react'
-import 'webxr-native'
-import { XRPluginPlugin } from 'webxr-native'
+// import 'webxr-native'
+// import { XRPluginPlugin } from 'webxr-native'
 
 export const IndexPage = (): any => {
   const [initializationResponse, setInitializationResponse] = useState('')
@@ -9,11 +9,11 @@ export const IndexPage = (): any => {
 
   useEffect(() => {
     async function doTest() {
-      const { XRPlugin } = Plugins
-      registerWebPlugin(XRPlugin as any)
-      ;(XRPlugin as XRPluginPlugin).initialize({}).then((response) => {
-        setInitializationResponse(response.status)
-      })
+      // const { XRPlugin } = Plugins
+      // registerWebPlugin(XRPlugin as any)
+      // ;(XRPlugin as XRPluginPlugin).initialize({}).then((response) => {
+      //   setInitializationResponse(response.status)
+      // })
     }
     doTest()
   }, [])

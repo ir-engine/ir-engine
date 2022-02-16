@@ -171,7 +171,3 @@ export function matchesFileTypes(file, fileTypes) {
   }
   return false
 }
-
-export function uploadBlob(blob: Blob, params: any = {}) {
-  client.service('upload').create('')
-}

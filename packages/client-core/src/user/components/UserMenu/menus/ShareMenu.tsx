@@ -11,12 +11,9 @@ import { useDispatch } from '../../../../store'
 import { useTranslation } from 'react-i18next'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
+import { AlertService } from '../../../../common/services/AlertService'
 
-interface Props {
-  alertSuccess?: any
-}
-
-const ShareMenu = (props: Props): any => {
+const ShareMenu = (): any => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
   const refLink = useRef<any>(null!)
@@ -26,7 +23,7 @@ const ShareMenu = (props: Props): any => {
   const inviteState = useInviteState()
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
-    props.alertSuccess(t('user:usermenu.share.linkCopied'))
+    AlertService.alertSuccess(t('user:usermenu.share.linkCopied'))
   }
   const selfUser = useAuthState().user
 
