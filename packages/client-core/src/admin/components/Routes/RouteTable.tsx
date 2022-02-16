@@ -95,7 +95,6 @@ const RouteTable = () => {
     })
     .flat()
 
-  console.log(adminRouteCount.value)
   return (
     <React.Fragment>
       <TableComponent
