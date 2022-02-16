@@ -20,6 +20,7 @@ import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
+import _ from 'lodash'
 
 interface Props {
   open: boolean
@@ -105,22 +106,7 @@ const CreateLocation = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    switch (name) {
-      case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
-        break
-      case 'maxUsers':
-        temp.maxUsers = value.length < 2 ? 'Max users is required!' : ''
-        break
-      case 'scene':
-        temp.scene = value.length < 2 ? 'Scene is required!' : ''
-        break
-      case 'private':
-        temp.type = value.length < 2 ? 'Private role is required!' : ''
-        break
-      default:
-        break
-    }
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required!` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -150,7 +136,6 @@ const CreateLocation = (props: Props) => {
     if (!state.scene) {
       temp.scene = "Scene can't be empty"
     }
-    console.log(state, temp, { ...state, formErrors: temp })
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)

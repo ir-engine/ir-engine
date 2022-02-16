@@ -31,7 +31,7 @@ const RouteTable = () => {
   const adminRoute = adminRouteState
   const activeRouteData = adminActiveRouteState.activeRoutes
   const installedRouteData = adminRoute.routes
-  const adminRouteCount = adminRoute.total
+  const adminRouteCount = adminActiveRouteState.total
   const [processing, setProcessing] = useState(false)
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -95,6 +95,7 @@ const RouteTable = () => {
     })
     .flat()
 
+  console.log(adminRouteCount.value)
   return (
     <React.Fragment>
       <TableComponent
