@@ -2,13 +2,16 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import { BadRequest, NotFound } from '@feathersjs/errors'
+import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
+
+export type SeatDataType = SeatInterface
 
 /**
  * A class for Seat service
  *
  * @author Vyacheslav Solovjov
  */
-export class Seat extends Service {
+export class Seat<T = SeatDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -16,7 +19,7 @@ export class Seat extends Service {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<T> {
     const userId = (params as any).userId || (params as any).connection['identity-provider'].userId
     if (userId == undefined) {
       throw new Error('Invalid user')
@@ -51,16 +54,18 @@ export class Seat extends Service {
           })
         )
       }
-      await super.create({
+      const createSet: any = {
         subscriptionId: data.subscriptionId,
         userId: userId,
         seatStatus: 'filled'
-      })
+      }
+      const seat = await super.create({ ...createSet })
 
       await this.app.service('subscription').patch(data.subscriptionId, {
         unusedSeats: (unusedSeats as number) - 1,
         filledSeats: (filledSeats as number) + 1
       })
+      return seat as T
     } else {
       const identityProvider = await this.app.service('identity-provider').find({
         query: {
@@ -97,21 +102,22 @@ export class Seat extends Service {
       if ((newIdentityProvider as any).total === 0) {
         throw new BadRequest('Invalid email address')
       }
-      const seat = await super.create({
+      const createSet: any = {
         subscriptionId: data.subscriptionId,
         userId: (newIdentityProvider as any).data[0].userId,
         seatStatus: 'pending'
-      })
+      }
+      const seat = await super.create({ ...createSet })
 
       await this.app.service('subscription').patch(data.subscriptionId, {
         unusedSeats: (unusedSeats as number) - 1,
         pendingSeats: (pendingSeats as number) + 1
       })
-      return seat
+      return seat as T
     }
   }
 
-  async patch(id: string, data: any, params?: Params): Promise<any> {
+  async patch(id: string, data: any, params?: Params): Promise<T> {
     const subscriptionId = data.subscriptionId as string
     const subscription = await this.app.service('subscription').get(subscriptionId)
     if (subscription == null) {
@@ -146,9 +152,10 @@ export class Seat extends Service {
       throw new BadRequest('User does not have a seat on that subscription')
     }
     if (seat.seatStatus === 'pending') {
-      await super.patch(seat.id, {
+      const patchSet: any = {
         seatStatus: 'filled'
-      })
+      }
+      await super.patch(seat.id, { ...patchSet })
 
       await this.app.service('subscription').patch(subscription.id, {
         pendingSeats: (subscription.pendingSeats as number) - 1,
