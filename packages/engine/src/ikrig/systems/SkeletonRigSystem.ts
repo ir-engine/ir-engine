@@ -42,7 +42,7 @@ const avatars = ['Gold', 'Green', 'Pink', 'Red', 'Silver', 'Yellow']
 
 const mockAvatars = () => {
   for (let i = 0; i < 100; i++) {
-    const cyberbot = avatars[random(avatars.length) ?? 'Gold']
+    const cyberbot = avatars[random(avatars.length)]
     const avatarDetail = {
       thumbnailURL: `/projects/default-project/avatars/Cyberbot${cyberbot}.png`,
       avatarURL: `/projects/default-project/avatars/Cyberbot${cyberbot}.glb`,
