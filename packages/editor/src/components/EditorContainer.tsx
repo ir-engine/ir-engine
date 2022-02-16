@@ -40,6 +40,7 @@ import * as styles from './styles.module.scss'
 import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { DndWrapper } from './dnd/DndWrapper'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 
 /**
  *Styled component used as dock container.
@@ -92,11 +93,6 @@ export const DockContainer = (styled as any).div`
  */
 DockContainer.defaultProps = {
   dividerAlpha: 0
-}
-
-type EditorContainerProps = {
-  projectName: string
-  sceneName: string
 }
 
 /**
@@ -308,6 +304,7 @@ const EditorContainer = (props) => {
           )
         })) as any
         if (result && projectName) {
+          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName, result.name, blob, abortController.signal)
           SceneManager.instance.sceneModified = false
         } else {
@@ -463,6 +460,7 @@ const EditorContainer = (props) => {
 
     try {
       if (projectName) {
+        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName, sceneName, blob, abortController.signal)
         await saveProject(projectName)
       }
