@@ -47,7 +47,7 @@ export default (app: Application) => {
     ;(User as any).hasOne(models.user_settings)
     ;(User as any).belongsTo(models.party, { through: 'party_user' }) // user can only be part of one party at a time
     ;(User as any).belongsToMany(models.user, {
-      as: 'userRelated',
+      as: 'relatedUser',
       through: models.user_relationship
     })
     ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
