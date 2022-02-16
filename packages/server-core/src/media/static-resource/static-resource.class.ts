@@ -37,8 +37,18 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
-      const result = (await super.find(params)) as Paginated<any>
-      for (const item of result.data) {
+      const result = await super.Model.findAndCountAll({
+        limit: params.query.$limit,
+        skip: params.query.$skip,
+        select: params.query.$select,
+        where: {
+          staticResourceType: params.query?.staticResourceType,
+          userId: params.query?.userId
+        },
+        raw: true,
+        nest: true
+      })
+      for (const item of result.rows) {
         item.thumbnail = await super.Model.findOne({
           where: {
             name: item.name,
@@ -46,7 +56,10 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
           }
         })
       }
-      return result
+      return {
+        data: result.rows,
+        total: result.total
+      }
     } else return super.find(params)
   }
 }

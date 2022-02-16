@@ -25,7 +25,6 @@ const AvatarTable = (props: Props) => {
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
   const classes = useStyles()
-
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
@@ -111,7 +110,7 @@ const AvatarTable = (props: Props) => {
         column={avatarColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminAvatarCount.value}
+        count={adminAvatars.value.length}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

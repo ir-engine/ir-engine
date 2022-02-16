@@ -25,6 +25,7 @@ store.receptors.push((action: AvatarActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'AVATARS_RETRIEVED':
+        console.log(action.avatars)
         s.merge({
           avatars: action.avatars.data,
           skip: action.avatars.skip,
