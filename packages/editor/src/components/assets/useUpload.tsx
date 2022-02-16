@@ -45,7 +45,7 @@ export default function useUpload(options: Props = {}) {
 
   const onUpload = useCallback(
     //initailizing files by using assets files after upload.
-    async (entries: any[]) => {
+    async (entries: FileSystemEntry[]) => {
       // initializing assets as an empty array
       let assets = [] as { url: string }[]
       try {

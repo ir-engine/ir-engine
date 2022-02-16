@@ -315,7 +315,6 @@ const EditorContainer = (props) => {
         await saveProject(projectName)
         updateModifiedState()
       }
-      console.log('set dialog component null')
       setDialogComponent(null)
     } catch (error) {
       console.error(error)
@@ -458,6 +457,7 @@ const EditorContainer = (props) => {
     await new Promise((resolve) => setTimeout(resolve, 5))
 
     const blob = await SceneManager.instance.takeScreenshot(512, 320)
+
     try {
       if (projectName) {
         const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
