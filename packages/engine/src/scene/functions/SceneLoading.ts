@@ -14,6 +14,7 @@ import { DisableTransformTagComponent } from '../../transform/components/Disable
 import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { Object3DComponent } from '../components/Object3DComponent'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -49,6 +50,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
+  addComponent(world.entityTree.rootNode.entity, Object3DComponent, { value: Engine.scene })
   addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
   if (Engine.isEditor) {
     getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)

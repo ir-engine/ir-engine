@@ -95,7 +95,8 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
 export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const bakeComponent = getComponent(entity, CubemapBakeComponent)
-  obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
+  if (obj3d.userData.gizmo)
+    obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
 }
 
 export const updateCubemapBakeTexture = (options: CubemapBakeSettings) => {
@@ -133,9 +134,13 @@ export const prepareSceneForBake = (world = useWorld()): Scene => {
     const obj3d = getComponent(node.entity, Object3DComponent)?.value as Mesh<any, MeshStandardMaterial>
 
     if (obj3d) {
-      if (obj3d.material) obj3d.material.roughness = 1
-      parents[node.parentNode.entity].add(obj3d)
-      parents[node.entity] = obj3d
+      const newObj = obj3d.clone(false)
+      if (newObj.material) {
+        newObj.material = obj3d.material.clone()
+        newObj.material.roughness = 1
+      }
+      parents[node.parentNode.entity].add(newObj)
+      parents[node.entity] = newObj
     }
   })
 

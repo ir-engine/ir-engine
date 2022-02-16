@@ -207,7 +207,7 @@ const assetLoadCallback =
 
     if (asset.scene) {
       asset.scene.userData.type = assetType
-    } else {
+    } else if (asset.userData) {
       asset.userData.type = assetType
     }
 

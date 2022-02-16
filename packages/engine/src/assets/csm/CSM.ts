@@ -295,7 +295,7 @@ export class CSM {
     const breaksVec2 = []
     const shaders = this.shaders
 
-    material.onBeforeCompile = (shader: ShaderType) => {
+    function CSMonBeforeCompile(shader: ShaderType) {
       const far = Math.min(this.camera.far, this.maxFar)
       this.getExtendedBreaks(breaksVec2)
 
@@ -305,6 +305,7 @@ export class CSM {
 
       shaders.set(material, shader)
     }
+    material.onBeforeCompile = CSMonBeforeCompile
 
     shaders.set(material, null!)
     this.materials.set(mesh, material)
