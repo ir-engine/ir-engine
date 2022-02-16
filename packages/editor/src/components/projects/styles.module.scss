@@ -125,6 +125,7 @@
                     background: theme.$panel2;
                     border-radius: 3px;
 
+                    a { text-decoration: none; }
                     &:hover, &:focus-within { cursor: pointer;  outline: solid 1px theme.$blue; }
 
                     .thumbnailContainer {
@@ -213,4 +214,78 @@
 
         svg { position: absolute; left: 10px; width: 15px; height: auto; }
     }
+}
+
+.createProjectDialog {
+    background: theme.$panel2;
+    color: theme.$text;
+    width: 300px;
+
+    .inputContainer {
+        color: theme.$text;
+        width: 100%;
+        font-size: 14px;
+    }
+    .input {
+        border-color: theme.$text;
+    }
+
+    .input:hover + .outline { border-color: theme.$text; }
+    .input:focus + .outline, .outline { border-color: theme.$text2; }
+
+    .btn {
+        margin-top: 10px;
+        height: 35px;
+        width: 85px;
+        font-size: 15px;
+    }
+
+    .errorMessage { color: theme.$red; margin: 5px 2px; }
+
+    .processing {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        svg { color: theme.$blue; }
+        .text { margin-top: 10px; color: theme.$text2; }
+    }
+}
+
+.deleteDialog {
+    background: theme.$panel2;
+    color: theme.$text;
+    width: 300px;
+
+    .contentWrapper {
+        display: flex;
+        justify-content: center;
+
+        .cancelBtn {
+            margin: 0 10px;
+            height: 35px;
+            width: 85px;
+            font-size: 14px;
+            background: transparent;
+            color: theme.$blue;
+
+            &:hover, &:focus-visible {
+                background: theme.$blue;
+                color: theme.$text;
+            }
+        }
+
+        .confirmBtn {
+            margin: 0 10px;
+            height: 35px;
+            width: 85px;
+            font-size: 14px;
+            background: theme.$red;
+
+            &:hover, &:focus-visible {
+                opacity: 0.8;
+            }
+        }
+    }
+
 }

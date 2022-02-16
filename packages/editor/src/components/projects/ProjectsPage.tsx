@@ -11,21 +11,18 @@ import {
   Paper,
   MenuItem
 } from '@mui/material'
-import { ArrowRightRounded, Clear, FilterList, Search, ManageAccounts, Check } from '@mui/icons-material'
+import { ArrowRightRounded, Clear, FilterList, Search, ManageAccounts, Check, Edit, Delete } from '@mui/icons-material'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { Button, MediumButton } from '../inputs/Button'
-import { connectMenu, ContextMenu } from '../layout/ContextMenu'
 import { ErrorMessage } from './ProjectGrid'
-import templates from './templates'
 import { getProjects } from '../../functions/projectFunctions'
-import { CreateProjectModal } from './CreateProjectModal'
+import { CreateProjectDialog } from './CreateProjectDialog'
 import { EditorAction } from '../../services/EditorServices'
 import styles from './styles.module.scss'
-
-const contextMenuId = 'project-menu'
+import { DeleteDialog } from './DeleteDialog'
 
 const OfficialProjectData = [
   {
@@ -105,37 +102,19 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
   )
 }
 
-const ProjectList = (props: React.PropsWithChildren<{ projects: ProjectInterface[]; onClick: Function }>) => {
-  if (!props.projects || props.projects.length <= 0) return <></>
-
-  return (
-    <ul className={styles.listContainer}>
-      {props.projects.map((project, index) => (
-        <li className={styles.itemContainer} key={index}>
-          <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
-          <div className={styles.headerConatiner}>
-            <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-            <IconButton disableRipple>
-              <ManageAccounts />
-            </IconButton>
-          </div>
-          {project.description && <p className={styles.description}>{project.description}</p>}
-        </li>
-      ))}
-    </ul>
-  )
-}
-
 const ProjectsPage = (props) => {
   const [installedProjects, setInstalledProjects] = useState<ProjectInterface[]>([]) // constant projects initialized with an empty array.
   const [officialProjects, setOfficialProjects] = useState<ProjectInterface[]>([])
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
+  const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [query, setQuery] = useState('')
-  const [anchorEl, setAnchorEl] = useState<any>(null)
+  const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
+  const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
   const [filter, setFilter] = useState({ installed: false, official: true, community: true })
-  const [createProjectsModalOpen, setCreateProjectsModalOpen] = useState(false)
+  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const unmounted = useRef(false)
   const authState = useAuthState()
@@ -146,7 +125,7 @@ const ProjectsPage = (props) => {
   const dispatch = useDispatch()
   const history = useHistory()
 
-  const fetchItems = async () => {
+  const fetchInstalledProjects = async () => {
     setLoading(true)
     try {
       const data = await getProjects()
@@ -199,11 +178,12 @@ const ProjectsPage = (props) => {
   }
 
   useEffect(() => {
-    if (authUser?.accessToken.value != null && authUser.accessToken.value.length > 0 && user?.id.value != null) {
-      fetchItems()
-      fetchOfficialProjects()
-      fetchCommunityProjects()
-    }
+    if (!authUser || !user) return
+    if (authUser.accessToken.value == null || authUser.accessToken.value.length <= 0 || user.id.value == null) return
+
+    fetchInstalledProjects()
+    fetchOfficialProjects()
+    fetchCommunityProjects()
 
     return () => {
       unmounted.current = true
@@ -218,27 +198,13 @@ const ProjectsPage = (props) => {
     locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
   }, [])
 
-  /**
-   *function to delete project
-   */
-  const onDeleteScene = async (scene) => {
-    try {
-      // TODO
-    } catch (error) {
-      console.log(`Error deleting scene ${error}`)
-    }
+  // TODO: Implement tutorial
+  const openTutorial = () => {
+    console.log('Implment Tutorial...')
   }
 
-  const openTutorial = () => {}
-
-  /**
-   *function to adding a route to the router object.
-   */
-  const onClickNew = () => {
-    setCreateProjectsModalOpen(true)
-  }
-
-  const onClickExisting = (project) => {
+  const onClickExisting = (event, project) => {
+    event.preventDefault()
     dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
     history.push(`/editor/${project.name}`)
@@ -247,22 +213,30 @@ const ProjectsPage = (props) => {
   const onCreateProject = async (name) => {
     console.log('onCreateProject', name)
     await ProjectService.createProject(name)
-    fetchItems()
+    fetchInstalledProjects()
   }
 
-  /**
-   *function to render the ContextMenu component with MenuItem component delete.
-   */
-  const renderContextMenu = (props) => {
-    return (
-      <>
-        <ContextMenu id={contextMenuId}>
-          <MenuItem onClick={(e) => onDeleteScene(props.trigger.scene)}>
-            {t('editor.projects.contextMenu.deleteProject')}
-          </MenuItem>
-        </ContextMenu>
-      </>
-    )
+  // TODO: Project Rename
+  const renameProject = () => {
+    console.log('Implement rename project')
+  }
+
+  const openDeleteConfirm = () => setDeleteDialogOpen(true)
+  const closeDeleteConfirm = () => setDeleteDialogOpen(false)
+  const openCreateDialog = () => setCreateDialogOpen(true)
+  const closeCreateDialog = () => setCreateDialogOpen(false)
+
+  const deleteProject = async () => {
+    closeDeleteConfirm()
+
+    if (activeProject) {
+      try {
+        await ProjectService.removeProject(activeProject.id)
+        fetchInstalledProjects()
+      } catch (err) {
+        console.error(err)
+      }
+    }
   }
 
   const handleSerach = (e) => {
@@ -276,25 +250,45 @@ const ProjectsPage = (props) => {
     if (filter.community) fetchCommunityProjects(e.target.value)
   }
 
-  const clearSearch = () => {
-    setQuery('')
-  }
-  const openFilterMenu = (e) => setAnchorEl(e.target)
-  const handleClose = () => setAnchorEl(null)
+  const clearSearch = () => setQuery('')
+  const openFilterMenu = (e) => setFilterAnchorEl(e.target)
+  const closeFilterMenu = () => setFilterAnchorEl(null)
   const toggleFilter = (type: string) => setFilter({ ...filter, [type]: !filter[type] })
 
-  /**
-   *Calling a functional component connectMenu for creating ProjectContextMenu.
-   *
-   */
-  const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu)
+  const openProjectContextMenu = (event: MouseEvent, project: ProjectInterface) => {
+    event.preventDefault()
+    event.stopPropagation()
 
-  // Declaring an array
-  const topTemplates = [] as any[]
+    setActiveProject(project)
+    setProjectAnchorEl(event.target)
+  }
 
-  // Adding first four templates of tamplates array to topTemplate array.
-  for (let i = 0; i < templates.length && i < 4; i++) {
-    topTemplates.push(templates[i])
+  const closeProjectContextMenu = () => {
+    setActiveProject(null)
+    setProjectAnchorEl(null)
+  }
+
+  const renderProjectList = (projects: ProjectInterface[]) => {
+    if (!projects || projects.length <= 0) return <></>
+
+    return (
+      <ul className={styles.listContainer}>
+        {projects.map((project, index) => (
+          <li className={styles.itemContainer} key={index}>
+            <a onClick={(e) => onClickExisting(e, project)}>
+              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
+              <div className={styles.headerConatiner}>
+                <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                  <ManageAccounts />
+                </IconButton>
+              </div>
+              {project.description && <p className={styles.description}>{project.description}</p>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
   }
 
   /**
@@ -316,9 +310,9 @@ const ProjectsPage = (props) => {
                 <FilterList />
               </IconButton>
               <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
+                anchorEl={filterAnchorEl}
+                open={Boolean(filterAnchorEl)}
+                onClose={closeFilterMenu}
                 classes={{ paper: styles.filterMenu }}
               >
                 <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => toggleFilter('installed')}>
@@ -351,7 +345,7 @@ const ProjectsPage = (props) => {
                 </IconButton>
               )}
             </Paper>
-            <Button onClick={onClickNew} className={styles.btn}>
+            <Button onClick={openCreateDialog} className={styles.btn}>
               {t(`editor.projects.lbl-createProject`)}
             </Button>
           </div>
@@ -362,7 +356,7 @@ const ProjectsPage = (props) => {
                 id={t(`editor.projects.installed`)}
                 summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
               >
-                <ProjectList projects={installedProjects} onClick={onClickExisting} />
+                {renderProjectList(installedProjects)}
               </ProjectExpansionList>
             )}
             {query && filter.official && officialProjects.length > 0 && (
@@ -370,7 +364,7 @@ const ProjectsPage = (props) => {
                 id={t(`editor.projects.official`)}
                 summary={`${t('editor.projects.official')} (${officialProjects.length})`}
               >
-                <ProjectList projects={officialProjects} onClick={onClickExisting} />
+                {renderProjectList(officialProjects)}
               </ProjectExpansionList>
             )}
             {query && filter.community && communityProjects.length > 0 && (
@@ -378,7 +372,7 @@ const ProjectsPage = (props) => {
                 id={t(`editor.projects.community`)}
                 summary={`${t('editor.projects.community')} (${communityProjects.length})`}
               >
-                <ProjectList projects={communityProjects} onClick={onClickExisting} />
+                {renderProjectList(communityProjects)}
               </ProjectExpansionList>
             )}
           </div>
@@ -391,11 +385,27 @@ const ProjectsPage = (props) => {
           </div>
         ) : null}
       </div>
-      <ProjectContextMenu />
-      <CreateProjectModal
-        createProject={onCreateProject}
-        open={createProjectsModalOpen}
-        handleClose={() => setCreateProjectsModalOpen(false)}
+      <Menu
+        anchorEl={projectAnchorEl}
+        open={Boolean(projectAnchorEl)}
+        onClose={closeProjectContextMenu}
+        classes={{ paper: styles.filterMenu }}
+      >
+        <MenuItem classes={{ root: styles.filterMenuItem }} onClick={renameProject}>
+          <Edit />
+          {t(`editor.projects.rename`)}
+        </MenuItem>
+        <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
+          <Delete />
+          {t(`editor.projects.uninstall`)}
+        </MenuItem>
+      </Menu>
+      <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onCancel={closeDeleteConfirm}
+        onClose={closeDeleteConfirm}
+        onConfirm={deleteProject}
       />
     </main>
   )

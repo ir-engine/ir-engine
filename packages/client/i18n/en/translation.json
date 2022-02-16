@@ -23,7 +23,9 @@
             "contextMenu": "Delete Project",
             "installed": "Installed Projects",
             "official": "Official Projects",
-            "community": "Community Projects"
+            "community": "Community Projects",
+            "uninstall": "Uninstall",
+            "rename": "Rename"
         }
     },
     "error": {
