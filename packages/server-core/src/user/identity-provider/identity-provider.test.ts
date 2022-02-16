@@ -5,9 +5,7 @@ import app from '../../../../server/src/app'
 let providers: any = []
 
 describe('identity-provider service', () => {
-  before(async () => {
-    await app.setup()
-  })
+  before(async () => {})
 
   it('registered the service', async () => {
     const service = await app.service('identity-provider')

@@ -7,8 +7,6 @@ let user: any = null
 
 describe('invite service', () => {
   before(async () => {
-    await app.setup()
-
     await app.service('invite').hooks({
       before: {
         find: []
