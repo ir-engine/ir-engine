@@ -35,12 +35,22 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     )
   })
 
+  const normalizeValues = (val) => {
+    const a = 1
+    const b = -1
+    const maxVal = 50
+    const minVal = -50
+
+    const newValue = (b - a) * ((val - minVal) / (maxVal - minVal)) + a
+
+    return newValue
+  }
+
   const handleMove = (e) => {
-    console.log(e)
     const event = new CustomEvent('touchstickmove', {
       detail: {
         stick: GamepadAxis.Left,
-        value: { x: e.y, y: -e.x, angleRad: 0 }
+        value: { x: normalizeValues(-e.y), y: normalizeValues(e.x), angleRad: 0 }
       }
     })
     document.dispatchEvent(event)
@@ -58,10 +68,10 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
       <div className={styles.stickLeft}>
         <Joystick
           size={100}
-          throttle={500}
+          throttle={100}
+          minDistance={40}
           move={handleMove}
           stop={handleStop}
-          minDistance={0.01}
           baseColor="rgba(255, 255, 255, 0.5)"
           stickColor="rgba(255, 255, 255, 0.8)"
         />
