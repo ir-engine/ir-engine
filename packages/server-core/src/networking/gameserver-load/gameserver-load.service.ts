@@ -9,8 +9,8 @@ declare module '@xrengine/common/declarations' {
 
 export default (app: Application): void => {
   app.use('gameserver-load', {
-    patch: ({ id, ipAddress, podName, locationId, sceneId }) => {
-      return { id, ipAddress, podName, locationId, sceneId }
+    patch: ({ id, locationId, sceneId }) => {
+      return { id, locationId, sceneId }
     }
   })
 
