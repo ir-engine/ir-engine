@@ -1,4 +1,4 @@
-{{- if .Values.gameserver.enabled -}}
+{{- if (.Values.gameserver).enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

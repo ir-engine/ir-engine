@@ -1,4 +1,4 @@
-{{- if .Values.matchfunction.enabled -}}
+{{- if (.Values.matchfunction).enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
