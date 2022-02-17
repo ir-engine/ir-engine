@@ -1,4 +1,4 @@
-{{- if .Values.testbot.enabled -}}
+{{- if (.Values.testbot).enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,8 +8,5 @@ metadata:
 data:
 {{- if .Values.testbot.extraEnv }}
 {{ toYaml .Values.testbot.extraEnv | indent 2 }}
-{{- end }}
-{{- if .Values.testbot.config }}
-  NODE_CONFIG: '{{ mustToJson .Values.testbot.config }}'
 {{- end }}
 {{- end }}

@@ -1,6 +1,6 @@
 # XREngine
 
-[XREngine](https://myxr.social/) Social Gatherings on the Web.
+[XREngine](https://xrfoundation.io/) Social Gatherings on the Web.
 
 ## TL;DR
 
@@ -11,16 +11,9 @@ helm install my-release xrengine/xrengine
 
 ## Introduction
 
-This chart bootstraps a [XRCyat](https://myxr.social/) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart creates a [XREngine](https://xrfoundation.io/) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-[***In Progress***] This chart has been tested to work with NGINX Ingress, cert-manager, fluentd and Prometheus on top of the AWS EKS.
-
-It also optionally packages following which are required for xrengine platform:
-
-| Repository | Name | Version |
-|------------|------|---------|
-| https://charts.bitnami.com/bitnami | mariadb | 7.3.16 |
-| https://agones.dev/chart/stable | agones [***in progress***] | 1.4.0 |
+[***In Progress***] This chart has been tested to work with NGINX Ingress, cert-manager, fluentd and Prometheus on top of AWS EKS.
 
 ## Prerequisites
 
@@ -58,8 +51,6 @@ The command removes all the Kubernetes components associated with the chart and 
 
 The following table lists the configurable parameters of the XREngine chart and their default values.
 
-Dependent charts can also have values overwritten. Preface values with mariadb.*or agones.*
-
 | Key | Type | Default | Description                |
 |-----|------|---------|----------------------------|
 | agones.enabled | bool | `false` | Install Agones included with chart, set `false` if you have it installed already on your cluster |
@@ -83,14 +74,6 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | client.serviceAccount | object | `{}` | override client service account |
 | client.tolerations | list | `[]` |  |
 | domain | string | `"xrengine.dev"` | domain root for all services, services will be subdomain from it |
-| mariadb.db.existingSecret | string | `nil` | Use existing secret for password details (rootUser.password, db.password, replication.password will be ignored and picked up from this secret). The secret has to contain the keys mariadb-root-password, mariadb-replication-password and mariadb-password. |
-| mariadb.db.name | string | `"xrengine"` | Database name to connect to |
-| mariadb.db.password | string | Password for the new user. Ignored if existing secret is provided. | random 10 character alphanumeric string if mariadb.db.user is defined |
-| mariadb.db.user | string | `"xrengine"` | Username created/used to connect to database |
-| mariadb.enabled | bool | `true` | Install internal mariadb, 'false' to use external db |
-| mariadb.externalHost | string | `nil` | hostname of external MariaDB instance, ignored if `mariadb.enabled` is `true` |
-| mariadb.externalPort | int | host port of MariaDB instance |
-| mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
 | server.enabled | bool | `true` | Install the xrsocial service |
 | **server.extraEnv** | object | `{}` | [Additional Configuration](#xrengine-additional-configurations) for xrsocial service |
@@ -112,6 +95,11 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | server.securityContext | object | `{}` | overrides server security context |
 | server.service.port | int | `3030` | service http port |
 | server.service.type | string | `"ClusterIP"` | Kubernetes service type |
+| sql.database                     | string | `"xrengine"`                               | Database name within SQL server to connect to                                                    |
+| sql.password                     | string | `"password"`                               | Password for the SQL user.                                                                       |
+| sql.user                         | string | `"xrengine"`                               | Username to connect to SQL database                                                              |
+| sql.host                         | string | `nil`                                      | hostname of SQL server                                                                           |
+| sql.port                         | int | `3306`                                     | host port of SQL server                                                                          |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
 
@@ -168,23 +156,6 @@ This section lists configuration specific for server, client components.
 | server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_BUCKET | string | `"xrengine-video"` |  |
 | server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_PATH | string | `"/"` |  |
 | server.extraEnv.STORAGE_S3_REGION | string | `"<S3 Region>"` |  |
-
-
-## MariaDB
-
-By default, MariaDB is installed as part of the chart. To use an external MariaDB server set `mariadb.enabled` to `false` and then set `mariadb.externalHost` and `mariadb.db.password`.
-
-To avoid issues when upgrading this chart, provide `mariadb.rootUser.password` for subsequent upgrades. Otherwise the password will be overwritten with randomly generated every upgrade. See https://github.com/bitnami/charts/tree/master/bitnami/mariadb/#upgrading for more detail.
-
-## Agones
-
-[**TBD**] By default, Agones is installed as part of the chart. To use an external Agones operator set `agones.enabled` to `false`.
-
-## Persistence
-
-The [MariaDB]() image stores the database in a persistent volume.
-
-Persistent Volume Claims are used to keep the data across deployments. This is known to work in GCE, AWS, and minikube. See the [Configuration](#configuration) section to configure the PVC or to disable persistence.
 
 ## Ingress
 
