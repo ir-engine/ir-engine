@@ -31,11 +31,6 @@ import { update } from 'lodash'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export default async function DemoUpdate(world: World) {
-  const geometry = new BoxGeometry(1, 1, 1)
-  const material = new MeshBasicMaterial({ color: 0xffffff })
-  const cube = new Mesh(geometry, material)
-  Engine.scene.add(cube)
-
   var speed1 = 0.0125
   var speed2 = speed1 / 4
   var speed3 = speed2 / 4
@@ -93,27 +88,11 @@ export default async function DemoUpdate(world: World) {
   Engine.scene.add(floor2)
   Engine.scene.add(floor3)
 
-  const KeyLight = new DirectionalLight(new Color('rgb(252, 226, 104)'), 1.2)
-  KeyLight.rotation.set(5, 270, 0)
-  Engine.scene.add(KeyLight)
-
-  const FillLight = new DirectionalLight(new Color('rgb(108, 204, 248)'), 1.5)
-  FillLight.rotation.set(5, 120, 0)
-  FillLight.castShadow = false
-  Engine.scene.add(FillLight)
-
-  const RimLight = new DirectionalLight(new Color('rgb(166, 25, 252)'), 2.5)
-  RimLight.rotation.set(5, 120, 0)
-  RimLight.castShadow = false
-  Engine.scene.add(RimLight)
-
   var clock = new Clock()
   var delta = 0
   //scene.add(floor);
 
   //const sphere = world.namedEntities.get('Sphere')
-
-  const sphere = Engine.scene.getObjectByName('Sphere')
 
   //var sphereObject = getComponent(sphere, Object3DComponent)
 

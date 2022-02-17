@@ -48,8 +48,6 @@ export default async function DemoUpdate(world: World) {
   var clock = new Clock()
   var delta = 0
 
-  const sphere = Engine.scene.getObjectByName('Sphere')
-
   return () => {
     delta = clock.getDelta()
 
