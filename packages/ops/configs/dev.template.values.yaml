@@ -56,14 +56,12 @@ client:
   service:
     type: NodePort
 domain: <domain>
-mariadb:
-  db:
-    name: <db_name>
-    password: <password>
-    user: <username>
-  enabled: false
-  externalHost: <RDS hostname>
-  externalPort: 3306
+sql:
+  database: <db_name>
+  password: <password>
+  user: <username>
+  host: <RDS hostname>
+  port: 3306
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"
