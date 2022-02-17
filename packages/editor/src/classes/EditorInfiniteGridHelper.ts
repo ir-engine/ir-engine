@@ -96,7 +96,7 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
     this.visible = true
     this.name = 'EditorInfiniteGridHelper'
-    setObjectLayers(this, ObjectLayers.Scene)
+    setObjectLayers(this, ObjectLayers.Gizmos)
     addIsHelperFlag(this)
     this.frustumCulled = false
     this.plane = new Plane(this.up)

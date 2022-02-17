@@ -139,9 +139,9 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
 export const setupAvatarMaterials = (root) => {
   const materialList: Array<MaterialMap> = []
 
+  setObjectLayers(root, ObjectLayers.Avatar)
   root.traverse((object) => {
     if (object.isBone) object.visible = false
-    setObjectLayers(object, ObjectLayers.Render, ObjectLayers.Avatar)
     if (object.material && object.material.clone) {
       // Transparency fix
       object.material.format = RGBAFormat

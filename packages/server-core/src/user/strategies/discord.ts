@@ -5,8 +5,7 @@ import { Application } from '../../../declarations'
 import { AuthenticationRequest } from '@feathersjs/authentication'
 
 export class DiscordStrategy extends CustomOAuthStrategy {
-  app: Application
-  constructor(app) {
+  constructor(app: Application) {
     super()
     this.app = app
   }

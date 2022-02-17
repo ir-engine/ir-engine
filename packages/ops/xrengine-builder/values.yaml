@@ -51,15 +51,9 @@ builder:
   # Extra Environment variables to configure xrsocial
   extraEnv:
 
-mariadb:
-  enabled: false
-  nameOverride: xrengine-mariadb
-  db:
-    name: xrengine
-    user: server
-    password: password
-    existingSecret:
-  replication:
-    enabled: false
-  externalHost: ""  # use to override - must set mariadb.enabled to false
-  externalPort: 3306
+sql:
+  database: xrengine
+  user: server
+  password: password
+  host: ""
+  port: 3306
