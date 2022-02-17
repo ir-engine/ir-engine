@@ -122,6 +122,7 @@ export const createEngine = () => {
   const world = createWorld()
   Engine.currentWorld = world
   Engine.scene = new Scene()
+  Engine.scene.layers.set(ObjectLayers.Scene)
 
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
