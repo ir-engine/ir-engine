@@ -2,7 +2,7 @@ name: qat-deploy
 on:
   push:
     branches:
-      [qat]
+      [patch-gameservers]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
