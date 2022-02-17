@@ -16,7 +16,7 @@
 # A FleetAutoscaler is used to scale the fleet automatically
 # up and down depending on usage
 #
-{{- if .Values.gameserver.enabled }}
+{{- if (.Values.gameserver).enabled }}
 apiVersion: "autoscaling.agones.dev/v1"
 kind: FleetAutoscaler
 metadata:

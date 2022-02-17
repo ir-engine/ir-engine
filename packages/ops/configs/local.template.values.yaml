@@ -37,14 +37,12 @@ client:
   service:
     type: NodePort
 domain: theoverlay.io
-mariadb:
-  db:
-    name: xrengine
-    password: password
-    user: server
-  enabled: false
-  externalHost: 10.0.2.2
-  externalPort: 3304
+sql:
+  database: xrengine
+  password: password
+  user: server
+  host: 10.0.2.2
+  port: 3304
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"

@@ -51,7 +51,7 @@ const SocialLogin = (props: Props): any => {
 
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.loginUserByOAuth('linkedin2', location)
+    AuthService.loginUserByOAuth('linkedin', location)
   }
 
   const handleTwitterLogin = (e: any): void => {
