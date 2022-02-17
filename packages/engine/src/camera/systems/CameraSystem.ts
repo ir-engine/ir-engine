@@ -272,7 +272,7 @@ export default async function CameraSystem(world: World) {
         if (debugRays) {
           const arrow = new ArrowHelper()
           coneDebugHelpers.push(arrow)
-          setObjectLayers(arrow, ObjectLayers.Render, ObjectLayers.Gizmos)
+          setObjectLayers(arrow, ObjectLayers.Gizmos)
           Engine.scene.add(arrow)
         }
       }

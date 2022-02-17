@@ -95,7 +95,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-  setObjectLayers(tiltContainer, ObjectLayers.Render, ObjectLayers.Avatar)
+  setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
