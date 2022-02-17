@@ -1,6 +1,5 @@
 export const ObjectLayers = {
-  Render: 0 as const, // DEFAULT: TRUE - everything to render should have layer 0 enabled
-  Scene: 1 as const, // DEFAULT: TRUE
+  Scene: 1 as const,
   Portal: 2 as const,
   Avatar: 3 as const,
   Gizmos: 4 as const,

@@ -59,7 +59,10 @@ export const initializeBrowser = () => {
   Engine.publicPath = location.origin
   Engine.audioListener = new PositionalAudioListener()
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.set(ObjectLayers.Render)
+  Engine.camera.layers.disableAll()
+  Engine.camera.layers.enable(ObjectLayers.Scene)
+  Engine.camera.layers.enable(ObjectLayers.Avatar)
+  Engine.camera.layers.enable(ObjectLayers.UI)
   Engine.camera.add(Engine.audioListener)
   Engine.camera.add(Engine.audioListener)
 
