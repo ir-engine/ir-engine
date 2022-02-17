@@ -598,6 +598,7 @@ export default (app: Application): void => {
   app.service('gameserver-load').on('patched', async ({ id, locationId, sceneId }) => {
     const gsResult = await app.agonesSDK.getGameServer()
     const status = gsResult.status as GameserverStatus
+
     loadGameserver(app, status, locationId, null!, sceneId, null!)
   })
 
