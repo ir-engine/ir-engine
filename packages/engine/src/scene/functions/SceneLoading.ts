@@ -15,6 +15,7 @@ import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/Scen
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -56,7 +57,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
+  Engine.camera?.layers.disable(ObjectLayers.Scene)
   await Promise.all(Engine.sceneLoadPromises)
+  Engine.camera?.layers.enable(ObjectLayers.Scene)
 
   Engine.sceneLoaded = true
 
