@@ -50,6 +50,7 @@ export const DebugRenderer = () => {
   const _boxGeometry = new BoxBufferGeometry()
   const _planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
   let enabled = false
+  globalThis._meshes = _meshes
 
   const setEnabled = (_enabled) => {
     enabled = _enabled
@@ -234,6 +235,8 @@ export const DebugRenderer = () => {
     if (enabled !== _enabled) {
       enabled = _enabled
       setEnabled(_enabled)
+      if (enabled) Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+      else Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
     }
 
     if (!enabled) return

@@ -1,4 +1,4 @@
-{{- if .Values.builder.enabled -}}
+{{- if (.Values.builder).enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -41,6 +41,18 @@ spec:
           env:
             - name: KUBERNETES
               value: "true"
+            {{ if .Values.sql }}
+            - name: MYSQL_USER
+              value: {{ .Values.sql.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.sql.database }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.sql.password | quote }}
+            - name: MYSQL_HOST
+              value: {{ .Values.sql.host | quote }}
+            - name: MYSQL_PORT
+              value: {{ .Values.sql.port | quote }}
+            {{ else if .Values.mariadb }}
             - name: MYSQL_USER
               value: {{ .Values.mariadb.db.user }}
             - name: MYSQL_DATABASE
@@ -51,11 +63,29 @@ spec:
               {{- else }}
               valueFrom:
                 secretKeyRef:
+                  {{- if .Values.mariadb.existingSecret }}
                   name: {{ .Values.mariadb.existingSecret }}
+                  {{- else }}
+                  name: {{ template "xrengine.mariadb.fullname" . }}
+                  {{- end }}
                   key: mariadb-password
               {{- end }}
             - name: MYSQL_HOST
               value: {{ .Values.mariadb.externalHost }}
+            - name: MYSQL_PORT
+              value: {{ .Values.mariadb.externalPort | quote }}
+            {{ else }}
+            - name: MYSQL_USER
+              value: server
+            - name: MYSQL_DATABASE
+              value: xrengine
+            - name: MYSQL_PASSWORD
+              value: password
+            - name: MYSQL_HOST
+              value: 10.0.2.2
+            - name: MYSQL_PORT
+              value: 3306
+            {{ end }}
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS

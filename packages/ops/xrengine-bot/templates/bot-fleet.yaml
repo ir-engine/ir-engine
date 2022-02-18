@@ -17,7 +17,7 @@
 # that are available to be allocated from.
 # To allocate a GameServer from a Fleet, use a GameServerAllocation
 #
-{{- if .Values.bot.enabled }}
+{{- if (.Values.bot).enabled }}
 apiVersion: "agones.dev/v1"
 kind: Fleet
 # Fleet Metadata

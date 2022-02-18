@@ -24,7 +24,7 @@ store.receptors.push((action: RouteActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
-        return s.merge({ activeRoutes: action.data, updateNeeded: false })
+        return s.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
     }
   }, action.type)
 })

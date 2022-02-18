@@ -4,8 +4,7 @@ import config from '../../appconfig'
 import { Application } from '../../../declarations'
 
 export class GithubStrategy extends CustomOAuthStrategy {
-  app: Application
-  constructor(app) {
+  constructor(app: Application) {
     super()
     this.app = app
   }
