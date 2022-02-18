@@ -15,6 +15,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { accessAuthState } from '../user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 
 // import { encode, decode } from 'msgpackr'
 const gameserverAddress =
@@ -67,8 +68,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   type: TransportType
   constructor(type: TransportType) {
+    console.warn('Transport.constructor !!! !!! !!!', type)
     this.type = type
     this.onConnection = this.onConnection.bind(this)
+    this.onDisconnection = this.onDisconnection.bind(this)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
@@ -104,15 +107,22 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.sendTransport = null!
     clearInterval(this.heartbeat)
     this.socket.off('connect', this.onConnection)
+    this.socket.off('disconnect', this.onDisconnection)
     this.socket.removeAllListeners()
     this.socket.close()
     this.socket = null!
   }
 
+  onDisconnection() {
+    console.log('------------------ DISCONNECT ', this.type)
+    this.reconnecting = true
+  }
+
   onConnection() {
-    // console.log('CONNECT to port', port, sceneId, locationId)
+    console.log('------------------ CONNECT ', this.type, ' to socket, 0 reconnecting:', this.reconnecting)
     if (this.reconnecting) {
       this.reconnecting = false
+      console.log('------------------ CONNECT to socket, 1 on reconnecting')
       return
     }
     onConnectToInstance(this)
@@ -165,5 +175,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.request = promisedRequest(this.socket)
 
     this.socket.on('connect', this.onConnection)
+    this.socket.on('disconnect', this.onDisconnection)
   }
 }

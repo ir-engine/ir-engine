@@ -158,13 +158,14 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 }
 
 export async function onConnectToWorldInstance(networkTransport: SocketWebRTCClientTransport) {
+  console.warn('!!! --- onConnectToWorldInstance')
   networkTransport.socket.on('disconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
-    networkTransport.reconnecting = true
+    // networkTransport.reconnecting = true
   })
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
-    networkTransport.reconnecting = false
+    // networkTransport.reconnecting = false
     console.log('socket reconnect')
   })
 
@@ -255,6 +256,7 @@ export async function createDataProducer(
 // appropriate to the transport's direction
 
 export async function createTransport(networkTransport: SocketWebRTCClientTransport, direction: string) {
+  console.warn('createTransport !!! !!! !!!', networkTransport.type, direction)
   const request = networkTransport.request
   if (request === null) return null!
   const { channelId, channelType } = getChannelTypeIdFromTransport(networkTransport)
@@ -273,6 +275,12 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
   })
 
   if (process.env.NODE_ENV === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS
+  console.log(
+    'createTransport !!! !!! !!! mediasoupDevice.createTransport',
+    networkTransport.type,
+    direction,
+    transportOptions
+  )
   if (direction === 'recv') transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions)
   else if (direction === 'send')
     transport = await networkTransport.mediasoupDevice.createSendTransport(transportOptions)
@@ -347,7 +355,9 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
 
   // any time a transport transitions to closed,
   // failed, or disconnected, leave the  and reset
+  console.log('ADD connectionstatechange LISTENER', networkTransport.type, direction)
   transport.on('connectionstatechange', async (state: string) => {
+    console.error('Transport', transport, ' transitioned to state', state, `(from ${transport.connectionState})`)
     if (networkTransport.leaving !== true && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
       EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
       console.error('Transport', transport, ' transitioned to state', state)
