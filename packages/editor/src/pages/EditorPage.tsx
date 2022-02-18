@@ -89,7 +89,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       authUser.accessToken.value != null && authUser.accessToken.value.length > 0 && user.id.value != null
 
     if (isAuthenticated !== _isAuthenticated) setAuthenticated(_isAuthenticated)
-  }, [authUser.accessToken.value, user.id.value, isAuthenticated])
+  }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
     const { projectName, sceneName } = props.match.params

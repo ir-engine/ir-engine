@@ -200,7 +200,7 @@ const ProjectsPage = () => {
     return () => {
       unmounted.current = true
     }
-  }, [authUser.accessToken.value])
+  }, [authUser.accessToken])
 
   // TODO: Implement tutorial
   const openTutorial = () => {
