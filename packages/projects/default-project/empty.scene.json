@@ -881,6 +881,23 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 13,
       "name": "Particle Emitter 285"
+    },
+    "58226FC7-DDC8-44DE-A912-684D4C979035": {
+      "components": [
+        {
+          "name": "system",
+          "props": {
+            "filePath": "__$project$__/default-project/mg-scripts/CloudFlooring.ts",
+            "systemUpdateType": "UPDATE",
+            "enableClient": true,
+            "enableServer": true,
+            "args": {}
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 14,
+      "name": "System"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
