@@ -595,14 +595,17 @@ export default (app: Application): void => {
 
   if (!shouldLoadGameserver) return
 
-  app.service('gameserver-load').on('patched', async ({ id, locationId, sceneId }) => {
-    if (app.instance.id !== id) {
+  app.service('gameserver-load').on('patched', async ({ id, ipAddress, port, locationId, sceneId }) => {
+    console.log({ id, ipAddress, port, locationId, sceneId })
+    console.log(app.instance)
+    if (app.instance && app.instance.id !== id) {
       return
     }
 
     console.log('gameserver-load patched')
-    console.log({ id, locationId, sceneId })
+    console.log({ id, ipAddress, port, locationId, sceneId })
     const gsResult = await app.agonesSDK.getGameServer()
+    console.log(gsResult)
     const status = gsResult.status as GameserverStatus
 
     loadGameserver(app, status, locationId, null!, sceneId, null!)
