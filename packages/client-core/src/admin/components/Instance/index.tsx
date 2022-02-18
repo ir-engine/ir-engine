@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Search from '../../common/Search'
@@ -7,10 +7,11 @@ import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import InstanceTable from './InstanceTable'
 import PatchGameserver from './PatchGameserver'
+import AlertMessage from '../../common/AlertMessage'
+import { useGameserverState } from '../../services/GameserverService'
 
 const Instance = () => {
   const classes = useStyles()
-  const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
   const [openAlert, setOpenAlert] = React.useState(false)
@@ -44,20 +45,6 @@ const Instance = () => {
     setOpenAlert(false)
   }
 
-  const openPatchModal = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setPatchGameserverOpen(open)
-  }
-
-  const closePatchModal = (open: boolean) => {
-    setPatchGameserverOpen(open)
-  }
-
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -77,7 +64,15 @@ const Instance = () => {
       <div className={classes.rootTableWithSearch}>
         <InstanceTable search={search} />
       </div>
-      <PatchGameserver open={patchGameserverOpen} handleClose={openPatchModal} closeViewModel={closePatchModal} />
+      {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModel={closePatchModal} />}
+      {patch && openAlert && (
+        <AlertMessage
+          open
+          handleClose={handleCloseAlert}
+          severity={patch.status === true ? 'success' : 'warning'}
+          message={patch.message}
+        />
+      )}
     </React.Fragment>
   )
 }
