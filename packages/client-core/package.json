@@ -38,7 +38,7 @@
     "@mui/styles": "5.4.2",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react-router-dom": "5.3.3",
-    "@types/styled-components": "5.1.22",
+    "@types/styled-components": "5.1.23",
     "@xrengine/common": "^0.5.0",
     "@xrengine/engine": "^0.5.0",
     "apexcharts": "^3.28.3",
