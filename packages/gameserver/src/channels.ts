@@ -595,9 +595,12 @@ export default (app: Application): void => {
 
   if (!shouldLoadGameserver) return
 
-  app.service('gameserver-load').on('patched', async ({ id, ipAddress, port, locationId, sceneId }) => {
-    console.log({ id, ipAddress, port, locationId, sceneId })
+  app.service('gameserver-load').on('patched', async (params) => {
+    console.log(params)
     console.log(app.instance)
+
+    const { id, ipAddress, port, locationId, sceneId } = params
+
     if (app.instance && app.instance.id !== id) {
       return
     }
