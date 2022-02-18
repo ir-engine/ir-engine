@@ -239,6 +239,8 @@
       .uploadBtn {
         background: $SelectedGreenColor;
         cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
       }
       button:hover,
       button:focus {

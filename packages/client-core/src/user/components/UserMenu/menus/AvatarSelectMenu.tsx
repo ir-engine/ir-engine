@@ -326,7 +326,7 @@ export const AvatarSelectMenu = (props: Props) => {
       )}
       <Paper className={classes.paper2}>
         <InputBase
-          sx={{ ml: 1, flex: 1, color: '#ccc' }}
+          sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
           classes={{ input: classes.input }}
           value={avatarName}
@@ -345,13 +345,21 @@ export const AvatarSelectMenu = (props: Props) => {
           classes={{ root: classes.tabRoot, indicator: classes.selected }}
         >
           <Tab
-            style={value == 0 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            style={
+              value == 0
+                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+            }
             label="Use URL"
             {...a11yProps(0)}
             classes={{ root: classes.tabRoot }}
           />
           <Tab
-            style={value == 1 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            style={
+              value == 1
+                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+            }
             label="Upload Files"
             {...a11yProps(1)}
           />
@@ -362,7 +370,7 @@ export const AvatarSelectMenu = (props: Props) => {
           <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
             <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Avatar Url..."
                 inputProps={{ 'aria-label': 'avatar url' }}
                 classes={{ input: classes.input }}
@@ -372,7 +380,7 @@ export const AvatarSelectMenu = (props: Props) => {
             </Paper>
             <Paper className={classes.paper} style={{ padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Thumbnail Url..."
                 inputProps={{ 'aria-label': 'thumbnail url' }}
                 classes={{ input: classes.input }}
