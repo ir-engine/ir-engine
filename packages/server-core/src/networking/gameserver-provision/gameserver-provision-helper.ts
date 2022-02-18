@@ -17,7 +17,13 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
 
       const freeInstance = await getFreeGameserver(app, 0, locationId, null!)
 
-      await app.service('gameserver-load').patch({ id: freeInstance.id, locationId, sceneId: location.sceneId })
+      await app.service('gameserver-load').patch({
+        id: freeInstance.id,
+        ipAddress: freeInstance.ipAddress,
+        port: freeInstance.port,
+        locationId,
+        sceneId: location.sceneId
+      })
 
       return { status: true, message: 'Gameserver patched successfully' }
     } catch (e) {
