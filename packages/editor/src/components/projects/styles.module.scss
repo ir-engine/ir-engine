@@ -1,5 +1,73 @@
 @use "../theme.scss" as theme;
 
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+    background: theme.$panel;
+    height: 50px;
+
+    .navContainer {
+        width: 90vw;
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+
+        .logoBlock {
+            width: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position-y: 50%;
+        }
+
+        .profileButton {
+            display: flex;
+            align-items: center;
+            color: theme.$text;
+            background: transparent;
+
+            span { margin-right: 5px; font-size: 14px; }
+            &:hover, &:focus-visible { color: theme.$green; }
+        }
+
+        .backdrop {
+            position: fixed;
+            width: 100vw;
+            height: calc(100vh - 50px);
+            top: 50px;
+            left: 0;
+            background: #00000080;
+            z-index: 100;
+        }
+
+        .profileMenuBlock {
+            position: absolute;
+            right: 0;
+
+            .profileMenuContainer {
+                z-index: 100;
+                background: theme.$panel;
+                top: 70px;
+                bottom: unset;
+                right: 0;
+                left: unset;
+                transform: unset;
+                border-radius: 10px;
+
+                div[class^="_closeButton"] { display: none; }
+            }
+        }
+    }
+}
+
+.projectPage {
+    width: 100%;
+    display: flex;
+    background-color: theme.$background2;
+    pointer-events: auto;
+}
+
 .projectPageContainer {
     display: flex;
     flex-wrap: wrap;
@@ -9,7 +77,7 @@
     background-color: theme.$panel;
     padding: 30px;
     border-radius: 10px;
-    min-height: calc(100vh - 108px);
+    min-height: calc(100vh - 110px);
     max-width: 1280px;
 
     .projectGridContainer {
@@ -124,8 +192,10 @@
                     flex-shrink: 0;
                     background: theme.$panel2;
                     border-radius: 3px;
+                    position: relative;
+                    overflow: hidden;
 
-                    a { text-decoration: none; }
+                    a { text-decoration: none; &:hover { color: theme.$text; }}
                     &:hover, &:focus-within { cursor: pointer;  outline: solid 1px theme.$blue; }
 
                     .thumbnailContainer {
@@ -154,6 +224,25 @@
                             svg { width: 22px; }
 
                             &:hover, &:focus-within { color: theme.$blueHover; }
+                        }
+                    }
+
+                    .installedIcon {
+                        position: absolute;
+                        top: 2px;
+                        right: 2px;
+
+                        svg { position: relative; z-index: 1; }
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            background: theme.$blue;
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 50%;
+                            top: -25px;
+                            right: -25px;
                         }
                     }
 
@@ -212,7 +301,7 @@
             background: theme.$blueHover;
         }
 
-        svg { position: absolute; left: 10px; width: 15px; height: auto; }
+        &>svg, &>.progressbar { position: absolute; left: 10px; width: 15px; height: auto; }
     }
 }
 
@@ -287,5 +376,4 @@
             }
         }
     }
-
 }

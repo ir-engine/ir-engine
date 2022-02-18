@@ -9,9 +9,20 @@ import {
   InputBase,
   Menu,
   Paper,
-  MenuItem
+  MenuItem,
+  CircularProgress
 } from '@mui/material'
-import { ArrowRightRounded, Clear, FilterList, Search, ManageAccounts, Check, Edit, Delete } from '@mui/icons-material'
+import {
+  ArrowRightRounded,
+  Clear,
+  FilterList,
+  Search,
+  ManageAccounts,
+  Check,
+  Delete,
+  Download,
+  DownloadDone
+} from '@mui/icons-material'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
@@ -102,7 +113,7 @@ const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summa
   )
 }
 
-const ProjectsPage = (props) => {
+const ProjectsPage = () => {
   const [installedProjects, setInstalledProjects] = useState<ProjectInterface[]>([]) // constant projects initialized with an empty array.
   const [officialProjects, setOfficialProjects] = useState<ProjectInterface[]>([])
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
@@ -115,6 +126,7 @@ const ProjectsPage = (props) => {
   const [filter, setFilter] = useState({ installed: false, official: true, community: true })
   const [isCreateDialogOpen, setCreateDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [updatingProject, setUpdatingProject] = useState(false)
 
   const unmounted = useRef(false)
   const authState = useAuthState()
@@ -190,14 +202,6 @@ const ProjectsPage = (props) => {
     }
   }, [authUser.accessToken.value])
 
-  useEffect(() => {
-    const locationSceneName = props?.match?.params?.sceneName
-    const locationProjectName = props?.match?.params?.projectName
-
-    locationProjectName && dispatch(EditorAction.projectLoaded(locationProjectName))
-    locationSceneName && dispatch(EditorAction.sceneLoaded(locationSceneName))
-  }, [])
-
   // TODO: Implement tutorial
   const openTutorial = () => {
     console.log('Implment Tutorial...')
@@ -216,11 +220,6 @@ const ProjectsPage = (props) => {
     fetchInstalledProjects()
   }
 
-  // TODO: Project Rename
-  const renameProject = () => {
-    console.log('Implement rename project')
-  }
-
   const openDeleteConfirm = () => setDeleteDialogOpen(true)
   const closeDeleteConfirm = () => setDeleteDialogOpen(false)
   const openCreateDialog = () => setCreateDialogOpen(true)
@@ -229,6 +228,7 @@ const ProjectsPage = (props) => {
   const deleteProject = async () => {
     closeDeleteConfirm()
 
+    setUpdatingProject(true)
     if (activeProject) {
       try {
         await ProjectService.removeProject(activeProject.id)
@@ -237,6 +237,34 @@ const ProjectsPage = (props) => {
         console.error(err)
       }
     }
+
+    closeProjectContextMenu()
+    setUpdatingProject(false)
+  }
+
+  const installProject = async () => {
+    if (updatingProject || !activeProject?.repositoryPath) return
+
+    setUpdatingProject(true)
+    try {
+      await ProjectService.uploadProject(activeProject.repositoryPath)
+      fetchInstalledProjects()
+    } catch (err) {
+      console.error(err)
+    }
+
+    closeProjectContextMenu()
+    setUpdatingProject(false)
+  }
+
+  const isInstalled = (project: ProjectInterface | null) => {
+    if (!project) return false
+
+    for (const installedProject of installedProjects) {
+      if (project.repositoryPath === installedProject.repositoryPath) return true
+    }
+
+    return false
   }
 
   const handleSerach = (e) => {
@@ -263,19 +291,20 @@ const ProjectsPage = (props) => {
     setProjectAnchorEl(event.target)
   }
 
-  const closeProjectContextMenu = () => {
-    setActiveProject(null)
-    setProjectAnchorEl(null)
-  }
+  const closeProjectContextMenu = () => setProjectAnchorEl(null)
 
-  const renderProjectList = (projects: ProjectInterface[]) => {
+  const renderProjectList = (projects: ProjectInterface[], areInstalledProjects?: boolean) => {
     if (!projects || projects.length <= 0) return <></>
 
     return (
       <ul className={styles.listContainer}>
         {projects.map((project, index) => (
           <li className={styles.itemContainer} key={index}>
-            <a onClick={(e) => onClickExisting(e, project)}>
+            <a
+              onClick={(e) => {
+                !areInstalledProjects && onClickExisting(e, project)
+              }}
+            >
               <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
               <div className={styles.headerConatiner}>
                 <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
@@ -283,6 +312,11 @@ const ProjectsPage = (props) => {
                   <ManageAccounts />
                 </IconButton>
               </div>
+              {!areInstalledProjects && isInstalled(project) && (
+                <span className={styles.installedIcon}>
+                  <DownloadDone />
+                </span>
+              )}
               {project.description && <p className={styles.description}>{project.description}</p>}
             </a>
           </li>
@@ -300,7 +334,7 @@ const ProjectsPage = (props) => {
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
 
   return (
-    <main>
+    <main className={styles.projectPage}>
       <div className={styles.projectPageContainer}>
         <div className={styles.projectGridContainer}>
           <div className={styles.projectGridHeader}>
@@ -356,7 +390,7 @@ const ProjectsPage = (props) => {
                 id={t(`editor.projects.installed`)}
                 summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
               >
-                {renderProjectList(installedProjects)}
+                {renderProjectList(installedProjects, true)}
               </ProjectExpansionList>
             )}
             {query && filter.official && officialProjects.length > 0 && (
@@ -389,16 +423,20 @@ const ProjectsPage = (props) => {
         anchorEl={projectAnchorEl}
         open={Boolean(projectAnchorEl)}
         onClose={closeProjectContextMenu}
+        TransitionProps={{ onExited: () => setActiveProject(null) }}
         classes={{ paper: styles.filterMenu }}
       >
-        <MenuItem classes={{ root: styles.filterMenuItem }} onClick={renameProject}>
-          <Edit />
-          {t(`editor.projects.rename`)}
-        </MenuItem>
-        <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
-          <Delete />
-          {t(`editor.projects.uninstall`)}
-        </MenuItem>
+        {isInstalled(activeProject) ? (
+          <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
+            {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
+            {t(`editor.projects.uninstall`)}
+          </MenuItem>
+        ) : (
+          <MenuItem classes={{ root: styles.filterMenuItem }} onClick={installProject}>
+            {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+            {t(`editor.projects.install`)}
+          </MenuItem>
+        )}
       </Menu>
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
       <DeleteDialog

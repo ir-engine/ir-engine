@@ -24,6 +24,7 @@
             "installed": "Installed Projects",
             "official": "Official Projects",
             "community": "Community Projects",
+            "install": "Install",
             "uninstall": "Uninstall",
             "rename": "Rename"
         }

@@ -78,7 +78,7 @@
     transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
   }
   &:hover, &:focus {
-    svg { color: #fff; z-index: 1; }
+    svg { color: #fff; z-index: 1; position: relative; }
     &::before { width: 35px; height: 35px; }
   }
 }
