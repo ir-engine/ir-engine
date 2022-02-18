@@ -10,16 +10,21 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
         }
       })
       if (!location.data.length) {
-        // throw error?!
-        throw new Error(`Location for id '${locationId}' is not found.`)
+        const message = `Failed to patch gameserver. (Location for id '${locationId}' is not found.)`
+        console.log(message)
+        return { status: false, message }
       }
 
       const freeInstance = await getFreeGameserver(app, 0, locationId, null!)
 
-      app.service('gameserver-load').patch({ id: freeInstance.id, locationId, sceneId: location.sceneId })
+      await app.service('gameserver-load').patch({ id: freeInstance.id, locationId, sceneId: location.sceneId })
+
+      return { status: true, message: 'Gameserver patched successfully' }
     } catch (e) {
       console.log(e)
-      return e
+      return { status: false, message: `Failed to patch gameserver. (${e.body.reason})` }
     }
   }
+
+  return { status: false, message: 'Failed to patch gameserver' }
 }

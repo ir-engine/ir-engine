@@ -84,7 +84,7 @@ const CreateLocation = (props: Props) => {
       closeViewModel(false)
       clearState()
     }
-  }, [location.created.value])
+  }, [location.created])
 
   React.useEffect(() => {
     if (errorType.value === 'error') {
@@ -94,7 +94,7 @@ const CreateLocation = (props: Props) => {
         setOpenWarning(false)
       }, 5000)
     }
-  }, [errorType.value, errorMessage.value])
+  }, [errorType, errorMessage])
 
   const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
