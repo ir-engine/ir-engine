@@ -613,10 +613,6 @@ export default (app: Application): void => {
   if (!shouldLoadGameserver) return
 
   app.service('gameserver-load').on('patched', async ({ id, locationId, sceneId }) => {
-    console.log('gameserver-load patch')
-    console.log(app.instance.id)
-    console.log(id)
-
     if (app.instance.id !== id) {
       return
     }
