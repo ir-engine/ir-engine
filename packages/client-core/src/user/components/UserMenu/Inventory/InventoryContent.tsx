@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import makeStyles from '@mui/styles/makeStyles'
-import { ArrowBackIos, FilterList } from '@mui/icons-material'
+import { ArrowBackIos, ArrowForwardIos, FilterList } from '@mui/icons-material'
 import React, { useEffect, useState } from 'react'
 import {
   Grid,
@@ -76,10 +76,41 @@ const useStyles = makeStyles({
   },
   titlesize: {
     fontSize: '30px'
+  },
+  inventoryWrapper: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  inventoryItem: {
+    margin: 15,
+    filter: 'drop-shadow(0px 11.2376px 11.2376px rgba(0, 0, 0, 0.25))',
+    borderRadius: '6.74257px',
+    border: '2px solid',
+    borderImage: 'linear-gradient(180deg, #FFFFFF 0%, rgba(137, 137, 242, 0.53)) 1 100%',
+    boxShadow: '0px 11.23762321472168px 11.23762321472168px 0px #00000040',
+    width: '25%',
+    height: '100px',
+  },
+  inventoryItemEmpty: {
+    margin: 15,
+    borderRadius: '8px',
+    border: '2px solid',
+    background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%)',
+    boxShadow: '0px 11.23762321472168px 11.23762321472168px 0px #00000040',
+    backdropFilter: 'blur(50px)',
+    width: '25%',
+    height: '100px',
+  },
+  invenPaginationBtn: {
+    '&:hover': {
+      cursor: 'pointer',
+    }
   }
 })
 
 const ITEM_HEIGHT = 48
+
+const inventoryLimit = 9
 
 const InventoryContent = ({
   coinData,
@@ -100,12 +131,16 @@ const InventoryContent = ({
     userid: '',
     anchorEl: null,
     selectedtype: '',
-    inventory: []
+    inventory: [],
+    currentPage: 1,
   })
   const { url, metadata, userid, selectedid, anchorEl, selectedtype, inventory } = state
   const prevState = usePrevious({ selectedtype })
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
+
+  const totalPage = Math.ceil( coinData.length / inventoryLimit );
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setState((prevState: any) => ({
       ...prevState,
@@ -124,6 +159,35 @@ const InventoryContent = ({
       selectedtype: id
     }))
     handleClose()
+  }
+
+  const goToNextPage = () => {
+    setState((prevState) => ({
+      ...prevState,
+      currentPage: prevState.currentPage + 1
+    }))
+  }
+  const goToPrevPage = () => {
+    setState((prevState) => ({
+      ...prevState,
+      currentPage: prevState.currentPage - 1
+    }))
+  }
+  const getCurrentCoinInventories = () => {
+    const res: any = [];
+    const startIndex = (state.currentPage - 1) * inventoryLimit;
+    const endIndex = state.currentPage * inventoryLimit > coinData.length ? coinData.length : state.currentPage * inventoryLimit;
+    for( let i = startIndex; i < endIndex; i++ ) {
+      res.push({...coinData[i]});
+    }
+    if( res.length < inventoryLimit ) {
+      const remainingCount = inventoryLimit - res.length;
+      for( let i = 0; i < remainingCount; i++ ) {
+        res.push({ empty: true });
+      }
+    }
+    console.error(res);
+    return res;
   }
 
   useEffect(() => {
@@ -145,7 +209,8 @@ const InventoryContent = ({
         userid: '',
         anchorEl: null,
         selectedtype: '',
-        inventory: []
+        inventory: [],
+        currentPage: 1,
       }) // This worked for me
     }
   }, [])
@@ -196,29 +261,53 @@ const InventoryContent = ({
         >
           <ArrowBackIos />
         </IconButton>
-        <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
-        <Stack direction="row" justifyContent="center">
-          <Stack sx={{ marginTop: '15px' }}>
-            {coinData.length !== 0 ? (
-              <Stack>
-                {coinData.map((value: any, index: number) => (
-                  // <Card
-                  //   key={index}
-                  //   style={{marginBottom:"8px",padding:"2px"}}
-                  // >
-                  <Stack key={index} justifyContent="center" alignItems="center">
-                    <img src={value.url} height="50" width="50" alt="" />
-                    <Typography>{`${value.name}`}</Typography>
-                    <Typography>{`Quantity: ${value.user_inventory.quantity}`}</Typography>
+        <Stack justifyContent="center" sx={{ width: '90%' }}>
+          <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
+          <Stack direction="row" justifyContent="center" className={`${classes.inventoryWrapper}`}>
+            <Stack sx={{ marginTop: '15px' }}>
+              {coinData.length !== 0 ? (
+                <Stack>
+                  {/* inventory grid */}
+                  <Stack direction="row" justifyContent="center" flexWrap={'wrap'} sx={{ position: 'relative' }}>
+                    { getCurrentCoinInventories().map((value: any, index: number) => (
+                        !value.empty ? 
+                          (<Stack key={index} justifyContent="center" alignItems="center" className={`${ classes.inventoryItem }`}>
+                            <img src={value.url} height="50" width="50" alt="" style={{ width: '90%', aspectRatio: '1.4' }} />
+                            <Typography>{`${value.name}`}</Typography>
+                          </Stack>) :
+                          (<Stack key={index} justifyContent="center" alignItems="center" className={`${ classes.inventoryItemEmpty }`}>
+                          </Stack>)
+                    )) }
                   </Stack>
-                  // </Card>
-                ))}
-              </Stack>
-            ) : (
-              <Stack>
-                <Typography>No Data Found</Typography>
-              </Stack>
-            )}
+                  {/* pagination */}
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <IconButton
+                      sx={{ svg: { color: 'white' } }}
+                      className={classes.invenPaginationBtn}
+                      onClick={() => goToPrevPage()}
+                      disabled={ state.currentPage <= 1 ? true : false }
+                    >
+                      <ArrowBackIos />
+                    </IconButton>
+                    <Typography>
+                      Page {`${state.currentPage} / ${ totalPage }`}
+                    </Typography>
+                    <IconButton
+                      sx={{ svg: { color: 'white' } }}
+                      className={classes.invenPaginationBtn}
+                      onClick={() => goToNextPage()}
+                      disabled={ state.currentPage >= totalPage ? true : false }
+                    >
+                      <ArrowForwardIos />
+                    </IconButton>
+                  </Stack>
+                </Stack>
+              ) : (
+                <Stack>
+                  <Typography>No Data Found</Typography>
+                </Stack>
+              )}
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

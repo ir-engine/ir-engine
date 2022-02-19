@@ -69,7 +69,17 @@ export const InventoryService = {
     dispatch(InventoryAction.loadinventory())
     try {
       const response = await client.service('user').get(id)
-      dispatch(InventoryAction.setinventorydata(response.inventory_items))
+
+      let invenData: any = await client.service('inventory-item').find({ query: { isCoin: true } })
+      const invenItem = invenData.data[0];
+
+      const inventory_items: any = [];
+      const inventory_count = 12;
+      for( let i = 0; i < inventory_count; i++ ) {
+        inventory_items.push( { ...invenItem, user_inventory: { quantity: 1 }, url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR31V75phAlmS7lDvFMMIi_TnzSJuipkQJm_-066Vmffw&s' } );
+      }
+
+      dispatch(InventoryAction.setinventorydata(inventory_items))
     } catch (err) {
       console.error(err, 'error')
     } finally {
