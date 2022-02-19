@@ -720,7 +720,8 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
       const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
         return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
       })!
-      hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
+      if (hostClient && hostClient[1])
+        hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
     }
   }
   callback({ resumed: true })
@@ -747,7 +748,8 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
         const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
           return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
         })!
-        hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
+        if (hostClient && hostClient[1])
+          hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
       }
     }
   }
