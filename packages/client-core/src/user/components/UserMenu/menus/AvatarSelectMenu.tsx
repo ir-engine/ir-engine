@@ -119,13 +119,16 @@ export const AvatarSelectMenu = (props: Props) => {
           setError(err)
         })
         .then((obj) => {
+          if (!obj) {
+            setAvatarModel(null!)
+            setError('Failed to load')
+            return
+          }
           obj.name = 'avatar'
           scene.add(obj)
-          setTimeout(() => {
-            const error = validate(obj)
-            setError(error)
-            if (error === '') setAvatarModel(obj)
-          }, 100)
+          const error = validate(obj)
+          setError(error)
+          if (error === '') setAvatarModel(obj)
         })
 
       fetch(event.target.value)
@@ -193,14 +196,17 @@ export const AvatarSelectMenu = (props: Props) => {
               setError(err)
             })
             .then((obj) => {
+              if (!obj) {
+                setAvatarModel(null!)
+                setError('Failed to load')
+                return
+              }
               obj.name = 'avatar'
               scene.add(obj)
               setAvatarModel(obj)
-              setTimeout(() => {
-                const error = validate(obj)
-                setError(error)
-                if (error === '') setAvatarModel(obj)
-              }, 100)
+              const error = validate(obj)
+              setError(error)
+              if (error === '') setAvatarModel(obj)
             })
         }
       } catch (error) {

@@ -54,6 +54,7 @@ const loadAvatarModelAsset = async (avatarURL: string) => {
     castShadow: true,
     receiveShadow: true
   })
+  if (!model.scene) return
   const parent = new Group()
   const root = new Group()
   root.add(model.scene)
@@ -68,6 +69,7 @@ export const loadAvatarForUser = async (entity: Entity, avatarURL: string) => {
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
   const parent = await loadAvatarModelAsset(avatarURL)
+  if (!parent) return
   setupAvatarModel(entity)(parent)
   animateModel(entity)
   return parent

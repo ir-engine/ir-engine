@@ -46,6 +46,7 @@ export const validate = (obj) => {
 
   if (!bone || !skinnedMesh) return t('user:avatar.noBone')
 
+  renderer.render(scene, camera)
   if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
     return t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
 
