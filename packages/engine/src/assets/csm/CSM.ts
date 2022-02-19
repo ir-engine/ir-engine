@@ -294,6 +294,7 @@ export class CSM {
 
     const breaksVec2 = []
     const shaders = this.shaders
+
     const originalOnBeforeCompile = material.onBeforeCompile
     function CSMonBeforeCompile(shader: ShaderType, renderer) {
       if (!this.camera) {
