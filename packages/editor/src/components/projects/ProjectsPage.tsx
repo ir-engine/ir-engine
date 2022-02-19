@@ -215,7 +215,6 @@ const ProjectsPage = () => {
   }
 
   const onClickExisting = (event, project) => {
-    console.log('onclick existing', project)
     event.preventDefault()
     if (!isInstalled(project)) return
     dispatch(EditorAction.sceneLoaded(null))
@@ -224,7 +223,6 @@ const ProjectsPage = () => {
   }
 
   const onCreateProject = async (name) => {
-    console.log('onCreateProject', name)
     await ProjectService.createProject(name)
     fetchInstalledProjects()
   }
