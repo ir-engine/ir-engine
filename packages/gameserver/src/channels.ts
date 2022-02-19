@@ -616,18 +616,23 @@ export default (app: Application): void => {
     console.log(params)
     console.log(app.instance)
 
-    const { id, ipAddress, port, locationId, sceneId } = params
+    const { id, ipAddress, locationId, sceneId } = params
 
     if (app.instance && app.instance.id !== id) {
       return
     }
 
     console.log('gameserver-load patched')
-    console.log({ id, ipAddress, port, locationId, sceneId })
+    console.log({ id, ipAddress, locationId, sceneId })
     const gsResult = await app.agonesSDK.getGameServer()
     console.log(gsResult)
     const status = gsResult.status as GameserverStatus
 
+    if (status.address !== ipAddress) {
+      return
+    }
+
+    console.log('Loading gameserver')
     loadGameserver(app, status, locationId, null!, sceneId, null!)
   })
 
