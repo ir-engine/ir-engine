@@ -7,7 +7,8 @@ import {
   Loader,
   AnimationClip,
   Group,
-  Mesh
+  Mesh,
+  LoaderUtils
 } from 'three'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
