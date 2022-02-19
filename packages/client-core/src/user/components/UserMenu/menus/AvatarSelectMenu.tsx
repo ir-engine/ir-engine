@@ -18,7 +18,7 @@ import {
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
@@ -78,7 +78,7 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
-  const [obj, setObj] = useState<any>(null)
+  const [avatarModel, setAvatarModel] = useState<any>(null)
   const classes = useStyle()
   const [value, setValue] = useState(0)
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -88,6 +88,8 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const [entity, setEntity] = useState<any>(null)
   const panelRef = useRef<any>()
+
+  console.log(avatarModel)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -112,13 +114,19 @@ export const AvatarSelectMenu = (props: Props) => {
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
 
-      loadAvatarForPreview(entity, event.target.value).then((obj) => {
-        obj.name = 'avatar'
-        scene.add(obj)
-        const error = validate(obj)
-        setError(error)
-        setObj(obj)
-      })
+      loadAvatarForPreview(entity, event.target.value)
+        .catch((err) => {
+          setError(err)
+        })
+        .then((obj) => {
+          obj.name = 'avatar'
+          scene.add(obj)
+          setTimeout(() => {
+            const error = validate(obj)
+            setError(error)
+            if (error === '') setAvatarModel(obj)
+          }, 100)
+        })
 
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -180,13 +188,20 @@ export const AvatarSelectMenu = (props: Props) => {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
           const objectURL = URL.createObjectURL(file) + '#' + file.name
-          loadAvatarForPreview(entity, objectURL).then((obj) => {
-            obj.name = 'avatar'
-            scene.add(obj)
-            const error = validate(obj)
-            setError(error)
-            setObj(obj)
-          })
+          loadAvatarForPreview(entity, objectURL)
+            .catch((err) => {
+              setError(err)
+            })
+            .then((obj) => {
+              obj.name = 'avatar'
+              scene.add(obj)
+              setAvatarModel(obj)
+              setTimeout(() => {
+                const error = validate(obj)
+                setError(error)
+                if (error === '') setAvatarModel(obj)
+              }, 100)
+            })
         }
       } catch (error) {
         console.error(error)
@@ -210,8 +225,8 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const uploadByUrls = () => {
-    if (obj == null) return
-    const error = validate(obj)
+    if (avatarModel == null) return
+    const error = validate(avatarModel)
     if (error) {
       setError(error)
       return
@@ -261,8 +276,8 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const uploadAvatar = () => {
-    if (obj == null) return
-    const error = validate(obj)
+    if (avatarModel == null) return
+    const error = validate(avatarModel)
     if (error) {
       setError(error)
       return

@@ -1,5 +1,5 @@
 import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
-import { useTranslation } from 'react-i18next'
+import i18next from 'i18next'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
@@ -20,7 +20,7 @@ import {
 } from 'three'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
+const t = i18next.t
 interface SceneProps {
   scene: Scene
   camera: PerspectiveCamera
@@ -30,27 +30,26 @@ interface SceneProps {
 let scene: Scene = null!
 let renderer: WebGLRenderer = null!
 let camera: PerspectiveCamera = null!
-export const validate = ({ vScene, renderer }) => {
-  const { t } = useTranslation()
-  const objBoundingBox = new Box3().setFromObject(vScene)
+export const validate = (obj) => {
+  const objBoundingBox = new Box3().setFromObject(obj)
   let maxBB = new Vector3(2, 2, 2)
+
+  let bone = false
+  let skinnedMesh = false
+  obj.traverse((o) => {
+    if (o.type.toLowerCase() === 'bone') bone = true
+    if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
+  })
+
+  const size = new Vector3().subVectors(maxBB, objBoundingBox.getSize(new Vector3()))
+  if (size.x <= 0 || size.y <= 0 || size.z <= 0) return t('user:avatar.outOfBound')
+
+  if (!bone || !skinnedMesh) return t('user:avatar.noBone')
 
   if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
     return t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
 
   if (renderer.info.render.triangles <= 0) return t('user:avatar.emptyObj')
-
-  const size = new Vector3().subVectors(maxBB, objBoundingBox.getSize(new Vector3()))
-  if (size.x <= 0 || size.y <= 0 || size.z <= 0) return t('user:avatar.outOfBound')
-
-  let bone = false
-  let skinnedMesh = false
-  vScene.traverse((o) => {
-    if (o.type.toLowerCase() === 'bone') bone = true
-    if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-  })
-
-  if (!bone || !skinnedMesh) return t('user:avatar.noBone')
 
   return ''
 }
