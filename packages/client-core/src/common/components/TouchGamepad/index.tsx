@@ -1,16 +1,11 @@
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
-import { addClientInputListeners } from '@xrengine/engine/src/input/functions/clientInputListeners'
-import { handleTouch, handleTouchMove } from '@xrengine/engine/src/input/schema/ClientInputSchema'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import nipplejs from 'nipplejs'
-import React, { FunctionComponent, useEffect, useRef } from 'react'
+import React, { FunctionComponent } from 'react'
+import { Joystick } from 'react-joystick-component'
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 
 export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
-  const leftContainer = useRef<HTMLDivElement>(null!)
-
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
     const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
     const event = new CustomEvent(eventType, { detail: { button } })
@@ -40,59 +35,47 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     )
   })
 
-  useEffect(() => {
-    // mount
-    const size = window.innerHeight * 0.15
-    const bottom = window.innerHeight * 0.14
+  const normalizeValues = (val) => {
+    const a = 1
+    const b = -1
+    const maxVal = 50
+    const minVal = -50
 
-    let stickLeft = nipplejs.create({
-      zone: leftContainer.current,
-      mode: 'static',
-      position: { left: '50%', bottom: bottom + 'px' },
-      color: 'white',
-      size: size,
-      restOpacity: 1,
-      dynamicPage: true
-    })
+    const newValue = (b - a) * ((val - minVal) / (maxVal - minVal)) + a
 
-    if (document.getElementById('joystick')?.childNodes[0]) {
-      const style = (document?.getElementById('joystick')?.childNodes[0]?.lastChild as any).style
-      if (style) {
-        style.opacity = 1
-        style.background! = 'rgba(255, 255, 255, 0.8)'
-        style.boxShadow! = '0px 4px 4px rgba(0, 0, 0, 0.25)'
-        style.opacity! = 1
-        style.background = 'rgba(255, 255, 255, 0.5)'
-        style.boxShadow = '0px 4px 4px rgba(0, 0, 0, 0.25)'
+    return newValue
+  }
+
+  const handleMove = (e) => {
+    const event = new CustomEvent('touchstickmove', {
+      detail: {
+        stick: GamepadAxis.Left,
+        value: { x: normalizeValues(-e.y), y: normalizeValues(e.x), angleRad: 0 }
       }
-    }
-
-    stickLeft.on('move', (e, data) => {
-      const event = new CustomEvent('touchstickmove', {
-        detail: {
-          stick: GamepadAxis.Left,
-          value: { x: data.vector.y, y: -data.vector.x, angleRad: data.angle.radian }
-        }
-      })
-      document.dispatchEvent(event)
     })
+    document.dispatchEvent(event)
+  }
 
-    stickLeft.on('end', (e, data) => {
-      const event = new CustomEvent('touchstickmove', {
-        detail: { stick: GamepadAxis.Left, value: { x: 0, y: 0, angleRad: 0 } }
-      })
-      document.dispatchEvent(event)
+  const handleStop = () => {
+    const event = new CustomEvent('touchstickmove', {
+      detail: { stick: GamepadAxis.Left, value: { x: 0, y: 0, angleRad: 0 } }
     })
-
-    return (): void => {
-      // unmount
-      stickLeft.destroy()
-    }
-  }, [])
+    document.dispatchEvent(event)
+  }
 
   return (
     <>
-      <div id="joystick" className={styles.stickLeft} ref={leftContainer} />
+      <div className={styles.stickLeft}>
+        <Joystick
+          size={100}
+          throttle={100}
+          minDistance={40}
+          move={handleMove}
+          stop={handleStop}
+          baseColor="rgba(255, 255, 255, 0.5)"
+          stickColor="rgba(255, 255, 255, 0.8)"
+        />
+      </div>
       <div className={styles.controlButtonContainer}>{buttons}</div>
     </>
   )

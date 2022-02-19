@@ -31,7 +31,7 @@ Expand the name of the chart.
 {{- end -}}
 
 {{- define "xrengine.testbot.name" -}}
-{{- default .Chart.Name .Values.testbot.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Chart.Name (.Values.testbot).nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 
@@ -99,10 +99,10 @@ If release name contains chart name it will be used as a full name.
 
 
 {{- define "xrengine.testbot.fullname" -}}
-{{- if .Values.testbot.fullnameOverride -}}
+{{- if (.Values.testbot).fullnameOverride -}}
 {{- .Values.testbot.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.testbot.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (.Values.testbot).name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -316,10 +316,10 @@ Create the name of the service account to use
 Create the name of the service account to use
 */}}
 {{- define "xrengine.testbot.serviceAccountName" -}}
-{{- if .Values.testbot.serviceAccount.create -}}
+{{- if ((.Values.testbot).serviceAccount).create -}}
     {{ default (include "xrengine.testbot.fullname" .) .Values.testbot.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.testbot.serviceAccount.name }}
+    {{ default "default" ((.Values.testbot).serviceAccount).name }}
 {{- end -}}
 {{- end -}}
 
@@ -329,7 +329,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "xrengine.mariadb.fullname" -}}
-{{- if .Values.mariadb.fullnameOverride -}}
+{{- if ((.Values.mariadb).fullnameOverride) -}}
 {{- .Values.mariadb.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
 {{- $name := default .Chart.Name .Values.mariadb.nameOverride -}}
@@ -342,9 +342,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Set maria host
 */}}
 {{- define "xrengine.mariadb.host" -}}
-{{- if .Values.mariadb.enabled -}}
+{{- if ((.Values.mariadb).enabled) -}}
 {{- template "xrengine.mariadb.fullname" . -}}
-{{- else -}}
+{{- else if ((.Values.mariadb).externalHost) -}}
 {{- .Values.mariadb.externalHost | quote -}}
 {{- end -}}
 {{- end -}}

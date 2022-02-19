@@ -1,14 +1,31 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { PerspectiveCamera, MathUtils } from 'three'
+import {
+  PerspectiveCamera,
+  MathUtils,
+  BoxGeometry,
+  MeshBasicMaterial,
+  Mesh,
+  sRGBEncoding,
+  DoubleSide,
+  EquirectangularReflectionMapping,
+  CubeTexture,
+  SphereGeometry
+} from 'three'
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { LoadingSystemState } from './state/LoadingState'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { accessSceneState } from '../world/services/SceneService'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
+import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 
 export default async function XRUILoadingSystem(world: World) {
   const ui = createLoaderDetailView()
@@ -20,6 +37,16 @@ export default async function XRUILoadingSystem(world: World) {
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
 
   await ui.waitForSceneColors()
+
+  // const mesh = new Mesh(new SphereGeometry(1), new MeshBasicMaterial({ side: DoubleSide }))
+  // getComponent(ui.entity, Object3DComponent).value.add(mesh)
+
+  // const sceneState = accessSceneState()
+  // const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
+  // const texture = await textureLoader.loadAsync(thumbnailUrl)
+  // mesh.material.map = texture
+  // texture.encoding = sRGBEncoding
+  // Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
 
   return () => {
     if (Engine.activeCameraEntity) {

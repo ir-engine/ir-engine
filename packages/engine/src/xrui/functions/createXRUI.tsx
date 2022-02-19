@@ -55,7 +55,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     }
 
     addComponent(entity, Object3DComponent, { value: container })
-    setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
+    setObjectLayers(container, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { container: container })
     addComponent(entity, VisibleComponent, {})
 

@@ -107,18 +107,6 @@ and `helm install local-redis redis/redis` to install redis.
 You can run `kubectl get pods -A` to list all of the pods running in minikube. After a minute or so,
 all of these pods should be in the Running state.
 
-## Build .env.production file locally
-vite, the package that is used to build the front-end client, can only pass environment variables in the form
-`VITE_*` to the files it builds, and in a production build, these variables must be passed into the build process.
-In an actual deployment, the builder service will generate the file `.env.production` from the environment variables
-that are set on its context. When building for minikube, the builder service is not run, so you need to build
-`.env.production` manually.
-
-In a separate terminal tab, go to `packages/client` and run 
-`VITE_SERVER_HOST=api-local.theoverlay.io VITE_GAMESERVER_HOST=gameserver-local.theoverlay.io npm run buildenv`.
-This will write those two environment variables to `.env.production` at the repo root. If you need to set other
-variables, just define them alongside the existing variables when calling `npm run buildenv`.
-
 ## Run build_minikube.sh
 When minikube is running, run the following command from the root of the XREngine repo:
 `./scripts/build_minikube.sh`
@@ -127,10 +115,14 @@ This points Docker *in the current terminal* to minikube's Docker environment. A
 will be locally accessible to minikube; if the first main command in the script were not run, Docker would build to your
 machine's Docker environment, and minikube would not have access to it.
 
-The script also builds the full-repo Docker image using several of build arguments. Vite, which builds
+The script also builds the full-repo Docker image using several build arguments. Vite, which builds
 the client files, uses some information from the MariaDB database created for minikube deployments
 to fill in some variables, and needs database credentials. The script will supply default values
-for all of the MYSQL_* variables if they are not provided to the script.
+for all of the MYSQL_* variables if they are not provided to the script, as well as VITE_CLIENT_HOST,
+VITE_SERVER_HOST, and VITE_GAMESERVER_HOST. The latter three will make your minikube deployment
+accessible on `(local/api-local/gameserver-local).theoverlay.io`; if you want to run it on a different
+domain, then you'll have to set those three environment variables to what you want them to be (and also
+change the hostfile records you made pointing those subdomains to minikube's IP)
 
 This will build an image of the entire XREngine repo into a single Docker file. When deployed for
 different services, it will only run the parts needed for that service. This may take up to 15 minutes,
