@@ -21,6 +21,9 @@ import {
 import { useHistory } from 'react-router-dom'
 import { usePrevious } from '../../../../hooks/usePrevious'
 
+import ItemSlot from './Slot'
+import DragAndDropAPI from './DragAndDropAPI'
+
 const useStyles = makeStyles({
   root1: {
     width: '50%'
@@ -85,16 +88,18 @@ const useStyles = makeStyles({
     margin: 15,
     filter: 'drop-shadow(0px 11.2376px 11.2376px rgba(0, 0, 0, 0.25))',
     borderRadius: '6.74257px',
-    border: '2px solid',
-    borderImage: 'linear-gradient(180deg, #FFFFFF 0%, rgba(137, 137, 242, 0.53)) 1 100%',
+    border: '2px solid rgba(137, 137, 242, 0.53)',
     boxShadow: '0px 11.23762321472168px 11.23762321472168px 0px #00000040',
     width: '25%',
     height: '100px',
+    '&:hover': {
+      cursor: 'pointer',
+    }
   },
   inventoryItemEmpty: {
     margin: 15,
     borderRadius: '8px',
-    border: '2px solid',
+    border: '2px solid #ffffff61',
     background: 'linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%)',
     boxShadow: '0px 11.23762321472168px 11.23762321472168px 0px #00000040',
     backdropFilter: 'blur(50px)',
@@ -104,7 +109,10 @@ const useStyles = makeStyles({
   invenPaginationBtn: {
     '&:hover': {
       cursor: 'pointer',
-    }
+    },
+    '&.disable': {
+      opacity: '0.3'
+    },
   }
 })
 
@@ -139,7 +147,66 @@ const InventoryContent = ({
   // const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl)
 
-  const totalPage = Math.ceil( coinData.length / inventoryLimit );
+  const totalPage = Math.ceil( coinData.length / inventoryLimit )
+
+  // Regarding dragging inventory action.
+  const [items, setItems] = useState([ ...coinData ])
+  const [ draggingSlotId, setDraggingSlot ] = useState(null)
+  const getItemDataInSlot = (slot) => items.find((item) => item.slot === slot);
+
+  const swapItemSlots = (oldSlot, newSlot) => {
+    setItems((currentState) => {
+      let newInventory = [...currentState];
+      let oldIndex: any, newIndex: any;
+      
+      // Finding the old ones..
+
+      newInventory.forEach((item, index) => {
+        if(item.slot === oldSlot) {
+          oldIndex = index;
+        } else if (item.slot === newSlot) {
+          newIndex = index;
+        }
+      })
+
+      // Replacing them
+
+      newInventory[oldIndex] = { ...newInventory[oldIndex], slot: newSlot }
+      newInventory[newIndex] = { ...newInventory[newIndex], slot: oldSlot }
+
+      return [...newInventory]
+    })
+  }
+
+
+  const moveItemToSlot = (oldSlot, newSlot) => {
+    console.log(`move slot`, oldSlot, newSlot);
+
+    setItems((currentState) => {
+      let newInventory = [...currentState];
+      let targetIndex: any;
+      newInventory.forEach((item, index) => {
+        if (item.slot === oldSlot) {
+          targetIndex = index;
+        }
+      });
+      console.error('targetIndex', targetIndex);
+      newInventory[targetIndex] = { ...newInventory[targetIndex], slot: newSlot };
+      return [...newInventory]
+    })
+  }
+
+  const onInventoryItemDragged = ({ detail: eventData }: any) => {
+    const oldSlot = parseInt(eventData.slot), newSlot = parseInt(eventData.destination.slot);
+
+    if (eventData.destination.type === "empty-slot") {
+      moveItemToSlot(oldSlot, newSlot);
+    } else if (eventData.destination.type === "item") {
+      swapItemSlots(oldSlot, newSlot);
+    }
+  }
+
+  // ***********************************
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setState((prevState: any) => ({
@@ -173,24 +240,19 @@ const InventoryContent = ({
       currentPage: prevState.currentPage - 1
     }))
   }
-  const getCurrentCoinInventories = () => {
+  const getCurrentSlots = () => {
     const res: any = [];
     const startIndex = (state.currentPage - 1) * inventoryLimit;
-    const endIndex = state.currentPage * inventoryLimit > coinData.length ? coinData.length : state.currentPage * inventoryLimit;
-    for( let i = startIndex; i < endIndex; i++ ) {
-      res.push({...coinData[i]});
-    }
-    if( res.length < inventoryLimit ) {
-      const remainingCount = inventoryLimit - res.length;
-      for( let i = 0; i < remainingCount; i++ ) {
-        res.push({ empty: true });
-      }
-    }
-    console.error(res);
+    const endIndex = state.currentPage * inventoryLimit;
+    for( let i = startIndex; i < endIndex; i++ )
+      res.push(i);
+
     return res;
   }
 
   useEffect(() => {
+    document.addEventListener("inventoryItemDragged", onInventoryItemDragged)
+
     if (data.length !== 0) {
       setState((prevState: any) => ({
         ...prevState,
@@ -202,6 +264,8 @@ const InventoryContent = ({
     }
 
     return () => {
+      document.removeEventListener("inventoryItemDragged", onInventoryItemDragged);
+
       setState({
         url: '',
         metadata: '',
@@ -251,7 +315,7 @@ const InventoryContent = ({
   }, [selectedtype])
 
   return (
-    <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`}>
+    <Box sx={{ p: 2 }} className={`${classes.root} ${classes.contents} invenContentPanel`}>
       {/* <Stack sx={{ p: 2 }} className={`${classes.root} ${classes.contents}`} > */}
       <Stack direction="row" justifyContent="space-between" className={classes.title}>
         <IconButton
@@ -265,25 +329,31 @@ const InventoryContent = ({
           <Typography className={`${classes.title} ${classes.titlesize}`}>Inventory</Typography>
           <Stack direction="row" justifyContent="center" className={`${classes.inventoryWrapper}`}>
             <Stack sx={{ marginTop: '15px' }}>
-              {coinData.length !== 0 ? (
+              {items.length !== 0 ? (
                 <Stack>
+                  {/* drag & drop API integration */}
+                  <DragAndDropAPI
+                    activeDraggedSlot={draggingSlotId}
+                    setActiveDraggedSlot={setDraggingSlot}
+                  />
+
                   {/* inventory grid */}
-                  <Stack direction="row" justifyContent="center" flexWrap={'wrap'} sx={{ position: 'relative' }}>
-                    { getCurrentCoinInventories().map((value: any, index: number) => (
-                        !value.empty ? 
-                          (<Stack key={index} justifyContent="center" alignItems="center" className={`${ classes.inventoryItem }`}>
-                            <img src={value.url} height="50" width="50" alt="" style={{ width: '90%', aspectRatio: '1.4' }} />
-                            <Typography>{`${value.name}`}</Typography>
-                          </Stack>) :
-                          (<Stack key={index} justifyContent="center" alignItems="center" className={`${ classes.inventoryItemEmpty }`}>
-                          </Stack>)
-                    )) }
+                  <Stack direction="row" justifyContent="center" flexWrap={'wrap'} sx={{ position: 'relative' }} className={`inventory`}>
+                    {
+                      getCurrentSlots().map((slot) => (
+                        <ItemSlot
+                          slot={slot}
+                          value={ getItemDataInSlot(slot) || null }
+                          key={slot}
+                        />
+                      ))
+                    }
                   </Stack>
                   {/* pagination */}
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <IconButton
                       sx={{ svg: { color: 'white' } }}
-                      className={classes.invenPaginationBtn}
+                      className={`${classes.invenPaginationBtn} ${ state.currentPage <= 1 ? 'disable' : '' }`}
                       onClick={() => goToPrevPage()}
                       disabled={ state.currentPage <= 1 ? true : false }
                     >
@@ -294,7 +364,7 @@ const InventoryContent = ({
                     </Typography>
                     <IconButton
                       sx={{ svg: { color: 'white' } }}
-                      className={classes.invenPaginationBtn}
+                      className={`${classes.invenPaginationBtn} ${ state.currentPage >= totalPage ? 'disable' : '' }`}
                       onClick={() => goToNextPage()}
                       disabled={ state.currentPage >= totalPage ? true : false }
                     >
@@ -392,12 +462,6 @@ const InventoryContent = ({
                 </Stack>
               )}
             </Stack>
-            {/* {console.log("in render ", coinData)}
-            {
-              coinData.map((value: any, index: number) =>
-                 <div>{value.name}</div>
-              )
-            } */}
           </Grid>
           <Grid item md={6}>
             {url !== '' && metadata.length !== 0 && (
