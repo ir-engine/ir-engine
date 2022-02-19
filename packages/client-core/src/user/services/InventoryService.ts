@@ -76,7 +76,12 @@ export const InventoryService = {
       const inventory_items: any = [];
       const inventory_count = 12;
       for( let i = 0; i < inventory_count; i++ ) {
-        inventory_items.push( { ...invenItem, user_inventory: { quantity: 1 }, url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR31V75phAlmS7lDvFMMIi_TnzSJuipkQJm_-066Vmffw&s' } );
+        inventory_items.push( { ...invenItem, 
+                                user_inventory: { quantity: 1 }, 
+                                url: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR31V75phAlmS7lDvFMMIi_TnzSJuipkQJm_-066Vmffw&s',
+                                slot: i,
+                                name: invenItem.name + i,
+                              } );
       }
 
       dispatch(InventoryAction.setinventorydata(inventory_items))
