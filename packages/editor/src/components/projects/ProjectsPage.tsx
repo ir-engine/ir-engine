@@ -17,7 +17,7 @@ import {
   Clear,
   FilterList,
   Search,
-  ManageAccounts,
+  Settings,
   Check,
   Delete,
   Download,
@@ -34,6 +34,13 @@ import { CreateProjectDialog } from './CreateProjectDialog'
 import { EditorAction } from '../../services/EditorServices'
 import styles from './styles.module.scss'
 import { DeleteDialog } from './DeleteDialog'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+
+function sortAlphabetical(a, b) {
+  if (a > b) return -1
+  if (b > a) return 1
+  return 0
+}
 
 const OfficialProjectData = [
   {
@@ -51,7 +58,7 @@ const OfficialProjectData = [
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
-      'Item inventory, trade & cirtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradeable items.'
+      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.'
   },
   {
     id: '1570ae13-889a-11ec-886e-b126f7590685',
@@ -60,7 +67,7 @@ const OfficialProjectData = [
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
-      'Join the digital economy with 3D storefronts full of perchasable items from Shopify, Wucommerce and more!'
+      'Join the digital economy with 3D storefronts full of purchasable items from Shopify, Wucommerce and more!'
   },
   {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
@@ -82,15 +89,15 @@ const OfficialProjectData = [
 ]
 
 const CommunityProjectData = [
-  {
+  /*{
     id: '1570ae16-889a-11ec-886e-b126f7590685',
     name: 'puttclub',
     repositoryPath: 'https://github.com/puttclub/puttclub',
     storageProviderPath: '',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Mini-golf in WebXR!'
-  }
-]
+  }*/
+] as any
 
 const ProjectExpansionList = (props: React.PropsWithChildren<{ id: string; summary: string }>) => {
   return (
@@ -119,7 +126,7 @@ const ProjectsPage = () => {
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
   const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
@@ -143,7 +150,7 @@ const ProjectsPage = () => {
       const data = await getProjects()
       if (unmounted.current) return
 
-      setInstalledProjects(data ?? [])
+      setInstalledProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
       if (unmounted.current) return
 
@@ -161,7 +168,7 @@ const ProjectsPage = () => {
         : OfficialProjectData)
       if (unmounted.current) return
 
-      setOfficialProjects(data ?? [])
+      setOfficialProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
       if (unmounted.current) return
 
@@ -179,7 +186,7 @@ const ProjectsPage = () => {
         : CommunityProjectData)
       if (unmounted.current) return
 
-      setCommunityProjects(data ?? [])
+      setCommunityProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
       if (unmounted.current) return
 
@@ -204,11 +211,13 @@ const ProjectsPage = () => {
 
   // TODO: Implement tutorial
   const openTutorial = () => {
-    console.log('Implment Tutorial...')
+    console.log('Implement Tutorial...')
   }
 
   const onClickExisting = (event, project) => {
+    console.log('onclick existing', project)
     event.preventDefault()
+    if (!isInstalled(project)) return
     dispatch(EditorAction.sceneLoaded(null))
     dispatch(EditorAction.projectLoaded(project.name))
     history.push(`/editor/${project.name}`)
@@ -231,7 +240,9 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     if (activeProject) {
       try {
-        await ProjectService.removeProject(activeProject.id)
+        // TODO: using repo path as IDs & names are not properly implemented for official projects
+        const proj = installedProjects.find((proj) => proj.repositoryPath === activeProject.repositoryPath)!
+        await ProjectService.removeProject(proj.id)
         fetchInstalledProjects()
       } catch (err) {
         console.error(err)
@@ -267,7 +278,7 @@ const ProjectsPage = () => {
     return false
   }
 
-  const handleSerach = (e) => {
+  const handleSearch = (e) => {
     setQuery(e.target.value)
 
     if (filter.installed) {
@@ -302,15 +313,17 @@ const ProjectsPage = () => {
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
-                !areInstalledProjects && onClickExisting(e, project)
+                areInstalledProjects && onClickExisting(e, project)
               }}
             >
               <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
               <div className={styles.headerConatiner}>
                 <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
-                  <ManageAccounts />
-                </IconButton>
+                {project.name !== 'default-project' && (
+                  <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                    <Settings />
+                  </IconButton>
+                )}
               </div>
               {!areInstalledProjects && isInstalled(project) && (
                 <span className={styles.installedIcon}>
@@ -327,7 +340,7 @@ const ProjectsPage = () => {
 
   /**
    * Rendering view for projects page, if user is not login yet then showing login view.
-   * if user is loged in and has no existing projects then we showing welcome view, providing link for the tutorials.
+   * if user is logged in and has no existing projects then the welcome view is shown, providing link to the tutorials.
    * if user has existing projects then we show the existing projects in grids and a grid to add new project.
    *
    */
@@ -367,7 +380,7 @@ const ProjectsPage = () => {
                 classes={{ root: styles.inputRoot }}
                 placeholder={t(`editor.projects.lbl-searchProject`)}
                 inputProps={{ 'aria-label': t(`editor.projects.lbl-searchProject`) }}
-                onChange={handleSerach}
+                onChange={handleSearch}
               />
               {query ? (
                 <IconButton aria-label="search" disableRipple onClick={clearSearch}>
@@ -385,7 +398,7 @@ const ProjectsPage = () => {
           </div>
           <div className={styles.projectGrid}>
             {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
-            {(filter.installed || !query) && (
+            {(!query || filter.installed) && (
               <ProjectExpansionList
                 id={t(`editor.projects.installed`)}
                 summary={`${t('editor.projects.installed')} (${installedProjects.length})`}
@@ -393,7 +406,7 @@ const ProjectsPage = () => {
                 {renderProjectList(installedProjects, true)}
               </ProjectExpansionList>
             )}
-            {query && filter.official && officialProjects.length > 0 && (
+            {(!query || (query && filter.official && officialProjects.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.official`)}
                 summary={`${t('editor.projects.official')} (${officialProjects.length})`}
@@ -401,7 +414,7 @@ const ProjectsPage = () => {
                 {renderProjectList(officialProjects)}
               </ProjectExpansionList>
             )}
-            {query && filter.community && communityProjects.length > 0 && (
+            {(!query || (!query && filter.community && communityProjects.length > 0)) && (
               <ProjectExpansionList
                 id={t(`editor.projects.community`)}
                 summary={`${t('editor.projects.community')} (${communityProjects.length})`}
@@ -419,25 +432,27 @@ const ProjectsPage = () => {
           </div>
         ) : null}
       </div>
-      <Menu
-        anchorEl={projectAnchorEl}
-        open={Boolean(projectAnchorEl)}
-        onClose={closeProjectContextMenu}
-        TransitionProps={{ onExited: () => setActiveProject(null) }}
-        classes={{ paper: styles.filterMenu }}
-      >
-        {isInstalled(activeProject) ? (
-          <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
-            {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
-            {t(`editor.projects.uninstall`)}
-          </MenuItem>
-        ) : (
-          <MenuItem classes={{ root: styles.filterMenuItem }} onClick={installProject}>
-            {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
-            {t(`editor.projects.install`)}
-          </MenuItem>
-        )}
-      </Menu>
+      {activeProject?.name !== 'default-project' && (
+        <Menu
+          anchorEl={projectAnchorEl}
+          open={Boolean(projectAnchorEl)}
+          onClose={closeProjectContextMenu}
+          TransitionProps={{ onExited: () => setActiveProject(null) }}
+          classes={{ paper: styles.filterMenu }}
+        >
+          {isInstalled(activeProject) ? (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
+              {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
+              {t(`editor.projects.uninstall`)}
+            </MenuItem>
+          ) : (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={installProject}>
+              {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+              {t(`editor.projects.install`)}
+            </MenuItem>
+          )}
+        </Menu>
+      )}
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
       <DeleteDialog
         open={isDeleteDialogOpen}
