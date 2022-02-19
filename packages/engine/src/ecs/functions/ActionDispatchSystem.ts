@@ -36,7 +36,7 @@ export const updateCachedActions = (world: World, action: Required<Action>) => {
 
 export const applyAndArchiveIncomingAction = (world: World, action: Required<Action>) => {
   try {
-    for (const receptor of world.receptors) receptor(action)
+    for (const receptor of [...world.receptors]) receptor(action)
     updateCachedActions(world, action)
     world.actionHistory.add(action)
   } catch (e) {
