@@ -25,6 +25,9 @@ import {
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { PropertiesPanelButton } from '../inputs/Button'
+import { AnimationClip } from 'three'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -35,10 +38,12 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [isInteractable, setInteractable] = useState(false)
+  const [animationPlaying, setAnimationPlaying] = useState(false)
   const engineState = useEngineState()
   const entity = props.node.entity
 
   const modelComponent = getComponent(entity, ModelComponent)
+  const animationComponent = getComponent(entity, AnimationComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
@@ -46,6 +51,27 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   useEffect(() => {
     setInteractable(hasComponent(entity, InteractableComponent))
   }, [])
+
+  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+  const onPlayAnimation = () => {
+    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+    if (!animationPlaying) {
+      if (
+        loopAnimationComponent.activeClipIndex >= 0 &&
+        animationComponent.animations[loopAnimationComponent.activeClipIndex]
+      ) {
+        loopAnimationComponent.action = animationComponent.mixer
+          .clipAction(
+            AnimationClip.findByName(
+              animationComponent.animations,
+              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+            )
+          )
+          .play()
+      }
+    }
+    setAnimationPlaying(!animationPlaying)
+  }
 
   const onChangeInteractable = (interact) => {
     setInteractable(interact)
@@ -57,7 +83,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       removeComponent(entity, InteractableComponent)
     }
   }
-  const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
   useWorld().entityTree.traverse((node) => {
@@ -128,6 +153,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
+      <PropertiesPanelButton onClick={onPlayAnimation}>
+        {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
+      </PropertiesPanelButton>
       <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
         <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
       </InputGroup>
