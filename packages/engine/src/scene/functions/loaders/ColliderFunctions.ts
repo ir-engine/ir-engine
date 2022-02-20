@@ -19,9 +19,18 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   const object3d = getComponent(entity, Object3DComponent)
   if (object3d) {
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, json.props)
-    const body = createBody(entity, json.props, shapes)
-    addComponent(entity, ColliderComponent, { body })
-    addComponent(entity, CollisionComponent, { collisions: [] })
+    // As we might call collider deserialize on every child of the object now,
+    // so this sanity check is needed now.
+    if (shapes.length > 0) {
+      let body = createBody(entity, json.props, shapes)
+      // ;(body as PhysX.PxRigidBody).setMass(10)
+
+      if (Engine.isEditor) body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
+      else body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, false)
+
+      addComponent(entity, ColliderComponent, { body })
+      addComponent(entity, CollisionComponent, { collisions: [] })
+    }
   }
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }

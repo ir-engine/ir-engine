@@ -7,7 +7,6 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
-import { isClient } from '../../common/functions/isClient'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { World } from '../../ecs/classes/World'
@@ -86,19 +85,25 @@ export default async function PhysicsSystem(world: World) {
     }
 
     for (const entity of colliderQuery()) {
+      // Hackish fix for now to disable some physics effects in editor
+      // We should prolly not register the physics system when loading editor
+      if (Engine.isEditor) return
+
       const velocity = getComponent(entity, VelocityComponent)
-      if (!velocity) continue
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if ((!isClient && network.ownerId !== Engine.userId) || hasComponent(entity, AvatarComponent)) continue
+      if (world.isHosting || hasComponent(entity, AvatarComponent)) continue
+      if (network) {
+        if (network.ownerId !== Engine.userId) continue
+      }
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic
         const currentPose = body.getGlobalPose()
 
-        velocity.velocity.subVectors(currentPose.translation as Vector3, transform.position)
+        if (velocity) velocity.velocity.subVectors(currentPose.translation as Vector3, transform.position)
 
         currentPose.translation.x = transform.position.x
         currentPose.translation.y = transform.position.y
@@ -116,7 +121,7 @@ export default async function PhysicsSystem(world: World) {
         const body = collider.body as PhysX.PxRigidDynamic
 
         const linearVelocity = body.getLinearVelocity()
-        velocity.velocity.copy(linearVelocity as Vector3)
+        if (velocity) velocity.velocity.copy(linearVelocity as Vector3)
 
         const currentPose = body.getGlobalPose()
 
@@ -126,7 +131,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
 
-    if (!isClient) {
+    if (world.isHosting) {
       for (const entity of networkColliderQuery()) {
         const collider = getComponent(entity, ColliderComponent)
         const transform = getComponent(entity, TransformComponent)
