@@ -90,7 +90,7 @@
     "rollup-plugin-terser": "7.0.2",
     "sinon": "12.0.1",
     "trace-unhandled": "2.0.1",
-    "typedoc": "0.22.11",
+    "typedoc": "0.22.12",
     "typescript": "4.5.5",
     "url-polyfill": "1.1.12"
   },
