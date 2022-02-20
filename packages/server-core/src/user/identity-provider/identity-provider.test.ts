@@ -73,7 +73,7 @@ describe('identity-provider service', () => {
   })
 
   it('should find identity providers', async () => {
-    providers.forEach(async (provider) => {
+    for (const provider of providers) {
       const item = await app.service('identity-provider').find({
         query: {
           userId: provider.userId
@@ -81,17 +81,17 @@ describe('identity-provider service', () => {
       })
 
       assert.ok(item, 'Identity provider item is found')
-    })
+    }
   })
 
   it('should remove identity providers', async () => {
-    providers.forEach(async (provider) => {
+    for (const provider of providers) {
       const item = await app.service('identity-provider').remove(null, {
         query: {
           userId: provider.userId
         }
       })
       assert.ok(item, 'Identity provider item is removed')
-    })
+    }
   })
 })

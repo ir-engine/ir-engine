@@ -53,7 +53,7 @@ describe('user service', () => {
   })
 
   it('should find users', async () => {
-    users.forEach(async (user) => {
+    for (const user of users) {
       const item = await app.service('user').find({
         query: {
           id: user.id
@@ -61,7 +61,7 @@ describe('user service', () => {
       })
 
       assert.ok(item, 'user item is found')
-    })
+    }
   })
 
   it('should find users by action layer-users', async () => {
@@ -107,21 +107,21 @@ describe('user service', () => {
 
   it('should patch users', async () => {
     const partyId = v1()
-    users.forEach(async (user) => {
+    for (const user of users) {
       await app.service('user').patch(user.id, {
         instanceId: partyId
       })
-    })
+    }
   })
 
   it('should remove users', async () => {
-    users.forEach(async (user) => {
+    for (const user of users) {
       const item = await app.service('user').remove(null, {
         query: {
           id: user.id
         }
       })
       assert.ok(item, 'user item is removed')
-    })
+    }
   })
 })

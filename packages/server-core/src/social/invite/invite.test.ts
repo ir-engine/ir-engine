@@ -8,11 +8,9 @@ let user: any = null
 
 describe('invite service', () => {
   let app: Application
-  before(() => {
-    app = createApp()
-  })
 
   before(async () => {
+    app = createApp()
     await app.service('invite').hooks({
       before: {
         find: []
@@ -140,9 +138,9 @@ describe('invite service', () => {
   // })
 
   it('should remove invites', async () => {
-    invites.forEach(async (invite) => {
+    for (const invite of invites) {
       const item = await app.service('invite').remove(invite.id, {})
       assert.ok(item, 'invite item is removed')
-    })
+    }
   })
 })
