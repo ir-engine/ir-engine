@@ -1,11 +1,15 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
-import app from '../../../../server/src/app'
+import { createApp } from '../../../../server/src/app'
+import { Application } from '../../../declarations'
 
 let providers: any = []
 
 describe('identity-provider service', () => {
-  before(async () => {})
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
 
   it('registered the service', async () => {
     const service = await app.service('identity-provider')

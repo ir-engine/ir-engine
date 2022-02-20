@@ -1,6 +1,7 @@
-import app from '../../../../server/src/app'
+import { createApp } from '../../../../server/src/app'
 import { getAvatarFromStaticResources } from './avatar-helper'
 import assert from 'assert'
+import { Application } from '../../../declarations'
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 // import fs from 'fs'
 // import path from 'path'
@@ -10,6 +11,11 @@ import assert from 'assert'
 
 // causes CI/CD weirdness
 describe.skip('avatar-helper', () => {
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
+
   // describe('generateAvatarThumbnail', () => {
   //   it('should generate thumbnail', async () => {
   //     const inputGLBBuffer = fs.readFileSync(path.resolve(appRootPath.path, 'packages/projects/default-project/avatars/CyberbotBlack.glb'))

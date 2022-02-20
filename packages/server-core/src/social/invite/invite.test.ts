@@ -1,11 +1,17 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
-import app from '../../../../server/src/app'
+import { createApp } from '../../../../server/src/app'
+import { Application } from '../../../declarations'
 
 let invites: any = []
 let user: any = null
 
 describe('invite service', () => {
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
+
   before(async () => {
     await app.service('invite').hooks({
       before: {

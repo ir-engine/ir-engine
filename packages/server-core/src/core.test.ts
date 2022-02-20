@@ -1,7 +1,13 @@
 import assert from 'assert'
-import app from '../../server/src/app'
+import { createApp } from '../../server/src/app'
+import { Application } from '../declarations'
 
 describe('Core', () => {
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
+
   it('should initialise app', async () => {
     assert.doesNotReject(app.isSetup)
   })

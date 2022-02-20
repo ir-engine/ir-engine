@@ -1,8 +1,9 @@
 import assert from 'assert'
-import app from '@xrengine/server/src/app'
+import { createApp } from '@xrengine/server/src/app'
 import nock from 'nock'
 import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
 import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import { Application } from '../../../declarations'
 
 interface User {
   id: string
@@ -40,7 +41,10 @@ describe('matchmaking match-instance service', () => {
     }
   }
 
+  let app: Application
   before(async () => {
+    app = createApp()
+
     scope = nock(FRONTEND_SERVICE_URL)
 
     const ticketsService = app.service('match-ticket')

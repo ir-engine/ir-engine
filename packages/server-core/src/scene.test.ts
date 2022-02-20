@@ -1,5 +1,5 @@
 import assert from 'assert'
-import app from '../../server/src/app'
+import { createApp } from '../../server/src/app'
 import path from 'path'
 import appRootPath from 'app-root-path'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
@@ -7,6 +7,7 @@ import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.j
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
 import _ from 'lodash'
+import { Application } from '../declarations'
 
 const storageProvider = useStorageProvider()
 const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
@@ -20,6 +21,11 @@ const newestSceneName = 'test_scene_rename'
 const params = { isInternal: true }
 
 describe('scene.test', () => {
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
+
   // wait for initial project loading to occur in CI/CD
   before(async () => {
     await new Promise((resolve) => setTimeout(resolve, 3000))
