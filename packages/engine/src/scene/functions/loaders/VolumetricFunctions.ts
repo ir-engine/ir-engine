@@ -22,6 +22,7 @@ type VolumetricObject3D = UpdateableObject3D & {
   }
   play()
   pause()
+  callbacks()
 }
 
 let DracosisPlayer = null! as typeof import('volumetric/player').default
@@ -32,6 +33,10 @@ if (isClient) {
   })
 }
 
+export const VolumetricCallbacks = [
+  { label: 'Play', value: 'play' },
+  { label: 'Pause', value: 'pause' }
+]
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
@@ -67,7 +72,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         obj3d.userData.player.mesh.removeFromParent()
         obj3d.userData.player.dispose()
       }
-      // document.body.prepend(element)
+
       obj3d.userData.player = new DracosisPlayer({
         scene: obj3d,
         renderer: Engine.renderer,
@@ -85,12 +90,17 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         }
       }
 
+      //setup callbacks
       obj3d.play = () => {
         obj3d.userData.player.play()
       }
 
       obj3d.pause = () => {
         obj3d.userData.player.paused = true
+      }
+
+      obj3d.callbacks = () => {
+        return VolumetricCallbacks
       }
       //TODO: it is breaking the video play. need to check later
       // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
