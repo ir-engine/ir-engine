@@ -26,8 +26,8 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
-import { AnimationState } from '../animations/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { AnimationState } from '../animation/AnimationState'
 
 const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
 const assetPaths = ['reallusion/Allison.glb', 'mixamo/vanguard.fbx', 'mixamo/vanguard.glb', 'vrm/test2.vrm']
@@ -166,11 +166,13 @@ describe('avatarFunctions Unit', async () => {
     it('should assign passed group as new animation mixer root', () => {
       const entity = createEntity()
 
-      addComponent(entity, AnimationComponent, {
+      const animationComponentData = {
         mixer: null!,
         animations: [] as AnimationClip[],
         animationSpeed: 1
-      })
+      }
+
+      addComponent(entity, AnimationComponent, animationComponentData)
 
       addComponent(entity, AvatarAnimationComponent, {
         animationGraph: new AvatarAnimationGraph(),

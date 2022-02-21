@@ -9,7 +9,7 @@ import {
 } from '../../ecs/functions/Action'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 
 export class NetworkWorldAction {

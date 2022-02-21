@@ -21,7 +21,6 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
-import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
@@ -41,6 +40,8 @@ import { Updatable } from '../../scene/interfaces/Updatable'
 import { pipe } from 'bitecs'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { isClient } from '../../common/functions/isClient'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 
 const vec3 = new Vector3()
 
@@ -125,12 +126,18 @@ export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure)
 export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  const velocityComponent = getComponent(entity, VelocityComponent)
 
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
+  ;(avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
+    animationComponent.mixer,
+    velocityComponent.velocity
+  )
+
   if (avatarAnimationComponent?.currentState) {
-    AnimationRenderer.mountCurrentState(entity)
+    // AnimationRenderer.mountCurrentState(entity)
   }
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)

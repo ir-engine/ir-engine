@@ -5,8 +5,8 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import styles from '../UserMenu.module.scss'
 import { NavigateNext, NavigateBefore } from '@mui/icons-material'
 //import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
-import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
-import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
+import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
+import { AnimationGraph } from '@xrengine/engine/src/avatar/animation/AnimationGraph'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 type Props = { changeActiveMenu: (menu: any) => {} }
@@ -122,7 +122,7 @@ const EmoteMenu = (props: Props): any => {
   const runAnimation = (animationName: string, params: WeightsParameterType) => {
     const entity = Engine.currentWorld.localClientEntity
 
-    AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
+    // AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 
     // close Menu after playing animation
     props.changeActiveMenu(null)
