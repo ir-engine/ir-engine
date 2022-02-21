@@ -20,6 +20,7 @@ interface Props {
 
 const AvatarTable = (props: Props) => {
   const adminAvatarState = useAvatarState()
+  const { search } = props
   const authState = useAuthState()
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars
@@ -54,7 +55,8 @@ const AvatarTable = (props: Props) => {
       AvatarService.fetchAdminAvatars()
     }
     setRefetch(false)
-  }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
+    AvatarService.fetchAdminAvatars('increment', 0, search)
+  }, [authState.user?.id?.value, search, adminAvatarState.updateNeeded.value, refetch])
 
   const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
     return {

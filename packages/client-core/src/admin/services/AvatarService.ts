@@ -50,7 +50,11 @@ export const useAvatarState = () => useState(state) as any as typeof state
 
 //Service
 export const AvatarService = {
-  fetchAdminAvatars: async (incDec?: 'increment' | 'decrement', skip = accessAvatarState().skip.value) => {
+  fetchAdminAvatars: async (
+    incDec?: 'increment' | 'decrement',
+    skip = accessAvatarState().skip.value,
+    search = null
+  ) => {
     const dispatch = useDispatch()
     {
       const adminAvatarState = accessAvatarState()
@@ -62,7 +66,8 @@ export const AvatarService = {
           userId: null,
           $limit: limit,
           $skip: skip * AVATAR_PAGE_LIMIT,
-          getAvatarThumbnails: true
+          getAvatarThumbnails: true,
+          search: search
         }
       })
       dispatch(AvatarAction.avatarsFetched(avatars))
