@@ -35,7 +35,7 @@
     "@etherealjs/web-layer": "3.1.12",
     "@feathersjs/client": "5.0.0-pre.10",
     "@mui/icons-material": "5.4.2",
-    "@mui/material": "5.4.2",
+    "@mui/material": "5.4.3",
     "@mui/styled-engine-sc": "5.4.2",
     "@mui/styles": "5.4.2",
     "@rollup/plugin-inject": "4.0.4",
