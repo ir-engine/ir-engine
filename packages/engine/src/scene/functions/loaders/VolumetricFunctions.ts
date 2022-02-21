@@ -82,9 +82,9 @@ export const updateVolumetric: ComponentUpdateFunction = async (
           obj3d.userData.player?.handleRender(() => {})
         }
       }
-
-      const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
-      obj3d.userData.audioEl.setNodeSource(audioSource)
+      //TODO: it is breaking the video play. need to check later
+      // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
+      // obj3d.userData.audioEl.setNodeSource(audioSource)
     } catch (error) {
       addError(entity, 'error', error.message)
     }
