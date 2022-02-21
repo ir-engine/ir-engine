@@ -1,4 +1,4 @@
-{{- if .Values.media.enabled -}}
+{{- if (.Values.media).enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,6 +46,7 @@ spec:
               value: "media"
             - name: KUBERNETES
               value: "true"
+            {{ if .Values.mariadb }}
             - name: MYSQL_USER
               value: {{ .Values.mariadb.db.user }}
             - name: MYSQL_DATABASE
@@ -64,9 +65,21 @@ spec:
                   key: mariadb-password
               {{- end }}
             - name: MYSQL_HOST
-              value: {{ template "xrengine.mariadb.host" . }}
+              value: {{ .Values.mariadb.externalHost }}
             - name: MYSQL_PORT
               value: {{ .Values.mariadb.externalPort | quote }}
+            {{ else }}
+            - name: MYSQL_USER
+              value: {{ .Values.sql.user }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.sql.database }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.sql.password | quote }}
+            - name: MYSQL_HOST
+              value: {{ .Values.sql.host | quote }}
+            - name: MYSQL_PORT
+              value: {{ .Values.sql.port | quote }}
+            {{ end }}
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS

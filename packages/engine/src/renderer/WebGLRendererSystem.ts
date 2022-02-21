@@ -34,6 +34,7 @@ import { accessEngineState, EngineActions, EngineActionType } from '../ecs/class
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 
 export interface EffectComposerWithSchema extends EffectComposer {
   // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
@@ -277,7 +278,7 @@ export class EngineRenderer {
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => EngineRenderer.instance.loadGraphicsSettingsFromStorage())
   world.receptors.push(EngineRendererReceptor)
 
   return () => {

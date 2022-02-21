@@ -23,7 +23,7 @@ export default async function HyperspacePortalSystem(world: World) {
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
-  setObjectLayers(hyperspaceEffect, ObjectLayers.Render, ObjectLayers.Portal)
+  setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
   const light = new AmbientLight('#aaa')
   light.layers.enable(ObjectLayers.Portal)
@@ -41,7 +41,7 @@ export default async function HyperspacePortalSystem(world: World) {
       removeComponent(world.localClientEntity, InteractorComponent)
       removeComponent(world.localClientEntity, LocalInputTagComponent)
 
-      setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Avatar)
+      setObjectLayers(playerObj.value, ObjectLayers.Avatar)
 
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       hyperspaceEffect.fadeIn(delta)
@@ -79,7 +79,7 @@ export default async function HyperspacePortalSystem(world: World) {
       light.removeFromParent()
       light.dispose()
 
-      setObjectLayers(playerObj.value, ObjectLayers.Render, ObjectLayers.Scene)
+      setObjectLayers(playerObj.value, ObjectLayers.Scene)
 
       Engine.camera.layers.disable(ObjectLayers.Portal)
       Engine.camera.layers.disable(ObjectLayers.Avatar)
