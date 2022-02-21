@@ -20,6 +20,8 @@ type VolumetricObject3D = UpdateableObject3D & {
   userData: {
     player: typeof import('volumetric/player').default.prototype
   }
+  play()
+  pause()
 }
 
 let DracosisPlayer = null! as typeof import('volumetric/player').default
@@ -81,6 +83,14 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         if (obj3d.userData.player.hasPlayed) {
           obj3d.userData.player?.handleRender(() => {})
         }
+      }
+
+      obj3d.play = () => {
+        obj3d.userData.player.play()
+      }
+
+      obj3d.pause = () => {
+        obj3d.userData.player.paused = true
       }
       //TODO: it is breaking the video play. need to check later
       // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
