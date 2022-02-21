@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@mui/icons-material": "5.4.2",
-    "@mui/material": "5.4.2",
+    "@mui/material": "5.4.3",
     "@mui/styles": "5.4.2",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react-infinite-scroller": "1.2.2",
