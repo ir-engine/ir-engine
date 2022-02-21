@@ -53,7 +53,7 @@ export const AvatarService = {
   fetchAdminAvatars: async (
     incDec?: 'increment' | 'decrement',
     skip = accessAvatarState().skip.value,
-    search = null
+    search: string | null = null
   ) => {
     const dispatch = useDispatch()
     {
