@@ -173,7 +173,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 }
 
 export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
-  setObjectLayers(obj3d, ObjectLayers.Render, ObjectLayers.Scene)
+  setObjectLayers(obj3d, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
   if (props.src.match(/navmesh/)) {

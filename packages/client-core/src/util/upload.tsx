@@ -27,9 +27,7 @@ export const upload = (
   signal?,
   params: any = {}
 ): Promise<any> => {
-  const state = accessAuthState()
-  const token = state.authUser.accessToken.value
-
+  const token = accessAuthState().authUser.accessToken.value
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
     const onAbort = () => {
@@ -91,8 +89,7 @@ export const uploadStaticResource = (
   signal?,
   params: any = {}
 ): Promise<any> => {
-  const state = accessAuthState()
-  const token = state.authUser.accessToken.value
+  const token = accessAuthState().authUser.accessToken.value
 
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()

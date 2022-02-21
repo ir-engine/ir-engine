@@ -7,7 +7,8 @@ import {
   Loader,
   AnimationClip,
   Group,
-  Mesh
+  Mesh,
+  LoaderUtils
 } from 'three'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
@@ -207,7 +208,7 @@ const assetLoadCallback =
 
     if (asset.scene) {
       asset.scene.userData.type = assetType
-    } else {
+    } else if (asset.userData) {
       asset.userData.type = assetType
     }
 

@@ -40,6 +40,7 @@ import * as styles from './styles.module.scss'
 import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { DndWrapper } from './dnd/DndWrapper'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 
 /**
  *Styled component used as dock container.
@@ -94,11 +95,6 @@ DockContainer.defaultProps = {
   dividerAlpha: 0
 }
 
-type EditorContainerProps = {
-  projectName: string
-  sceneName: string
-}
-
 /**
  * EditorContainer class used for creating container for Editor
  *
@@ -114,7 +110,7 @@ const EditorContainer = (props) => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [modified, setModified] = useState(false)
-  const [sceneLoaded, setSceneLoaded] = useState(false)
+  const [currentScene, setCurrentScene] = useState('')
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
@@ -123,10 +119,8 @@ const EditorContainer = (props) => {
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
       await ProjectManager.instance.loadProject(projectFile)
-      setSceneLoaded(true)
       SceneManager.instance.sceneModified = true
       updateModifiedState()
       setDialogComponent(null)
@@ -168,11 +162,11 @@ const EditorContainer = (props) => {
   }, [])
 
   useEffect(() => {
-    if (editorReady && !sceneLoaded && sceneName) {
+    if (editorReady && sceneName && currentScene !== sceneName) {
       console.log(`Loading scene ${sceneName} via given url`)
       loadScene(sceneName)
     }
-  }, [editorReady, sceneLoaded])
+  }, [editorReady, sceneName, currentScene])
 
   const reRouteToLoadScene = async (newSceneName) => {
     if (sceneName === newSceneName) return
@@ -193,7 +187,6 @@ const EditorContainer = (props) => {
   const loadScene = async (sceneName) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
       if (!projectName) return
       const project = await getScene(projectName, sceneName, false)
@@ -214,7 +207,7 @@ const EditorContainer = (props) => {
       )
     }
     dispatch(EditorAction.sceneLoaded(sceneName))
-    setSceneLoaded(true)
+    setCurrentScene(sceneName)
   }
 
   const newScene = async () => {
@@ -222,7 +215,6 @@ const EditorContainer = (props) => {
 
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
 
     try {
       const newProject = await createNewScene(projectName)
@@ -308,6 +300,7 @@ const EditorContainer = (props) => {
           )
         })) as any
         if (result && projectName) {
+          const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
           await saveScene(projectName, result.name, blob, abortController.signal)
           SceneManager.instance.sceneModified = false
         } else {
@@ -463,6 +456,7 @@ const EditorContainer = (props) => {
 
     try {
       if (projectName) {
+        const cubemapUrl = await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
         await saveScene(projectName, sceneName, blob, abortController.signal)
         await saveProject(projectName)
       }

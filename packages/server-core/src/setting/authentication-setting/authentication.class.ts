@@ -44,7 +44,7 @@ export class Authentication extends Service {
         bearerToken: bearerToken,
         callback: callback,
         oauth: {
-          oauth
+          ...oauth
         }
       }
       if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)
