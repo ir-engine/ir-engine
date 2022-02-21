@@ -2,7 +2,6 @@ import React from 'react'
 // react-contextmenu has a bug when built, and the only viable
 // workaround is to import from the /dist bunled copy of it.
 import {
-  connectMenu as _connectMenu,
   ContextMenu as ReactContextMenu,
   MenuItem as _MenuItem,
   showMenu as _showMenu,
@@ -12,7 +11,6 @@ import {
 } from 'react-contextmenu'
 import { EditorTheme } from '@xrengine/client-core/src/util/theme'
 import { createGlobalStyle } from 'styled-components'
-export const connectMenu = _connectMenu
 export const MenuItem = _MenuItem
 export const showMenu = _showMenu
 export const SubMenu = _SubMenu

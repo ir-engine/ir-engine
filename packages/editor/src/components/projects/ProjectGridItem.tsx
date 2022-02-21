@@ -10,13 +10,10 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import StylableContextMenuTrigger from './StylableContextMenuTrigger'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { EditorAction } from '../../services/EditorServices'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import InputBase from '@mui/material/InputBase'
 import { useStyle } from './style'
+import { DeleteDialog } from './DeleteDialog'
 
 /**
  *
@@ -249,35 +246,18 @@ export const ProjectGridItem = (props: Props) => {
             {t('editor:hierarchy.lbl-delete')}
           </MenuItem>
         </Menu>
-        <Dialog
+        <DeleteDialog
           open={warningModelOpen}
           onClose={() => setWarningModelOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          classes={{ paper: classes.paperDialog }}
-        >
-          <DialogTitle id="alert-dialog-title">Are sure you want to delete this scene?</DialogTitle>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setWarningModelOpen(false), setSceneToDelete('')
-              }}
-              className={classes.spanNone}
-            >
-              Cancel
-            </Button>
-            <Button
-              className={classes.spanDange}
-              onClick={async () => {
-                handleOnDelete()
-                setWarningModelOpen(false)
-              }}
-              autoFocus
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
+          onCancel={() => {
+            setWarningModelOpen(false)
+            setSceneToDelete('')
+          }}
+          onConfirm={() => {
+            handleOnDelete()
+            setWarningModelOpen(false)
+          }}
+        />
       </>
     )
   } else {
