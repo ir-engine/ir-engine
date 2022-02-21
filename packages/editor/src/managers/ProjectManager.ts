@@ -13,16 +13,10 @@ import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
 
-  project: any
-  projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
   constructor() {
-    this.project = null
-
-    this.projectLoaded = false
-
     this.initializing = false
     this.initialized = false
   }
