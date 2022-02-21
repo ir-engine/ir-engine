@@ -3,7 +3,6 @@ export class BlendSpace1D {
   maxValue: number
   _value: number
   _nodes: any[]
-  _updateCallback: any
 
   constructor() {
     this.minValue = 0
@@ -15,7 +14,7 @@ export class BlendSpace1D {
     this._nodes.sort((a, b) => a.position - b.position)
   }
 
-  addNode(action, position) {
+  addNode(action, position, data: any = null) {
     // Test position against min/max values
     if (position < this.minValue || position > this.maxValue) {
       console.warn('BlendSpace1D: Added action position is out of range.', position, this.minValue, this.maxValue)
@@ -23,7 +22,7 @@ export class BlendSpace1D {
 
     if (!this._nodes) this._nodes = []
 
-    this._nodes.push({ action, position })
+    this._nodes.push({ action, position, data })
     this._sortNodes()
   }
 
@@ -59,7 +58,7 @@ export class BlendSpace1D {
   update() {
     // At least two nodes should be present
     if (this._nodes.length < 2) {
-      return
+      return []
     }
 
     const [nodeA, nodeB] = this._findNearestNodes()
@@ -72,8 +71,6 @@ export class BlendSpace1D {
     nodeA.action.weight = 1 - alpha
     nodeB.action.weight = alpha
 
-    if (typeof this._updateCallback === 'function') {
-      this._updateCallback(nodeA, nodeB)
-    }
+    return [nodeA, nodeB]
   }
 }
