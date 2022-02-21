@@ -39,6 +39,7 @@ export const PrefabFileType = {
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (AssetSelectionChangePropsType) => void
+  selectedFile?: string
 }
 
 /**
@@ -49,7 +50,9 @@ type FileBrowserContentPanelProps = {
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
   const [isLoading, setLoading] = useState(true)
-  const [selectedDirectory, setSelectedDirectory] = useState('/projects/')
+  const [selectedDirectory, setSelectedDirectory] = useState(
+    `/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`
+  )
   const fileState = useFileBrowserState()
   const filesValue = fileState.files.attach(Downgraded).value
 
@@ -135,7 +138,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   let currentContent = null! as any
   const currentContentRef = useRef(currentContent)
 
-  const headGrid = { display: 'grid', gridTemplateColumns: '1fr auto', gridGap: '20px' }
+  const headGrid = {
+    display: 'grid',
+    gridTemplateColumns: '1fr auto',
+    gridGap: '20px',
+    marginTop: props.selectedFile ? '20px' : 0
+  }
   return (
     <>
       <div style={headGrid}>

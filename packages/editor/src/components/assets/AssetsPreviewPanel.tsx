@@ -15,6 +15,7 @@ const AssetHeading = styled.div`
   text-align: center;
   font-size: 150%;
   padding-bottom: 20px;
+  color: #f1f1f1;
 `
 
 export type AssetSelectionChangePropsType = {

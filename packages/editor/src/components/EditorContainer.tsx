@@ -71,6 +71,7 @@ export const DockContainer = (styled as any).div`
   .dock {
     border-radius: 4px;
     background: #282C31;
+    padding: ${(props) => props.padding}
   }
   .dock-top .dock-bar {
     font-size: 12px;

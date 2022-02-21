@@ -1,6 +1,7 @@
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -19,6 +20,7 @@ import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
+import ViewProjectFiles from './ViewProjectFiles'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -32,12 +34,15 @@ const Projects = () => {
   const adminProjectCount = adminProjects.value.length
   const githubAppState = useGithubAppState()
   const githubAppRepos = githubAppState.repos
+  const [projectName, setProjectName] = useState('')
+  const [showProjectFiles, setShowProjectFiles] = useState(false)
 
   const headCell = [
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
     { id: 'update', numeric: false, disablePadding: true, label: 'Update' },
     { id: 'invalidate', numeric: false, disablePadding: false, label: 'Invalidate Cache' },
+    { id: 'view', numeric: false, disablePadding: false, label: 'View Project Files' },
     { id: 'remove', numeric: false, disablePadding: false, label: 'Remove' }
   ]
 
@@ -229,6 +234,11 @@ const Projects = () => {
     setPopupRemoveConfirmOpen(false)
   }
 
+  const handleViewProject = (name: string) => {
+    setProjectName(name)
+    setShowProjectFiles(true)
+  }
+
   return (
     <div>
       <Paper className={styles.adminRoot}>
@@ -310,6 +320,18 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
+                          onClick={() => handleViewProject(row.name)}
+                          name="stereoscopic"
+                          color="primary"
+                        >
+                          <VisibilityIcon />
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole.value === 'admin' && (
+                        <Button
+                          className={styles.checkbox}
                           onClick={() => handleOpenRemoveConfirmation(row)}
                           name="stereoscopic"
                           color="primary"
@@ -366,6 +388,9 @@ const Projects = () => {
           label={'project'}
         />
       </Paper>
+      {showProjectFiles && projectName && (
+        <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
+      )}
     </div>
   )
 }
