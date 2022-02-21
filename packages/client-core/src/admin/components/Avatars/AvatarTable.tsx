@@ -28,7 +28,6 @@ const AvatarTable = (props: Props) => {
   const classes = useStyles()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
-  const [refetch, setRefetch] = useState(false)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
@@ -51,12 +50,11 @@ const AvatarTable = (props: Props) => {
   }
 
   useEffect(() => {
-    if (user?.id.value && (adminAvatarState.updateNeeded.value || refetch === true)) {
-      AvatarService.fetchAdminAvatars()
+    if (user?.id.value && adminAvatarState.updateNeeded.value) {
+      AvatarService.fetchAdminAvatars('increment', 0, search)
     }
-    setRefetch(false)
     AvatarService.fetchAdminAvatars('increment', 0, search)
-  }, [authState.user?.id?.value, search, adminAvatarState.updateNeeded.value, refetch])
+  }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
     return {

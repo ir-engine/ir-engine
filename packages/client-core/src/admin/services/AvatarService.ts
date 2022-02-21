@@ -22,10 +22,10 @@ const state = createState({
 })
 
 store.receptors.push((action: AvatarActionType): any => {
+  console.log(action)
   state.batch((s) => {
     switch (action.type) {
       case 'AVATARS_RETRIEVED':
-        console.log(action.avatars)
         s.merge({
           avatars: action.avatars.data,
           skip: action.avatars.skip,
@@ -39,6 +39,8 @@ store.receptors.push((action: AvatarActionType): any => {
       case 'AVATAR_CREATED':
         s.merge({ updateNeeded: true })
       case 'AVATAR_REMOVED':
+        s.merge({ updateNeeded: true })
+      case 'AVATAR_UPDATED':
         s.merge({ updateNeeded: true })
     }
   }, action.type)
@@ -82,6 +84,15 @@ export const AvatarService = {
       console.error(error)
     }
   },
+  updateAdminAvatar: async (id: string, data: any) => {
+    const dispatch = useDispatch()
+    try {
+      const result = await client.service('static-resource').patch(id, data)
+      dispatch(AvatarAction.avatarUpdated(result))
+    } catch (error) {
+      console.error(error)
+    }
+  },
   removeAdminAvatar: async (id) => {
     const dispatch = useDispatch()
     try {
@@ -110,6 +121,12 @@ export const AvatarAction = {
   avatarRemoved: (avatar: AvatarResult) => {
     return {
       type: 'AVATAR_REMOVED' as const,
+      avatar: avatar
+    }
+  },
+  avatarUpdated: (avatar: any) => {
+    return {
+      type: 'AVATAR_UPDATED' as const,
       avatar: avatar
     }
   }
