@@ -100,7 +100,6 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      {console.log('Rendering Assets Preview Panel')}
       <div>
         <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
       </div>
