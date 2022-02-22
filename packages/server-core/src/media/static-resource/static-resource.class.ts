@@ -6,7 +6,6 @@ import { Op } from 'sequelize'
 
 export type AvatarDataType = AvatarInterface
 
-
 /**
  * A class for Static Resource  service
  *
@@ -36,7 +35,7 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
     }
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params): Promise<any> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
       const search = params.query.search
