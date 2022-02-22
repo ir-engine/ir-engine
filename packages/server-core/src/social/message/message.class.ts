@@ -4,8 +4,11 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
 import { Params } from '@feathersjs/feathers'
 import { BadRequest } from '@feathersjs/errors'
 import { Op } from 'sequelize'
+import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
 
-export class Message extends Service {
+export type MessageDataType = MessageInterface
+
+export class Message<T = MessageDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -20,7 +23,7 @@ export class Message extends Service {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params?: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<T> {
     let channel, channelId
     let userIdList: any[] = []
     const loggedInUser = extractLoggedInUserFromParams(params)
@@ -137,11 +140,12 @@ export class Message extends Service {
       })
     }
 
-    const newMessage = await super.create({
+    const messageData: any = {
       senderId: userId,
       channelId: channelId,
       text: data.text
-    })
+    }
+    const newMessage: any = await super.create({ ...messageData })
 
     await Promise.all(
       userIdList.map((mappedUserId: string) => {

@@ -1,8 +1,11 @@
-import { Params } from '@feathersjs/feathers/lib'
+import { Params, Paginated } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
+import { AdminAwsSetting as AdminAwsSettingInterface } from '@xrengine/common/src/interfaces/AdminAwsSetting'
 
-export class Aws extends Service {
+export type AdminAwsSettingDataType = AdminAwsSettingInterface
+
+export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -10,7 +13,7 @@ export class Aws extends Service {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const awsSetting = (await super.find()) as any
     const data = awsSetting.data.map((el) => {
       let keys = JSON.parse(el.keys)

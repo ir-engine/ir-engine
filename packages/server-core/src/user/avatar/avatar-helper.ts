@@ -85,7 +85,7 @@ export const uploadAvatarStaticResource = async (app: Application, data: AvatarU
 
 export const removeAvatarFromDatabase = async (app: Application, name: string) => {}
 
-export const getAvatarFromStaticResources = async (app: Application, name?: string) => {
+export const getAvatarFromStaticResources = async function (app: Application, name?: string): Promise<AvatarProps[]> {
   const nameQuery = name ? { name } : {}
   const avatarQueryResult = await app.service('static-resource').find({
     paginate: false,

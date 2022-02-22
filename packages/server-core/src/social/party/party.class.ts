@@ -2,9 +2,12 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Params, Paginated } from '@feathersjs/feathers'
 import { Op } from 'sequelize'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+import { NotFound } from '@feathersjs/errors/lib'
+
 // import { Forbidden } from '@feathersjs/errors'
 
 /**
@@ -12,7 +15,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
  *
  * @author Vyacheslav Solovjov
  */
-export class Party extends Service {
+export class Party<T = PartyDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -21,7 +24,7 @@ export class Party extends Service {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const { action, $skip, $limit, search, ...query } = params?.query ?? {}
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 10
@@ -77,7 +80,7 @@ export class Party extends Service {
    * @returns {@Object} of single party
    * @author Vyacheslav Solovjov
    */
-  async get(id: string, params?: Params): Promise<any> {
+  async get(id: string, params?: Params): Promise<T> {
     if (id == null) {
       const loggedInUser = extractLoggedInUserFromParams(params)
       const partyUserResult = await this.app.service('party-user').find({
@@ -87,12 +90,12 @@ export class Party extends Service {
       })
 
       if ((partyUserResult as any).total === 0) {
-        return null
+        throw new NotFound('User party not found')
       }
 
       const partyId = (partyUserResult as any).data[0].partyId
 
-      const party = await super.get(partyId)
+      const party: any = await super.get(partyId)
 
       const partyUsers = await (this.app.service('party-user') as any).Model.findAll({
         where: {

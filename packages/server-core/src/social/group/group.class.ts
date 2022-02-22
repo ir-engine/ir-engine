@@ -1,15 +1,17 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Params, Paginated } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Op } from 'sequelize'
+import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
 
+export type GroupDataType = GroupInterface
 /**
  * A class for Croup service
  *
  * @author Vyacheslav Solovjov
  */
-export class Group extends Service {
+export class Group<T = GroupDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -25,7 +27,7 @@ export class Group extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<Paginated<T>> {
     const loggedInUser = extractLoggedInUserFromParams(params)
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
