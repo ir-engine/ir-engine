@@ -110,7 +110,7 @@ npm run dev-reinit
 Please make sure you've followed everything in these instructions:
 https://mediasoup.org/documentation/v3/mediasoup/installation/
 
-### Installing on Native Windows
+# Installing on Native Windows
 1. install python 3 and add python installation directory path to 'path' env variable.
 
 2. Install node js
@@ -135,7 +135,7 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
 8. Check your WSL Config for any incorrect networking settings. 
 https://docs.microsoft.com/en-us/windows/wsl/wsl-config#network
 
-### Installing on a Mac 
+# Installing on a Mac 
 
 1. Go to the root and run 
 
@@ -210,7 +210,7 @@ As of this writing, the cert provided in the xrengine package for local use is n
 
 Chrome sometimes does not show a clickable option on the warning. If so, just type ```badidea``` or ```thisisunsafe``` when on that page. You don't enter that into the address bar or into a text box, Chrome is just passively listening for those commands.
 
-## Advanced Setup
+# Advanced Setup
 
 If you want to setup XREngine docker instances, client, server, and/or game-server manually, follow these directions. The advanced setup is recommended for all users, in order to understand more about everything that going on.
 
