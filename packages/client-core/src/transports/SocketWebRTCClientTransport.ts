@@ -157,8 +157,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       if ((this.socket as any)._connected) return
       ;(this.socket as any)._connected = true
 
-      console.log(...this.socket.listenersAny())
-      console.log(this.socket)
       console.log('CONNECT to port', port, sceneId, locationId)
       onConnectToInstance(this)
 
