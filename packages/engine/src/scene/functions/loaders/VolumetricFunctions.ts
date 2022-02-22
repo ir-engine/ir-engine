@@ -22,6 +22,7 @@ type VolumetricObject3D = UpdateableObject3D & {
   }
   play()
   pause()
+  seek()
   callbacks()
 }
 
@@ -34,9 +35,12 @@ if (isClient) {
 }
 
 export const VolumetricCallbacks = [
+  { label: 'None', value: 'none' },
   { label: 'Play', value: 'play' },
-  { label: 'Pause', value: 'pause' }
+  { label: 'Pause', value: 'pause' },
+  { label: 'Seek', value: 'seek' }
 ]
+
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
@@ -96,7 +100,11 @@ export const updateVolumetric: ComponentUpdateFunction = async (
       }
 
       obj3d.pause = () => {
-        obj3d.userData.player.paused = true
+        obj3d.userData.player.pause()
+      }
+
+      obj3d.seek = () => {
+        obj3d.userData.player.playOneFrame()
       }
 
       obj3d.callbacks = () => {
