@@ -861,8 +861,8 @@ spec:
           containerPort: 40199
           protocol: UDP
       health:
-        initialDelaySeconds: 15
-        periodSeconds: 30
+        initialDelaySeconds: 10
+        periodSeconds: 15
         # Parameters for game server sidecar
         # sdkServer:
         # sdkServer log level parameter has three options:
