@@ -13,11 +13,9 @@ import ActivityGraph from './ActivityGraph'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
+import { useTranslation } from 'react-i18next'
 
-interface Props {
-  adminGroupState?: any
-  fetchAdminGroup?: any
-}
+interface Props {}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -74,6 +72,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Analytics = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
+  const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
   let isDataAvailable = false
   const analyticsState = useAnalyticsState()
@@ -114,38 +113,38 @@ const Analytics = (props: Props) => {
 
   const activityGraphData = [
     {
-      name: 'Active Parties',
+      name: t('admin:components.analytics.activeParties'),
       data: activeParties
     },
     {
-      name: 'Active Locations',
+      name: t('admin:components.analytics.activeLocations'),
       data: activeLocations
     },
     {
-      name: 'Active Instances',
+      name: t('admin:components.analytics.activeInstances'),
       data: activeInstances
     },
     {
-      name: 'Active Scenes',
+      name: t('admin:components.analytics.activeScenes'),
       data: activeScenes
     },
     {
-      name: 'Instance Users',
+      name: t('admin:components.analytics.instanceUsers'),
       data: instanceUsers
     },
     {
-      name: 'Channel Users',
+      name: t('admin:components.analytics.channelUsers'),
       data: channelUsers
     }
   ]
 
   const userGraphData = [
     {
-      name: 'Daily Users',
+      name: t('admin:components.analytics.dailyUsers'),
       data: dailyUsers
     },
     {
-      name: 'Daily New Users',
+      name: t('admin:components.analytics.dailyNewUsers'),
       data: dailyNewUsers
     }
   ]
@@ -192,37 +191,37 @@ const Analytics = (props: Props) => {
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
-      label: 'Active Parties',
+      label: t('admin:components.analytics.activeParties'),
       color1: '#2c519d',
       color2: '#31288f'
     },
     {
       number: activeLocations[activeLocations.length - 1] ? activeLocations[activeLocations.length - 1][1] : 0,
-      label: 'Active Locations',
+      label: t('admin:components.analytics.activeLocations'),
       color1: '#77b2e9',
       color2: '#458bcc'
     },
     {
       number: activeScenes[activeScenes.length - 1] ? activeScenes[activeScenes.length - 1][1] : 0,
-      label: 'Active Scenes',
+      label: t('admin:components.analytics.activeScenes'),
       color1: '#e3b76c',
       color2: '#df9b26'
     },
     {
       number: activeInstances[activeInstances.length - 1] ? activeInstances[activeInstances.length - 1][1] : 0,
-      label: 'Active Instances',
+      label: t('admin:components.analytics.activeInstances'),
       color1: '#ed7d7e',
       color2: '#c95859'
     },
     {
       number: dailyUsers[dailyUsers.length - 1] ? dailyUsers[dailyUsers.length - 1][1] : 0,
-      label: 'Users Today',
+      label: t('admin:components.analytics.usersToday'),
       color1: '#53a7cd',
       color2: '#24779c'
     },
     {
       number: dailyNewUsers[dailyNewUsers.length - 1] ? dailyNewUsers[dailyNewUsers.length - 1][1] : 0,
-      label: 'New Users Today',
+      label: t('admin:components.analytics.newUsersToday'),
       color1: '#9771d3',
       color2: '#6945a1'
     }

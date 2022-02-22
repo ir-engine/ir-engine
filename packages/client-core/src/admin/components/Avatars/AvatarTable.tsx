@@ -8,14 +8,16 @@ import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import ConfirmModel from '../../common/ConfirmModel'
 import ViewAvatar from './ViewAvatar'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { useTranslation } from 'react-i18next'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
 }
 
 interface Props {
-  locationState?: any
-  search: string
+  // locationState?: any
+  // search: string
 }
 
 const AvatarTable = (props: Props) => {
@@ -25,6 +27,7 @@ const AvatarTable = (props: Props) => {
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
   const classes = useStyles()
+  const { t } = useTranslation()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
@@ -33,7 +36,7 @@ const AvatarTable = (props: Props) => {
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
   const [viewModel, setViewModel] = useState(false)
-  const [avatarAdmin, setAvatarAdmin] = useState(null)
+  const [avatarAdmin, setAvatarAdmin] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -57,7 +60,12 @@ const AvatarTable = (props: Props) => {
     setRefetch(false)
   }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
 
-  const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
+  const createData = (
+    el: AvatarInterface,
+    sid: string | undefined,
+    name: string | undefined,
+    key: string | undefined
+  ): AvatarData => {
     return {
       el,
       sid,
@@ -73,7 +81,7 @@ const AvatarTable = (props: Props) => {
               setViewModel(true)
             }}
           >
-            <span className={classes.spanWhite}>View</span>
+            <span className={classes.spanWhite}>{t('user:avatar.view')}</span>
           </a>
           <a
             href="#h"
@@ -84,7 +92,7 @@ const AvatarTable = (props: Props) => {
               setAvatarName(name as any)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={classes.spanDange}>{t('user:avatar.delete')}</span>
           </a>
         </>
       )
@@ -100,7 +108,7 @@ const AvatarTable = (props: Props) => {
     setPopConfirmOpen(false)
   }
 
-  const closeViewModel = (open) => {
+  const closeViewModel = (open: boolean) => {
     setViewModel(open)
   }
 

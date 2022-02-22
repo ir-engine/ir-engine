@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
 import { useStyles } from '../styles/ui'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   handleClose: () => void
@@ -17,6 +18,7 @@ interface Props {
 const CreateModel = (props: Props) => {
   const { open, handleClose, children, action, text, submit } = props
   const classes = useStyles()
+  const { t } = useTranslation()
 
   return (
     <React.Fragment>
@@ -31,12 +33,12 @@ const CreateModel = (props: Props) => {
       >
         <div style={{ padding: '20px' }}>
           <Typography variant="h5" gutterBottom={true} className={classes.marginTop}>
-            {action} new {text}
+            {action} {t('admin:components.common.new')} {text}
           </Typography>
           {children}
           <DialogActions>
             <Button onClick={handleClose} className={classes.spanNone}>
-              Cancel
+              {t('admin:components.common.cancel')}
             </Button>
             <Button className={classes.spanDange} autoFocus onClick={submit}>
               {action}

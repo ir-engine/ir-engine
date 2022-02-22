@@ -41,6 +41,53 @@
             "lbl-instances": "Instances",
             "lobby": "Lobby",
             "featured": "Featured"
-        }
+        },
+        "bot":{
+            "uniqueCommand":"Command should be unique",
+            "commandRequired":"Fill in command is required!",
+            "nameCantEmpty":"Name can't be empty",
+            "descriptionCantEmpty":"Description can't be empty",
+            "locationCantEmpty":"Location can't be empty",
+            "fillRequiredField":"Please fill all required field",
+            "createNewBot":"Create new bot",
+            "addMoreBots":"Add more bots in the system.",
+            "location":"Location",
+            "instance":"Instance",
+            "addMoreCommand":"Add more command",
+            "command":"Command",
+            "enterCommand":"Enter command",
+            "description":"Description",
+            "addCommand":"Add command",
+            "enterDescription":"Enter description",
+            "spawnBot":"Spawn Bot",
+            "lastRunStatus":"Last run status",
+            "autoRefreshing":"auto refreshing in 10s",
+            "xrEngineBots":"XREngine bots",
+            "updateBot":"UPDATE BOT",
+            "selectLocation":"Select location",
+            "selectInstance":"Select instance",
+            "cancel":"Cancel",
+            "save":"Save",
+            "name":"Name"
+        },
+        "common":{
+            "doYouWantTo":"Do you want to",
+            "cancel":"Cancel",
+            "confirm":"Confirm",
+            "new":"new",
+            "select":"Select"
+        },
+        "analytics":{
+            "activeParties":"Active Parties",
+            "activeLocations":"Active Locations",
+            "activeInstances":"Active Instances",
+            "activeScenes":"Active Scenes",
+            "instanceUsers":"Instance Users",
+            "channelUsers":"Channel Users",
+            "dailyUsers":"Daily Users",
+            "dailyNewUsers":"Daily New Users",
+            "usersToday":"Users Today",
+            "newUsersToday":"New Users Today"
+        } 
     }
 }

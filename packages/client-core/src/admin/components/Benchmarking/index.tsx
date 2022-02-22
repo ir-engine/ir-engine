@@ -4,12 +4,13 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useStyles } from './styles'
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
+import { useTranslation } from 'react-i18next'
 
 const Benchmarking = () => {
   const testbotState = useTestBotState()
   const classes = useStyles()
   const { bots, spawn, spawning } = testbotState.value
-
+  const { t } = useTranslation()
   const REFRESH_MS = 10000
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const Benchmarking = () => {
               TestBotService.spawnTestBot()
             }}
           >
-            {'Spawn Bot'}
+            {t('admin:components.bot.spawnBot')}
           </Button>
         </Grid>
       </Grid>
@@ -44,7 +45,7 @@ const Benchmarking = () => {
 
       {bots && bots.length > 0 && (
         <Typography className={classes.secondaryHeading}>
-          Last run status: {bots[0].status} (auto refreshing in 10s)
+          {t('admin:components.bot.lastRunStatus')}: {bots[0].status} ({t('admin:components.bot.autoRefreshing')})
         </Typography>
       )}
     </div>

@@ -24,7 +24,16 @@ const useStyles = makeStyles({
   }
 })
 
-const CardNumber = ({ data }: any) => {
+interface Props {
+  data: {
+    number: number
+    label: string
+    color1: string
+    color2: string
+  }
+}
+
+const CardNumber = ({ data }: Props) => {
   const classes = useStyles()
 
   return (

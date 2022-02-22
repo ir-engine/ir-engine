@@ -5,9 +5,9 @@ import { useStyles } from '../styles/ui'
 import _ from 'lodash'
 
 interface Props {
-  value: any
-  formErrors: any
-  handleInputChange: any
+  value: string
+  formErrors: string
+  handleInputChange: (e: any) => void
   name: string
 }
 

@@ -16,7 +16,7 @@ if (typeof window !== 'undefined') {
   )
   if (rawState) {
     const newState = JSON.parse(rawState)
-    console.log(newState)
+    //console.log(newState)
     state.merge(newState)
   }
 }

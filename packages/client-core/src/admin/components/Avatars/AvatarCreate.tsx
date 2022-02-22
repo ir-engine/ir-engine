@@ -124,7 +124,7 @@ const AvatarCreate = ({ handleClose, open }) => {
               />
 
               <Button className={classes.saveBtn} onClick={() => setSelectUse(!selectUse)} style={{ width: '97%' }}>
-                {!selectUse ? 'Upload files' : 'Use url instead'}
+                {!selectUse ? t('user:avatar.uploadFiles') : t('user:avatar.useUrlInstead')}
               </Button>
               {!selectUse ? (
                 <InputText
@@ -147,7 +147,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                     // classes={{ root: classes.rootBtn }}
                     endIcon={<SystemUpdateAlt />}
                   >
-                    Avatar
+                    {t('user:avatar.avatar')}
                   </Button>
                 </label>
               )}
@@ -155,7 +155,7 @@ const AvatarCreate = ({ handleClose, open }) => {
           </DialogContent>
           <DialogActions>
             <Button className={classes.saveBtn} onClick={uploadByUrls}>
-              Upload
+              {t('user:avatar.lbl-upload')}
             </Button>
             <Button
               onClick={() => {
@@ -164,7 +164,7 @@ const AvatarCreate = ({ handleClose, open }) => {
               }}
               className={classes.saveBtn}
             >
-              Cancel
+              {t('user:avatar.cancel')}
             </Button>
           </DialogActions>
         </Container>

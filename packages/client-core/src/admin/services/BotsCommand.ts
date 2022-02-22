@@ -8,7 +8,7 @@ import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 export const BOTS_PAGE_LIMIT = 100
 
 const state = createState({
-  botCommand: [],
+  botCommand: [] as BotCommands[],
   skip: 0,
   limit: BOTS_PAGE_LIMIT,
   total: 0,

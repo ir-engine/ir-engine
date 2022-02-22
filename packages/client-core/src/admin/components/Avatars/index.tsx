@@ -5,11 +5,13 @@ import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import AvatarTable from './AvatarTable'
 import AvatarCreate from './AvatarCreate'
+import { useTranslation } from 'react-i18next'
 
 const Avatar = () => {
   const classes = useStyles()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -31,7 +33,7 @@ const Avatar = () => {
         </Grid>
         <Grid item md={4} xs={6}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={handleClickOpen}>
-            Create Avatar
+            {t('user:avatar.createAvatar')}
           </Button>
         </Grid>
       </Grid>

@@ -17,7 +17,7 @@ import {
 export const ADMIN_PAGE_LIMIT = 100
 
 const state = createState({
-  data: {}
+  data: {} as VideoCreatedResponse
 })
 
 store.receptors.push((action: AdminActionType): any => {

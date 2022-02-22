@@ -4,6 +4,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import React from 'react'
 import { useStyles } from '../styles/ui'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   popConfirmOpen: boolean
@@ -16,6 +17,7 @@ interface Props {
 
 const ConfirmModel = (props: Props) => {
   const classes = useStyles()
+  const { t } = useTranslation()
   const { popConfirmOpen, handleCloseModel, submit, name, label, type } = props
   return (
     <Dialog
@@ -26,14 +28,14 @@ const ConfirmModel = (props: Props) => {
       classes={{ paper: classes.paperDialog }}
     >
       <DialogTitle id="alert-dialog-title">
-        Do you want to {type || 'delete'} {label} <b>{name}</b> ?
+        {t('admin:components.common.doYouWantTo')} {type || 'delete'} {label} <b>{name}</b> ?
       </DialogTitle>
       <DialogActions>
         <Button onClick={handleCloseModel} className={classes.spanNone}>
-          Cancel
+          {t('admin:components.common.cancel')}
         </Button>
         <Button className={classes.spanDange} onClick={submit} autoFocus>
-          Confirm
+          {t('admin:components.common.confirm')}
         </Button>
       </DialogActions>
     </Dialog>

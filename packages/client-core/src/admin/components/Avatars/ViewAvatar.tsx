@@ -11,11 +11,13 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { useStyles } from '../../styles/ui'
 import _ from 'lodash'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   openView: boolean
-  closeViewModel?: any
-  avatarData: any
+  closeViewModel?: (open: boolean) => void
+  avatarData?: AvatarInterface
 }
 
 const ViewAvatar = (props: Props) => {
@@ -34,8 +36,9 @@ const ViewAvatar = (props: Props) => {
       description: ''
     }
   })
+  const { t } = useTranslation()
   const handleCloseDrawer = () => {
-    closeViewModel(false)
+    closeViewModel && closeViewModel(false)
   }
 
   const handleInputChange = (e) => {
@@ -75,9 +78,9 @@ const ViewAvatar = (props: Props) => {
           {editMode ? (
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                Update avatar Information
+                {t('user:avatar.uploadAvatarInfo')}
               </Typography>
-              <label>Name</label>
+              <label>{t('user:avatar.name')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
@@ -85,7 +88,7 @@ const ViewAvatar = (props: Props) => {
                 <InputBase
                   className={classes.input}
                   name="name"
-                  placeholder="Enter name"
+                  placeholder={t('user:avatar.enterName')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
@@ -100,43 +103,43 @@ const ViewAvatar = (props: Props) => {
                 component="h4"
                 className={`${classes.mb20px} ${classes.mt5} ${classes.headingFont}`}
               >
-                Avatar Information
+                {t('user:avatar.avatarInformation')}
               </Typography>
               <Grid container spacing={3} className={classes.mt5}>
                 <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Name:
+                    {t('user:avatar.name')}:
                   </Typography>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Description:
+                    {t('user:avatar.description')}:
                   </Typography>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Key:
+                    {t('user:avatar.key')}:
                   </Typography>
                 </Grid>
                 <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.name || <span className={classes.spanNone}>None</span>}
+                    {avatarData?.name || <span className={classes.spanNone}>{t('user:avatar.none')}</span>}
                   </Typography>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.description || <span className={classes.spanNone}>None</span>}
+                    {avatarData?.description || <span className={classes.spanNone}>{t('user:avatar.none')}</span>}
                   </Typography>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.key || <span className={classes.spanNone}>None</span>}
+                    {avatarData?.key || <span className={classes.spanNone}>{t('user:avatar.none')}</span>}
                   </Typography>
                 </Grid>
               </Grid>
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Avatar
+                {t('user:avatar.avatar')}
               </Typography>
               {avatarData?.url ? (
                 <img alt="avatar" src={avatarData?.url} />
               ) : (
-                <span className={classes.spanNone}>None</span>
+                <span className={classes.spanNone}>{t('user:avatar.none')}</span>
               )}
 
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Thumb nail
+                {t('user:avatar.lbl-thumbnail')}
               </Typography>
               <div className={classes.scopeContainer}></div>
             </div>
@@ -151,7 +154,7 @@ const ViewAvatar = (props: Props) => {
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>{' '}
-                  Submit
+                  {t('user:avatar.submit')}
                 </Button>
                 <Button
                   className={classes.saveBtn}
@@ -160,7 +163,7 @@ const ViewAvatar = (props: Props) => {
                   //   setEditMode(false)
                   // }}
                 >
-                  CANCEL
+                  {t('user:avatar.cancel')}
                 </Button>
               </div>
             ) : (
@@ -171,10 +174,10 @@ const ViewAvatar = (props: Props) => {
                     setEditMode(true)
                   }}
                 >
-                  EDIT
+                  {t('user:avatar.edit')}
                 </Button>
                 <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
-                  CANCEL
+                  {t('user:avatar.cancel')}
                 </Button>
               </div>
             )}

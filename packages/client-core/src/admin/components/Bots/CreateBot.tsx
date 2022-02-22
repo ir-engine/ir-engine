@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { CreateBotAsAdmin, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -24,6 +24,7 @@ import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useStyles } from '../../styles/ui'
+import { useTranslation } from 'react-i18next'
 
 interface Menu {
   value: string
@@ -31,12 +32,12 @@ interface Menu {
 }
 
 const CreateBot = () => {
-  const [command, setCommand] = useState({
+  const [command, setCommand] = useState<BotCommands>({
     id: '',
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = useState<{ id: string; name: string; description: string }[]>([])
+  const [commandData, setCommandData] = useState<BotCommands[]>([])
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
 
@@ -62,6 +63,7 @@ const CreateBot = () => {
   const adminLocationState = useLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
+  const { t } = useTranslation()
 
   //Call custom hooks
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
@@ -76,14 +78,14 @@ const CreateBot = () => {
     if (command.name) {
       const found = commandData.find((el) => el.name === command.name)
       if (found) {
-        setError('Command should be unique')
+        setError(t('admin:components.bot.uniqueCommand'))
         setOpen(true)
       } else {
         setCommandData([...commandData, command])
         setCommand({ id: '', name: '', description: '' })
       }
     } else {
-      setError('Fill in command is required!')
+      setError(t('admin:components.bot.commandRequired'))
       setOpen(true)
     }
   }
@@ -120,13 +122,13 @@ const CreateBot = () => {
     }
     let temp = formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.bot.nameCantEmpty')
     }
     if (!state.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.bot.descriptionCantEmpty')
     }
     if (!state.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.bot.locationCantEmpty')
     }
 
     setFormErrors(temp)
@@ -136,7 +138,7 @@ const CreateBot = () => {
       setCommandData([])
       setCurrentIntance([])
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.bot.fillRequiredField'))
       setOpen(true)
     }
   }
@@ -149,7 +151,7 @@ const CreateBot = () => {
     LocationService.fetchAdminLocations()
   }
 
-  const removeCommand = (id) => {
+  const removeCommand = (id: string) => {
     const data = commandData.filter((el) => el.id !== id)
     setCommandData(data)
   }
@@ -182,16 +184,16 @@ const CreateBot = () => {
       <Paper className={classes.botHeader} style={{ display: 'flex' }}>
         <Typography className={classes.botTitle}>
           <Face />
-          <div className={classes.smFont}>Create new bot</div>
+          <div className={classes.smFont}>{t('admin:components.bot.createNewBot')}</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save className={classes.saveBtnIcon} /> save
+          <Save className={classes.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
         <Typography className={classes.secondaryHeading} component="h1">
-          Add more bots in the system.
+          {t('admin:components.bot.addMoreBots')}
         </Typography>
         <form style={{ marginTop: '40px' }}>
           <InputText
@@ -208,7 +210,7 @@ const CreateBot = () => {
             formErrors={formErrors.description}
           />
 
-          <label>Location</label>
+          <label> {t('admin:components.bot.location')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <InputSelect
@@ -228,7 +230,7 @@ const CreateBot = () => {
             </Grid>
           </Grid>
 
-          <label>Instance</label>
+          <label> {t('admin:components.bot.instance')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <InputSelect
