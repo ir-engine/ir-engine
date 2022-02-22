@@ -12,6 +12,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 export default async function XRUISystem(world: World) {
   const renderer = Engine.renderer
@@ -44,13 +45,13 @@ export default async function XRUISystem(world: World) {
   // }
 
   const screenRaycaster = new Raycaster()
+  screenRaycaster.layers.enableAll()
   xrui.interactionRays = [screenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
   // to the appropriate child Web3DLayer, and finally (back) to the
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
-    console.log(evt)
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
@@ -60,9 +61,10 @@ export default async function XRUISystem(world: World) {
         return
       }
     }
+
     for (const entity of avatar(world)) {
-      const modelContainer = getComponent(entity, AvatarComponent).modelContainer
-      const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
+      const model = getComponent(entity, Object3DComponent).value
+      const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchLocal(EngineActions.userAvatarTapped(userId))

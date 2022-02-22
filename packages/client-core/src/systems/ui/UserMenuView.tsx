@@ -116,11 +116,10 @@ const AvatarContextMenu = () => {
   }
 
   useEffect(() => {
-    console.log('engineState.avatarTappedId.value', engineState.avatarTappedId.value)
-    detailState.id.set(engineState.avatarTappedId.value)
+    if (engineState.avatarTappedId.value !== authState.user.id.value)
+      detailState.id.set(engineState.avatarTappedId.value)
   }, [engineState.avatarTappedId.value])
 
-  console.log('user?.id.value', user?.id.value)
   return user?.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
