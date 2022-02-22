@@ -22,11 +22,10 @@ const state = createState({
 })
 
 store.receptors.push((action: AvatarActionType): any => {
-  console.log(action)
   state.batch((s) => {
     switch (action.type) {
       case 'AVATARS_RETRIEVED':
-        s.merge({
+        return s.merge({
           avatars: action.avatars.data,
           skip: action.avatars.skip,
           limit: action.avatars.limit,
@@ -37,11 +36,11 @@ store.receptors.push((action: AvatarActionType): any => {
           lastFetched: Date.now()
         })
       case 'AVATAR_CREATED':
-        s.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'AVATAR_REMOVED':
-        s.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'AVATAR_UPDATED':
-        s.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
