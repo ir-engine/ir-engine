@@ -1,3 +1,4 @@
+// BlendSpace 1D allow any number of animations to be blended between based on a input value
 export class BlendSpace1D {
   minValue: number
   maxValue: number
