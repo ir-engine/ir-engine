@@ -1,20 +1,23 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+
+export type AvatarDataType = AvatarInterface
 
 /**
  * A class for Static Resource  service
  *
  * @author Vyacheslav Solovjov
  */
-export class StaticResource extends Service {
+export class StaticResource<T = AvatarDataType> extends Service<T> {
   public docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 
-  async create(data, params?: Params): Promise<any> {
+  async create(data, params?: Params): Promise<T> {
     const oldResource = await this.find({
       query: {
         $select: ['id'],
@@ -31,7 +34,7 @@ export class StaticResource extends Service {
     }
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
       const result = (await super.find(params)) as Paginated<any>

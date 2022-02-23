@@ -58,7 +58,7 @@ export async function getFreeGameserver(
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
   })
   const ipAddresses = readyServers.map((server) => `${server.status.address}:${server.status.ports[0].port}`)
-  const assignedInstances = await app.service('instance').find({
+  const assignedInstances: any = await app.service('instance').find({
     query: {
       ipAddress: {
         $in: ipAddresses
@@ -88,7 +88,7 @@ export async function checkForDuplicatedAssignments(
   channelId: string
 ) {
   //Create an assigned instance at this IP
-  const assignResult = await app.service('instance').create({
+  const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,
     locationId: locationId,
     channelId: channelId,
@@ -96,7 +96,7 @@ export async function checkForDuplicatedAssignments(
     assignedAt: new Date()
   })
   //Check to see if there are any other non-ended instances assigned to this IP
-  const duplicateAssignment = await app.service('instance').find({
+  const duplicateAssignment: any = await app.service('instance').find({
     query: {
       ipAddress: ipAddress,
       assigned: true,
@@ -235,9 +235,10 @@ export class InstanceProvision implements ServiceMethods<Data> {
       return gs.status.address === ip && inputPort?.port?.toString() === port
     })
     if (match == null) {
-      await this.app.service('instance').patch(instance.id, {
+      const patchInstance: any = {
         ended: true
-      })
+      }
+      await this.app.service('instance').patch(instance.id, { ...patchInstance })
       await this.app.service('gameserver-subdomain-provision').patch(
         null,
         {
@@ -337,7 +338,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
           throw new BadRequest('Invalid location ID')
         }
         if (instanceId != null) {
-          const instance = await this.app.service('instance').get(instanceId)
+          const instance: any = await this.app.service('instance').get(instanceId)
           if (instance == null || instance.ended === true) return getFreeGameserver(this.app, 0, locationId, null!)
           let gsCleanup
           if (config.kubernetes.enabled) gsCleanup = await this.gsCleanup(instance)
