@@ -148,10 +148,9 @@ export const toggleVolumetric = (entity: Entity): boolean => {
   if (!obj3d) return false
 
   if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
-    obj3d.userData.player.paused = true
+    obj3d.userData.player.pause()
     return false
   } else {
-    obj3d.userData.player.stopOnNextFrame = false
     if (obj3d.userData.player.paused) {
       obj3d.userData.player.paused = false
     } else {
