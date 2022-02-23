@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -11,6 +11,9 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { useStyles } from '../../styles/ui'
 import _ from 'lodash'
+import { validateForm } from '../../common/validation/formValidation'
+import AlertMessage from '../../common/AlertMessage'
+import { AvatarService } from '../../services/AvatarService'
 
 interface Props {
   openView: boolean
@@ -34,15 +37,73 @@ const ViewAvatar = (props: Props) => {
       description: ''
     }
   })
+  const [openAlter, setOpenAlter] = useState(false)
+  const [error, setError] = useState('')
   const handleCloseDrawer = () => {
     closeViewModel(false)
   }
+
+  const initialData = () => {
+    setState({
+      ...state,
+      name: avatarData.name || '',
+      key: avatarData.key || '',
+      url: avatarData.url || '',
+      description: avatarData.description || '',
+      formErrors: {
+        name: '',
+        key: '',
+        url: '',
+        description: ''
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (avatarData) {
+      initialData()
+    }
+  }, [avatarData])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
     temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
+  }
+
+  const updateAvatar = async () => {
+    const data = {
+      name: state.name,
+      description: state.description,
+      url: state.url,
+      staticResourceType: 'avatar'
+    }
+    let temp = state.formErrors
+    if (!state.name) {
+      temp.name = "Name can't be empty"
+    }
+    if (!state.description) {
+      temp.description = "Description can't be empty"
+    }
+    if (!state.url) {
+      temp.url = "avatar url can't be empty"
+    }
+    if (validateForm(state, state.formErrors)) {
+      await AvatarService.updateAdminAvatar(avatarData.id, data)
+      setEditMode(false)
+      closeViewModel(false)
+    } else {
+      setError('Please fill all required field')
+      setOpenAlter(true)
+    }
+  }
+
+  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpenAlter(false)
   }
 
   return (
@@ -92,6 +153,36 @@ const ViewAvatar = (props: Props) => {
                   onChange={handleInputChange}
                 />
               </Paper>
+              <label>Description</label>
+              <Paper
+                component="div"
+                className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+              >
+                <InputBase
+                  className={classes.input}
+                  name="description"
+                  placeholder="Enter description"
+                  style={{ color: '#fff' }}
+                  autoComplete="off"
+                  value={state.description}
+                  onChange={handleInputChange}
+                />
+              </Paper>
+              <label>Avatar url</label>
+              <Paper
+                component="div"
+                className={state.formErrors.url.length > 0 ? classes.redBorder : classes.createInput}
+              >
+                <InputBase
+                  className={classes.input}
+                  name="url"
+                  placeholder="Enter url"
+                  style={{ color: '#fff' }}
+                  autoComplete="off"
+                  value={state.url}
+                  onChange={handleInputChange}
+                />
+              </Paper>
             </div>
           ) : (
             <div>
@@ -129,14 +220,8 @@ const ViewAvatar = (props: Props) => {
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
                 Avatar
               </Typography>
-              {avatarData?.url ? (
-                <img alt="avatar" src={avatarData?.url} />
-              ) : (
-                <span className={classes.spanNone}>None</span>
-              )}
-
-              <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Thumb nail
+              <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                {avatarData?.url || <span className={classes.spanNone}>None</span>}
               </Typography>
               <div className={classes.scopeContainer}></div>
             </div>
@@ -144,21 +229,18 @@ const ViewAvatar = (props: Props) => {
           <DialogActions className={classes.mb10}>
             {editMode ? (
               <div className={classes.marginTop}>
-                <Button
-                  //   onClick={handleSubmit}
-                  className={classes.saveBtn}
-                >
+                <Button onClick={updateAvatar} className={classes.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
-                  </span>{' '}
+                  </span>
                   Submit
                 </Button>
                 <Button
                   className={classes.saveBtn}
-                  // onClick={() => {
-                  //   initiateData()
-                  //   setEditMode(false)
-                  // }}
+                  onClick={() => {
+                    initialData()
+                    setEditMode(false)
+                  }}
                 >
                   CANCEL
                 </Button>
@@ -181,7 +263,7 @@ const ViewAvatar = (props: Props) => {
           </DialogActions>
         </Container>
       </Drawer>
-      {/* <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} /> */}
+      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </React.Fragment>
   )
 }
