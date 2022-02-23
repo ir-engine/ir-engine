@@ -1,20 +1,20 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color } from 'three'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { Color, Vector2 } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
+import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Ocean } from '../../classes/Ocean'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { OceanComponent, OceanComponentType } from '../../components/OceanComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { isClient } from '../../../common/functions/isClient'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { Ocean } from '../../classes/Ocean'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_OCEAN = 'ocean'

@@ -1,4 +1,4 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { Mesh } from 'three'
 import {
   ComponentDeserializeFunction,

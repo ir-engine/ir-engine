@@ -1,4 +1,5 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,14 +8,13 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
-import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { setObjectLayers } from '../setObjectLayers'
+import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
+import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_PORTAL = 'portal'
 export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {

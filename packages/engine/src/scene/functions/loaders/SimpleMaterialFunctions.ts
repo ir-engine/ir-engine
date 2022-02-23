@@ -1,13 +1,13 @@
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
-import { Engine } from '../../../ecs/classes/Engine'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'
-import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
+import { SceneOptions } from '../../systems/SceneObjectSystem'
 
 export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
 

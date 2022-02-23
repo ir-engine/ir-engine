@@ -1,6 +1,6 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of gameserver-gameserver communication
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'

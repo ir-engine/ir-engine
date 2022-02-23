@@ -1,10 +1,9 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { pipe } from 'bitecs'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { AnimationClip, AnimationMixer, Group } from 'three'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
-import { boneMatchAvatarModel, rigAvatarModel, setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
+import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -18,7 +17,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'

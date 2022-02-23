@@ -1,9 +1,9 @@
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import assert, { strictEqual } from 'assert'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createWorld } from '../classes/World'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { ActionRecipients } from './Action'
 import matches from 'ts-matches'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { createWorld } from '../classes/World'
+import { ActionRecipients } from './Action'
 import { applyIncomingActions } from './ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {

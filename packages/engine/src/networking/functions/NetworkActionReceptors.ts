@@ -1,13 +1,13 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { NetworkWorldAction } from './NetworkWorldAction'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { World } from '../../ecs/classes/World'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { dispatchFrom, dispatchLocal } from './dispatchFrom'
+import { NetworkWorldAction } from './NetworkWorldAction'
 
 const removeAllNetworkClients = (world: World, removeSelf = false) => {
   for (const [userId] of world.clients) {

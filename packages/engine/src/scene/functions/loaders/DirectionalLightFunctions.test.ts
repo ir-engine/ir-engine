@@ -1,12 +1,12 @@
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import assert from 'assert'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, DirectionalLight } from 'three'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { createWorld } from '../../../ecs/classes/World'
 import { Engine } from '../../../ecs/classes/Engine'
-import { deserializeDirectionalLight } from './DirectionalLightFunctions'
+import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { deserializeDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {

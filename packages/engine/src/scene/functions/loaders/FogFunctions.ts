@@ -1,4 +1,4 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { Color, Fog, FogExp2 } from 'three'
 import {
   ComponentDeserializeFunction,

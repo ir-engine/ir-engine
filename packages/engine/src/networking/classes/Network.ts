@@ -1,4 +1,4 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 

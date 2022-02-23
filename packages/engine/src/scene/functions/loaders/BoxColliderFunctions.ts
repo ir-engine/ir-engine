@@ -1,4 +1,5 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { Object3D } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,17 +8,16 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { createBody } from '../../../physics/functions/createCollider'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { useWorld } from '../../../ecs/functions/SystemHooks'
+import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../../physics/components/CollisionComponent'
-import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { Object3D } from 'three'
-import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
+import { createBody } from '../../../physics/functions/createCollider'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 
 export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
 export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {

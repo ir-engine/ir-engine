@@ -1,5 +1,5 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color, PointLight, IcosahedronGeometry, MeshBasicMaterial, Mesh } from 'three'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, PointLight, Vector2 } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,

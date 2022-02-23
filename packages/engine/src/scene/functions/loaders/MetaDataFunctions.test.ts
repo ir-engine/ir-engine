@@ -1,10 +1,10 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import assert from 'assert'
 import { MathUtils } from 'three'
+import { Engine } from '../../../ecs/classes/Engine'
+import { createWorld } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { deserializeMetaData } from './MetaDataFunctions'
-import assert from 'assert'
-import { createWorld } from '../../../ecs/classes/World'
-import { Engine } from '../../../ecs/classes/Engine'
 
 describe('MetadataFunctions', () => {
   describe('deserializeMetaData', () => {

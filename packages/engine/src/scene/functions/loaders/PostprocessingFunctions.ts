@@ -1,22 +1,22 @@
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-import { PostprocessingComponent, PostprocessingComponentType } from '../../components/PostprocessingComponent'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { Object3D } from 'three'
-import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { PostprocessingComponent, PostprocessingComponentType } from '../../components/PostprocessingComponent'
+import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
 
 export const SCENE_COMPONENT_POSTPROCESSING = 'postprocessing'
 export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = {

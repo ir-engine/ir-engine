@@ -1,4 +1,4 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,8 +7,8 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { InteractableComponent, InteractableComponentType } from '../../../interaction/components/InteractableComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_INTERACTABLE = 'interactable'
 export const SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES = {

@@ -1,7 +1,7 @@
-import { NetworkTransportHandler } from '../../src/networking/classes/Network'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import '@xrengine/engine/src/patchEngineNode'
+import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 export class DummyTransport implements NetworkTransport {
   request = (message: string, data?: any) => null!

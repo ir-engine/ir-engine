@@ -1,5 +1,5 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { NetworkId } from '@xrengine/engine/src/common/types/NetworkId'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import { Types } from 'bitecs'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 

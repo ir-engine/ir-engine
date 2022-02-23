@@ -1,4 +1,4 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { NetworkId } from '@xrengine/engine/src/common/types/NetworkId'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,15 +9,15 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
-  ViewCursor,
-  spaceUint8,
+  rewindViewCursor,
+  sliceViewCursor,
   spaceUint16,
   spaceUint32,
   spaceUint64,
-  sliceViewCursor,
+  spaceUint8,
+  ViewCursor,
   writePropIfChanged,
-  writeUint32,
-  rewindViewCursor
+  writeUint32
 } from './ViewCursor'
 
 /**

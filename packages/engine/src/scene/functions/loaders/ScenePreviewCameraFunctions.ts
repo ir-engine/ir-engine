@@ -1,5 +1,5 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { CameraHelper, PerspectiveCamera, Matrix4 } from 'three'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { CameraHelper, Matrix4, PerspectiveCamera } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,

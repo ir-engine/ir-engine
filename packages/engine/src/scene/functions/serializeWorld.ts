@@ -1,4 +1,4 @@
-import { EntityJson, SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import { MathUtils } from 'three'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

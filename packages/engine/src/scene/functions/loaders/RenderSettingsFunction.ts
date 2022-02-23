@@ -1,5 +1,5 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector3, DirectionalLight, PerspectiveCamera, PCFSoftShadowMap, LinearToneMapping } from 'three'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { LinearToneMapping, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
 import { CSM } from '../../../assets/csm/CSM'

@@ -1,22 +1,22 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { Color, ShaderMaterial, Vector3 } from 'three'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Color, ShaderMaterial, Vector3 } from 'three'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
 import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitterMesh'
-import { RenderedComponent } from '../../components/RenderedComponent'
-import { Engine } from '../../../ecs/classes/Engine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { registerSceneLoadPromise } from '../SceneLoading'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { RenderedComponent } from '../../components/RenderedComponent'
 import { addError, removeError } from '../ErrorFunctions'
+import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {

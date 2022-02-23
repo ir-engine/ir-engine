@@ -1,4 +1,4 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,10 +7,10 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 
 export const SCENE_COMPONENT_MEDIA = 'media'

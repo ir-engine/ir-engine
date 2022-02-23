@@ -1,4 +1,4 @@
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/engine/src/common/types/UserId'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type InteractableComponentType = {

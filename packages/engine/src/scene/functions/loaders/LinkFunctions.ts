@@ -1,19 +1,19 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
+import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { LinkComponent, LinkComponentType } from '../../components/LinkComponent'
-import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { LinkComponent, LinkComponentType } from '../../components/LinkComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { setObjectLayers } from '../setObjectLayers'
 

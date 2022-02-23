@@ -1,11 +1,11 @@
+import { ComponentJson } from '@xrengine/engine/src/common/types/SceneInterface'
 import assert from 'assert'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { deserializeInteractable } from './InteractableFunctions'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
+import { deserializeInteractable } from './InteractableFunctions'
 
 describe('InteractableFunctions', () => {
   it('deserializeInteractable', () => {
