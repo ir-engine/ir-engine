@@ -34,7 +34,7 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
+  // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
 
   await ui.waitForSceneColors()
 
@@ -82,7 +82,7 @@ export default async function XRUILoadingSystem(world: World) {
         transition.update(world, (opacity) => {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
           xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-            // console.log('setOpacity', opacity)
+            // console.log('setOpacity', opacity, layer.visible)
             const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
             mat.opacity = opacity
             mat.visible = opacity > 0

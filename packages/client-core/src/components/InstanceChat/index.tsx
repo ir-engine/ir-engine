@@ -65,14 +65,13 @@ const InstanceChat = (props: Props): any => {
       console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
     }
     if (
-      user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
+      instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value &&
       !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
   }, [
-    user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
     chatState.instanceChannelFetching.value

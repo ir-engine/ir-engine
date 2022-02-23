@@ -19,6 +19,9 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
   // host adds the client manually during connectToWorld
   if (world.isHosting) return
 
+  if (world.clients.has(userId))
+    return console.log(`[NetworkActionReceptors]: client with id ${userId} and name ${name} already exists. ignoring.`)
+
   world.clients.set(userId, {
     userId: userId,
     userIndex: index,
@@ -32,8 +35,10 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
 }
 
 const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
-  if (!world.clients.has(userId)) return
-  if (allowRemoveSelf && userId === Engine.userId) return
+  if (!world.clients.has(userId))
+    return console.warn(`[NetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
+  if (allowRemoveSelf && userId === Engine.userId)
+    return console.warn(`[NetworkActionReceptors]: tried to remove local client`)
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
@@ -57,7 +62,11 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
     Engine.userId === action.$from &&
     hasComponent(world.localClientEntity, NetworkObjectComponent)
   ) {
-    getComponent(world.localClientEntity, NetworkObjectComponent).networkId = action.networkId
+    const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
+    console.log(
+      `[NetworkActionReceptors]: Successfully updated local client entity's networkId from ${networkComponent.networkId} to ${action.networkId}`
+    )
+    networkComponent.networkId = action.networkId
     return
   }
   const params = action.parameters
@@ -97,9 +106,7 @@ const destroyObjectNetworkActionReceptor = (
     return console.log(
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
     )
-  if (entity === world.localClientEntity) return
-
-  const { networkId } = getComponent(entity, NetworkObjectComponent)
+  if (entity === world.localClientEntity) return console.warn(`[NetworkActionReceptors]: tried to destroy local client`)
   removeEntity(entity)
 }
 
