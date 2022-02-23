@@ -1,4 +1,5 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
+import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
@@ -7,6 +8,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -240,8 +242,11 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
       return rigHand.getWorldPosition(vec3)
     }
   }
-  // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-  return vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position)
+  const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
+  const rigComponent = getComponent(entity, IKRigComponent)
+  rigComponent.boneStructure[bone].updateWorldMatrix(true, false)
+  const matWorld = rigComponent.boneStructure[bone].matrixWorld
+  return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
 }
 
 /**
@@ -279,7 +284,6 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
@@ -292,14 +296,13 @@ export const getHandTransform = (
       }
     }
   }
-  const mul = hand === ParityValue.RIGHT ? -1 : 1
+  const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
+  const rigComponent = getComponent(entity, IKRigComponent)
+  rigComponent.boneStructure[bone].updateWorldMatrix(true, false)
+  rigComponent.boneStructure[bone].matrixWorld.decompose(vec3, quat, v3)
   return {
-    // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-    position: vec3
-      .set(mul * 0.35, 1, 0)
-      .applyQuaternion(transform.rotation)
-      .add(transform.position),
-    rotation: quat.copy(transform.rotation).multiply(rotate180onY)
+    position: vec3,
+    rotation: quat
   }
 }
 
