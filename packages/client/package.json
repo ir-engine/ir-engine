@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@etherealjs/web-layer": "3.2.2",
-    "@feathersjs/client": "5.0.0-pre.10",
+    "@feathersjs/client": "5.0.0-pre.17",
     "@mui/icons-material": "5.4.2",
     "@mui/material": "5.4.3",
     "@mui/styled-engine-sc": "5.4.2",
