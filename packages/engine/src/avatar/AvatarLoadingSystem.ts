@@ -98,22 +98,22 @@ export default async function AvatarLoadingSystem(world: World) {
       })
     }
 
-    for (const entity of growQuery.exit(world)) {
-      // const plateComponent = getComponent(entity, AvatarEffectComponent)
-      // addComponent(entity, TweenComponent, {
-      //   tween: new Tween<any>(plateComponent)
-      //     .to(
-      //       {
-      //         opacityMultiplier: 0
-      //       },
-      //       2000
-      //     )
-      //     .start()
-      //     .onComplete(async () => {
-      //       removeComponent(entity, TweenComponent)
-      //     })
-      // })
-    }
+    // for (const entity of growQuery.exit(world)) {
+    //   const plateComponent = getComponent(entity, AvatarEffectComponent)
+    //   addComponent(entity, TweenComponent, {
+    //     tween: new Tween<any>(plateComponent)
+    //       .to(
+    //         {
+    //           opacityMultiplier: 0
+    //         },
+    //         2000
+    //       )
+    //       .start()
+    //       .onComplete(async () => {
+    //         removeComponent(entity, TweenComponent)
+    //       })
+    //   })
+    // }
 
     for (const entity of commonQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value
