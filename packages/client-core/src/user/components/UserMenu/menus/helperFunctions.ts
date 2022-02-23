@@ -88,7 +88,8 @@ export const addAnimationLogic = (entity: Entity, world: World, setEntity: any, 
 }
 
 export const initialize3D = () => {
-  const container = document.getElementById('stage')!
+  const container = document.createElement('stage')!
+  console.log(container)
   const bounds = container.getBoundingClientRect()
   camera = new PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
   camera.position.set(0, 1.25, 1.25)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -8,7 +8,6 @@ import { ArrowBack, Help, SystemUpdateAlt } from '@mui/icons-material'
 import { useTranslation } from 'react-i18next'
 import { useStyles } from '../../styles/ui'
 import InputText from '../../common/InputText'
-import { AVATAR_FILE_ALLOWED_EXTENSIONS } from '@xrengine/common/src/constants/AvatarConstants'
 import Drawer from '@mui/material/Drawer'
 import Container from '@mui/material/Container'
 import { styled } from '@mui/material/styles'
@@ -16,11 +15,34 @@ import { AvatarService } from '../../services/AvatarService'
 import _ from 'lodash'
 import { validateForm } from '../../common/validation/formValidation'
 import AlertMessage from '../../common/AlertMessage'
+import {
+  AVATAR_FILE_ALLOWED_EXTENSIONS,
+  MAX_AVATAR_FILE_SIZE,
+  MIN_AVATAR_FILE_SIZE,
+  THUMBNAIL_WIDTH,
+  THUMBNAIL_HEIGHT
+} from '@xrengine/common/src/constants/AvatarConstants'
+import { Scene, PerspectiveCamera, WebGLRenderer } from 'three'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  initialize3D,
+  onWindowResize,
+  addAnimationLogic
+} from '../../../user/components/UserMenu/menus/helperFunctions'
+import styles from '../../../user/components/UserMenu/UserMenu.module.scss'
+import IconLeftClick from '../../../common/components/Icons/IconLeftClick'
+import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
 const Input = styled('input')({
   display: 'none'
 })
 
+let camera: PerspectiveCamera
+let scene: Scene
+let renderer: WebGLRenderer = null!
 const AvatarCreate = ({ handleClose, open }) => {
   const { t } = useTranslation()
   const classes = useStyles()
@@ -38,6 +60,13 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
 
+  const [entity, setEntity] = useState<any>(null)
+  const [avatarModel, setAvatarModel] = useState<any>(null)
+  const [fileSelected, setFileSelected] = React.useState(false)
+  const [selectedFile, setSelectedFile] = useState<any>(null)
+  const panelRef = useRef<any>()
+
+  console.log(selectedFile, fileSelected, avatarModel)
   const handleChangeInput = (e) => {
     const names = e.target.name
     const value = e.target.value
@@ -94,79 +123,156 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
   }
 
+  useEffect(() => {
+    const world = useWorld()
+    // const entity = createEntity()
+
+    // addAnimationLogic(entity, world, setEntity, panelRef)
+    const init = initialize3D()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
+    const controls = getOrbitControls(camera, renderer.domElement)
+
+    controls.minDistance = 0.1
+    controls.maxDistance = 10
+    controls.target.set(0, 1.25, 0)
+    controls.update()
+    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+
+    return () => {
+      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+    }
+  }, [])
+
+  const handleAvatarChange = (e) => {
+    if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
+      setError(
+        t('user:avatar.fileOversized', {
+          minSize: MIN_AVATAR_FILE_SIZE / 1048576,
+          maxSize: MAX_AVATAR_FILE_SIZE / 1048576
+        })
+      )
+      return
+    }
+
+    scene.children = scene.children.filter((c) => c.name !== 'avatar')
+    const file = e.target.files[0]
+    const reader = new FileReader()
+    reader.onload = (fileData) => {
+      try {
+        const assetType = AssetLoader.getAssetType(file.name)
+        if (assetType) {
+          const objectURL = URL.createObjectURL(file) + '#' + file.name
+          loadAvatarForPreview(entity, objectURL)
+            .catch((err) => {
+              setError(err)
+            })
+            .then((obj) => {
+              if (!obj) {
+                setAvatarModel(null!)
+                setError('Failed to load')
+                return
+              }
+              obj.name = 'avatar'
+              scene.add(obj)
+              setAvatarModel(obj)
+              // const error = validate(obj)
+              setError(error)
+              if (error === '') setAvatarModel(obj)
+            })
+        }
+      } catch (error) {
+        console.error(error)
+        setError(t('user:avatar.selectValidFile'))
+      }
+    }
+
+    try {
+      reader.readAsArrayBuffer(file)
+      setFileSelected(true)
+      setSelectedFile(e.target.files[0])
+    } catch (error) {
+      console.error(e)
+      setError(t('user:avatar.selectValidFile'))
+    }
+  }
+
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
+      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} id="stage" onClose={handleClose}>
         <Container maxWidth="sm" className={classes.marginTp}>
-          <DialogTitle>
-            <IconButton onClick={handleClose}>
-              <ArrowBack />
-            </IconButton>
-            {t('user:avatar.title')}
-          </DialogTitle>
-          <DialogContent>
-            <IconButton className={classes.positionRight}>
-              <Help className={classes.spanWhite} />
-            </IconButton>
+          <div ref={panelRef}>
+            <DialogTitle>
+              <IconButton onClick={handleClose}>
+                <ArrowBack />
+              </IconButton>
+              {t('user:avatar.title')}
+            </DialogTitle>
+            <DialogContent>
+              <IconButton className={classes.positionRight}>
+                <Help className={classes.spanWhite} />
+              </IconButton>
 
-            <div style={{ marginTop: '2rem' }}>
-              <InputText
-                value={newAvatar.avatarName}
-                handleInputChange={handleChangeInput}
-                name="avatarName"
-                formErrors={formErrors.avatarName}
-              />
-              <InputText
-                value={newAvatar.description}
-                handleInputChange={handleChangeInput}
-                name="description"
-                formErrors={formErrors.description}
-              />
-
-              <Button className={classes.saveBtn} onClick={() => setSelectUse(!selectUse)} style={{ width: '97%' }}>
-                {!selectUse ? 'Upload files' : 'Use url instead'}
-              </Button>
-              {!selectUse ? (
+              <div style={{ marginTop: '2rem' }}>
                 <InputText
-                  value={newAvatar.avatarUrl}
+                  value={newAvatar.avatarName}
                   handleInputChange={handleChangeInput}
-                  formErrors={formErrors.avatarUrl}
-                  name="avatarUrl"
+                  name="avatarName"
+                  formErrors={formErrors.avatarName}
                 />
-              ) : (
-                <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-                  <Input
-                    accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-                    id="contained-button-file"
-                    type="file"
-                    // onChange={handleAvatarChange}
+                <InputText
+                  value={newAvatar.description}
+                  handleInputChange={handleChangeInput}
+                  name="description"
+                  formErrors={formErrors.description}
+                />
+
+                <Button className={classes.saveBtn} onClick={() => setSelectUse(!selectUse)} style={{ width: '97%' }}>
+                  {!selectUse ? 'Upload files' : 'Use url instead'}
+                </Button>
+                {!selectUse ? (
+                  <InputText
+                    value={newAvatar.avatarUrl}
+                    handleInputChange={handleChangeInput}
+                    formErrors={formErrors.avatarUrl}
+                    name="avatarUrl"
                   />
-                  <Button
-                    variant="contained"
-                    component="span"
-                    // classes={{ root: classes.rootBtn }}
-                    endIcon={<SystemUpdateAlt />}
-                  >
-                    Avatar
-                  </Button>
-                </label>
-              )}
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <Button className={classes.saveBtn} onClick={uploadByUrls}>
-              Upload
-            </Button>
-            <Button
-              onClick={() => {
-                handleClose()
-                clearState()
-              }}
-              className={classes.saveBtn}
-            >
-              Cancel
-            </Button>
-          </DialogActions>
+                ) : (
+                  <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
+                    <Input
+                      accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                      id="contained-button-file"
+                      type="file"
+                      onChange={handleAvatarChange}
+                    />
+                    <Button
+                      variant="contained"
+                      component="span"
+                      // classes={{ root: classes.rootBtn }}
+                      endIcon={<SystemUpdateAlt />}
+                    >
+                      Avatar
+                    </Button>
+                  </label>
+                )}
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button className={classes.saveBtn} onClick={uploadByUrls}>
+                Upload
+              </Button>
+              <Button
+                onClick={() => {
+                  handleClose()
+                  clearState()
+                }}
+                className={classes.saveBtn}
+              >
+                Cancel
+              </Button>
+            </DialogActions>
+          </div>
         </Container>
       </Drawer>
       <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
