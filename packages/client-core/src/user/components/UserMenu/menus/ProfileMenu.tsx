@@ -27,7 +27,7 @@ import { getAvatarURLForUser, Views } from '../util'
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
-
+  className?: string
   hideLogin?: any
 }
 
@@ -262,7 +262,7 @@ const ProfileMenu = (props: Props): any => {
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel}>
+    <div className={styles.menuPanel + (props.className ? ' ' + props.className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>

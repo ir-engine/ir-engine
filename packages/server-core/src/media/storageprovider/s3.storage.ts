@@ -46,67 +46,31 @@ export class S3Provider implements StorageProviderInterface {
     return this
   }
 
-  checkObjectExistence = (key: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.getObjectAcl(
-        {
+  checkObjectExistence = async (key: string): Promise<any> => {
+    try {
+      await this.provider
+        .getObjectAcl({
           Bucket: this.bucket,
           Key: key
-        },
-        (err, data) => {
-          if (err) {
-            if (err.code === 'NoSuchKey') resolve(null)
-            else {
-              console.error(err)
-              reject(err)
-            }
-          } else {
-            reject(new Error(`Object of key ${key} already exists`))
-          }
-        }
-      )
-    })
+        })
+        .promise()
+      return new Error(`Object of key ${key} already exists`)
+    } catch (err) {
+      if (err.code === 'NoSuchKey') return null
+      else {
+        return err
+      }
+    }
   }
 
   getObject = async (key: string): Promise<StorageObjectInterface> => {
-    return new Promise((resolve, reject) =>
-      this.provider.getObject(
-        {
-          Bucket: this.bucket,
-          Key: key
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve({
-              Body: data.Body as Buffer,
-              ContentType: data.ContentType!
-            })
-          }
-        }
-      )
-    )
+    const data = await this.provider.getObject({ Bucket: this.bucket, Key: key }).promise()
+    return { Body: data.Body as Buffer, ContentType: data.ContentType! }
   }
 
   getObjectContentType = async (key: string): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.headObject(
-        {
-          Bucket: this.bucket,
-          Key: key
-        },
-        (err, data) => {
-          if (err) {
-            console.log('Error:' + err)
-            reject(err)
-          } else {
-            resolve(data.ContentType)
-          }
-        }
-      )
-    })
+    const data = await this.provider.headObject({ Bucket: this.bucket, Key: key }).promise()
+    return data.ContentType
   }
 
   listObjects = async (
@@ -116,77 +80,53 @@ export class S3Provider implements StorageProviderInterface {
     continuationToken: string | undefined
   ): Promise<StorageListObjectInterface> => {
     const self = this
+    const data = await this.provider
+      .listObjectsV2({
+        Bucket: this.bucket,
+        ContinuationToken: continuationToken,
+        Prefix: prefix,
+        Delimiter: recursive ? undefined : '/'
+      })
+      .promise()
 
-    return new Promise((resolve, reject) =>
-      this.provider.listObjectsV2(
-        {
-          Bucket: this.bucket,
-          ContinuationToken: continuationToken,
-          Prefix: prefix,
-          Delimiter: recursive ? undefined : '/'
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            data.Contents = results.concat(data.Contents)
-            if (data.IsTruncated)
-              self.listObjects(prefix, data.Contents, true, data.NextContinuationToken).then((data) => resolve(data))
-            else resolve(data as StorageListObjectInterface)
-          }
-        }
-      )
-    )
+    data.Contents = results.concat(data.Contents)
+    if (data.IsTruncated) {
+      return await self.listObjects(prefix, data.Contents, true, data.NextContinuationToken)
+    }
+    return data as StorageListObjectInterface
   }
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
-    return new Promise((resolve, reject) =>
-      this.provider.putObject(
-        {
-          ACL: 'public-read',
-          Body: params.Body,
-          Bucket: this.bucket,
-          ContentType: params.ContentType,
-          Key: params.Key!
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    )
+    const data = await this.provider
+      .putObject({
+        ACL: 'public-read',
+        Body: params.Body,
+        Bucket: this.bucket,
+        ContentType: params.ContentType,
+        Key: params.Key!
+      })
+      .promise()
+
+    return data
   }
 
   createInvalidation = async (invalidationItems: any[]): Promise<any> => {
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 'aws') return
-    return new Promise((resolve, reject) => {
-      this.cloudfront.createInvalidation(
-        {
-          DistributionId: config.aws.cloudfront.distributionId,
-          InvalidationBatch: {
-            CallerReference: Date.now().toString(),
-            Paths: {
-              Quantity: invalidationItems.length,
-              Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
-            }
-          }
-        },
-        (err, data) => {
-          if (err) {
-            console.error(err)
-            reject(err)
-          } else {
-            resolve(data)
+    const data = await this.cloudfront
+      .createInvalidation({
+        DistributionId: config.aws.cloudfront.distributionId,
+        InvalidationBatch: {
+          CallerReference: Date.now().toString(),
+          Paths: {
+            Quantity: invalidationItems.length,
+            Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
           }
         }
-      )
-    })
+      })
+      .promise()
+
+    return data
   }
 
   getStorage = (): typeof S3BlobStore => this.blob
@@ -216,23 +156,18 @@ export class S3Provider implements StorageProviderInterface {
     }
   }
 
-  deleteResources = (keys: string[]): Promise<any> => {
-    return new Promise((resolve, reject) => {
-      this.provider.deleteObjects(
-        {
-          Bucket: this.bucket,
-          Delete: {
-            Objects: keys.map((key) => {
-              return { Key: key }
-            })
-          }
-        },
-        (err, data) => {
-          if (err) reject(err)
-          else resolve(data)
+  deleteResources = async (keys: string[]): Promise<any> => {
+    const data = await this.provider
+      .deleteObjects({
+        Bucket: this.bucket,
+        Delete: {
+          Objects: keys.map((key) => {
+            return { Key: key }
+          })
         }
-      )
-    })
+      })
+      .promise()
+    return data
   }
 
   listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {

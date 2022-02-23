@@ -15,6 +15,7 @@ import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -45,7 +46,7 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   if (accessEngineState().sceneLoaded.value) {
     updateLoopAnimation(entity)
   } else {
-    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
       updateLoopAnimation(entity)
     })
   }
@@ -77,16 +78,18 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
     ? AnimationManager.instance._animations
     : object3d.animations
 
-  if (component.action) component.action.stop()
-  if (component.activeClipIndex >= 0) {
-    component.action = animationComponent.mixer
-      .clipAction(
-        AnimationClip.findByName(
-          animationComponent.animations,
-          animationComponent.animations[component.activeClipIndex].name
+  if (!Engine.isEditor) {
+    if (component.action) component.action.stop()
+    if (component.activeClipIndex >= 0) {
+      component.action = animationComponent.mixer
+        .clipAction(
+          AnimationClip.findByName(
+            animationComponent.animations,
+            animationComponent.animations[component.activeClipIndex].name
+          )
         )
-      )
-      .play()
+        .play()
+    }
   }
 }
 

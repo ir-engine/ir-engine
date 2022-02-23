@@ -152,10 +152,11 @@ export const handleConsumeDataEvent =
         console.info('Setting data consumer to room state')
         if (!world.clients.has(userId))
           return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
+
         world.clients.get(userId)!.dataConsumers!.set(dataProducer.id, dataConsumer)
-        if (!world.clients.has(userId))
-          return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists' })
+
         const dataProducerOut = world.clients.get(userId)!.dataProducers!.get('instance')
+
         // Data consumers are all consuming the single producer that outputs from the server's message queue
         socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
           dataProducerId: dataProducerOut.id,
@@ -720,7 +721,8 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
       const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
         return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
       })!
-      hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
+      if (hostClient && hostClient[1])
+        hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
     }
   }
   callback({ resumed: true })
@@ -747,7 +749,8 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
         const hostClient = Array.from(world.clients.entries()).find(([, client]) => {
           return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
         })!
-        hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
+        if (hostClient && hostClient[1])
+          hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
       }
     }
   }

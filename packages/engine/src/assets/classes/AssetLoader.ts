@@ -7,7 +7,10 @@ import {
   Loader,
   AnimationClip,
   Group,
-  Mesh
+  Mesh,
+  LoaderUtils,
+  Material,
+  SkinnedMesh
 } from 'three'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
@@ -51,9 +54,10 @@ export const loadExtensions = async (gltf: GLTF) => {
   }
 }
 
-const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
+const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
-  asset.traverse((child) => {
+
+  asset.traverse((child: Mesh<any, Material>) => {
     if (!child.isMesh) return
 
     if (typeof params.receiveShadow !== 'undefined') child.receiveShadow = params.receiveShadow
@@ -64,7 +68,7 @@ const processModelAsset = (asset: any, params: AssetLoaderParamType): void => {
     } else {
       if (child.material?.userData?.gltfExtensions?.KHR_materials_clearcoat) {
         const newMaterial = new MeshPhysicalMaterial({})
-        newMaterial.setValues(child.material) // to copy properties of original material
+        newMaterial.setValues(child.material as any) // to copy properties of original material
         newMaterial.clearcoat = child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatFactor
         newMaterial.clearcoatRoughness =
           child.material.userData.gltfExtensions.KHR_materials_clearcoat.clearcoatRoughnessFactor
@@ -184,34 +188,31 @@ type AssetLoaderParamType = {
 }
 
 const assetLoadCallback =
-  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (model) => {
-    if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-      await loadExtensions(model)
-    }
-
-    let asset: any
-    if (assetType === AssetType.VRM) {
-      asset = model.userData.vrm
-    } else {
-      asset = model
-    }
-
+  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
     const assetClass = AssetLoader.getAssetClass(url)
     if (assetClass === AssetClass.Model) {
-      AssetLoader.processModelAsset(asset.scene ? asset.scene : asset, params)
-      //TODO: we should probably change whichever loader this is needed for to return { scene: asset }
-      params.cache && AssetLoader.Cache.set(url, asset.scene ? asset : { scene: asset })
-    } else {
-      params.cache && AssetLoader.Cache.set(url, asset)
+      if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+        await loadExtensions(asset)
+      }
+
+      if (assetType === AssetType.FBX) {
+        asset = { scene: asset }
+      } else if (assetType === AssetType.VRM) {
+        asset = asset.userData.vrm
+      }
+
+      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+      if (asset.scene.userData) asset.scene.userData.type = assetType
+      if (asset.userData) asset.userData.type = assetType
+
+      console.log(asset?.scene?.userData?.type)
+      console.log(asset?.userData?.type)
+
+      AssetLoader.processModelAsset(asset.scene, params)
     }
 
-    if (asset.scene) {
-      asset.scene.userData.type = assetType
-    } else if (asset.userData) {
-      asset.userData.type = assetType
-    }
-
-    onLoad(asset.scene ? asset : { scene: asset })
+    params.cache && AssetLoader.Cache.set(url, asset)
+    onLoad(asset)
   }
 
 const load = async (

@@ -6,10 +6,11 @@ export interface AvatarInterface {
   url?: string
   staticResourceType?: string
   userId: string
+  description?: string
 }
 
 export type AvatarProps = {
-  avatarId: string
+  avatarId?: string
   avatarURL: string
   thumbnailURL?: string
 }

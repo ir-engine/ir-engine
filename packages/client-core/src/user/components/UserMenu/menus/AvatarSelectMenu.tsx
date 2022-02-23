@@ -15,19 +15,20 @@ import {
   THUMBNAIL_WIDTH,
   REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import * as THREE from 'three'
+import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { useStyle } from './style'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import IconButton from '@mui/material/IconButton'
-import InputText from '../../../../admin/common/InputText'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { validate, initialize3D, onWindowResize, addAnimationLogic } from './helperFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 interface Props {
   changeActiveMenu: Function
@@ -35,9 +36,9 @@ interface Props {
   isPublicAvatar?: boolean
 }
 
-let camera: THREE.PerspectiveCamera
-let scene: THREE.Scene
-let renderer: THREE.WebGLRenderer
+let camera: PerspectiveCamera
+let scene: Scene
+let renderer: WebGLRenderer = null!
 
 const Input = styled('input')({
   display: 'none'
@@ -77,14 +78,18 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
-  const [obj, setObj] = useState<any>(null)
+  const [avatarModel, setAvatarModel] = useState<any>(null)
   const classes = useStyle()
-  const [value, setValue] = React.useState(0)
-  const [avatarUrl, setAvatarUrl] = React.useState('')
-  const [thumbNailUrl, setThumbNailUrl] = React.useState('')
-  const [validAvatarUrl, setValidAvatarUrl] = React.useState(false)
-  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = React.useState<any>(null)
-  const [selectedAvatarlUrl, setSelectedAvatarUrl] = React.useState<any>(null)
+  const [value, setValue] = useState(0)
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [thumbNailUrl, setThumbNailUrl] = useState('')
+  const [validAvatarUrl, setValidAvatarUrl] = useState(false)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
+  const [entity, setEntity] = useState<any>(null)
+  const panelRef = useRef<any>()
+
+  console.log(avatarModel)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -103,19 +108,28 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const handleAvatarUrlChange = (event) => {
+  const handleAvatarUrlChange = async (event) => {
     event.preventDefault()
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
-      AssetLoader.load(event.target.value, (gltf) => {
-        gltf.scene.name = 'avatar'
-        scene.add(gltf.scene)
-        renderScene()
-        const error = validate(gltf.scene)
-        setError(error)
-        setObj(gltf.scene)
-      })
+
+      loadAvatarForPreview(entity, event.target.value)
+        .catch((err) => {
+          setError(err)
+        })
+        .then((obj) => {
+          if (!obj) {
+            setAvatarModel(null!)
+            setError('Failed to load')
+            return
+          }
+          obj.name = 'avatar'
+          scene.add(obj)
+          const error = validate(obj)
+          setError(error)
+          if (error === '') setAvatarModel(obj)
+        })
 
       fetch(event.target.value)
         .then((res) => res.blob())
@@ -133,65 +147,28 @@ export const AvatarSelectMenu = (props: Props) => {
 
   const [fileSelected, setFileSelected] = React.useState(false)
   const [thumbnailSelected, setThumbnailSelected] = React.useState(false)
-  let maxBB = new THREE.Vector3(2, 2, 2)
 
   const { t } = useTranslation()
 
-  const renderScene = () => {
-    renderer.render(scene, camera)
-  }
-
-  const onWindowResize = () => {
-    const container = document.getElementById('stage')!
-    const bounds = container.getBoundingClientRect()
-    camera.aspect = bounds.width / bounds.height
-    camera.updateProjectionMatrix()
-
-    renderer?.setSize(bounds.width, bounds.height)
-
-    renderScene()
-  }
-
   useEffect(() => {
-    const container = document.getElementById('stage')!
-    const bounds = container.getBoundingClientRect()
+    const world = useWorld()
+    const entity = createEntity()
 
-    camera = new THREE.PerspectiveCamera(45, bounds.width / bounds.height, 0.25, 20)
-    camera.position.set(0, 1.25, 1.25)
-
-    scene = new THREE.Scene()
-
-    const backLight = new THREE.DirectionalLight(0xfafaff, 1)
-    backLight.position.set(1, 3, -1)
-    backLight.target.position.set(0, 1.5, 0)
-    const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7)
-    frontLight.position.set(-1, 3, 1)
-    frontLight.target.position.set(0, 1.5, 0)
-    const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
-    scene.add(backLight)
-    scene.add(backLight.target)
-    scene.add(frontLight)
-    scene.add(frontLight.target)
-    scene.add(hemi)
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
-    renderer.setSize(bounds.width, bounds.height)
-    renderer.outputEncoding = THREE.sRGBEncoding
-    renderer.domElement.id = 'avatarCanvas'
-    container.appendChild(renderer.domElement)
-
+    addAnimationLogic(entity, world, setEntity, panelRef)
+    const init = initialize3D()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
     const controls = getOrbitControls(camera, renderer.domElement)
-    ;(controls as any).addEventListener('change', renderScene) // use if there is no animation loop
+
     controls.minDistance = 0.1
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
     controls.update()
-
-    window.addEventListener('resize', onWindowResize)
+    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
 
     return () => {
-      window.removeEventListener('resize', onWindowResize)
+      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
     }
   }, [])
 
@@ -213,24 +190,24 @@ export const AvatarSelectMenu = (props: Props) => {
       try {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
-          ;(AssetLoader.getLoader(assetType) as any).parse(fileData.target?.result!, '', (gltf) => {
-            gltf.scene.name = 'avatar'
-            scene.add(gltf.scene)
-            renderScene()
-            const error = validate(gltf.scene)
-            setError(error)
-            setObj(gltf.scene)
-          })
-        } else {
-          //@ts-ignore
-          const loader = new FBXLoader()
-          const scene = loader.parse(fileData.target!.result, file.name)
-          scene.name = 'avatar'
-          scene.add(scene)
-          renderScene()
-          const error = validate(scene)
-          setError(error)
-          setObj(scene)
+          const objectURL = URL.createObjectURL(file) + '#' + file.name
+          loadAvatarForPreview(entity, objectURL)
+            .catch((err) => {
+              setError(err)
+            })
+            .then((obj) => {
+              if (!obj) {
+                setAvatarModel(null!)
+                setError('Failed to load')
+                return
+              }
+              obj.name = 'avatar'
+              scene.add(obj)
+              setAvatarModel(obj)
+              const error = validate(obj)
+              setError(error)
+              if (error === '') setAvatarModel(obj)
+            })
         }
       } catch (error) {
         console.error(error)
@@ -254,8 +231,8 @@ export const AvatarSelectMenu = (props: Props) => {
   }
 
   const uploadByUrls = () => {
-    if (obj == null) return
-    const error = validate(obj)
+    if (avatarModel == null) return
+    const error = validate(avatarModel)
     if (error) {
       setError(error)
       return
@@ -297,63 +274,42 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
-  const validate = (vScene) => {
-    const objBoundingBox = new THREE.Box3().setFromObject(vScene)
-    if (renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
-      return t('user:avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES })
-
-    if (renderer.info.render.triangles <= 0) return t('user:avatar.emptyObj')
-
-    const size = new THREE.Vector3().subVectors(maxBB, objBoundingBox.getSize(new THREE.Vector3()))
-    if (size.x <= 0 || size.y <= 0 || size.z <= 0) return t('user:avatar.outOfBound')
-
-    let bone = false
-    let skinnedMesh = false
-    vScene.traverse((o) => {
-      if (o.type.toLowerCase() === 'bone') bone = true
-      if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true
-    })
-
-    if (!bone || !skinnedMesh) return t('user:avatar.noBone')
-
-    return ''
-  }
-
   const openAvatarMenu = (e) => {
+    removeEntity(entity)
+    setEntity(null)
     e.preventDefault()
     changeActiveMenu(Views.Avatar)
   }
 
   const uploadAvatar = () => {
-    if (obj == null) return
-    const error = validate(obj)
+    if (avatarModel == null) return
+    const error = validate(avatarModel)
     if (error) {
       setError(error)
       return
     }
 
-    const canvas = document.createElement('canvas')
-    ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
-    const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, 0, 0)
-
-    if (selectedThumbnail == null)
+    if (selectedThumbnail == null) {
+      const canvas = document.createElement('canvas')
+      ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
+      const newContext = canvas.getContext('2d')
+      newContext?.drawImage(renderer.domElement, 0, 0)
       canvas.toBlob(async (blob) => {
         await AuthService.uploadAvatarModel(selectedFile, blob!, avatarName, isPublicAvatar)
         changeActiveMenu(Views.Profile)
       })
-    else {
+    } else {
       AuthService.uploadAvatarModel(selectedFile, selectedThumbnail, avatarName, isPublicAvatar)
       changeActiveMenu(Views.Profile)
     }
   }
 
   return (
-    <div className={styles.avatarUploadPanel}>
+    <div ref={panelRef} className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
-        <IconButton className={styles.iconBlock} onClick={openAvatarMenu}>
+        <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
-        </IconButton>
+        </button>
         <h2>{t('user:avatar.title')}</h2>
       </div>
       <div
@@ -389,10 +345,9 @@ export const AvatarSelectMenu = (props: Props) => {
           <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <InputText value={avatarName} handleInputChange={handleAvatarNameChange} name="avatarname" formErrors={[]} />
-      {/* <Paper className={classes.paper2}>
+      <Paper className={classes.paper2}>
         <InputBase
-          sx={{ ml: 1, flex: 1, color: '#ccc' }}
+          sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
           classes={{ input: classes.input }}
           value={avatarName}
@@ -402,7 +357,7 @@ export const AvatarSelectMenu = (props: Props) => {
           onChange={handleAvatarNameChange}
           placeholder="Avatar Name"
         />
-      </Paper> */}
+      </Paper>
       <div>
         <Tabs
           value={value}
@@ -411,7 +366,11 @@ export const AvatarSelectMenu = (props: Props) => {
           classes={{ root: classes.tabRoot, indicator: classes.selected }}
         >
           <Tab
-            style={value == 0 ? { color: '#f1f1f1', fontWeight: 'bold' } : { color: '#54585d' }}
+            style={
+              value == 0
+                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+            }
             label="Use URL"
             {...a11yProps(0)}
             classes={{ root: classes.tabRoot }}
@@ -419,8 +378,8 @@ export const AvatarSelectMenu = (props: Props) => {
           <Tab
             style={
               value == 1
-                ? { color: '#f1f1f1', fontWeight: 'bold', cursor: 'pointer', border: '1px solid red' }
-                : { color: '#54585d' }
+                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
+                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
             }
             label="Upload Files"
             {...a11yProps(1)}
@@ -430,33 +389,26 @@ export const AvatarSelectMenu = (props: Props) => {
       <TabPanel value={value} index={0}>
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
-            <InputText value={avatarUrl} handleInputChange={handleAvatarUrlChange} formErrors={[]} name="avatar" />
-            <InputText
-              value={thumbNailUrl}
-              handleInputChange={handleThumbnailUrlChange}
-              formErrors={[]}
-              name="thumbnail"
-            />
-            {/* <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+            <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Avatar Url..."
                 inputProps={{ 'aria-label': 'avatar url' }}
                 classes={{ input: classes.input }}
                 value={avatarUrl}
                 onChange={handleAvatarUrlChange}
               />
-            </Paper> */}
-            {/* <Paper className={classes.paper} style={{ padding: '4px 0' }}>
+            </Paper>
+            <Paper className={classes.paper} style={{ padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#ccc' }}
+                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Thumbnail Url..."
                 inputProps={{ 'aria-label': 'thumbnail url' }}
                 classes={{ input: classes.input }}
                 value={thumbNailUrl}
                 onChange={handleThumbnailUrlChange}
               />
-            </Paper> */}
+            </Paper>
           </div>
           <button
             type="button"
@@ -523,8 +475,6 @@ export const AvatarSelectMenu = (props: Props) => {
           </button>
         </div>
       </TabPanel>
-
-      <div></div>
     </div>
   )
 }
