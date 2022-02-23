@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, memo, useState, MouseEventHandler } from 'react'
+import React, { useCallback, useEffect, memo, useState, MouseEventHandler, useRef } from 'react'
 import { MediaGrid } from '../layout/MediaGrid'
 import { unique } from '../../functions/utils'
 import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
@@ -12,6 +12,8 @@ import InfiniteScroll from 'react-infinite-scroller'
 import { CircularProgress } from '@mui/material'
 import FolderIcon from '@mui/icons-material/Folder'
 import DescriptionIcon from '@mui/icons-material/Description'
+import Paper from '@mui/material/Paper'
+import InputBase from '@mui/material/InputBase'
 import styles from './styles.module.scss'
 
 type FileListItemProps = {
@@ -20,27 +22,48 @@ type FileListItemProps = {
   isRenaming: boolean
   onDoubleClick?: MouseEventHandler<HTMLDivElement>
   onClick?: MouseEventHandler<HTMLDivElement>
-  onNameChanged: (event: Event) => void
+  onNameChanged: any
 }
 
 export const FileListItem: React.FC<FileListItemProps> = (props) => {
-  // const inputref = useRef(null)
-
   // const inputLabel = (
-  //   <MediaGridInputLabel placeholder={label} disabled={!isRenaming} onKeyDown={onNameChanged} ref={inputref} />
+  //   <MediaGridInputLabel placeholder={props.label} disabled={!props.isRenaming} onKeyDown={props.onNameChanged} />
   // )
 
   // useEffect(() => {
-  //   if (props.isRenaming) inputref.current.focus()
+  //   if (props.isRenaming) inputref?.current.focus()
   // }, [props.isRenaming])
 
-  return (
+  const [newFileName, setNewFileName] = React.useState(props.label)
+
+  const handleChange = (e) => {
+    setNewFileName(e.target.value)
+  }
+
+  return !props.isRenaming ? (
     <div className={styles.fileListItemContainer} onDoubleClick={props.onDoubleClick} onClick={props.onClick}>
       <div className={styles.fileNameContainer}>
         {props.iconComponent ? <props.iconComponent width={15} /> : <DescriptionIcon width={15} />}
       </div>
       {props.label}
     </div>
+  ) : (
+    <Paper component="div" className={styles.inputContainer}>
+      <InputBase
+        className={styles.input}
+        name="name"
+        style={{ color: '#fff' }}
+        autoComplete="off"
+        value={newFileName}
+        onChange={(e) => handleChange(e)}
+        onKeyPress={async (e) => {
+          if (e.key == 'Enter') {
+            props.onNameChanged(newFileName)
+            // await renameScene(projectName, newFileName, oldSceneName)
+          }
+        }}
+      />
+    </Paper>
   )
 }
 
@@ -54,11 +77,22 @@ type FileBrowserItemType = {
   currentContent: any
   deleteContent: (contentPath: string, type: string) => Promise<void>
   onClick: (params: FileDataType) => void
+  setFileProperties: any
+  setOpenPropertiesModel: any
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
 }
 
 function FileBrowserItem(props: FileBrowserItemType) {
-  const { contextMenuId, item, currentContent, deleteContent, onClick, moveContent } = props
+  const {
+    contextMenuId,
+    item,
+    currentContent,
+    deleteContent,
+    onClick,
+    moveContent,
+    setOpenPropertiesModel,
+    setFileProperties
+  } = props
   const { t } = useTranslation()
   const [renamingAsset, setRenamingAsset] = useState(false)
 
@@ -90,14 +124,19 @@ function FileBrowserItem(props: FileBrowserItemType) {
     currentContent.current = { itemid: trigger.item.id, isCopy: false }
   }, [])
 
+  const viewAssetProperties = useCallback((_, trigger) => {
+    setFileProperties(trigger.item)
+    setOpenPropertiesModel(true)
+  }, [])
+
   const deleteContentCallback = (_, trigger) => {
     deleteContent(trigger.item.id, trigger.item.type)
   }
 
-  const onNameChanged = (event) => {
-    if (event.key !== 'Enter') return
+  const onNameChanged = async (fileName) => {
+    // if (event.key !== 'Enter') return
 
-    const fileName = event.currentTarget.value
+    // const fileName = event.currentTarget.value
     setRenamingAsset(false)
 
     if (item.type !== 'folder') {
@@ -106,12 +145,13 @@ function FileBrowserItem(props: FileBrowserItemType) {
 
       if (matchgroups) {
         const newName = `${fileName}${matchgroups.ext}`
-        moveContent(item.id, matchgroups.dir, false, newName)
+        console.log(newName, 'KKKKKKKKKKKKKKKKKk')
+        await moveContent(item.id, matchgroups.dir, false, newName)
       }
     } else {
       const re2 = /(?<dir>.*\/)(.*)\//
       const group = item.id.match(re2)?.groups
-      if (group) moveContent(item.id, group.dir, false, fileName)
+      if (group) await moveContent(item.id, group.dir, false, fileName)
     }
   }
 
@@ -182,6 +222,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
           <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
+          <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>
         </ContextMenu>
       </div>
     </div>
@@ -197,10 +238,13 @@ type FileBrowserGridTypes = {
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
   deleteContent: (contentPath: string, type: string) => Promise<void>
   currentContent: any
+  setFileProperties: any
+  setOpenPropertiesModel: any
 }
 
 export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
-  const { items, onSelect, moveContent, deleteContent, currentContent } = props
+  const { items, onSelect, moveContent, deleteContent, currentContent, setFileProperties, setOpenPropertiesModel } =
+    props
 
   const itemsRendered = unique(items, (item) => item.id).map((item, i) => (
     <MemoFileGridItem
@@ -211,6 +255,8 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
       moveContent={moveContent}
       deleteContent={deleteContent}
       currentContent={currentContent}
+      setOpenPropertiesModel={setOpenPropertiesModel}
+      setFileProperties={setFileProperties}
     />
   ))
 

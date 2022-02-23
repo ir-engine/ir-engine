@@ -126,21 +126,44 @@ export class LocalStorage implements StorageProviderInterface {
     )
   }
 
+  formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  }
+
   processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
     const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
     if (isDir) {
+      const filePaths = glob.sync('**', {
+        // "**" means you search on the whole folder
+        cwd: pathString, // folder path
+        absolute: true // you have to set glob to return absolute path not only file names
+      })
+      let totalSize = 0
+      filePaths.forEach((file) => {
+        const stat = fs.statSync(file)
+        totalSize += stat.size
+      })
       res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
       res.type = 'folder'
       res.url = this.getSignedUrl(res.key, 3600, null).url
+      res.size = this.formatBytes(totalSize)
     } else {
       // const regex = /(?:.*)\/(?<name>.*)\.(?<extension>.*)/g
       // const query = regex.exec(res.key)
 
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
-
+      res.size = this.formatBytes(fs.statSync(pathString).size)
       res.url = signedUrl.url + path.sep + signedUrl.fields.Key
     }
 

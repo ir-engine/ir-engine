@@ -9,6 +9,10 @@ import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu
 import { ToolButton } from '../toolbar/ToolButton'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { Downgraded } from '@speigg/hookstate'
 import { FileDataType } from './FileDataType'
@@ -55,10 +59,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   )
   const fileState = useFileBrowserState()
   const filesValue = fileState.files.attach(Downgraded).value
+  const [fileProperties, setFileProperties] = useState<any>(null)
+  const [openPropertiesModel, setOpenPropertiesModel] = useState(false)
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
-      props.onSelectionChanged({ resourceUrl: params.description, name: params.label, contentType: params.type })
+      props.onSelectionChanged({
+        resourceUrl: params.description,
+        name: params.label,
+        contentType: params.type
+      })
     } else {
       const newPath = `${selectedDirectory}${params.label}/`
       setSelectedDirectory(newPath)
@@ -72,6 +82,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       description: file.url,
       id: file.key,
       label: file.name,
+      size: file.size,
       nodeClass: prefabType,
       url: file.url,
       type: file.type,
@@ -161,6 +172,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               moveContent={moveContent}
               deleteContent={deleteContent}
               currentContent={currentContentRef}
+              setOpenPropertiesModel={setOpenPropertiesModel}
+              setFileProperties={setFileProperties}
             />
           </AssetPanelContentContainer>
         </AssetsPanelContainer>
@@ -170,6 +183,33 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
+      {openPropertiesModel && fileProperties && (
+        <Dialog
+          open={openPropertiesModel}
+          onClose={() => setOpenPropertiesModel(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: styles.paperDialog }}
+        >
+          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
+            {`${fileProperties?.label} ${fileProperties?.type == 'folder' ? 'folder' : 'file'} Properties`}
+          </DialogTitle>
+          <Grid container spacing={3} style={{ width: '100%', margin: '0' }}>
+            <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
+              <Typography className={styles.primatyText}>Name:</Typography>
+              <Typography className={styles.primatyText}>Type:</Typography>
+              <Typography className={styles.primatyText}>Size:</Typography>
+              <Typography className={styles.primatyText}>URL:</Typography>
+            </Grid>
+            <Grid item xs={8} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
+              <Typography className={styles.secondaryText}>{fileProperties?.label}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties?.type}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties?.size}</Typography>
+              <Typography className={styles.secondaryText}>{fileProperties?.url}</Typography>
+            </Grid>
+          </Grid>
+        </Dialog>
+      )}
     </>
   )
 }

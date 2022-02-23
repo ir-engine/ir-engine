@@ -47,9 +47,9 @@ export const FileBrowserService = {
     FileBrowserService.fetchFiles()
   },
   moveContent: async (from, destination, isCopy = false, renameTo = null! as string) => {
-    console.log(from, destination, isCopy, renameTo)
-    console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
-    // const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
+    // console.log(from, destination, isCopy, renameTo)
+    // console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
+    const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
     // console.log('FileBrowserService.moveContent result', result)
   },
   deleteContent: async (contentPath, type) => {

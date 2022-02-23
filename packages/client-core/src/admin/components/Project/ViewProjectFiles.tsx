@@ -63,13 +63,12 @@ const ViewProjectFiles = (props: Props) => {
         onClose={() => props.setShowProjectFiles(false)}
       >
         <DndWrapper id="project-container">
-          <DockContainer dividerAlpha={0.3} padding={'70px 10px 10px'}>
+          <DockContainer dividerAlpha={0.3}>
             <DockLayout
               defaultLayout={defaultLayout}
-              style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+              style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 70, right: 5, bottom: 5 }}
               onLayoutChange={onLayoutChangedCallback}
             />
-            /
           </DockContainer>
         </DndWrapper>
       </Drawer>

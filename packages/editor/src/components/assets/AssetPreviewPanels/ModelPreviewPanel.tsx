@@ -40,12 +40,11 @@ let renderer: WebGLRenderer = null!
 
 export const ModelPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
-  const assestPanelRef = React.createRef<HTMLCanvasElement>()
-  const [flyModeEnabled, setFlyModeEnabled] = useState(false)
 
   const loadModel = () => {
     AssetLoader.load({ url }, (gltf) => {
-      gltf.name = 'avatar'
+      const result = scene.getObjectByName(gltf.scene.name)
+      if (result) scene.remove(result)
       scene.add(gltf.scene)
       renderScene({ scene, camera, renderer })
     })
@@ -76,7 +75,7 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
-      <div id="stage" style={{ width: '300px', height: '150px', margin: 'auto' }}></div>
+      <div id="stage" style={{ width: '300px', height: '200px', margin: 'auto' }}></div>
     </>
   )
 }

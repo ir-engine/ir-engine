@@ -5,6 +5,7 @@ import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
+import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 
 /**
  *
@@ -86,6 +87,15 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
         usePreviewPanel(audioPreviewPanel)
+        break
+      case 'json':
+      case 'md':
+      case 'ts':
+        const txtPreviewPanel = {
+          PreviewSource: TxtPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(txtPreviewPanel)
         break
 
       default:
