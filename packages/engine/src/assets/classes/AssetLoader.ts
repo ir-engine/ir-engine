@@ -81,10 +81,20 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   })
   replacedMaterials.clear()
 
-  handleLODs(asset)
+  const lodFrontier = new Array<Object3D>()
+  lodFrontier.push(asset)
 
-  if (asset.children.length) {
-    asset.children.forEach((child) => handleLODs(child))
+  while(lodFrontier.length > 0)
+  {
+    const thisElt = lodFrontier.pop()
+    if(thisElt != null)
+    {
+      if(thisElt.children?.length)
+      {
+        thisElt.children.forEach((child) => lodFrontier.push(child))
+      }
+      handleLODs(thisElt)
+    }
   }
 }
 
