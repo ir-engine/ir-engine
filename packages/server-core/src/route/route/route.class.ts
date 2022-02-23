@@ -19,6 +19,9 @@ export class Route<T = ActiveRoutesDataType> extends Service<T> {
   // @ts-ignore
   async find(params?: Params): Promise<T[], Paginated<T>> {
     const routes = await super.find({ paginate: false })
-    return { data: routes }
+    return {
+      total: (routes as any).length,
+      data: routes
+    }
   }
 }
