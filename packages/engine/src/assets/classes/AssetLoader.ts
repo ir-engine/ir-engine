@@ -87,12 +87,9 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   while(lodFrontier.length > 0)
   {
     const thisElt = lodFrontier.pop()
-    if(thisElt != null)
+    if(thisElt)
     {
-      if(thisElt.children?.length)
-      {
-        thisElt.children.forEach((child) => lodFrontier.push(child))
-      }
+      thisElt.children?.forEach((child) => lodFrontier.push(child))
       handleLODs(thisElt)
     }
   }
