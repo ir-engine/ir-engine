@@ -59,6 +59,7 @@ const loadAvatarModelAsset = async (avatarURL: string) => {
   const root = new Group()
   root.add(model.scene)
   parent.add(root)
+  parent.userData = model.scene.userData
   return SkeletonUtils.clone(parent)
 }
 

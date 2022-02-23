@@ -111,7 +111,7 @@ const EditorContainer = (props) => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [modified, setModified] = useState(false)
-  const [sceneLoaded, setSceneLoaded] = useState(false)
+  const [currentScene, setCurrentScene] = useState('')
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
@@ -120,10 +120,8 @@ const EditorContainer = (props) => {
   const importScene = async (projectFile) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
       await ProjectManager.instance.loadProject(projectFile)
-      setSceneLoaded(true)
       SceneManager.instance.sceneModified = true
       updateModifiedState()
       setDialogComponent(null)
@@ -165,11 +163,11 @@ const EditorContainer = (props) => {
   }, [])
 
   useEffect(() => {
-    if (editorReady && !sceneLoaded && sceneName) {
+    if (editorReady && sceneName && currentScene !== sceneName) {
       console.log(`Loading scene ${sceneName} via given url`)
       loadScene(sceneName)
     }
-  }, [editorReady, sceneLoaded])
+  }, [editorReady, sceneName, currentScene])
 
   const reRouteToLoadScene = async (newSceneName) => {
     if (sceneName === newSceneName) return
@@ -190,7 +188,6 @@ const EditorContainer = (props) => {
   const loadScene = async (sceneName) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
     try {
       if (!projectName) return
       const project = await getScene(projectName, sceneName, false)
@@ -211,7 +208,7 @@ const EditorContainer = (props) => {
       )
     }
     dispatch(EditorAction.sceneLoaded(sceneName))
-    setSceneLoaded(true)
+    setCurrentScene(sceneName)
   }
 
   const newScene = async () => {
@@ -219,7 +216,6 @@ const EditorContainer = (props) => {
 
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
-    setSceneLoaded(false)
 
     try {
       const newProject = await createNewScene(projectName)

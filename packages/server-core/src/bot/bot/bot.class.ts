@@ -1,7 +1,11 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-export class Bot extends Service {
+import { Params, Paginated } from '@feathersjs/feathers'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
+
+export type AdminBotDataType = AdminBot
+
+export class Bot<T = AdminBotDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -10,7 +14,7 @@ export class Bot extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params: Params): Promise<T[] | Paginated<T>> {
     const bots = await (this.app.service('bot') as any).Model.findAll({
       include: [
         {
@@ -24,13 +28,11 @@ export class Bot extends Service {
         }
       ]
     })
-    return {
-      data: bots
-    }
+    return { data: bots } as Paginated<T>
   }
 
-  async create(data): Promise<any> {
+  async create(data): Promise<T> {
     data.instanceId = data.instanceId ? data.instanceId : null
-    return await super.create(data)
+    return (await super.create(data)) as T
   }
 }
