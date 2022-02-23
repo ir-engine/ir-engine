@@ -53,7 +53,6 @@ export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
-    opacity: 0.8;
     border: none;
   }
   .dock-panel:first-child {
@@ -70,22 +69,24 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: #282C31;
+    background: ${(props) => props.theme.panel}E2;
   }
   .dock-top .dock-bar {
     font-size: 12px;
     border-bottom: 1px solid rgba(0,0,0,0.2);
-    background: #282C31;
+    background: transparent;
   }
   .dock-tab {
-    background: #282C31; 
+    background: transparent;
     border-bottom: none;
   }
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
-    color: #ffffff; 
+    border-bottom: 1px solid #ddd;
   }
+  .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
+  .dock-tab > div { padding: 2px 12px; }
   .dock-ink-bar {
-    background-color: #ffffff; 
+    background-color: 2px solid ${(props) => props.theme.blue};
   }
 `
 /**

@@ -453,7 +453,7 @@ export default async function EditorControlSystem(_: World) {
         cancel(editorControlComponent)
       } else if (getInput(EditorActionSet.focusSelection)) {
         cameraComponent.focusedObjects = CommandManager.instance.selected
-        cameraComponent.dirty = true
+        cameraComponent.refocus = true
       } else if (getInput(EditorActionSet.setTranslateMode)) {
         setTransformMode(TransformMode.Translate, false, editorControlComponent)
       } else if (getInput(EditorActionSet.setRotateMode)) {
@@ -489,12 +489,10 @@ export default async function EditorControlSystem(_: World) {
 
       if (zoomDelta !== 0) {
         cameraComponent.zoomDelta = zoomDelta
-        cameraComponent.dirty = true
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
         if (result && result.node) {
-          cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true
         }
@@ -502,12 +500,10 @@ export default async function EditorControlSystem(_: World) {
         cameraComponent.isPanning = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       } else if (orbiting) {
         cameraComponent.isOrbiting = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       }
     }
   }

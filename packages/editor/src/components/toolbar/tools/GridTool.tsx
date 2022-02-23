@@ -39,7 +39,7 @@ const GridTool = () => {
 
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
-      <InfoTooltip info="Toggle Grid Visibility">
+      <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}

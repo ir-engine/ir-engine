@@ -63,5 +63,5 @@ export const HorizontalScrollContainer = (styled as any)(FlexRow)`
 export const AssetsPanelContainer = (styled as any)(FlexRow)`
  position: relative;
  flex: 1;
- background-color: ${(props) => props.theme.panel};
+ background-color: transparent;
 `

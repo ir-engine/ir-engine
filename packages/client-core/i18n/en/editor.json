@@ -249,7 +249,10 @@
             "lbl-projection": "Projection",
             "lbl-side": "Side",
             "info-controls": "Toggle the visibility of the media controls in Hubs.",
-            "info-transparency": "How to apply transparency:\n'opaque' = no transparency\n'blend' = use the images alpha channel\n'mask' = Use a specified cutoff value for on/off transparency (more performant)",
+            "info-transparency": "How to apply transparency:",
+            "info-opaque": "'opaque' = no transparency",
+            "info-blend": "'blend' = use the images alpha channel",
+            "info-mask": "'mask' = Use a specified cutoff value for on/off transparency (more performant)",
             "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
             "error-url": "Invalid URL"
         },

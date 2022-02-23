@@ -47,7 +47,7 @@ const TransformPivotTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="[X] Toggle Transform Pivot">
+      <InfoTooltip title="[X] Toggle Transform Pivot">
         <button onClick={onToggleTransformPivot} className={styles.toolButton}>
           <AdjustIcon fontSize="small" />
         </button>

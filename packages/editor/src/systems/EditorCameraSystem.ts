@@ -24,10 +24,8 @@ export default async function GizmoSystem(world: World) {
 
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
-
-      if (!cameraComponent.dirty) return
-
       const camera = getComponent(entity, Object3DComponent)?.value
+
       if (cameraComponent.zoomDelta) {
         const distance = camera.position.distanceTo(cameraComponent.center!)
         delta.set(0, 0, cameraComponent.zoomDelta * distance * ZOOM_SPEED)
@@ -100,8 +98,6 @@ export default async function GizmoSystem(world: World) {
 
         cameraComponent.isOrbiting = false
       }
-
-      cameraComponent.dirty = false
     }
   }
 }
