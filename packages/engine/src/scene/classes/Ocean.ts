@@ -266,12 +266,14 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
     const size = new Vector2(window.innerWidth, window.innerHeight)
     this.depthMap = new WebGLRenderTarget(size.x, size.y)
 
+    this.depthMap.texture.format = RGBAFormat
     this.depthMap.texture.minFilter = NearestFilter
     this.depthMap.texture.magFilter = NearestFilter
     this.depthMap.texture.generateMipmaps = false
     this.depthMap.stencilBuffer = false
     this.depthMap.depthBuffer = true
     this.depthMap.depthTexture = new DepthTexture(size.x, size.y)
+    this.depthMap.depthTexture.format = DepthFormat
     this.depthMap.depthTexture.type = UnsignedShortType
   }
 
