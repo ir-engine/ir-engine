@@ -1,10 +1,11 @@
+import { Matrix4, Quaternion, Vector3 } from 'three'
+
+import { Axis } from '../classes/Axis'
 import { Chain } from '../classes/Chain'
 import Pose, { BoneTransform } from '../classes/Pose'
-import { Quaternion, Vector3, Matrix4 } from 'three'
-import { Axis } from '../classes/Axis'
-import { cosSSS } from './IKFunctions'
-import { IKRigComponentType } from '../components/IKRigComponent'
 import { CameraIKComponentType } from '../components/CameraIKComponent'
+import { IKRigComponentType } from '../components/IKRigComponent'
+import { cosSSS } from './IKFunctions'
 
 ///////////////////////////////////////////////////////////////////
 // Multi Bone Solvers

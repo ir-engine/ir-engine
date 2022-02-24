@@ -1,9 +1,11 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
+
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
+
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 export type UserApiKeyDataType = UserApiKeyInterface & { userId: string }
 /**

@@ -1,5 +1,7 @@
-import { Entity } from '../../ecs/classes/Entity'
 import Twitch from 'twitch-m3u8'
+
+import { Entity } from '../../ecs/classes/Entity'
+
 // import { getComponent } from '../../ecs/functions/ComponentFunctions'
 // import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
 

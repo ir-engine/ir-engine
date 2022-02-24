@@ -1,7 +1,7 @@
 import { Application } from '../../../declarations'
 import { MatchInstance } from './match-instance.class'
-import hooks from './match-instance.hooks'
 import matchTicketDocs from './match-instance.docs'
+import hooks from './match-instance.hooks'
 import createModel from './match-instance.model'
 
 declare module '@xrengine/common/declarations' {

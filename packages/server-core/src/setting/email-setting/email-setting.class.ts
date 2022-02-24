@@ -1,7 +1,9 @@
-import { Params, Paginated } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { EmailSetting as EmailSettingInterface } from '@xrengine/common/src/interfaces/EmailSetting'
+
+import { Application } from '../../../declarations'
 
 export type EmailSettingDataType = EmailSettingInterface
 

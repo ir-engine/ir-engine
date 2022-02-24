@@ -1,8 +1,10 @@
+import { HookContext } from '@feathersjs/feathers'
+import { iff, isProvider } from 'feathers-hooks-common'
+
 import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
 import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate'
+
 import authenticate from '../../hooks/authenticate'
-import { isProvider, iff } from 'feathers-hooks-common'
-import { HookContext } from '@feathersjs/feathers'
 import restrictUserRole from '../../hooks/restrict-user-role'
 
 export default {

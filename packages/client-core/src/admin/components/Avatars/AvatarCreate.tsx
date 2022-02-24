@@ -1,19 +1,16 @@
 import React, { useState, useRef } from 'react'
+import _ from 'lodash'
+import { useTranslation } from 'react-i18next'
+import { ArrowBack, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import { ArrowBack, Help, SystemUpdateAlt } from '@mui/icons-material'
-import { useTranslation } from 'react-i18next'
-import { useStyles } from '../../styles/ui'
-import InputText from '../../common/InputText'
 import Drawer from '@mui/material/Drawer'
-import Container from '@mui/material/Container'
+import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
-import { AvatarService } from '../../services/AvatarService'
-import _ from 'lodash'
-import { validateForm } from '../../common/validation/formValidation'
+
 import AlertMessage from '../../common/AlertMessage'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -25,6 +22,10 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { initialize3D, renderScene } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
+import { AvatarService } from '../../services/AvatarService'
+import { useStyles } from '../../styles/ui'
 
 const Input = styled('input')({
   display: 'none'
@@ -105,6 +106,7 @@ const AvatarCreate = ({ handleClose, open }) => {
     if (validateForm(newAvatar, formErrors)) {
       await AvatarService.createAdminAvatar(data)
       clearState()
+      handleClose()
     } else {
       setError('Please fill all required field')
       setOpenAlter(true)

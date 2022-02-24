@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+
+import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+
 import { Person } from '@mui/icons-material'
 import { ClickAwayListener, IconButton } from '@mui/material'
-import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+
 import styles from './styles.module.scss'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 export const EditorNavbar = () => {
   const authState = useAuthState()

@@ -1,20 +1,7 @@
 import { Downgraded } from '@speigg/hookstate'
-import {
-  Launch,
-  Mic,
-  MicOff,
-  RecordVoiceOver,
-  Videocam,
-  VideocamOff,
-  VoiceOverOff,
-  VolumeDown,
-  VolumeMute,
-  VolumeOff,
-  VolumeUp
-} from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import classNames from 'classnames'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -33,8 +20,24 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import classNames from 'classnames'
-import React, { useEffect, useRef, useState } from 'react'
+
+import {
+  Launch,
+  Mic,
+  MicOff,
+  RecordVoiceOver,
+  Videocam,
+  VideocamOff,
+  VoiceOverOff,
+  VolumeDown,
+  VolumeMute,
+  VolumeOff,
+  VolumeUp
+} from '@mui/icons-material'
+import IconButton from '@mui/material/IconButton'
+import Slider from '@mui/material/Slider'
+import Tooltip from '@mui/material/Tooltip'
+
 import Draggable from './Draggable'
 import styles from './PartyParticipantWindow.module.scss'
 

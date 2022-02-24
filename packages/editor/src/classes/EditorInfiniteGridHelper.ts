@@ -1,9 +1,12 @@
-import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
-import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
+import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
+
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+
+import EditorEvents from '../constants/EditorEvents'
+import { CommandManager } from '../managers/CommandManager'
+
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377

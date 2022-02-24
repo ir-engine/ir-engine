@@ -1,21 +1,23 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
-import Grid from '@mui/material/Grid'
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+
+import { DialogAction } from '../../../common/services/DialogService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../services/AuthService'
-import { DialogAction } from '../../../common/services/DialogService'
-import SignUp from './Register'
-import ForgotPassword from './ForgotPassword'
-import styles from './Auth.module.scss'
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
+import styles from './Auth.module.scss'
+import ForgotPassword from './ForgotPassword'
+import SignUp from './Register'
 
 const initialState = { email: '', password: '' }
 

@@ -1,11 +1,11 @@
-import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
-import FaceIcon from '@mui/icons-material/Face'
+import React, { useEffect, useState } from 'react'
+
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -30,7 +30,10 @@ import {
 } from '@xrengine/engine/src/input/functions/WebcamInput'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import React, { useEffect, useState } from 'react'
+
+import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
+import FaceIcon from '@mui/icons-material/Face'
+
 import styles from './MediaIconsBox.module.scss'
 
 const MediaIconsBox = (props) => {

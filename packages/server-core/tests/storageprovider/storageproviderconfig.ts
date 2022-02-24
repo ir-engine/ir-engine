@@ -1,8 +1,9 @@
-import path from 'path'
-import S3Provider from '../../src/media/storageprovider/s3.storage'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
+import path from 'path'
+
 import { StartTestFileServer } from '../../src/createFileServer'
+import S3Provider from '../../src/media/storageprovider/s3.storage'
 
 export const providerBeforeTest = (provider, testFolderName: string, folderKeyTemp: string, folderKeyTemp2: string) => {
   if (provider.constructor.name === 'LocalStorage')

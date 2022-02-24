@@ -1,4 +1,5 @@
 import { Vector3 } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'

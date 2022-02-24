@@ -1,26 +1,27 @@
 import {
-  RepeatWrapping,
-  Mesh,
-  PlaneBufferGeometry,
-  Vector2,
-  Color,
-  MeshPhongMaterial,
   AddOperation,
-  WebGLRenderTarget,
-  DepthTexture,
-  RGBFormat,
-  NearestFilter,
+  Color,
   DepthFormat,
-  UnsignedShortType,
-  Texture,
-  ShaderChunk,
+  DepthTexture,
   EquirectangularReflectionMapping,
-  sRGBEncoding,
-  WebGLRenderer,
-  Scene,
+  Mesh,
+  MeshPhongMaterial,
+  NearestFilter,
+  Object3D,
   PerspectiveCamera,
-  Object3D
+  PlaneBufferGeometry,
+  RepeatWrapping,
+  RGBAFormat,
+  Scene,
+  ShaderChunk,
+  sRGBEncoding,
+  Texture,
+  UnsignedShortType,
+  Vector2,
+  WebGLRenderer,
+  WebGLRenderTarget
 } from 'three'
+
 import loadTexture from '../../assets/functions/loadTexture'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Object3DWithEntity } from '../components/Object3DComponent'
@@ -265,14 +266,12 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
     const size = new Vector2(window.innerWidth, window.innerHeight)
     this.depthMap = new WebGLRenderTarget(size.x, size.y)
 
-    this.depthMap.texture.format = RGBFormat
     this.depthMap.texture.minFilter = NearestFilter
     this.depthMap.texture.magFilter = NearestFilter
     this.depthMap.texture.generateMipmaps = false
     this.depthMap.stencilBuffer = false
     this.depthMap.depthBuffer = true
     this.depthMap.depthTexture = new DepthTexture(size.x, size.y)
-    this.depthMap.depthTexture.format = DepthFormat
     this.depthMap.depthTexture.type = UnsignedShortType
   }
 

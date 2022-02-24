@@ -1,4 +1,5 @@
 import { BlendFunction, Effect } from 'postprocessing'
+
 import fragmentShader from './glsl/linear-to-srgb/shader.frag'
 
 // https://discourse.threejs.org/t/srgb-encoding-as-a-postprocess-pass/12278/11

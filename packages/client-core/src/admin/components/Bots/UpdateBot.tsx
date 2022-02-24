@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from 'react'
+
+import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
 import { Autorenew, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -11,9 +16,7 @@ import InputBase from '@mui/material/InputBase'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'

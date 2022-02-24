@@ -1,9 +1,11 @@
 import React from 'react'
-import styled from 'styled-components'
-import ProjectGridItem from './ProjectGridItem'
-import StringInput from '../inputs/StringInput'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import AddIcon from '@mui/icons-material/Add'
+
+import StringInput from '../inputs/StringInput'
+import ProjectGridItem from './ProjectGridItem'
 
 /**
  *

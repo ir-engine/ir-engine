@@ -1,5 +1,6 @@
 import { AnimationAction, LoopOnce, LoopRepeat, MathUtils } from 'three'
-import { Animation, AnimationType, WeightsParameterType, AvatarAnimations, AvatarStates } from './Util'
+
+import { Animation, AnimationType, AvatarAnimations, AvatarStates, WeightsParameterType } from './Util'
 
 /** Class to hold state of an animation for entity */
 export class AnimationState {

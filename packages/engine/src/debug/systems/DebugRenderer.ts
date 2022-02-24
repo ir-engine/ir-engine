@@ -1,19 +1,20 @@
 import { defineQuery } from 'bitecs'
 import {
-  Mesh,
-  Points,
-  SphereBufferGeometry,
   BoxBufferGeometry,
-  PlaneBufferGeometry,
   BufferGeometry,
-  MeshBasicMaterial,
-  Vector3,
-  Matrix4,
-  Quaternion,
-  MeshStandardMaterial,
+  Float32BufferAttribute,
   Material,
-  Float32BufferAttribute
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  PlaneBufferGeometry,
+  Points,
+  Quaternion,
+  SphereBufferGeometry,
+  Vector3
 } from 'three'
+
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'

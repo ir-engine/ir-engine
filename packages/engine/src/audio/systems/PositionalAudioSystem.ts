@@ -1,20 +1,19 @@
 import { Audio as AudioObject } from 'three'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActionType } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../../scene/components/AudioSettingsComponent'
-import { AudioTagComponent } from '../components/AudioTagComponent'
-import { AudioComponent, AudioComponentType } from '../components/AudioComponent'
-import { World } from '../../ecs/classes/World'
-import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import {
   deserializeAudio,
@@ -22,6 +21,8 @@ import {
   SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
   updateAudio
 } from '../../scene/functions/loaders/AudioFunctions'
+import { AudioComponent, AudioComponentType } from '../components/AudioComponent'
+import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)

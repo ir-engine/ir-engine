@@ -1,6 +1,8 @@
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
+
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+
 import './env-config'
 import './hookstate_devtools.es'
 import { initialize } from './util'

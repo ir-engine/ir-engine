@@ -1,15 +1,16 @@
+import assert from 'assert'
+import { Group, Quaternion, Vector3 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { createBoxComponent } from './createBoxComponent'
-import assert from 'assert'
+import { createWorld } from '../../ecs/classes/World'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { Group, Quaternion, Vector3 } from 'three'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { createWorld } from '../../ecs/classes/World'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { createBoxComponent } from './createBoxComponent'
 
 describe('createBoxComponent', () => {
   beforeEach(() => {

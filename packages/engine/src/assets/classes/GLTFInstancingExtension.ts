@@ -4,9 +4,9 @@
  * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_mesh_gpu_instancing
  *
  */
+import { InstancedMesh, Object3D } from 'three'
 
 import type { GLTFParser } from '../loaders/gltf/GLTFLoader'
-import { InstancedMesh, Object3D } from 'three'
 
 export class GLTFInstancingExtension {
   name = 'EXT_mesh_gpu_instancing'
