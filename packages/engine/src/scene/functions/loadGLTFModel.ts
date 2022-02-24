@@ -235,7 +235,7 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
         if (res.scene instanceof Object3D) {
           // TODO: refactor this
           addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-          res.scene.animations = res.animation
+          res.scene.animations = res.animations
           resolve(res)
         } else {
           reject({ message: 'Not a valid object' })

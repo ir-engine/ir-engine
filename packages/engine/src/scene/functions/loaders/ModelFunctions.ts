@@ -1,5 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Mesh, Object3D } from 'three'
+import { Mesh, Object3D, AnimationClip } from 'three'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,6 +7,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -14,7 +15,8 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
-
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
@@ -23,6 +25,18 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   matrixAutoUpdate: true,
   isUsingGPUInstancing: false,
   isDynamicObject: false
+}
+
+export const AnimatedObjectCallbacks = [
+  { label: 'None', value: 'none' },
+  { label: 'Play', value: 'play' },
+  { label: 'Stop', value: 'stop' }
+]
+
+type AnimatedObject3D = UpdateableObject3D & {
+  play()
+  stop()
+  callbacks()
 }
 
 export const deserializeModel: ComponentDeserializeFunction = (
@@ -43,11 +57,36 @@ export const updateModel: ComponentUpdateFunction = async (
   properties: ModelComponentType
 ): Promise<void> => {
   const component = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh
+  const obj3d = getComponent(entity, Object3DComponent).value as AnimatedObject3D
 
   if (properties.src) {
     try {
+      debugger
       await loadGLTFModel(entity)
+      //add callback
+      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
+      obj3d.play = () => {
+        if (
+          loopAnimationComponent.activeClipIndex >= 0 &&
+          animationComponent.animations[loopAnimationComponent.activeClipIndex]
+        ) {
+          loopAnimationComponent.action = animationComponent.mixer
+            .clipAction(
+              AnimationClip.findByName(
+                animationComponent.animations,
+                animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+              )
+            )
+            .play()
+        }
+      }
+      obj3d.stop = () => {
+        if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+      }
+      obj3d.callbacks = () => {
+        return AnimatedObjectCallbacks
+      }
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)
