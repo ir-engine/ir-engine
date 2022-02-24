@@ -6,6 +6,7 @@ import { useSceneState } from '../../world/services/SceneService'
 import getImagePalette from 'image-palette-core'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { Color } from 'three'
 
 interface LoadingUIState {
   imageWidth: number
@@ -35,6 +36,8 @@ export function createLoaderDetailView() {
     }
   }
 }
+
+const col = new Color()
 
 function setDefaultPalette(colors) {
   colors.main.set('black')
@@ -70,6 +73,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
         if (palette) {
           colors.main.set(palette.color)
           colors.background.set(palette.backgroundColor)
+          col.set(colors.background.value)
           colors.alternate.set(palette.alternativeColor)
         } else {
           setDefaultPalette(colors)
@@ -95,7 +99,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   }, [colors, thumbnailUrl])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
-
+  console.log('colors', col, colors.value)
   return (
     <>
       <style>{`
@@ -125,10 +129,13 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
         z-index: 2;
         padding: 2px;
         text-align: center;
+        text-shadow: 1px 1px 6px ${colors.background.value};
+        -webkit-text-stroke: 0.25px #${col.getHexString()}aa;
+        -webkit-font-smoothing: antialiased;
       }
 
       #loading-text {
-        font-size: 30px;
+        font-size: 15px;
         margin: auto;
         text-align: center;
         padding: 2px;
@@ -136,24 +143,24 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
       }
       
       #progress-text {
-        font-size: 50px;
+        font-size: 25px;
         margin: auto;
-        textAlign: center;
+        text-align: center;
         padding: 2px;
         color: ${colors.main.value};
       }
 
       #progress-container {
         margin: auto;
-        textAlign: center;
+        text-align: center;
         padding: 5px;
-        width: 200px;
+        width: 100px;
       }
       
       #loading-details {
-        fontSize: 12px;
+        font-size: 10px;
         margin: auto;
-        textAlign: center;
+        text-align: center;
         padding: 2px;
         color: ${colors.main.value};
       }

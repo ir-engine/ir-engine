@@ -210,9 +210,6 @@ const assetLoadCallback =
       if (asset.scene.userData) asset.scene.userData.type = assetType
       if (asset.userData) asset.userData.type = assetType
 
-      console.log(asset?.scene?.userData?.type)
-      console.log(asset?.userData?.type)
-
       AssetLoader.processModelAsset(asset.scene, params)
     }
 

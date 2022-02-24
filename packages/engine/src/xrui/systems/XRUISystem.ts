@@ -12,6 +12,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 export default async function XRUISystem(world: World) {
   const renderer = Engine.renderer
@@ -44,6 +45,7 @@ export default async function XRUISystem(world: World) {
   // }
 
   const screenRaycaster = new Raycaster()
+  screenRaycaster.layers.enableAll()
   xrui.interactionRays = [screenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
@@ -56,19 +58,20 @@ export default async function XRUISystem(world: World) {
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
+        return
       }
     }
 
     for (const entity of avatar(world)) {
-      const modelContainer = getComponent(entity, AvatarComponent).modelContainer
-      const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
+      const model = getComponent(entity, Object3DComponent).value
+      const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchLocal(EngineActions.userAvatarTapped(userId))
         return
       }
     }
-    dispatchLocal(EngineActions.userAvatarTapped(''))
+    dispatchLocal(EngineActions.userAvatarTapped(null!))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -128,6 +131,7 @@ export default async function XRUISystem(world: World) {
     if (!addedEventListeners) {
       const canvas = Engine.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
+      canvas.addEventListener('contextmenu', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
     }
