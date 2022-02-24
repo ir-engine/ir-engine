@@ -211,8 +211,8 @@ export class Project extends Service {
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
-    if (projectName.substring(-4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substring(-1) === '/') projectName = projectName.slice(0, -1)
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
