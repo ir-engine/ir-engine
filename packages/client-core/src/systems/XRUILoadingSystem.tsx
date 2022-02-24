@@ -34,7 +34,7 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
 
   await ui.waitForSceneColors()
 

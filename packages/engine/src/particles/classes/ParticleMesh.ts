@@ -2,7 +2,7 @@ import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeomet
 
 import {
   DataTexture,
-  RGBFormat,
+  RGBAFormat,
   TextureLoader,
   NormalBlending,
   InstancedBufferGeometry,
@@ -17,11 +17,8 @@ import {
   Matrix4,
   Texture
 } from 'three'
-// import { RGBFormat } from "three"
-// import { DataTexture } from "three"
-// import { TextureLoader } from "three"
-// import { InstancedBufferGeometry } from "three"
-const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat)
+
+const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBAFormat)
 WHITE_TEXTURE.needsUpdate = true
 
 const textureLoader = new TextureLoader()
