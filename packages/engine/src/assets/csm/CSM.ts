@@ -375,7 +375,7 @@ export class CSM {
   dispose(): void {
     const shaders = this.shaders
     shaders.forEach(function (shader: ShaderType, material: Material) {
-      material.onBeforeCompile = null!
+      material.onBeforeCompile = () => {}
       material.defines!.USE_CSM = null!
       material.defines!.CSM_CASCADES = null!
       material.defines!.CSM_FADE = null!

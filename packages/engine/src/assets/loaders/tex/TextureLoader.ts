@@ -1,4 +1,4 @@
-import { ImageBitmapLoader, ImageLoader, Loader, LoadingManager, Texture } from 'three'
+import { ImageBitmapLoader, ImageLoader, Loader, LoadingManager, RGBAFormat, Texture } from 'three'
 
 import { isWebWorker } from '../../../common/functions/getEnvironment'
 
@@ -19,6 +19,7 @@ export class TextureLoader extends Loader {
       url,
       (image) => {
         texture.image = image
+        texture.format = RGBAFormat
         texture.needsUpdate = true
         if (onLoad !== undefined) {
           onLoad(texture)
