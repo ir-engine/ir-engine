@@ -1,12 +1,15 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Params, Paginated } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Op } from 'sequelize'
 import _ from 'lodash'
 import logger from '../../logger'
+import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
 
-export class Channel extends Service {
+export type ChannelDataType = ChannelInterface
+
+export class Channel<T = ChannelDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -22,7 +25,7 @@ export class Channel extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (!params) params = {}
     const query = params.query!
     const skip = query?.skip || 0

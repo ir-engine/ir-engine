@@ -13,7 +13,7 @@ import { ScenePrefabTypes } from './registerPrefabs'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 
@@ -57,15 +57,18 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
-  Engine.camera?.layers.disable(ObjectLayers.Scene)
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.disable(ObjectLayers.Scene)
+
   await Promise.all(Engine.sceneLoadPromises)
-  Engine.camera?.layers.enable(ObjectLayers.Scene)
+
+  if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
   Engine.sceneLoaded = true
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
-  dispatchLocal(EngineActions.sceneLoaded(true) as any)
+  dispatchLocal(EngineActions.sceneLoaded(true) as any).delay(2)
 }
 
 /**

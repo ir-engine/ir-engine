@@ -2,7 +2,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 import React, { useState } from 'react'
 import InputGroup from '../inputs/InputGroup'
 import { Button } from '../inputs/Button'
-import AudioSourceProperties from './AudioSourceProperties'
+// import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
 import { useTranslation } from 'react-i18next'
 import SelectInput from '../inputs/SelectInput'
@@ -59,7 +59,7 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
     >
       <ArrayInputGroup
         name="UVOL Paths"
-        prefix="uvol"
+        prefix="Content"
         values={volumetricComponent.paths}
         onChange={updateProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.volumetric.uvolPaths')}
