@@ -1,13 +1,15 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
+
+import { User } from '@xrengine/common/src/interfaces/User'
+
 import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
-import SingleConnection from './SingleConnection'
-import { User } from '@xrengine/common/src/interfaces/User'
-import styles from './ProfileConnections.module.scss'
-import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../services/AuthService'
+import styles from './ProfileConnections.module.scss'
+import SingleConnection from './SingleConnection'
 
 interface Props {
   auth: any

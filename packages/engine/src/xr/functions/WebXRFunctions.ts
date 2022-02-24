@@ -1,4 +1,5 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'

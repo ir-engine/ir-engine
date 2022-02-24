@@ -1,13 +1,13 @@
-import { World } from '../../ecs/classes/World'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
+import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
-import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
-import { isClient } from '../../common/functions/isClient'
+import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
+import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
 /**
  * @author Hamza Mushtaq <github.com/hamzzam>

@@ -1,15 +1,17 @@
 import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
-import { cleanString } from '../../util/cleanString'
-import { uploadLocalProjectToProvider } from '../project/project.class'
+
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+
+import { Application } from '../../../declarations'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { cleanString } from '../../util/cleanString'
+import { uploadLocalProjectToProvider } from '../project/project.class'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()

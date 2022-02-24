@@ -1,4 +1,5 @@
 import { Matrix4 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

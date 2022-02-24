@@ -1,5 +1,6 @@
-import { HookContext } from '@feathersjs/feathers'
 import * as authentication from '@feathersjs/authentication'
+import { HookContext } from '@feathersjs/feathers'
+
 import config from '../appconfig'
 
 const { authenticate } = authentication.hooks

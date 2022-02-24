@@ -1,19 +1,20 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricVideoComponentType } from '../../components/VolumetricComponent'
-import { isClient } from '../../../common/functions/isClient'
 import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {

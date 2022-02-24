@@ -1,5 +1,5 @@
 import { BufferViewOrSchema, SchemaDefinition } from './types'
-import { isObject, isBufferView } from './utils'
+import { isBufferView, isObject } from './utils'
 
 /**
  * The Schema class provides an API for creating definitions.

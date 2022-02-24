@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react'
+import styled from 'styled-components'
+
+import useHover from '../hooks/useHover'
 import Portal from './Portal'
 import Positioner from './Positioner'
-import useHover from '../hooks/useHover'
-import styled from 'styled-components'
 
 /**
  *

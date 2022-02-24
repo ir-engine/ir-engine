@@ -1,6 +1,8 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { UserSettingsInterface } from '@xrengine/common/src/dbmodels/UserSettings'
+
+import { Application } from '../../../declarations'
 
 /**
  *

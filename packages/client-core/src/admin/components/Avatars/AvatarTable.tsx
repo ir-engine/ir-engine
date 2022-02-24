@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import ConfirmModel from '../../common/ConfirmModel'
+import TableComponent from '../../common/Table'
+import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
-import TableComponent from '../../common/Table'
-import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import ConfirmModel from '../../common/ConfirmModel'
 import ViewAvatar from './ViewAvatar'
 
 if (!global.setImmediate) {

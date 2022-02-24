@@ -1,17 +1,19 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import { CubemapBakeProperties } from './CubemapBakeProperties'
-import SportsGolfIcon from '@mui/icons-material/SportsGolf'
-import { EditorComponentType } from './Util'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
 import { CubemapBakeTypes } from '@xrengine/engine/src/scene/types/CubemapBakeTypes'
-import { PropertiesPanelButton } from '../inputs/Button'
+
+import SportsGolfIcon from '@mui/icons-material/SportsGolf'
+
 import { uploadBakeToServer } from '../../functions/uploadCubemapBake'
+import { PropertiesPanelButton } from '../inputs/Button'
+import { CubemapBakeProperties } from './CubemapBakeProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType } from './Util'
 
 export const enum BakePropertyTypes {
   'Boolean',

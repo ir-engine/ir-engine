@@ -1,33 +1,35 @@
 import assert from 'assert'
+import { AnimationClip, Group, Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
+
+import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
-import {
-  setupAvatarModel,
-  rigAvatarModel,
-  loadAvatarForUser,
-  boneMatchAvatarModel,
-  animateAvatarModel
-} from './avatarFunctions'
-import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
-import { SkeletonUtils } from '../SkeletonUtils'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import AvatarBoneMatching from '@xrengine/engine/src/avatar/AvatarBoneMatching'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { AnimationClip, Group, Quaternion, Vector3 } from 'three'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { createAvatar } from './createAvatar'
-import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { IKPoseComponent } from '../../ikrig/components/IKPoseComponent'
+import { IKRigComponent, IKRigTargetComponent } from '../../ikrig/components/IKRigComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { AnimationState } from '../animations/AnimationState'
+import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
-import { AnimationState } from '../animations/AnimationState'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { SkeletonUtils } from '../SkeletonUtils'
+import {
+  animateAvatarModel,
+  boneMatchAvatarModel,
+  loadAvatarForUser,
+  rigAvatarModel,
+  setupAvatarModel
+} from './avatarFunctions'
+import { createAvatar } from './createAvatar'
 
 const githubPath = 'https://raw.githubusercontent.com/XRFoundation/test-assets/main/avatars/'
 const assetPaths = ['reallusion/Allison.glb', 'mixamo/vanguard.fbx', 'mixamo/vanguard.glb', 'vrm/test2.vrm']

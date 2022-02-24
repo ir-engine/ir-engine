@@ -1,8 +1,10 @@
+import React, { useEffect, useRef, useState } from 'react'
+
 import CloseIcon from '@mui/icons-material/Close'
 import MenuIcon from '@mui/icons-material/Menu'
 import { Grid, IconButton, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
-import React, { useEffect, useRef, useState } from 'react'
+
 import Analytics from './Analytics'
 import Authentication from './Authentication'
 import Aws from './Aws'

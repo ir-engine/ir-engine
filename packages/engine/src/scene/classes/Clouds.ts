@@ -1,20 +1,21 @@
+import SimplexNoise from 'simplex-noise'
 import {
-  Mesh,
-  InstancedBufferGeometry,
-  PlaneBufferGeometry,
-  ShaderMaterial,
-  Vector3,
+  Color,
   InstancedBufferAttribute,
+  InstancedBufferGeometry,
+  Mesh,
+  Object3D,
+  PlaneBufferGeometry,
   RawShaderMaterial,
+  ShaderMaterial,
   UniformsUtils,
   Vector2,
-  Color,
-  Object3D
+  Vector3
 } from 'three'
-import SimplexNoise from 'simplex-noise'
+
 import loadTexture from '../../assets/functions/loadTexture'
-import { addError, removeError } from '../functions/ErrorFunctions'
 import { Object3DWithEntity } from '../components/Object3DComponent'
+import { addError, removeError } from '../functions/ErrorFunctions'
 
 const vertexShader = `
 precision highp float;

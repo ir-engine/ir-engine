@@ -1,4 +1,5 @@
-import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
+import { BoxBufferGeometry, BoxHelper, Mesh, Object3D } from 'three'
+
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,

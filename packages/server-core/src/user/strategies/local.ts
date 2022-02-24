@@ -1,6 +1,6 @@
-import { Params } from '@feathersjs/feathers'
 import { LocalStrategy } from '@feathersjs/authentication-local'
 import { NotAuthenticated } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
 
 export class MyLocalStrategy extends LocalStrategy {
   async findEntity(username: string, params: Params): Promise<any> {

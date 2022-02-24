@@ -1,8 +1,10 @@
-import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
+
+import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+
 import { ProjectGridContainer, ProjectGridContent } from '../components/projects/ProjectGrid'
 
 /**

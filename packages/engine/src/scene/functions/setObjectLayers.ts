@@ -1,6 +1,7 @@
 import { Object3D } from 'three'
-import { ObjectLayers } from '../constants/ObjectLayers'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { ObjectLayers } from '../constants/ObjectLayers'
 
 export function setObjectLayers(object: Object3D, ...layers: number[]) {
   object.traverse((obj: Object3D) => {

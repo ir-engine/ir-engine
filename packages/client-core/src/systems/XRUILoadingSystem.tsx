@@ -1,31 +1,33 @@
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import {
-  PerspectiveCamera,
-  MathUtils,
   BoxGeometry,
-  MeshBasicMaterial,
-  Mesh,
-  sRGBEncoding,
+  CubeTexture,
   DoubleSide,
   EquirectangularReflectionMapping,
-  CubeTexture,
-  SphereGeometry
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  SphereGeometry,
+  sRGBEncoding
 } from 'three'
-import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { LoadingSystemState } from './state/LoadingState'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { accessSceneState } from '../world/services/SceneService'
+
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
-import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
+
+import { accessSceneState } from '../world/services/SceneService'
+import { LoadingSystemState } from './state/LoadingState'
+import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
 
 export default async function XRUILoadingSystem(world: World) {
   const ui = createLoaderDetailView()

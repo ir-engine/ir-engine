@@ -1,11 +1,12 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
+
+import { createQuaternionProxy, createVector3Proxy } from '../src/common/proxies/three'
 import { Engine } from '../src/ecs/classes/Engine'
-import { createEntity } from '../src/ecs/functions/EntityFunctions'
-import { TransformComponent } from '../src/transform/components/TransformComponent'
 import { createWorld } from '../src/ecs/classes/World'
 import { addComponent } from '../src/ecs/functions/ComponentFunctions'
-import { createQuaternionProxy, createVector3Proxy } from '../src/common/proxies/three'
+import { createEntity } from '../src/ecs/functions/EntityFunctions'
+import { TransformComponent } from '../src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
   it('should synchronize values between transform objects and SoA data', () => {

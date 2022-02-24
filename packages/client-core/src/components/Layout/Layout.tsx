@@ -1,5 +1,8 @@
-import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
-import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+import React, { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import { Helmet } from 'react-helmet'
+import { useLocation } from 'react-router-dom'
+
 import {
   ClientSettingService,
   useClientSettingState
@@ -9,23 +12,23 @@ import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dia
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
+import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import React, { Fragment, useCallback, useEffect, useState, Suspense, useRef } from 'react'
-import { FullScreen, useFullScreenHandle } from 'react-full-screen'
-import { Helmet } from 'react-helmet'
-import { useLocation } from 'react-router-dom'
-import Me from '../Me'
-import PartyVideoWindows from '../PartyVideoWindows'
-import styles from './Layout.module.scss'
+
+import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
+
+import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
+import Me from '../Me'
 import MediaIconsBox from '../MediaIconsBox'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useLoadingSystemState } from '../../systems/state/LoadingState'
+import PartyVideoWindows from '../PartyVideoWindows'
+import styles from './Layout.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
 

@@ -1,3 +1,10 @@
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+
+import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
 import { Autorenew, Face, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -6,11 +13,7 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
