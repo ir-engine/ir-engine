@@ -169,7 +169,7 @@ export const ProjectGridItem = (props: Props) => {
   const handleOnDelete = async () => {
     await deleteScene(projectName, sceneTodelete)
     setSceneToDelete('')
-    dispatch(EditorAction.sceneLoaded(null))
+    dispatch(EditorAction.sceneChanged(null))
     history.push(`/editor/${projectName}`)
   }
 
@@ -197,7 +197,7 @@ export const ProjectGridItem = (props: Props) => {
                 onKeyPress={async (e) => {
                   if (e.key == 'Enter') {
                     await renameScene(projectName, newSceneName, oldSceneName)
-                    dispatch(EditorAction.sceneLoaded(newSceneName))
+                    dispatch(EditorAction.sceneChanged(newSceneName))
                     history.push(`/editor/${projectName}/${newSceneName}`)
                   }
                 }}

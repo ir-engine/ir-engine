@@ -99,7 +99,7 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectName: string) => {
+export const createNewScene = async (projectName: string): Promise<{ projectName: string; sceneName: string }> => {
   try {
     return client.service('scene').create({ projectName })
   } catch (error) {

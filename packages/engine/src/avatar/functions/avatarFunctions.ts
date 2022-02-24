@@ -171,6 +171,8 @@ export const setupAvatarMaterials = (root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
+      // Transparency fix
+      object.material.format = RGBAFormat
       const material = object.material.clone()
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
       materialList.push({
