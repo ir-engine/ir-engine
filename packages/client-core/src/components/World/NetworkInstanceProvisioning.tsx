@@ -45,6 +45,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 1. Ensure api server connection in and set up reset listener
   useEffect(() => {
     AuthService.doLoginAuto(true)
+
+    // start listening for users joining or leaving the location
+    AuthService.listenForUserPatch()
   }, [])
 
   useEffect(() => {
@@ -72,9 +75,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           const parsed = new URL(window.location.href).searchParams.get('instanceId')
           instanceId = parsed
         }
-
-        // start listening for users joining or leaving the location
-        AuthService.listenForUserPatch()
 
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,

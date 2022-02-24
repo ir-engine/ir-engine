@@ -107,7 +107,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   // Get information for how to consume data from server and init a data consumer
   networkTransport.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
-    // console.log('WebRTCConsumeData', options)
+    console.log('WebRTCConsumeData', options)
     const dataConsumer = await networkTransport.recvTransport.consumeData(options)
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
@@ -132,7 +132,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   networkTransport.socket.on(
     MessageTypes.WebRTCCreateProducer.toString(),
     async (socketId, mediaTag, producerId, channelType: ChannelType, channelId) => {
-      // console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
+      console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
       const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
       const channelConnectionState = accessMediaInstanceConnectionState()
       if (

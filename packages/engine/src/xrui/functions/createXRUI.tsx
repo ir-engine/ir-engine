@@ -44,6 +44,8 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     const container = await createWebContainer(UIFunc, state, {
       manager: WebLayerManager.instance
     })
+    // @ts-ignore
+    container._raycaster.layers.enableAll()
 
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed

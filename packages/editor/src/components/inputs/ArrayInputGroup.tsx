@@ -2,6 +2,7 @@ import React from 'react'
 import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent } from './InputGroup'
 import StringInput from './StringInput'
 import FileBrowserInput from './FileBrowserInput'
+import styled from 'styled-components'
 
 export interface ArrayInputGroupProp {
   name?: string
@@ -49,6 +50,36 @@ const onChangeText = (text, index, values, onChange) => {
   onChange(values)
 }
 
+const GroupContainer = (styled as any).label`
+  background-color: #282C31;
+  color: #9FA4B5;
+  white-space: pre-wrap;
+  padding: 0 8px 8px;
+`
+
+const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
+  margin: 4px 0px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  & > label {
+    max-width: 33.33333% !important;
+  }
+  & > input {
+    max-width: 66.66666% !important;
+  }
+  & > div {
+    max-width: 66.66666% !important;
+  }
+`
+
 export function ArrayInputGroup({
   isStringInput,
   prefix,
@@ -61,47 +92,50 @@ export function ArrayInputGroup({
   let count = 0
   if (values && values.length) count = values.length.toString()
   return (
-    <InputGroupVerticalContainer>
-      <label>{label}:</label>
-      <InputGroupVerticalContent>
-        <InputGroupContent style={{ margin: '4px 0px' }}>
-          <label style={{ width: '30%' }}>Size:</label>
-          <StringInput
-            value={count}
-            onChange={(text) => {
-              onChangeSize(text, values, onChange)
-            }}
-          />
-        </InputGroupContent>
-        {values &&
-          values.map(function (value, index) {
-            return (
-              <InputGroupContent key={index} style={{ margin: '4px 0px' }}>
-                <label style={{ width: '30%' }}>
-                  {prefix} {index}:
-                </label>
-                {isStringInput ? (
-                  <StringInput
-                    value={value}
-                    onChange={(text) => {
-                      onChangeText(text, index, values, onChange)
-                    }}
-                  />
-                ) : (
-                  <FileBrowserInput
-                    value={value}
-                    acceptFileTypes={acceptFileTypes}
-                    acceptDropItems={itemType || []}
-                    onChange={(text) => {
-                      onChangeText(text, index, values, onChange)
-                    }}
-                  />
-                )}
-              </InputGroupContent>
-            )
-          })}
-      </InputGroupVerticalContent>
-    </InputGroupVerticalContainer>
+    <GroupContainer>
+      <InputGroupVerticalContainer>
+        <label style={{ color: '#9FA4B5' }}>{label}:</label>
+        <InputGroupVerticalContent>
+          <ArrayInputGroupContent>
+            <label> Size: </label>
+            <StringInput
+              value={count}
+              onChange={(text) => {
+                onChangeSize(text, values, onChange)
+              }}
+            />
+          </ArrayInputGroupContent>
+          {values &&
+            values.map(function (value, index) {
+              return (
+                <ArrayInputGroupContent key={index} style={{ margin: '4px 0px' }}>
+                  <label>
+                    {' '}
+                    {prefix} {index}:{' '}
+                  </label>
+                  {isStringInput ? (
+                    <StringInput
+                      value={value}
+                      onChange={(text) => {
+                        onChangeText(text, index, values, onChange)
+                      }}
+                    />
+                  ) : (
+                    <FileBrowserInput
+                      value={value}
+                      acceptFileTypes={acceptFileTypes}
+                      acceptDropItems={itemType || []}
+                      onChange={(text) => {
+                        onChangeText(text, index, values, onChange)
+                      }}
+                    />
+                  )}
+                </ArrayInputGroupContent>
+              )
+            })}
+        </InputGroupVerticalContent>
+      </InputGroupVerticalContainer>
+    </GroupContainer>
   )
 }
 
