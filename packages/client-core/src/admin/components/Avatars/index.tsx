@@ -38,7 +38,7 @@ const Avatar = () => {
       <div className={classes.rootTable}>
         <AvatarTable search={search} />
       </div>
-      <AvatarCreate handleClose={handleClose} open={open} />
+      {open && <AvatarCreate handleClose={handleClose} open={open} />}
     </React.Fragment>
   )
 }

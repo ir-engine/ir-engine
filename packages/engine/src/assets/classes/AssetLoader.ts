@@ -164,7 +164,7 @@ const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
 
-const getLoader = (assetType: AssetType) => {
+export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.glTF:
     case AssetType.VRM:

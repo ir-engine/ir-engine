@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -18,20 +18,12 @@ import AlertMessage from '../../common/AlertMessage'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
-  MIN_AVATAR_FILE_SIZE,
-  THUMBNAIL_WIDTH,
-  THUMBNAIL_HEIGHT
+  MIN_AVATAR_FILE_SIZE
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { Scene, PerspectiveCamera, WebGLRenderer } from 'three'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  initialize3D,
-  onWindowResize,
-  addAnimationLogic
-} from '../../../user/components/UserMenu/menus/helperFunctions'
+import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { initialize3D, renderScene } from '../../../user/components/UserMenu/menus/helperFunctions'
 import styles from '../../../user/components/UserMenu/UserMenu.module.scss'
 import IconLeftClick from '../../../common/components/Icons/IconLeftClick'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -59,8 +51,6 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [selectUse, setSelectUse] = useState(false)
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
-
-  const [entity, setEntity] = useState<any>(null)
   const [avatarModel, setAvatarModel] = useState<any>(null)
   const [fileSelected, setFileSelected] = React.useState(false)
   const [selectedFile, setSelectedFile] = useState<any>(null)
@@ -123,28 +113,6 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
   }
 
-  useEffect(() => {
-    const world = useWorld()
-    // const entity = createEntity()
-
-    // addAnimationLogic(entity, world, setEntity, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
-
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-
-    return () => {
-      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    }
-  }, [])
-
   const handleAvatarChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
@@ -156,6 +124,17 @@ const AvatarCreate = ({ handleClose, open }) => {
       return
     }
 
+    const init = initialize3D()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
+    const controls = getOrbitControls(camera, renderer.domElement)
+
+    controls.minDistance = 0.1
+    controls.maxDistance = 10
+    controls.target.set(0, 1.25, 0)
+    controls.update()
+
     scene.children = scene.children.filter((c) => c.name !== 'avatar')
     const file = e.target.files[0]
     const reader = new FileReader()
@@ -164,7 +143,7 @@ const AvatarCreate = ({ handleClose, open }) => {
         const assetType = AssetLoader.getAssetType(file.name)
         if (assetType) {
           const objectURL = URL.createObjectURL(file) + '#' + file.name
-          loadAvatarForPreview(entity, objectURL)
+          loadAvatarModelAsset(objectURL)
             .catch((err) => {
               setError(err)
             })
@@ -176,6 +155,7 @@ const AvatarCreate = ({ handleClose, open }) => {
               }
               obj.name = 'avatar'
               scene.add(obj)
+              renderScene({ scene, renderer, camera })
               setAvatarModel(obj)
               // const error = validate(obj)
               setError(error)
@@ -200,7 +180,7 @@ const AvatarCreate = ({ handleClose, open }) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} id="stage" onClose={handleClose}>
+      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <div ref={panelRef}>
             <DialogTitle>
@@ -239,22 +219,27 @@ const AvatarCreate = ({ handleClose, open }) => {
                     name="avatarUrl"
                   />
                 ) : (
-                  <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-                    <Input
-                      accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-                      id="contained-button-file"
-                      type="file"
-                      onChange={handleAvatarChange}
-                    />
-                    <Button
-                      variant="contained"
-                      component="span"
-                      // classes={{ root: classes.rootBtn }}
-                      endIcon={<SystemUpdateAlt />}
-                    >
-                      Avatar
-                    </Button>
-                  </label>
+                  <>
+                    <div id="stage" style={{ width: '400px', height: '200px' }}></div>
+                    <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
+                      <Input
+                        accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                        id="contained-button-file"
+                        type="file"
+                        onChange={handleAvatarChange}
+                        disabled={avatarModel ? true : false}
+                      />
+                      <Button
+                        variant="contained"
+                        component="span"
+                        // classes={{ root: classes.rootBtn }}
+                        endIcon={<SystemUpdateAlt />}
+                        disabled={avatarModel ? true : false}
+                      >
+                        Avatar
+                      </Button>
+                    </label>
+                  </>
                 )}
               </div>
             </DialogContent>
