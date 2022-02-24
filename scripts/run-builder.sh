@@ -15,6 +15,7 @@ bash ./scripts/setup_helm.sh
 bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
 npm run check-db-exists
 npm run install-projects
+npm run prepare-database
 cd packages/client && npm run buildenv
 cd ../..
 bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
