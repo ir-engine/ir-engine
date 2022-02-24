@@ -21,7 +21,9 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
+import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 
@@ -30,8 +32,6 @@ import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
 
 export default async function XRUILoadingSystem(world: World) {
-  const ui = createLoaderDetailView()
-
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds)
 
@@ -43,7 +43,7 @@ export default async function XRUILoadingSystem(world: World) {
     }, 250)
   )
 
-  await ui.waitForSceneColors()
+  const ui = await createLoaderDetailView()
 
   const mesh = new Mesh(new SphereGeometry(0.3), new MeshBasicMaterial({ side: DoubleSide }))
   // flip inside out
@@ -54,6 +54,7 @@ export default async function XRUILoadingSystem(world: World) {
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
   const texture = await textureLoader.loadAsync(thumbnailUrl)
   mesh.material.map = texture
+  setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR

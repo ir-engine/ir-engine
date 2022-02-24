@@ -33,8 +33,6 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  await unloadScene(useWorld(), true)
-
   Engine.sceneLoaded = false
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
@@ -74,7 +72,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   Engine.sceneLoaded = true
 
   // Configure CSM
-  // updateRenderSetting(world.entityTree.rootNode.entity)
+  updateRenderSetting(world.entityTree.rootNode.entity)
   dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
