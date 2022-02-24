@@ -1,18 +1,19 @@
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
-import { UserAction } from '../../user/services/UserService'
-import { accessAuthState } from '../../user/services/AuthService'
-import { ChatService } from './ChatService'
-import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
+import { createState, useState } from '@speigg/hookstate'
+import _ from 'lodash'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { createState, useState } from '@speigg/hookstate'
-import _ from 'lodash'
+
+import { AlertService } from '../../common/services/AlertService'
+import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
+import { UserAction } from '../../user/services/UserService'
+import { ChatService } from './ChatService'
 
 //State
 

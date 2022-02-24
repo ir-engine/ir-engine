@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { StaticResourceTypeInterface } from '@xrengine/common/src/dbmodels/StaticResourceType'
+
+import { Application } from '../../../declarations'
 
 export type StaticResourceTypeDataType = StaticResourceTypeInterface
 

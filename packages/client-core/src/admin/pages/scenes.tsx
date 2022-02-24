@@ -1,6 +1,7 @@
-import ScenesConsole from '../components/Scenes'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import ScenesConsole from '../components/Scenes'
 
 interface Props {}
 

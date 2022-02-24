@@ -1,11 +1,10 @@
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
-
 import { createState, useState } from '@speigg/hookstate'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const AVATAR_PAGE_LIMIT = 12

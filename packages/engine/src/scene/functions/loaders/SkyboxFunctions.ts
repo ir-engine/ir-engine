@@ -1,5 +1,8 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, Object3D, sRGBEncoding } from 'three'
+import { Vector3 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -17,23 +20,22 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import {
   cubeTextureLoader,
-  posx,
+  getPmremGenerator,
   negx,
-  posy,
   negy,
-  posz,
   negz,
-  textureLoader,
-  getPmremGenerator
+  posx,
+  posy,
+  posz,
+  textureLoader
 } from '../../constants/Util'
-import { Vector3 } from 'three'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'

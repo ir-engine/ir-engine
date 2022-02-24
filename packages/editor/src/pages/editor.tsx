@@ -1,11 +1,13 @@
 import React, { Suspense, useEffect, useState } from 'react'
+import { Route, Switch, useHistory } from 'react-router-dom'
+
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Route, Switch, useHistory } from 'react-router-dom'
 import { userHasAccess } from '@xrengine/client-core/src/user/userHasAccess'
-import { SignInPage } from './SignInPage'
+
 import { EditorPage } from './EditorPage'
 import { ProjectPage } from './ProjectPage'
+import { SignInPage } from './SignInPage'
 
 const EditorProtectedRoutes = () => {
   const authState = useAuthState()

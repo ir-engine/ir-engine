@@ -1,5 +1,6 @@
 // import { Plugins, registerWebPlugin } from '@capacitor/core'
 import React, { useEffect, useState } from 'react'
+
 // import 'webxr-native'
 // import { XRPluginPlugin } from 'webxr-native'
 

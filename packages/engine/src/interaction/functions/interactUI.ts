@@ -1,22 +1,21 @@
-import { Entity } from '../../ecs/classes/Entity'
-import { MathUtils, Quaternion, Vector3, Object3D } from 'three'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-
-import { Engine } from '../../ecs/classes/Engine'
-
-import { hideInteractText, showInteractText, createInteractText } from './interactText'
-import { createInteractiveModalView } from '../ui/InteractiveModalView'
-
 import Hls from 'hls.js'
+import { MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
+import { createInteractiveModalView } from '../ui/InteractiveModalView'
+import { createInteractText, hideInteractText, showInteractText } from './interactText'
 
 /**
  * @author Ron Oyama <github.com/rondoor124>

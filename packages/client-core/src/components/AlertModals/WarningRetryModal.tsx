@@ -1,9 +1,11 @@
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+
 import CloseIcon from '@mui/icons-material/Close'
 import Fade from '@mui/material/Fade'
 import IconButton from '@mui/material/IconButton'
 import Modal from '@mui/material/Modal'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+
 import styles from './AlertModals.module.scss'
 
 export interface WarningRetryModalProps {

@@ -1,5 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { EngineEvents } from './EngineEvents'
 import { Entity } from './Entity'

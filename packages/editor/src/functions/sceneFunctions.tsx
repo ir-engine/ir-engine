@@ -1,6 +1,7 @@
 import i18n from 'i18next'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { client } from '@xrengine/client-core/src/feathers'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 /**

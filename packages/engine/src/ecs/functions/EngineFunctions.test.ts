@@ -1,5 +1,6 @@
 import assert from 'assert'
 import { Object3D, Scene } from 'three'
+
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { Engine } from '../classes/Engine'

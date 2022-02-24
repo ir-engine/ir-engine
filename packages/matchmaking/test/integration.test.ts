@@ -1,7 +1,8 @@
+import AbortController from 'abort-controller'
 import assert from 'assert'
+
 import { createTicket, deleteTicket, getTicket, getTicketsAssignment } from '../src/functions'
 import { OpenMatchTicket } from '../src/interfaces'
-import AbortController from 'abort-controller'
 import { waitForTicketAssignment } from './helpers'
 
 const testGameMode = 'tournament'

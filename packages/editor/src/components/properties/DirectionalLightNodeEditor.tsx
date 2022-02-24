@@ -1,14 +1,17 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
-import BoltIcon from '@mui/icons-material/Bolt'
-import BooleanInput from '../inputs/BooleanInput'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+
+import BoltIcon from '@mui/icons-material/Bolt'
+
+import BooleanInput from '../inputs/BooleanInput'
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import LightShadowProperties from './LightShadowProperties'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**

@@ -1,22 +1,22 @@
-import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from '../interfaces'
-
 import {
-  DataTexture,
-  RGBAFormat,
-  TextureLoader,
-  NormalBlending,
-  InstancedBufferGeometry,
   BufferGeometry,
-  ShaderLib,
-  UniformsUtils,
-  ShaderMaterial,
-  Mesh,
-  Points,
-  InstancedBufferAttribute,
+  DataTexture,
   Float32BufferAttribute,
+  InstancedBufferAttribute,
+  InstancedBufferGeometry,
   Matrix4,
-  Texture
+  Mesh,
+  NormalBlending,
+  Points,
+  RGBAFormat,
+  ShaderLib,
+  ShaderMaterial,
+  Texture,
+  TextureLoader,
+  UniformsUtils
 } from 'three'
+
+import { ParticleGeometry, ParticleMesh, ParticleMeshMaterial, particleMeshOptions } from '../interfaces'
 
 const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBAFormat)
 WHITE_TEXTURE.needsUpdate = true

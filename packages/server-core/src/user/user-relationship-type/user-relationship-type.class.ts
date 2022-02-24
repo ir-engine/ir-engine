@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { UserRelationshipTypeInterface } from '@xrengine/common/src/dbmodels/UserRelationshipType'
+
+import { Application } from '../../../declarations'
 
 export type UserRelationshipTypeDataType = UserRelationshipType
 /**

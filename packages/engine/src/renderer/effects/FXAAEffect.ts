@@ -1,5 +1,6 @@
-import { Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three'
 import { BlendFunction, Effect } from 'postprocessing'
+import { Uniform, Vector2, WebGLRenderer, WebGLRenderTarget } from 'three'
+
 import fragmentShader from './glsl/antialiasing/fxaa.frag'
 
 /**

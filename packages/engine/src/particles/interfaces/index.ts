@@ -1,4 +1,4 @@
-import { InstancedBufferGeometry, BufferGeometry, ShaderMaterial, Texture, Blending, Material } from 'three'
+import { Blending, BufferGeometry, InstancedBufferGeometry, Material, ShaderMaterial, Texture } from 'three'
 
 /** Particle geometry type. */
 export type ParticleGeometry = InstancedBufferGeometry | BufferGeometry

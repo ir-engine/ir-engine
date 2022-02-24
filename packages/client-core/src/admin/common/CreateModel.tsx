@@ -1,8 +1,10 @@
 import React from 'react'
-import Dialog from '@mui/material/Dialog'
-import Typography from '@mui/material/Typography'
-import DialogActions from '@mui/material/DialogActions'
+
 import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import Typography from '@mui/material/Typography'
+
 import { useStyles } from '../styles/ui'
 
 interface Props {

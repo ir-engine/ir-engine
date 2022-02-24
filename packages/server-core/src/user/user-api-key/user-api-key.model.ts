@@ -1,6 +1,8 @@
-import { DataTypes, Sequelize, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
+
+import { Application } from '../../../declarations'
 
 /**
  * This model contain users information

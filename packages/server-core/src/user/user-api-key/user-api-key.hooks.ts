@@ -1,6 +1,7 @@
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import authenticate from '../../hooks/authenticate'
 import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query'
-import { iff, isProvider, disallow } from 'feathers-hooks-common'
 
 /**
  * This module used to declare and identify database relation
