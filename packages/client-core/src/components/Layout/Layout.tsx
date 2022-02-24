@@ -114,6 +114,8 @@ const Layout = (props: Props): any => {
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
               {children}
+              <MediaIconsBox />
+              <UserMenu />
               <div style={{ opacity: layoutOpacity }}>
                 <header>
                   {path === '/login' && <NavMenu login={login} />}
@@ -155,8 +157,6 @@ const Layout = (props: Props): any => {
                 )}
                 <Debug />
                 {/* <RecordingApp /> */}
-                <MediaIconsBox />
-                <UserMenu />
                 <InstanceChat />
               </div>
             </section>

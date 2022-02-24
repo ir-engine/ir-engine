@@ -17,7 +17,6 @@ import {
   getComponentCountOfType,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { CopyTransformComponent } from '../../../transform/components/CopyTransformComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -42,7 +41,8 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     addComponent(entity, Object3DComponent, { value: camera })
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   } else if (Engine.activeCameraEntity) {
-    addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
+    const transformComponent = getComponent(entity, TransformComponent)
+    Engine.camera.position.copy(transformComponent.position)
   }
 }
 
