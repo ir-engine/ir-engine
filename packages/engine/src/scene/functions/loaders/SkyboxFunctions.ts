@@ -9,7 +9,12 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -54,7 +59,9 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
 ) => {
   if (isClient) {
     const props = parseSkyboxProperties(json.props)
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
+    if (!hasComponent(entity, Object3DComponent)) {
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+    }
     addComponent(entity, SkyboxComponent, props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})

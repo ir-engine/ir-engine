@@ -26,8 +26,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 
-export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
   const data = Object.entries(obj3d.userData)
@@ -49,7 +48,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D):
       }
     }
   }
-
+  console.log('components', components)
   for (const [key, value] of Object.entries(components)) {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
@@ -59,6 +58,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D):
     }
   }
 
+  console.log('prefabs', prefabs)
   for (const [key, value] of Object.entries(prefabs)) {
     loadComponent(entity, {
       name: key,
@@ -78,13 +78,13 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, object3d)
+    createObjectEntityFromGLTF(entity, obj3d)
     return
   }
 
   for (const mesh of meshesToProcess) {
     if (mesh === obj3d) {
-      createObjectEntityFromGLTF(entity, object3d)
+      createObjectEntityFromGLTF(entity, obj3d)
       continue
     }
 
@@ -108,7 +108,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
-    createObjectEntityFromGLTF(e)
+    createObjectEntityFromGLTF(e, mesh)
   }
 }
 
