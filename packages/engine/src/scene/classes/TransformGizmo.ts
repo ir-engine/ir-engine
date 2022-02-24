@@ -1,4 +1,5 @@
-import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial, Vector2 } from 'three'
+import { Color, Intersection, Mesh, MeshStandardMaterial, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'

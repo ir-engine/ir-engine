@@ -1,3 +1,11 @@
+import { Not } from 'bitecs'
+
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+
+import { AudioComponent } from '../../audio/components/AudioComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { EngineActions } from '../../ecs/classes/EngineService'
+import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
@@ -5,37 +13,31 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
+import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { EquippedComponent } from '../components/EquippedComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractedComponent } from '../components/InteractedComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { interactBoxRaycast } from '../functions/interactBoxRaycast'
-import { InteractedComponent } from '../components/InteractedComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
-import { World } from '../../ecs/classes/World'
+import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import {
   createInteractUI,
-  showInteractUI,
   hideInteractUI,
-  updateInteractUI,
+  InteractiveUI,
   setUserDataInteractUI,
-  InteractiveUI
+  showInteractUI,
+  updateInteractUI
 } from '../functions/interactUI'
-import { EquippedComponent } from '../components/EquippedComponent'
-import { Not } from 'bitecs'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
-import { AudioComponent } from '../../audio/components/AudioComponent'
-import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
-import { VideoComponent } from '../../scene/components/VideoComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
-import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export default async function InteractiveSystem(world: World) {
   const interactorsQuery = defineQuery([InteractorComponent])

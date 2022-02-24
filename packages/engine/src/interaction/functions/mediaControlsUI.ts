@@ -1,10 +1,11 @@
-import { Entity } from '../../ecs/classes/Entity'
 import { Quaternion, Vector3 } from 'three'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { MediaComponent } from '../../scene/components/MediaComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createMediaControlsView } from '../ui/MediaControlsUI'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { MediaComponent } from '../../scene/components/MediaComponent'
 
 export const MediaUI = new Map<Entity, ReturnType<typeof createMediaControlsView>>()
 

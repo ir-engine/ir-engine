@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash'
+
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'

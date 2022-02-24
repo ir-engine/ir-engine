@@ -1,7 +1,9 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import Mousetrap from 'mousetrap'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { InputComponent } from '../classes/InputComponent'
-import { ActionKey, ActionSets, InputActionMapping, InputMapping, ActionState } from '../controls/input-mappings'
+import { ActionKey, ActionSets, ActionState, InputActionMapping, InputMapping } from '../controls/input-mappings'
 import { SceneManager } from '../managers/SceneManager'
 
 const _globalCallbacks = {}

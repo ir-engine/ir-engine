@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, memo, useState, MouseEventHandler } from 'react'
-import { MediaGrid } from '../layout/MediaGrid'
-import { unique } from '../../functions/utils'
-import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { ItemTypes } from '../../constants/AssetTypes'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import { FileDataType } from './FileDataType'
 import InfiniteScroll from 'react-infinite-scroller'
-import { CircularProgress } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
+
 import DescriptionIcon from '@mui/icons-material/Description'
+import FolderIcon from '@mui/icons-material/Folder'
+import { CircularProgress } from '@mui/material'
+
+import { ItemTypes } from '../../constants/AssetTypes'
+import { unique } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { MediaGrid } from '../layout/MediaGrid'
+import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 
 type FileListItemProps = {

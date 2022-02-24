@@ -1,4 +1,5 @@
-import { CubeTextureLoader, TextureLoader, PMREMGenerator } from 'three'
+import { CubeTextureLoader, PMREMGenerator, TextureLoader } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 
 export const negx = 'negx.jpg'

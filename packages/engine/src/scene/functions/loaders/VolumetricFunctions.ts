@@ -1,25 +1,30 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricVideoComponentType } from '../../components/VolumetricComponent'
-import { isClient } from '../../../common/functions/isClient'
 import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
     player: typeof import('volumetric/player').default.prototype
   }
+  play()
+  pause()
+  seek()
+  callbacks()
 }
 
 let DracosisPlayer = null! as typeof import('volumetric/player').default
@@ -29,6 +34,13 @@ if (isClient) {
     DracosisPlayer = module1.default
   })
 }
+
+export const VolumetricCallbacks = [
+  { label: 'None', value: 'none' },
+  { label: 'Play', value: 'play' },
+  { label: 'Pause', value: 'pause' },
+  { label: 'Seek', value: 'seek' }
+]
 
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
@@ -71,7 +83,6 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         renderer: Engine.renderer,
         paths,
         playMode: component.playMode as any,
-        autoplay: true,
         onMeshBuffering: (_progress) => {},
         onFrameShow: () => {}
       })
@@ -84,8 +95,25 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         }
       }
 
-      const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
-      obj3d.userData.audioEl.setNodeSource(audioSource)
+      //setup callbacks
+      obj3d.play = () => {
+        obj3d.userData.player.play()
+      }
+
+      obj3d.pause = () => {
+        obj3d.userData.player.pause()
+      }
+
+      obj3d.seek = () => {
+        obj3d.userData.player.playOneFrame()
+      }
+
+      obj3d.callbacks = () => {
+        return VolumetricCallbacks
+      }
+      //TODO: it is breaking the video play. need to check later
+      // const audioSource = Engine.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
+      // obj3d.userData.audioEl.setNodeSource(audioSource)
     } catch (error) {
       addError(entity, 'error', error.message)
     }
@@ -120,12 +148,15 @@ export const toggleVolumetric = (entity: Entity): boolean => {
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
   if (!obj3d) return false
 
-  if (obj3d.userData.player.hasPlayed) {
-    obj3d.userData.player.stopOnNextFrame = true
+  if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
+    obj3d.userData.player.pause()
     return false
   } else {
-    obj3d.userData.player.stopOnNextFrame = false
-    obj3d.userData.player.play()
+    if (obj3d.userData.player.paused) {
+      obj3d.userData.player.paused = false
+    } else {
+      obj3d.userData.player.play()
+    }
     return true
   }
 }

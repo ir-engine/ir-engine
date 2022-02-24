@@ -1,8 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Params } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
 import { BadRequest, NotFound } from '@feathersjs/errors'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { Seat as SeatInterface } from '@xrengine/common/src/interfaces/Seat'
+
+import { Application } from '../../../declarations'
 
 export type SeatDataType = SeatInterface
 

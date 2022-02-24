@@ -1,11 +1,13 @@
 import { Params } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-// import { generateAvatarThumbnail } from './generateAvatarThumbnail'
-import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
 import fs from 'fs'
 import path from 'path'
+
+import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+// import { generateAvatarThumbnail } from './generateAvatarThumbnail'
+import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownContentTypes'
+
+import { Application } from '../../../declarations'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-media/upload-asset.service'
 
 const provider = useStorageProvider()

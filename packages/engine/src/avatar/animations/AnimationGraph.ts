@@ -1,4 +1,5 @@
 import { Vector2 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -6,13 +7,13 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
 import { AnimationType, AvatarStates, MovementType, WeightsParameterType } from './Util'
-import { AvatarSettings } from '../AvatarControllerSystem'
 
 const vector2 = new Vector2()
 

@@ -1,15 +1,17 @@
 import assert from 'assert'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createWorld } from '../../ecs/classes/World'
-import { NetworkActionReceptors } from './NetworkActionReceptors'
-import { Engine } from '../../ecs/classes/Engine'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { mockProgressWorldForNetworkActions } from '../../../tests/networking/NetworkTestHelpers'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { mockProgressWorldForNetworkActions } from '../../../tests/networking/NetworkTestHelpers'
+import { Engine } from '../../ecs/classes/Engine'
+import { createWorld } from '../../ecs/classes/World'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkActionReceptors } from './NetworkActionReceptors'
 
 describe('IncomingNetworkReceptors', () => {
   beforeEach(() => {

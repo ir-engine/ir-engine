@@ -1,4 +1,5 @@
-import { DoubleSide, MeshBasicMaterial, sRGBEncoding, RGBFormat, RGBAFormat } from 'three'
+import { DoubleSide, MeshBasicMaterial, RGBAFormat, sRGBEncoding } from 'three'
+
 import { LoaderExtension } from './LoaderExtension'
 
 export const ALPHA_MODES = {
@@ -39,9 +40,8 @@ export class MaterialsUnlitLoaderExtension extends LoaderExtension {
         material.opacity = array[3]
       }
       if (metallicRoughness.baseColorTexture !== undefined) {
-        const format = alphaMode === ALPHA_MODES.OPAQUE ? RGBFormat : RGBAFormat
         pending.push(
-          this.loader.assignTexture(material, 'map', metallicRoughness.baseColorTexture, sRGBEncoding, format)
+          this.loader.assignTexture(material, 'map', metallicRoughness.baseColorTexture, sRGBEncoding, RGBAFormat)
         )
       }
     }

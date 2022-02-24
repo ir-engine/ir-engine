@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 
 export type EquippedComponentType = {
   attachmentPoint: EquippableAttachmentPoint

@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import EditorContainer from '../components/EditorContainer'
+import { RouteComponentProps } from 'react-router-dom'
+
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeBrowser,
@@ -8,13 +14,9 @@ import {
   initializeProjectSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
+
+import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import { RouteComponentProps } from 'react-router-dom'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useDispatch } from '@xrengine/client-core/src/store'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 

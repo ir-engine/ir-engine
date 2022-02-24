@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+
 import config from '../appconfig'
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 // Get the logged in user entity
 const loggedInUserEntity: string = config.authentication.entity

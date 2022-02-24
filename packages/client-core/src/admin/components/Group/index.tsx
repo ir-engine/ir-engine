@@ -1,6 +1,8 @@
+import React, { useState } from 'react'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import React, { useState } from 'react'
+
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'

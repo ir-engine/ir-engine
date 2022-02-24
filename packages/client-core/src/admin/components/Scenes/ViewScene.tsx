@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { Grid, Paper, Typography } from '@mui/material'
 import Container from '@mui/material/Container'
 import Drawer from '@mui/material/Drawer'
@@ -7,7 +9,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import React from 'react'
+
 import { entityColumns, EntityData, ViewSceneProps } from '../../common/variables/scene'
 import { useStyles } from '../../styles/ui'
 

@@ -1,4 +1,6 @@
 import { Icon } from '@iconify/react'
+import React, { useEffect, useState } from 'react'
+
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { Button, Grid, Paper, Typography } from '@mui/material'
@@ -9,7 +11,7 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Switch from '@mui/material/Switch'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import { useStyles } from './styles'

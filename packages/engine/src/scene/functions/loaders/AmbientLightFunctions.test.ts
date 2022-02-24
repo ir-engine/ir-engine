@@ -1,10 +1,17 @@
 import assert from 'assert'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AmbientLight, Color } from 'three'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { createWorld, World } from '../../../ecs/classes/World'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { createWorld, World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeAmbientLight,
   parseAmbientLightProperties,
@@ -14,11 +21,6 @@ import {
   shouldDeserializeAmbientLight,
   updateAmbientLight
 } from './AmbientLightFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
-import { Entity } from '../../../ecs/classes/Entity'
 
 describe('AmbientLightFunctions', () => {
   let world: World

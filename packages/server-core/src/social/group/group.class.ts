@@ -1,9 +1,11 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params, Paginated } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
+
 import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
+
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export type GroupDataType = GroupInterface
 /**

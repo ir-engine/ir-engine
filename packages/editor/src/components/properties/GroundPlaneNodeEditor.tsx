@@ -1,14 +1,17 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
-import SquareIcon from '@mui/icons-material/Square'
-import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorComponentType, updateProperty } from './Util'
+import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
+
+import SquareIcon from '@mui/icons-material/Square'
+
+import BooleanInput from '../inputs/BooleanInput'
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
 import ShadowProperties from './ShadowProperties'
+import { EditorComponentType, updateProperty } from './Util'
 
 export const GroundPlaneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

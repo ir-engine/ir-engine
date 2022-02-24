@@ -1,8 +1,10 @@
-import { Params, Paginated } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 

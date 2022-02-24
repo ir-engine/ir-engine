@@ -1,7 +1,9 @@
 import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import { uploadAvatarStaticResource, getAvatarFromStaticResources, AvatarUploadArguments } from './avatar-helper'
+
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+
+import { Application } from '../../../declarations'
+import { AvatarUploadArguments, getAvatarFromStaticResources, uploadAvatarStaticResource } from './avatar-helper'
 
 export class Avatar implements ServiceMethods<any> {
   app: Application

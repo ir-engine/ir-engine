@@ -1,40 +1,43 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
+
+import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+
+import {
+  ArrowRightRounded,
+  Check,
+  Clear,
+  Delete,
+  Download,
+  DownloadDone,
+  FilterList,
+  Search,
+  Settings
+} from '@mui/icons-material'
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  CircularProgress,
   IconButton,
   InputBase,
   Menu,
-  Paper,
   MenuItem,
-  CircularProgress
+  Paper
 } from '@mui/material'
-import {
-  ArrowRightRounded,
-  Clear,
-  FilterList,
-  Search,
-  Settings,
-  Check,
-  Delete,
-  Download,
-  DownloadDone
-} from '@mui/icons-material'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { Button, MediumButton } from '../inputs/Button'
-import { ErrorMessage } from './ProjectGrid'
+
 import { getProjects } from '../../functions/projectFunctions'
-import { CreateProjectDialog } from './CreateProjectDialog'
 import { EditorAction } from '../../services/EditorServices'
-import styles from './styles.module.scss'
+import { Button, MediumButton } from '../inputs/Button'
+import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import { ErrorMessage } from './ProjectGrid'
+import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
   if (a > b) return -1

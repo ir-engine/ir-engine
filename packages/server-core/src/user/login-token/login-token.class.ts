@@ -1,9 +1,11 @@
-import config from '../../appconfig'
 import crypto from 'crypto'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+
 import { LoginTokenInterface } from '@xrengine/common/src/dbmodels/LoginToken'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
 
 export type LoginTokenDataType = LoginTokenInterface & { identityProviderId: string }
 /**

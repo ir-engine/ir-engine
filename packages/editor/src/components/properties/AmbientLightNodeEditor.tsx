@@ -1,12 +1,15 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
 import { useTranslation } from 'react-i18next'
-import Brightness7Icon from '@mui/icons-material/Brightness7'
-import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+
+import Brightness7Icon from '@mui/icons-material/Brightness7'
+
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**

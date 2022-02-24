@@ -1,5 +1,7 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,

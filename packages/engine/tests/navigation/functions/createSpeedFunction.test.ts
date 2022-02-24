@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import createSpeedFunction from '../../../src/navigation/functions/createSpeedFunction'
 
 describe('createSpeedFunction', () => {
