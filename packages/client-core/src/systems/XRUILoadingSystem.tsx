@@ -34,21 +34,29 @@ export default async function XRUILoadingSystem(world: World) {
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
+    setTimeout(() => {
+      mesh.visible = false
+      transition.setState('OUT')
+    }, 250)
+  )
 
   await ui.waitForSceneColors()
 
-  // const mesh = new Mesh(new SphereGeometry(1), new MeshBasicMaterial({ side: DoubleSide }))
-  // getComponent(ui.entity, Object3DComponent).value.add(mesh)
+  const mesh = new Mesh(new SphereGeometry(0.3), new MeshBasicMaterial({ side: DoubleSide }))
+  // flip inside out
+  mesh.scale.set(-1, 1, 1)
+  getComponent(ui.entity, Object3DComponent).value.add(mesh)
 
-  // const sceneState = accessSceneState()
-  // const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
-  // const texture = await textureLoader.loadAsync(thumbnailUrl)
-  // mesh.material.map = texture
-  // texture.encoding = sRGBEncoding
-  // Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
+  const sceneState = accessSceneState()
+  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
+  const texture = await textureLoader.loadAsync(thumbnailUrl)
+  mesh.material.map = texture
 
   return () => {
+    // add a slow rotation to animate on desktop, otherwise just keep it static for VR
+    if (!Engine.xrSession) mesh.rotateY(world.delta * 0.5)
+
     if (Engine.activeCameraEntity) {
       const xrui = getComponent(ui.entity, XRUIComponent)
 

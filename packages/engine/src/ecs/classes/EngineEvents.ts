@@ -18,6 +18,7 @@ const EVENTS = {
   LEAVE_WORLD: 'CORE_LEAVE_WORLD' as const, // { }
   SCENE_ENTITY_LOADED: 'CORE_SCENE_ENTITY_LOADED' as const, // { }
   LOADING_STATE_CHANGED: 'LOADING_STATE_CHANGED' as const,
+  XR_SUPPORTED: 'CORE_XR_SUPPORTED' as const,
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE' as const, // { renderer: boolean, physics: boolean }

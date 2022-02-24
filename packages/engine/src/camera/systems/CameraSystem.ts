@@ -18,6 +18,7 @@ import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { accessEngineState } from '../../ecs/classes/EngineService'
 
 const direction = new Vector3()
 const quaternion = new Quaternion()
@@ -284,25 +285,27 @@ export default async function CameraSystem(world: World) {
       camRayCastCache.maxDistance = -1
     }
 
-    const [followCameraEntity] = followCameraQuery(world)
-    if (followCameraEntity !== undefined) {
-      updateFollowCamera(followCameraEntity, delta)
-      updateAvatarOpacity(followCameraEntity)
-    }
+    if (accessEngineState().sceneLoaded.value) {
+      const [followCameraEntity] = followCameraQuery(world)
+      if (followCameraEntity !== undefined) {
+        updateFollowCamera(followCameraEntity, delta)
+        updateAvatarOpacity(followCameraEntity)
+      }
 
-    for (const entity of targetCameraRotationQuery(world)) {
-      updateCameraTargetRotation(entity, delta)
-    }
+      for (const entity of targetCameraRotationQuery(world)) {
+        updateCameraTargetRotation(entity, delta)
+      }
 
-    if (Engine.xrManager?.isPresenting) {
-      // Current WebXRManager.updateCamera() typedef is incorrect
-      ;(Engine.xrManager as any).updateCamera(Engine.camera)
-    } else if (followCameraEntity !== undefined) {
-      const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
-      Engine.camera.position.copy(transform.position)
-      Engine.camera.quaternion.copy(transform.rotation)
-      Engine.camera.scale.copy(transform.scale)
-      Engine.camera.updateMatrixWorld()
+      if (Engine.xrManager?.isPresenting) {
+        // Current WebXRManager.updateCamera() typedef is incorrect
+        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+      } else if (followCameraEntity !== undefined) {
+        const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
+        Engine.camera.position.copy(transform.position)
+        Engine.camera.quaternion.copy(transform.rotation)
+        Engine.camera.scale.copy(transform.scale)
+        Engine.camera.updateMatrixWorld()
+      }
     }
   }
 }
