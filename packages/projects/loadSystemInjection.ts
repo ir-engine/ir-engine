@@ -22,7 +22,7 @@ export const getSystemsFromSceneData = (
 }
 
 export const importSystem = (project: string, data: SystemComponentType): SystemModuleType<any> => {
-  console.info(`Loading Project ${project} with data`, data)
+  console.info(`Loading system ${data.filePath} from project ${project}. Data`, data)
   const { filePath, systemUpdateType, args } = data
   const filePathRelative = new URL(filePath).pathname.replace(`/projects/${project}/`, '')
   const entryPointSplit = filePathRelative.split('.')

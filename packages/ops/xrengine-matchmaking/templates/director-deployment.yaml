@@ -1,4 +1,4 @@
-{{- if .Values.director.enabled -}}
+{{- if (.Values.director).enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

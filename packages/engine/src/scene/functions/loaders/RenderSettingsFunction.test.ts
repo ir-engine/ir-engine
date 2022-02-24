@@ -23,7 +23,7 @@ describe('RenderSettingFunctions', () => {
 
     deserializeRenderSetting(entity, sceneComponent)
 
-    assert.equal(Engine.isCSMEnabled, true)
+    assert.equal(Engine.isCSMEnabled, false)
     // TODO: currently renderer only is created on client
 
     // TODO: unnecessary once engine global scope is refactored

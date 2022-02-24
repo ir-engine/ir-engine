@@ -7,7 +7,7 @@ import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
-export const USER_PAGE_LIMIT = 100
+export const USER_PAGE_LIMIT = 12
 
 const state = createState({
   users: [] as Array<User>,
@@ -67,12 +67,15 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
+  fetchUsersAsAdmin: async (
+    incDec?: 'increment' | 'decrement',
+    value: string | null = null,
+    skip = accessUserState().skip.value
+  ) => {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
       const user = accessAuthState().user
-      const skip = userState.skip.value
       const limit = userState.limit.value
       const skipGuests = userState.skipGuests.value
       try {
@@ -82,7 +85,7 @@ export const UserService = {
               $sort: {
                 name: 1
               },
-              $skip: skip,
+              $skip: skip * USER_PAGE_LIMIT,
               $limit: limit,
               action: 'admin',
               search: value
@@ -94,6 +97,7 @@ export const UserService = {
             }
           }
           const users = await client.service('user').find(params)
+          console.log(users)
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {

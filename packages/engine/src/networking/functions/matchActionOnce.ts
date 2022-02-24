@@ -24,12 +24,12 @@ export const matchActionOnce = <A, B>(match: Validator<A, B>, callback: (match: 
 
 export const receiveActionOnce = (action: string, callback: (a: EngineActionType) => any) => {
   const world = useWorld()
-  const receptor = (a: EngineActionType) => {
+  function receiveActionOnceReceptor(a: EngineActionType) {
     if (a.type === action) {
-      const receptorIndex = world.receptors.indexOf(receptor)
+      const receptorIndex = world.receptors.indexOf(receiveActionOnceReceptor)
       world.receptors.splice(receptorIndex, 1)
       callback(a)
     }
   }
-  world.receptors.push(receptor)
+  world.receptors.push(receiveActionOnceReceptor)
 }

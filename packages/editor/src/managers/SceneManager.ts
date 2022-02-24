@@ -15,7 +15,6 @@ import {
   Light
 } from 'three'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import ThumbnailRenderer from '../renderer/ThumbnailRenderer'
 import { getCanvasBlob } from '../functions/thumbnails'
 import EditorEvents from '../constants/EditorEvents'
 import { CommandManager } from './CommandManager'
@@ -77,7 +76,7 @@ export class SceneManager {
   gizmoEntity: Entity
   editorEntity: Entity
   onUpdateStats?: (info: WebGLInfo) => void
-  renderMode: RenderModesType
+  renderMode: RenderModesType = RenderModes.SHADOW
 
   async initializeScene(projectFile: SceneJson): Promise<Error[] | void> {
     EngineRenderer.instance.disableUpdate = true
@@ -154,8 +153,6 @@ export class SceneManager {
       CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
       EngineRenderer.instance.disableUpdate = false
 
-      ThumbnailRenderer.instance = new ThumbnailRenderer()
-
       accessEngineRendererState().automatic.set(false)
       dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
     } catch (error) {
@@ -198,7 +195,8 @@ export class SceneManager {
     const prevAspect = scenePreviewCamera.aspect
     scenePreviewCamera.aspect = width / height
     scenePreviewCamera.updateProjectionMatrix()
-    scenePreviewCamera.layers.set(ObjectLayers.Render)
+    scenePreviewCamera.layers.disableAll()
+    scenePreviewCamera.layers.set(ObjectLayers.Scene)
     Engine.renderer.setSize(width, height, false)
     Engine.renderer.render(Engine.scene, scenePreviewCamera)
     const blob = await getCanvasBlob(Engine.renderer.domElement)

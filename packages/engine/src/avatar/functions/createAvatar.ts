@@ -27,6 +27,7 @@ import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 
 const avatarRadius = 0.25
 const defaultAvatarHeight = 1.8
@@ -78,6 +79,8 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
     name: userId as string
   })
 
+  addComponent(entity, VisibleComponent, {})
+
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
     animations: [] as AnimationClip[],
@@ -92,7 +95,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-  setObjectLayers(tiltContainer, ObjectLayers.Render, ObjectLayers.Avatar)
+  setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
   filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
