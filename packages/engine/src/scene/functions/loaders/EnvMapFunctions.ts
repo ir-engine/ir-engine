@@ -1,4 +1,4 @@
-import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBFormat, sRGBEncoding, Vector3 } from 'three'
+import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBAFormat, sRGBEncoding, Vector3 } from 'three'
 import { isClient } from '../../../common/functions/isClient'
 import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -72,7 +72,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
         data[i + 2] = Math.floor(col.b * 255)
       }
 
-      const texture = new DataTexture(data, resolution, resolution, RGBFormat)
+      const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 
