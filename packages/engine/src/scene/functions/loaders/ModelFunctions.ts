@@ -61,12 +61,12 @@ export const updateModel: ComponentUpdateFunction = async (
 
   if (properties.src) {
     try {
-      debugger
-      await loadGLTFModel(entity)
-      //add callback
+      const model = await loadGLTFModel(entity)
       const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
-      obj3d.play = () => {
+      //add callback
+      const scene = model?.scene as any
+      scene.play = () => {
         if (
           loopAnimationComponent.activeClipIndex >= 0 &&
           animationComponent.animations[loopAnimationComponent.activeClipIndex]
@@ -81,10 +81,10 @@ export const updateModel: ComponentUpdateFunction = async (
             .play()
         }
       }
-      obj3d.stop = () => {
+      scene.stop = () => {
         if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
       }
-      obj3d.callbacks = () => {
+      scene.callbacks = () => {
         return AnimatedObjectCallbacks
       }
       removeError(entity, 'srcError')
