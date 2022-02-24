@@ -210,8 +210,8 @@ const EditorContainer = (props) => {
     setCurrentScene(sceneName)
   }
 
-  const newScene = async () => {
     if (!projectName) return
+  const onNewScene = async () => {
 
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     dispatch(EditorAction.sceneLoaded(null))
@@ -517,11 +517,11 @@ const EditorContainer = (props) => {
   const generateToolbarMenu = () => {
     return [
       {
-        name: t('editor:menubar.newProject'),
-        action: newScene
+        name: t('editor:menubar.newScene'),
+        action: onNewScene
       },
       {
-        name: t('editor:menubar.saveProject'),
+        name: t('editor:menubar.saveScene'),
         hotkey: `${cmdOrCtrlString}+s`,
         action: onSaveScene
       },
@@ -534,11 +534,11 @@ const EditorContainer = (props) => {
       //   action: onExportProject
       // },
       {
-        name: t('editor:menubar.importProject'),
+        name: t('editor:menubar.importScene'),
         action: onImportScene
       },
       {
-        name: t('editor:menubar.exportProject'),
+        name: t('editor:menubar.exportScene'),
         action: onExportScene
       },
       {
@@ -571,8 +571,8 @@ const EditorContainer = (props) => {
                   ),
                   content: (
                     <ScenesPanel
-                      newScene={newScene}
                       projectName={projectName}
+                      newScene={onNewScene}
                       toggleRefetchScenes={toggleRefetchScenes}
                       loadScene={reRouteToLoadScene}
                     />
