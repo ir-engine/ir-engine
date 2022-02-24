@@ -60,9 +60,7 @@ export async function overrideXR() {
 }
 
 export async function xrSupported() {
-  const supported = await (navigator as any).xr.isSessionSupported('immersive-vr')
-  Engine.xrSupported = supported
-  return supported
+  return await (navigator as any).xr.isSessionSupported('immersive-vr')
 }
 
 export function xrInitialized() {

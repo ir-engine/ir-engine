@@ -24,6 +24,7 @@ const state = createState({
   avatarTappedId: null! as UserId,
   userHasInteracted: false,
   interactionData: null! as InteractableComponentType,
+  xrSupported: false,
   errorEntities: {} as { [key: Entity]: boolean }
 })
 
@@ -86,6 +87,9 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({ userHasInteracted: true })
       case EngineEvents.EVENTS.ENTITY_ERROR_UPDATE:
         s.errorEntities[action.entity].set(!action.isResolved)
+        return
+      case EngineEvents.EVENTS.XR_SUPPORTED:
+        s.xrSupported.set(action.xrSupported)
         return
     }
   }, action.type)
@@ -244,6 +248,13 @@ export const EngineActions = {
       entity,
       isResolved
     }
+  },
+  xrSupported: (xrSupported: boolean) => {
+    return {
+      type: EngineEvents.EVENTS.XR_SUPPORTED,
+      xrSupported
+    }
   }
 }
+
 export type EngineActionType = ReturnType<typeof EngineActions[keyof typeof EngineActions]>
