@@ -60,8 +60,7 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
 
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
-    if(haveAnyLODs(child))
-      loddables.push(child)
+    if (haveAnyLODs(child)) loddables.push(child)
 
     if (!child.isMesh) return
 
