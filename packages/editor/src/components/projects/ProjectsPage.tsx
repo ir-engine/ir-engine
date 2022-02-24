@@ -220,8 +220,8 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    dispatch(EditorAction.sceneLoaded(null))
-    dispatch(EditorAction.projectLoaded(project.name))
+    dispatch(EditorAction.sceneChanged(null))
+    dispatch(EditorAction.projectChanged(project.name))
     history.push(`/editor/${project.name}`)
   }
 

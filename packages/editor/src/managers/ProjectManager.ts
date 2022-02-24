@@ -1,6 +1,8 @@
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 
 import ErrorIcon from '../classes/ErrorIcon'
@@ -48,8 +50,8 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile: SceneJson) {
-    // this.dispose()
+  async loadProjectScene(projectFile: SceneJson) {
+    this.dispose()
 
     await ProjectManager.instance.init()
 

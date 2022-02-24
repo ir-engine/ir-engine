@@ -231,11 +231,14 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
   return new Promise<GLTF | undefined>((resolve, reject) => {
     AssetLoader.load(
       { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
-      (res) => {
+      (res: GLTF) => {
         if (res.scene instanceof Object3D) {
-          // TODO: refactor this
-          addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-          res.scene.animations = res.animation
+          const modelComponentAsync = getComponent(entity, ModelComponent)
+          if (modelComponentAsync && modelComponentAsync.src === modelComponent.src) {
+            // TODO: refactor this
+            addComponent(entity, ReplaceObject3DComponent, { replacement: res })
+            res.scene.animations = res.animations
+          }
           resolve(res)
         } else {
           reject({ message: 'Not a valid object' })

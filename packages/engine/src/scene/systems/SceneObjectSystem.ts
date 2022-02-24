@@ -122,9 +122,11 @@ export default async function SceneObjectSystem(world: World) {
       ;(replacementObj as any).entity = entity
       replacementObj.parent = obj3d.value.parent
 
-      const parent = obj3d.value.parent!
-      const index = parent.children.indexOf(obj3d.value)
-      parent.children.splice(index, 1, replacementObj)
+      const parent = obj3d.value.parent
+      if (parent) {
+        const index = parent.children.indexOf(obj3d.value)
+        parent.children.splice(index, 1, replacementObj)
+      }
 
       obj3d.value.parent = null
       obj3d.value = replacementObj

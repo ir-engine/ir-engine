@@ -384,5 +384,5 @@ export const shutdownEngine = async () => {
   Engine.engineTimer?.clear()
   Engine.engineTimer = null!
 
-  await reset()
+  reset()
 }
