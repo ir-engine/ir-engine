@@ -19,6 +19,10 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
   // host adds the client manually during connectToWorld
   if (world.isHosting) return
 
+  // set utility maps - override if moving through portal
+  world.userIdToUserIndex.set(userId, index)
+  world.userIndexToUserId.set(index, userId)
+
   if (world.clients.has(userId))
     return console.log(`[NetworkActionReceptors]: client with id ${userId} and name ${name} already exists. ignoring.`)
 
@@ -28,16 +32,12 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
     name,
     subscribedChatUpdates: []
   })
-
-  // set utility maps
-  world.userIdToUserIndex.set(userId, index)
-  world.userIndexToUserId.set(index, userId)
 }
 
 const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
   if (!world.clients.has(userId))
     return console.warn(`[NetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
-  if (allowRemoveSelf && userId === Engine.userId)
+  if (!allowRemoveSelf && userId === Engine.userId)
     return console.warn(`[NetworkActionReceptors]: tried to remove local client`)
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
