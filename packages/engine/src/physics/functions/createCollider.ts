@@ -1,17 +1,18 @@
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Vector3, Quaternion, Mesh, Object3D } from 'three'
-import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
+
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { ColliderComponent } from '../components/ColliderComponent'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { CollisionComponent } from '../components/CollisionComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getTransform } from './parseModelColliders'
-import { getGeometryType } from '../classes/Physics'
-import { vectorToArray } from './physxHelpers'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getGeometryType } from '../classes/Physics'
+import { ColliderComponent } from '../components/ColliderComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
+import { getTransform } from './parseModelColliders'
+import { vectorToArray } from './physxHelpers'
 
 /**
  * @author Josh Field <github.com/HexaField>

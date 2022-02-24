@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import logger from '../logger'
 
 export async function addFeedFire(context: any): Promise<HookContext> {

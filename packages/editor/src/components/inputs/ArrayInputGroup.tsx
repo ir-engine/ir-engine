@@ -1,8 +1,9 @@
 import React from 'react'
-import { InputGroupVerticalContainer, InputGroupVerticalContent, InputGroupContent } from './InputGroup'
-import StringInput from './StringInput'
-import FileBrowserInput from './FileBrowserInput'
 import styled from 'styled-components'
+
+import FileBrowserInput from './FileBrowserInput'
+import { InputGroupContent, InputGroupVerticalContainer, InputGroupVerticalContent } from './InputGroup'
+import StringInput from './StringInput'
 
 export interface ArrayInputGroupProp {
   name?: string

@@ -1,7 +1,9 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export interface PublicScenesState {
@@ -36,8 +38,6 @@ export const useSceneState = () => useState(state) as any as typeof state
 export const SceneService = {
   getSceneData: async (projectName: string, sceneName: string) => {
     const sceneData = await client.service('scene').get({ projectName, sceneName })
-    const dispatch = useDispatch()
-    dispatch(SceneAction.sceneLoaded(sceneData.data))
   }
 }
 

@@ -1,4 +1,8 @@
+import assert from 'assert'
 import { Group, Layers, Mesh, Quaternion, Scene, Vector3 } from 'three'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { createWorld } from '../../ecs/classes/World'
 import {
   addComponent,
   createMappedComponent,
@@ -7,15 +11,12 @@ import {
   hasComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { parseGLTFModel } from './loadGLTFModel'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import assert from 'assert'
-import { createWorld } from '../../ecs/classes/World'
-import { ObjectLayers } from '../constants/ObjectLayers'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import { Engine } from '../../ecs/classes/Engine'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { parseGLTFModel } from './loadGLTFModel'
 
 describe('loadGLTFModel', () => {
   // force close until we can reset the engine properly

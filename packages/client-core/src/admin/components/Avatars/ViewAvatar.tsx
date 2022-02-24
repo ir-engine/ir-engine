@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -9,11 +11,11 @@ import Grid from '@mui/material/Grid'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { useStyles } from '../../styles/ui'
-import _ from 'lodash'
-import { validateForm } from '../../common/validation/formValidation'
+
 import AlertMessage from '../../common/AlertMessage'
+import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: boolean

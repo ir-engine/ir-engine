@@ -1,12 +1,13 @@
+import { getEntityComponents } from 'bitecs'
+import React, { useEffect, useRef, useState } from 'react'
+import JSONTree from 'react-json-tree'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getEntityComponents } from 'bitecs'
-import React, { useEffect, useRef, useState } from 'react'
-import JSONTree from 'react-json-tree'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)

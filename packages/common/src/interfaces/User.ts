@@ -2,9 +2,9 @@ import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
+import { UserApiKey } from './UserApiKey'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
-import { UserApiKey } from './UserApiKey'
 
 export interface UserSetting {
   id: string

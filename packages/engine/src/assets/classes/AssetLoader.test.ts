@@ -1,10 +1,11 @@
 import assert from 'assert'
 import Sinon from 'sinon'
-// import rewire from 'rewire'
-import { AssetLoader } from './AssetLoader'
+import { Mesh } from 'three'
+
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { Mesh } from 'three'
+// import rewire from 'rewire'
+import { AssetLoader } from './AssetLoader'
 
 /**
  * tests

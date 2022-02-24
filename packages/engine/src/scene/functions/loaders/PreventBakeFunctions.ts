@@ -1,10 +1,11 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
-import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
 export const SCENE_COMPONENT_PREVENT_BAKE = 'prevent-bake'
 export const SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES = {}

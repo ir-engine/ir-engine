@@ -1,6 +1,7 @@
 import { Document, NodeIO, WebIO } from '@gltf-transform/core'
-import { instance } from '@gltf-transform/functions'
 import { DracoMeshCompression, KHRONOS_EXTENSIONS } from '@gltf-transform/extensions'
+import { instance } from '@gltf-transform/functions'
+
 import { isClient } from '../../common/functions/isClient'
 import { getGLTFLoader } from '../classes/AssetLoader'
 

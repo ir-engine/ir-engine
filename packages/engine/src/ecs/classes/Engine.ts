@@ -4,8 +4,6 @@
  * @author Fernando Serrano, Robert Long
  * @packageDocumentation
  */
-
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import {
   DirectionalLight,
   Object3D,
@@ -17,6 +15,9 @@ import {
   XRFrame,
   XRSession
 } from 'three'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { CSM } from '../../assets/csm/CSM'
 import { isBot } from '../../common/functions/isBot'
 import { InputValue } from '../../input/interfaces/InputValue'

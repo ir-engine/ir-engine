@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { UserSettingsInterface } from '@xrengine/common/src/dbmodels/UserSettings'
+
+import { Application } from '../../../declarations'
 
 export type UserSettingsDataType = UserSettingsInterface
 /**

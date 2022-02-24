@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { SeatStatus as SeatStatusInterface } from '@xrengine/common/src/interfaces/SeatStatus'
+
+import { Application } from '../../../declarations'
 
 export type SeatStatusDataType = SeatStatusInterface
 /**

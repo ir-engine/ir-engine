@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import BooleanInput from '../inputs/BooleanInput'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import NodeEditor from './NodeEditor'
-import ModelInput from '../inputs/ModelInput'
-import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import ViewInArIcon from '@mui/icons-material/ViewInAr'
-import { EditorComponentType, updateProperty } from './Util'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import ShadowProperties from './ShadowProperties'
-import InteractableGroup from '../inputs/InteractableGroup'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { AnimationClip } from 'three'
+
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+
+import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
-import { AnimationClip } from 'three'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import InputGroup from '../inputs/InputGroup'
+import InteractableGroup from '../inputs/InteractableGroup'
+import ModelInput from '../inputs/ModelInput'
+import SelectInput from '../inputs/SelectInput'
+import NodeEditor from './NodeEditor'
+import ShadowProperties from './ShadowProperties'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.

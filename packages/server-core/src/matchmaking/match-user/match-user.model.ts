@@ -1,6 +1,8 @@
-import { DataTypes, Sequelize, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { MatchUserInterface } from '@xrengine/common/src/dbmodels/MatchUser'
+
+import { Application } from '../../../declarations'
 
 /**
  * This model contains connection of user to open match tickets and connection

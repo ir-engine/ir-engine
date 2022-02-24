@@ -1,11 +1,12 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { PersistTagComponent } from '../../components/PersistTagComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { PersistTagComponent } from '../../components/PersistTagComponent'
 
 export const SCENE_COMPONENT_PERSIST = 'persist'
 

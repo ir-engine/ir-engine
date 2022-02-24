@@ -1,4 +1,5 @@
 import { AmbientLight } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { createAvatarController } from '../../avatar/functions/createAvatar'

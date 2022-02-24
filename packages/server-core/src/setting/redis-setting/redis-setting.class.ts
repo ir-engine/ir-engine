@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { AdminRedisSetting as RedisSettingInterface } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+
+import { Application } from '../../../declarations'
 
 export type RedisSettingDataType = RedisSettingInterface
 

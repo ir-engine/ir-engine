@@ -1,12 +1,14 @@
+import classNames from 'classnames'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import Button from '@mui/material/Button'
-import styles from './Profile.module.scss'
 import TextField from '@mui/material/TextField'
-import classNames from 'classnames'
+
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../services/AuthService'
+import styles from './Profile.module.scss'
 
 interface Props {
   avatarUrl: string

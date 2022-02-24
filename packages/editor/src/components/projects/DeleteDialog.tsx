@@ -1,9 +1,12 @@
 import React, { MouseEventHandler } from 'react'
-import Fade from '@mui/material/Fade'
-import styles from './styles.module.scss'
-import { Dialog, DialogTitle, DialogContent } from '@mui/material'
-import { Button } from '../inputs/Button'
+
 import { isDev } from '@xrengine/common/src/utils/isDev'
+
+import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import Fade from '@mui/material/Fade'
+
+import { Button } from '../inputs/Button'
+import styles from './styles.module.scss'
 
 interface Props {
   open: boolean

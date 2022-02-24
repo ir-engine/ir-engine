@@ -1,18 +1,21 @@
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { ImageFileTypes, ModelFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+
+import { ItemTypes } from '../../constants/AssetTypes'
+import { CommandManager } from '../../managers/CommandManager'
+import { EditorComponentType, updateProperty } from '../properties/Util'
+import ArrayInputGroup from './ArrayInputGroup'
 import InputGroup from './InputGroup'
-import SelectInput from './SelectInput'
-import StringInput from './StringInput'
 // import dompurify from 'dompurify'
 import NumericInputGroup from './NumericInputGroup'
-import { CommandManager } from '../../managers/CommandManager'
-import ArrayInputGroup from './ArrayInputGroup'
-import { ItemTypes } from '../../constants/AssetTypes'
-import { VideoFileTypes, ImageFileTypes, ModelFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { EditorComponentType, updateProperty } from '../properties/Util'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import SelectInput from './SelectInput'
+import StringInput from './StringInput'
+
 /**
  * Array containing options for InteractableOption.
  *

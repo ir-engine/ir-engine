@@ -1,6 +1,8 @@
+import assert from 'assert'
+
 import app from '../../../../server/src/app'
 import { getAvatarFromStaticResources } from './avatar-helper'
-import assert from 'assert'
+
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
 // import fs from 'fs'
 // import path from 'path'
