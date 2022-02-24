@@ -86,7 +86,20 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   })
   replacedMaterials.clear()
 
+<<<<<<< HEAD
   loddables.forEach((loddable) => handleLODs(loddable))
+=======
+  const lodFrontier = new Array<Object3D>()
+  lodFrontier.push(asset)
+
+  while (lodFrontier.length > 0) {
+    const thisElt = lodFrontier.pop()
+    if (thisElt) {
+      thisElt.children?.forEach((child) => lodFrontier.push(child))
+      handleLODs(thisElt)
+    }
+  }
+>>>>>>> 7f7077adbaa285413ba0338cc77f53fa099fbde3
 }
 
 
