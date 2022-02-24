@@ -1,4 +1,5 @@
-import { PropertyBinding, AnimationClip, Object3D, Mesh, SkinnedMesh, KeyframeTrack, Bone } from 'three'
+import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, SkinnedMesh } from 'three'
+
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'

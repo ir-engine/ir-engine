@@ -1,19 +1,22 @@
-import VideocamIcon from '@mui/icons-material/Videocam'
 import React, { useState } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import { Button } from '../inputs/Button'
-// import AudioSourceProperties from './AudioSourceProperties'
-import NodeEditor from './NodeEditor'
 import { useTranslation } from 'react-i18next'
-import SelectInput from '../inputs/SelectInput'
-import ArrayInputGroup from '../inputs/ArrayInputGroup'
-import { ItemTypes } from '../../constants/AssetTypes'
+
 import { VolumetricFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { EditorComponentType, updateProperty } from './Util'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { VolumetricPlayMode } from '@xrengine/engine/src/scene/constants/VolumetricPlayMode'
 import { toggleVolumetric } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
+
+import VideocamIcon from '@mui/icons-material/Videocam'
+
+import { ItemTypes } from '../../constants/AssetTypes'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+// import AudioSourceProperties from './AudioSourceProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 const PlayModeOptions = [
   {

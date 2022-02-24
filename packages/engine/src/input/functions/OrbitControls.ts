@@ -1,4 +1,5 @@
-import { Quaternion, PerspectiveCamera, Vector3, Vector2, Camera, Spherical, MOUSE, OrthographicCamera } from 'three'
+import { Camera, MOUSE, OrthographicCamera, PerspectiveCamera, Quaternion, Spherical, Vector2, Vector3 } from 'three'
+
 import { EventDispatcher } from '../../common/classes/EventDispatcher'
 
 const STATE = {

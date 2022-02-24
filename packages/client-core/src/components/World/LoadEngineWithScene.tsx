@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router'
-import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SceneAction, SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+
 import {
   LocationInstanceConnectionAction,
   LocationInstanceConnectionService
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import {
   LocationAction,
   LocationService,
@@ -16,10 +14,14 @@ import {
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leave } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getWorldTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { SceneAction, SceneService, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+
+import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 

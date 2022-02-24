@@ -1,3 +1,21 @@
+import { defineQuery } from 'bitecs'
+import React, { useEffect } from 'react'
+import {
+  AmbientLight,
+  BufferGeometry,
+  ConeBufferGeometry,
+  DirectionalLight,
+  GridHelper,
+  InstancedMesh,
+  Line,
+  LineBasicMaterial,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer
+} from 'three'
+import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -16,23 +34,6 @@ import { createCellSpaceHelper } from '@xrengine/engine/src/navigation/CellSpace
 import { CustomVehicle } from '@xrengine/engine/src/navigation/CustomVehicle'
 import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMeshHelper'
 import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
-import { defineQuery } from 'bitecs'
-import React, { useEffect } from 'react'
-import {
-  AmbientLight,
-  BufferGeometry,
-  ConeBufferGeometry,
-  DirectionalLight,
-  GridHelper,
-  InstancedMesh,
-  Line,
-  LineBasicMaterial,
-  MeshBasicMaterial,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer
-} from 'three'
-import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner

@@ -1,8 +1,9 @@
-import AlertMessage from '../../common/AlertMessage'
-import InputText from '../../common/InputText'
-import { validateForm } from '../../common/validation/formValidation'
-import { AvatarService } from '../../services/AvatarService'
-import { useStyles } from '../../styles/ui'
+import _ from 'lodash'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AVATAR_FILE_ALLOWED_EXTENSIONS } from '@xrengine/common/src/constants/AvatarConstants'
+
 import { ArrowBack, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -12,10 +13,12 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import { styled } from '@mui/material/styles'
-import { AVATAR_FILE_ALLOWED_EXTENSIONS } from '@xrengine/common/src/constants/AvatarConstants'
-import _ from 'lodash'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
+import AlertMessage from '../../common/AlertMessage'
+import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
+import { AvatarService } from '../../services/AvatarService'
+import { useStyles } from '../../styles/ui'
 
 const Input = styled('input')({
   display: 'none'

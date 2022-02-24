@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import { LoadLocationScene } from '@xrengine/client-core/src/components/World/LoadLocationScene'
 

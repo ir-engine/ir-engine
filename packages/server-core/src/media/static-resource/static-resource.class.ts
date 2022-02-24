@@ -1,8 +1,10 @@
 import { Paginated, Params } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+
+import { Application } from '../../../declarations'
 
 export type AvatarDataType = AvatarInterface
 

@@ -1,27 +1,29 @@
 import {
+  AnimationClip,
   FileLoader,
+  Group,
+  Loader,
+  LoaderUtils,
+  LOD,
+  Material,
+  Mesh,
   MeshPhysicalMaterial,
   Object3D,
-  LOD,
-  TextureLoader,
-  Loader,
-  AnimationClip,
-  Group,
-  Mesh,
-  LoaderUtils,
-  Material,
-  SkinnedMesh
+  SkinnedMesh,
+  TextureLoader
 } from 'three'
-import { FBXLoader } from '../loaders/fbx/FBXLoader'
-import { AssetType } from '../enum/AssetType'
-import { AssetClass } from '../enum/AssetClass'
+
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
-import { Engine } from '../../ecs/classes/Engine'
-import { LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 import { isClient } from '../../common/functions/isClient'
-import { createGLTFLoader } from '../functions/createGLTFLoader'
+import { Engine } from '../../ecs/classes/Engine'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
+import { DEFAULT_LOD_DISTANCES, LODS_REGEXP } from '../constants/LoaderConstants'
+import { AssetClass } from '../enum/AssetClass'
+import { AssetType } from '../enum/AssetType'
+import { createGLTFLoader } from '../functions/createGLTFLoader'
+import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+
 // import { instanceGLTF } from '../functions/transformGLTF'
 
 /**

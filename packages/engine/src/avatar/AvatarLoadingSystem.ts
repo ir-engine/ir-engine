@@ -7,11 +7,11 @@ import { addComponent, defineQuery, getComponent, removeComponent } from '../ecs
 import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
-import { DissolveEffect } from './DissolveEffect'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { AvatarPendingComponent } from './components/AvatarPendingComponent'
+import { DissolveEffect } from './DissolveEffect'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))

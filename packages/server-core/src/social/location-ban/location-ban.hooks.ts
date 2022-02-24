@@ -1,8 +1,9 @@
-import authenticate from '../../hooks/authenticate'
-import { disallow } from 'feathers-hooks-common'
-import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 import { Forbidden } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import { disallow } from 'feathers-hooks-common'
+
+import authenticate from '../../hooks/authenticate'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export default {
   before: {

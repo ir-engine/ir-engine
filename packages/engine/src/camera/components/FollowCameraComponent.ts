@@ -1,6 +1,7 @@
+import { Raycaster } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CameraMode } from '../types/CameraMode'
-import { Raycaster } from 'three'
 
 export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */

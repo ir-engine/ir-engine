@@ -1,7 +1,10 @@
-import TouchAppIcon from '@mui/icons-material/TouchApp'
-import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import React, { FunctionComponent } from 'react'
 import { Joystick } from 'react-joystick-component'
+
+import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
+
+import TouchAppIcon from '@mui/icons-material/TouchApp'
+
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 

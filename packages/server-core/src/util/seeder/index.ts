@@ -1,5 +1,7 @@
 import { GeneralError } from '@feathersjs/errors'
+
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+
 import { copyDefaultProject, uploadLocalProjectToProvider } from '../../projects/project/project.class'
 import { seedApp } from './seeder'
 

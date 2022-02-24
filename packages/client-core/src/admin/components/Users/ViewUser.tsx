@@ -1,3 +1,8 @@
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -13,9 +18,7 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'

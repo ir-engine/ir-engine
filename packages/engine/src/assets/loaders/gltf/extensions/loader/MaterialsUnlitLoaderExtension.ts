@@ -1,4 +1,5 @@
-import { DoubleSide, MeshBasicMaterial, sRGBEncoding, RGBAFormat } from 'three'
+import { DoubleSide, MeshBasicMaterial, RGBAFormat, sRGBEncoding } from 'three'
+
 import { LoaderExtension } from './LoaderExtension'
 
 export const ALPHA_MODES = {

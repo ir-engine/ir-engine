@@ -1,15 +1,17 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
-import InputBase from '@mui/material/InputBase'
-import Paper from '@mui/material/Paper'
-import Button from '@mui/material/Button'
-import { useStyles } from '../styles/ui'
+
 import DeleteIcon from '@mui/icons-material/Delete'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
-import IconButton from '@mui/material/IconButton'
+import Paper from '@mui/material/Paper'
+
+import { useStyles } from '../styles/ui'
 
 interface Props {
   command: any

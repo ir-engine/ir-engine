@@ -1,4 +1,5 @@
-import { ImageLoader, ImageBitmapLoader, Texture, Loader, LoadingManager } from 'three'
+import { ImageBitmapLoader, ImageLoader, Loader, LoadingManager, Texture } from 'three'
+
 import { isWebWorker } from '../../../common/functions/getEnvironment'
 
 export class TextureLoader extends Loader {

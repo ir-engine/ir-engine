@@ -1,4 +1,5 @@
 import { Camera, Object3D } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**

@@ -1,8 +1,10 @@
 import React from 'react'
+
 import Grid from '@mui/material/Grid'
+
 import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
-import Scrubber from './Scrubber'
 import NumericInput from './NumericInput'
+import Scrubber from './Scrubber'
 
 export interface NumericInputGroupProp {
   name?: string

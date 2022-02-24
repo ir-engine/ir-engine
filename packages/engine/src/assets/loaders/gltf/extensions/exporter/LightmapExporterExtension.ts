@@ -1,4 +1,5 @@
 import { ExporterExtension } from './ExporterExtension'
+
 export class LightmapExporterExtension extends ExporterExtension {
   onRegister() {
     this.exporter.addHook(

@@ -1,6 +1,7 @@
-import Projects from '../components/Project'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import Projects from '../components/Project'
 
 interface Props {}
 

@@ -1,9 +1,9 @@
 // Initializes the `accept-invite` service on path `/accept-invite`
 import { Application } from '../../../declarations'
-import { AcceptInvite } from './accept-invite.class'
-import hooks from './accept-invite.hooks'
 import config from '../../appconfig'
 import logger from '../../logger'
+import { AcceptInvite } from './accept-invite.class'
+import hooks from './accept-invite.hooks'
 
 /**
  * accept invite service

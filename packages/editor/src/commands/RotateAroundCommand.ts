@@ -1,13 +1,15 @@
-import Command, { CommandParams } from './Command'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
 import { Matrix4, Vector3 } from 'three'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import EditorEvents from '../constants/EditorEvents'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface RotateAroundCommandParams extends CommandParams {
   axis: Vector3

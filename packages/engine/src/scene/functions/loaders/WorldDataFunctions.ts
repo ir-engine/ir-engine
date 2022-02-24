@@ -1,18 +1,20 @@
+import { Object3D } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { Object3D } from 'three'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { WorldDataComponentType } from '../../components/WorldDataComponent'
 
 export const SCENE_COMPONENT_WORLDDATA = '_metadata'

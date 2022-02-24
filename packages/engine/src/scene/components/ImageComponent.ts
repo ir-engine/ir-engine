@@ -1,6 +1,7 @@
 import { Side } from 'three'
-import { ImageAlphaModeType, ImageProjectionType } from '../classes/ImageUtils'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { ImageAlphaModeType, ImageProjectionType } from '../classes/ImageUtils'
 
 export type ImageComponentType = {
   imageSource: string

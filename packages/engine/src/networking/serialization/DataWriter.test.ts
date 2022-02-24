@@ -1,6 +1,15 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { strictEqual } from 'assert'
+import { Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { createWorld } from '../../ecs/classes/World'
+import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent, Vector3Schema } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
@@ -13,15 +22,8 @@ import {
   writeTransform,
   writeVector3
 } from './DataWriter'
-import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
 import { Vector3SoA } from './Utils'
-import { createWorld } from '../../ecs/classes/World'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { Quaternion, Vector3 } from 'three'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
   before(() => {

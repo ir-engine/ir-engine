@@ -1,12 +1,13 @@
-import Command, { CommandParams } from './Command'
-import { serializeProperties, serializeObject3DArray } from '../functions/debug'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+
+import EditorEvents from '../constants/EditorEvents'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3DArray, serializeProperties } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 type PropertyType = {
   [key: string]: any
