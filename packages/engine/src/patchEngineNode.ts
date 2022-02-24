@@ -1,4 +1,5 @@
 import fetch, { Headers, Request, Response } from 'node-fetch'
+
 ;(globalThis as any).fetch = fetch
 ;(globalThis as any).Request = Request
 ;(globalThis as any).Response = Response
