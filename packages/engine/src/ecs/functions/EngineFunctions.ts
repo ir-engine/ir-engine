@@ -13,6 +13,8 @@ import { configureEffectComposer } from '../../renderer/functions/configureEffec
 import { EntityTreeNode } from '../classes/EntityTree'
 import { unloadSystems } from './SystemFunctions'
 import { World } from '../classes/World'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { EngineActions } from '../classes/EngineService'
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -74,6 +76,7 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   unloadAllEntities(world, removePersisted)
 
   Engine.sceneLoaded = false
+  dispatchLocal(EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null

@@ -108,7 +108,7 @@ const loadScene = async (app: Application, scene: string) => {
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
-  dispatchLocal(EngineActions.joinedWorld(true) as any)
+  dispatchLocal(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -237,8 +237,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
 
     Engine.sceneLoaded = true
-    dispatchLocal(EngineActions.sceneLoaded(true) as any)
-    dispatchLocal(EngineActions.joinedWorld(true) as any)
+    dispatchLocal(EngineActions.sceneLoaded())
+    dispatchLocal(EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)

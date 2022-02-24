@@ -33,7 +33,8 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-  dispatchLocal(EngineActions.sceneLoading(true) as any)
+
+  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -68,7 +69,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
-  dispatchLocal(EngineActions.sceneLoaded(true) as any).delay(2)
+  dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
 /**

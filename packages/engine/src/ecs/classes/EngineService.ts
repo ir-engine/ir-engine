@@ -49,12 +49,16 @@ export function EngineEventReceptor(action: EngineActionType) {
         })
       case EngineEvents.EVENTS.INITIALIZED_ENGINE:
         return s.merge({ isEngineInitialized: action.initialised })
+      case EngineEvents.EVENTS.SCENE_UNLOADED:
+        return s.merge({ sceneLoaded: false, sceneLoading: false })
       case EngineEvents.EVENTS.SCENE_LOADING:
-        return s.merge({ sceneLoaded: false, sceneLoading: action.sceneLoading })
+        return s.merge({ sceneLoaded: false, sceneLoading: true })
       case EngineEvents.EVENTS.SCENE_LOADED:
-        return s.merge({ sceneLoaded: action.sceneLoaded, sceneLoading: false })
+        return s.merge({ sceneLoaded: true, sceneLoading: false })
       case EngineEvents.EVENTS.JOINED_WORLD:
-        return s.merge({ joinedWorld: action.joinedWorld })
+        return s.merge({ joinedWorld: true })
+      case EngineEvents.EVENTS.LEAVE_WORLD:
+        return s.merge({ joinedWorld: false })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
         return s.merge({ connectedWorld: action.connectedWorld })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT:
@@ -124,10 +128,9 @@ export const EngineActions = {
       instance
     }
   },
-  joinedWorld: (joinedWorld: boolean) => {
+  joinedWorld: () => {
     return {
-      type: EngineEvents.EVENTS.JOINED_WORLD,
-      joinedWorld
+      type: EngineEvents.EVENTS.JOINED_WORLD
     }
   },
   leaveWorld: () => {
@@ -135,16 +138,19 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.LEAVE_WORLD
     }
   },
-  sceneLoading: (sceneLoading: boolean) => {
+  sceneLoading: () => {
     return {
-      type: EngineEvents.EVENTS.SCENE_LOADING,
-      sceneLoading
+      type: EngineEvents.EVENTS.SCENE_LOADING
     }
   },
-  sceneLoaded: (sceneLoaded: boolean) => {
+  sceneLoaded: () => {
     return {
-      type: EngineEvents.EVENTS.SCENE_LOADED,
-      sceneLoaded
+      type: EngineEvents.EVENTS.SCENE_LOADED
+    }
+  },
+  sceneUnloaded: () => {
+    return {
+      type: EngineEvents.EVENTS.SCENE_UNLOADED
     }
   },
   sceneEntityLoaded: (entitiesLeft: number) => {
