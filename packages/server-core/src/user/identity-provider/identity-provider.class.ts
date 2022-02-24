@@ -40,7 +40,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     let { token, type, password } = data
     let user
 
-    console.log('i_p create', params)
     if (params.authentication) {
       const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
         { accessToken: params.authentication.accessToken },
@@ -58,7 +57,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       type !== 'sms'
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
-    console.log('type', type)
     let userId = data.userId
     let identityProvider: any
 
@@ -140,11 +138,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     // check if there is a user with userId
     let foundUser
     try {
-      console.log('Trying to get user by ID')
       foundUser = await userService.get(userId)
     } catch (err) {}
 
-    console.log('foundUser', foundUser)
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
       return (await super.create(
@@ -173,7 +169,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
 
-    console.log('role', role)
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
@@ -185,7 +180,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     let result
     try {
-      console.log('creating new user')
       result = await super.create(
         {
           ...data,
@@ -200,13 +194,11 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         params
       )
     } catch (err) {
-      console.log('error creating user/identity provider', err)
       await this.app.service('user').remove(userId)
       throw err
     }
     // DRC
 
-    console.log('adding scopes')
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
         await this.app.service('scope').create({
