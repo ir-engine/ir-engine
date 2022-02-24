@@ -1,4 +1,4 @@
-import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+import express, { static as _static, errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio'
 import * as k8s from '@kubernetes/client-node'
@@ -8,6 +8,7 @@ import { EventEmitter } from 'events'
 import feathersLogger from 'feathers-logger'
 import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
+import fs from 'fs'
 import helmet from 'helmet'
 import path from 'path'
 import favicon from 'serve-favicon'
@@ -147,9 +148,7 @@ try {
   })
 
   if (isDev && !config.db.forceRefresh) {
-    app.isSetup.then(() => {
-      app.service('project')._fetchDevLocalProjects()
-    })
+    app.service('project')._fetchDevLocalProjects()
   }
 } catch (err) {
   console.log('Server init failure')

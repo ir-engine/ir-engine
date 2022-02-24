@@ -46,8 +46,7 @@ describe('avatarFunctions Integration', async () => {
   })
 
   describe('loadAvatarForEntity', () => {
-    it('should bone match, and rig avatar', async function () {
-      this.timeout(60 * 1000)
+    it('should bone match, and rig avatar', async () => {
       // clear cache to not potentially leak data between tests
       AssetLoader.Cache.clear()
       const world = useWorld()
@@ -119,7 +118,7 @@ describe('avatarFunctions Integration', async () => {
           // assert.equal(hasComponent(entity, UpdatableComponent), asset.split('.').pop() === 'vrm')
         })
       )
-    })
+    }).timeout(60 * 1000)
   })
 })
 
