@@ -41,8 +41,6 @@ export default async function HyperspacePortalSystem(world: World) {
       removeComponent(world.localClientEntity, InteractorComponent)
       removeComponent(world.localClientEntity, LocalInputTagComponent)
 
-      setObjectLayers(playerObj.value, ObjectLayers.Avatar)
-
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       hyperspaceEffect.fadeIn(delta)
 
@@ -53,7 +51,6 @@ export default async function HyperspacePortalSystem(world: World) {
       // set scene to render just the hyperspace effect and avatar
       Engine.scene.background = null
       Engine.camera.layers.enable(ObjectLayers.Portal)
-      Engine.camera.layers.enable(ObjectLayers.Avatar)
       Engine.camera.layers.disable(ObjectLayers.Scene)
 
       Engine.scene.add(light)
@@ -79,10 +76,7 @@ export default async function HyperspacePortalSystem(world: World) {
       light.removeFromParent()
       light.dispose()
 
-      setObjectLayers(playerObj.value, ObjectLayers.Scene)
-
       Engine.camera.layers.disable(ObjectLayers.Portal)
-      Engine.camera.layers.disable(ObjectLayers.Avatar)
     }
 
     // run the logic for

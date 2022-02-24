@@ -59,17 +59,23 @@ export const Debug = () => {
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
-          return [
-            key + '(' + value + ')',
-            Object.fromEntries(
-              getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
-                return components
-              }, [] as [string, any][])
-            )
-          ]
-        })
+        [...Engine.currentWorld.namedEntities.entries()]
+          .map(([key, value]) => {
+            try {
+              return [
+                key + '(' + value + ')',
+                Object.fromEntries(
+                  getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
+                    if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
+                    return components
+                  }, [] as [string, any][])
+                )
+              ]
+            } catch (e) {
+              return null!
+            }
+          })
+          .filter((exists) => !!exists)
       )
     }
   }
