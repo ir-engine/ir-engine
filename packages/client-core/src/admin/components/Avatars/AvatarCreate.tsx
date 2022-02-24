@@ -24,8 +24,6 @@ import { Scene, PerspectiveCamera, WebGLRenderer } from 'three'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { initialize3D, renderScene } from '../../../user/components/UserMenu/menus/helperFunctions'
-import styles from '../../../user/components/UserMenu/UserMenu.module.scss'
-import IconLeftClick from '../../../common/components/Icons/IconLeftClick'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
 const Input = styled('input')({
@@ -208,7 +206,18 @@ const AvatarCreate = ({ handleClose, open }) => {
                   formErrors={formErrors.description}
                 />
 
-                <Button className={classes.saveBtn} onClick={() => setSelectUse(!selectUse)} style={{ width: '97%' }}>
+                <Button
+                  className={classes.saveBtn}
+                  onClick={() => {
+                    setSelectUse(!selectUse)
+                    if (!selectUse) {
+                      setAvatarModel(null)
+                      setSelectedFile(null)
+                      setFileSelected(false)
+                    }
+                  }}
+                  style={{ width: '97%' }}
+                >
                   {!selectUse ? 'Upload files' : 'Use url instead'}
                 </Button>
                 {!selectUse ? (
