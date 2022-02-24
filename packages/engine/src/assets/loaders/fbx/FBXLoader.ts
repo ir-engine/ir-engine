@@ -35,14 +35,15 @@ import {
   Skeleton,
   SkinnedMesh,
   SpotLight,
+  sRGBEncoding,
   Texture,
   TextureLoader,
   Uint16BufferAttribute,
   Vector3,
   Vector4,
-  VectorKeyframeTrack,
-  sRGBEncoding
+  VectorKeyframeTrack
 } from 'three'
+
 import * as fflate from './fflate.module.js'
 import { NURBSCurve } from './NURBSCurve.ts'
 

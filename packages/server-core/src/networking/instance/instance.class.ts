@@ -1,8 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params, Paginated } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
+
 import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+
+import { Application } from '../../../declarations'
 
 export type InstanceDataType = InstanceInterface
 

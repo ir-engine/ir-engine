@@ -1,4 +1,5 @@
 import { Mesh } from 'three'
+
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
 import { isClient } from '../../common/functions/isClient'
 

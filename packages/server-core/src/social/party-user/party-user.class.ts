@@ -1,6 +1,9 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/PartyUser'
+
+import { Application } from '../../../declarations'
+
 /**
  * A class for Party user service
  *

@@ -1,9 +1,11 @@
 // References:
 // https://www.youtube.com/watch?v=OMmXo3Jejxk&list=PLMinhigDWz6emRKVkVIEAaePW7vtIkaIF&index=135
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
-import { IKRigComponentType, PointData } from '../components/IKRigComponent'
-import { Object3D, Quaternion, Vector3, Matrix4 } from 'three'
+import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from '../../ikrig/constants/Vector3Constants'
+import { Chain } from '../classes/Chain'
+import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import {
   IKPoseComponent,
   IKPoseComponentType,
@@ -11,11 +13,9 @@ import {
   IKPoseLookTwist,
   IKPoseSpineData
 } from '../components/IKPoseComponent'
-import { BACK, DOWN, UP, FORWARD, LEFT, RIGHT } from '../../ikrig/constants/Vector3Constants'
-import { addChain, addPoint } from './RigFunctions'
-import Pose, { PoseBoneLocalState } from '../classes/Pose'
-import { Chain } from '../classes/Chain'
+import { IKRigComponentType, PointData } from '../components/IKRigComponent'
 import { solveThreeBone } from './IKSolvers'
+import { addChain, addPoint } from './RigFunctions'
 
 const tempMat = new Matrix4()
 const tempQuat1 = new Quaternion()

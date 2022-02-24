@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { InviteType as InviteTypeInterface } from '@xrengine/common/src/interfaces/InviteType'
+
+import { Application } from '../../../declarations'
 
 export type InviteTypeDataType = InviteTypeInterface
 

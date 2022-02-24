@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { BotCommands as BotCommandInterface } from '@xrengine/common/src/interfaces/AdminBot'
+
+import { Application } from '../../../declarations'
 
 export type BotCommandDataType = BotCommandInterface
 

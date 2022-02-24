@@ -1,9 +1,10 @@
-import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
 import React from 'react'
 import { Helmet } from 'react-helmet'
 // import { Capacitor } from '@capacitor/core'
 import { Trans, useTranslation } from 'react-i18next'
 import { Redirect, useHistory } from 'react-router-dom'
+
+import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 

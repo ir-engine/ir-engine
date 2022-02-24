@@ -1,14 +1,15 @@
+import { Euler } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
+import { unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { unloadSystems } from '../../ecs/functions/SystemFunctions'
-import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { NetworkActionReceptors } from '../../networking/functions/NetworkActionReceptors'
-import { Euler } from 'three'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 
 export const teleportToScene = async () => {
   const world = useWorld()

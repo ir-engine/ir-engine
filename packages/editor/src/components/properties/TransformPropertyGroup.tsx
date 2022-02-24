@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import PropertyGroup from './PropertyGroup'
-import { Euler } from 'three'
-import InputGroup from '../inputs/InputGroup'
-import Vector3Input from '../inputs/Vector3Input'
-import EulerInput from '../inputs/EulerInput'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
+import { Euler } from 'three'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import EditorCommands from '../../constants/EditorCommands'
+import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import EulerInput from '../inputs/EulerInput'
+import InputGroup from '../inputs/InputGroup'
+import Vector3Input from '../inputs/Vector3Input'
+import PropertyGroup from './PropertyGroup'
 import { EditorComponentType } from './Util'
 
 const euler = new Euler()

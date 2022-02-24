@@ -1,14 +1,8 @@
-import os from 'os'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { Network } from '@xrengine/engine/src/networking//classes/Network'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 import { createWorker } from 'mediasoup'
 import {
-  DataProducer,
   DataConsumer,
   DataConsumerOptions,
+  DataProducer,
   DataProducerOptions,
   Producer,
   Router,
@@ -16,11 +10,19 @@ import {
   Transport,
   WebRtcTransport
 } from 'mediasoup/node/lib/types'
+import os from 'os'
 import SocketIO from 'socket.io'
-import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
-import { getUserIdFromSocketId } from './NetworkFunctions'
-import config from '@xrengine/server-core/src/appconfig'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Network } from '@xrengine/engine/src/networking//classes/Network'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import config from '@xrengine/server-core/src/appconfig'
+import { localConfig, sctpParameters } from '@xrengine/server-core/src/config'
+import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
+
+import { getUserIdFromSocketId } from './NetworkFunctions'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 const toArrayBuffer = (buf): any => {

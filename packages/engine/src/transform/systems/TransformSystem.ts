@@ -1,6 +1,7 @@
 import { Euler } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'

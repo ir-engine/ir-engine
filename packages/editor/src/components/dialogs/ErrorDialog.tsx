@@ -1,7 +1,7 @@
 import React from 'react'
+import styled from 'styled-components'
 
 import Dialog, { DialogContent } from './Dialog'
-import styled from 'styled-components'
 
 /**
  * ErrorDialogContainer used as wrapper element for ErrorMessage.

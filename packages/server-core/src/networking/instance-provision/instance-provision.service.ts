@@ -1,6 +1,6 @@
 // Initializes the `instance-provision` service on path `/instance-provision`
-import logger from '../../logger'
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { InstanceProvision } from './instance-provision.class'
 import instanceProvisionDocs from './instance-provision.docs'
 import hooks from './instance-provision.hooks'

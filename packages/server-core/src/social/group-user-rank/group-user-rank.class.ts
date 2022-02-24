@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { GroupUserRankInterface } from '@xrengine/common/src/dbmodels/GroupUserRank'
+
+import { Application } from '../../../declarations'
 
 export type GroupUserRankDataType = GroupUserRankInterface
 /**

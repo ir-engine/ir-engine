@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { GameserverSubdomainProvisionInterface } from '@xrengine/common/src/dbmodels/GameserverSubdomainProvision'
+
+import { Application } from '../../../declarations'
 
 export type GameServerSubdomainProvisionDataType = GameserverSubdomainProvisionInterface
 

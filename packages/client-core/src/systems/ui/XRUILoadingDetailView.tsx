@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { useHookstate, createState, State } from '@speigg/hookstate'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import ProgressBar from './SimpleProgressBar'
-import { useSceneState } from '../../world/services/SceneService'
+import { createState, State, useHookstate } from '@speigg/hookstate'
 import getImagePalette from 'image-palette-core'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import React, { useEffect, useState } from 'react'
 import { Color } from 'three'
+
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import { useSceneState } from '../../world/services/SceneService'
+import ProgressBar from './SimpleProgressBar'
 
 interface LoadingUIState {
   imageWidth: number
@@ -99,7 +101,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   }, [colors, thumbnailUrl])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
-  console.log('colors', col, colors.value)
+
   return (
     <>
       <style>{`

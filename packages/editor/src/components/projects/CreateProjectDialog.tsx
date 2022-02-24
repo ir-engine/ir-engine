@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
+
+import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
-import CircularProgress from '@mui/material/CircularProgress'
-import styles from './styles.module.scss'
-import { Dialog, DialogTitle, DialogContent, TextField } from '@mui/material'
+
 import { Button } from '../inputs/Button'
+import styles from './styles.module.scss'
 
 interface Props {
   open: boolean

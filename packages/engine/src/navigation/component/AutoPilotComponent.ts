@@ -1,5 +1,6 @@
-import { Entity } from '../../ecs/classes/Entity'
 import { Path } from 'yuka'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**

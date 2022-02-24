@@ -8,6 +8,7 @@ import {
   SphereGeometry,
   XRInputSource
 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { Engine } from '../../ecs/classes/Engine'

@@ -1,7 +1,9 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export interface PublicScenesState {

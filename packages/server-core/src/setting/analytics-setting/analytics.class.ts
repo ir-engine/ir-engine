@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { SettingAnalytics as SettingAnalyticsInterface } from '@xrengine/common/src/interfaces/SettingAnalytics'
+
+import { Application } from '../../../declarations'
 
 export type SettingAnalyticsDataType = SettingAnalyticsInterface
 

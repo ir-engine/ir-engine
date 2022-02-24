@@ -1,4 +1,4 @@
-import { WebGLCubeRenderTarget, CubeCamera, LinearFilter, RGBAFormat, Scene, Vector3, WebGLRenderer } from 'three'
+import { CubeCamera, LinearFilter, RGBAFormat, Scene, Vector3, WebGLCubeRenderTarget, WebGLRenderer } from 'three'
 
 export default class CubemapCapturer {
   width: number

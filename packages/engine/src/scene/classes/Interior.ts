@@ -1,14 +1,15 @@
 import {
+  CubeTexture,
+  CubeTextureLoader,
   Mesh,
+  Object3D,
   PlaneBufferGeometry,
   ShaderMaterial,
-  CubeTextureLoader,
-  CubeTexture,
   sRGBEncoding,
   Texture,
-  Vector2,
-  Object3D
+  Vector2
 } from 'three'
+
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'

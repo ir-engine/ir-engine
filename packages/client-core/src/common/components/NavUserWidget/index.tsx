@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import Button from '@mui/material/Button'
+
 import { useDispatch } from '../../../store'
+import SignIn from '../../../user/components/Auth/Login'
+import Dropdown from '../../../user/components/Profile/ProfileDropdown'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AuthService } from '../../../user/services/AuthService'
 import { DialogAction } from '../../services/DialogService'
-import SignIn from '../../../user/components/Auth/Login'
-import Dropdown from '../../../user/components/Profile/ProfileDropdown'
-import { useTranslation } from 'react-i18next'
 import styles from './NavUserWidget.module.scss'
-import Button from '@mui/material/Button'
 
 interface Props {
   login?: boolean

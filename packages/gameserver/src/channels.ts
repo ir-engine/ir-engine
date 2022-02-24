@@ -1,17 +1,12 @@
 import '@feathersjs/transport-commons'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import config from '@xrengine/server-core/src/appconfig'
-import { Application } from '@xrengine/server-core/declarations'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
-import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
+
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
-// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeCoreSystems,
@@ -22,9 +17,15 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
+// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 interface SocketIOConnectionType {
   provider: string

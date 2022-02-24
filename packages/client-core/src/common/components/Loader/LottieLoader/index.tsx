@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+
 import { randomNumber } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
+
 import styles from '../Loader.module.scss'
 
 const Loaders = [

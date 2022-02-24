@@ -1,25 +1,27 @@
-import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
 import i18next from 'i18next'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
+  AnimationMixer,
   Box3,
-  Vector3,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
   DirectionalLight,
   HemisphereLight,
+  Object3D,
+  PerspectiveCamera,
+  Scene,
   sRGBEncoding,
-  AnimationMixer,
-  Object3D
+  Vector3,
+  WebGLRenderer
 } from 'three'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+
+import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+
 const t = i18next.t
 interface SceneProps {
   scene: Scene

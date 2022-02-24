@@ -1,12 +1,13 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */

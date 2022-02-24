@@ -1,3 +1,5 @@
+import React from 'react'
+
 import {
   Accessibility,
   CalendarViewDay,
@@ -13,7 +15,6 @@ import {
   Timeline,
   Toys
 } from '@mui/icons-material'
-import React from 'react'
 
 export const SidebarItems = (allowedRoutes) => [
   {

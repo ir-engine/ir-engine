@@ -1,4 +1,5 @@
 import { MathUtils } from 'three'
+
 import { World } from '../../ecs/classes/World'
 
 type TransitionType = 'IN' | 'OUT' | 'NONE'

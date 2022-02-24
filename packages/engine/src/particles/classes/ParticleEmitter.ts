@@ -1,4 +1,5 @@
 import { MathUtils, Matrix4, Mesh } from 'three'
+
 import { createPseudoRandom } from '../../common/functions/MathRandomFunctions'
 import { ParticleEmitter, ParticleEmitterInterface } from '../interfaces'
 import {
