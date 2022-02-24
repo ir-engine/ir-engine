@@ -56,8 +56,13 @@ export const loadExtensions = async (gltf: GLTF) => {
 
 const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   const replacedMaterials = new Map()
-
+  
+  const haveAnyLODs = (_asset) => !!_asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
+  const loddables = new Array<Object3D>()
   asset.traverse((child: Mesh<any, Material>) => {
+    if (haveAnyLODs(child))
+      loddables.push(child)
+
     if (!child.isMesh) return
 
     if (typeof params.receiveShadow !== 'undefined') child.receiveShadow = params.receiveShadow
@@ -81,12 +86,9 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
   })
   replacedMaterials.clear()
 
-  handleLODs(asset)
-
-  if (asset.children.length) {
-    asset.children.forEach((child) => handleLODs(child))
-  }
+  loddables.forEach((loddable) => handleLODs(loddable))
 }
+
 
 /**
  * Handles Level of Detail for asset.
@@ -94,11 +96,6 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
  * @returns LOD handled asset.
  */
 const handleLODs = (asset: Object3D): Object3D => {
-  const haveAnyLODs = !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
-  if (!haveAnyLODs) {
-    return asset
-  }
-
   const LODs = new Map<string, { object: Object3D; level: string }[]>()
   asset.children.forEach((child) => {
     const childMatch = child.name.match(LODS_REGEXP)
