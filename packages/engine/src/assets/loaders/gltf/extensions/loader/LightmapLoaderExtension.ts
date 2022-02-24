@@ -1,4 +1,4 @@
-import { sRGBEncoding, RGBFormat } from 'three'
+import { sRGBEncoding, RGBAFormat } from 'three'
 import { LoaderExtension } from './LoaderExtension'
 function getLightmap(materialDef) {
   return materialDef.extensions && materialDef.extensions[LightmapLoaderExtension.extensionName]
@@ -22,7 +22,7 @@ export class LightmapLoaderExtension extends LoaderExtension {
     const lightmap = getLightmap(materialDef)
     if (lightmap) {
       material.lightMapIntensity = lightmap.intensity === undefined ? 1 : lightmap.intensity
-      await this.loader.assignTexture(material, 'lightMap', lightmap, sRGBEncoding, RGBFormat)
+      await this.loader.assignTexture(material, 'lightMap', lightmap, sRGBEncoding, RGBAFormat)
     }
   }
 }

@@ -24,9 +24,10 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
 
     entityTree.traverse((o) => {
       if (o === entityTree.rootNode) return
-
       if (hasComponent(o.entity, Object3DComponent)) {
-        options.push({ label: getComponent(o.entity, NameComponent)?.name, value: o.uuid })
+        const obj3d = getComponent(o.entity, Object3DComponent).value as any
+        const callbacks = obj3d.callbacks ? obj3d.callbacks() : []
+        options.push({ label: getComponent(o.entity, NameComponent)?.name, value: o.uuid, callbacks })
       }
     })
     setOptions(options)
@@ -66,18 +67,37 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
-        <StringInput
-          value={triggerVolumeComponent.onEnter}
-          onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
-          disabled={props.multiEdit || !target}
-        />
+        {targetOption?.callbacks.length == 0 ? (
+          <StringInput
+            value={triggerVolumeComponent.onEnter}
+            onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
+            disabled={props.multiEdit || !target}
+          />
+        ) : (
+          <SelectInput
+            value={triggerVolumeComponent.onEnter}
+            onChange={updateProperty(TriggerVolumeComponent, 'onEnter')}
+            options={targetOption?.callbacks ? targetOption.callbacks : []}
+            disabled={props.multiEdit || !target}
+          />
+        )}
       </InputGroup>
+
       <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
-        <StringInput
-          value={triggerVolumeComponent.onExit}
-          onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
-          disabled={props.multiEdit || !target}
-        />
+        {targetOption?.callbacks.length == 0 ? (
+          <StringInput
+            value={triggerVolumeComponent.onExit}
+            onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
+            disabled={props.multiEdit || !target}
+          />
+        ) : (
+          <SelectInput
+            value={triggerVolumeComponent.onExit}
+            onChange={updateProperty(TriggerVolumeComponent, 'onExit')}
+            options={targetOption?.callbacks ? targetOption.callbacks : []}
+            disabled={props.multiEdit || !target}
+          />
+        )}
       </InputGroup>
     </NodeEditor>
   )

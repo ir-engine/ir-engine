@@ -3,6 +3,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
+import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { EngineActions } from '../../ecs/classes/EngineService'
@@ -51,10 +52,16 @@ export default async function TriggerSystem(world: World) {
         }
       }
       if (targetObj) {
-        if (targetObj[onEnter]) {
-          targetObj[onEnter]()
-        } else if (targetObj.execute) {
-          targetObj.execute(onEnter)
+        // if (targetObj[onEnter]) {
+        //   targetObj[onEnter]()
+        // } else if (targetObj.execute) {
+        //   targetObj.execute(onEnter)
+        // }
+        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
+        if (obj3d[onEnter]) {
+          obj3d[onEnter]()
+        } else if (obj3d.execute) {
+          obj3d.execute(onEnter)
         }
       }
     }
@@ -81,10 +88,16 @@ export default async function TriggerSystem(world: World) {
         }
       }
       if (targetObj) {
-        if (targetObj[onExit]) {
-          targetObj[onExit]()
-        } else if (targetObj.execute) {
-          targetObj.execute(onExit)
+        // if (targetObj[onExit]) {
+        //   targetObj[onExit]()
+        // } else if (targetObj.execute) {
+        //   targetObj.execute(onExit)
+        // }
+        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
+        if (obj3d[onExit]) {
+          obj3d[onExit]()
+        } else if (obj3d.execute) {
+          obj3d.execute(onExit)
         }
       }
     }
