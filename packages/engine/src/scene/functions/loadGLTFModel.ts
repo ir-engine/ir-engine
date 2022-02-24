@@ -48,7 +48,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       }
     }
   }
-  console.log('components', components)
+
   for (const [key, value] of Object.entries(components)) {
     const component = ComponentMap.get(key)
     if (typeof component === 'undefined') {
@@ -58,7 +58,6 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     }
   }
 
-  console.log('prefabs', prefabs)
   for (const [key, value] of Object.entries(prefabs)) {
     loadComponent(entity, {
       name: key,
