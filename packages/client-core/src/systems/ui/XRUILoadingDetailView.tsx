@@ -99,7 +99,7 @@ const LoadingDetailView = (props: { onStateChange: (state: { hasSceneColors: boo
   }, [colors, thumbnailUrl])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
-  console.log('colors', col, colors.value)
+
   return (
     <>
       <style>{`
