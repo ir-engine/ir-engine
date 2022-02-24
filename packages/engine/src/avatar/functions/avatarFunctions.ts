@@ -59,6 +59,7 @@ const loadAvatarModelAsset = async (avatarURL: string) => {
   const root = new Group()
   root.add(model.scene)
   parent.add(root)
+  parent.userData = model.scene.userData
   return SkeletonUtils.clone(parent)
 }
 
@@ -170,8 +171,6 @@ export const setupAvatarMaterials = (root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
-      // Transparency fix
-      object.material.format = RGBAFormat
       const material = object.material.clone()
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
       materialList.push({

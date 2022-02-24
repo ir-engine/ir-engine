@@ -4,6 +4,7 @@ import Sinon from 'sinon'
 import { AssetLoader } from './AssetLoader'
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+import { Mesh } from 'three'
 
 /**
  * tests
@@ -11,10 +12,7 @@ import { AssetType } from '../enum/AssetType'
 describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
-      const asset = {
-        traverse: Sinon.spy(),
-        children: []
-      }
+      const asset = new Mesh()
       const params = {
         url: '',
         castShadow: true,

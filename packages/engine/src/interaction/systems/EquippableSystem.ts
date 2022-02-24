@@ -87,6 +87,8 @@ export default async function EquippableSystem(world: World) {
     }
 
     for (const entity of equippableQuery()) {
+      // since equippables are all client authoritative, we don't need to recompute this for all users
+      if (entity !== world.localClientEntity) continue
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippedEntity = equipperComponent.equippedEntity
       if (equippedEntity) {

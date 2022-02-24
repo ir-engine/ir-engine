@@ -7,7 +7,7 @@ import {
   NormalPass,
   DepthDownsamplingPass
 } from 'postprocessing'
-import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
+import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { EffectMap, Effects } from '../../scene/constants/PostProcessing'
@@ -36,7 +36,7 @@ export const configureEffectComposer = (remove?: boolean): void => {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
-      format: RGBFormat,
+      format: RGBAFormat,
       stencilBuffer: false
     })
   })

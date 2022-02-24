@@ -1,8 +1,11 @@
-import { Params } from '@feathersjs/feathers/lib'
+import { Params, Paginated } from '@feathersjs/feathers'
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Application } from '../../../declarations'
+import { EmailSetting as EmailSettingInterface } from '@xrengine/common/src/interfaces/EmailSetting'
 
-export class EmailSetting extends Service {
+export type EmailSettingDataType = EmailSettingInterface
+
+export class EmailSetting<T = EmailSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -10,7 +13,7 @@ export class EmailSetting extends Service {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const emailSetting = (await super.find()) as any
     const data = emailSetting.data.map((el) => {
       let smtp = JSON.parse(el.smtp)

@@ -1,13 +1,9 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster-slim as builder
+FROM root-builder as builder
 
-RUN apt update
-RUN apt-get -y install build-essential meson python3-testresources python3-venv python3-pip git
 # Create app directory
 WORKDIR /app
-
-RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
