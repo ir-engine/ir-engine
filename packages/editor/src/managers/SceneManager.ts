@@ -15,6 +15,7 @@ import {
   WebGLRenderer
 } from 'three'
 
+import { store } from '@xrengine/client-core/src/store'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
@@ -52,6 +53,7 @@ import { createGizmoEntity } from '../functions/createGizmoEntity'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import isEmptyObject from '../functions/isEmptyObject'
 import { getCanvasBlob } from '../functions/thumbnails'
+import { EditorAction } from '../services/EditorServices'
 import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
 
@@ -69,7 +71,6 @@ export class SceneManager {
   }
 
   isInitialized: boolean = false
-  sceneModified: boolean
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
   raycastTargets: Intersection<Object3D>[] = []
@@ -111,7 +112,6 @@ export class SceneManager {
     Engine.scene.add(this.grid)
     Engine.scene.add(this.transformGizmo)
 
-    this.sceneModified = false
     this.isInitialized = true
 
     return []
@@ -123,7 +123,7 @@ export class SceneManager {
    * @author Robert Long
    */
   onEmitSceneModified() {
-    this.sceneModified = true
+    store.dispatch(EditorAction.sceneModified(true))
   }
 
   /**

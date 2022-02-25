@@ -51,7 +51,9 @@ export default async function XRSystem(world: World) {
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
-  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+  ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
+    dispatchLocal(EngineActions.xrSupported(supported) as any)
+  })
 
   // TEMPORARY - precache controller model
   // Cache hand models
