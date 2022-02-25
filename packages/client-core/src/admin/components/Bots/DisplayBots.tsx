@@ -17,7 +17,7 @@ import { BotService, useBotState } from '../../services/BotsService'
 import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
 import { useTranslation } from 'react-i18next'
-import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 
 const DisplayBots = () => {
   const classes = useStyles()
@@ -28,7 +28,7 @@ const DisplayBots = () => {
   })
   const [open, setOpen] = useState(false)
   const [openModel, setOpenModel] = useState(false)
-  const [bot, setBot] = useState('')
+  const [bot, setBot] = useState<AdminBot>()
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [botName, setBotName] = useState('')
   const [botId, setBotId] = useState('')

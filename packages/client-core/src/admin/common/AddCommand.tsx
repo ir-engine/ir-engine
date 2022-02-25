@@ -65,7 +65,14 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
               <ListItem>
                 <ListItemText primary={`${i + 1}. /${el.name} --> ${el.description} `} />
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="delete" size="large" onClick={() => removeCommand(el.id)}>
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    size="large"
+                    onClick={() => {
+                      el.id && removeCommand(el.id)
+                    }}
+                  >
                     <DeleteIcon style={{ color: '#fff' }} />
                   </IconButton>
                 </ListItemSecondaryAction>

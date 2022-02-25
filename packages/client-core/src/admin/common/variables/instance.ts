@@ -33,7 +33,7 @@ export interface InstanceData {
   id: string
   ipAddress: string
   currentUsers: Number
-  locationId: any
+  locationId: string
   channelId: string
   action: any
 }

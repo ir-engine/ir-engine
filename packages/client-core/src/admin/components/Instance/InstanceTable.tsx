@@ -87,8 +87,8 @@ const InstanceTable = (props: Props) => {
     id: string,
     ipAddress: string,
     currentUsers: Number,
-    locationId?: Location,
-    channelId: string
+    channelId: string,
+    locationId?: Location
   ): InstanceData => {
     return {
       id,
@@ -113,7 +113,7 @@ const InstanceTable = (props: Props) => {
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '')
+    createData(el.id, el.ipAddress, el.currentUsers, el.channelId, el.location)
   )
 
   return (

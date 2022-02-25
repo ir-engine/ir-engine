@@ -17,7 +17,7 @@ if (!global.setImmediate) {
 
 interface Props {
   // locationState?: any
-  // search: string
+  search: string
 }
 
 const AvatarTable = (props: Props) => {

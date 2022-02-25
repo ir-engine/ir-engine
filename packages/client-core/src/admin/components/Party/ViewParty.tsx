@@ -27,7 +27,7 @@ import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 interface Props {
   openView: boolean
   closeViewModel: () => void
-  partyAdmin: AdminParty
+  partyAdmin?: AdminParty
   editMode: boolean
   handleEditMode: (open: boolean) => void
 }
@@ -57,11 +57,11 @@ export default function ViewParty(props: Props) {
   useFetchAdminLocations(user, adminLocationState, LocationService)
 
   useEffect(() => {
-    if (partyAdmin.instance?.id || partyAdmin?.location?.name) {
+    if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {
       setUpdateParty({
         ...updateParty,
-        instance: partyAdmin.instance?.id ?? '',
-        location: partyAdmin.location?.id ?? ''
+        instance: partyAdmin?.instance?.id ?? '',
+        location: partyAdmin?.location?.id ?? ''
       })
     }
   }, [partyAdmin])
@@ -100,7 +100,7 @@ export default function ViewParty(props: Props) {
     }
     setUpdateParty({ ...updateParty, formErrors: temp })
 
-    if (validateForm(updateParty, updateParty.formErrors)) {
+    if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
       await PartyService.patchParty(partyAdmin.id, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModel()

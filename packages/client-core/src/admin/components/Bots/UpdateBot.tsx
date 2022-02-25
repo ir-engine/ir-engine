@@ -61,7 +61,7 @@ const UpdateBot = (props: Props) => {
         name: bot?.name,
         description: bot?.description,
         instance: bot?.instance?.id || '',
-        location: bot?.location?.id
+        location: bot?.location?.id || ''
       })
     }
   }, [bot])
@@ -121,7 +121,7 @@ const UpdateBot = (props: Props) => {
       temp.location = t('admin:components.bot.locationCantEmpty')
     }
     setFormErrors(temp)
-    if (validateForm(state, formErrors)) {
+    if (validateForm(state, formErrors) && bot) {
       BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])

@@ -22,7 +22,7 @@ const createUser = (props: Props) => {
   return (
     <CreateModel open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
       <DialogContent>
-        <InputText value={role} formErrors={[]} handleInputChange={handleChange} name="role" />
+        <InputText value={role} formErrors={''} handleInputChange={handleChange} name="role" />
       </DialogContent>
     </CreateModel>
   )

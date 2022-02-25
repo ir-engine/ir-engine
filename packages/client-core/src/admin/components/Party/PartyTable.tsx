@@ -57,7 +57,7 @@ const PartyTable = (props: PartyPropsTable) => {
 
   const closeViewModel = () => {
     setViewModel(false)
-    setPartyAdmin('')
+    setPartyAdmin(undefined)
     setEditMode(false)
   }
 
