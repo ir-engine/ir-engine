@@ -1,5 +1,6 @@
-import authenticate from '../../hooks/authenticate'
 import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code'
+
+import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {

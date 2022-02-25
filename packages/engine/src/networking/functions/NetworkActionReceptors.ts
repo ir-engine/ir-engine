@@ -1,13 +1,15 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import matches from 'ts-matches'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { NetworkWorldAction } from './NetworkWorldAction'
-import matches from 'ts-matches'
-import { Engine } from '../../ecs/classes/Engine'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { dispatchFrom, dispatchLocal } from './dispatchFrom'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { World } from '../../ecs/classes/World'
+import { NetworkWorldAction } from './NetworkWorldAction'
 
 const removeAllNetworkClients = (world: World, removeSelf = false) => {
   for (const [userId] of world.clients) {
@@ -19,6 +21,10 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
   // host adds the client manually during connectToWorld
   if (world.isHosting) return
 
+  // set utility maps - override if moving through portal
+  world.userIdToUserIndex.set(userId, index)
+  world.userIndexToUserId.set(index, userId)
+
   if (world.clients.has(userId))
     return console.log(`[NetworkActionReceptors]: client with id ${userId} and name ${name} already exists. ignoring.`)
 
@@ -28,16 +34,12 @@ const addClientNetworkActionReceptor = (world: World, userId: UserId, name: stri
     name,
     subscribedChatUpdates: []
   })
-
-  // set utility maps
-  world.userIdToUserIndex.set(userId, index)
-  world.userIndexToUserId.set(index, userId)
 }
 
 const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRemoveSelf = false) => {
   if (!world.clients.has(userId))
     return console.warn(`[NetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
-  if (allowRemoveSelf && userId === Engine.userId)
+  if (!allowRemoveSelf && userId === Engine.userId)
     return console.warn(`[NetworkActionReceptors]: tried to remove local client`)
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {

@@ -1,8 +1,7 @@
 /** Functions to provide system level functionalities. */
-
-import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { World } from '../classes/World'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { World } from '../classes/World'
+import { SystemUpdateType } from '../functions/SystemUpdateType'
 
 export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<() => void>
 export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }

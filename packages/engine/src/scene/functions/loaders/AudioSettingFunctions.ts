@@ -1,4 +1,5 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'

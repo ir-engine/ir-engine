@@ -1,12 +1,14 @@
 import assert from 'assert'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, SpotLight } from 'three'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { createWorld } from '../../../ecs/classes/World'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
-import { deserializeSpotLight } from './SpotLightFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { deserializeSpotLight } from './SpotLightFunctions'
 
 describe('SpotLightFunctions', () => {
   it('deserializeSpotLight', () => {

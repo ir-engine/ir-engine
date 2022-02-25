@@ -1,16 +1,17 @@
-import { Vector3, Matrix4, Quaternion, PerspectiveCamera, OrthographicCamera, Vector, Euler } from 'three'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { AvatarSettings } from '../AvatarControllerSystem'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { World } from '../../ecs/classes/World'
+import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
-import { getAvatarBoneWorldPosition } from './avatarFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { AvatarSettings } from '../AvatarControllerSystem'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
 const upVector = new Vector3(0, 1, 0)
 const forward = new Vector3(0, 0, 1)

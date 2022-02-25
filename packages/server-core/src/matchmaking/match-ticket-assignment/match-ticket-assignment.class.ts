@@ -1,8 +1,10 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { BadRequest, NotFound } from '@feathersjs/errors'
-import { Application } from '../../../declarations'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+
 import { getTicketsAssignment } from '@xrengine/matchmaking/src/functions'
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { emulate_getTicketsAssignment } from '../emulate'
 

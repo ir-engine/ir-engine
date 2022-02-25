@@ -1,10 +1,11 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export default class ReplaceSelectionCommand extends Command {
   constructor(objects: EntityTreeNode[], params: CommandParams) {

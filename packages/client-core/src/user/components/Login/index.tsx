@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined'
 import GoogleIcon from '@mui/icons-material/Google'
@@ -5,9 +9,7 @@ import Button from '@mui/material/Button'
 import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'

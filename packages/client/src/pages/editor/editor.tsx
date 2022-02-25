@@ -1,9 +1,11 @@
 import React, { Suspense, useEffect } from 'react'
-import CircularProgress from '@mui/material/CircularProgress'
+
 import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { userHasAccessHook } from '@xrengine/client-core/src/user/userHasAccess'
 import ProjectEditor from '@xrengine/editor/src/pages/editor'
+
+import CircularProgress from '@mui/material/CircularProgress'
 
 const EditorProtectedRoutes = () => {
   const isSceneAllowed = userHasAccessHook('editor:write')

@@ -1,33 +1,33 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { NavMesh, Polygon } from 'yuka'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { parseGeometry } from '../../common/functions/parseGeometry'
+import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { loadComponent } from '../functions/SceneLoading'
-import { parseGeometry } from '../../common/functions/parseGeometry'
-import { NavMesh, Polygon } from 'yuka'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
-import { NameComponent } from '../components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
-import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
-import { accessEngineState } from '../../ecs/classes/EngineService'
-import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { setObjectLayers } from './setObjectLayers'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
+import { NameComponent } from '../components/NameComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { loadComponent } from '../functions/SceneLoading'
+import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
+import { setObjectLayers } from './setObjectLayers'
 
-export const createObjectEntityFromGLTF = (entity: Entity, object3d?: Object3D): void => {
-  const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
+export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
   const data = Object.entries(obj3d.userData)
@@ -78,13 +78,13 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, object3d)
+    createObjectEntityFromGLTF(entity, obj3d)
     return
   }
 
   for (const mesh of meshesToProcess) {
     if (mesh === obj3d) {
-      createObjectEntityFromGLTF(entity, object3d)
+      createObjectEntityFromGLTF(entity, obj3d)
       continue
     }
 
@@ -108,7 +108,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
-    createObjectEntityFromGLTF(e)
+    createObjectEntityFromGLTF(e, mesh)
   }
 }
 
@@ -231,11 +231,14 @@ export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
   return new Promise<GLTF | undefined>((resolve, reject) => {
     AssetLoader.load(
       { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
-      (res) => {
+      (res: GLTF) => {
         if (res.scene instanceof Object3D) {
-          // TODO: refactor this
-          addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-          res.scene.animations = res.animation
+          const modelComponentAsync = getComponent(entity, ModelComponent)
+          if (modelComponentAsync && modelComponentAsync.src === modelComponent.src) {
+            // TODO: refactor this
+            addComponent(entity, ReplaceObject3DComponent, { replacement: res })
+            res.scene.animations = res.animations
+          }
           resolve(res)
         } else {
           reject({ message: 'Not a valid object' })

@@ -1,6 +1,8 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
 import { Euler, Quaternion } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'

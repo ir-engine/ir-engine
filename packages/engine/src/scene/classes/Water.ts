@@ -1,19 +1,19 @@
 import {
+  Color,
+  CubeTexture,
+  CubeTextureLoader,
   Mesh,
   PlaneBufferGeometry,
-  Color,
-  WebGLRenderTarget,
   ShaderMaterial,
-  CubeTextureLoader,
-  CubeTexture,
-  sRGBEncoding
+  sRGBEncoding,
+  WebGLRenderTarget
 } from 'three'
-import { Updatable } from '../interfaces/Updatable'
-import { WaveSimulator } from './water/WaveSimulator'
-
-import vertexShader from './water/shaders/surface/vertex'
-import fragmentShader from './water/shaders/surface/fragment'
 import { Vector3 } from 'three'
+
+import { Updatable } from '../interfaces/Updatable'
+import fragmentShader from './water/shaders/surface/fragment'
+import vertexShader from './water/shaders/surface/vertex'
+import { WaveSimulator } from './water/WaveSimulator'
 
 function loadCubeMap(path): Promise<CubeTexture> {
   const loader = new CubeTextureLoader().setPath(path)

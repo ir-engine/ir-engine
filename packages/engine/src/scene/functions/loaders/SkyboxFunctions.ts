@@ -1,5 +1,8 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, Object3D, sRGBEncoding } from 'three'
+import { Vector3 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -9,26 +12,30 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import {
   cubeTextureLoader,
-  posx,
+  getPmremGenerator,
   negx,
-  posy,
   negy,
-  posz,
   negz,
-  textureLoader,
-  getPmremGenerator
+  posx,
+  posy,
+  posz,
+  textureLoader
 } from '../../constants/Util'
-import { Vector3 } from 'three'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_SKYBOX = 'skybox'
@@ -54,7 +61,9 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
 ) => {
   if (isClient) {
     const props = parseSkyboxProperties(json.props)
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
+    if (!hasComponent(entity, Object3DComponent)) {
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+    }
     addComponent(entity, SkyboxComponent, props)
     addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})

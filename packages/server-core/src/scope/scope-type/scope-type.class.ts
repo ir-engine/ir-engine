@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { AdminScopeType as ScopeTypeInterface } from '@xrengine/common/src/interfaces/AdminScopeType'
+
+import { Application } from '../../../declarations'
 
 export type ScopeTypeDataType = ScopeTypeInterface
 

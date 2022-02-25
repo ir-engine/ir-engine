@@ -1,14 +1,16 @@
 import React, { Fragment } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import BooleanInput from '../inputs/BooleanInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import { Vector2 } from 'three'
 import { useTranslation } from 'react-i18next'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Vector2 } from 'three'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { updateProperty } from './Util'
+import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { CommandManager } from '../../managers/CommandManager'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { updateProperty } from './Util'
 
 /**
  *  Array containing options for shadow resolution

@@ -1,23 +1,25 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { Id, Params } from '@feathersjs/feathers'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import appRootPath from 'app-root-path'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
 import path from 'path'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getGitData } from '../../util/getGitData'
-import { useGit } from '../../util/gitHelperFunctions'
-import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
-import appRootPath from 'app-root-path'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
-import { cleanString } from '../../util/cleanString'
-import { getContentType } from '../../util/fileUtils'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
-import { getProjectConfig, onProjectEvent } from './project-helper'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { cleanString } from '../../util/cleanString'
+import { getContentType } from '../../util/fileUtils'
+import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
+import { getGitData } from '../../util/getGitData'
+import { useGit } from '../../util/gitHelperFunctions'
 import { getAuthenticatedRepo } from '../githubapp/githubapp-helper'
+import { getProjectConfig, onProjectEvent } from './project-helper'
 
 const templateFolderDirectory = path.join(appRootPath.path, `packages/projects/template-project/`)
 
@@ -209,8 +211,8 @@ export class Project extends Service {
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
-    if (projectName.substring(-4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substring(-1) === '/') projectName = projectName.slice(0, -1)
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 

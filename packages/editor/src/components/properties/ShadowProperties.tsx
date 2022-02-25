@@ -1,10 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
+
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
-import { ShadowComponent } from '@xrengine/engine/src/scene/components/ShadowComponent'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**

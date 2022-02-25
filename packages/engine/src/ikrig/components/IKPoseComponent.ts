@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Axis } from '../classes/Axis'
 

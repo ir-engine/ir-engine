@@ -1,13 +1,15 @@
 import React from 'react'
-import InputGroup from '../inputs/InputGroup'
-import SelectInput from '../inputs/SelectInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import { EditorComponentType, updateProperty } from './Util'
 import { useTranslation } from 'react-i18next'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { AudioType, DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { EditorComponentType, updateProperty } from './Util'
 
 const AudioTypeOptions = [
   { label: AudioType.Stereo, value: AudioType.Stereo },

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import StringInput from '../inputs/StringInput'
-import styled from 'styled-components'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import styled from 'styled-components'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+
 import EditorEvents from '../../constants/EditorEvents'
+import { CommandManager } from '../../managers/CommandManager'
+import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
 
 /**

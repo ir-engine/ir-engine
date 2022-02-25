@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
-import { Mic, VolumeUp, BlurLinear } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
+
+import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+
+import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
-import styles from '../UserMenu.module.scss'
-import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { useTranslation } from 'react-i18next'
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+
 import { AuthService, useAuthState } from '../../../services/AuthService'
+import styles from '../UserMenu.module.scss'
 
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()

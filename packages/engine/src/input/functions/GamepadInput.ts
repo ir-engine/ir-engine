@@ -1,10 +1,10 @@
 import { BinaryValue } from '../../common/enums/BinaryValue'
-import { applyThreshold } from '../../common/functions/applyThreshold'
-import { InputType } from '../enums/InputType'
-import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
-import { InputAlias } from '../types/InputAlias'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { applyThreshold } from '../../common/functions/applyThreshold'
 import { Engine } from '../../ecs/classes/Engine'
+import { GamepadAxis, GamepadButtons, XRAxes } from '../enums/InputEnums'
+import { InputType } from '../enums/InputType'
+import { InputAlias } from '../types/InputAlias'
 
 const inputPerGamepad = 2
 const gamepadThreshold = 0.1

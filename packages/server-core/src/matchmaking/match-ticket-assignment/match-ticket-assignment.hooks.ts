@@ -1,5 +1,7 @@
 import { disallow } from 'feathers-hooks-common'
+
 import linkMatchUserToMatch from '@xrengine/server-core/src/hooks/matchmaking-link-match-user-to-match'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {

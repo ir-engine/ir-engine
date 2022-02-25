@@ -1,12 +1,14 @@
-import assert from 'assert'
-import app from '../../server/src/app'
-import path from 'path'
 import appRootPath from 'app-root-path'
-import { deleteFolderRecursive } from './util/fsHelperFunctions'
+import assert from 'assert'
+import _ from 'lodash'
+import path from 'path'
+
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+
+import app from '../../server/src/app'
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
-import _ from 'lodash'
+import { deleteFolderRecursive } from './util/fsHelperFunctions'
 
 const storageProvider = useStorageProvider()
 const parsedData = parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)

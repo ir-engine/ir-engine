@@ -1,6 +1,7 @@
-import { Hook, HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { BadRequest } from '@feathersjs/errors'
+import { Hook, HookContext } from '@feathersjs/feathers'
+
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 /**
  * prevent user to join new search game more then once at time

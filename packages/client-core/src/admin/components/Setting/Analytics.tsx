@@ -1,10 +1,12 @@
 import React, { useEffect, useRef } from 'react'
-import { useStyles } from './styles'
+
 import { Grid, Paper, Typography } from '@mui/material'
 import { InputBase } from '@mui/material'
+
+import { useAuthState } from '../../../user/services/AuthService'
 import { useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
 import { SettingAnalyticsService } from '../../services/Setting/SettingAnalyticsService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { useStyles } from './styles'
 
 interface AnalyticsProps {}
 
