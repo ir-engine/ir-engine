@@ -1,9 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv');
+const dotenv = require('dotenv-flow');
 const cli = require('cli');
+import appRootPath from 'app-root-path'
 const Sequelize = require('sequelize');
 
-dotenv.config();
+dotenv.config({
+    path: appRootPath.path,
+    silent: true
+})
 const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
