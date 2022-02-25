@@ -24,8 +24,8 @@ import _ from 'lodash'
 
 interface Props {
   open: boolean
-  handleClose: any
-  closeViewModel?: any
+  handleClose: (open: boolean) => void
+  closeViewModel?: (open: boolean) => void
 }
 
 const CreateLocation = (props: Props) => {
@@ -81,7 +81,7 @@ const CreateLocation = (props: Props) => {
 
   React.useEffect(() => {
     if (location.created.value) {
-      closeViewModel(false)
+      closeViewModel && closeViewModel(false)
       clearState()
     }
   }, [location.created.value])
@@ -128,45 +128,45 @@ const CreateLocation = (props: Props) => {
     }
     const temp = state.formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.locationModel.nameCantEmpty')
     }
     if (!state.maxUsers) {
-      temp.maxUsers = "Max user can't be empty"
+      temp.maxUsers = t('admin:components.locationModel.maxUserCantEmpty')
     }
     if (!state.scene) {
-      temp.scene = "Scene can't be empty"
+      temp.scene = t('admin:components.locationModel.sceneCantEmpty')
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)
       clearState()
-      closeViewModel(false)
+      closeViewModel && closeViewModel(false)
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.locationModel.fillRequiredFields'))
       setOpenWarning(true)
     }
   }
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
+      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={() => handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-            Create New Location
+            {t('admin:components.locationModel.createNewLocation')}
           </DialogTitle>
-          <label>Name</label>
+          <label>{t('admin:components.locationModel.lbl-name')}</label>
           <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
             <InputBase
               className={classes.input}
               name="name"
-              placeholder="Enter name"
+              placeholder={t('admin:components.locationModel.enterName')}
               style={{ color: '#fff' }}
               autoComplete="off"
               value={state.name}
               onChange={handleChange}
             />
           </Paper>
-          <label>Max Users</label>
+          <label>{t('admin:components.locationModel.lbl-maxuser')}</label>
           <Paper
             component="div"
             className={state.formErrors.maxUsers.length > 0 ? classes.redBorder : classes.createInput}
@@ -182,7 +182,7 @@ const CreateLocation = (props: Props) => {
               onChange={handleChange}
             />
           </Paper>
-          <label>Scene</label>
+          <label>{t('admin:components.locationModel.lbl-scene')}</label>
           <Paper
             component="div"
             className={state.formErrors.scene.length > 0 ? classes.redBorder : classes.createInput}
@@ -200,7 +200,7 @@ const CreateLocation = (props: Props) => {
                 MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
                 <MenuItem value="" disabled>
-                  <em>Select scene</em>
+                  <em>{t('admin:components.locationModel.selectScene')}</em>
                 </MenuItem>
                 {adminScenes.value.map((el, i) => (
                   <MenuItem value={`${el.project}/${el.name}`} key={i}>
@@ -210,7 +210,7 @@ const CreateLocation = (props: Props) => {
               </Select>
             </FormControl>
           </Paper>
-          <label>Private</label>
+          <label>{t('admin:components.locationModel.private')}</label>
           <Paper component="div" className={classes.createInput}>
             <FormControl fullWidth>
               <Select
@@ -225,7 +225,7 @@ const CreateLocation = (props: Props) => {
                 MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
                 <MenuItem value="" disabled>
-                  <em>Select type</em>
+                  <em>{t('admin:components.locationModel.selectType')}</em>
                 </MenuItem>
                 {locationTypes.value.map((el) => (
                   <MenuItem value={el.type} key={el.type}>
@@ -350,16 +350,16 @@ const CreateLocation = (props: Props) => {
           </Grid>
           <DialogActions>
             <Button className={classes.saveBtn} onClick={handleSubmit}>
-              Submit
+              {t('admin:components.locationModel.submit')}
             </Button>
             <Button
               onClick={() => {
                 clearState()
-                closeViewModel(false)
+                closeViewModel && closeViewModel(false)
               }}
               className={classes.saveBtn}
             >
-              Cancel
+              {t('admin:components.locationModel.lbl-cancel')}
             </Button>
           </DialogActions>
           <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />

@@ -1,8 +1,10 @@
+import { Location } from './Location'
 export interface Instance {
   id: string
   currentUsers: number
   ipAddress: string
   locationId: string
+  location?: Location
   channelId: string
   assigned?: boolean
   assignedAt?: Date

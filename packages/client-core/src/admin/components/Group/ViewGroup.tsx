@@ -14,10 +14,12 @@ import Typography from '@mui/material/Typography'
 import React, { useState } from 'react'
 import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
+import { Group } from '@xrengine/common/src/interfaces/Group'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
-  groupAdmin: any
-  closeViewModal: any
+  groupAdmin: Group
+  closeViewModal: (open: boolean) => void
   openView: boolean
 }
 
@@ -25,6 +27,7 @@ const ViewGroup = (props: Props) => {
   const classes = useStyles()
   const { openView, groupAdmin, closeViewModal } = props
   const [editMode, setEditMode] = useState(false)
+  const { t } = useTranslation()
 
   return (
     <Drawer
@@ -48,16 +51,16 @@ const ViewGroup = (props: Props) => {
           </Paper>
           <Container maxWidth="lg" className={classes.marginTop}>
             <Typography variant="h4" component="h4" className={classes.mb20px}>
-              Group Information
+              {t('admin:components.group.groupInformation')}
             </Typography>
             <Container>
               <Grid container spacing={3}>
                 <Grid item xs={6}>
                   <Typography variant="h5" component="h5" className={classes.mb10}>
-                    Name:
+                    {t('admin:components.group.name')}:
                   </Typography>
                   <Typography variant="h5" component="h5" className={classes.mb10}>
-                    Description:
+                    {t('admin:components.group.description')}:
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -73,10 +76,10 @@ const ViewGroup = (props: Props) => {
             <div className={classes.scopeFlex}>
               <div>
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
-                  Group scopes
+                  {t('admin:components.group.groupScopes')}
                 </Typography>
                 <Container style={{ overflowY: 'auto' }}>
-                  {groupAdmin.scopes?.map((el, index) => {
+                  {groupAdmin?.scopes?.map((el, index) => {
                     const [label, type] = el.type.split(':')
                     return (
                       <Grid container spacing={3} key={el.id}>
@@ -95,10 +98,10 @@ const ViewGroup = (props: Props) => {
               </div>
               <div>
                 <Typography variant="h4" component="h4" className={classes.mb20px}>
-                  Users Information
+                  {t('admin:components.group.usersInformation')}
                 </Typography>
                 <List className={classes.rootList} style={{ overflowY: 'auto' }}>
-                  {groupAdmin.groupUsers.map((obj) => (
+                  {groupAdmin?.groupUsers?.map((obj) => (
                     <ListItem key={obj.id}>
                       <ListItemAvatar>
                         <Avatar style={{ textTransform: 'uppercase' }}>{obj.user.name.slice(0, 1)}</Avatar>
@@ -122,10 +125,10 @@ const ViewGroup = (props: Props) => {
                   setEditMode(true)
                 }}
               >
-                EDIT
+                {t('admin:components.group.edit')}
               </Button>
-              <Button onClick={() => closeViewModal()} className={classes.saveBtn}>
-                CANCEL
+              <Button onClick={() => closeViewModal(false)} className={classes.saveBtn}>
+                {t('admin:components.group.cancel')}
               </Button>
             </div>
           </DialogActions>

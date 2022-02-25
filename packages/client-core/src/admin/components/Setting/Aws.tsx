@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AwsSettingService, useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
 import { useStyles } from './styles'
+import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
@@ -22,6 +23,7 @@ const Aws = (props: Props) => {
   const id = awsSetting?.id
   const authState = useAuthState()
   const user = authState.user
+  const { t } = useTranslation()
 
   const [sms, setSms] = useState(awsSetting?.sms)
 
@@ -59,16 +61,16 @@ const Aws = (props: Props) => {
   return (
     <div>
       <Typography component="h1" className={classes.settingsHeading}>
-        AWS
+        {t('admin:components.setting.aws')}
       </Typography>
       <form>
         <div className={classes.root}>
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Keys</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.keys')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Access Key ID:</label>
+                  <label>{t('admin:components.setting.accessKeyId')}:</label>
                   <InputBase
                     name="accessKeyId"
                     value={awsSetting?.keys?.accessKeyId || ''}
@@ -78,7 +80,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret Access Key:</label>
+                  <label>{t('admin:components.setting.secretAccessKey')}:</label>
                   <InputBase
                     name="secretAccessKey"
                     value={awsSetting?.keys?.secretAccessKey || ''}
@@ -91,9 +93,9 @@ const Aws = (props: Props) => {
             </Grid>
             <Grid item xs={12}>
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Route53</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.route53')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Hosted Zone ID:</label>
+                  <label> {t('admin:components.setting.hostedZoneId')}:</label>
                   <InputBase
                     name="hostedZoneId"
                     value={awsSetting?.route53?.hostedZoneId || ''}
@@ -104,9 +106,9 @@ const Aws = (props: Props) => {
                 </Paper>
 
                 <Paper className={classes.Paper} elevation={0}>
-                  <label style={{ color: '#fff' }}>KEYS</label>
+                  <label style={{ color: '#fff' }}>{t('admin:components.setting.keys')}</label>
                   <Paper component="div" className={classes.createInput}>
-                    <label>Access Key ID:</label>
+                    <label>{t('admin:components.setting.accessKeyId')}:</label>
                     <InputBase
                       name="accessKeyId"
                       value={awsSetting?.route53?.keys?.accessKeyId || ''}
@@ -116,7 +118,7 @@ const Aws = (props: Props) => {
                     />
                   </Paper>
                   <Paper component="div" className={classes.createInput}>
-                    <label>Secret Access Key:</label>
+                    <label>{t('admin:components.setting.secretAccessKey')}:</label>
                     <InputBase
                       name="secretAccessKey"
                       value={awsSetting?.route53?.keys?.secretAccessKey || ''}
@@ -130,9 +132,9 @@ const Aws = (props: Props) => {
             </Grid>
             <Grid item xs={12}>
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>S3</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.s3')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>BaseUrl:</label>
+                  <label>{t('admin:components.setting.baseUrl')}:</label>
                   <InputBase
                     disabled
                     name="baseUrl"
@@ -142,7 +144,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Static Resource Bucket:</label>
+                  <label>{t('admin:components.setting.staticResourceBucket')}:</label>
                   <InputBase
                     name="staticResourceBucket"
                     value={awsSetting?.s3?.staticResourceBucket || ''}
@@ -152,7 +154,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Region:</label>
+                  <label>{t('admin:components.setting.region')}:</label>
                   <InputBase
                     name="region"
                     value={awsSetting?.s3?.region || ''}
@@ -162,7 +164,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>AvatarDir:</label>
+                  <label>{t('admin:components.setting.avatarDir')}:</label>
                   <InputBase
                     name="avatarDir"
                     value={awsSetting?.s3?.avatarDir || ''}
@@ -172,7 +174,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>S3DevMode:</label>
+                  <label>{t('admin:components.setting.s3DevMode')}:</label>
                   <InputBase
                     name="s3DevMode"
                     value={awsSetting?.s3?.s3DevMode || ''}
@@ -185,9 +187,9 @@ const Aws = (props: Props) => {
             </Grid>
             <Grid item xs={12}>
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Cloud Front</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.cloudFront')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Domain:</label>
+                  <label> {t('admin:components.setting.domain')}:</label>
                   <InputBase
                     name="domain"
                     value={awsSetting?.cloudfront?.domain || ''}
@@ -197,7 +199,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Distribution ID:</label>
+                  <label> {t('admin:components.setting.distributionId')}:</label>
                   <InputBase
                     name="distributionId"
                     value={awsSetting?.cloudfront?.distributionId || ''}
@@ -210,9 +212,9 @@ const Aws = (props: Props) => {
             </Grid>
             <Grid item xs={12}>
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>SMS</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.sms')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Access Key ID:</label>
+                  <label> {t('admin:components.setting.accessKeyId')}:</label>
                   <InputBase
                     value={sms?.accessKeyId || ''}
                     name="accessKeyId"
@@ -222,7 +224,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Application ID :</label>
+                  <label> {t('admin:components.setting.applicationId')} :</label>
                   <InputBase
                     name="applicationId"
                     value={sms?.applicationId || ''}
@@ -232,7 +234,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Region:</label>
+                  <label> {t('admin:components.setting.region')}:</label>
                   <InputBase
                     name="region"
                     value={sms?.region || ''}
@@ -242,7 +244,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Sender ID:</label>
+                  <label> {t('admin:components.setting.senderId')}:</label>
                   <InputBase
                     name="senderId"
                     value={sms?.senderId || ''}
@@ -252,7 +254,7 @@ const Aws = (props: Props) => {
                   />
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label> Secret Access Key:</label>
+                  <label> {t('admin:components.setting.secretAccessKey')}:</label>
                   <InputBase
                     name="secretAccessKey"
                     value={sms?.secretAccessKey || ''}
@@ -266,11 +268,11 @@ const Aws = (props: Props) => {
           </Grid>
         </div>
         <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>
         &nbsp;&nbsp;
         <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
-          Save
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

@@ -17,6 +17,7 @@ import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import ViewLocation from './ViewLocation'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
@@ -29,7 +30,7 @@ const LocationTable = (props: LocationProps) => {
   const [locationId, setLocationId] = React.useState('')
   const [locationName, setLocationName] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
-  const [locationAdmin, setLocationAdmin] = React.useState('')
+  const [locationAdmin, setLocationAdmin] = React.useState<Location>()
   const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
@@ -67,7 +68,7 @@ const LocationTable = (props: LocationProps) => {
     setPage(0)
   }
 
-  const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
+  const openViewModel = (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -83,7 +84,7 @@ const LocationTable = (props: LocationProps) => {
   }
 
   const createData = (
-    el: any,
+    el: Location,
     id: string,
     name: string,
     sceneId: string,
@@ -108,7 +109,7 @@ const LocationTable = (props: LocationProps) => {
       action: (
         <>
           <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
-            <span className={classes.spanWhite}>View</span>
+            <span className={classes.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
@@ -119,7 +120,7 @@ const LocationTable = (props: LocationProps) => {
               setLocationName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={classes.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )
@@ -156,11 +157,13 @@ const LocationTable = (props: LocationProps) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'}{' '}
+        {el.location_setting?.instanceMediaChatEnabled
+          ? t('admin:components.index.yes')
+          : t('admin:components.index.no')}{' '}
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? 'Yes' : 'No'}
+        {el.location_setting?.videoEnabled ? t('admin:components.index.yes') : t('admin:components.index.no')}
       </div>
     )
   })

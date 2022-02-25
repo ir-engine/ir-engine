@@ -16,11 +16,12 @@ import InviteModel from './InviteModel'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
+import { useTranslation } from 'react-i18next'
 
 interface TabPanelProps {
   children?: React.ReactNode
-  index: any
-  value: any
+  index: number
+  value: number
 }
 
 const TabPanel = (props: TabPanelProps) => {
@@ -38,7 +39,7 @@ const TabPanel = (props: TabPanelProps) => {
     </div>
   )
 }
-const a11yProps = (index: any) => {
+const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`
@@ -68,6 +69,7 @@ const InvitesConsole = () => {
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const user = useAuthState().user
+  const { t } = useTranslation()
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
@@ -124,7 +126,7 @@ const InvitesConsole = () => {
           </Grid>
           <Grid item xs={3}>
             <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
-              Send Invite
+              {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
         </Grid>
@@ -136,8 +138,8 @@ const InvitesConsole = () => {
               aria-label="simple tabs example"
               classes={{ indicator: classes.indicator }}
             >
-              <Tab label="Received Invite" {...a11yProps(0)} />
-              <Tab label="Sent Invite" {...a11yProps(1)} />
+              <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
+              <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <>

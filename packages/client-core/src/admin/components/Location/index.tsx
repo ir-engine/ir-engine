@@ -5,11 +5,13 @@ import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
+import { useTranslation } from 'react-i18next'
 
 const Location = () => {
   const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -36,7 +38,7 @@ const Location = () => {
         </Grid>
         <Grid item xs={3}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New Location
+            {t('admin:components.locationModel.createNewLocation')}
           </Button>
         </Grid>
       </Grid>

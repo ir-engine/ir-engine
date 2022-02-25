@@ -14,6 +14,7 @@ import Redis from './Redis'
 import Server from './Server'
 import Sidebar from './SideBar'
 import { useStyles } from './styles'
+import { useTranslation } from 'react-i18next'
 
 const Setting = () => {
   const classes = useStyles()
@@ -38,7 +39,7 @@ const Setting = () => {
   const [redisFocused, setRedisFocused] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
   const [analyticsFocused, setAnalyticsFocused] = useState(true)
-
+  const { t } = useTranslation()
   // const handleNotAutoFocused = ()=>{
   //   setIsFocused(!isFocused)
   // }
@@ -269,7 +270,7 @@ const Setting = () => {
           <div className={classes.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
               <Typography variant="h6" className={classes.hoverSettingsHeading}>
-                Settings
+                {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
                 onClick={() => setMenuVisible(!menuVisible)}
@@ -310,7 +311,7 @@ const Setting = () => {
       <Grid container spacing={3}>
         <Grid item sm={3} lg={3} className={classes.visible}>
           <Typography variant="h6" className={classes.settingsHeading}>
-            Settings
+            {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
             handleAuth={handleAuth}

@@ -18,11 +18,13 @@ import Select from '@mui/material/Select'
 import { validateForm } from '../../common/validation/formValidation'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import { useTranslation } from 'react-i18next'
 
 const CreateParty = (props: PartyProps) => {
   const classes = useStyles()
   CreateParty
   const { open, handleClose } = props
+  const { t } = useTranslation()
 
   const [newParty, setNewParty] = useState({
     location: '',
@@ -32,7 +34,7 @@ const CreateParty = (props: PartyProps) => {
       instance: ''
     }
   })
-  const dispatch = useDispatch()
+
   const authState = useAuthState()
   const user = authState.user
   const adminLocationState = useLocationState()
@@ -50,10 +52,10 @@ const CreateParty = (props: PartyProps) => {
     let temp = newParty.formErrors
     switch (name) {
       case 'location':
-        temp.location = value.length < 2 ? 'Location is required' : ''
+        temp.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
         break
       case 'instance':
-        temp.instance = value.length < 2 ? 'Instance is required' : ''
+        temp.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
         break
 
       default:
@@ -74,10 +76,10 @@ const CreateParty = (props: PartyProps) => {
     }
     let temp = newParty.formErrors
     if (!newParty.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.party.locationCantEmpty')
     }
     if (!newParty.instance) {
-      temp.instance = "Instance can't be empty"
+      temp.instance = t('admin:components.party.instanceCantEmpty')
     }
     setNewParty({ ...newParty, formErrors: temp })
 
@@ -89,7 +91,7 @@ const CreateParty = (props: PartyProps) => {
   }
   return (
     <CreateModel open={open} action="Create" text="party" handleClose={handleClose} submit={submitParty}>
-      <label>Instance</label>
+      <label>{t('admin:components.party.instance')}</label>
       <Paper
         component="div"
         className={newParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
@@ -107,7 +109,7 @@ const CreateParty = (props: PartyProps) => {
             MenuProps={{ classes: { paper: classes.selectPaper } }}
           >
             <MenuItem value="" disabled>
-              <em>Select instance</em>
+              <em>{t('admin:components.party.selectInstance')}</em>
             </MenuItem>
             {data.map((el) => (
               <MenuItem value={el?.id} key={el?.id}>
@@ -118,7 +120,7 @@ const CreateParty = (props: PartyProps) => {
         </FormControl>
       </Paper>
 
-      <label>Location</label>
+      <label>{t('admin:components.party.location')}</label>
       <Paper
         component="div"
         className={newParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
@@ -136,7 +138,7 @@ const CreateParty = (props: PartyProps) => {
             MenuProps={{ classes: { paper: classes.selectPaper } }}
           >
             <MenuItem value="" disabled>
-              <em>Select location</em>
+              <em>{t('admin:components.party.selectLocation')}</em>
             </MenuItem>
             {locationData.value.map((el) => (
               <MenuItem value={el?.id} key={el?.id}>
@@ -148,9 +150,9 @@ const CreateParty = (props: PartyProps) => {
       </Paper>
 
       <DialogContentText className={classes.marginBottm}>
-        <span className={classes.spanWhite}> Don't see Location? </span>
+        <span className={classes.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
         <a href="/admin/locations" className={classes.textLink}>
-          Create One
+          {t('admin:components.party.createOne')}
         </a>
       </DialogContentText>
     </CreateModel>

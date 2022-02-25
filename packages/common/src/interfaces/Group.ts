@@ -5,6 +5,12 @@ export type Group = {
   name?: string
   description?: string
   groupUsers?: GroupUser[]
+  scopes?: GroupScope[]
   createdAt?: string
   updatedAt?: string
+}
+
+export type GroupScope = {
+  id: string
+  type: string
 }

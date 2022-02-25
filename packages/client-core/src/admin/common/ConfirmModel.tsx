@@ -10,7 +10,7 @@ interface Props {
   popConfirmOpen: boolean
   handleCloseModel: () => void
   submit: () => void
-  name: string
+  name: string | JSX.Element
   label: string
   type?: string
 }

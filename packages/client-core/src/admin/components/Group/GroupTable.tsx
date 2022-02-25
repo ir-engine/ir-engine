@@ -8,6 +8,7 @@ import { columns, Data } from '../../common/variables/group'
 import { GroupService, GROUP_PAGE_LIMIT, useGroupState } from '../../services/GroupService'
 import { useStyles } from '../../styles/ui'
 import ViewGroup from './ViewGroup'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   search: string
@@ -28,6 +29,7 @@ const GroupTable = (props: Props) => {
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
+  const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -81,7 +83,7 @@ const GroupTable = (props: Props) => {
       action: (
         <>
           <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
-            <span className={classes.spanWhite}>View</span>
+            <span className={classes.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
             href="#h"
@@ -91,7 +93,7 @@ const GroupTable = (props: Props) => {
               setGroupName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={classes.spanDange}>{t('admin:components.group.delete')}</span>
           </a>
         </>
       )

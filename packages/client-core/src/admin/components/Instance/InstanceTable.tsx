@@ -6,6 +6,9 @@ import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
 import { InstanceService, INSTNCE_PAGE_LIMIT, useInstanceState } from '../../services/InstanceService'
 import { useStyles } from '../../styles/ui'
+import { useTranslation } from 'react-i18next'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   fetchAdminState?: any
@@ -29,6 +32,7 @@ const InstanceTable = (props: Props) => {
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
   const [instanceName, setInstanceName] = React.useState('')
+  const { t } = useTranslation()
 
   const user = useAuthState().user
   const adminInstanceState = useInstanceState()
@@ -83,7 +87,7 @@ const InstanceTable = (props: Props) => {
     id: string,
     ipAddress: string,
     currentUsers: Number,
-    locationId: any,
+    locationId?: Location,
     channelId: string
   ): InstanceData => {
     return {
@@ -102,13 +106,13 @@ const InstanceTable = (props: Props) => {
             setInstanceName(ipAddress)
           }}
         >
-          <span className={classes.spanDange}>Delete</span>
+          <span className={classes.spanDange}>{t('admin:components.locationModel.lbl-delete')}</span>
         </a>
       )
     }
   }
 
-  const rows = adminInstances.instances.value.map((el: any) =>
+  const rows = adminInstances.instances.value.map((el: Instance) =>
     createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '')
   )
 

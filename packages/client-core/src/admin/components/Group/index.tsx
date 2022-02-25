@@ -5,11 +5,13 @@ import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
+import { useTranslation } from 'react-i18next'
 
 const GroupConsole = () => {
   const classes = useStyles()
   const [groupOpen, setGroupOpen] = useState(false)
   const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => {
     setGroupOpen(open)
@@ -32,7 +34,7 @@ const GroupConsole = () => {
               variant="contained"
               onClick={() => openModalCreate(true)}
             >
-              Create group
+              {t('admin:components.group.createGroup')}
             </Button>
           </Grid>
         </Grid>

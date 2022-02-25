@@ -1,10 +1,10 @@
 import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import Switch from '@mui/material/Switch'
 import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import { useStyles } from './styles'
+import { useTranslation } from 'react-i18next'
 
 interface clientProps {}
 
@@ -20,6 +20,7 @@ const Client = (props: clientProps) => {
   const [favicon16px, setFavicon16px] = useState(clientSetting?.favicon16px)
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
+  const { t } = useTranslation()
 
   const authState = useAuthState()
   const user = authState.user
@@ -77,9 +78,9 @@ const Client = (props: clientProps) => {
     <div className={classes.clientSettingsContainer}>
       <form onSubmit={handleSave}>
         <Typography component="h1" className={classes.settingsHeading}>
-          CLIENT
+          {t('admin:components.setting.client')}
         </Typography>
-        <label>Title</label>
+        <label>{t('admin:components.setting.title')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="title"
@@ -89,7 +90,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setTitle(e.target.value)}
           />
         </Paper>
-        <label>Description</label>
+        <label>{t('admin:components.setting.description')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="title"
@@ -99,7 +100,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setSiteDescription(e.target.value)}
           />
         </Paper>
-        <label>Logo</label>
+        <label>{t('admin:components.setting.logo')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="logo"
@@ -109,7 +110,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setLogo(e.target.value)}
           />
         </Paper>
-        <label>Icon 192px</label>
+        <label>{t('admin:components.setting.icon192px')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="logo"
@@ -119,7 +120,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setIcon192px(e.target.value)}
           />
         </Paper>
-        <label>Icon 512px</label>
+        <label>{t('admin:components.setting.icon512px')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="logo"
@@ -129,7 +130,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setIcon512px(e.target.value)}
           />
         </Paper>
-        <label>FavIcon 16px</label>
+        <label>{t('admin:components.setting.favIcon16px')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="logo"
@@ -139,7 +140,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setFavicon16px(e.target.value)}
           />
         </Paper>
-        <label>FavIcon 32px</label>
+        <label>{t('admin:components.setting.favIcon32px')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="logo"
@@ -149,7 +150,7 @@ const Client = (props: clientProps) => {
             onChange={(e) => setFavicon32px(e.target.value)}
           />
         </Paper>
-        <label>URL</label>
+        <label>{t('admin:components.setting.url')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="url"
@@ -159,7 +160,7 @@ const Client = (props: clientProps) => {
             value={clientSetting?.url || ''}
           />
         </Paper>
-        <label>Release Name</label>
+        <label>{t('admin:components.setting.releaseName')}</label>
         <Paper component="div" className={classes.createInput}>
           <InputBase
             name="releaseName"
@@ -170,11 +171,11 @@ const Client = (props: clientProps) => {
           />
         </Paper>
         <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>
         &nbsp;&nbsp;
         <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
-          Save
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

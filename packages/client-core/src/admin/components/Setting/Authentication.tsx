@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { useAuthState } from '../../../user/services/AuthService'
 import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
 import { useStyles } from './styles'
+import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
@@ -37,6 +38,7 @@ const Account = (props: Props) => {
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
+  const { t } = useTranslation()
   const [state, setState] = useState(initialState)
   const [holdAuth, setHoldAuth] = useState(initialState)
   const [keySecret, setKeySecret] = useState({
@@ -196,12 +198,12 @@ const Account = (props: Props) => {
   return (
     <div className={`${classes.root} ${classes.container}`}>
       <Typography component="h1" className={classes.settingsHeading}>
-        AUTHENTICATION
+        {t('admin:components.setting.authentication')}
       </Typography>
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
-            <label> Service</label>
+            <label> {t('admin:components.setting.service')}</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
                 value={authSetting?.service || ''}
@@ -211,7 +213,7 @@ const Account = (props: Props) => {
                 className={classes.input}
               />
             </Paper>
-            <label>Secret</label>
+            <label>{t('admin:components.setting.secret')}</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
                 value={authSetting?.secret || ''}
@@ -221,7 +223,7 @@ const Account = (props: Props) => {
                 className={classes.input}
               />
             </Paper>
-            <label>Entity</label>
+            <label>{t('admin:components.setting.entity')}</label>
             <Paper component="div" className={classes.createInput}>
               <InputBase
                 value={authSetting?.entity || ''}
@@ -232,7 +234,7 @@ const Account = (props: Props) => {
               />
             </Paper>
             <Typography component="h1" className={classes.settingsHeading}>
-              Authentication Strategies
+              {t('admin:components.setting.authStrategies')}
             </Typography>
             {Object.keys(state).map((strategyName, i) => (
               <React.Fragment key={i}>
@@ -253,9 +255,9 @@ const Account = (props: Props) => {
             ))}
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
-            <label>Local</label>
+            <label>{t('admin:components.setting.local')}</label>
             <Paper component="div" className={classes.createInput}>
-              <label>User Name:</label>
+              <label>{t('admin:components.setting.userName')}:</label>
               <InputBase
                 value={authSetting?.local.usernameField || ''}
                 name="username"
@@ -265,7 +267,7 @@ const Account = (props: Props) => {
               />
             </Paper>
             <Paper component="div" className={classes.createInput}>
-              <label>Password:</label>
+              <label>{t('admin:components.setting.password')}:</label>
               <InputBase
                 value={authSetting?.local.passwordField || ''}
                 name="password"
@@ -283,11 +285,11 @@ const Account = (props: Props) => {
             </Paper>
 
             <Typography component="h1" className={classes.settingsHeading}>
-              OAUTH
+              {t('admin:components.setting.oauth')}
             </Typography>
-            <label>Defaults</label>
+            <label>{t('admin:components.setting.defaults')}</label>
             <Paper component="div" className={classes.createInput}>
-              <label>Host:</label>
+              <label>{t('admin:components.setting.host')}:</label>
               <InputBase
                 value={authSetting?.oauth?.defaults?.host || ''}
                 name="host"
@@ -297,7 +299,7 @@ const Account = (props: Props) => {
               />
             </Paper>
             <Paper component="div" className={classes.createInput}>
-              <label>Protocol:</label>
+              <label>{t('admin:components.setting.protocol')}:</label>
               <InputBase
                 value={authSetting?.oauth?.defaults?.protocol || ''}
                 name="protocol"
@@ -308,9 +310,9 @@ const Account = (props: Props) => {
             </Paper>
             {holdAuth?.discord && (
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Discord</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.discord')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.discord?.key || ''}
                     name="key"
@@ -327,7 +329,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.discord?.secret || ''}
                     name="secret"
@@ -344,7 +346,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.discord || ''}
                     name="callbackGithub"
@@ -357,9 +359,9 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.facebook && (
               <Paper className={classes.Paper} elevation={0}>
-                <label style={{ color: '#fff' }}>Facebook</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.facebook')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.facebook?.key || ''}
                     name="key"
@@ -376,7 +378,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}</label>
                   <InputBase
                     value={keySecret?.facebook?.secret || ''}
                     name="secret"
@@ -393,7 +395,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.facebook || ''}
                     name="callbackGithub"
@@ -406,9 +408,9 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.github && (
               <Paper className={classes.Paper} style={{ marginTop: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>Github</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.github')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>App ID:</label>
+                  <label>{t('admin:components.setting.appId')}:</label>
                   <InputBase
                     value={keySecret?.github?.appid || ''}
                     name="key"
@@ -425,7 +427,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.github?.key || ''}
                     name="key"
@@ -442,7 +444,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.github?.secret || ''}
                     name="secret"
@@ -460,7 +462,7 @@ const Account = (props: Props) => {
                 </Paper>
 
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.github || ''}
                     name="callbackGithub"
@@ -475,9 +477,9 @@ const Account = (props: Props) => {
           <Grid item xs={12} sm={6} md={4}>
             {holdAuth?.google && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>Google</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.google')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     type={showPassword.google.key ? 'text' : 'password'}
                     value={keySecret?.google?.key || ''}
@@ -495,7 +497,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.google?.secret || ''}
                     name="secret"
@@ -513,7 +515,7 @@ const Account = (props: Props) => {
                 </Paper>
 
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.google || ''}
                     name="callbackGoogle"
@@ -526,9 +528,9 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.linkedin && (
               <Paper className={classes.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label style={{ color: '#fff' }}>LinkedIn</label>
+                <label style={{ color: '#fff' }}>{t('admin:components.setting.linkedIn')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.linkedin?.key || ''}
                     name="key"
@@ -545,7 +547,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.linkedin?.secret || ''}
                     name="secret"
@@ -562,7 +564,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.linkedin || ''}
                     name="callbackLinkedin"
@@ -575,9 +577,9 @@ const Account = (props: Props) => {
             )}
             {holdAuth?.twitter && (
               <Paper className={classes.Paper} elevation={0} style={{ marginBottom: '10px' }}>
-                <label style={{ color: '#ffff' }}>Twitter</label>
+                <label style={{ color: '#ffff' }}>{t('admin:components.setting.twitter')}</label>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Key:</label>
+                  <label>{t('admin:components.setting.key')}:</label>
                   <InputBase
                     value={keySecret?.twitter?.key || ''}
                     name="key"
@@ -594,7 +596,7 @@ const Account = (props: Props) => {
                   </IconButton>
                 </Paper>
                 <Paper component="div" className={classes.createInput}>
-                  <label>Secret:</label>
+                  <label>{t('admin:components.setting.secret')}:</label>
                   <InputBase
                     value={keySecret?.twitter?.secret || ''}
                     name="secret"
@@ -612,7 +614,7 @@ const Account = (props: Props) => {
                 </Paper>
 
                 <Paper component="div" className={classes.createInput}>
-                  <label>Callback:</label>
+                  <label>{t('admin:components.setting.callback')}:</label>
                   <InputBase
                     value={authSetting?.callback?.twitter || ''}
                     name="callbackTwitter"
@@ -626,11 +628,11 @@ const Account = (props: Props) => {
           </Grid>
         </Grid>
         <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>
         &nbsp; &nbsp;
         <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
-          Save
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

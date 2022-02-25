@@ -8,19 +8,21 @@ import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables
 import { PartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
 import { useStyles } from '../../styles/ui'
 import ViewParty from './ViewParty'
+import { useTranslation } from 'react-i18next'
+import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 
 const PartyTable = (props: PartyPropsTable) => {
   const { search } = props
   const classes = useStyles()
   const dispatch = useDispatch()
-
+  const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
   const [viewModel, setViewModel] = useState(false)
-  const [partyAdmin, setPartyAdmin] = useState('')
+  const [partyAdmin, setPartyAdmin] = useState<AdminParty>()
   const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
@@ -63,7 +65,7 @@ const PartyTable = (props: PartyPropsTable) => {
     setEditMode(open)
   }
 
-  const createData = (el: any, id: string, instance: any, location: any): PartyData => {
+  const createData = (el: AdminParty, id: string, instance: any, location: any): PartyData => {
     return {
       el,
       id,
@@ -72,7 +74,7 @@ const PartyTable = (props: PartyPropsTable) => {
       action: (
         <>
           <a href="#h" className={classes.actionStyle} onClick={() => openViewModel(true, el)}>
-            <span className={classes.spanWhite}>View</span>
+            <span className={classes.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
@@ -83,7 +85,7 @@ const PartyTable = (props: PartyPropsTable) => {
               setPartyId(id)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={classes.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )
@@ -95,12 +97,12 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData?.map((el) => {
+  const rows = adminPartyData?.map((el: AdminParty) => {
     return createData(
       el,
       el.id,
-      el?.instance?.ipAddress || <span className={classes.spanNone}>None</span>,
-      el.location?.name || <span className={classes.spanNone}>None</span>
+      el?.instance?.ipAddress || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.location?.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
     )
   })
 
@@ -120,7 +122,7 @@ const PartyTable = (props: PartyPropsTable) => {
         handleCloseModel={handleCloseModel}
         submit={submitRemoveParty}
         name={partyName}
-        label={'party with instance of '}
+        label={t('admin:components.party.partyWithInstanceOf') as string}
       />
       <ViewParty
         openView={viewModel}

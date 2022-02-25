@@ -19,6 +19,7 @@ import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
+import { useTranslation } from 'react-i18next'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -31,14 +32,15 @@ const Projects = () => {
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
   const githubAppState = useGithubAppState()
-  const githubAppRepos = githubAppState.repos
+  const githubAppRepos = githubAppState.repos.value
+  const { t } = useTranslation()
 
   const headCell = [
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'update', numeric: false, disablePadding: true, label: 'Update' },
-    { id: 'invalidate', numeric: false, disablePadding: false, label: 'Invalidate Cache' },
-    { id: 'remove', numeric: false, disablePadding: false, label: 'Remove' }
+    { id: 'name', numeric: false, disablePadding: false, label: t('admin:components.project.name') },
+    { id: 'update', numeric: false, disablePadding: true, label: t('admin:components.project.update') },
+    { id: 'invalidate', numeric: false, disablePadding: false, label: t('admin:components.project.invalidateCache') },
+    { id: 'remove', numeric: false, disablePadding: false, label: t('admin:components.project.remove') }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -241,7 +243,7 @@ const Projects = () => {
               color="primary"
               onClick={onOpenUploadModal}
             >
-              {'Add Project'}
+              {t('admin:components.project.addProject')}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -252,7 +254,7 @@ const Projects = () => {
               color="primary"
               onClick={ProjectService.triggerReload}
             >
-              {'Rebuild'}
+              {t('admin:components.project.rebuild')}
             </Button>
           </Grid>
         </Grid>
@@ -347,7 +349,7 @@ const Projects = () => {
           handleCloseModel={handleCloseReuploadModel}
           submit={tryReuploadProjects}
           name={project?.name}
-          label={'project'}
+          label={t('admin:components.project.project')}
           type="rebuild"
         />
         <ConfirmModel
@@ -355,7 +357,7 @@ const Projects = () => {
           handleCloseModel={handleCloseInvalidateModel}
           submit={handleInvalidateCache}
           name={project?.name}
-          label={"storage provider's cache of"}
+          label={t('admin:components.project.storageProvidersCacheOf')}
           type="invalidates"
         />
         <ConfirmModel
@@ -363,7 +365,7 @@ const Projects = () => {
           handleCloseModel={handleCloseRemoveModel}
           submit={onRemoveProject}
           name={project?.name}
-          label={'project'}
+          label={t('admin:components.project.project')}
         />
       </Paper>
     </div>
