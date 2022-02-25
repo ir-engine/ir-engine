@@ -99,10 +99,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     onRefreshDirectory()
   }, [selectedDirectory])
 
-  const addNewFolder = async () => {
+  const addNewFolder = async (folder: any, item: any) => {
     if (isLoading) return
     setLoading(true)
-    await FileBrowserService.addNewFolder(`${selectedDirectory}New_Folder`)
+    if (!folder) {
+      await FileBrowserService.addNewFolder(`${selectedDirectory}New_Folder`)
+    } else {
+      folder?.files.forEach(async (file) => {
+        let path = selectedDirectory
+        if (item.type == 'folder') {
+          path =
+            selectedDirectory.split('/')[-1] == item.label ? selectedDirectory : selectedDirectory + item.label + '/'
+        }
+        if (!file.type) {
+          await FileBrowserService.addNewFolder(`${path}${file.name}`)
+        } else {
+          await FileBrowserService.putContent(`${path}${file.name}`, file, file.type)
+        }
+      })
+    }
     onRefreshDirectory()
   }
 
@@ -174,13 +189,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               currentContent={currentContentRef}
               setOpenPropertiesModel={setOpenPropertiesModel}
               setFileProperties={setFileProperties}
+              addNewFolder={addNewFolder}
             />
           </AssetPanelContentContainer>
         </AssetsPanelContainer>
       </ContextMenuTrigger>
 
       <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>
-        <MenuItem onClick={addNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
+        <MenuItem onClick={() => addNewFolder(null, null)}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
       {openPropertiesModel && fileProperties && (

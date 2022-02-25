@@ -59,7 +59,6 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
         onKeyPress={async (e) => {
           if (e.key == 'Enter') {
             props.onNameChanged(newFileName)
-            // await renameScene(projectName, newFileName, oldSceneName)
           }
         }}
       />
@@ -79,6 +78,7 @@ type FileBrowserItemType = {
   onClick: (params: FileDataType) => void
   setFileProperties: any
   setOpenPropertiesModel: any
+  addNewFolder: any
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
 }
 
@@ -91,7 +91,8 @@ function FileBrowserItem(props: FileBrowserItemType) {
     onClick,
     moveContent,
     setOpenPropertiesModel,
-    setFileProperties
+    setFileProperties,
+    addNewFolder
   } = props
   const { t } = useTranslation()
   const [renamingAsset, setRenamingAsset] = useState(false)
@@ -145,7 +146,6 @@ function FileBrowserItem(props: FileBrowserItemType) {
 
       if (matchgroups) {
         const newName = `${fileName}${matchgroups.ext}`
-        console.log(newName, 'KKKKKKKKKKKKKKKKKk')
         await moveContent(item.id, matchgroups.dir, false, newName)
       }
     } else {
@@ -168,7 +168,11 @@ function FileBrowserItem(props: FileBrowserItemType) {
   const [{ isOver, canDrop, moni }, drop] = useDrop({
     accept: [...ItemTypes.FileBrowserContent],
     drop: (dropItem) => {
-      moveContent((dropItem as any).id, item.id)
+      if ((dropItem as any).id) {
+        moveContent((dropItem as any).id, item.id)
+      } else {
+        addNewFolder(dropItem, item)
+      }
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -187,7 +191,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
   }
 
   return (
-    <div ref={drop}>
+    <div ref={drop} style={{ border: item.type == 'folder' ? (isOver ? '3px solid #ccc' : '') : '' }}>
       <div ref={drag}>
         <ContextMenuTrigger id={contextMenuId} holdToDisplay={-1} collect={collectMenuProps}>
           {item.type === 'folder' ? (
@@ -240,11 +244,20 @@ type FileBrowserGridTypes = {
   currentContent: any
   setFileProperties: any
   setOpenPropertiesModel: any
+  addNewFolder: any
 }
 
 export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
-  const { items, onSelect, moveContent, deleteContent, currentContent, setFileProperties, setOpenPropertiesModel } =
-    props
+  const {
+    items,
+    onSelect,
+    moveContent,
+    deleteContent,
+    currentContent,
+    setFileProperties,
+    setOpenPropertiesModel,
+    addNewFolder
+  } = props
 
   const itemsRendered = unique(items, (item) => item.id).map((item, i) => (
     <MemoFileGridItem
@@ -257,6 +270,7 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
       currentContent={currentContent}
       setOpenPropertiesModel={setOpenPropertiesModel}
       setFileProperties={setFileProperties}
+      addNewFolder={addNewFolder}
     />
   ))
 

@@ -59,6 +59,7 @@ export const FileBrowserService = {
   addNewFolder: async (folderName) => {
     const result = await client.service(`file-browser`).create(folderName)
     console.log('FileBrowserService.addNewFolder result', result)
+    FileBrowserService.fetchFiles()
   }
 }
 

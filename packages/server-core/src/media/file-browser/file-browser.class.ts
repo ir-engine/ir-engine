@@ -70,7 +70,6 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    */
   async patch(path: string, data: PatchParams, params?: Params) {
-    console.log(path, data)
     await this.store.putObject({
       Key: path,
       Body: data.body,
@@ -87,7 +86,6 @@ export class FileBrowserService implements ServiceMethods<any> {
    */
   async remove(path: string, params?: Params) {
     const dirs = await this.store.listObjects(path + '/', [], true, null!)
-    console.log(dirs)
     return await this.store.deleteResources([path, ...dirs.Contents.map((a) => a.Key)])
   }
 }

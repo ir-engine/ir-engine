@@ -1,14 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { AmbientLight, Box3, Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import React, { useEffect } from 'react'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import styled from 'styled-components'
-import { SceneManager } from '../../../managers/SceneManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { ProjectManager } from '../../../managers/ProjectManager'
-import { CommandManager } from '../../../managers/CommandManager'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { FlyControlComponent } from '../../../classes/FlyControlComponent'
 import {
   initialize3D,
   onWindowResize,
@@ -41,13 +34,13 @@ let renderer: WebGLRenderer = null!
 export const ModelPreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
 
-  const loadModel = () => {
-    AssetLoader.load({ url }, (gltf) => {
-      const result = scene.getObjectByName(gltf.scene.name)
-      if (result) scene.remove(result)
-      scene.add(gltf.scene)
-      renderScene({ scene, camera, renderer })
-    })
+  const loadModel = async () => {
+    const model = await loadAvatarModelAsset(url)
+    model.name = 'avatar'
+    const result = scene.getObjectByName(model.name)
+    if (result) scene.remove(result)
+    scene.add(model)
+    renderScene({ scene, camera, renderer })
   }
 
   if (renderer) loadModel()
