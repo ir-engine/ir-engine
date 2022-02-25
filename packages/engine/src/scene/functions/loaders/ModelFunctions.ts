@@ -1,5 +1,12 @@
+import { AnimationClip, Mesh, Object3D } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Mesh, Object3D, AnimationClip } from 'three'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import {
+  LoopAnimationComponent,
+  LoopAnimationComponentType
+} from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,16 +14,15 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
 import { registerSceneLoadPromise } from '../SceneLoading'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
@@ -30,11 +36,13 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
 export const AnimatedObjectCallbacks = [
   { label: 'None', value: 'none' },
   { label: 'Play', value: 'play' },
+  { label: 'Pause', value: 'pause' },
   { label: 'Stop', value: 'stop' }
 ]
 
 type AnimatedObject3D = UpdateableObject3D & {
   play()
+  pause()
   stop()
   callbacks()
 }
@@ -48,7 +56,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-
+  props.src = 'https://172.160.10.156:8642/models/output.glb'
   registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
@@ -62,26 +70,34 @@ export const updateModel: ComponentUpdateFunction = async (
   if (properties.src) {
     try {
       const model = await loadGLTFModel(entity)
-      const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-      const animationComponent = getComponent(entity, AnimationComponent)
       //add callback
       const scene = model?.scene as any
       scene.play = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        const animationComponent = getComponent(entity, AnimationComponent)
         if (
           loopAnimationComponent.activeClipIndex >= 0 &&
           animationComponent.animations[loopAnimationComponent.activeClipIndex]
         ) {
-          loopAnimationComponent.action = animationComponent.mixer
-            .clipAction(
-              AnimationClip.findByName(
-                animationComponent.animations,
-                animationComponent.animations[loopAnimationComponent.activeClipIndex].name
-              )
+          loopAnimationComponent.action = animationComponent.mixer.clipAction(
+            AnimationClip.findByName(
+              animationComponent.animations,
+              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
             )
-            .play()
+          )
+          loopAnimationComponent.action.paused = false
+          loopAnimationComponent.action.play()
         }
       }
+      scene.pause = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
+      }
       scene.stop = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
         if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
       }
       scene.callbacks = () => {
