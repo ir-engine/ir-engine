@@ -1,4 +1,5 @@
 import { MathUtils } from 'three'
+
 import { Entity } from './Entity'
 
 // Data structure to hold parent child relationship between entities

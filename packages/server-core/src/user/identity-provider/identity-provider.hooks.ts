@@ -1,8 +1,9 @@
-import authenticate from '../../hooks/authenticate'
-import accountService from '../auth-management/auth-management.notifier'
+import { NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
-import { NotFound } from '@feathersjs/errors'
+
+import authenticate from '../../hooks/authenticate'
+import accountService from '../auth-management/auth-management.notifier'
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {

@@ -1,7 +1,7 @@
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { accessEngineState } from '../classes/EngineService'
 import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
-import { accessEngineState } from '../classes/EngineService'
 
 /**
  * System for running simulation logic with fixed time intervals

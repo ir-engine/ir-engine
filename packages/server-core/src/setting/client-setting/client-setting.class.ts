@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { ClientSetting as ClientSettingInterface } from '@xrengine/common/src/interfaces/ClientSetting'
+
+import { Application } from '../../../declarations'
 
 export type ClientSettingDataType = ClientSettingInterface
 

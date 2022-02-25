@@ -1,7 +1,8 @@
+import assert from 'assert'
+
 import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld } from '../../src/ecs/classes/World'
 import { dispatchFrom } from '../../src/networking/functions/dispatchFrom'
-import assert from 'assert'
 import { mockProgressWorldForNetworkActions } from './NetworkTestHelpers'
 
 describe('NetworkTestHelpers', () => {

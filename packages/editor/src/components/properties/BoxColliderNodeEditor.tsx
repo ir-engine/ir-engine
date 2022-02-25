@@ -1,14 +1,17 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
-import PanToolIcon from '@mui/icons-material/PanTool'
-import { EditorComponentType, updateProperty } from './Util'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { isTriggerShape } from '@xrengine/engine/src/physics/classes/Physics'
+import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
+
+import PanToolIcon from '@mui/icons-material/PanTool'
+
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

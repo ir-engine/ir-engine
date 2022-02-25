@@ -1,5 +1,7 @@
 import { MathUtils } from 'three'
+
 import { testScenePreset } from './testScenePreset'
+
 const { generateUUID } = MathUtils
 
 export const testUserId = generateUUID()

@@ -1,5 +1,6 @@
-import config from '../appconfig'
 import { Hook, HookContext } from '@feathersjs/feathers'
+
+import config from '../appconfig'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {

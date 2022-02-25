@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
 import BooleanInput from '../inputs/BooleanInput'
 import FormField from '../inputs/FormField'
 import Dialog from './Dialog'
-import styled from 'styled-components'
-import { useTranslation } from 'react-i18next'
 
 /**
  * FormContainer used as a wrapper element for FormFields.

@@ -1,21 +1,23 @@
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NameComponent } from '../components/NameComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
-import { SceneJson, ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { updateRenderSetting, resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { ScenePrefabTypes } from './registerPrefabs'
-import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
-import { SceneTagComponent, SCENE_COMPONENT_SCENE_TAG } from '../components/SceneTagComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
+import { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { EntityNodeComponent } from '../components/EntityNodeComponent'
+import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { resetEngineRenderer, updateRenderSetting } from './loaders/RenderSettingsFunction'
+import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
   const world = useWorld()
@@ -31,9 +33,12 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  Engine.sceneLoaded = false
+
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-  dispatchLocal(EngineActions.sceneLoading(true) as any)
+
+  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -68,7 +73,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
-  dispatchLocal(EngineActions.sceneLoaded(true) as any).delay(2)
+  dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
 /**

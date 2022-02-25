@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { LocationBan as LocationBanInterface } from '@xrengine/common/src/interfaces/LocationBan'
+
+import { Application } from '../../../declarations'
 
 export type LocationBanDataType = LocationBanInterface
 

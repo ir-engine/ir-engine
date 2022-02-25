@@ -1,6 +1,7 @@
-import authenticate from '../../hooks/authenticate'
-import { iff, isProvider } from 'feathers-hooks-common'
 import { HookContext } from '@feathersjs/feathers'
+import { iff, isProvider } from 'feathers-hooks-common'
+
+import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {

@@ -1,4 +1,5 @@
 import { AnimationClip, MathUtils } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'

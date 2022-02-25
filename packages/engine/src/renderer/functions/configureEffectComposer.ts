@@ -1,17 +1,18 @@
 import {
   BlendFunction,
+  DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
-  RenderPass,
-  TextureEffect,
   NormalPass,
-  DepthDownsamplingPass
+  RenderPass,
+  TextureEffect
 } from 'postprocessing'
-import { NearestFilter, RGBFormat, WebGLRenderTarget } from 'three'
+import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
-import { EffectMap, Effects } from '../../scene/constants/PostProcessing'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
+import { EffectMap, Effects } from '../../scene/constants/PostProcessing'
 
 export const configureEffectComposer = (remove?: boolean): void => {
   Engine.effectComposer.removeAllPasses()
@@ -36,7 +37,7 @@ export const configureEffectComposer = (remove?: boolean): void => {
     renderTarget: new WebGLRenderTarget(1, 1, {
       minFilter: NearestFilter,
       magFilter: NearestFilter,
-      format: RGBFormat,
+      format: RGBAFormat,
       stencilBuffer: false
     })
   })

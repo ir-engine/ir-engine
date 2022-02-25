@@ -1,6 +1,7 @@
 import { AdminScopeType } from './AdminScopeType'
 import { Group } from './Group'
 import { User } from './User'
+
 export interface AdminScope {
   id: string
   createdAt: string

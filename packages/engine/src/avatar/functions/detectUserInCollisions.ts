@@ -1,9 +1,9 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, addComponent, removeComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
-import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
 import { TriggerDetectedComponent } from '../../scene/components/TriggerDetectedComponent'
+import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
 
 export const detectActiveTriggerCollision = (collidingEntity: Entity, collision: ColliderHitEvent) => {
   const triggerEntity = (collision?.bodyOther as any)?.userData?.entity as Entity

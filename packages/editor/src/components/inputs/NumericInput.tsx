@@ -1,10 +1,12 @@
-import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { getStepSize, toPrecision } from '../../functions/utils'
-import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+import React from 'react'
 import { useRef } from 'react'
 import { useState } from 'react'
+import styled from 'styled-components'
+
+import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
+
+import { getStepSize, toPrecision } from '../../functions/utils'
 
 /**
  *

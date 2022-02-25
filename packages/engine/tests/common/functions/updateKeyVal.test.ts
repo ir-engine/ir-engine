@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import updateKeyVal from '../../../src/common/functions/updateKeyVal'
 
 describe('updateKeyVal', () => {

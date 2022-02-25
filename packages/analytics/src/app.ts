@@ -1,18 +1,19 @@
 import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio'
-import { Application } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import logger from '@xrengine/server-core/src/logger'
-import sequelize from '@xrengine/server-core/src/sequelize'
-import services from '@xrengine/server-core/src/services'
-import authentication from '@xrengine/server-core/src/user/authentication'
 import compress from 'compression'
 import cors from 'cors'
 import { EventEmitter } from 'events'
 import feathersLogger from 'feathers-logger'
 import helmet from 'helmet'
 import winston from 'winston'
+
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import services from '@xrengine/server-core/src/services'
+import authentication from '@xrengine/server-core/src/user/authentication'
 
 export const createApp = (): Application => {
   const emitter = new EventEmitter()

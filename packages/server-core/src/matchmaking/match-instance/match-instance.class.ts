@@ -1,6 +1,8 @@
-import { Application } from '../../../declarations'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { MatchInstanceInterface } from '@xrengine/common/src/dbmodels/MatchInstance'
+
+import { Application } from '../../../declarations'
 
 export type MatchInstanceDataType = MatchInstanceInterface
 

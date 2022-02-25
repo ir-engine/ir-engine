@@ -1,3 +1,10 @@
+import * as mediasoupClient from 'mediasoup-client'
+import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { io as ioclient, Socket } from 'socket.io-client'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import {
   Network,
   NetworkTransportHandler,
@@ -6,14 +13,9 @@ import {
 } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import * as mediasoupClient from 'mediasoup-client'
-import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { io as ioclient, Socket } from 'socket.io-client'
-import { onConnectToInstance } from './SocketWebRTCClientFunctions'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { accessAuthState } from '../user/services/AuthService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
 const gameserverAddress =

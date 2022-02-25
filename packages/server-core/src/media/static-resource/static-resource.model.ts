@@ -1,7 +1,9 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
+
 import { Application } from '../../../declarations'
 import generateShortId from '../../util/generate-short-id'
-import { StaticResourceInterface } from '@xrengine/common/src/dbmodels/StaticResource'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

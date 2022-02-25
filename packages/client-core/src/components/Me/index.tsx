@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import PartyParticipantWindow from '../PartyParticipantWindow'
+
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import PartyParticipantWindow from '../PartyParticipantWindow'
 
 const Me = () => {
   const [expanded, setExpanded] = useState(true)

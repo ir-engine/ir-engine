@@ -1,4 +1,4 @@
-import { ShaderMaterial, Object3D, Mesh } from 'three'
+import { Mesh, Object3D, ShaderMaterial } from 'three'
 
 export class DissolveEffect {
   time = 0
@@ -117,15 +117,15 @@ export class DissolveEffect {
     ].join('\n')
 
     const hasUV = object.geometry.hasAttribute('uv')
-    const hasTexture = (<any>object.material).map !== null
+    const hasTexture = (object.material as any).map !== null
 
     const mat = new ShaderMaterial({
       uniforms: {
         color: {
-          value: (<any>object.material).color
+          value: (object.material as any).color
         },
         origin_texture: {
-          value: (<any>object.material).map
+          value: (object.material as any).map
         },
         // texture_dissolve: {
         //   value: textureNoise

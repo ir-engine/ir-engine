@@ -1,9 +1,11 @@
 import { HookContext } from '@feathersjs/feathers'
-import authenticate from '../../hooks/authenticate'
 import dauria from 'dauria'
+
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+
+import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
 
 export default {
