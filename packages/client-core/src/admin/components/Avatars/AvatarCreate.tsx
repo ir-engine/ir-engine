@@ -100,11 +100,16 @@ const AvatarCreate = ({ handleClose, open }) => {
     if (!newAvatar.description) {
       temp.description = "Description can't be empty"
     }
-    if (!newAvatar.avatarUrl) {
-      temp.avatarUrl = "avatar url can't be empty"
-    }
+    // if (!newAvatar.avatarUrl) {
+    //   temp.avatarUrl = "avatar url can't be empty"
+    // }
     if (validateForm(newAvatar, formErrors)) {
-      await AvatarService.createAdminAvatar(data)
+      const canvas = document.createElement('canvas')
+      const newContext = canvas.getContext('2d')
+      newContext?.drawImage(renderer.domElement, 0, 0)
+      canvas.toBlob(async (blob) => {
+        await AvatarService.createAdminAvatar(blob!, selectedFile, data)
+      })
       clearState()
       handleClose()
     } else {

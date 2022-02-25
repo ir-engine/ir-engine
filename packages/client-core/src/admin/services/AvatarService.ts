@@ -2,6 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+import { AdminAssetUploadType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
@@ -73,9 +74,23 @@ export const AvatarService = {
       dispatch(AvatarAction.avatarsFetched(avatars))
     }
   },
-  createAdminAvatar: async (data: any) => {
+  createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: any) => {
     const dispatch = useDispatch()
     try {
+      const uploadArguments: AdminAssetUploadType = {
+        type: 'admin-file-upload',
+        files: [blob, thumbnail],
+        args: [
+          {
+            key: 'avatars/public/CyberbotGold.glb',
+            contentType: '',
+            staticResourceType: data.staticResourceType
+          }
+        ]
+      }
+
+      const response = await client.service('upload-asset').create(uploadArguments)
+      console.log(response)
       const result = await client.service('static-resource').create(data)
       dispatch(AvatarAction.avatarCreated(result))
     } catch (error) {

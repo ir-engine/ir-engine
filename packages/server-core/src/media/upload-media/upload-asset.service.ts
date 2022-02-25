@@ -10,6 +10,7 @@ import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
+import _ from 'lodash'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
@@ -27,10 +28,9 @@ export const addGenericAssetToS3AndStaticResources = async (
   const provider = useStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
-
   const existingAsset = await app.service('static-resource').find({
     query: {
-      staticResourceType: args.staticResourceType,
+      staticResourceType: args.staticResourceType || 'avatar',
       // safely spread conditional params so we can query by name if it is given, otherwise fall back to key
       ...(args.name ? { name: args.name } : { key: args.key }),
       ...userIdQuery
@@ -114,9 +114,7 @@ export default (app: Application): void => {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           return Promise.all(
-            params?.files.map((file, i) =>
-              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
-            )
+            data?.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] }))
           )
         }
       }
