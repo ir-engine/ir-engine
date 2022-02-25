@@ -1,3 +1,6 @@
+import classNames from 'classnames'
+import React, { useState } from 'react'
+
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
 import Button from '@mui/material/Button'
@@ -8,8 +11,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Modal from '@mui/material/Modal'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-import classNames from 'classnames'
-import React, { useState } from 'react'
+
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useDispatch } from '../../../store'
 import styles from './Projects.module.scss'

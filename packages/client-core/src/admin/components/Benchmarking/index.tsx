@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { useStyles } from './styles'
+
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
 import { useTranslation } from 'react-i18next'
+import { useStyles } from './styles'
 
 const Benchmarking = () => {
   const testbotState = useTestBotState()

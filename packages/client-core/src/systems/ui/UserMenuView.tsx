@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react'
-import Button from '@mui/material/Button'
-import { useTranslation } from 'react-i18next'
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@speigg/hookstate'
-import { useUserState, UserService } from '../../user/services/UserService'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import Button from '@mui/material/Button'
+
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { useAuthState } from '../../user/services/AuthService'
+import { UserService, useUserState } from '../../user/services/UserService'
 
 const styles = {
   root: {
@@ -80,20 +84,16 @@ const styles = {
   }
 }
 
-export function createAvatarContextMenuView(id: string) {
-  return createXRUI(AvatarContextMenu, createAvatarContextMenuState(id))
+export function createAvatarContextMenuView() {
+  return createXRUI(AvatarContextMenu, UserMenuState)
 }
 
-function createAvatarContextMenuState(id: string) {
-  return createState({
-    id
-  })
-}
-
-type AvatarContextMenuState = ReturnType<typeof createAvatarContextMenuState>
+export const UserMenuState = createState({
+  id: null! as UserId
+})
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState() as AvatarContextMenuState
+  const detailState = useXRUIState() as typeof UserMenuState
 
   const engineState = useEngineState()
   const userState = useUserState()
@@ -118,7 +118,12 @@ const AvatarContextMenu = () => {
     }
   }
 
-  return user && engineState.avatarTappedId.value === user.id.value ? (
+  useEffect(() => {
+    if (engineState.avatarTappedId.value !== authState.user.id.value)
+      detailState.id.set(engineState.avatarTappedId.value)
+  }, [engineState.avatarTappedId.value])
+
+  return user?.id.value ? (
     <div style={styles.root}>
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>

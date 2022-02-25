@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Grid, Typography, Paper, Divider, Button } from '@mui/material'
-import { useStyles } from './styles'
+import { Icon } from '@iconify/react'
+import React, { useEffect, useState } from 'react'
+
+import { Button, Divider, Grid, Paper, Typography } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
-import { Icon } from '@iconify/react'
-import IconButton from '@mui/material/IconButton'
-import { useEmailSettingState } from '../../services/Setting/EmailSettingService'
-import { EmailSettingService } from '../../services/Setting/EmailSettingService'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
 import { useTranslation } from 'react-i18next'
 const { t } = useTranslation()
+import { useStyles } from './styles'
 
 interface emailProps {}
 

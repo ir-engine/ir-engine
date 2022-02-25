@@ -1,10 +1,14 @@
-import Checkbox from '@mui/material/Checkbox'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
-import { updatePostProcessing } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
 import React, { ChangeEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
+import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
+import { updatePostProcessing } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
+
 import LooksIcon from '@mui/icons-material/Looks'
+import Checkbox from '@mui/material/Checkbox'
+
 import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
@@ -13,7 +17,6 @@ import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
-import { useTranslation } from 'react-i18next'
 
 enum PropertyTypes {
   BlendFunction,

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import { ControlManager } from '../../../managers/ControlManager'
-import { CommandManager } from '../../../managers/CommandManager'
+
 import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
+import { ControlManager } from '../../../managers/ControlManager'
 import { InfoTooltip } from '../../layout/Tooltip'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {

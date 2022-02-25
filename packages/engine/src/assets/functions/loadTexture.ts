@@ -1,4 +1,5 @@
 import { Texture, TextureLoader } from 'three'
+
 import { TGALoader } from '../loaders/tga/TGALoader'
 
 export default function loadTexture(src: string, textureLoader?: TextureLoader | TGALoader) {

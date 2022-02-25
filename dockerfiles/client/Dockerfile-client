@@ -1,12 +1,9 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster-slim as builder
+FROM root-builder as builder
 
-RUN apt update
 # Create app directory
 WORKDIR /app
-
-RUN apt-get -y install python3-pip git
 
 COPY package.json .
 COPY packages/client/package.json ./packages/client/

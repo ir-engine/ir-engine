@@ -1,8 +1,10 @@
-import React from 'react'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import { useStyles } from '../styles/ui'
 import _ from 'lodash'
+import React from 'react'
+
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
+import { useStyles } from '../styles/ui'
 
 interface Props {
   value: string

@@ -297,12 +297,13 @@
             "googleAnalyticsTrackingId":"Google Analytics Tracking ID",
             "certPath":"CertPath",
             "keyPath":"KeyPath",
-            "githubPrivateKey":"Github Private Key",
-           
-            
-            
-            
-            
+            "githubPrivateKey":"Github Private Key"
+       },
+       "avatar":{
+        "fillRequiredFields":"Please fill all required field",
+        "avatarUrlCantEmpty":"avatar url can't be empty",
+        "descriptionCantEmpty":"Description can't be empty",
+        "nameCantEmpty":"Name can't be empty"
        }    
     }
 }

@@ -1,12 +1,14 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 

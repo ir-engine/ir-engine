@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
-import AvatarTable from './AvatarTable'
 import AvatarCreate from './AvatarCreate'
 import { useTranslation } from 'react-i18next'
+import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
   const classes = useStyles()

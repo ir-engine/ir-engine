@@ -1,3 +1,5 @@
+import React, { useState } from 'react'
+
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -11,7 +13,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import React, { useState } from 'react'
+
 import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
 import { Group } from '@xrengine/common/src/interfaces/Group'

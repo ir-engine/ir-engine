@@ -1,15 +1,18 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
+import { useTranslation } from 'react-i18next'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
+
+import AdjustIcon from '@mui/icons-material/Adjust'
+
 import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RadianNumericInputGroup from '../inputs/RadianNumericInputGroup'
 import LightShadowProperties from './LightShadowProperties'
-import { useTranslation } from 'react-i18next'
-import AdjustIcon from '@mui/icons-material/Adjust'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.

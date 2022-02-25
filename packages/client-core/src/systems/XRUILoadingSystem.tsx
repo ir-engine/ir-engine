@@ -1,54 +1,65 @@
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import type { WebLayer3D } from '@etherealjs/web-layer/three'
 import {
-  PerspectiveCamera,
-  MathUtils,
   BoxGeometry,
-  MeshBasicMaterial,
-  Mesh,
-  sRGBEncoding,
+  CubeTexture,
   DoubleSide,
   EquirectangularReflectionMapping,
-  CubeTexture,
-  SphereGeometry
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  SphereGeometry,
+  sRGBEncoding
 } from 'three'
-import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { LoadingSystemState } from './state/LoadingState'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { accessSceneState } from '../world/services/SceneService'
+
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
-import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
+import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
+
+import { accessSceneState } from '../world/services/SceneService'
+import { LoadingSystemState } from './state/LoadingState'
+import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
 
 export default async function XRUILoadingSystem(world: World) {
-  const ui = createLoaderDetailView()
-
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds)
 
   // todo: push timeout to accumulator
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => setTimeout(() => transition.setState('OUT'), 250))
+  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
+    setTimeout(() => {
+      mesh.visible = false
+      transition.setState('OUT')
+    }, 250)
+  )
 
-  await ui.waitForSceneColors()
+  const ui = await createLoaderDetailView()
 
-  // const mesh = new Mesh(new SphereGeometry(1), new MeshBasicMaterial({ side: DoubleSide }))
-  // getComponent(ui.entity, Object3DComponent).value.add(mesh)
+  const mesh = new Mesh(new SphereGeometry(0.3), new MeshBasicMaterial({ side: DoubleSide }))
+  // flip inside out
+  mesh.scale.set(-1, 1, 1)
+  getComponent(ui.entity, Object3DComponent).value.add(mesh)
 
-  // const sceneState = accessSceneState()
-  // const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
-  // const texture = await textureLoader.loadAsync(thumbnailUrl)
-  // mesh.material.map = texture
-  // texture.encoding = sRGBEncoding
-  // Engine.scene.background = getPmremGenerator().fromEquirectangular(texture).texture
+  const sceneState = accessSceneState()
+  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
+  const texture = await textureLoader.loadAsync(thumbnailUrl)
+  mesh.material.map = texture
+  setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
+    // add a slow rotation to animate on desktop, otherwise just keep it static for VR
+    if (!Engine.xrSession) mesh.rotateY(world.delta * 0.5)
+
     if (Engine.activeCameraEntity) {
       const xrui = getComponent(ui.entity, XRUIComponent)
 
@@ -82,7 +93,7 @@ export default async function XRUILoadingSystem(world: World) {
         transition.update(world, (opacity) => {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
           xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-            // console.log('setOpacity', opacity)
+            // console.log('setOpacity', opacity, layer.visible)
             const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
             mat.opacity = opacity
             mat.visible = opacity > 0

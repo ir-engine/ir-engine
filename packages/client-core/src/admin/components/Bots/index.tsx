@@ -1,9 +1,11 @@
+import React from 'react'
+
 import { List } from '@mui/icons-material'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import React from 'react'
+
 import { useStyles } from '../../styles/ui'
 import CreateBot from './CreateBot'
 import DisplayBots from './DisplayBots'

@@ -1,10 +1,12 @@
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import React from 'react'
+
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { sceneColumns, SceneData, SceneProps } from '../../common/variables/scene'
-import { SceneService, SCENE_PAGE_LIMIT, useSceneState } from '../../services/SceneService'
+import { SCENE_PAGE_LIMIT, SceneService, useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
 import ViewScene from './ViewScene'
 import { useTranslation } from 'react-i18next'

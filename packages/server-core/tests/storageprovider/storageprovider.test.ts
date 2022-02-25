@@ -1,15 +1,17 @@
+import approot from 'app-root-path'
 import assert from 'assert'
+import fs from 'fs-extra'
 import fetch from 'node-fetch'
 import path from 'path'
-const https = require('https')
-import S3Provider from '../../src/media/storageprovider/s3.storage'
-import LocalStorage from '../../src/media/storageprovider/local.storage'
-import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
-import { providerBeforeTest, providerAfterTest } from './storageproviderconfig'
-import { getContentType } from '../../src/util/fileUtils'
-import approot from 'app-root-path'
-import fs from 'fs-extra'
 import { v4 as uuid } from 'uuid'
+
+import LocalStorage from '../../src/media/storageprovider/local.storage'
+import S3Provider from '../../src/media/storageprovider/s3.storage'
+import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
+import { getContentType } from '../../src/util/fileUtils'
+import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
+
+const https = require('https')
 
 describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'

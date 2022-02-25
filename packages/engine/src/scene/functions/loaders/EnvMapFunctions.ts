@@ -1,13 +1,21 @@
-import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBFormat, sRGBEncoding, Vector3 } from 'three'
+import { Color, DataTexture, Mesh, MeshStandardMaterial, RGBAFormat, sRGBEncoding, Vector3 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentUpdateFunction
+} from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
-import { SceneOptions } from '../../systems/SceneObjectSystem'
-import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
+import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import {
   cubeTextureLoader,
   getPmremGenerator,
@@ -19,16 +27,10 @@ import {
   posz,
   textureLoader
 } from '../../constants/Util'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
-import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
+import { SceneOptions } from '../../systems/SceneObjectSystem'
+import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
+import { parseCubemapBakeProperties, updateCubemapBakeTexture } from './CubemapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
@@ -72,7 +74,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
         data[i + 2] = Math.floor(col.b * 255)
       }
 
-      const texture = new DataTexture(data, resolution, resolution, RGBFormat)
+      const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 

@@ -1,11 +1,12 @@
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { WebLayer3D } from '@etherealjs/web-layer/three'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { createMediaControlsUI, getMediaControlsUI, removeMediaControlsUI } from '../functions/mediaControlsUI'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { Entity } from '../../ecs/classes/Entity'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
-import { WebLayer3D } from '@etherealjs/web-layer/three'
+import { createMediaControlsUI, getMediaControlsUI, removeMediaControlsUI } from '../functions/mediaControlsUI'
 
 export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 

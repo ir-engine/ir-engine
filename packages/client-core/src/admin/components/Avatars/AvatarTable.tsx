@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import ConfirmModel from '../../common/ConfirmModel'
+import TableComponent from '../../common/Table'
+import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
-import TableComponent from '../../common/Table'
-import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import ConfirmModel from '../../common/ConfirmModel'
 import ViewAvatar from './ViewAvatar'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { useTranslation } from 'react-i18next'
@@ -22,6 +23,7 @@ interface Props {
 
 const AvatarTable = (props: Props) => {
   const adminAvatarState = useAvatarState()
+  const { search } = props
   const authState = useAuthState()
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars
@@ -31,7 +33,6 @@ const AvatarTable = (props: Props) => {
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
-  const [refetch, setRefetch] = useState(false)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
@@ -54,11 +55,11 @@ const AvatarTable = (props: Props) => {
   }
 
   useEffect(() => {
-    if (user?.id.value && (adminAvatarState.updateNeeded.value || refetch === true)) {
-      AvatarService.fetchAdminAvatars()
+    if (user?.id.value && adminAvatarState.updateNeeded.value) {
+      AvatarService.fetchAdminAvatars('increment', 0, search)
     }
-    setRefetch(false)
-  }, [authState.user?.id?.value, adminAvatarState.updateNeeded.value, refetch])
+    AvatarService.fetchAdminAvatars('increment', 0, search)
+  }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
     el: AvatarInterface,
@@ -119,7 +120,7 @@ const AvatarTable = (props: Props) => {
         column={avatarColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminAvatarCount.value}
+        count={adminAvatars.value.length}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

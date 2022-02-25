@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react'
-import { useStyles } from './styles'
-import Switch from '@mui/material/Switch'
+
 import { Grid, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
+import Switch from '@mui/material/Switch'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { GameServerSettingService } from '../../services/Setting/GameServerSettingService'
 import { useGameServerSettingState } from '../../services/Setting/GameServerSettingService'
 import { useTranslation } from 'react-i18next'
+import { useStyles } from './styles'
 
 interface gameServerProps {}
 

@@ -1,4 +1,16 @@
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
+
+import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
+import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
+import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -9,20 +21,9 @@ import Modal from '@mui/material/Modal'
 import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
-import Checkbox from '@mui/material/Checkbox'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from '@xrengine/client-core/src/store'
-
-import { LocationService } from '@xrengine/client-core/src/admin/services/LocationService'
+import Tooltip from '@mui/material/Tooltip'
 
 import styles from './styles.module.scss'
-import Tooltip from '@mui/material/Tooltip'
-import { useTranslation } from 'react-i18next'
-import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
-import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
-import { useParams } from 'react-router-dom'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
 interface Props {
   open: boolean

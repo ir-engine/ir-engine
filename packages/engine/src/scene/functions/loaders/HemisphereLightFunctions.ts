@@ -1,5 +1,7 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, HemisphereLight } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,

@@ -1,11 +1,12 @@
 import { Vector2 } from 'three'
+
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { GamepadAxis } from '../enums/InputEnums'
 import { Engine } from '../../ecs/classes/Engine'
-import { InputType } from '../enums/InputType'
-import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GamepadAxis } from '../enums/InputEnums'
+import { GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
+import { InputType } from '../enums/InputType'
 import normalizeWheel from '../functions/normalizeWheel'
 
 export let prevTouchPosition: [number, number] = [0, 0]

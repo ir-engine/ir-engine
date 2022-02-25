@@ -1,3 +1,15 @@
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+
+import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import { Message as MessageIcon, Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
@@ -8,16 +20,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 import TextField from '@mui/material/TextField'
-import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+
 import defaultStyles from './InstanceChat.module.scss'
 
 interface Props {
@@ -65,14 +68,13 @@ const InstanceChat = (props: Props): any => {
       console.log(user?.instanceId?.value, instanceConnectionState.instance.id?.value)
     }
     if (
-      user?.instanceId?.value === instanceConnectionState.instance.id?.value &&
+      instanceConnectionState.instance.id?.value &&
       instanceConnectionState.connected.value &&
       !chatState.instanceChannelFetching.value
     ) {
       ChatService.getInstanceChannel()
     }
   }, [
-    user?.instanceId?.value,
     instanceConnectionState.instance.id?.value,
     instanceConnectionState.connected?.value,
     chatState.instanceChannelFetching.value

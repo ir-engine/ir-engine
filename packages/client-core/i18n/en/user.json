@@ -270,7 +270,8 @@
     "key":"Key",
     "none":"None",
     "submit":"Submit",
-    "edit":"Edit"
+    "edit":"Edit",
+    "avatarUrl":"Avatar url"
   },
   "personMenu":{
     "inviteToParty":"Invite To Party",

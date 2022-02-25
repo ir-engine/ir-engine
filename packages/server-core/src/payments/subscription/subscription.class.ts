@@ -1,8 +1,10 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
 import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscription'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { SubscriptionInterface } from '@xrengine/common/src/dbmodels/Subscription'
 
 export type SubscriptionDataType = SubscriptionInterface & { subscriptionId: string; paymentUrl: string }
 

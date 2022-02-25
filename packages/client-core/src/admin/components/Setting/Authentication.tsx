@@ -1,9 +1,11 @@
 import { Icon } from '@iconify/react'
+import React, { useEffect, useState } from 'react'
+
 import { Button, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
 import { useStyles } from './styles'

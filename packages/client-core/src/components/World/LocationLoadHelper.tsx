@@ -1,20 +1,22 @@
-import { GeneralStateList, AppAction } from '@xrengine/client-core/src/common/services/AppService'
+import { Downgraded } from '@speigg/hookstate'
+import { Quaternion, Vector3 } from 'three'
+import matches from 'ts-matches'
+
+import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
-import { Quaternion, Vector3 } from 'three'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
+import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeBrowser,
@@ -23,13 +25,12 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import matches from 'ts-matches'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { Downgraded } from '@speigg/hookstate'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
   if (
@@ -135,7 +136,7 @@ export const initClient = async (project) => {
 }
 
 export const loadLocation = () => {
-  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading objects...'))
+  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading Objects'))
 
   const dispatch = useDispatch()
 
@@ -147,7 +148,7 @@ export const loadLocation = () => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
         const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        const message = Engine.sceneLoadPromises.length ? 'Loading objects...' : 'Loading Complete!'
+        const message = Engine.sceneLoadPromises.length ? 'Loading Objects' : 'Loading Complete'
         dispatchLocal(EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), message))
         break
     }
@@ -156,7 +157,7 @@ export const loadLocation = () => {
 
   const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
   loadSceneFromJSON(sceneData).then(() => {
-    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining world...'))
+    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining World'))
 
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
