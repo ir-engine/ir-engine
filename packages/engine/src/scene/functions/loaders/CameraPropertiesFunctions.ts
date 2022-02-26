@@ -1,17 +1,18 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { CameraMode } from '../../../camera/types/CameraMode'
+import { ProjectionType } from '../../../camera/types/ProjectionType'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ProjectionType } from '../../../camera/types/ProjectionType'
-import { CameraMode } from '../../../camera/types/CameraMode'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { isClient } from '../../../common/functions/isClient'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../../networking/functions/NetworkWorldAction'
-import { setCameraProperties } from '../setCameraProperties'
 import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { setCameraProperties } from '../setCameraProperties'
 
 export const SCENE_COMPONENT_CAMERA_PROPERTIES = 'cameraproperties'
 export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {

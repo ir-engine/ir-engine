@@ -1,7 +1,9 @@
+import React, { useEffect, useState } from 'react'
+
 import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import { useStyles } from './styles'

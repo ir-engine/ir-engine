@@ -1,14 +1,17 @@
-import React, { useEffect } from 'react'
-import Button from '@mui/material/Button'
-import { useTranslation } from 'react-i18next'
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { createState } from '@speigg/hookstate'
-import { useUserState, UserService } from '../../user/services/UserService'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { useAuthState } from '../../user/services/AuthService'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import Button from '@mui/material/Button'
+
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { useAuthState } from '../../user/services/AuthService'
+import { UserService, useUserState } from '../../user/services/UserService'
 
 const styles = {
   root: {

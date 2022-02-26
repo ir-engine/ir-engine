@@ -1,11 +1,14 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
+
 import LinkIcon from '@mui/icons-material/Link'
+
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
-import { useTranslation } from 'react-i18next'
-import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorComponentType, updateProperty } from './Util'
 
 export const LinkNodeEditor: EditorComponentType = (props) => {

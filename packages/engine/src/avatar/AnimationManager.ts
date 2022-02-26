@@ -1,4 +1,5 @@
 import { AnimationClip, SkinnedMesh } from 'three'
+
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { Engine } from '../ecs/classes/Engine'
 import { getDefaultSkeleton } from './functions/avatarFunctions'

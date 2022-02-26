@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+
+import { Check, Close, Delete, NavigateBefore, NavigateNext, PersonAdd } from '@mui/icons-material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import { NavigateNext, NavigateBefore, Check, PersonAdd, Delete, Close } from '@mui/icons-material'
-import styles from '../UserMenu.module.scss'
-import { useTranslation } from 'react-i18next'
+
 import { LazyImage } from '../../../../common/components/LazyImage'
-import { Views } from '../util'
 import { AuthService, useAuthState } from '../../../services/AuthService'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import styles from '../UserMenu.module.scss'
+import { Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function

@@ -1,4 +1,5 @@
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+
 export default class GLTFCache {
   cache: Map<any, any>
   constructor() {

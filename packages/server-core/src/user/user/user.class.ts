@@ -1,11 +1,13 @@
 import { Forbidden } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
+
+import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
-import { Paginated } from '@feathersjs/feathers/lib'
 
 export type UserDataType = UserInterface
 /**

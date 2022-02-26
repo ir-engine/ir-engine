@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { MessageStatus as MessageStatusDataType } from '@xrengine/common/src/interfaces/MessageStatus'
+
+import { Application } from '../../../declarations'
 
 /**
  * A class for invite type service

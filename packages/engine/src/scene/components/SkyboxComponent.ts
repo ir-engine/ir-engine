@@ -1,4 +1,5 @@
 import { Color } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'

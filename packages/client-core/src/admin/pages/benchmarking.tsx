@@ -1,6 +1,7 @@
-import Benchmarking from '../components/Benchmarking'
-import { AuthService } from '../../user/services/AuthService'
 import React, { useEffect } from 'react'
+
+import { AuthService } from '../../user/services/AuthService'
+import Benchmarking from '../components/Benchmarking'
 
 interface Props {}
 

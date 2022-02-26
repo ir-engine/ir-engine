@@ -1,7 +1,6 @@
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
 import {
   BackSide,
   ClampToEdgeWrapping,

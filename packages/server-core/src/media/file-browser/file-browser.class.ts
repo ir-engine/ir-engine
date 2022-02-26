@@ -1,9 +1,11 @@
 import { Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
-import { Application } from '../../../declarations'
-import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
+
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
+import { Application } from '../../../declarations'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
+import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 const storageProvider = useStorageProvider()
 

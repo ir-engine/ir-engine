@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
-import { UserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
+import { USER_PAGE_LIMIT, UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import ViewUser from './ViewUser'
 

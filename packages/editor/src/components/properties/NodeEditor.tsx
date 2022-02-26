@@ -1,4 +1,5 @@
 import React from 'react'
+
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
 

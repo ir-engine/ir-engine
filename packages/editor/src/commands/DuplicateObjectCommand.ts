@@ -1,12 +1,13 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import EditorEvents from '../constants/EditorEvents'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
+import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */

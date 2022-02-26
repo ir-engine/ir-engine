@@ -1,5 +1,6 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { float32, Schema, string, uint32, uint64 } from '../../assets/superbuffer'
 import { Model } from '../../assets/superbuffer/model'
 

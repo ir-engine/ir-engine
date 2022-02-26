@@ -1,6 +1,8 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
-import { Application } from '../../../declarations'
+
 import { ProjectInterface } from '@xrengine/common/src/dbmodels/Project'
+
+import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

@@ -1,16 +1,16 @@
 import assert, { strictEqual } from 'assert'
+import { Group, PerspectiveCamera, Vector3 } from 'three'
 
+import { AvatarComponent } from '../../../src/avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../../src/avatar/components/AvatarControllerComponent'
 import { moveAvatar } from '../../../src/avatar/functions/moveAvatar'
-import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
+import { Engine } from '../../../src/ecs/classes/Engine'
 import { createWorld } from '../../../src/ecs/classes/World'
 import { addComponent, getComponent } from '../../../src/ecs/functions/ComponentFunctions'
-import { AvatarComponent } from '../../../src/avatar/components/AvatarComponent'
-import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
-import { AvatarControllerComponent } from '../../../src/avatar/components/AvatarControllerComponent'
-import { Group, PerspectiveCamera, Vector3 } from 'three'
+import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
+import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
-import { Engine } from '../../../src/ecs/classes/Engine'
 
 // all components depended on by the moveAvatar function
 const createMovingAvatar = (world) => {

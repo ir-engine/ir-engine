@@ -1,10 +1,11 @@
+import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { IgnoreRaycastTagComponent } from '@xrengine/engine/src/scene/components/IgnoreRaycastTagComponent'
-import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
+import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity

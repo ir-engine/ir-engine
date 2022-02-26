@@ -2,15 +2,17 @@ import React from 'react'
 // react-contextmenu has a bug when built, and the only viable
 // workaround is to import from the /dist bunled copy of it.
 import {
-  ContextMenu as ReactContextMenu,
+  ContextMenuTrigger as _ContextMenuTrigger,
   MenuItem as _MenuItem,
   showMenu as _showMenu,
   SubMenu as _SubMenu,
-  ContextMenuTrigger as _ContextMenuTrigger,
-  ContextMenuProps
+  ContextMenuProps,
+  ContextMenu as ReactContextMenu
 } from 'react-contextmenu'
-import { EditorTheme } from '@xrengine/client-core/src/util/theme'
 import { createGlobalStyle } from 'styled-components'
+
+import { EditorTheme } from '@xrengine/client-core/src/util/theme'
+
 export const MenuItem = _MenuItem
 export const showMenu = _showMenu
 export const SubMenu = _SubMenu

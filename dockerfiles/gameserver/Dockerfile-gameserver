@@ -6,14 +6,7 @@ FROM root-builder as builder
 WORKDIR /app
 
 # to make use of caching, copy only package files and install dependencies
-COPY package.json .
-COPY packages/common/package.json ./packages/common/
-COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/
-COPY packages/matchmaking/package.json ./packages/matchmaking/
-COPY packages/projects/package.json ./packages/projects/
-COPY packages/server-core/package.json ./packages/server-core/
-COPY project-package-jsons ./
 
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 

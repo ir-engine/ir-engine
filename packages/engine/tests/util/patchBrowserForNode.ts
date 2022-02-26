@@ -1,9 +1,8 @@
 // patches for headless-gl - currently unused
-
 import { Blob } from 'buffer'
-;(globalThis as any).Blob = Blob
 // needed for URL.createObjectURL
 import 'url-polyfill'
+;(globalThis as any).Blob = Blob
 
 // patch navigator
 if (!globalThis.navigator)

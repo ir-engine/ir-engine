@@ -1,4 +1,5 @@
 import { Group, Object3D, SkinnedMesh } from 'three'
+
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'

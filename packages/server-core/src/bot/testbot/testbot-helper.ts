@@ -1,6 +1,7 @@
-import { Application } from '../../../declarations'
-import { TestBot, SpawnTestBot } from '@xrengine/common/src/interfaces/TestBot'
+import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
 import config from '@xrengine/server-core/src/appconfig'
+
+import { Application } from '../../../declarations'
 
 export const getTestbotPod = async (app: Application) => {
   if (app.k8DefaultClient) {

@@ -1,6 +1,8 @@
-import authenticate from '../../hooks/authenticate'
 import { disallow } from 'feathers-hooks-common'
+
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+
+import authenticate from '../../hooks/authenticate'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.

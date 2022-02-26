@@ -1,19 +1,21 @@
 import { Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
+import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { InteriorComponent, InteriorComponentType } from '../../components/InteriorComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { isClient } from '../../../common/functions/isClient'
 import { Interior } from '../../classes/Interior'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { InteriorComponent, InteriorComponentType } from '../../components/InteriorComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_INTERIOR = 'interior'
