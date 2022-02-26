@@ -7,6 +7,7 @@ import {
   DoubleSide,
   EquirectangularReflectionMapping,
   EquirectangularRefractionMapping,
+  Group,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
@@ -46,7 +47,6 @@ export default async function XRUILoadingSystem(world: World) {
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
     setTimeout(() => {
       transition.setState('OUT')
-      // ;(Engine.camera as PerspectiveCamera).fov = oldFov
     }, 250)
   )
 
@@ -56,37 +56,22 @@ export default async function XRUILoadingSystem(world: World) {
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
   const texture = await textureLoader.loadAsync(thumbnailUrl)
 
-  const cubemapMesh = new Mesh(new SphereGeometry(0.3), new MeshBasicMaterial({ side: DoubleSide, map: texture }))
-  // flip inside out
-  cubemapMesh.scale.set(-1, -1, 1)
-
-  const scene = new Scene()
-  scene.add(cubemapMesh)
-
   const mesh = new Mesh(
     new SphereGeometry(0.3),
-    new MeshStandardMaterial({
-      side: DoubleSide,
-      metalness: 1,
-      transparent: true,
-      roughness: 0.1,
-      color: 0xffffff
-    })
+    new MeshBasicMaterial({ side: DoubleSide, map: texture, transparent: true })
   )
+  // flip inside out
+  mesh.scale.set(-1, 1, 1)
+
   getComponent(ui.entity, Object3DComponent).value.add(mesh)
   setObjectLayers(mesh, ObjectLayers.UI)
 
-  const pemrem = getPmremGenerator()
-  const envMap = pemrem.fromScene(scene, 0.01).texture
-  mesh.material.envMap = envMap
-
-  // const oldFov = (Engine.camera as PerspectiveCamera).fov
-  // const loadingFov = 70
-  // ;(Engine.camera as PerspectiveCamera).fov = loadingFov
-
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-    if (!Engine.xrSession) Engine.camera.rotateY(world.delta * 0.35)
+    if (!Engine.xrSession) {
+      Engine.camera.rotateY(world.delta * 0.35)
+    } else {
+    }
 
     if (Engine.activeCameraEntity) {
       const xrui = getComponent(ui.entity, XRUIComponent)
@@ -122,11 +107,7 @@ export default async function XRUILoadingSystem(world: World) {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
           mesh.material.opacity = opacity
           mesh.visible = opacity > 0
-          // EngineRenderer.instance.needsResize = true
-          // ;(Engine.camera as PerspectiveCamera).fov = lerp(oldFov, loadingFov, opacity)
-          // console.log((Engine.camera as PerspectiveCamera).fov)
           xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-            // console.log('setOpacity', opacity, layer.visible)
             const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
             mat.opacity = opacity
             mat.visible = opacity > 0
