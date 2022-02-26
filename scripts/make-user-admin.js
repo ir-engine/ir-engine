@@ -1,10 +1,14 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv');
+const dotenv = require('dotenv-flow');
 const cli = require('cli');
 const Sequelize = require('sequelize');
+import appRootPath from 'app-root-path'
 const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 
-dotenv.config();
+dotenv.config({
+    path: appRootPath.path,
+    silent: true
+})
 const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
@@ -80,12 +84,17 @@ cli.main(async () => {
             await userMatch.save();
             for(const { type } of scopeTypeSeed.templates) {
               try {
-                await Scope.create({ userId: options.id, type })
+                const existingScope = await Scope.findOne({ where: { userId: options.id, type }})
+                if (existingScope == null)
+                  await Scope.create({ userId: options.id, type })
               } catch (e) { console.log(e) }
             }
+
+            cli.ok(`User with id ${options.id} made an admin` );
+        } else {
+            cli.ok(`User with id ${options.id} does not exist`)
         }
 
-        cli.ok(`User with id ${options.id} made an admin` );
         process.exit(0);
     }
     catch (err) {
