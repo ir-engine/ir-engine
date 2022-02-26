@@ -170,8 +170,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const headGrid = {
     display: 'grid',
     gridTemplateColumns: '1fr auto',
-    gridGap: '20px',
-    marginTop: props.selectedFile ? '20px' : 0
+    gridGap: '20px'
   }
   return (
     <>

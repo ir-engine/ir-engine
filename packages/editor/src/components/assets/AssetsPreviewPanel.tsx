@@ -3,10 +3,11 @@ import styled from 'styled-components'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
+import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
-import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
+import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
 /**
  *
@@ -89,7 +90,6 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
         }
         usePreviewPanel(audioPreviewPanel)
         break
-      case 'json':
       case 'md':
       case 'ts':
         const txtPreviewPanel = {
@@ -97,6 +97,13 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
         usePreviewPanel(txtPreviewPanel)
+        break
+      case 'json':
+        const jsonPreviewPanel = {
+          PreviewSource: JsonPreviewPanel,
+          resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
+        }
+        usePreviewPanel(jsonPreviewPanel)
         break
 
       default:

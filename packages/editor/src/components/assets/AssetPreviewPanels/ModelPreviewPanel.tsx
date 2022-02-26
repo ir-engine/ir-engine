@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import styled from 'styled-components'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+
 import {
   initialize3D,
   onWindowResize,
   renderScene
 } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
+import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+
 /**
  * @author Abhishek Pathak
  */
