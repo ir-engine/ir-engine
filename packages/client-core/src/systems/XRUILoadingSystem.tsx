@@ -1,36 +1,14 @@
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import {
-  BoxGeometry,
-  CubeReflectionMapping,
-  CubeRefractionMapping,
-  CubeTexture,
-  DoubleSide,
-  EquirectangularReflectionMapping,
-  EquirectangularRefractionMapping,
-  Group,
-  MathUtils,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  PerspectiveCamera,
-  Scene,
-  SphereGeometry,
-  sRGBEncoding
-} from 'three'
+import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PerspectiveCamera, SphereGeometry } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { lerp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { convertEquiToCubemap } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { getPmremGenerator, textureLoader } from '@xrengine/engine/src/scene/constants/Util'
+import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
@@ -46,15 +24,14 @@ export default async function XRUILoadingSystem(world: World) {
   // todo: push timeout to accumulator
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () =>
     setTimeout(() => {
+      mesh.visible = false
       transition.setState('OUT')
     }, 250)
   )
 
-  const ui = await createLoaderDetailView()
-
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
-  const texture = await textureLoader.loadAsync(thumbnailUrl)
+  const [ui, texture] = await Promise.all([createLoaderDetailView(), textureLoader.loadAsync(thumbnailUrl)])
 
   const mesh = new Mesh(
     new SphereGeometry(0.3),
@@ -71,6 +48,7 @@ export default async function XRUILoadingSystem(world: World) {
     if (!Engine.xrSession) {
       Engine.camera.rotateY(world.delta * 0.35)
     } else {
+      // todo: figure out how to make this work properly for VR
     }
 
     if (Engine.activeCameraEntity) {
