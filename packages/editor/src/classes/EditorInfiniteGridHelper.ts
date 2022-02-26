@@ -4,8 +4,8 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
+import { GridToolAction } from '../services/GridToolServices'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 /**
  * Original Author: Fyrestar
@@ -138,11 +138,11 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    CommandManager.instance.emitEvent(EditorEvents.GRID_HEIGHT_CHANGED, value)
+    dispatchLocal(GridToolAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    CommandManager.instance.emitEvent(EditorEvents.GRID_VISIBILITY_CHANGED, this.visible)
+    dispatchLocal(GridToolAction.changeGridToolVisibility(this.visible))
   }
 }
