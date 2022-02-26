@@ -1,11 +1,11 @@
 import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
 
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 
 import { GridToolAction } from '../services/GridToolServices'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 /**
  * Original Author: Fyrestar

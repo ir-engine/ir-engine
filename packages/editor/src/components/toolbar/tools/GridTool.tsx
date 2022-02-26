@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react'
 import GridOnIcon from '@mui/icons-material/GridOn'
 
 import { SceneManager } from '../../../managers/SceneManager'
+import { useGridToolState } from '../../../services/GridToolServices'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
-import { useGridToolState } from '../../../services/GridToolServices'
 
 const GridTool = () => {
   const gridToolState = useGridToolState().value
