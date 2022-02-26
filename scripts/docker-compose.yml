@@ -2,7 +2,7 @@
 version: '2.3'
 services:
   db:
-    image: mariadb:10.7
+    image: mariadb:10.8
     container_name: xrengine_db
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root
@@ -12,7 +12,7 @@ services:
     ports:
       - '3306:3306'
   testdb:
-    image: mariadb:10.7
+    image: mariadb:10.8
     container_name: xrengine_test_db
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root
@@ -22,7 +22,7 @@ services:
     ports:
       - '3305:3306'
   minikubedb:
-    image: mariadb:10.7
+    image: mariadb:10.8
     container_name: xrengine_minikube_db
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root
