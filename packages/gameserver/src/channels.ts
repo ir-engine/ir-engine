@@ -419,7 +419,6 @@ const loadGameserver = async (
 }
 
 const shutdownGameserver = async (app: Application, instanceId: string) => {
-  engineStarted = false
   console.log('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
