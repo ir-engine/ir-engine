@@ -55,24 +55,6 @@ export default async function PhysicsSystem(world: World) {
   await world.physics.createScene()
 
   return () => {
-    // for (const entity of spawnRigidbodyQuery.enter()) {
-    //   const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
-
-    //   addComponent(entity, TransformComponent, {
-    //     position: new Vector3().copy(parameters.position),
-    //     rotation: new Quaternion().copy(parameters.rotation),
-    //     scale: new Vector3(1, 1, 1)
-    //   })
-
-    //   // TODO: figure out how we are going to spawn the body
-
-    //   if (isClient) {
-    //     addComponent(entity, InterpolationComponent, {})
-    //   } else {
-    //     dispatchFromServer(NetworkWorldAction.createObject(networkId, uniqueId, PrefabType.RigidBody, parameters))
-    //   }
-    // }
-
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent?.body) {
@@ -94,7 +76,11 @@ export default async function PhysicsSystem(world: World) {
       const transform = getComponent(entity, TransformComponent)
       const network = getComponent(entity, NetworkObjectComponent)
 
-      if (world.isHosting || hasComponent(entity, AvatarComponent)) continue
+      if (hasComponent(entity, AvatarComponent)) continue
+
+      // Not applying local physics state to objects that this client does not have authority over.
+      // This results in physics object and visual mesh not staying in sync.
+      // TODO: Physics state should always take effect, just the final state of object should be using network state.
       if (network) {
         if (network.ownerId !== Engine.userId) continue
       }
@@ -126,18 +112,21 @@ export default async function PhysicsSystem(world: World) {
         const currentPose = body.getGlobalPose()
 
         transform.position.copy(currentPose.translation as Vector3)
-
         transform.rotation.copy(currentPose.rotation as Quaternion)
       }
     }
 
-    if (world.isHosting) {
-      for (const entity of networkColliderQuery()) {
-        const collider = getComponent(entity, ColliderComponent)
-        const transform = getComponent(entity, TransformComponent)
-        const body = collider.body as PhysX.PxRigidDynamic
-        teleportRigidbody(body, transform.position, transform.rotation)
-      }
+    for (const entity of networkColliderQuery()) {
+      const network = getComponent(entity, NetworkObjectComponent)
+
+      // Set network state to physics body pose for objects not owned by this user.
+      if (network.ownerId === Engine.userId) continue
+
+      const collider = getComponent(entity, ColliderComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const body = collider.body as PhysX.PxRigidDynamic
+
+      teleportRigidbody(body, transform.position, transform.rotation)
     }
 
     // clear collision components

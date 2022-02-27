@@ -130,21 +130,25 @@ export const generatePhysicsObject = (config: ShapeOptions) => {
 
   // Spawn at some random position
   let transform = getComponent(entity, TransformComponent)
-  transform.position.setComponent(1, 25)
+  transform.position.setComponent(1, 15)
   const collider = getComponent(entity, ColliderComponent)
   const body = collider.body as PhysX.PxRigidDynamic
   teleportRigidbody(body, transform.position, transform.rotation)
 
-  // if (!world.isHosting) {
-  //     const node = world.entityTree.findNodeFromEid(entity)
-  //     if (node) {
-  //     dispatchFrom(world.hostId, () =>
-  //         NetworkWorldAction.spawnObject({
-  //         prefab: '',
-  //         parameters: { sceneEntityId: node.uuid },
-  //         ownerIndex: world.clients.get(Engine.userId)!.userIndex
-  //         })
-  //     ).cache()
-  //     }
-  // }
+  if (world.isHosting) {
+    teleportRigidbody(body, transform.position, transform.rotation)
+
+    console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
+
+    const node = world.entityTree.findNodeFromEid(entity)
+    if (node) {
+      dispatchFrom(world.hostId, () =>
+        NetworkWorldAction.spawnObject({
+          prefab: '',
+          parameters: { sceneEntityId: node.uuid, position: transform.position },
+          ownerIndex: world.clients.get(Engine.userId)!.userIndex
+        })
+      ).cache()
+    }
+  }
 }
