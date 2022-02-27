@@ -1,13 +1,13 @@
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
-import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
+import { ErrorAction } from '../services/ErrorService'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
@@ -75,7 +75,7 @@ export class ProjectManager {
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
-      CommandManager.instance.emitEvent(EditorEvents.ERROR, error)
+      dispatchLocal(ErrorAction.throwError(error.toString()))
       throw error
     }
   }

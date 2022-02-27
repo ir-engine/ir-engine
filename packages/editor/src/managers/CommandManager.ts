@@ -6,6 +6,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -34,6 +35,7 @@ import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import isInputSelected from '../functions/isInputSelected'
+import { ErrorAction } from '../services/ErrorService'
 import { SceneManager } from './SceneManager'
 
 export type CommandParamsType =
@@ -253,7 +255,7 @@ export class CommandManager extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia({ url: url.href }).catch((error) => this.emitEvent(EditorEvents.ERROR, error))
+        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(ErrorAction.throwError(error.toString())))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }

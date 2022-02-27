@@ -21,9 +21,7 @@ enum EditorEvents {
   SNAP_SETTINGS_CHANGED,
 
   FILE_UPLOADED,
-  RESULTS_CHANGED,
-
-  ERROR
+  RESULTS_CHANGED
 }
 
 export default EditorEvents

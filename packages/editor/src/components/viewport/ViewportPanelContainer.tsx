@@ -6,6 +6,7 @@ import { Vector2 } from 'three'
 
 import editorTheme from '@xrengine/client-core/src/util/theme'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
@@ -14,6 +15,7 @@ import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { accessEditorState } from '../../services/EditorServices'
+import { ErrorAction } from '../../services/ErrorService'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addItemAtCursorPosition } from '../dnd'
 import * as styles from './Viewport.module.scss'
@@ -94,7 +96,7 @@ export function ViewportPanelContainer() {
         CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
-      CommandManager.instance.emitEvent(EditorEvents.ERROR, err)
+      dispatchLocal(ErrorAction.throwError(err.toString()))
     })
   }, [])
 

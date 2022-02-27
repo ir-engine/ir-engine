@@ -27,6 +27,7 @@ import { CommandManager } from '../managers/CommandManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { EditorAction, useEditorState } from '../services/EditorServices'
+import { useErrorState } from '../services/ErrorService'
 import AssetsPanel from './assets/AssetsPanel'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -110,6 +111,8 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
+
+  const errorState = useErrorState()
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -456,14 +459,18 @@ const EditorContainer = () => {
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })
   }, [])
 
   useEffect(() => {
+    if (errorState.error.value) {
+      onEditorError(errorState.error.value)
+    }
+  }, [errorState.error])
+
+  useEffect(() => {
     return () => {
       setEditorReady(false)
-      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       ProjectManager.instance.dispose()
     }
   }, [])
