@@ -6,11 +6,11 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { addItem } from '../dnd'
+import { addPrefabElement } from '../element/ElementList'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
@@ -127,7 +127,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         return
       }
 
-      if (addItem(item, parent, before)) return
+      if (item.url) {
+        CommandManager.instance.addMedia({ url: item.url }, parent, before)
+        return
+      }
+
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item, parent, before)
+        return
+      }
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: parent,
@@ -140,8 +148,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     return (item, monitor): boolean => {
       //check if monitor is over or object is not parent element
       if (!monitor.isOver() || (!dropOn && !entityNode.parentNode)) return false
-
-      if (isAsset(item)) return true
 
       if (item.type === ItemTypes.Node) {
         return (
@@ -157,7 +163,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }
 
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node.entityNode.parentNode, node.entityNode),
     canDrop: canDropItem(node.entityNode),
     collect: (monitor) => ({
@@ -167,7 +173,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(
       node.entityNode.parentNode,
       !node.lastChild && node.entityNode.parentNode.children
@@ -182,7 +188,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node.entityNode),
     canDrop: canDropItem(node.entityNode, true),
     collect: (monitor) => ({

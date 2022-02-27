@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import styled from 'styled-components'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
-import AssetsPanel from './assets/AssetsPanel'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
@@ -19,7 +18,7 @@ import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import ToolBar from './toolbar/ToolBar'
-import ViewportPanelContainer from './viewport/ViewportPanelContainer'
+import { ControlText } from './controlText/ControlText'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import { cmdOrCtrlString } from '../functions/utils'
 import { CommandManager } from '../managers/CommandManager'
@@ -41,6 +40,8 @@ import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { DndWrapper } from './dnd/DndWrapper'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
+import AssetDropZone from './assets/AssetDropZone'
+import ElementList from './element/ElementList'
 
 /**
  *Styled component used as dock container.
@@ -69,7 +70,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: ${(props) => props.theme.panel}E2;
+    background: ${(props) => props.theme.panel}E0;
   }
   .dock-top .dock-bar {
     font-size: 12px;
@@ -271,6 +272,7 @@ const EditorContainer = (props) => {
 
   const onProjectLoaded = () => {
     updateModifiedState()
+    SceneManager.instance.initializeRenderer()
   }
 
   const onCloseProject = () => {
@@ -634,18 +636,6 @@ const EditorContainer = (props) => {
                     </PanelDragContainer>
                   ),
                   content: <PropertiesPanelContainer />
-                },
-                {
-                  id: 'assetsPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelTitle>
-                        Elements
-                        <Search elementsName="element" handleInputChange={handleInputChangeElement} />
-                      </PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: <AssetsPanel />
                 }
               ]
             }
@@ -660,18 +650,25 @@ const EditorContainer = (props) => {
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+          <ElementList />
+          <ControlText />
           <div className={styles.workspaceContainer}>
-            <ViewportPanelContainer />
+            <AssetDropZone />
             <AppContext.Provider value={{ searchElement, searchHierarchy }}>
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
                   defaultLayout={defaultLayout}
-                  style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
                 />
               </DockContainer>
             </AppContext.Provider>
           </div>
+          {!sceneName && (
+            <div className={styles.bgImageBlock}>
+              <img src="/static/xrengine.png" />
+            </div>
+          )}
           <Dialog
             open={!!DialogComponent}
             onClose={() => setDialogComponent(null)}

@@ -1,7 +1,11 @@
 @use "../theme.scss" as theme;
 
-.assetsPanel {
+.panelContainer {
     height: 100%;
+    position: relative;
+    flex: 1;
+    background-color: transparent;
+    overflow-y: auto;
 }
 
 .fileListItemContainer  {
@@ -20,4 +24,10 @@
     .fileNameContainer {
         margin-right: 3px;
     }
+}
+
+.contentContainer {
+    display: flex;
+    flex: 1;
+    overflow: auto;
 }

@@ -3,7 +3,7 @@ import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { useDrop } from 'react-dnd'
 import { FixedSizeList, areEqual } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { addItem } from '../dnd'
+import { addPrefabElement } from '../element/ElementList'
 import useUpload from '../assets/useUpload'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,7 @@ import { cmdOrCtrlString } from '../../functions/utils'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import EditorCommands from '../../constants/EditorCommands'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -268,7 +268,7 @@ export default function HierarchyPanel() {
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -286,7 +286,15 @@ export default function HierarchyPanel() {
         return
       }
 
-      if (addItem(item)) return
+      if (item.url) {
+        CommandManager.instance.addMedia({ url: item.url })
+        return
+      }
+
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item)
+        return
+      }
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: useWorld().entityTree.rootNode
@@ -294,8 +302,6 @@ export default function HierarchyPanel() {
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
-
-      if (isAsset(item)) return true
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {

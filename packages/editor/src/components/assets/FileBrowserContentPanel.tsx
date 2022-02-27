@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
-import { AssetPanelContentContainer } from './AssetsPanel'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import FileBrowserGrid from './FileBrowserGrid'
 import { useTranslation } from 'react-i18next'
@@ -69,11 +67,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       description: file.url,
       id: file.key,
       label: file.name,
-      nodeClass: prefabType,
+      prefabType,
       url: file.url,
       type: file.type,
-      initialProps: { src: new URL(file.url) },
-      iconComponent: prefabIcons[prefabType]
+      Icon: prefabIcons[prefabType]
     }
   })
 
@@ -144,8 +141,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
-        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-          <AssetPanelContentContainer>
+        <div id="file-browser-panel" className={styles.panelContainer}>
+          <div className={styles.contentContainer}>
             <FileBrowserGrid
               items={files}
               onSelect={onSelect}
@@ -154,8 +151,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               deleteContent={deleteContent}
               currentContent={currentContentRef}
             />
-          </AssetPanelContentContainer>
-        </AssetsPanelContainer>
+          </div>
+        </div>
       </ContextMenuTrigger>
 
       <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>

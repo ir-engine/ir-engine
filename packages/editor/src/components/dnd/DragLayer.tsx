@@ -72,39 +72,9 @@ export default function DragLayer() {
     } else {
       preview = <div>{item.value.name}</div>
     }
-  } else if (itemType === ItemTypes.Model) {
-    //check item of Model type
-    if (item.multiple) {
-      //check if item contains multiple then showing length of selected models
-      preview = <div>{t('editor:dnd.models', { count: item.value.length })}</div>
-    } else {
-      //showing label of the item
-      preview = <div>{item.value.label}</div>
-    }
-  } else if (itemType === ItemTypes.Image) {
-    //check for image types
-    if (item.multiple) {
-      preview = <div>{t('editor:dnd.images', { count: item.value.length })}</div>
-    } else {
-      preview = <div>{item.value.label}</div>
-    }
-  } else if (itemType === ItemTypes.Video) {
-    //check for video types
-    if (item.multiple) {
-      preview = <div>{t('editor:dnd.videos', { count: item.value.length })}</div>
-    } else {
-      preview = <div>{item.value.label}</div>
-    }
-  } else if (itemType === ItemTypes.Audio) {
-    //check for audio types
-    if (item.multiple) {
-      preview = <div>{t('editor:dnd.audio', { count: item.value.length })}</div>
-    } else {
-      preview = <div>{item.value.label}</div>
-    }
   } else {
     // showing item type
-    preview = <div>{item.type}</div>
+    preview = <div>{item.prefabType}</div>
   }
 
   // returning DragLayer view

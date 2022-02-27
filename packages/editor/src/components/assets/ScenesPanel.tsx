@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { AssetsPanelContainer } from '../layout/Flex'
 import styles from './styles.module.scss'
-import { AssetPanelContentContainer } from './AssetsPanel'
 import { useTranslation } from 'react-i18next'
 import { ProjectGrid } from '../projects/ProjectGrid'
 import { getScenes } from '../../functions/sceneFunctions'
@@ -46,8 +44,8 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
 
   return (
     <>
-      <AssetsPanelContainer ref={panelRef} id="file-browser-panel" className={styles.assetsPanel}>
-        <AssetPanelContentContainer>
+      <div ref={panelRef} id="file-browser-panel" className={styles.panelContainer}>
+        <div className={styles.contentContainer}>
           <ProjectGrid
             newProjectLabel={t('editor:newScene')}
             loading={loading}
@@ -57,8 +55,8 @@ export default function ScenesPanel({ projectName, loadScene, newScene, toggleRe
             onClickExisting={onClickExisting}
             contextMenuId={contextMenuId}
           />
-        </AssetPanelContentContainer>
-      </AssetsPanelContainer>
+        </div>
+      </div>
     </>
   )
 }

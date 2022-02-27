@@ -19,8 +19,7 @@ import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/Rota
 import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
 import isInputSelected from '../functions/isInputSelected'
-import { SceneManager } from './SceneManager'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -32,7 +31,6 @@ import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageCompo
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -258,7 +256,7 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode, updatePosition = true) {
+  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode): Promise<EntityTreeNode> {
     let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
@@ -342,11 +340,6 @@ export class CommandManager extends EventEmitter {
       })
 
       updateFunc()
-
-      if (updatePosition) {
-        const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
-      }
     }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)

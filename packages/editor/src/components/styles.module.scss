@@ -56,3 +56,17 @@
     background: transparent;
   }
 }
+
+.bgImageBlock {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: -10001;
+  background: theme.$background2;
+  img { opacity: 0.2; filter: unquote($string: "invert()"); }
+}

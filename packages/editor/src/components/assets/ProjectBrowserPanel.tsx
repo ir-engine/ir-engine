@@ -2,10 +2,15 @@ import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import styled from 'styled-components'
 import { DockContainer } from '../EditorContainer'
 
+export const ProjectDockContainer = (styled as any).div`
+  .dock, .dock-divider { background: transparent !important; }
+`
+
 /**
- * FileBrowserPanel used to render view for AssetsPanel.
+ * ProjectBrowserPanel used to render view for Project Panel.
  * @author Abhishek Pathak
  * @constructor
  */
@@ -50,14 +55,15 @@ export default function ProjectBrowserPanel() {
 
   return (
     <>
-      {console.log('Rendering File Browser Panel PARENT')}
-      <DockContainer dividerAlpha={0.3}>
-        <DockLayout
-          defaultLayout={defaultLayout}
-          style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
-          onLayoutChange={onLayoutChangedCallback}
-        />
-      </DockContainer>
+      <ProjectDockContainer id="filePanel">
+        <DockContainer dividerAlpha={0.3}>
+          <DockLayout
+            defaultLayout={defaultLayout}
+            style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
+            onLayoutChange={onLayoutChangedCallback}
+          />
+        </DockContainer>
+      </ProjectDockContainer>
     </>
   )
 }
