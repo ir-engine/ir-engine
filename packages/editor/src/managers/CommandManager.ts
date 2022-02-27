@@ -353,7 +353,6 @@ export class CommandManager extends EventEmitter {
       }
     }
 
-    CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }
 }
