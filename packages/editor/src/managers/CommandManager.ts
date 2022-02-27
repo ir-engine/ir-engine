@@ -3,7 +3,7 @@ import EventEmitter from 'events'
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
@@ -40,7 +40,7 @@ export type CommandParamsType =
   | AddObjectCommandParams
   | RemoveObjectCommandParams
   | DuplicateObjectCommandParams
-  | ModifyPropertyCommandParams
+  | ModifyPropertyCommandParams<any>
   | ReparentCommandParams
   | GroupCommandParams
   | PositionCommandParams
@@ -114,7 +114,11 @@ export class CommandManager extends EventEmitter {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setProperty(affectedEntityNodes: EntityTreeNode[], params: ModifyPropertyCommandParams, withHistory = true) {
+  setProperty<C extends MappedComponent<any, any>>(
+    affectedEntityNodes: EntityTreeNode[],
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     if (withHistory) {
       this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     } else {
@@ -122,11 +126,18 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
+  setPropertyOnSelectionEntities<C extends MappedComponent<any, any>>(
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     this.setProperty(this.selected, params, withHistory)
   }
 
-  setPropertyOnEntityNode(node: EntityTreeNode, params: ModifyPropertyCommandParams, withHistory = true) {
+  setPropertyOnEntityNode<C extends MappedComponent<any, any>>(
+    node: EntityTreeNode,
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     this.setProperty([node], params, withHistory)
   }
 
@@ -275,7 +286,7 @@ export class CommandManager extends EventEmitter {
           node,
           {
             component: ModelComponent,
-            properties: { src: url, initialScale: 'fit' }
+            properties: { src: url }
           },
           false
         )
@@ -319,7 +330,7 @@ export class CommandManager extends EventEmitter {
           node,
           {
             component: AudioComponent,
-            properties: { paths: [url] }
+            properties: { audioSource: url }
           },
           false
         )

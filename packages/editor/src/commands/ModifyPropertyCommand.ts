@@ -1,5 +1,9 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentConstructor,
+  ComponentType,
+  getComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
@@ -13,19 +17,19 @@ type PropertyType = {
   [key: string]: any
 }
 
-export interface ModifyPropertyCommandParams extends CommandParams {
-  properties: PropertyType
-  component: ComponentConstructor<any, any>
+export interface ModifyPropertyCommandParams<C extends ComponentConstructor<any, any>> extends CommandParams {
+  properties: Partial<ComponentType<C>>
+  component: C
 }
 
-export default class ModifyPropertyCommand extends Command {
+export default class ModifyPropertyCommand<C extends ComponentConstructor<any, any>> extends Command {
   properties: PropertyType = {}
 
   component: ComponentConstructor<any, any>
 
   oldProperties?: PropertyType[]
 
-  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams) {
+  constructor(objects: EntityTreeNode[], params: ModifyPropertyCommandParams<C>) {
     super(objects, params)
 
     this.component = params.component
@@ -57,7 +61,7 @@ export default class ModifyPropertyCommand extends Command {
     this.updateProperties(this.affectedObjects, this.properties, this.component)
   }
 
-  shouldUpdate(newCommand: ModifyPropertyCommand): boolean {
+  shouldUpdate(newCommand: ModifyPropertyCommand<any>): boolean {
     return (
       this.component === newCommand.component &&
       arrayShallowEqual(Object.keys(this.properties), Object.keys(newCommand.properties)) &&
@@ -65,7 +69,7 @@ export default class ModifyPropertyCommand extends Command {
     )
   }
 
-  update(command: ModifyPropertyCommand) {
+  update(command: ModifyPropertyCommand<any>) {
     this.properties = command.properties
     this.updateProperties(this.affectedObjects, command.properties, this.component)
   }

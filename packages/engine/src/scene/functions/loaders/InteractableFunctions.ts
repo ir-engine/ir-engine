@@ -44,15 +44,12 @@ export const serializeInteractable: ComponentSerializeFunction = (entity) => {
       interactionType: component.interactionType,
       interactionText: component.interactionText,
       interactionDistance: component.interactionDistance,
-      interactionThemeIndex: component.interactionThemeIndex,
       interactionName: component.interactionName,
       interactionDescription: component.interactionDescription,
       interactionImages: component.interactionImages,
       interactionVideos: component.interactionVideos,
       interactionUrls: component.interactionUrls,
-      interactionModels: component.interactionModels,
-      mediaIndex: component.mediaIndex,
-      intensity: component.intensity
+      interactionModels: component.interactionModels
     }
   }
 }
