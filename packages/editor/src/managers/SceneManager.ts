@@ -152,7 +152,7 @@ export class SceneManager {
       CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
       window.addEventListener('resize', this.onResize)
 
-      CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
+      dispatchLocal(EditorAction.rendererInitialized(true))
       EngineRenderer.instance.disableUpdate = false
 
       accessEngineRendererState().automatic.set(false)

@@ -7,6 +7,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
+import { EditorAction } from '../services/EditorServices'
 import { ErrorAction } from '../services/ErrorService'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
@@ -61,7 +62,7 @@ export class ProjectManager {
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
-    CommandManager.instance.emitEvent(EditorEvents.PROJECT_LOADED)
+    dispatchLocal(EditorAction.projectLoaded(true))
     CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
 
     CommandManager.instance.addListener(

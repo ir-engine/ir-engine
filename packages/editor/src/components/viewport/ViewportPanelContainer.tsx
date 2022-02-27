@@ -14,7 +14,7 @@ import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { accessEditorState } from '../../services/EditorServices'
+import { accessEditorState, useEditorState } from '../../services/EditorServices'
 import { ErrorAction } from '../../services/ErrorService'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addItemAtCursorPosition } from '../dnd'
@@ -27,6 +27,7 @@ import * as styles from './Viewport.module.scss'
  * @constructor
  */
 export function ViewportPanelContainer() {
+  const editorState = useEditorState()
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -50,22 +51,21 @@ export function ViewportPanelContainer() {
     CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
     CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [])
+
+  const initRenderer = () => SceneManager.instance.initializeRenderer()
 
   useEffect(() => {
-    const initRenderer = () => SceneManager.instance.initializeRenderer()
-
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-    CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), initRenderer)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-      CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
+    if (editorState.projectLoaded.value === true) {
+      initRenderer()
     }
-  }, [])
+  }, [editorState.projectLoaded])
+
+  useEffect(() => {
+    if (editorState.rendererInitialized.value === true) {
+      onEditorInitialized()
+    }
+  }, [editorState.rendererInitialized])
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],

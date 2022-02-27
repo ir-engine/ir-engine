@@ -10,6 +10,7 @@ import EditorEvents from '../../../constants/EditorEvents'
 import { CommandManager } from '../../../managers/CommandManager'
 import { ProjectManager } from '../../../managers/ProjectManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useEditorState } from '../../../services/EditorServices'
 
 /**
  * @author Abhishek Pathak
@@ -37,6 +38,8 @@ export const ModelPreviewPanel = (props) => {
   const scene = new Scene()
   const camera = new PerspectiveCamera(75)
   // const editor = new Editor(null, { camera, scene })
+
+  const editorState = useEditorState()
 
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
 
@@ -77,11 +80,15 @@ export const ModelPreviewPanel = (props) => {
 
   const onEditorInitialized = useCallback(() => {
     CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
   }, [onFlyModeChanged])
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
+    if (editorState.rendererInitialized.value) {
+      onEditorInitialized()
+    }
+  }, [editorState.rendererInitialized])
+
+  useEffect(() => {
     SceneManager.instance.initializeRenderer()
     renderScene()
 
