@@ -18,5 +18,10 @@
         "loading": "Loading...",
         "objectRemaining": "{{count}} object remaining",
         "objectRemainingPlural": "{{count}} objects remaining"
+    },
+    "alert":{
+       "eventWasSuccess":"Event was successful",
+       "errorWasEncountered":"An error was encountered",
+       "eventInProgress":"Event in progress" 
     }
 }

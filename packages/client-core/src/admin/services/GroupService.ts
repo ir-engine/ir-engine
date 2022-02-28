@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { Group } from '@xrengine/common/src/interfaces/Group'
+import { Group, CreateGroup } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -84,7 +84,7 @@ export const GroupService = {
       }
     }
   },
-  createGroupByAdmin: async (groupItem: any) => {
+  createGroupByAdmin: async (groupItem: CreateGroup) => {
     const dispatch = useDispatch()
     {
       try {

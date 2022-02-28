@@ -108,7 +108,7 @@ const CreateLocation = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required!` : ''
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.locationModel.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 

@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface, CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 
 import { client } from '../../feathers'
@@ -73,7 +73,7 @@ export const AvatarService = {
       dispatch(AvatarAction.avatarsFetched(avatars))
     }
   },
-  createAdminAvatar: async (data: any) => {
+  createAdminAvatar: async (data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
       const result = await client.service('static-resource').create(data)
@@ -82,7 +82,7 @@ export const AvatarService = {
       console.error(error)
     }
   },
-  updateAdminAvatar: async (id: string, data: any) => {
+  updateAdminAvatar: async (id: string, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
       const result = await client.service('static-resource').patch(id, data)
@@ -110,19 +110,19 @@ export const AvatarAction = {
       avatars: avatars
     }
   },
-  avatarCreated: (avatar: AvatarResult) => {
+  avatarCreated: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_CREATED' as const,
       avatar: avatar
     }
   },
-  avatarRemoved: (avatar: AvatarResult) => {
+  avatarRemoved: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_REMOVED' as const,
       avatar: avatar
     }
   },
-  avatarUpdated: (avatar: any) => {
+  avatarUpdated: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_UPDATED' as const,
       avatar: avatar

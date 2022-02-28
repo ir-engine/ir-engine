@@ -18,6 +18,7 @@ import { useStyles } from '../../styles/ui'
 import _ from 'lodash'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { useTranslation } from 'react-i18next'
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 interface Props {
   openView: boolean
@@ -78,7 +79,7 @@ const ViewAvatar = (props: Props) => {
   }
 
   const updateAvatar = async () => {
-    const data = {
+    const data: CreateEditAdminAvatar = {
       name: state.name,
       description: state.description,
       url: state.url,

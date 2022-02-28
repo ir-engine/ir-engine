@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { User, CreateEditUser } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -107,7 +107,7 @@ export const UserService = {
       }
     }
   },
-  createUser: async (user: any) => {
+  createUser: async (user: CreateEditUser) => {
     const dispatch = useDispatch()
     {
       try {
@@ -119,7 +119,7 @@ export const UserService = {
       }
     }
   },
-  patchUser: async (id: string, user: any) => {
+  patchUser: async (id: string, user: CreateEditUser) => {
     const dispatch = useDispatch()
     {
       try {

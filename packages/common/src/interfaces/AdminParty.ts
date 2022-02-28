@@ -30,3 +30,8 @@ interface Instance {
   updatedAt: string
   locationId: string
 }
+
+export interface PatchParty {
+  instanceId: string
+  locationId: string
+}

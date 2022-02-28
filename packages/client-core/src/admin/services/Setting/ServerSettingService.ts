@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { ServerSetting, PatchServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
@@ -40,7 +40,7 @@ export const ServerSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  patchServerSetting: async (data: any, id: string) => {
+  patchServerSetting: async (data: PatchServerSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {

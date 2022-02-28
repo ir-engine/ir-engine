@@ -7,7 +7,7 @@ import InputText from '../../common/InputText'
 
 interface Props {
   open: boolean
-  handleClose: any
+  handleClose: () => void
 }
 
 const createUser = (props: Props) => {

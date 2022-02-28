@@ -24,7 +24,7 @@ import { useLocationState } from '../../services/LocationService'
 import { LocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
 import { useTranslation } from 'react-i18next'
-import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -90,7 +90,7 @@ export default function ViewParty(props: Props) {
   })
 
   const handleSubmit = async () => {
-    const data = {
+    const data: PatchParty = {
       locationId: updateParty.location,
       instanceId: updateParty.instance
     }

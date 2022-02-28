@@ -8,11 +8,13 @@ import { useDispatch } from '../../store'
 import { useAlertState } from '../services/AlertService'
 import { AlertService } from '../services/AlertService'
 import styles from './Common.module.scss'
+import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
-const AlertsComponent = (props: Props): any => {
+const AlertsComponent = (props: Props): JSX.Element => {
   const dispatch = useDispatch()
+  const { t } = useTranslation()
   const handleClose = (e: any): void => {
     e.preventDefault()
     AlertService.alertCancel()
@@ -29,17 +31,17 @@ const AlertsComponent = (props: Props): any => {
     svgtypeicon = '/Notification_Success.svg'
     svgtypeclass = styles.svgiconsuccess
     alertBoxContainerclass = styles.alertBoxContainersuccess
-    alerttitle = 'Event was successful'
+    alerttitle = t('common:alert.eventWasSuccess')
   } else if (type.value == 'error') {
     svgtypeicon = '/Notification_Error.svg'
     svgtypeclass = styles.svgiconerror
     alertBoxContainerclass = styles.alertBoxContainererror
-    alerttitle = 'An error was encountered'
+    alerttitle = t('common:alert.errorWasEncountered')
   } else {
     svgtypeicon = '/Notification_InProgress.svg'
     svgtypeclass = styles.svgiconprogress
     alertBoxContainerclass = styles.alertBoxContainerprogress
-    alerttitle = 'Event in progress'
+    alerttitle = t('common:alert.eventInProgress')
   }
 
   return (
@@ -66,6 +68,6 @@ const AlertsComponent = (props: Props): any => {
   )
 }
 
-const AlertsWrapper = (props: any): any => <AlertsComponent {...props} />
+const AlertsWrapper = (props: Props): JSX.Element => <AlertsComponent {...props} />
 
 export const Alerts = AlertsWrapper

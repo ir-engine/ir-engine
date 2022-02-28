@@ -52,3 +52,9 @@ export interface CreateBotAsAdmin {
   description: string
   locationId: string
 }
+
+export interface CreateBotCammand {
+  name: string
+  description?: string
+  botId: string
+}

@@ -24,3 +24,9 @@ export interface EmailAuth {
   user: string
   pass: string
 }
+
+export interface PatchEmailSetting {
+  smtp: string
+  from: string
+  subject: string
+}

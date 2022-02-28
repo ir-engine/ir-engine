@@ -19,7 +19,7 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
-
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 const Input = styled('input')({
   display: 'none'
 })
@@ -72,7 +72,7 @@ const AvatarCreate = ({ handleClose, open }) => {
   }
 
   const uploadByUrls = async () => {
-    const data = {
+    const createAdminAvatar: CreateEditAdminAvatar = {
       name: newAvatar.avatarName,
       description: newAvatar.description,
       url: newAvatar.avatarUrl,
@@ -80,20 +80,20 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
     let temp = formErrors
     if (!newAvatar.avatarName) {
-      temp.avatarName = "Name can't be empty"
+      temp.avatarName = t('admin:components.avatar.nameCantEmpty')
     }
     if (!newAvatar.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.avatar.descriptionCantEmpty')
     }
     if (!newAvatar.avatarUrl) {
-      temp.avatarUrl = "avatar url can't be empty"
+      temp.avatarUrl = t('admin:components.avatar.avatarUrlCantEmpty')
     }
     if (validateForm(newAvatar, formErrors)) {
-      await AvatarService.createAdminAvatar(data)
+      await AvatarService.createAdminAvatar(createAdminAvatar)
       clearState()
       handleClose()
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.avatar.fillRequiredFields'))
       setOpenAlter(true)
     }
   }

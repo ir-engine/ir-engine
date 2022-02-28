@@ -14,3 +14,9 @@ export type GroupScope = {
   id: string
   type: string
 }
+
+export interface CreateGroup {
+  name: string
+  description: string
+  scopeTypes: GroupScope[]
+}

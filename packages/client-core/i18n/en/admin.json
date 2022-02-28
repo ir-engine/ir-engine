@@ -44,7 +44,8 @@
             "audioEnabled":"Audio Enabled",
             "faceStreamingEnabled":"Face Streaming Enabled",
             "screenSharingEnabled":"Screen Sharing Enabled",
-            "mediaChatEnabled":"Media Chat Enabled"
+            "mediaChatEnabled":"Media Chat Enabled",
+            "isRequired":"is required!"
         },
         "index": {
             "col-id": "ID",
@@ -304,6 +305,40 @@
         "avatarUrlCantEmpty":"avatar url can't be empty",
         "descriptionCantEmpty":"Description can't be empty",
         "nameCantEmpty":"Name can't be empty"
-       }    
+       },
+       "dialog":{
+        "notAccess":"No access",
+        "askAccessResourceMessage":"To access this resource, please enter your username here to ask for access.",
+        "cancel":"Cancel",
+        "submit":"Submit"
+       },
+       "user":{
+           "nameCantEmpty":"Name can't be empty",
+           "avatarCantEmpty":"Avatar can't be empty",
+           "userRoleCantEmpty":"User role can't be empty",
+           "scopeTypeCantEmpty":"Scope type can't be empty",
+           "fillRequiredField":"Please fill all required field",
+           "createNewUser":"Create New User",
+           "dontSeeUserRole":"Don't see user role?",
+           "createOne":"Create One",
+           "submit":"Submit",
+           "edit":"Edit",
+           "cancel":"Cancel",
+           "isRequired":"is required!",
+           "hideGuests":"Hide guests",
+           "updatePersonalInfo":"Update personal Information",
+           "name":"Name",
+           "avatar":"Avatar",
+           "selectAvatar":"Select avatar",
+           "userRole":"User role",
+           "grantScope":"Grant Scope",
+           "personalInfo":"Personal Information",
+           "location":"Location",
+           "inviteCode":"Invite Code",
+           "instance":"Instance",
+           "userScope":"User scope",
+           "enterName":"Enter name"
+
+       }
     }
 }

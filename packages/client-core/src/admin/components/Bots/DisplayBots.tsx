@@ -19,7 +19,7 @@ import { BotService, useBotState } from '../../services/BotsService'
 import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
 import { useTranslation } from 'react-i18next'
-import { AdminBot, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
 
 const DisplayBots = () => {
   const classes = useStyles()
@@ -78,7 +78,7 @@ const DisplayBots = () => {
   }
 
   const submitCommandBot = (id: string) => {
-    const data = {
+    const data: CreateBotCammand = {
       name: command.name,
       description: command.description,
       botId: id

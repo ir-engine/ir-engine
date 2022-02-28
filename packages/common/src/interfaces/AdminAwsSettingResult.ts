@@ -1,6 +1,6 @@
 import { AdminAwsSetting } from './AdminAwsSetting'
 
-export interface AdminRedisSettingResult {
+export interface AdminAwsSettingResult {
   data: AdminAwsSetting[]
   total: number
   limit: number

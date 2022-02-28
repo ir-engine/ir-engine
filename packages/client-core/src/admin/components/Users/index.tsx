@@ -11,12 +11,13 @@ import { useStyles } from '../../styles/ui'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
+import { useTranslation } from 'react-i18next'
 
 const Users = () => {
   const classes = useStyles()
   const [search, setSearch] = useState('')
   const [userModalOpen, setUserModalOpen] = useState(false)
-
+  const { t } = useTranslation()
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
       event.type === 'keydown' &&
@@ -53,12 +54,12 @@ const Users = () => {
                 color="primary"
               />
             }
-            label="Hide guests"
+            label={t('admin:components.user.hideGuests') as string}
           />
         </Grid>
         <Grid item md={3} xs={5}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New User
+          <Button className={classes.createBtn} type="submit" variant="contained" onClick={() => openModalCreate(true)}>
+            {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
       </Grid>
