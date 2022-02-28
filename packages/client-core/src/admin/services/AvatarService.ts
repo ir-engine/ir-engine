@@ -88,9 +88,10 @@ export const AvatarService = {
           }
         ]
       }
-
-      const response = await client.service('upload-asset').create(uploadArguments)
-      console.log(response)
+      if (blob) {
+        const response = await client.service('upload-asset').create(uploadArguments)
+        data.url = response[0]
+      }
       const result = await client.service('static-resource').create(data)
       dispatch(AvatarAction.avatarCreated(result))
     } catch (error) {

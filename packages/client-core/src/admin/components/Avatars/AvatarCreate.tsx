@@ -55,7 +55,6 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const panelRef = useRef<any>()
 
-  console.log(selectedFile, fileSelected, avatarModel)
   const handleChangeInput = (e) => {
     const names = e.target.name
     const value = e.target.value
@@ -100,16 +99,23 @@ const AvatarCreate = ({ handleClose, open }) => {
     if (!newAvatar.description) {
       temp.description = "Description can't be empty"
     }
-    // if (!newAvatar.avatarUrl) {
-    //   temp.avatarUrl = "avatar url can't be empty"
-    // }
+    if (!selectUse) {
+      temp.avatarUrl = !newAvatar.avatarUrl ? "avatar url can't be empty" : ''
+    } else {
+      temp.avatarUrl = !selectedFile ? "Avatar can't be empty" : ''
+    }
+
     if (validateForm(newAvatar, formErrors)) {
-      const canvas = document.createElement('canvas')
-      const newContext = canvas.getContext('2d')
-      newContext?.drawImage(renderer.domElement, 0, 0)
-      canvas.toBlob(async (blob) => {
-        await AvatarService.createAdminAvatar(blob!, selectedFile, data)
-      })
+      if (selectedFile) {
+        const canvas = document.createElement('canvas')
+        const newContext = canvas.getContext('2d')
+        newContext?.drawImage(renderer.domElement, 0, 0)
+        canvas.toBlob(async (blob) => {
+          await AvatarService.createAdminAvatar(blob!, selectedFile, data)
+        })
+      } else {
+        await AvatarService.createAdminAvatar(null as any, selectedFile, data)
+      }
       clearState()
       handleClose()
     } else {
