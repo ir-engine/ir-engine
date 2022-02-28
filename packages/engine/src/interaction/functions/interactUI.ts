@@ -14,6 +14,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
 import { InteractiveUI } from '../systems/InteractiveSystem'
@@ -157,6 +158,8 @@ export function createInteractUI(modelEntity: Entity) {
 //   }
 // }
 
+const anchoredPosition = new Vector3()
+
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const container = getComponent(xrui.entity, XRUIComponent)?.container
 
@@ -164,9 +167,10 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 
   const modelMesh = getComponent(modelEntity, Object3DComponent).value
   const modelDesiredTranform = getComponent(modelEntity, DesiredTransformComponent)
+  const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
 
   const world = useWorld()
-  const anchoredPosition = container.position
+  boundingBoxComponent.box.getCenter(anchoredPosition)
   const hasFocus = hasComponent(modelEntity, InteractiveFocusedComponent)
 
   const currentMode = xrui.state.mode.value

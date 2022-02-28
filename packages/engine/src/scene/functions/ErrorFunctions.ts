@@ -7,6 +7,7 @@ import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { ErrorComponent } from '../components/ErrorComponent'
 
 export const addError = (entity: Entity, key: string, error: any) => {
+  console.error('[addError]:', entity, key, error)
   const errorComponent = getComponent(entity, ErrorComponent) ?? addComponent(entity, ErrorComponent, {})
   errorComponent[key] = error
   dispatchLocal(EngineActions.updateEntityError(entity))

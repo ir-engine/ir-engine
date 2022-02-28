@@ -4,7 +4,8 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -15,6 +16,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
@@ -51,13 +53,20 @@ export default async function InteractiveSystem(world: World) {
 
   return () => {
     for (const entity of interactiveQuery.enter(world)) {
-      const interactable = getComponent(entity, InteractableComponent).value
-      if (!hasComponent(entity, BoundingBoxComponent)) {
-        createBoxComponent(entity)
+      // TODO: quick hack while objects to not load immediately #5352
+
+      const setupInteractable = () => {
+        const interactable = getComponent(entity, InteractableComponent).value
+        if (!hasComponent(entity, BoundingBoxComponent)) {
+          createBoxComponent(entity)
+        }
+        if (interactable.interactionType === 'ui-modal' && !InteractiveUI.get(entity)) {
+          createInteractUI(entity)
+        }
       }
-      if (interactable.interactionType === 'ui-modal' && !InteractiveUI.get(entity)) {
-        createInteractUI(entity)
-      }
+
+      if (accessEngineState().sceneLoaded.value) setupInteractable()
+      else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, setupInteractable)
     }
 
     for (const entity of interactiveQuery.exit(world)) {
