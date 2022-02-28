@@ -14,7 +14,7 @@ import makeUniqueName from '../functions/makeUniqueName'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionService'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
