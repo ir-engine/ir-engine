@@ -66,7 +66,7 @@ export class ProjectManager {
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
-      dispatchLocal(EditorErrorAction.throwError(error.toString()))
+      dispatchLocal(EditorErrorAction.throwError(error))
       throw error
     }
   }

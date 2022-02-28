@@ -250,7 +250,7 @@ export class CommandManager extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(EditorErrorAction.throwError(error.toString())))
+        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(EditorErrorAction.throwError(error)))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }

@@ -107,7 +107,7 @@ export function ViewportPanelContainer() {
         CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
-      dispatchLocal(EditorErrorAction.throwError(err.toString()))
+      dispatchLocal(EditorErrorAction.throwError(err))
     })
   }, [])
 

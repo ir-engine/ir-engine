@@ -3,11 +3,11 @@ import { createState, useState } from '@speigg/hookstate'
 import { store } from '@xrengine/client-core/src/store'
 
 type EditorErrorServiceStateType = {
-  error: string
+  error: any
 }
 
 const state = createState<EditorErrorServiceStateType>({
-  error: ''
+  error: null
 })
 
 store.receptors.push((action: EditorErrorActionType): any => {
