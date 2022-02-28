@@ -3,15 +3,14 @@ import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
-import EditorEvents from '../constants/EditorEvents'
 import { ActionSets, EditorActionSet, FlyActionSet, FlyMapping } from '../controls/input-mappings'
 import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
-import { CommandManager } from '../managers/CommandManager'
-import { SceneManager } from '../managers/SceneManager'
+import { ModeAction } from '../services/ModeServices'
 
 const EPSILON = 10e-5
 const UP = new Vector3(0, 1, 0)
@@ -48,13 +47,13 @@ export default async function FlyControlSystem(world: World) {
           tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
         )
 
-        CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
+        dispatchLocal(ModeAction.changedFlyMode())
       }
 
       if (getInput(EditorActionSet.flying)) {
         flyControlComponent.enable = true
         addInputActionMapping(ActionSets.FLY, FlyMapping)
-        CommandManager.instance.emitEvent(EditorEvents.FLY_MODE_CHANGED)
+        dispatchLocal(ModeAction.changedFlyMode())
       }
 
       if (!flyControlComponent.enable) return

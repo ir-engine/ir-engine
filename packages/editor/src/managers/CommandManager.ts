@@ -33,7 +33,6 @@ import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
 import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import isInputSelected from '../functions/isInputSelected'
 import { ErrorAction } from '../services/ErrorService'
 import { SceneManager } from './SceneManager'
@@ -130,10 +129,6 @@ export class CommandManager extends EventEmitter {
 
   setPropertyOnEntityNode(node: EntityTreeNode, params: ModifyPropertyCommandParams, withHistory = true) {
     this.setProperty([node], params, withHistory)
-  }
-
-  emitEvent = (event: EditorEvents, ...args: any[]): void => {
-    this.emit(event.toString(), ...args)
   }
 
   /**

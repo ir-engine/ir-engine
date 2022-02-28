@@ -17,6 +17,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -36,12 +37,12 @@ import { EditorCameraComponent, EditorCameraComponentType } from '../classes/Edi
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { ModeAction } from '../services/ModeServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -542,7 +543,7 @@ export const setTransformMode = (
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFROM_MODE_CHANGED, mode)
+  dispatchLocal(ModeAction.changedTransformMode(mode))
 }
 
 export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: EditorControlComponentType): void => {
@@ -552,7 +553,7 @@ export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: Edi
   }
 
   editorControlComponent.snapMode = snapMode
-  CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+  dispatchLocal(ModeAction.changedSnapSettings())
 }
 
 export const toggleSnapMode = (editorControlComponent?: EditorControlComponentType): void => {
@@ -575,7 +576,7 @@ export const setTransformPivot = (pivot: TransformPivotType, editorControlCompon
 
   editorControlComponent.transformPivot = pivot
   editorControlComponent.transformPivotChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_PIVOT_CHANGED)
+  dispatchLocal(ModeAction.changedTransformPivotMode())
 }
 
 export const toggleTransformPivot = (editorControlComponent?: EditorControlComponentType) => {
@@ -601,7 +602,7 @@ export const setTransformSpace = (
 
   editorControlComponent.transformSpace = transformSpace
   editorControlComponent.transformSpaceChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
+  dispatchLocal(ModeAction.changedTransformSpaceMode())
 }
 
 export const toggleTransformSpace = (editorControlComponent?: EditorControlComponentType) => {

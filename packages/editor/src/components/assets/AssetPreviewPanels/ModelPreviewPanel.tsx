@@ -6,11 +6,10 @@ import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { FlyControlComponent } from '../../../classes/FlyControlComponent'
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { ProjectManager } from '../../../managers/ProjectManager'
 import { SceneManager } from '../../../managers/SceneManager'
 import { useEditorState } from '../../../services/EditorServices'
+import { useModeState } from '../../../services/ModeServices'
 
 /**
  * @author Abhishek Pathak
@@ -32,6 +31,7 @@ const ModelPreview = (styled as any).canvas`
  */
 
 export const ModelPreviewPanel = (props) => {
+  const modeState = useModeState()
   const url = props.resourceProps.resourceUrl
   const assestPanelRef = React.createRef<HTMLCanvasElement>()
 
@@ -79,8 +79,8 @@ export const ModelPreviewPanel = (props) => {
   }, [setFlyModeEnabled])
 
   const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-  }, [onFlyModeChanged])
+    onFlyModeChanged()
+  }, [onFlyModeChanged, modeState.flyModeChanged])
 
   useEffect(() => {
     if (editorState.rendererInitialized.value) {
@@ -93,7 +93,6 @@ export const ModelPreviewPanel = (props) => {
     renderScene()
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       ProjectManager.instance.dispose()
     }
   }, [])

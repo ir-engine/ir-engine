@@ -1,4 +1,3 @@
-import i18n from 'i18next'
 import {
   Group,
   Intersection,
@@ -11,8 +10,7 @@ import {
   Scene,
   Vector2,
   Vector3,
-  WebGLInfo,
-  WebGLRenderer
+  WebGLInfo
 } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
@@ -45,7 +43,6 @@ import { EditorControlComponent } from '../classes/EditorControlComponent'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { createCameraEntity } from '../functions/createCameraEntity'
 import { createEditorEntity } from '../functions/createEditorEntity'
@@ -54,6 +51,7 @@ import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import isEmptyObject from '../functions/isEmptyObject'
 import { getCanvasBlob } from '../functions/thumbnails'
 import { EditorAction } from '../services/EditorServices'
+import { ModeAction } from '../services/ModeServices'
 import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
 
@@ -261,8 +259,7 @@ export class SceneManager {
         break
     }
     Engine.renderer.shadowMap.needsUpdate = true
-
-    CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
+    dispatchLocal(ModeAction.changedRenderMode())
   }
 
   /**

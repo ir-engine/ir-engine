@@ -8,23 +8,19 @@ import OpenWithIcon from '@mui/icons-material/OpenWith'
 import SyncIcon from '@mui/icons-material/Sync'
 
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useModeState } from '../../../services/ModeServices'
 import { setTransformMode } from '../../../systems/EditorControlSystem'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
+  const modeState = useModeState()
   const [transformMode, changeTransformMode] = useState<TransformModeType>(TransformMode.Translate)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), updateTransformMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), updateTransformMode)
-    }
-  }, [])
+    updateTransformMode()
+  }, [modeState.transformModeChanged])
 
   const updateTransformMode = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

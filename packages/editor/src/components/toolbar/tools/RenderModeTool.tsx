@@ -2,15 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 
-import EditorEvents from '../../../constants/EditorEvents'
 import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
-import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useModeState } from '../../../services/ModeServices'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
+  const modeState = useModeState()
   const [renderMode, setRenderMode] = useState<RenderModesType>(SceneManager.instance.renderMode)
 
   const options = [] as { label: string; value: string }[]
@@ -23,12 +23,8 @@ const RenderModeTool = () => {
   }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-    }
-  }, [])
+    changeRenderMode()
+  }, [modeState.renderModeChanged])
 
   const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
   const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])

@@ -1,15 +1,16 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import InputManager from '../controls/InputManager'
 import PlayModeControls from '../controls/PlayModeControls'
 import { addInputActionMapping } from '../functions/parseInputActionMapping'
+import { ModeAction } from '../services/ModeServices'
 import { setTransformMode } from '../systems/EditorControlSystem'
 import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
@@ -71,7 +72,7 @@ export class ControlManager {
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
     Engine.camera.layers.set(ObjectLayers.Scene)
     this.playModeControls.enable()
-    CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
+    dispatchLocal(ModeAction.changedPlayMode())
   }
 
   /**
@@ -83,7 +84,7 @@ export class ControlManager {
     this.isInPlayMode = false
     Engine.camera.layers.enableAll()
     this.playModeControls.disable()
-    CommandManager.instance.emitEvent(EditorEvents.PLAY_MODE_CHANGED)
+    dispatchLocal(ModeAction.changedPlayMode())
   }
 
   dispose() {

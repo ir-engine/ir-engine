@@ -6,9 +6,8 @@ import { TransformPivot, TransformPivotType } from '@xrengine/engine/src/scene/c
 import AdjustIcon from '@mui/icons-material/Adjust'
 
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useModeState } from '../../../services/ModeServices'
 import { setTransformPivot, toggleTransformPivot } from '../../../systems/EditorControlSystem'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -25,15 +24,12 @@ const transformPivotOptions = [
 ]
 
 const TransformPivotTool = () => {
+  const modeState = useModeState()
   const [transformPivot, changeTransformPivot] = useState<TransformPivotType>(TransformPivot.Selection)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), updateTransformPivot)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.TRANSFORM_PIVOT_CHANGED.toString(), updateTransformPivot)
-    }
-  }, [])
+    updateTransformPivot()
+  }, [modeState.transformPivotModeChanged])
 
   const updateTransformPivot = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

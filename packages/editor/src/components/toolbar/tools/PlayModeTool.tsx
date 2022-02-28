@@ -5,22 +5,18 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { ControlManager } from '../../../managers/ControlManager'
+import { useModeState } from '../../../services/ModeServices'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
+  const modeState = useModeState()
   const [isInPlayMode, setInPlayMode] = useState(false)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.PLAY_MODE_CHANGED.toString(), updatePlayModeSetting)
-    }
-  }, [])
+    updatePlayModeSetting()
+  }, [modeState.playModeChanged])
 
   const updatePlayModeSetting = () => {
     setInPlayMode(ControlManager.instance.isInPlayMode)

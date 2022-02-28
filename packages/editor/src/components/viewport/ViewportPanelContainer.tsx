@@ -11,11 +11,11 @@ import { TransformMode } from '@xrengine/engine/src/scene/constants/transformCon
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
-import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { accessEditorState, useEditorState } from '../../services/EditorServices'
 import { ErrorAction } from '../../services/ErrorService'
+import { useModeState } from '../../services/ModeServices'
 import { useSelectionState } from '../../services/SelectionService'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addItemAtCursorPosition } from '../dnd'
@@ -30,6 +30,7 @@ import * as styles from './Viewport.module.scss'
 export function ViewportPanelContainer() {
   const editorState = useEditorState()
   const selectionState = useSelectionState()
+  const modeState = useModeState()
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -49,10 +50,15 @@ export function ViewportPanelContainer() {
     setTransformMode(mode)
   }, [])
 
-  const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
-  }, [])
+  const onEditorInitialized = useCallback(() => {}, [])
+
+  useEffect(() => {
+    onFlyModeChanged()
+  }, [modeState.flyModeChanged])
+
+  useEffect(() => {
+    onTransformModeChanged(modeState.transformMode.value)
+  }, [modeState.transformModeChanged])
 
   useEffect(() => {
     onSelectionChanged()
