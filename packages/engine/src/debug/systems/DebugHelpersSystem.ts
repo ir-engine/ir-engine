@@ -45,7 +45,7 @@ const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
 export default async function DebugHelpersSystem(world: World) {
-  const helpersByEntity: Record<ComponentHelpers, Map<Entity, any>> = {
+  const helpersByEntity = {
     viewVector: new Map(),
     ikExtents: new Map(),
     box: new Map<Entity, Box3Helper>(),
@@ -78,9 +78,9 @@ export default async function DebugHelpersSystem(world: World) {
     helpersByEntity.helperArrow.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
-    helpersByEntity.box.forEach((entry: Object3D[]) => {
-      entry.forEach((obj) => (obj.visible = enabled))
-    })
+    for (const [entity, helper] of helpersByEntity.box) {
+      helper.visible = enabled
+    }
   }
   const receptor = (action: EngineActionType) => {
     switch (action.type) {
