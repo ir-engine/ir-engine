@@ -2,6 +2,7 @@ import { Downgraded } from '@speigg/hookstate'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import ConfirmModel from '@xrengine/client-core/src/admin/common/ConfirmModel'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
@@ -64,6 +65,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesValue = fileState.files.attach(Downgraded).value
   const [fileProperties, setFileProperties] = useState<any>(null)
   const [openPropertiesModel, setOpenPropertiesModel] = useState(false)
+  const [openConfirmModel, setConfirmModel] = useState(false)
+  const [contentToDeletePath, setContentToDeletePath] = useState('')
+  const [contentToDeleteType, setContentToDeleteType] = useState('')
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
@@ -146,10 +150,23 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     onRefreshDirectory()
   }
 
-  const deleteContent = async (contentPath: string, type: string): Promise<void> => {
+  const handleConfirmDelete = (contentPath: string, type: string) => {
+    setConfirmModel(true)
+    setContentToDeletePath(contentPath)
+    setContentToDeleteType(type)
+  }
+
+  const handleCloseModel = () => {
+    setConfirmModel(false)
+    setContentToDeletePath('')
+    setContentToDeleteType('')
+  }
+
+  const deleteContent = async (): Promise<void> => {
     if (isLoading) return
     setLoading(true)
-    await FileBrowserService.deleteContent(contentPath, type)
+    setConfirmModel(false)
+    await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
     onRefreshDirectory()
   }
 
@@ -187,7 +204,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               onSelect={onSelect}
               isLoading={isLoading}
               moveContent={moveContent}
-              deleteContent={deleteContent}
+              deleteContent={handleConfirmDelete}
               currentContent={currentContentRef}
               setOpenPropertiesModel={setOpenPropertiesModel}
               setFileProperties={setFileProperties}
@@ -228,6 +245,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Grid>
         </Dialog>
       )}
+      <ConfirmModel
+        popConfirmOpen={openConfirmModel}
+        handleCloseModel={handleCloseModel}
+        submit={deleteContent}
+        name={''}
+        label={`this ${contentToDeleteType == 'folder' ? 'folder' : 'file'}`}
+      />
     </>
   )
 }

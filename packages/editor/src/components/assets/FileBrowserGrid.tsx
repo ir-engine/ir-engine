@@ -28,14 +28,6 @@ type FileListItemProps = {
 }
 
 export const FileListItem: React.FC<FileListItemProps> = (props) => {
-  // const inputLabel = (
-  //   <MediaGridInputLabel placeholder={props.label} disabled={!props.isRenaming} onKeyDown={props.onNameChanged} />
-  // )
-
-  // useEffect(() => {
-  //   if (props.isRenaming) inputref?.current.focus()
-  // }, [props.isRenaming])
-
   const [newFileName, setNewFileName] = React.useState(props.label)
 
   const handleChange = (e) => {
@@ -76,7 +68,7 @@ type FileBrowserItemType = {
   contextMenuId: string
   item: FileDataType
   currentContent: any
-  deleteContent: (contentPath: string, type: string) => Promise<void>
+  deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   setFileProperties: any
   setOpenPropertiesModel: any
@@ -137,9 +129,6 @@ function FileBrowserItem(props: FileBrowserItemType) {
   }
 
   const onNameChanged = async (fileName) => {
-    // if (event.key !== 'Enter') return
-
-    // const fileName = event.currentTarget.value
     setRenamingAsset(false)
 
     if (item.type !== 'folder') {
@@ -242,7 +231,7 @@ type FileBrowserGridTypes = {
   items: FileDataType[]
   onSelect: (params: FileDataType) => void
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
-  deleteContent: (contentPath: string, type: string) => Promise<void>
+  deleteContent: (contentPath: string, type: string) => void
   currentContent: any
   setFileProperties: any
   setOpenPropertiesModel: any
