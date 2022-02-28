@@ -65,6 +65,7 @@ export default async function XRUILoadingSystem(world: World) {
         const scale = computeContentScaleForCamera(dist, contentWidth, contentHeight, 'cover')
         xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
         xrui.container.position.z = -dist
+        xrui.container.parent = Engine.camera
 
         transition.update(world, (opacity) => {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
