@@ -66,6 +66,19 @@ export default async function PhysicsSystem(world: World) {
       world.physics.doRaycast(getComponent(entity, RaycastComponent))
     }
 
+    for (const entity of networkColliderQuery()) {
+      const network = getComponent(entity, NetworkObjectComponent)
+
+      // Set network state to physics body pose for objects not owned by this user.
+      if (network.ownerId === Engine.userId) continue
+
+      const collider = getComponent(entity, ColliderComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const body = collider.body as PhysX.PxRigidDynamic
+
+      teleportRigidbody(body, transform.position, transform.rotation)
+    }
+
     for (const entity of colliderQuery()) {
       // Hackish fix for now to disable some physics effects in editor
       // We should prolly not register the physics system when loading editor
@@ -74,16 +87,8 @@ export default async function PhysicsSystem(world: World) {
       const velocity = getComponent(entity, VelocityComponent)
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
-      const network = getComponent(entity, NetworkObjectComponent)
 
       if (hasComponent(entity, AvatarComponent)) continue
-
-      // Not applying local physics state to objects that this client does not have authority over.
-      // This results in physics object and visual mesh not staying in sync.
-      // TODO: Physics state should always take effect, just the final state of object should be using network state.
-      if (network) {
-        if (network.ownerId !== Engine.userId) continue
-      }
 
       if (isStaticBody(collider.body)) {
         const body = collider.body as PhysX.PxRigidDynamic
@@ -114,19 +119,6 @@ export default async function PhysicsSystem(world: World) {
         transform.position.copy(currentPose.translation as Vector3)
         transform.rotation.copy(currentPose.rotation as Quaternion)
       }
-    }
-
-    for (const entity of networkColliderQuery()) {
-      const network = getComponent(entity, NetworkObjectComponent)
-
-      // Set network state to physics body pose for objects not owned by this user.
-      if (network.ownerId === Engine.userId) continue
-
-      const collider = getComponent(entity, ColliderComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const body = collider.body as PhysX.PxRigidDynamic
-
-      teleportRigidbody(body, transform.position, transform.rotation)
     }
 
     // clear collision components
