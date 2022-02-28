@@ -1,6 +1,8 @@
 import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
+
 import { Application } from '../../../declarations'
 import Compiler from './compiler'
+
 const compiler = new Compiler()
 
 const compileTemplate = (template) => {

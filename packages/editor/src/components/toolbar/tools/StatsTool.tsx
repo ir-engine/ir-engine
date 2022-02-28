@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import SsidChartIcon from '@mui/icons-material/SsidChart'
+
 import { SceneManager } from '../../../managers/SceneManager'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
-import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 /**
  * Stats used to show stats of  memory and  render.

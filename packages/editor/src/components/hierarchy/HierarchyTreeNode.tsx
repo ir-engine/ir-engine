@@ -1,24 +1,27 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import { ContextMenuTrigger } from '../layout/ContextMenu'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
-import { CommandManager } from '../../managers/CommandManager'
+import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
+import { CommandManager } from '../../managers/CommandManager'
 import { addPrefabElement } from '../element/ElementList'
+import { ContextMenuTrigger } from '../layout/ContextMenu'
+import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
-import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { isAncestor } from '../../functions/getDetachedObjectsRoots'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * getNodeElId function provides id for node.

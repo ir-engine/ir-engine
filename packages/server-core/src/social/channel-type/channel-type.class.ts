@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { ChannelTypeInterface } from '@xrengine/common/src/dbmodels/ChannelType'
+
+import { Application } from '../../../declarations'
 
 export type ChannelTypeDataType = ChannelTypeInterface
 /**

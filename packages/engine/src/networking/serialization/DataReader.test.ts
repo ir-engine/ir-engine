@@ -1,8 +1,10 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import assert, { strictEqual } from 'assert'
 import { TypedArray } from 'bitecs'
 import { Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -10,9 +12,8 @@ import { createWorld, CreateWorld, World } from '../../ecs/classes/World'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { Vector3SoA, Vector4SoA } from './Utils'
-import { createViewCursor, readFloat32, readUint32, readUint8, sliceViewCursor, writeProp } from './ViewCursor'
 import {
   checkBitflag,
   createDataReader,
@@ -36,7 +37,8 @@ import {
   writeVector3,
   writeVector4
 } from './DataWriter'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { Vector3SoA, Vector4SoA } from './Utils'
+import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
   before(() => {

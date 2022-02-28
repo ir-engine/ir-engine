@@ -1,24 +1,25 @@
+import matches from 'ts-matches'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { World } from '../../ecs/classes/World'
 import {
+  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  addComponent
+  removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { EquipperComponent } from '../components/EquipperComponent'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
-import { World } from '../../ecs/classes/World'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import matches from 'ts-matches'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
-import { Engine } from '../../ecs/classes/Engine'
-import { getParity } from '../functions/equippableFunctions'
-import { EquippedComponent } from '../components/EquippedComponent'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { BodyType } from '../../physics/types/PhysicsTypes'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { EquippedComponent } from '../components/EquippedComponent'
+import { EquipperComponent } from '../components/EquipperComponent'
+import { getParity } from '../functions/equippableFunctions'
 
 function equippableActionReceptor(action) {
   const world = useWorld()

@@ -1,7 +1,8 @@
-import { HookContext } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
+
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {

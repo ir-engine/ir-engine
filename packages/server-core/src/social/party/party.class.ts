@@ -1,12 +1,13 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-// import { Params, Id, NullableId } from '@feathersjs/feathers'
-
-import { Application } from '../../../declarations'
-import { Params, Paginated } from '@feathersjs/feathers'
-import { Op } from 'sequelize'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 import { NotFound } from '@feathersjs/errors/lib'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+
+import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+
+// import { Params, Id, NullableId } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 // import { Forbidden } from '@feathersjs/errors'
 

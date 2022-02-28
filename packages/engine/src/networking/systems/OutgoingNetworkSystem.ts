@@ -1,12 +1,12 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../classes/Network'
-import { World } from '../../ecs/classes/World'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkTransport } from '../interfaces/NetworkTransport'
+import { World } from '../../ecs/classes/World'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********

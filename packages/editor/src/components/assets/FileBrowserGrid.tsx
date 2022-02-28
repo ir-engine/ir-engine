@@ -1,20 +1,23 @@
-import React, { useCallback, useEffect, memo, useState, MouseEventHandler } from 'react'
-import { unique } from '../../functions/utils'
-import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import { FileDataType } from './FileDataType'
 import InfiniteScroll from 'react-infinite-scroller'
-import { CircularProgress } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
-import DescriptionIcon from '@mui/icons-material/Description'
-import styles from './styles.module.scss'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import DescriptionIcon from '@mui/icons-material/Description'
+import FolderIcon from '@mui/icons-material/Folder'
+import { CircularProgress } from '@mui/material'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { unique } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { FileDataType } from './FileDataType'
+import styles from './styles.module.scss'
 
 type FileListItemProps = {
   label: string

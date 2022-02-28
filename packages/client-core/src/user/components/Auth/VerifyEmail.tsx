@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
+import Typography from '@mui/material/Typography'
+
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout'
 import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   auth: any

@@ -1,8 +1,10 @@
 import React, { useCallback, useContext, useMemo } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import Tooltip from '../layout/Tooltip'
 import { useTranslation } from 'react-i18next'
+import styled, { ThemeContext } from 'styled-components'
+
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+
+import Tooltip from '../layout/Tooltip'
 
 /**
  * IssuesTooltipContainer used to provide styles and showing issues list.

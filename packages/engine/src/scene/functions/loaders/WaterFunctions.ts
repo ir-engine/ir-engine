@@ -1,18 +1,19 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Water } from '../../classes/Water'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { WaterComponent, WaterComponentType } from '../../components/WaterComponent'
-import { isClient } from '../../../common/functions/isClient'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { Water } from '../../classes/Water'
+import { WaterComponent, WaterComponentType } from '../../components/WaterComponent'
 
 export const SCENE_COMPONENT_WATER = 'water'
 export const SCENE_COMPONENT_WATER_DEFAULT_VALUES = {}

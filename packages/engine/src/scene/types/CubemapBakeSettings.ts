@@ -1,4 +1,5 @@
 import { Vector3 } from 'three'
+
 import { CubemapBakeRefreshTypes } from './CubemapBakeRefreshTypes'
 import { CubemapBakeTypes } from './CubemapBakeTypes'
 

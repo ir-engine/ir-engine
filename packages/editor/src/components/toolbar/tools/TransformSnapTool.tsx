@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import AttractionsIcon from '@mui/icons-material/Attractions'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { InfoTooltip } from '../../layout/Tooltip'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SceneManager } from '../../../managers/SceneManager'
-import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import { setSnapMode, toggleSnapMode } from '../../../systems/EditorControlSystem'
 import { SnapMode, SnapModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import AttractionsIcon from '@mui/icons-material/Attractions'
+
+import { EditorControlComponent } from '../../../classes/EditorControlComponent'
+import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
+import { SceneManager } from '../../../managers/SceneManager'
+import { setSnapMode, toggleSnapMode } from '../../../systems/EditorControlSystem'
+import SelectInput from '../../inputs/SelectInput'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 /**
  *

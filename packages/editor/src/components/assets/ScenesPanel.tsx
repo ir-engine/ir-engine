@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
-import styles from './styles.module.scss'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ProjectGrid } from '../projects/ProjectGrid'
-import { getScenes } from '../../functions/sceneFunctions'
+
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { getScenes } from '../../functions/sceneFunctions'
+import { ProjectGrid } from '../projects/ProjectGrid'
+import styles from './styles.module.scss'
 
 /**
  * Displays the scenes that exist in the current project.

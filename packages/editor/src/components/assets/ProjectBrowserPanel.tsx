@@ -1,9 +1,10 @@
-import React from 'react'
 import DockLayout, { DockMode } from 'rc-dock'
-import FileBrowserContentPanel from './FileBrowserContentPanel'
-import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import React from 'react'
 import styled from 'styled-components'
+
 import { DockContainer } from '../EditorContainer'
+import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
+import FileBrowserContentPanel from './FileBrowserContentPanel'
 
 export const ProjectDockContainer = (styled as any).div`
   .dock, .dock-divider { background: transparent !important; }

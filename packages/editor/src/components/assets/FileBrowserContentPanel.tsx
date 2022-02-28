@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react'
-import styles from './styles.module.scss'
-import { prefabIcons } from '../../functions/PrefabEditors'
-import FileBrowserGrid from './FileBrowserGrid'
+import { Downgraded } from '@speigg/hookstate'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
-import { ToolButton } from '../toolbar/ToolButton'
+
+import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { Downgraded } from '@speigg/hookstate'
+
+import { prefabIcons } from '../../functions/PrefabEditors'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { ToolButton } from '../toolbar/ToolButton'
+import FileBrowserGrid from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import styles from './styles.module.scss'
 
 /**
  * @author Abhishek Pathak

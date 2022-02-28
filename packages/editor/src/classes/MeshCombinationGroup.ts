@@ -1,9 +1,11 @@
 import { BufferGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, SkinnedMesh, Texture } from 'three'
-import asyncTraverse from '../functions/asyncTraverse'
-import keysEqual from '../functions/keysEqual'
-import hashImage from '../functions/hashImage'
-import { collectUniqueMaterials } from '../functions/materials'
+
 import { mergeBufferGeometries } from '@xrengine/engine/src/common/classes/BufferGeometryUtils'
+
+import asyncTraverse from '../functions/asyncTraverse'
+import hashImage from '../functions/hashImage'
+import keysEqual from '../functions/keysEqual'
+import { collectUniqueMaterials } from '../functions/materials'
 
 export async function getImageHash(hashCache: Map<string, string>, img: HTMLImageElement): Promise<string> {
   let hash = hashCache.get(img.src)

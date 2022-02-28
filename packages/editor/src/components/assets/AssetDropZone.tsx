@@ -1,15 +1,18 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
-import { Vector2 } from 'three'
-import { SupportedFileTypes } from '../../constants/AssetTypes'
-import useUpload from './useUpload'
 import { useTranslation } from 'react-i18next'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import { CommandManager } from '../../managers/CommandManager'
+import styled from 'styled-components'
+import { Vector2 } from 'three'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import useUpload from './useUpload'
 
 /**
  * DropZoneBackground provides styles for the view port area where we drag and drop objects.

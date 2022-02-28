@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { LocationAdmin as LocationAdminInterface } from '@xrengine/common/src/interfaces/LocationAdmin'
+
+import { Application } from '../../../declarations'
 
 export type LocationAdminDataType = LocationAdminInterface
 /**

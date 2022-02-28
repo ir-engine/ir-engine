@@ -1,20 +1,21 @@
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
-import { IKPoseComponent } from '../components/IKPoseComponent'
-import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
-
-import { World } from '../../ecs/classes/World'
-import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
-import { Quaternion, Vector3 } from 'three'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { random } from 'lodash'
-import { CameraIKComponent } from '../components/CameraIKComponent'
-import { applyCameraLook } from '../functions/IKSolvers'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { CameraIKComponent } from '../components/CameraIKComponent'
+import { IKPoseComponent } from '../components/IKPoseComponent'
+import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
+import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
+import { applyCameraLook } from '../functions/IKSolvers'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {

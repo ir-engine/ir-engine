@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { LocationType as LocationTypeInterface } from '@xrengine/common/src/interfaces/LocationType'
+
+import { Application } from '../../../declarations'
 
 export type LocationTypeDataType = LocationTypeInterface
 

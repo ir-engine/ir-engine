@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import LanguageIcon from '@mui/icons-material/Language'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { InfoTooltip } from '../../layout/Tooltip'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import LanguageIcon from '@mui/icons-material/Language'
+
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
+import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
 import { setTransformSpace, toggleTransformSpace } from '../../../systems/EditorControlSystem'
+import SelectInput from '../../inputs/SelectInput'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 /**
  *

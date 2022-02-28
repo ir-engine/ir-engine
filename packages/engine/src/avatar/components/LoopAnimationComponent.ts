@@ -1,4 +1,5 @@
 import { AnimationAction } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type LoopAnimationComponentType = {

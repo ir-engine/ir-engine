@@ -1,11 +1,12 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import _ from 'lodash'
 import Sequelize, { Op } from 'sequelize'
-import getLocalServerIp from '../../util/get-local-server-ip'
-import logger from '../../logger'
+
+import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import logger from '../../logger'
+import getLocalServerIp from '../../util/get-local-server-ip'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
 

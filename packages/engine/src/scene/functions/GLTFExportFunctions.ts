@@ -1,5 +1,7 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Color, Object3D } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
