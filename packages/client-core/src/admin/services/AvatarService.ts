@@ -83,7 +83,7 @@ export const AvatarService = {
           files: [blob, thumbnail],
           args: [
             {
-              key: `avatars/public/${thumbnail.name}`,
+              key: `avatars/public/${thumbnail['name']}`,
               contentType: 'multipart/form-data',
               staticResourceType: data.staticResourceType
             }
