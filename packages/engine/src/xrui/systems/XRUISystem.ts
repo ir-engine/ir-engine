@@ -166,8 +166,8 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.update()
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.container.update()
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)

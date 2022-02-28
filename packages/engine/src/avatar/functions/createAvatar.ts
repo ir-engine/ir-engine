@@ -181,7 +181,7 @@ export const createAvatarController = (entity: Entity) => {
     }
   }) as PhysX.PxCapsuleController
 
-  const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
+  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
