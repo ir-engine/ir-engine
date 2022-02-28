@@ -6,7 +6,6 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionService'
 import EulerInput from '../inputs/EulerInput'

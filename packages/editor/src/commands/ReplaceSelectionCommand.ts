@@ -3,7 +3,6 @@ import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/sr
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'

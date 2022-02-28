@@ -12,7 +12,6 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionService'

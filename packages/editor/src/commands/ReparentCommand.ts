@@ -8,7 +8,6 @@ import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentF
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'

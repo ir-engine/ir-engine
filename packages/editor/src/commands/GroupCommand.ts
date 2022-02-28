@@ -4,7 +4,6 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'

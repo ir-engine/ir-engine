@@ -14,7 +14,6 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { CommandManager } from '../../managers/CommandManager'

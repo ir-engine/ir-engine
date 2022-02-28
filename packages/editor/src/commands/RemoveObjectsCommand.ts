@@ -4,7 +4,6 @@ import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'

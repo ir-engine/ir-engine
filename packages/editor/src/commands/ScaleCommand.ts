@@ -7,7 +7,6 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'

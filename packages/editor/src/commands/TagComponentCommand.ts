@@ -6,10 +6,7 @@ import {
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
 import Command, { CommandParams } from './Command'
 
