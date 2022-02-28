@@ -65,7 +65,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
   //   })
   // }
 
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent).value
+  const interactableComponent = getComponent(props.node.entity, InteractableComponent)?.value
   if (!interactableComponent) return null!
 
   const renderInteractableModalOptions = () => {
