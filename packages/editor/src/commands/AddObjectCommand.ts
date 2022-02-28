@@ -1,17 +1,18 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
-import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
-import makeUniqueName from '../functions/makeUniqueName'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3D } from '../functions/debug'
+import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
+import makeUniqueName from '../functions/makeUniqueName'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
   prefabTypes?: ScenePrefabTypes | ScenePrefabTypes[]

@@ -1,7 +1,12 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminScopeType as ScopeTypeInterface } from '@xrengine/common/src/interfaces/AdminScopeType'
+
 import { Application } from '../../../declarations'
 
-export class ScopeType extends Service {
+export type ScopeTypeDataType = ScopeTypeInterface
+
+export class ScopeType<T = ScopeTypeDataType> extends Service<T> {
   app: Application
   docs: any
 

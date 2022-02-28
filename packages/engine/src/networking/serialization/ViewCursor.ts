@@ -1,4 +1,5 @@
 import { TypedArray } from 'bitecs'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 

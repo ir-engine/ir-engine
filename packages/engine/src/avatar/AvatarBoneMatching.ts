@@ -1,8 +1,8 @@
 //TODO:
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
+import { Bone, Matrix4, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { Bone, Matrix4, Quaternion, Vector3, SkinnedMesh, Skeleton } from 'three'
 import { bonesData2 } from '@xrengine/engine/src/avatar/DefaultSkeletonBones'
 
 export type BoneNames =

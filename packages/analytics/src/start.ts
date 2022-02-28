@@ -1,6 +1,7 @@
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import logger from '@xrengine/server-core/src/logger'
+
 import { createApp } from './app'
 import collectAnalytics from './collect-analytics'
 

@@ -1,3 +1,6 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { Save } from '@mui/icons-material'
 import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
@@ -16,8 +19,7 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'

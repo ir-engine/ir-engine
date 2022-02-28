@@ -1,8 +1,9 @@
-import CustomOAuthStrategy from './custom-oauth'
-import { Params } from '@feathersjs/feathers'
-import config from '../../appconfig'
-import { Application } from '../../../declarations'
 import { AuthenticationRequest } from '@feathersjs/authentication'
+import { Params } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import CustomOAuthStrategy from './custom-oauth'
 
 export class DiscordStrategy extends CustomOAuthStrategy {
   constructor(app: Application) {

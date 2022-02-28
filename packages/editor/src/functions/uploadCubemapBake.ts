@@ -1,18 +1,22 @@
 import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
-import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
-import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { uploadProjectFile } from './assetFunctions'
-import { accessEditorState } from '../services/EditorServices'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
 import {
   addComponent,
   defineQuery,
   getComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
+import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
+import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
 import { CubemapBakeComponent } from '@xrengine/engine/src/scene/components/CubemapBakeComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import {
   parseCubemapBakeProperties,
   prepareSceneForBake,
@@ -20,12 +24,10 @@ import {
   updateCubemapBake,
   updateCubemapBakeTexture
 } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+
+import { accessEditorState } from '../services/EditorServices'
+import { uploadProjectFile } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraTagComponent, TransformComponent])
 

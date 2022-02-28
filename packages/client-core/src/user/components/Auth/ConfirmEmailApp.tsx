@@ -1,9 +1,11 @@
-import Button from '@mui/material/Button'
-import CardMedia from '@mui/material/CardMedia'
-import Typography from '@mui/material/Typography'
 import React from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
+
+import Button from '@mui/material/Button'
+import CardMedia from '@mui/material/CardMedia'
+import Typography from '@mui/material/Typography'
+
 import { AuthService, useAuthState } from '../../services/AuthService'
 import styles from '../Login/Login.module.scss'
 

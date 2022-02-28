@@ -1,12 +1,14 @@
+import { exec } from 'child_process'
 import fs from 'fs'
 import https from 'https'
-import logger from '@xrengine/server-core/src/logger'
-import config from '@xrengine/server-core/src/appconfig'
 import psList from 'ps-list'
-import { exec } from 'child_process'
+
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+
 // import preloadLocation from './preload-location'
 import { createApp } from './app'
-import { Application } from '@xrengine/server-core/declarations'
 
 /**
  * @param status
@@ -32,14 +34,14 @@ export const start = async (): Promise<Application> => {
     const databaseService = (dockerProcess && dockerProxy) || processMysql
 
     if (!databaseService) {
-      // Check for child process with mac OSX
-      exec('docker ps | grep mariadb', (err, stdout, stderr) => {
-        if (!stdout.includes('mariadb')) {
-          throw new Error(
-            '\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m'
-          )
-        }
-      })
+      // // Check for child process with mac OSX
+      // exec('docker ps | grep mariadb', (err, stdout, stderr) => {
+      //   if (!stdout.includes('mariadb')) {
+      //     throw new Error(
+      //       '\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m'
+      //     )
+      //   }
+      // })
     }
   }
 

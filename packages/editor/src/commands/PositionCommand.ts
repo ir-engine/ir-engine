@@ -1,14 +1,16 @@
-import Command, { CommandParams } from './Command'
-import { serializeVector3, serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
-import EditorEvents from '../constants/EditorEvents'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import EditorEvents from '../constants/EditorEvents'
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3D, serializeVector3 } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export interface PositionCommandParams extends CommandParams {
   positions: Vector3 | Vector3[]

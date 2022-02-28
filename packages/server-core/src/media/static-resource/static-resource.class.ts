@@ -1,20 +1,26 @@
 import { Paginated, Params } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+
 import { Application } from '../../../declarations'
+
+export type AvatarDataType = AvatarInterface
 
 /**
  * A class for Static Resource  service
  *
  * @author Vyacheslav Solovjov
  */
-export class StaticResource extends Service {
+export class StaticResource<T = AvatarDataType> extends Service<T> {
   public docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
   }
 
-  async create(data, params?: Params): Promise<any> {
+  async create(data, params?: Params): Promise<T> {
     const oldResource = await this.find({
       query: {
         $select: ['id'],
@@ -34,8 +40,22 @@ export class StaticResource extends Service {
   async find(params?: Params): Promise<any> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
-      const result = (await super.find(params)) as Paginated<any>
-      for (const item of result.data) {
+      const search = params.query.search
+      const result = await super.Model.findAndCountAll({
+        limit: params.query.$limit,
+        skip: params.query.$skip,
+        select: params.query.$select,
+        where: {
+          name: {
+            [Op.like]: `%${search}%`
+          },
+          staticResourceType: params.query?.staticResourceType,
+          userId: params.query?.userId
+        },
+        raw: true,
+        nest: true
+      })
+      for (const item of result.rows) {
         item.thumbnail = await super.Model.findOne({
           where: {
             name: item.name,
@@ -43,7 +63,10 @@ export class StaticResource extends Service {
           }
         })
       }
-      return result
+      return {
+        data: result.rows,
+        total: result.total
+      }
     } else return super.find(params)
   }
 }

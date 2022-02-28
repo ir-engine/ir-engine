@@ -1,6 +1,9 @@
 import assert, { strictEqual } from 'assert'
+
+import '../../../tests/util/patchBrowserForNode'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import '../../patchEngineNode'
 import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
 import {
   handleKey,
@@ -14,8 +17,6 @@ import {
   prevTouchPosition,
   usingThumbstick
 } from './ClientInputSchema'
-import '../../patchEngineNode'
-import '../../../tests/util/patchBrowserForNode'
 
 describe('clientInputSchema', () => {
   beforeEach(() => {

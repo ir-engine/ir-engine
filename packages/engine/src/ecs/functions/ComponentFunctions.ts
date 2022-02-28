@@ -1,5 +1,6 @@
 import * as bitECS from 'bitecs'
-import { ISchema, ArrayByType, Type } from 'bitecs'
+import { ArrayByType, ISchema, Type } from 'bitecs'
+
 import { Entity } from '../classes/Entity'
 import { useWorld } from './SystemHooks'
 

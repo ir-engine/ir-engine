@@ -1,12 +1,15 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
 import { useTranslation } from 'react-i18next'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
+
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser'
+
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**

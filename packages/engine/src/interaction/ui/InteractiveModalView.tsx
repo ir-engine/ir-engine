@@ -1,8 +1,11 @@
-import React from 'react'
 import { createState } from '@speigg/hookstate'
-import { createXRUI } from '../../xrui/functions/createXRUI'
+import React from 'react'
+
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
+
+import { NavigateBefore, NavigateNext } from '@mui/icons-material'
+
+import { createXRUI } from '../../xrui/functions/createXRUI'
 import { InteractableComponentType } from '../components/InteractableComponent'
 
 export function createInteractiveModalView(data: InteractableComponentType) {

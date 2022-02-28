@@ -1,6 +1,3 @@
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useRef } from 'react'
 import { FileDrop } from 'react-file-drop'
 import {
@@ -13,6 +10,10 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
+
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 
 const canvasStyle = {
   zIndex: 0,

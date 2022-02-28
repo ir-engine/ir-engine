@@ -1,4 +1,5 @@
 import { Vector3 } from 'three'
+
 import { IKRigComponentType } from '../components/IKRigComponent'
 
 const boneAWorldPos = new Vector3()

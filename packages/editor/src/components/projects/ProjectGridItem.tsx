@@ -1,21 +1,21 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
-import { deleteScene, renameScene } from '../../functions/sceneFunctions'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import StylableContextMenuTrigger from './StylableContextMenuTrigger'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { EditorAction } from '../../services/EditorServices'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
+
+import { deleteScene, renameScene } from '../../functions/sceneFunctions'
+import { EditorAction } from '../../services/EditorServices'
+import { DeleteDialog } from './DeleteDialog'
+import StylableContextMenuTrigger from './StylableContextMenuTrigger'
 import { useStyle } from './style'
 
 /**
@@ -169,7 +169,7 @@ export const ProjectGridItem = (props: Props) => {
   const handleOnDelete = async () => {
     await deleteScene(projectName, sceneTodelete)
     setSceneToDelete('')
-    dispatch(EditorAction.sceneLoaded(null))
+    dispatch(EditorAction.sceneChanged(null))
     history.push(`/editor/${projectName}`)
   }
 
@@ -197,7 +197,7 @@ export const ProjectGridItem = (props: Props) => {
                 onKeyPress={async (e) => {
                   if (e.key == 'Enter') {
                     await renameScene(projectName, newSceneName, oldSceneName)
-                    dispatch(EditorAction.sceneLoaded(newSceneName))
+                    dispatch(EditorAction.sceneChanged(newSceneName))
                     history.push(`/editor/${projectName}/${newSceneName}`)
                   }
                 }}
@@ -249,35 +249,18 @@ export const ProjectGridItem = (props: Props) => {
             {t('editor:hierarchy.lbl-delete')}
           </MenuItem>
         </Menu>
-        <Dialog
+        <DeleteDialog
           open={warningModelOpen}
           onClose={() => setWarningModelOpen(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          classes={{ paper: classes.paperDialog }}
-        >
-          <DialogTitle id="alert-dialog-title">Are sure you want to delete this scene?</DialogTitle>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setWarningModelOpen(false), setSceneToDelete('')
-              }}
-              className={classes.spanNone}
-            >
-              Cancel
-            </Button>
-            <Button
-              className={classes.spanDange}
-              onClick={async () => {
-                handleOnDelete()
-                setWarningModelOpen(false)
-              }}
-              autoFocus
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
+          onCancel={() => {
+            setWarningModelOpen(false)
+            setSceneToDelete('')
+          }}
+          onConfirm={() => {
+            handleOnDelete()
+            setWarningModelOpen(false)
+          }}
+        />
       </>
     )
   } else {

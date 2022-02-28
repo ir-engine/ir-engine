@@ -1,16 +1,19 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import { EditorComponentType, updateProperty } from './Util'
-import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 import { useTranslation } from 'react-i18next'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
-import ImageSourceProperties from './ImageSourceProperties'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import ImageSourceProperties from './ImageSourceProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 export const ImageNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

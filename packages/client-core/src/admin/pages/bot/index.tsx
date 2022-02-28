@@ -1,6 +1,7 @@
 import React from 'react'
-import BotsCore from '../../components/Bots'
+
 import { AuthService } from '../../../user/services/AuthService'
+import BotsCore from '../../components/Bots'
 
 interface Props {}
 

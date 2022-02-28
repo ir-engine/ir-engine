@@ -1,7 +1,8 @@
-import { RethrownError } from './errors'
 import i18n from 'i18next'
+
 import { client } from '../feathers'
 import { accessAuthState } from '../user/services/AuthService'
+import { RethrownError } from './errors'
 
 const serverURL =
   process.env.APP_ENV === 'development'

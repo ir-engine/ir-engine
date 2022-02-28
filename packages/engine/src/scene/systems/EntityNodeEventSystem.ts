@@ -1,4 +1,5 @@
 import { Color, DirectionalLight } from 'three'
+
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
