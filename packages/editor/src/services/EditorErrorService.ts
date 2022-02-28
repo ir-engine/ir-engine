@@ -28,7 +28,7 @@ export const EditorErrorService = {}
 
 //Action
 export const EditorErrorAction = {
-  throwError: (error: string) => {
+  throwError: (error: any) => {
     return {
       type: 'ERROR_THROWN' as const,
       error
