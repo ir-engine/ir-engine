@@ -15,6 +15,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import EditorEvents from '../../constants/EditorEvents'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { CommandManager } from '../../managers/CommandManager'
+import { useSelectionState } from '../../services/SelectionService'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
@@ -105,6 +106,7 @@ const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
  */
 export const PropertiesPanelContainer = () => {
   //setting the props and state
+  const selectionState = useSelectionState()
   const [selected, setSelected] = useState(CommandManager.instance.selected)
   const { t } = useTranslation()
 
@@ -124,14 +126,12 @@ export const PropertiesPanelContainer = () => {
   }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
+    onSelectionChanged()
+  }, [selectionState.selectionChanged])
 
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
-    }
-  }, [])
+  useEffect(() => {
+    onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+  }, [selectionState.objectChanged])
 
   const onChangeVisible = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {

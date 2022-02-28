@@ -2,6 +2,7 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -12,6 +13,9 @@ import { serializeObject3D } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
@@ -86,15 +90,21 @@ export default class AddObjectCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      ControlManager.instance.onBeforeSelectionChanged()
+      dispatchLocal(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      if (this.isSelected) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+      if (this.isSelected) {
+        ControlManager.instance.onSelectionChanged()
+        SceneManager.instance.updateOutlinePassSelection()
+        dispatchLocal(SelectionAction.changedSelection())
+      }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
     }
   }
 

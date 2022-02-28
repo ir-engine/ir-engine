@@ -1,12 +1,14 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams } from './Command'
 
 type PropertyType = {
@@ -113,7 +115,9 @@ export default class ModifyPropertyCommand extends Command {
     }
 
     for (const propertyName of propertyNames) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, propertyName)
+      ControlManager.instance.onObjectsChanged(this.affectedObjects, propertyName)
+      SceneManager.instance.onEmitSceneModified()
+      dispatchLocal(SelectionAction.changedObject(this.affectedObjects, propertyName))
     }
   }
 

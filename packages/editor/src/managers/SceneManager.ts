@@ -149,7 +149,6 @@ export class SceneManager {
       this.grid.setSize(editorControlComponent.translationSnap)
 
       configureEffectComposer()
-      CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
       window.addEventListener('resize', this.onResize)
 
       dispatchLocal(EditorAction.rendererInitialized(true))
@@ -501,7 +500,6 @@ export class SceneManager {
       Engine.scene.clear()
     }
 
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false
   }
 }

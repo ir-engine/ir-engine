@@ -1,11 +1,15 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams } from './Command'
 
 export interface GroupCommandParams extends CommandParams {
@@ -105,17 +109,21 @@ export default class GroupCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      ControlManager.instance.onBeforeSelectionChanged()
+      dispatchLocal(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        ControlManager.instance.onSelectionChanged()
+        SceneManager.instance.updateOutlinePassSelection()
+        dispatchLocal(SelectionAction.changedSelection())
       }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
     }
   }
 }

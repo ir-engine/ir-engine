@@ -59,10 +59,6 @@ export class ControlManager {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.enable = true
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
-
-    CommandManager.instance.addListener(EditorEvents.BEFORE_SELECTION_CHANGED.toString(), this.onBeforeSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 
   /**
@@ -93,12 +89,5 @@ export class ControlManager {
   dispose() {
     this.inputManager?.dispose()
     this.playModeControls?.dispose()
-
-    CommandManager.instance.removeListener(
-      EditorEvents.BEFORE_SELECTION_CHANGED.toString(),
-      this.onBeforeSelectionChanged
-    )
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.onSelectionChanged)
-    CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), this.onObjectsChanged)
   }
 }

@@ -63,16 +63,7 @@ export class ProjectManager {
     CommandManager.instance.history.clear()
 
     dispatchLocal(EditorAction.projectLoaded(true))
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
-
-    CommandManager.instance.addListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.addListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
+    SceneManager.instance.onEmitSceneModified
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
@@ -82,15 +73,6 @@ export class ProjectManager {
   }
 
   dispose() {
-    CommandManager.instance.removeListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
     CacheManager.clearCaches()
     SceneManager.instance.dispose()
     ControlManager.instance.dispose()

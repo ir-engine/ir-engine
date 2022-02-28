@@ -2,14 +2,17 @@ import { Euler, Matrix4, Quaternion } from 'three'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeEuler, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 
 export interface RotationCommandParams extends CommandParams {
@@ -65,7 +68,9 @@ export default class RotationCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'rotation')
+      ControlManager.instance.onObjectsChanged(this.affectedObjects, 'rotation')
+      SceneManager.instance.onEmitSceneModified()
+      dispatchLocal(SelectionAction.changedObject(this.affectedObjects, 'rotation'))
     }
   }
 

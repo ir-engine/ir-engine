@@ -9,6 +9,8 @@ import {
 import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
 import Command, { CommandParams } from './Command'
 
 export enum TagComponentOperation {
@@ -69,7 +71,7 @@ export default class TagComponentCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects)
+      SceneManager.instance.onEmitSceneModified()
     }
   }
 
@@ -95,6 +97,6 @@ export default class TagComponentCommand extends Command {
       }
     }
 
-    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, objects)
+    SceneManager.instance.onEmitSceneModified()
   }
 }

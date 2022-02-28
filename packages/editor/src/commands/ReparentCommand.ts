@@ -2,6 +2,7 @@ import { Vector3 } from 'three'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -10,6 +11,9 @@ import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams } from './Command'
 
 export interface ReparentCommandParams extends CommandParams {
@@ -103,17 +107,21 @@ export default class ReparentCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      ControlManager.instance.onBeforeSelectionChanged()
+      dispatchLocal(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        ControlManager.instance.onSelectionChanged()
+        SceneManager.instance.updateOutlinePassSelection()
+        dispatchLocal(SelectionAction.changedSelection())
       }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
     }
   }
 

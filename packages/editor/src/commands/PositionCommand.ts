@@ -2,14 +2,17 @@ import { Matrix4, Vector3 } from 'three'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
-import EditorEvents from '../constants/EditorEvents'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3D, serializeVector3 } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionService'
 import Command, { CommandParams } from './Command'
 
 export interface PositionCommandParams extends CommandParams {
@@ -70,7 +73,9 @@ export default class PositionCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'position')
+      ControlManager.instance.onObjectsChanged(this.affectedObjects, 'position')
+      SceneManager.instance.onEmitSceneModified()
+      dispatchLocal(SelectionAction.changedObject(this.affectedObjects, 'position'))
     }
   }
 

@@ -16,6 +16,7 @@ import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { accessEditorState, useEditorState } from '../../services/EditorServices'
 import { ErrorAction } from '../../services/ErrorService'
+import { useSelectionState } from '../../services/SelectionService'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addItemAtCursorPosition } from '../dnd'
 import * as styles from './Viewport.module.scss'
@@ -28,6 +29,7 @@ import * as styles from './Viewport.module.scss'
  */
 export function ViewportPanelContainer() {
   const editorState = useEditorState()
+  const selectionState = useSelectionState()
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -48,10 +50,13 @@ export function ViewportPanelContainer() {
   }, [])
 
   const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
     CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
     CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
   }, [])
+
+  useEffect(() => {
+    onSelectionChanged()
+  }, [selectionState.selectionChanged])
 
   const initRenderer = () => SceneManager.instance.initializeRenderer()
 

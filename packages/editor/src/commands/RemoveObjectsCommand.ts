@@ -7,6 +7,7 @@ import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
 import Command, { CommandParams } from './Command'
 
 export interface RemoveObjectCommandParams extends CommandParams {
@@ -99,7 +100,7 @@ export default class RemoveObjectsCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
     }
   }
 }

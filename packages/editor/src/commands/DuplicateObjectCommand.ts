@@ -7,6 +7,7 @@ import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
 import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
 import Command, { CommandParams } from './Command'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
@@ -88,7 +89,7 @@ export default class DuplicateObjectCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
     }
   }
 }
