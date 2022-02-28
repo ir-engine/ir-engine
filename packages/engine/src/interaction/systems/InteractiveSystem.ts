@@ -129,8 +129,6 @@ export default async function InteractiveSystem(world: World) {
     }
 
     for (const entity of interactedQuery.enter()) {
-      const xrui = InteractiveUI.get(entity)
-      if (xrui) xrui.state.mode.set('interacting')
       const interactiveComponent = getComponent(entity, InteractableComponent).value
       if (hasComponent(entity, AudioComponent)) {
         toggleAudio(entity)
