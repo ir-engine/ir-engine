@@ -91,19 +91,24 @@ export const InteractiveModalView = () => {
   return (
     <div id={name} className={'interactive-modal ' + modalState.mode.value}>
       <div className="interactive-details" xr-layer="true" xr-pixel-ratio="0.5">
-        <div className="interactive-title" xr-layer="true">
-          {title.value}
+        <div className="interactive-title" xr-layer="true" xr-pixel-ratio="0.8">
+          <div>{title.value}</div>
         </div>
 
-        <div className="interactive-e-key" xr-layer="true">
-          Press E to Interact
+        <div className="interactive-e-key" xr-layer="true" xr-pixel-ratio="0.8">
+          <div>Press E to Interact</div>
         </div>
 
-        <div
-          className="interactive-description"
-          xr-layer="true"
-          dangerouslySetInnerHTML={{ __html: description.value || '' }}
-        ></div>
+        <div className="interactive-flex">
+          <div
+            className="interactive-description"
+            xr-layer="true"
+            xr-pixel-ratio="0.8"
+            dangerouslySetInnerHTML={{ __html: description.value || '' }}
+          ></div>
+
+          <div className="interactive-model" xr-layer="true"></div>
+        </div>
 
         <button
           className="interactive-link"
@@ -117,6 +122,8 @@ export const InteractiveModalView = () => {
         </button>
       </div>
 
+      <div className="interactive-content"></div>
+
       {/* {renderMedia(detailState)} */}
 
       <style>
@@ -128,24 +135,81 @@ export const InteractiveModalView = () => {
           font-family: 'Roboto', sans-serif;
           border: 6px solid white;
           border-radius: 40px;
-          margin: 30px 0;
-          box-shadow: #fff2 0 0 30px;
-          width: 300px;
-          height: 600px;
+          box-shadow: #fff2 0 0 20px;
+          width: ${162 * 4}px;
+          height: ${100 * 4}px;
+        }
+
+        .interactive-content {
+          display: none;
+        }
+
+        .interating .interactive-content {
+          display: auto;
+        }
+
+        .interactive-flex {
+          display: flex;
+          align-items: flex-start;
+          flex-direction: row;
+          align-items: stretch;
+          height: 260px;
         }
 
         .interactive-description {
           margin: 20px;
           overflow: hidden;
           text-align: left;
-          font-size: 20px;
+          font-size: 10px;
           height: 500px;
+          flex: 1;
+        }
+
+        .interactive-model {
+          flex: 1;
         }
 
         .interactive-title {
-          font-size: 20px;
-          padding: 20px 0px;
+          overflow: hidden; // contain margin */
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .interactive-title div {
+          font-size: 15px;
+          padding: 20px;
           text-align: center;
+          width: 200px;
+          margin: 0 auto;
+        }
+
+        :is(.inactive, .active) .interactive-title div {
+          background-color: #000000dd;
+          color: white;
+          border: 8px solid white;
+          border-radius: 50px;
+          box-shadow: #fff2 0 0 20px;
+          margin: 20px auto;
+        }
+
+        .interactive-e-key {
+          overflow: hidden; // contain margin
+        }
+
+        .interactive-e-key div {
+          fontSize: 15px;
+          border-radius: 40px;
+          padding: 20px;
+          color: white;
+          background-color: #333333dd;
+          text-align: center;
+          margin: 0 auto;
+          font-weight: bolder;
+          width: 160px;
+        }
+        
+        .interacting .interactive-e-key {
+          display: none
         }
 
         .interactive-link {
@@ -157,26 +221,6 @@ export const InteractiveModalView = () => {
 
         button:hover {
           background-color: darkgrey;
-        }
-
-        :is(.inactive, .active) .interactive-title {
-          background-color: #000000dd;
-          color: white;
-          border: 8px solid white;
-          border-radius: 50px;
-          margin: 20p;
-          box-shadow: #fff2 0 0 30px;
-        }
-
-        .interactive-e-key {
-          fontSize: 15px;
-          border-radius: 40px;
-          padding: 20px;
-          color: white;
-          background-color: #333333dd;
-          text-align: center;
-          margin: 0 60px;
-          font-weight: bold;
         }
 
       `}

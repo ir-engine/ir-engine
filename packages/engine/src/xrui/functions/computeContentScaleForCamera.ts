@@ -22,7 +22,7 @@ export function computeContentScaleForCamera(
       : false
 
   const vFOV = MathUtils.degToRad(camera.fov)
-  const targetHeight = Math.tan(vFOV / 2) * distance * 2
+  const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
   const targetWidth = targetHeight * camera.aspect
 
   let scale = 1
