@@ -56,7 +56,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-  props.src = 'https://172.160.10.156:8642/models/output.glb'
   registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
@@ -74,7 +73,9 @@ export const updateModel: ComponentUpdateFunction = async (
       const scene = model?.scene as any
       scene.play = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        //@ts-ignore
         const animationComponent = getComponent(entity, AnimationComponent)
         if (
           loopAnimationComponent.activeClipIndex >= 0 &&
@@ -92,11 +93,13 @@ export const updateModel: ComponentUpdateFunction = async (
       }
       scene.pause = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
         if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
       }
       scene.stop = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
         if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
       }
