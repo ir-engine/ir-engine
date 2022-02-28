@@ -33,6 +33,7 @@ const ModelPreview = (styled as any).canvas`
 export const ModelPreviewPanel = (props) => {
   const modeState = useModeState()
   const url = props.resourceProps.resourceUrl
+  const initializeRefFly = React.useRef<boolean>(false)
   const assestPanelRef = React.createRef<HTMLCanvasElement>()
 
   const scene = new Scene()
@@ -78,15 +79,13 @@ export const ModelPreviewPanel = (props) => {
     setFlyModeEnabled(flyControlComponent.enable)
   }, [setFlyModeEnabled])
 
-  const onEditorInitialized = useCallback(() => {
-    onFlyModeChanged()
-  }, [onFlyModeChanged, modeState.flyModeChanged])
-
   useEffect(() => {
-    if (editorState.rendererInitialized.value) {
-      onEditorInitialized()
+    if (initializeRefFly.current && editorState.rendererInitialized.value) {
+      onFlyModeChanged()
+    } else {
+      initializeRefFly.current = true
     }
-  }, [editorState.rendererInitialized])
+  }, [modeState.flyModeChanged])
 
   useEffect(() => {
     SceneManager.instance.initializeRenderer()

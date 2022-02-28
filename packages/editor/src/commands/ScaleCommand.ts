@@ -12,7 +12,7 @@ import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionService'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 
 export interface ScaleCommandParams extends CommandParams {

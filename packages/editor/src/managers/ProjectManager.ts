@@ -6,7 +6,7 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
-import { EditorErrorAction } from '../services/EditorErrorService'
+import { EditorErrorAction } from '../services/EditorErrorServices'
 import { EditorAction } from '../services/EditorServices'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'

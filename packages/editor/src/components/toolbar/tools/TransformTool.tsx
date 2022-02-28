@@ -16,10 +16,15 @@ import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
   const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [transformMode, changeTransformMode] = useState<TransformModeType>(TransformMode.Translate)
 
   useEffect(() => {
-    updateTransformMode()
+    if (initializeRef.current) {
+      updateTransformMode()
+    } else {
+      initializeRef.current = true
+    }
   }, [modeState.transformModeChanged])
 
   const updateTransformMode = () => {

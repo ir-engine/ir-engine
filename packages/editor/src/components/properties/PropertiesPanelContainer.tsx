@@ -14,7 +14,7 @@ import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { CommandManager } from '../../managers/CommandManager'
-import { useSelectionState } from '../../services/SelectionService'
+import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
@@ -106,6 +106,8 @@ const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
 export const PropertiesPanelContainer = () => {
   //setting the props and state
   const selectionState = useSelectionState()
+  const initializeRefS = React.useRef<boolean>(false)
+  const initializeRefO = React.useRef<boolean>(false)
   const [selected, setSelected] = useState(CommandManager.instance.selected)
   const { t } = useTranslation()
 
@@ -125,11 +127,19 @@ export const PropertiesPanelContainer = () => {
   }
 
   useEffect(() => {
-    onSelectionChanged()
+    if (initializeRefS.current) {
+      onSelectionChanged()
+    } else {
+      initializeRefS.current = true
+    }
   }, [selectionState.selectionChanged])
 
   useEffect(() => {
-    onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    if (initializeRefO.current) {
+      onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    } else {
+      initializeRefO.current = true
+    }
   }, [selectionState.objectChanged])
 
   const onChangeVisible = (value) => {

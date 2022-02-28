@@ -24,10 +24,15 @@ const transformSpaceOptions = [
 
 const TransformSpaceTool = () => {
   const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [transformSpace, changeTransformSpace] = useState(TransformSpace.World)
 
   useEffect(() => {
-    updateTransformSpace()
+    if (initializeRef.current) {
+      updateTransformSpace()
+    } else {
+      initializeRef.current = true
+    }
   }, [modeState.transformSpaceModeChanged])
 
   const updateTransformSpace = () => {

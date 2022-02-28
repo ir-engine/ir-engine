@@ -13,10 +13,10 @@ import { FlyControlComponent } from '../../classes/FlyControlComponent'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { EditorErrorAction } from '../../services/EditorErrorService'
+import { EditorErrorAction } from '../../services/EditorErrorServices'
 import { accessEditorState, useEditorState } from '../../services/EditorServices'
 import { useModeState } from '../../services/ModeServices'
-import { useSelectionState } from '../../services/SelectionService'
+import { useSelectionState } from '../../services/SelectionServices'
 import AssetDropZone from '../assets/AssetDropZone'
 import { addItemAtCursorPosition } from '../dnd'
 import * as styles from './Viewport.module.scss'
@@ -31,6 +31,9 @@ export function ViewportPanelContainer() {
   const editorState = useEditorState()
   const selectionState = useSelectionState()
   const modeState = useModeState()
+  const initializeRefFly = React.useRef<boolean>(false)
+  const initializeRefTranform = React.useRef<boolean>(false)
+  const initializeRefSelect = React.useRef<boolean>(false)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -53,15 +56,27 @@ export function ViewportPanelContainer() {
   const onEditorInitialized = useCallback(() => {}, [])
 
   useEffect(() => {
-    onFlyModeChanged()
+    if (initializeRefFly.current) {
+      onFlyModeChanged()
+    } else {
+      initializeRefFly.current = true
+    }
   }, [modeState.flyModeChanged])
 
   useEffect(() => {
-    onTransformModeChanged(modeState.transformMode.value)
+    if (initializeRefTranform.current) {
+      onTransformModeChanged(modeState.transformMode.value)
+    } else {
+      initializeRefTranform.current = true
+    }
   }, [modeState.transformModeChanged])
 
   useEffect(() => {
-    onSelectionChanged()
+    if (initializeRefSelect.current) {
+      onSelectionChanged()
+    } else {
+      initializeRefSelect.current = true
+    }
   }, [selectionState.selectionChanged])
 
   const initRenderer = () => SceneManager.instance.initializeRenderer()

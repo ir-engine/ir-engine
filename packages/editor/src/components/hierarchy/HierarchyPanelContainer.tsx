@@ -17,7 +17,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { CommandManager } from '../../managers/CommandManager'
-import { useSelectionState } from '../../services/SelectionService'
+import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addItem } from '../dnd'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
@@ -66,6 +66,8 @@ export default function HierarchyPanel() {
   const { t } = useTranslation()
   const onUpload = useUpload(uploadOptions)
   const selectionState = useSelectionState()
+  const initializeRefH = React.useRef<boolean>(false)
+  const initializeRefO = React.useRef<boolean>(false)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
@@ -125,11 +127,19 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    updateHierarchy()
+    if (initializeRefH.current) {
+      updateHierarchy()
+    } else {
+      initializeRefH.current = true
+    }
   }, [selectionState.selectionChanged, selectionState.sceneGraphChanged])
 
   useEffect(() => {
-    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    if (initializeRefO.current) {
+      onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    } else {
+      initializeRefO.current = true
+    }
   }, [selectionState.objectChanged])
 
   /* Event handlers */

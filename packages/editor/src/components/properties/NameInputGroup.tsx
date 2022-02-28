@@ -7,7 +7,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 import { CommandManager } from '../../managers/CommandManager'
-import { useSelectionState } from '../../services/SelectionService'
+import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
@@ -32,6 +32,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  */
 export const NameInputGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
+  const initializeRef = React.useRef<boolean>(false)
   const nodeName = getComponent(props.node.entity, NameComponent)?.name
 
   const [name, setName] = useState(nodeName)
@@ -39,7 +40,11 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    if (initializeRef.current) {
+      onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
+    } else {
+      initializeRef.current = true
+    }
   }, [selectionState.objectChanged])
 
   const onObjectChange = (_: any, propertyName: string) => {

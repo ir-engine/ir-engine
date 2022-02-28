@@ -50,10 +50,15 @@ const defaultSnapSetting = {
 
 const TransformSnapTool = () => {
   const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [snapSetting, setSnapSetting] = useState(defaultSnapSetting)
 
   useEffect(() => {
-    updateSnapSettings()
+    if (initializeRef.current) {
+      updateSnapSettings()
+    } else {
+      initializeRef.current = true
+    }
   }, [modeState.snapSettingsChanged])
 
   const updateSnapSettings = () => {

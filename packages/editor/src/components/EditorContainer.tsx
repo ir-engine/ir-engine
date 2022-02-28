@@ -23,7 +23,7 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
-import { useEditorErrorState } from '../services/EditorErrorService'
+import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetsPanel from './assets/AssetsPanel'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
@@ -110,6 +110,7 @@ const EditorContainer = () => {
   const modified = editorState.sceneModified
 
   const errorState = useEditorErrorState()
+  const editorError = errorState.error
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -460,14 +461,10 @@ const EditorContainer = () => {
   }, [])
 
   useEffect(() => {
-    console.log('-------------')
-    console.log(errorState)
-    console.log(errorState.error)
-    console.log('-------------')
-    if (errorState.error.value) {
-      onEditorError(errorState.error.value)
+    if (editorError) {
+      onEditorError(editorError.value)
     }
-  }, [errorState.error])
+  }, [editorError])
 
   useEffect(() => {
     return () => {

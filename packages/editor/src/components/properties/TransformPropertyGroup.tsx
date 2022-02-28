@@ -7,7 +7,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
-import { useSelectionState } from '../../services/SelectionService'
+import { useSelectionState } from '../../services/SelectionServices'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
@@ -25,6 +25,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
+  const initializeRef = React.useRef<boolean>(false)
   const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
 
   const forceUpdate = useCallback(() => updateState({}), [])
@@ -35,7 +36,11 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
-    forceUpdate()
+    if (initializeRef.current) {
+      forceUpdate()
+    } else {
+      initializeRef.current = true
+    }
   }, [selectionState.objectChanged])
 
   //function to handle the position properties

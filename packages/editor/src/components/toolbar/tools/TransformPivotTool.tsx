@@ -25,10 +25,15 @@ const transformPivotOptions = [
 
 const TransformPivotTool = () => {
   const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [transformPivot, changeTransformPivot] = useState<TransformPivotType>(TransformPivot.Selection)
 
   useEffect(() => {
-    updateTransformPivot()
+    if (initializeRef.current) {
+      updateTransformPivot()
+    } else {
+      initializeRef.current = true
+    }
   }, [modeState.transformPivotModeChanged])
 
   const updateTransformPivot = () => {

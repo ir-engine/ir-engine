@@ -34,7 +34,7 @@ import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagC
 import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import isInputSelected from '../functions/isInputSelected'
-import { EditorErrorAction } from '../services/EditorErrorService'
+import { EditorErrorAction } from '../services/EditorErrorServices'
 import { SceneManager } from './SceneManager'
 
 export type CommandParamsType =

@@ -12,10 +12,15 @@ import * as styles from '../styles.module.scss'
 
 const PlayModeTool = () => {
   const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [isInPlayMode, setInPlayMode] = useState(false)
 
   useEffect(() => {
-    updatePlayModeSetting()
+    if (initializeRef.current) {
+      updatePlayModeSetting()
+    } else {
+      initializeRef.current = true
+    }
   }, [modeState.playModeChanged])
 
   const updatePlayModeSetting = () => {
