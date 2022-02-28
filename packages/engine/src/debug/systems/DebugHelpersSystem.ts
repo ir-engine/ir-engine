@@ -48,7 +48,7 @@ export default async function DebugHelpersSystem(world: World) {
   const helpersByEntity: Record<ComponentHelpers, Map<Entity, any>> = {
     viewVector: new Map(),
     ikExtents: new Map(),
-    box: new Map(),
+    box: new Map<Entity, Box3Helper>(),
     helperArrow: new Map(),
     velocityArrow: new Map(),
     navmesh: new Map(),
@@ -263,27 +263,17 @@ export default async function DebugHelpersSystem(world: World) {
     // ===== INTERACTABLES ===== //
 
     // bounding box
-    for (const entity of boundingBoxQuery.enter()) {
-      helpersByEntity.box.set(entity, [])
-      const boundingBox = getComponent(entity, BoundingBoxComponent)
-      const box3 = new Box3()
-      box3.copy(boundingBox.box)
-      if (boundingBox.dynamic) {
-        const object3D = getComponent(entity, Object3DComponent)
-        box3.applyMatrix4(object3D.value.matrixWorld)
-      }
-      const helper = new Box3Helper(box3)
-      helper.visible = physicsDebugEnabled
-      Engine.scene.add(helper)
-      ;(helpersByEntity.box.get(entity) as Object3D[]).push(helper)
+    for (const entity of boundingBoxQuery.exit()) {
+      const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
+      Engine.scene.remove(boxHelper)
+      helpersByEntity.box.delete(entity)
     }
 
-    for (const entity of boundingBoxQuery.exit()) {
-      const boxes = helpersByEntity.box.get(entity) as Object3D[]
-      boxes.forEach((box) => {
-        Engine.scene.remove(box)
-      })
-      helpersByEntity.box.delete(entity)
+    for (const entity of boundingBoxQuery.enter()) {
+      const boundingBox = getComponent(entity, BoundingBoxComponent)
+      const helper = new Box3Helper(boundingBox.box)
+      helpersByEntity.box.set(entity, helper)
+      Engine.scene.add(helper)
     }
 
     // ===== CUSTOM ===== //

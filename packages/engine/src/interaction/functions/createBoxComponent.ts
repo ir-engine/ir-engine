@@ -13,7 +13,7 @@ export const createBoxComponent = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent).value
   const dynamic =
     (hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)) ||
-    (interactable && interactable.interactionType === 'equippable')
+    interactable
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 
