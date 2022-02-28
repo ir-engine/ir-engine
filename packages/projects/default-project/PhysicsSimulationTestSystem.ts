@@ -1,26 +1,25 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, SphereGeometry } from 'three'
-import { getColorForBodyType } from '../../debug/systems/DebugRenderer'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { ModelComponent } from '../../scene/components/ModelComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { parseGLTFModel } from '../../scene/functions/loadGLTFModel'
-import { ScenePrefabs } from '../../scene/functions/registerPrefabs'
-import { createNewEditorNode } from '../../scene/functions/SceneLoading'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { CollisionGroups } from '../enums/CollisionGroups'
-import { BodyType, ColliderTypes } from '../types/PhysicsTypes'
-import { ShapeOptions } from './createCollider'
-import { teleportRigidbody } from './teleportRigidbody'
+import { BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
+import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
+import { BodyType, ColliderTypes } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
+import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
 
 // Maybe do this using system injection node
 // receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -54,7 +53,17 @@ function getUUID() {
   return 'physicstestuuid' + uuidCounter
 }
 
+let simulationObjectsGenerated = false
+export default async function PhysicsSimulationTestSystem(world: World) {
+  return () => {
+    if (!Engine.isInitialized || !world.physics.physics || simulationObjectsGenerated) return
+    simulationObjectsGenerated = true
+    generateSimulationData(0)
+  }
+}
+
 export const generateSimulationData = (numOfObjectsToGenerate) => {
+  // Auto generate objects
   for (let index = 0; index < numOfObjectsToGenerate; index++) {
     let config = {} as ShapeOptions
     config.type = getRandomInt(0, 1) ? 'box' : 'sphere'
@@ -69,6 +78,7 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
     generatePhysicsObject(config)
   }
 
+  // Define and generate any objects with manual configs
   let config = {
     type: 'sphere' as ColliderTypes,
     bodyType: BodyType.DYNAMIC,
@@ -79,10 +89,18 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
     restitution: 0.1
   }
 
-  generatePhysicsObject(config)
+  // TODO: Generating the object as a network object here may result in an error sometimes,
+  // the reason being the spawn object network action from server is received before the object has been added to the scene locally.
+  // In order to test network functionality, call the generateSimulationData directly from scene loading logic in code for now.
+  generatePhysicsObject(config, new Vector3(0, 15, 0))
 }
 
-export const generatePhysicsObject = (config: ShapeOptions) => {
+const defaultSpawnPosition = new Vector3()
+export const generatePhysicsObject = (
+  config: ShapeOptions,
+  spawnPosition = defaultSpawnPosition,
+  isNetworkObject = false
+) => {
   let type = config.type
 
   let geometry
@@ -128,16 +146,14 @@ export const generatePhysicsObject = (config: ShapeOptions) => {
   const world = useWorld()
   world.entityTree.addEntityNode(entityTreeNode, world.entityTree.rootNode)
 
-  // Spawn at some random position
   let transform = getComponent(entity, TransformComponent)
-  transform.position.setComponent(1, 15)
+  transform.position.copy(spawnPosition)
   const collider = getComponent(entity, ColliderComponent)
   const body = collider.body as PhysX.PxRigidDynamic
   teleportRigidbody(body, transform.position, transform.rotation)
 
-  if (world.isHosting) {
+  if (isNetworkObject && world.isHosting) {
     teleportRigidbody(body, transform.position, transform.rotation)
-
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.findNodeFromEid(entity)
