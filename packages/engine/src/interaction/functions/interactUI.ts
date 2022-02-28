@@ -1,5 +1,5 @@
 import Hls from 'hls.js'
-import { MathUtils, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
+import { AxesHelper, MathUtils, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
 
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -22,11 +22,11 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 import { hideInteractText, showInteractText } from './interactText'
 
 const MODEL_SCALE_INACTIVE = new Vector3(1, 1, 1)
-const MODEL_SCALE_ACTIVE = new Vector3(2, 2, 2)
+const MODEL_SCALE_ACTIVE = new Vector3(1.2, 1.2, 1.2)
 const MODEL_ELEVATION_ACTIVE = 0.3
 
-const TITLE_POS_INACTIVE = new Vector3(0, 2.4, 0)
-const TITLE_POS_ACTIVE = new Vector3(0, 2, 0)
+const TITLE_POS_INACTIVE = new Vector3(0, 1.5, 0)
+const TITLE_POS_ACTIVE = new Vector3(0, 1, 0)
 
 export function createInteractUI(modelEntity: Entity) {
   const ui = createInteractiveModalView(modelEntity)
@@ -41,15 +41,20 @@ export function createInteractUI(modelEntity: Entity) {
     scale: new Vector3(1, 1, 1)
   })
 
-  addComponent(modelEntity, DesiredTransformComponent, {
-    position: transform.position.clone(),
-    rotation: transform.rotation.clone(),
-    positionRate: 2,
-    rotationRate: 1,
-    lockRotationAxis: [false, false, false]
-  })
+  if (!Engine.isEditor) {
+    addComponent(modelEntity, DesiredTransformComponent, {
+      position: transform.position.clone(),
+      rotation: transform.rotation.clone(),
+      positionRate: 2,
+      rotationRate: 1,
+      lockRotationAxis: [false, false, false]
+    })
+  }
 
   ui.container.then((c) => {
+    const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
+    boundingBoxComponent.box.getCenter(c.position)
+
     c.rootLayer.traverseLayersPreOrder((layer) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = 0
@@ -158,19 +163,19 @@ export function createInteractUI(modelEntity: Entity) {
 //   }
 // }
 
-const anchoredPosition = new Vector3()
-
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+  if (Engine.isEditor) return
+
   const container = getComponent(xrui.entity, XRUIComponent)?.container
 
   if (!container) return
 
   const modelMesh = getComponent(modelEntity, Object3DComponent).value
   const modelDesiredTranform = getComponent(modelEntity, DesiredTransformComponent)
-  const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
+  const modelTransform = getComponent(modelEntity, TransformComponent)
 
   const world = useWorld()
-  boundingBoxComponent.box.getCenter(anchoredPosition)
+  const anchoredPosition = container.position
   const hasFocus = hasComponent(modelEntity, InteractiveFocusedComponent)
 
   const currentMode = xrui.state.mode.value
@@ -194,28 +199,38 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   title.shouldApplyDOMLayout = false
   const titleMat = title.contentMesh.material as MeshBasicMaterial
 
+  const eKey = container.rootLayer.querySelector('.interactive-e-key')!
+  eKey.shouldApplyDOMLayout = false
+  const eKeyMat = title.contentMesh.material as MeshBasicMaterial
+
   if (nextMode === 'inactive') {
     modelDesiredTranform.position.y = anchoredPosition.y
-    modelMesh.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
+    modelTransform.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
 
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 2)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
 
     title.position.lerp(TITLE_POS_INACTIVE, alpha)
     title.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(anchoredPosition) / 2))
     title.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 2)
+    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 3)
+
+    eKey.position.lerp(TITLE_POS_INACTIVE, alpha)
+    eKeyMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 3)
   } else if (nextMode === 'active') {
     modelDesiredTranform.position.y = anchoredPosition.y + MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
-    modelMesh.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
+    modelTransform.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
 
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 2)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
 
     title.position.lerp(TITLE_POS_ACTIVE, alpha)
     title.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(anchoredPosition) / 2))
     title.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha * 2)
+    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha * 3)
+
+    eKey.position.lerp(TITLE_POS_ACTIVE, alpha)
+    eKeyMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 3)
   } else if (nextMode === 'interacting') {
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha * 2)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha * 3)
 
     title.position.lerp(title.domLayout.position, alpha)
     modelMesh.scale.lerp(MODEL_SCALE_ACTIVE, alpha)

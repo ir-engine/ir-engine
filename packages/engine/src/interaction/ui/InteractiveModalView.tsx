@@ -95,6 +95,10 @@ export const InteractiveModalView = () => {
           {title.value}
         </div>
 
+        <div className="interactive-e-key" xr-layer="true">
+          Press E to Interact
+        </div>
+
         <div
           className="interactive-description"
           xr-layer="true"
@@ -122,25 +126,24 @@ export const InteractiveModalView = () => {
           background-color: #000000dd;
           color: white;
           font-family: 'Roboto', sans-serif;
-          border: 10px solid white;
-          border-radius: 50px;
-          padding: 20px;
-          margin: 60px;
+          border: 6px solid white;
+          border-radius: 40px;
+          margin: 30px 0;
           box-shadow: #fff2 0 0 30px;
-          width: 500px;
-          height: 800px;
+          width: 300px;
+          height: 600px;
         }
 
         .interactive-description {
-          padding: 20px 0;
+          margin: 20px;
           overflow: hidden;
           text-align: left;
           font-size: 20px;
-          height: 100%;
+          height: 500px;
         }
 
         .interactive-title {
-          font-size: 25px;
+          font-size: 20px;
           padding: 20px 0px;
           text-align: center;
         }
@@ -159,11 +162,21 @@ export const InteractiveModalView = () => {
         :is(.inactive, .active) .interactive-title {
           background-color: #000000dd;
           color: white;
-          border: 10px solid white;
+          border: 8px solid white;
           border-radius: 50px;
-          padding: 20px;
-          margin: 60px;
+          margin: 20p;
           box-shadow: #fff2 0 0 30px;
+        }
+
+        .interactive-e-key {
+          fontSize: 15px;
+          border-radius: 40px;
+          padding: 20px;
+          color: white;
+          background-color: #333333dd;
+          text-align: center;
+          margin: 0 60px;
+          font-weight: bold;
         }
 
       `}
