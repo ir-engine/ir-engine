@@ -1,5 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import express from 'express'
+import _ from 'lodash'
 import multer from 'multer'
 
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
@@ -10,7 +11,6 @@ import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
-import _ from 'lodash'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
