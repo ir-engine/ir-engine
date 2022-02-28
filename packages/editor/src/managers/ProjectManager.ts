@@ -6,8 +6,8 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
+import { EditorErrorAction } from '../services/EditorErrorService'
 import { EditorAction } from '../services/EditorServices'
-import { ErrorAction } from '../services/ErrorService'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
@@ -66,7 +66,7 @@ export class ProjectManager {
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
-      dispatchLocal(ErrorAction.throwError(error.toString()))
+      dispatchLocal(EditorErrorAction.throwError(error.toString()))
       throw error
     }
   }

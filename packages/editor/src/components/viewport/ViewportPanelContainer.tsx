@@ -13,8 +13,8 @@ import { FlyControlComponent } from '../../classes/FlyControlComponent'
 import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { EditorErrorAction } from '../../services/EditorErrorService'
 import { accessEditorState, useEditorState } from '../../services/EditorServices'
-import { ErrorAction } from '../../services/ErrorService'
 import { useModeState } from '../../services/ModeServices'
 import { useSelectionState } from '../../services/SelectionService'
 import AssetDropZone from '../assets/AssetDropZone'
@@ -107,7 +107,7 @@ export function ViewportPanelContainer() {
         CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
-      dispatchLocal(ErrorAction.throwError(err.toString()))
+      dispatchLocal(EditorErrorAction.throwError(err.toString()))
     })
   }, [])
 

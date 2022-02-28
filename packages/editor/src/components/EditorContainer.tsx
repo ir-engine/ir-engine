@@ -2,7 +2,7 @@ import { DockLayout, DockMode, LayoutData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory, withRouter } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { useHookedEffect } from '@xrengine/client-core/src/hooks/useHookedEffect'
@@ -23,8 +23,8 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { CacheManager } from '../managers/CacheManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
+import { useEditorErrorState } from '../services/EditorErrorService'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import { useErrorState } from '../services/ErrorService'
 import AssetsPanel from './assets/AssetsPanel'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
@@ -109,7 +109,7 @@ const EditorContainer = () => {
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
 
-  const errorState = useErrorState()
+  const errorState = useEditorErrorState()
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -460,6 +460,10 @@ const EditorContainer = () => {
   }, [])
 
   useEffect(() => {
+    console.log('-------------')
+    console.log(errorState)
+    console.log(errorState.error)
+    console.log('-------------')
     if (errorState.error.value) {
       onEditorError(errorState.error.value)
     }

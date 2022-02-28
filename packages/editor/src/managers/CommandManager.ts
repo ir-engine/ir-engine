@@ -34,7 +34,7 @@ import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagC
 import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import isInputSelected from '../functions/isInputSelected'
-import { ErrorAction } from '../services/ErrorService'
+import { EditorErrorAction } from '../services/EditorErrorService'
 import { SceneManager } from './SceneManager'
 
 export type CommandParamsType =
@@ -250,7 +250,7 @@ export class CommandManager extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(ErrorAction.throwError(error.toString())))
+        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(EditorErrorAction.throwError(error.toString())))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }
