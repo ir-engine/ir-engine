@@ -77,18 +77,18 @@ export const AvatarService = {
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: any) => {
     const dispatch = useDispatch()
     try {
-      const uploadArguments: AdminAssetUploadType = {
-        type: 'admin-file-upload',
-        files: [blob, thumbnail],
-        args: [
-          {
-            key: 'avatars/public/CyberbotGold.glb',
-            contentType: '',
-            staticResourceType: data.staticResourceType
-          }
-        ]
-      }
       if (blob) {
+        const uploadArguments: AdminAssetUploadType = {
+          type: 'admin-file-upload',
+          files: [blob, thumbnail],
+          args: [
+            {
+              key: `avatars/public/${thumbnail.name}`,
+              contentType: 'multipart/form-data',
+              staticResourceType: data.staticResourceType
+            }
+          ]
+        }
         const response = await client.service('upload-asset').create(uploadArguments)
         data.url = response[0]
       }
