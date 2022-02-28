@@ -65,9 +65,10 @@ export const DockContainer = (styled as any).div`
     z-index: 99;
   }
   .dock-panel[data-dockid="+5"] {
-    visibility: hidden;
     pointer-events: none;
   }
+  .dock-panel[data-dockid="+5"] .dock-bar { display: none; }
+  .dock-panel[data-dockid="+5"] .dock { background: transparent; }
   .dock-divider {
     pointer-events: auto;
     background:rgba(1,1,1,${(props) => props.dividerAlpha});
@@ -446,12 +447,7 @@ const EditorContainer = () => {
           </PanelDragContainer>
         ),
         content: (
-          <ScenesPanel
-            newScene={onNewScene}
-            toggleRefetchScenes={toggleRefetchScenes}
-            projectName={projectName.value}
-            loadScene={reRouteToLoadScene}
-          />
+          <ScenesPanel newScene={onNewScene} toggleRefetchScenes={toggleRefetchScenes} loadScene={reRouteToLoadScene} />
         )
       })
   }, [toggleRefetchScenes])
@@ -533,7 +529,6 @@ const EditorContainer = () => {
                   content: (
                     <ScenesPanel
                       newScene={onNewScene}
-                      projectName={projectName.value}
                       toggleRefetchScenes={toggleRefetchScenes}
                       loadScene={reRouteToLoadScene}
                     />
@@ -559,14 +554,25 @@ const EditorContainer = () => {
           children: [
             {
               id: '+5',
-              tabs: [{ id: 'viewPanel', title: 'Viewport', content: <div /> }],
+              tabs: [
+                {
+                  id: 'viewPanel',
+                  title: 'Viewport',
+                  content: (
+                    <div className={styles.bgImageBlock}>
+                      <img src="/static/xrengine.png" />
+                      <h2>{t('editor:selectSceneMsg')}</h2>
+                    </div>
+                  )
+                }
+              ],
               size: 1
             }
           ]
         },
         {
           mode: 'vertical' as DockMode,
-          size: 3,
+          size: 2,
           children: [
             {
               tabs: [
@@ -622,11 +628,6 @@ const EditorContainer = () => {
               </DockContainer>
             </AppContext.Provider>
           </div>
-          {!sceneName && (
-            <div className={styles.bgImageBlock}>
-              <img src="/static/xrengine.png" />
-            </div>
-          )}
           <Dialog
             open={!!DialogComponent}
             onClose={() => setDialogComponent(null)}
