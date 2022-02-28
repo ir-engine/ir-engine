@@ -39,8 +39,9 @@ export default async function XRUILoadingSystem(world: World) {
   )
   // flip inside out
   mesh.scale.set(-1, 1, 1)
+  Engine.camera.add(mesh)
+  Engine.scene.add(Engine.camera)
 
-  getComponent(ui.entity, Object3DComponent).value.add(mesh)
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {

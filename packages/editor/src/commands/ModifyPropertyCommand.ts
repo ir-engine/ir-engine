@@ -103,6 +103,8 @@ export default class ModifyPropertyCommand<C extends ComponentConstructor<any, a
             if (value && value.copy) {
               if (!result[finalProp]) result[finalProp] = new value.constructor()
               result[finalProp].copy(value)
+            } else if (value && 'set' in result[finalProp] && typeof result[finalProp].set === 'function') {
+              result[finalProp].set(value)
             } else {
               result[finalProp] = value
             }
