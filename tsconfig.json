@@ -12,7 +12,6 @@
     "noEmit": true,
     "module": "CommonJS",
     "strict": false,
-    "strictNullChecks": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -31,8 +30,8 @@
     "./packages/server/upload/**"
   ],
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "./**/*.ts",
+    "./**/*.tsx",
     "./PhysX.d.ts",
     "./PhysXDebug.d.ts"
   ]
