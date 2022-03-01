@@ -1,7 +1,9 @@
+import { Paginated } from '@feathersjs/feathers/lib'
 import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -133,7 +135,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   }
 
   console.log('Creating new instance:', newInstance)
-  const instanceResult = await app.service('instance').create(newInstance)
+  const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -148,7 +150,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: instanceResult.id
-      })
+      } as any)
     }
   }
 }
@@ -162,7 +164,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
     channelId: channelId,
     locationId: locationId,
     assigned: false,
-    assignedAt: null
+    assignedAt: null!
   })
 
   if (app.gsSubdomainNumber != null) {
@@ -176,7 +178,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: existingInstance.id
-      })
+      } as any)
     }
   }
 }
@@ -199,9 +201,9 @@ const handleInstance = async (
   } as any
   if (locationId) existingInstanceQuery.locationId = locationId
   else if (channelId) existingInstanceQuery.channelId = channelId
-  const existingInstanceResult = await app.service('instance').find({
+  const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
-  })
+  })) as Paginated<InstanceInterface>
   // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
@@ -409,7 +411,7 @@ const loadGameserver = async (
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
-        assignedAt: null
+        assignedAt: null!
       })
       return true
     } catch (err) {
