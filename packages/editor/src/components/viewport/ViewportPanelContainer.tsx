@@ -56,7 +56,7 @@ export function ViewportPanelContainer() {
   const onEditorInitialized = useCallback(() => {}, [])
 
   useEffect(() => {
-    if (initializeRefFly.current) {
+    if (initializeRefFly.current && editorState.rendererInitialized.value) {
       onFlyModeChanged()
     } else {
       initializeRefFly.current = true

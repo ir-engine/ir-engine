@@ -4,11 +4,12 @@ import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'thr
 
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 import { FlyControlComponent } from '../../../classes/FlyControlComponent'
 import { ProjectManager } from '../../../managers/ProjectManager'
 import { SceneManager } from '../../../managers/SceneManager'
-import { useEditorState } from '../../../services/EditorServices'
+import { EditorAction, useEditorState } from '../../../services/EditorServices'
 import { useModeState } from '../../../services/ModeServices'
 
 /**
@@ -82,6 +83,7 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     if (initializeRefFly.current && editorState.rendererInitialized.value) {
       onFlyModeChanged()
+      dispatchLocal(EditorAction.rendererInitialized(false))
     } else {
       initializeRefFly.current = true
     }
