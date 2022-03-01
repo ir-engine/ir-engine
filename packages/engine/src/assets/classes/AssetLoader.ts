@@ -222,21 +222,11 @@ const load = async (
     onError(new Error('URL is empty'))
     return
   }
-  console.log(params.url)
-  let url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
+  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
 
-  // Used when db reseed was not done with localhost set in env.local
-  // if (url.search('172.28.132.4')) {
-  //   url = url.replace('172.28.132.4', '172.28.132.4')
-  // }
-
-  if (url.search('localhost')) {
-    url = url.replace('localhost', '172.28.132.4')
+  if (params.cache && AssetLoader.Cache.has(url)) {
+    onLoad(AssetLoader.Cache.get(url))
   }
-
-  // if (params.cache && AssetLoader.Cache.has(url)) {
-  //   onLoad(AssetLoader.Cache.get(url))
-  // }
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
