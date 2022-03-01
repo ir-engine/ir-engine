@@ -1,14 +1,15 @@
-import Command, { CommandParams } from './Command'
-import { serializeProperties, serializeObject3DArray } from '../functions/debug'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentConstructor,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray, serializeProperties } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export enum TagComponentOperation {
   TOGGLE,

@@ -1,19 +1,22 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
-import { deleteScene, renameScene } from '../../functions/sceneFunctions'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
+
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import StylableContextMenuTrigger from './StylableContextMenuTrigger'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { EditorAction } from '../../services/EditorServices'
 import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import { useStyle } from './style'
+
+import { deleteScene, renameScene } from '../../functions/sceneFunctions'
+import { EditorAction } from '../../services/EditorServices'
 import { DeleteDialog } from './DeleteDialog'
+import StylableContextMenuTrigger from './StylableContextMenuTrigger'
+import { useStyle } from './style'
 
 /**
  *
@@ -166,7 +169,7 @@ export const ProjectGridItem = (props: Props) => {
   const handleOnDelete = async () => {
     await deleteScene(projectName, sceneTodelete)
     setSceneToDelete('')
-    dispatch(EditorAction.sceneLoaded(null))
+    dispatch(EditorAction.sceneChanged(null))
     history.push(`/editor/${projectName}`)
   }
 
@@ -194,7 +197,7 @@ export const ProjectGridItem = (props: Props) => {
                 onKeyPress={async (e) => {
                   if (e.key == 'Enter') {
                     await renameScene(projectName, newSceneName, oldSceneName)
-                    dispatch(EditorAction.sceneLoaded(newSceneName))
+                    dispatch(EditorAction.sceneChanged(newSceneName))
                     history.push(`/editor/${projectName}/${newSceneName}`)
                   }
                 }}

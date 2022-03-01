@@ -1,10 +1,14 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
+
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+
 import { TestNetwork } from '../../../tests/networking/TestNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
@@ -15,11 +19,9 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { createAvatar } from './createAvatar'
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 
 describe('createAvatar', () => {
   let world

@@ -1,5 +1,6 @@
 import { Group } from 'three'
 import matches from 'ts-matches'
+
 import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'

@@ -1,5 +1,6 @@
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { client } from '@xrengine/client-core/src/feathers'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
 /**
  * Gets a list of projects installed
  * @returns {ProjectInterface[]}

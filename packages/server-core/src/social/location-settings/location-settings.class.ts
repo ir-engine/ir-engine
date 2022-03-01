@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { LocationSettings as LocationSettingsInterface } from '@xrengine/common/src/interfaces/LocationSettings'
+
+import { Application } from '../../../declarations'
 
 export type LocationSettingsDataType = LocationSettingsInterface
 /**

@@ -30,12 +30,12 @@
     "envMapError": "Error loading cubemap images {{files}}",
     "lbl-return": "Return",
     "menubar": {
-        "newProject": "New Scene",
-        "saveProject": "Save Scene",
+        "newScene": "New Scene",
+        "saveScene": "Save Scene",
         "saveAs": "Save As",
         "exportGLB": "Export as binary glTF (.glb) ...",
-        "importProject": "Import scene",
-        "exportProject": "Export scene",
+        "importScene": "Import scene",
+        "exportScene": "Export scene",
         "quit": "Quit"
     },
     "errors": {

@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { GameServerSetting as GameServerSettingInterface } from '@xrengine/common/src/interfaces/GameServerSetting'
+
+import { Application } from '../../../declarations'
 
 export type GameServerSettingDataType = GameServerSettingInterface
 

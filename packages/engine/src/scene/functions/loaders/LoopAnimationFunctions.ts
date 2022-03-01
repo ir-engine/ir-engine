@@ -1,6 +1,8 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Group } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'

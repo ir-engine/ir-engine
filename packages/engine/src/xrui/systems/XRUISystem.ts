@@ -1,18 +1,19 @@
 import { Color, Mesh, Raycaster } from 'three'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { XRUIManager } from '../classes/XRUIManager'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import { XRUIManager } from '../classes/XRUIManager'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 export default async function XRUISystem(world: World) {
   const renderer = Engine.renderer
@@ -165,8 +166,8 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.update()
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.container.update()
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)

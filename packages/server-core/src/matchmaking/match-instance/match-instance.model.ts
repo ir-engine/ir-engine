@@ -1,6 +1,9 @@
-import { DataTypes, Sequelize, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { MatchInstanceInterface } from '@xrengine/common/src/dbmodels/MatchInstance'
+
+import { Application } from '../../../declarations'
+
 /**
  * This model contains matchmaking match
  */

@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import NodeEditor from './NodeEditor'
+import { useTranslation } from 'react-i18next'
+
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
+
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
+
+import { CommandManager } from '../../managers/CommandManager'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
-import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
-import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
   //initializing props and state

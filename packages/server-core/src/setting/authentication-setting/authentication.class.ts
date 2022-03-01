@@ -1,8 +1,10 @@
-import { Params, Paginated } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 
@@ -18,13 +20,6 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     const auth = (await super.find()) as any
     const loggedInUser = extractLoggedInUserFromParams(params)
     const data = auth.data.map((el) => {
-      if (loggedInUser.userRole !== 'admin')
-        return {
-          id: el.id,
-          entity: el.entity,
-          service: el.service,
-          authStrategies: JSON.parse(JSON.parse(el.authStrategies))
-        }
       let oauth = JSON.parse(el.oauth)
       let authStrategies = JSON.parse(el.authStrategies)
       let local = JSON.parse(el.local)
@@ -38,6 +33,14 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
+
+      if (loggedInUser.userRole !== 'admin')
+        return {
+          id: el.id,
+          entity: el.entity,
+          service: el.service,
+          authStrategies: authStrategies
+        }
 
       const returned = {
         ...el,

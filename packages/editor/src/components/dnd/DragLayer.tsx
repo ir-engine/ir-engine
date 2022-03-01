@@ -1,8 +1,9 @@
 import React from 'react'
 import { useDragLayer } from 'react-dnd'
-import styled from 'styled-components'
-import { ItemTypes } from '../../constants/AssetTypes'
 import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
+import { ItemTypes } from '../../constants/AssetTypes'
 
 /**
  * DragLayerContainer used as wrapper for DragPreviewContainer.

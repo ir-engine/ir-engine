@@ -1,9 +1,11 @@
+import { createState, useState } from '@speigg/hookstate'
+
+import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+
+import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
-import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
-import { createState, useState } from '@speigg/hookstate'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000

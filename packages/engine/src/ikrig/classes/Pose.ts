@@ -1,11 +1,13 @@
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
-import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
-import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../functions/IKFunctions'
-import { Entity } from '../../ecs/classes/Entity'
-import { transformAdd } from '../functions/IKSolvers'
+
 import { bonesData2 } from '@xrengine/engine/src/avatar/DefaultSkeletonBones'
+
+import { SkeletonUtils } from '../../avatar/SkeletonUtils'
+import { Entity } from '../../ecs/classes/Entity'
+import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
+import { alignBoneForward, alignChain, spinBoneForward, worldToModel } from '../functions/IKFunctions'
+import { transformAdd } from '../functions/IKSolvers'
 
 export type BoneTransform = {
   position: Vector3

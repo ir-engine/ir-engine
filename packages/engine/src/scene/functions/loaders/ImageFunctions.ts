@@ -1,31 +1,33 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
-  MeshBasicMaterial,
-  Mesh,
   DoubleSide,
-  PlaneBufferGeometry,
-  MeshStandardMaterial,
-  sRGBEncoding,
   LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  PlaneBufferGeometry,
   SphereBufferGeometry,
-  Object3D
+  sRGBEncoding
 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import loadTexture from '../../../assets/functions/loadTexture'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
+import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import loadTexture from '../../../assets/functions/loadTexture'
-import { isClient } from '../../../common/functions/isClient'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_IMAGE = 'image'

@@ -1,7 +1,9 @@
-import { Params, NullableId, Paginated } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { ServerSetting as ServerSettingInterface } from '@xrengine/common/src/interfaces/ServerSetting'
+
+import { Application } from '../../../declarations'
 
 export type ServerSettingDataType = ServerSettingInterface
 

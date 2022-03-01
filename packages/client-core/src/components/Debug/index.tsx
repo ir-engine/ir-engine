@@ -1,12 +1,13 @@
+import { getEntityComponents } from 'bitecs'
+import React, { useEffect, useRef, useState } from 'react'
+import JSONTree from 'react-json-tree'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getEntityComponents } from 'bitecs'
-import React, { useEffect, useRef, useState } from 'react'
-import JSONTree from 'react-json-tree'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -59,17 +60,27 @@ export const Debug = () => {
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.currentWorld.namedEntities.entries()].map(([key, value]) => {
-          return [
-            key + '(' + value + ')',
-            Object.fromEntries(
-              getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
-                return components
-              }, [] as [string, any][])
-            )
-          ]
-        })
+        [...Engine.currentWorld.namedEntities.entries()]
+          .map(([key, eid]) => {
+            try {
+              return [
+                key + '(' + eid + ')',
+                Object.fromEntries(
+                  getEntityComponents(Engine.currentWorld, eid).reduce((components, C: MappedComponent<any, any>) => {
+                    if (C !== NameComponent) {
+                      engineState.fixedTick.value
+                      const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                      components.push([C._name, { ...component }])
+                    }
+                    return components
+                  }, [] as [string, any][])
+                )
+              ]
+            } catch (e) {
+              return null!
+            }
+          })
+          .filter((exists) => !!exists)
       )
     }
   }

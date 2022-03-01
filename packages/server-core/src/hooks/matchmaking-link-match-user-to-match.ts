@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import { OpenMatchTicketAssignment } from '@xrengine/matchmaking/src/interfaces'
 
 interface AssignmentResponse extends OpenMatchTicketAssignment {

@@ -1,8 +1,10 @@
 import assert from 'assert'
-import { createApp } from '@xrengine/server/src/app'
 import nock from 'nock'
+
 import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
 import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
+import { createApp } from '@xrengine/server/src/app'
+
 import { Application } from '../../../declarations'
 
 interface User {

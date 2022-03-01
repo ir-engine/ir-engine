@@ -1,14 +1,16 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { MathUtils, Quaternion, Vector3 } from 'three'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import assert from 'assert'
-import { createWorld } from '../../../ecs/classes/World'
+import { MathUtils, Quaternion, Vector3 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
-import { deserializeWorldData } from './WorldDataFunctions'
+import { createWorld } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
+import { deserializeWorldData } from './WorldDataFunctions'
 
 describe('WorldDataFunctions', () => {
   describe('deserializeWorldData', () => {
@@ -37,7 +39,7 @@ describe('WorldDataFunctions', () => {
     assert(hasComponent(entity, Object3DComponent))
     assert.equal((getComponent(entity, Object3DComponent).value as any)._data, testData)
     assert(hasComponent(entity, InteractableComponent))
-    assert.equal(getComponent(entity, InteractableComponent).action, '_metadata')
-    assert.equal(getComponent(entity, InteractableComponent).interactionUserData, testData)
+    assert.equal(getComponent(entity, InteractableComponent).action.value, '_metadata')
+    assert.equal(getComponent(entity, InteractableComponent).interactionUserData.value, testData)
   })
 })

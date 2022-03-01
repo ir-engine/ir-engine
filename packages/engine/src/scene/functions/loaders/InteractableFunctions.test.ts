@@ -1,11 +1,13 @@
 import assert from 'assert'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { deserializeInteractable } from './InteractableFunctions'
 import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
+import { deserializeInteractable } from './InteractableFunctions'
 
 describe('InteractableFunctions', () => {
   it('deserializeInteractable', () => {
@@ -15,7 +17,6 @@ describe('InteractableFunctions', () => {
     const entity = createEntity()
 
     const sceneComponentData = {
-      interactable: true,
       interactionType: 'interaction type',
       interactionText: 'interaction text',
       interactionName: 'interaction name',
@@ -33,14 +34,16 @@ describe('InteractableFunctions', () => {
     deserializeInteractable(entity, sceneComponent)
 
     assert(hasComponent(entity, InteractableComponent))
-    assert(getComponent(entity, InteractableComponent).interactable)
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionType, 'interaction type')
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionText, 'interaction text')
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionName, 'interaction name')
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionDescription, 'interaction description')
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionImages, [])
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionVideos, [])
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionUrls, [])
-    assert.deepEqual(getComponent(entity, InteractableComponent).interactionModels, [])
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionType.value, 'interaction type')
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionText.value, 'interaction text')
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionName.value, 'interaction name')
+    assert.deepEqual(
+      getComponent(entity, InteractableComponent).interactionDescription.value,
+      'interaction description'
+    )
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionImages.value, [])
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionVideos.value, [])
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionUrls.value, [])
+    assert.deepEqual(getComponent(entity, InteractableComponent).interactionModels.value, [])
   })
 })

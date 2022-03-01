@@ -1,4 +1,5 @@
-import { Vector3, Quaternion, Matrix4, Mesh } from 'three'
+import { Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'

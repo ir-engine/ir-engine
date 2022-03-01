@@ -1,4 +1,5 @@
 import { Vector3 } from 'three'
+
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

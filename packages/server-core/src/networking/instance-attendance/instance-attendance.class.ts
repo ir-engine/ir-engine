@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { InstanceAttendanceInterface } from '@xrengine/common/src/dbmodels/InstanceAttendance'
+
+import { Application } from '../../../declarations'
 
 export type InstanceAttendanceDataType = InstanceAttendanceInterface
 

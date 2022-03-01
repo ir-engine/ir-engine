@@ -1,36 +1,38 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import {
-  Mesh,
-  PlaneBufferGeometry,
-  Object3D,
   Audio,
-  PositionalAudio,
-  Texture,
+  DoubleSide,
+  Mesh,
   MeshBasicMaterial,
-  DoubleSide
+  Object3D,
+  PlaneBufferGeometry,
+  PositionalAudio,
+  Texture
 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import { loadAudio } from '../../../assets/functions/loadAudio'
+import loadTexture from '../../../assets/functions/loadTexture'
+import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
+import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
+import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
-import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
-import { loadAudio } from '../../../assets/functions/loadAudio'
-import loadTexture from '../../../assets/functions/loadTexture'
-import { isClient } from '../../../common/functions/isClient'
-import { updateAutoStartTimeForMedia } from './MediaFunctions'
-import { addError, removeError } from '../ErrorFunctions'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 import { MediaComponent } from '../../components/MediaComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { addError, removeError } from '../ErrorFunctions'
+import { setObjectLayers } from '../setObjectLayers'
+import { updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {

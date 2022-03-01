@@ -1,25 +1,27 @@
+import { TypedArray } from 'bitecs'
+
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { TypedArray } from 'bitecs'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
-  ViewCursor,
   readProp,
+  readUint8,
   readUint16,
   readUint32,
-  readUint8,
   readUint64,
-  scrollViewCursor
+  scrollViewCursor,
+  ViewCursor
 } from './ViewCursor'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
