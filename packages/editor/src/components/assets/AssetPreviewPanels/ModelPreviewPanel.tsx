@@ -84,7 +84,6 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     if (initializeRefFly.current && editorState.rendererInitialized.value) {
       onFlyModeChanged()
-      dispatch(EditorAction.rendererInitialized(false))
     } else {
       initializeRefFly.current = true
     }
