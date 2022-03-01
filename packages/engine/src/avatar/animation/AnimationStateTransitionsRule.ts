@@ -1,4 +1,3 @@
-import { AnimationState } from './AnimationState'
 import { AnimationAction, Vector3 } from 'three'
 
 export class AnimationStateTransitionRule {
