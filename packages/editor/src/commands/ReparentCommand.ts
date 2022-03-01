@@ -121,6 +121,7 @@ export default class ReparentCommand extends Command {
       }
 
       SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 
