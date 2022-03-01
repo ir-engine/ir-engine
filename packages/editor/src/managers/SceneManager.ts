@@ -24,7 +24,6 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
@@ -134,14 +133,14 @@ export class SceneManager {
     console.log('initializeRenderer')
     try {
       ControlManager.instance.initControls()
-      dispatchLocal(
+      store.dispatch(
         EngineActions.enableScene({
           renderer: true,
           physics: true
         }) as any
       )
 
-      dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
+      store.dispatch(EngineActions.setPhysicsDebug(true) as any)
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
@@ -149,11 +148,11 @@ export class SceneManager {
       configureEffectComposer()
       window.addEventListener('resize', this.onResize)
 
-      dispatchLocal(EditorAction.rendererInitialized(true))
+      store.dispatch(EditorAction.rendererInitialized(true))
       EngineRenderer.instance.disableUpdate = false
 
       accessEngineRendererState().automatic.set(false)
-      dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+      store.dispatch(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
     } catch (error) {
       console.error(error)
     }
@@ -259,7 +258,7 @@ export class SceneManager {
         break
     }
     Engine.renderer.shadowMap.needsUpdate = true
-    dispatchLocal(ModeAction.changedRenderMode())
+    store.dispatch(ModeAction.changedRenderMode())
   }
 
   /**

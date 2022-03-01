@@ -12,12 +12,12 @@ import {
   Vector3
 } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -521,6 +521,8 @@ export const setTransformMode = (
   multiplePlacement?: boolean,
   editorControlComponent?: EditorControlComponentType
 ): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -543,17 +545,19 @@ export const setTransformMode = (
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
-  dispatchLocal(ModeAction.changedTransformMode(mode))
+  dispatch(ModeAction.changedTransformMode(mode))
 }
 
 export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: EditorControlComponentType): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
   }
 
   editorControlComponent.snapMode = snapMode
-  dispatchLocal(ModeAction.changedSnapSettings())
+  dispatch(ModeAction.changedSnapSettings())
 }
 
 export const toggleSnapMode = (editorControlComponent?: EditorControlComponentType): void => {
@@ -569,6 +573,8 @@ export const toggleSnapMode = (editorControlComponent?: EditorControlComponentTy
 }
 
 export const setTransformPivot = (pivot: TransformPivotType, editorControlComponent?: EditorControlComponentType) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -576,7 +582,7 @@ export const setTransformPivot = (pivot: TransformPivotType, editorControlCompon
 
   editorControlComponent.transformPivot = pivot
   editorControlComponent.transformPivotChanged = true
-  dispatchLocal(ModeAction.changedTransformPivotMode())
+  dispatch(ModeAction.changedTransformPivotMode())
 }
 
 export const toggleTransformPivot = (editorControlComponent?: EditorControlComponentType) => {
@@ -595,6 +601,8 @@ export const setTransformSpace = (
   transformSpace: TransformSpace,
   editorControlComponent?: EditorControlComponentType
 ) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -602,7 +610,7 @@ export const setTransformSpace = (
 
   editorControlComponent.transformSpace = transformSpace
   editorControlComponent.transformSpaceChanged = true
-  dispatchLocal(ModeAction.changedTransformSpaceMode())
+  dispatch(ModeAction.changedTransformSpaceMode())
 }
 
 export const toggleTransformSpace = (editorControlComponent?: EditorControlComponentType) => {

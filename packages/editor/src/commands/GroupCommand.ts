@@ -1,6 +1,6 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -110,7 +110,7 @@ export default class GroupCommand extends Command {
   emitBeforeExecuteEvent() {
     if (this.shouldEmitEvent && this.isSelected) {
       ControlManager.instance.onBeforeSelectionChanged()
-      dispatchLocal(SelectionAction.changedBeforeSelection())
+      store.dispatch(SelectionAction.changedBeforeSelection())
     }
   }
 
@@ -119,7 +119,7 @@ export default class GroupCommand extends Command {
       if (this.isSelected) {
         ControlManager.instance.onSelectionChanged()
         SceneManager.instance.updateOutlinePassSelection()
-        dispatchLocal(SelectionAction.changedSelection())
+        store.dispatch(SelectionAction.changedSelection())
       }
 
       SceneManager.instance.onEmitSceneModified

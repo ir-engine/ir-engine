@@ -1,12 +1,12 @@
 import EventEmitter from 'events'
 
+import { store } from '@xrengine/client-core/src/store'
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent, hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
@@ -261,7 +261,7 @@ export class CommandManager extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia({ url: url.href }).catch((error) => dispatchLocal(EditorErrorAction.throwError(error)))
+        this.addMedia({ url: url.href }).catch((error) => store.dispatch(EditorErrorAction.throwError(error)))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }

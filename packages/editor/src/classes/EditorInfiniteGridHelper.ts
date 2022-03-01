@@ -1,6 +1,6 @@
 import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
 
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { store } from '@xrengine/client-core/src/store'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
@@ -138,11 +138,11 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    dispatchLocal(GridToolAction.changeGridToolHeight(value))
+    store.dispatch(GridToolAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    dispatchLocal(GridToolAction.changeGridToolVisibility(this.visible))
+    store.dispatch(GridToolAction.changeGridToolVisibility(this.visible))
   }
 }

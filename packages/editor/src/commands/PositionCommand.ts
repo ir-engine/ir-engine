@@ -1,8 +1,8 @@
 import { Matrix4, Vector3 } from 'three'
 
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -75,7 +75,7 @@ export default class PositionCommand extends Command {
     if (this.shouldEmitEvent) {
       ControlManager.instance.onObjectsChanged(this.affectedObjects, 'position')
       SceneManager.instance.onEmitSceneModified()
-      dispatchLocal(SelectionAction.changedObject(this.affectedObjects, 'position'))
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'position'))
     }
   }
 

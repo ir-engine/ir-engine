@@ -4,9 +4,9 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import editorTheme from '@xrengine/client-core/src/util/theme'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
@@ -31,6 +31,7 @@ export function ViewportPanelContainer() {
   const editorState = useEditorState()
   const selectionState = useSelectionState()
   const modeState = useModeState()
+  const dispatch = useDispatch()
   const initializeRefFly = React.useRef<boolean>(false)
   const initializeRefTranform = React.useRef<boolean>(false)
   const initializeRefSelect = React.useRef<boolean>(false)
@@ -122,7 +123,7 @@ export function ViewportPanelContainer() {
         CommandManager.instance.addMedia(url)
       })
     ).catch((err) => {
-      dispatchLocal(EditorErrorAction.throwError(err))
+      dispatch(EditorErrorAction.throwError(err))
     })
   }, [])
 

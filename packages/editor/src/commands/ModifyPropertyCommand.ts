@@ -1,3 +1,4 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   ComponentConstructor,
@@ -5,7 +6,6 @@ import {
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 
 import arrayShallowEqual from '../functions/arrayShallowEqual'
@@ -128,7 +128,7 @@ export default class ModifyPropertyCommand<C extends ComponentConstructor<any, a
     for (const propertyName of propertyNames) {
       ControlManager.instance.onObjectsChanged(this.affectedObjects, propertyName)
       SceneManager.instance.onEmitSceneModified()
-      dispatchLocal(SelectionAction.changedObject(this.affectedObjects, propertyName))
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, propertyName))
     }
   }
 

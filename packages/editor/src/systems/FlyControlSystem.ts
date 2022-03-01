@@ -1,9 +1,9 @@
 import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
@@ -30,6 +30,7 @@ export default async function FlyControlSystem(world: World) {
   const worldScale = new Vector3()
   const candidateWorldQuat = new Quaternion()
   const normalMatrix = new Matrix3()
+  const dispatch = useDispatch()
 
   return () => {
     for (let entity of flyControlQuery()) {
@@ -47,13 +48,13 @@ export default async function FlyControlSystem(world: World) {
           tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
         )
 
-        dispatchLocal(ModeAction.changedFlyMode())
+        dispatch(ModeAction.changedFlyMode())
       }
 
       if (getInput(EditorActionSet.flying)) {
         flyControlComponent.enable = true
         addInputActionMapping(ActionSets.FLY, FlyMapping)
-        dispatchLocal(ModeAction.changedFlyMode())
+        dispatch(ModeAction.changedFlyMode())
       }
 
       if (!flyControlComponent.enable) return

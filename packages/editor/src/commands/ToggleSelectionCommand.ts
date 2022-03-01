@@ -1,6 +1,6 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -55,14 +55,14 @@ export default class ToggleSelectionCommand extends Command {
     if (this.shouldEmitEvent) {
       ControlManager.instance.onSelectionChanged()
       SceneManager.instance.updateOutlinePassSelection()
-      dispatchLocal(SelectionAction.changedSelection())
+      store.dispatch(SelectionAction.changedSelection())
     }
   }
 
   emitBeforeExecuteEvent() {
     if (this.shouldEmitEvent) {
       ControlManager.instance.onBeforeSelectionChanged()
-      dispatchLocal(SelectionAction.changedBeforeSelection())
+      store.dispatch(SelectionAction.changedBeforeSelection())
     }
   }
 }

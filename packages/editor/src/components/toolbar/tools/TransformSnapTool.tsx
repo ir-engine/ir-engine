@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { SnapMode, SnapModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
@@ -75,21 +74,21 @@ const TransformSnapTool = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.translationSnap = snapValue
     SceneManager.instance.grid.setSize(snapValue)
-    dispatchLocal(ModeAction.changedSnapSettings())
+    dispatch(ModeAction.changedSnapSettings())
     setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.rotationSnap = snapValue
-    dispatchLocal(ModeAction.changedSnapSettings())
+    dispatch(ModeAction.changedSnapSettings())
     setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
   //   const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
   //   editorControlComponent.scaleSnap = snapValue
-  //   dispatchLocal(ModeAction.changedSnapSettings())
+  //   dispatch(ModeAction.changedSnapSettings())
   //   setSnapMode(SnapMode.Grid)
   // }
 

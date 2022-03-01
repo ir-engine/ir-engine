@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 
 import { FlyControlComponent } from '../../../classes/FlyControlComponent'
 import { ProjectManager } from '../../../managers/ProjectManager'
@@ -33,6 +33,7 @@ const ModelPreview = (styled as any).canvas`
 
 export const ModelPreviewPanel = (props) => {
   const modeState = useModeState()
+  const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
   const initializeRefFly = React.useRef<boolean>(false)
   const assestPanelRef = React.createRef<HTMLCanvasElement>()
@@ -83,7 +84,7 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     if (initializeRefFly.current && editorState.rendererInitialized.value) {
       onFlyModeChanged()
-      dispatchLocal(EditorAction.rendererInitialized(false))
+      dispatch(EditorAction.rendererInitialized(false))
     } else {
       initializeRefFly.current = true
     }

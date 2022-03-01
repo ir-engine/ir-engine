@@ -1,6 +1,6 @@
+import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
@@ -72,7 +72,7 @@ export class ControlManager {
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
     Engine.camera.layers.set(ObjectLayers.Scene)
     this.playModeControls.enable()
-    dispatchLocal(ModeAction.changedPlayMode())
+    store.dispatch(ModeAction.changedPlayMode())
   }
 
   /**
@@ -84,7 +84,7 @@ export class ControlManager {
     this.isInPlayMode = false
     Engine.camera.layers.enableAll()
     this.playModeControls.disable()
-    dispatchLocal(ModeAction.changedPlayMode())
+    store.dispatch(ModeAction.changedPlayMode())
   }
 
   dispose() {
