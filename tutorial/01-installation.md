@@ -44,6 +44,8 @@ you start your machine anew)
 
 ## Build the image
 
+Create an empty folder at the root called `project-package-jsons` and the run the following command to build:
+
 ``` bash
 DOCKER_BUILDKIT=1 docker build -t xrengine --build-arg MYSQL_USER=server --build-arg MYSQL_PASSWORD=password --build-arg MYSQL_HOST=127.0.0.1 --build-arg MYSQL_DATABASE=xrengine --build-arg MYSQL_PORT=3304 --build-arg VITE_SERVER_HOST=localhost --build-arg VITE_SERVER_PORT=3030 --build-arg VITE_GAMESERVER_HOST=localhost --build-arg VITE_GAMESERVER_PORT=3031 --build-arg VITE_LOCAL_BUILD=true --build-arg CACHE_DATE="$(date)" --network="host" .
 

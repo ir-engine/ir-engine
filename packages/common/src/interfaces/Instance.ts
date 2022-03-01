@@ -4,6 +4,7 @@ export interface Instance {
   ipAddress: string
   locationId: string
   channelId: string
+  ended?: boolean
   assigned?: boolean
   assignedAt?: Date
   gameserver_subdomain_provision?: GameServerSubdomainProvision

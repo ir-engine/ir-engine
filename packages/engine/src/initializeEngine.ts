@@ -215,16 +215,16 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
         systemModulePromise: import('./renderer/WebGLRendererSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xr/systems/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./input/systems/ClientInputSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       }
     )
   }
@@ -345,6 +345,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./renderer/HighlightSystem')
+      },
+      {
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
+        type: SystemUpdateType.PRE_RENDER
       }
     )
   }

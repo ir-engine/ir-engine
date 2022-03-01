@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
@@ -12,6 +13,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -20,7 +22,6 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
-import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { closeTransport } from './WebRTCFunctions'
 
@@ -276,14 +277,14 @@ export const handleJoinWorld = async (
   const inviteCode = data['inviteCode']
 
   if (inviteCode) {
-    const result = await transport.app.service('user').find({
+    const result = (await transport.app.service('user').find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
       }
-    })
+    })) as any
 
-    let users = result.data
+    let users = result.data as User[]
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {

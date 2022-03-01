@@ -90,7 +90,7 @@ export default (app: Application): void => {
             for (let config of seederConfig) {
               if (config.path) {
                 const templates = config.templates
-                const service = app.service(config.path)
+                const service = app.service(config.path as any)
                 if (templates)
                   for (let template of templates) {
                     let isSeeded
