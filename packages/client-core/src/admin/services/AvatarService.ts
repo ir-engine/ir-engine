@@ -80,11 +80,11 @@ export const AvatarService = {
       if (blob) {
         const uploadArguments: AdminAssetUploadType = {
           type: 'admin-file-upload',
-          files: [blob, thumbnail],
+          files: [blob],
           args: [
             {
               key: `avatars/public/${thumbnail['name']}`,
-              contentType: 'multipart/form-data',
+              contentType: 'model/gltf-binary',
               staticResourceType: data.staticResourceType
             }
           ]
