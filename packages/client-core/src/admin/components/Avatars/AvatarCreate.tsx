@@ -6,7 +6,8 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
-  MIN_AVATAR_FILE_SIZE
+  MIN_AVATAR_FILE_SIZE,
+  REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
@@ -55,6 +56,9 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [avatarModel, setAvatarModel] = useState<any>(null)
   const [fileSelected, setFileSelected] = React.useState(false)
   const [selectedFile, setSelectedFile] = useState<any>(null)
+  const [validAvatarUrl, setValidAvatarUrl] = useState(false)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
+
   const panelRef = useRef<any>()
 
   const handleChangeInput = (e) => {
@@ -191,6 +195,55 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
   }
 
+  const handleAvatarUrlChange = async (event) => {
+    setNewAvatar({ ...newAvatar, avatarUrl: event.target.value })
+    if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
+      setValidAvatarUrl(true)
+      const init = initialize3D()
+      scene = init.scene
+      camera = init.camera
+      renderer = init.renderer
+      const controls = getOrbitControls(camera, renderer.domElement)
+
+      controls.minDistance = 0.1
+      controls.maxDistance = 10
+      controls.target.set(0, 1.25, 0)
+      controls.update()
+
+      scene.children = scene.children.filter((c) => c.name !== 'avatar')
+      loadAvatarModelAsset(event.target.value)
+        .catch((err) => {
+          setError(err)
+        })
+        .then((obj) => {
+          if (!obj) {
+            setAvatarModel(null!)
+            setError('Failed to load')
+            return
+          }
+          obj.name = 'avatar'
+          scene.add(obj)
+          renderScene({ scene, renderer, camera })
+          setAvatarModel(obj)
+          // const error = validate(obj)
+          setError(error)
+          if (error === '') setAvatarModel(obj)
+        })
+
+      fetch(event.target.value)
+        .then((res) => res.blob())
+        .then((data) => setSelectedAvatarUrl(data))
+        .catch((err) => {
+          setError(err.message)
+          console.log(err.message)
+        })
+    } else {
+      setValidAvatarUrl(false)
+      setError('Url must be valid')
+      setOpenAlter(true)
+    }
+  }
+
   return (
     <React.Fragment>
       <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
@@ -236,15 +289,18 @@ const AvatarCreate = ({ handleClose, open }) => {
                   {!selectUse ? 'Upload files' : 'Use url instead'}
                 </Button>
                 {!selectUse ? (
-                  <InputText
-                    value={newAvatar.avatarUrl}
-                    handleInputChange={handleChangeInput}
-                    formErrors={formErrors.avatarUrl}
-                    name="avatarUrl"
-                  />
+                  <>
+                    <InputText
+                      value={newAvatar.avatarUrl}
+                      handleInputChange={handleAvatarUrlChange}
+                      formErrors={formErrors.avatarUrl}
+                      name="avatarUrl"
+                    />
+                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                  </>
                 ) : (
                   <>
-                    <div id="stage" style={{ width: '400px', height: '200px' }}></div>
+                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
                     <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                       <Input
                         accept={AVATAR_FILE_ALLOWED_EXTENSIONS}

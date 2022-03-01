@@ -203,9 +203,6 @@ const ViewAvatar = (props: Props) => {
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                     Description:
                   </Typography>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Key:
-                  </Typography>
                 </Grid>
                 <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
@@ -214,17 +211,13 @@ const ViewAvatar = (props: Props) => {
                   <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
                     {avatarData?.description || <span className={classes.spanNone}>None</span>}
                   </Typography>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.key || <span className={classes.spanNone}>None</span>}
-                  </Typography>
                 </Grid>
               </Grid>
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
                 Avatar
               </Typography>
-              <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                {avatarData?.url || <span className={classes.spanNone}>None</span>}
-              </Typography>
+              <img src={avatarData?.url} alt="avatar" />
+              {/* {avatarData?.url || <span className={classes.spanNone}>None</span>} */}
               <div className={classes.scopeContainer}></div>
             </div>
           )}
