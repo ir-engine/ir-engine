@@ -1,4 +1,5 @@
 import { BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+
 import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -8,6 +9,11 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
+import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
+import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
+import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
+import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
+import { BodyType, ColliderTypes } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -15,11 +21,6 @@ import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFMod
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
-import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
-import { BodyType, ColliderTypes } from '@xrengine/engine/src/physics/types/PhysicsTypes'
-import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
-import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
 
 // Maybe do this using system injection node
 // receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
