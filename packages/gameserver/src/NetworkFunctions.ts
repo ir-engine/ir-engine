@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
@@ -276,14 +277,14 @@ export const handleJoinWorld = async (
   const inviteCode = data['inviteCode']
 
   if (inviteCode) {
-    const result = await transport.app.service('user').find({
+    const result = (await transport.app.service('user').find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
       }
-    })
+    })) as any
 
-    let users = result.data
+    let users = result.data as User[]
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
