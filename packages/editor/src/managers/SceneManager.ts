@@ -24,6 +24,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
@@ -133,14 +134,14 @@ export class SceneManager {
     console.log('initializeRenderer')
     try {
       ControlManager.instance.initControls()
-      store.dispatch(
+      dispatchLocal(
         EngineActions.enableScene({
           renderer: true,
           physics: true
         }) as any
       )
 
-      store.dispatch(EngineActions.setPhysicsDebug(true) as any)
+      dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
 
       const editorControlComponent = getComponent(this.editorEntity, EditorControlComponent)
       this.grid.setSize(editorControlComponent.translationSnap)
@@ -152,7 +153,7 @@ export class SceneManager {
       EngineRenderer.instance.disableUpdate = false
 
       accessEngineRendererState().automatic.set(false)
-      store.dispatch(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+      dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
     } catch (error) {
       console.error(error)
     }
