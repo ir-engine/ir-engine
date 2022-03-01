@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SnapMode, SnapModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
@@ -49,6 +50,7 @@ const defaultSnapSetting = {
 
 const TransformSnapTool = () => {
   const modeState = useModeState()
+  const dispatch = useDispatch()
   const initializeRef = React.useRef<boolean>(false)
   const [snapSetting, setSnapSetting] = useState(defaultSnapSetting)
 
