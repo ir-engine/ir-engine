@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import styles from './styles.module.scss'
+
+import { FlyControlComponent } from '../../classes/FlyControlComponent'
 import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { FlyControlComponent } from '../../classes/FlyControlComponent'
+import styles from './styles.module.scss'
 
 /**
  * ControlText used to render viewport.
