@@ -31,8 +31,8 @@
     "**/node_modules/**"
   ],
   "include": [
-    "./**/*.ts",
-    "./**/*.tsx",
+    "packages/server-core/**/*.ts",
+    "packages/server-core/**/*.tsx",
     "../../PhysX.d.ts",
     "../../PhysXDebug.d.ts"
   ]
