@@ -15,7 +15,7 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       }
-    },
+    } as any,
     {
       hooks: {
         beforeCount(options: any): any {
