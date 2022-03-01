@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import { createApp } from '../../server/src/app'
 import { Application } from '../declarations'
 
