@@ -79,10 +79,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       systemModulePromise: import('../systems/GizmoSystem'),
       type: SystemUpdateType.PRE_RENDER,
       args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
-      type: SystemUpdateType.PRE_RENDER
     }
   ]
 

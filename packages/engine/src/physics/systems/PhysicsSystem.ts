@@ -1,15 +1,18 @@
-import { Quaternion, Vector3 } from 'three'
+import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineActionType } from '../../ecs/classes/EngineService'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isDynamicBody, isKinematicBody, isStaticBody } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -34,7 +37,26 @@ function physicsActionReceptor(action: unknown) {
  * @author Josh Field <github.com/HexaField>
  */
 
+const scratchBox = new Box3()
+
+function updateBoundingBox(entity: Entity, force = false) {
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  if (boundingBox.dynamic || force) {
+    const object3D = getComponent(entity, Object3DComponent)
+    let object3DAABB = boundingBox.box.makeEmpty()
+    object3D.value.traverse((mesh: Mesh) => {
+      if (mesh instanceof Mesh) {
+        if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox() // only here for edge cases, this would already be calculated
+        const meshAABB = scratchBox.copy(mesh.geometry.boundingBox!)
+        meshAABB.applyMatrix4(mesh.matrixWorld)
+        object3DAABB.union(meshAABB)
+      }
+    })
+  }
+}
+
 export default async function PhysicsSystem(world: World) {
+  const boxQuery = defineQuery([BoundingBoxComponent, Object3DComponent])
   const colliderQuery = defineQuery([ColliderComponent])
   const raycastQuery = defineQuery([RaycastComponent])
   const collisionComponent = defineQuery([CollisionComponent])
@@ -56,6 +78,14 @@ export default async function PhysicsSystem(world: World) {
   await world.physics.createScene()
 
   return () => {
+    for (const entity of boxQuery.enter()) {
+      updateBoundingBox(entity, true)
+    }
+
+    for (const entity of boxQuery()) {
+      updateBoundingBox(entity)
+    }
+
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent?.body) {

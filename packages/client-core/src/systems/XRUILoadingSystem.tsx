@@ -11,6 +11,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { computeContentScaleForCamera } from '@xrengine/engine/src/xrui/functions/computeContentScaleForCamera'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 
 import { accessSceneState } from '../world/services/SceneService'
@@ -39,8 +40,9 @@ export default async function XRUILoadingSystem(world: World) {
   )
   // flip inside out
   mesh.scale.set(-1, 1, 1)
+  Engine.camera.add(mesh)
+  Engine.scene.add(Engine.camera)
 
-  getComponent(ui.entity, Object3DComponent).value.add(mesh)
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
@@ -55,31 +57,15 @@ export default async function XRUILoadingSystem(world: World) {
       const xrui = getComponent(ui.entity, XRUIComponent)
 
       if (xrui) {
-        const camera = Engine.camera as PerspectiveCamera
         const dist = 0.1
-        xrui.container.parent = camera
-        xrui.container.position.z = -dist
-
         const ppu = xrui.container.options.manager.pixelsPerUnit
         const contentWidth = ui.state.imageWidth.value / ppu
         const contentHeight = ui.state.imageHeight.value / ppu
-        const ratioContent = contentWidth / contentHeight
-        const ratioCamera = camera.aspect
 
-        const useHeight = ratioContent > ratioCamera
-
-        const vFOV = MathUtils.degToRad(camera.fov)
-        const targetHeight = Math.tan(vFOV / 2) * dist * 2
-        const targetWidth = targetHeight * camera.aspect
-
-        let scale = 1
-        if (useHeight) {
-          scale = targetHeight / contentHeight
-        } else {
-          scale = targetWidth / contentWidth
-        }
-
+        const scale = computeContentScaleForCamera(dist, contentWidth, contentHeight, 'cover')
         xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
+        xrui.container.position.z = -dist
+        xrui.container.parent = Engine.camera
 
         transition.update(world, (opacity) => {
           if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
