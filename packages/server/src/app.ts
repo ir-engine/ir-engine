@@ -26,7 +26,7 @@ import channels from './channels'
 const emitter = new EventEmitter()
 
 // @ts-ignore
-const app = express(feathers()) as any as Application
+const app = express(feathers()) as any //as Application
 
 app.set('nextReadyEmitter', emitter)
 

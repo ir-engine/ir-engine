@@ -104,7 +104,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
-  const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
+  const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent).value
   // TODO: Define interaction types in some enum?
   if (interactiveComponent.interactionType === 'equippable') {
     if (

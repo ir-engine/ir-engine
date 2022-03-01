@@ -82,6 +82,10 @@ export default async function EntityNodeEventSystem(_: World) {
       configureEffectComposer(true)
     }
 
+    for (const _ of postProcessingQuery.enter()) {
+      configureEffectComposer()
+    }
+
     for (const _ of scenePreviewCameraQuery.exit()) {
       const obj3d = Engine.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
       if (obj3d) Engine.scene.remove(obj3d)
