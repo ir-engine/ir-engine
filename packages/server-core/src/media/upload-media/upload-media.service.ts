@@ -25,6 +25,7 @@ export default (app: Application): void => {
    *
    * @author Vyacheslav Solovjov
    */
+  // @ts-ignore
   app.use(
     '/media',
     multipartMiddleware.fields([{ name: 'media' }, { name: 'thumbnail' }]),
