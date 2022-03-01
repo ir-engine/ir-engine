@@ -79,7 +79,7 @@ export default async function GizmoSystem(world: World) {
         const distance = camera.position.distanceTo(cameraComponent.center)
         delta
           .set(cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
-          .multiplyScalar(distance * PAN_SPEED)
+          .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         camera.position.add(delta)
         cameraComponent.center.add(delta)

@@ -1,4 +1,4 @@
-import { DockLayout, DockMode, LayoutData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,7 @@ import { useHookedEffect } from '@xrengine/client-core/src/hooks/useHookedEffect
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -112,6 +113,7 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
+  const sceneLoaded = useEngineState().sceneLoaded
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -436,7 +438,6 @@ const EditorContainer = () => {
   }
 
   useEffect(() => {
-    console.log('toggleRefetchScenes')
     dockPanelRef.current &&
       dockPanelRef.current.updateTab('scenePanel', {
         id: 'scenePanel',
@@ -451,6 +452,18 @@ const EditorContainer = () => {
         )
       })
   }, [toggleRefetchScenes])
+
+  useEffect(() => {
+    if (sceneLoaded.value && dockPanelRef.current) {
+      dockPanelRef.current.updateTab('viewPanel', {
+        id: 'viewPanel',
+        title: 'Viewport',
+        content: <div />
+      })
+
+      dockPanelRef.current.updateTab('filesPanel', dockPanelRef.current.find('filesPanel') as TabData, true)
+    }
+  }, [sceneLoaded])
 
   useEffect(() => {
     CacheManager.init()
@@ -609,7 +622,11 @@ const EditorContainer = () => {
     }
   }
   return (
-    <div className={styles.editorContainer} id="editor-container">
+    <div
+      id="editor-container"
+      className={styles.editorContainer}
+      style={sceneLoaded.value ? { background: 'transparent' } : {}}
+    >
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndWrapper id="editor-container">
           <DragLayer />
