@@ -1,6 +1,7 @@
-import { URL } from 'url'
-import puppeteer from 'puppeteer'
 import fs from 'fs'
+import puppeteer from 'puppeteer'
+import { URL } from 'url'
+
 import { getOS } from './utils/getOS'
 import { makeAdmin } from './utils/make-user-admin'
 

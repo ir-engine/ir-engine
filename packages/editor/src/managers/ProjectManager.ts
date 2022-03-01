@@ -1,28 +1,25 @@
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
-import { SceneManager } from './SceneManager'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { ControlManager } from './ControlManager'
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { SceneManager } from './SceneManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
 
-  project: any
-  projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
   constructor() {
-    this.project = null
-
-    this.projectLoaded = false
-
     this.initializing = false
     this.initialized = false
   }
@@ -53,8 +50,8 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile: SceneJson) {
-    // this.dispose()
+  async loadProjectScene(projectFile: SceneJson) {
+    this.dispose()
 
     await ProjectManager.instance.init()
 

@@ -1,10 +1,12 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useDrop } from 'react-dnd'
+import { useTranslation } from 'react-i18next'
+import styled from 'styled-components'
+
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from './useUpload'
-import { useTranslation } from 'react-i18next'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 /**
  * DropZoneBackground provides styles for the view port area where we drag and drop objects.

@@ -1,7 +1,9 @@
-import authenticate from '../../hooks/authenticate'
-import { HookContext } from '@feathersjs/feathers'
 import { BadRequest, NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import authenticate from '../../hooks/authenticate'
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {

@@ -1,17 +1,19 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { AuthenticationService } from '@feathersjs/authentication'
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
-import { random } from 'lodash'
-import getFreeInviteCode from '../../util/get-free-invite-code'
-import { AuthenticationService } from '@feathersjs/authentication'
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import config from '../../appconfig'
-import { Params } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
-import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
+
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
+import Paginated from '../../types/PageObject'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
 
 /**
  * A class for identity-provider service

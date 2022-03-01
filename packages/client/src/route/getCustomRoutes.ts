@@ -1,7 +1,8 @@
-import { client } from '@xrengine/client-core/src/feathers'
-import { loadRoute } from '@xrengine/projects/loadRoute'
 import i18n from 'i18next'
 import { lazy } from 'react'
+
+import { client } from '@xrengine/client-core/src/feathers'
+import { loadRoute } from '@xrengine/projects/loadRoute'
 
 export type CustomRoute = {
   route: string

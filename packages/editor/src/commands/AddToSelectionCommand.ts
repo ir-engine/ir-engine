@@ -1,11 +1,12 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
+import EditorCommands from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import { serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import Command, { CommandParams } from './Command'
 
 export default class AddToSelectionCommand extends Command {
   constructor(objects: EntityTreeNode[], params: CommandParams) {

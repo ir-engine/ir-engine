@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 /**
  * CollapsibleContainer used to provide styles for Collapsible div.

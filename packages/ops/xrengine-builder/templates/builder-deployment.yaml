@@ -114,15 +114,15 @@ spec:
               command:
                 - cat
                 - ./builder-started.txt
-            initialDelaySeconds: 15
-            periodSeconds: 120
+            initialDelaySeconds: 10
+            periodSeconds: 30
           readinessProbe:
             exec:
               command:
                 - cat
                 - ./builder-started.txt
-            initialDelaySeconds: 15
-            periodSeconds: 120
+            initialDelaySeconds: 10
+            periodSeconds: 30
           resources:
             {{- toYaml .Values.builder.resources | nindent 12 }}
           volumeMounts:

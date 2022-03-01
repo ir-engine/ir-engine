@@ -1,12 +1,14 @@
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { SceneManager } from '../../managers/SceneManager'
-import { isAsset } from '../../constants/AssetTypes'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Vector2 } from 'three'
+
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import { isAsset } from '../../constants/AssetTypes'
+import EditorCommands from '../../constants/EditorCommands'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
 
 /**
  * addAssetOnDrop used to adding assets to the editor scene.

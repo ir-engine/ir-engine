@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
-import { Button, SecondaryButton } from '../inputs/Button'
 import styled from 'styled-components'
+
+import { Button, SecondaryButton } from '../inputs/Button'
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.

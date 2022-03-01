@@ -1,12 +1,13 @@
 import {
-  LineSegments,
-  Object3D,
   BufferGeometry,
-  LineBasicMaterial,
-  Float32BufferAttribute,
   ColorRepresentation,
-  DirectionalLight
+  DirectionalLight,
+  Float32BufferAttribute,
+  LineBasicMaterial,
+  LineSegments,
+  Object3D
 } from 'three'
+
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 import { setObjectLayers } from '../functions/setObjectLayers'

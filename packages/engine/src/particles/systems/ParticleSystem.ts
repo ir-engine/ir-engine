@@ -1,6 +1,6 @@
-import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { ParticleEmitterComponent } from '../components/ParticleEmitter'
 
 export default async function ParticleSystem(world: World) {
   const emitterQuery = defineQuery([ParticleEmitterComponent])

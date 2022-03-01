@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@mui/material/Button'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-// @ts-ignore
-import styles from '../UserMenu.module.scss'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
+
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
 import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
+import { NavigateBefore, NavigateNext } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+
+// @ts-ignore
+import styles from '../UserMenu.module.scss'
 
 type Props = { changeActiveMenu: (menu: any) => {} }
 

@@ -1,13 +1,13 @@
 // === SETUP WEBXR === //
-
 import { Quaternion, Vector3 } from 'three'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -60,9 +60,7 @@ export async function overrideXR() {
 }
 
 export async function xrSupported() {
-  const supported = await (navigator as any).xr.isSessionSupported('immersive-vr')
-  Engine.xrSupported = supported
-  return supported
+  return await (navigator as any).xr.isSessionSupported('immersive-vr')
 }
 
 export function xrInitialized() {

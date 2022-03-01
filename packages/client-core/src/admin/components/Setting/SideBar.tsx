@@ -1,4 +1,6 @@
 import { Icon } from '@iconify/react'
+import React from 'react'
+
 import LockIcon from '@mui/icons-material/Lock'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
@@ -9,7 +11,7 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
-import React from 'react'
+
 import { useStyles } from './styles'
 
 const settings = ({

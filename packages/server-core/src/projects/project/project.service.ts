@@ -1,12 +1,13 @@
-import hooks from './project.hooks'
-import { Application } from '../../../declarations'
-import { Project } from './project.class'
-import createModel from './project.model'
-import projectDocs from './project.docs'
-import { retriggerBuilderService } from './project-helper'
 import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+
+import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { retriggerBuilderService } from './project-helper'
+import { Project } from './project.class'
+import projectDocs from './project.docs'
+import hooks from './project.hooks'
+import createModel from './project.model'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {

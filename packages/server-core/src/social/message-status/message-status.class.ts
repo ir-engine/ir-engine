@@ -1,4 +1,7 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { MessageStatus as MessageStatusDataType } from '@xrengine/common/src/interfaces/MessageStatus'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -6,7 +9,7 @@ import { Application } from '../../../declarations'
  *
  * @author Vyacheslav Solovjov
  */
-export class MessageStatus extends Service {
+export class MessageStatus<T = MessageStatusDataType> extends Service<T> {
   public docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)

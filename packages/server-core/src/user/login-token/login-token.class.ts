@@ -1,18 +1,20 @@
-import config from '../../appconfig'
 import crypto from 'crypto'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+
 import { LoginTokenInterface } from '@xrengine/common/src/dbmodels/LoginToken'
 
-type LoginTokenDataType = LoginTokenInterface & { identityProviderId: string }
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+
+export type LoginTokenDataType = LoginTokenInterface & { identityProviderId: string }
 /**
  * A class for Login Token service
  *
  * @author Vyacheslav Solovjov
  */
 
-export class LoginToken extends Service<LoginTokenDataType> {
+export class LoginToken<T = LoginTokenDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -27,16 +29,14 @@ export class LoginToken extends Service<LoginTokenDataType> {
    * @returns {@Object} contains token
    * @author Vyacheslav Solovjov
    */
-  async create(data: any): Promise<LoginTokenDataType & { identityProviderId: string }> {
+  async create(data: any): Promise<T> {
     const { identityProviderId } = data
     const token = crypto.randomBytes(config.authentication.bearerToken.numBytes).toString('hex')
-    return (await super.create(
-      {
-        identityProviderId: identityProviderId,
-        token: token,
-        expiresAt: moment().utc().add(2, 'days').toDate()
-      },
-      {}
-    )) as LoginTokenDataType
+    const tokenData: any = {
+      identityProviderId: identityProviderId,
+      token: token,
+      expiresAt: moment().utc().add(2, 'days').toDate()
+    }
+    return (await super.create({ ...tokenData }, {})) as T
   }
 }

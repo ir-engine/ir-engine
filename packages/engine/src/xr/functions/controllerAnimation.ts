@@ -1,6 +1,7 @@
+import { AnimationMixer, Group, LoopOnce } from 'three'
+
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { XRInputSourceComponentType } from '../components/XRInputSourceComponent'
-import { AnimationMixer, Group, LoopOnce } from 'three'
 
 export const updateXRControllerAnimations = (inputSource: XRInputSourceComponentType) => {
   const world = useWorld()

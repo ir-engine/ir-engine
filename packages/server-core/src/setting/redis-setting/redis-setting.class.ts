@@ -1,7 +1,12 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminRedisSetting as RedisSettingInterface } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+
 import { Application } from '../../../declarations'
 
-export class RedisSetting extends Service {
+export type RedisSettingDataType = RedisSettingInterface
+
+export class RedisSetting<T = RedisSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {

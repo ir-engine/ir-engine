@@ -1,6 +1,8 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
 import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'

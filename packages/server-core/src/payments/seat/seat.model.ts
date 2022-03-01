@@ -1,6 +1,8 @@
-import { Sequelize, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { Model, Sequelize } from 'sequelize'
+
 import { SeatInterface } from '@xrengine/common/src/dbmodels/Seat'
+
+import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

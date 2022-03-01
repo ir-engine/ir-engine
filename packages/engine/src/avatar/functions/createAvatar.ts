@@ -1,33 +1,34 @@
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { useWorld } from '../../ecs/functions/SystemHooks'
 import { InputComponent } from '../../input/components/InputComponent'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AvatarInputSchema } from '../AvatarInputSchema'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { AnimationState } from '../animation/AnimationState'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { Engine } from '../../ecs/classes/Engine'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
-import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../animation/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
+import { AvatarInputSchema } from '../AvatarInputSchema'
+import { AnimationComponent } from '../components/AnimationComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
 const defaultAvatarHeight = 1.8
@@ -180,7 +181,7 @@ export const createAvatarController = (entity: Entity) => {
     }
   }) as PhysX.PxCapsuleController
 
-  const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
+  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 

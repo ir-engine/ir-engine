@@ -1,17 +1,14 @@
+import { Paginated } from '@feathersjs/feathers/lib'
 import '@feathersjs/transport-commons'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import config from '@xrengine/server-core/src/appconfig'
-import { Application } from '@xrengine/server-core/declarations'
-import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
-import logger from '@xrengine/server-core/src/logger'
 import { decode } from 'jsonwebtoken'
+
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
+import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
-// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
-import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeCoreSystems,
@@ -22,9 +19,15 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
+// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 interface SocketIOConnectionType {
   provider: string
@@ -108,7 +111,7 @@ const loadScene = async (app: Application, scene: string) => {
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
-  dispatchLocal(EngineActions.joinedWorld(true) as any)
+  dispatchLocal(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -132,7 +135,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   }
 
   console.log('Creating new instance:', newInstance)
-  const instanceResult = await app.service('instance').create(newInstance)
+  const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -147,7 +150,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: instanceResult.id
-      })
+      } as any)
     }
   }
 }
@@ -161,7 +164,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
     channelId: channelId,
     locationId: locationId,
     assigned: false,
-    assignedAt: null
+    assignedAt: null!
   })
 
   if (app.gsSubdomainNumber != null) {
@@ -175,7 +178,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: existingInstance.id
-      })
+      } as any)
     }
   }
 }
@@ -198,9 +201,9 @@ const handleInstance = async (
   } as any
   if (locationId) existingInstanceQuery.locationId = locationId
   else if (channelId) existingInstanceQuery.channelId = channelId
-  const existingInstanceResult = await app.service('instance').find({
+  const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
-  })
+  })) as Paginated<InstanceInterface>
   // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
@@ -237,8 +240,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
 
     Engine.sceneLoaded = true
-    dispatchLocal(EngineActions.sceneLoaded(true) as any)
-    dispatchLocal(EngineActions.joinedWorld(true) as any)
+    dispatchLocal(EngineActions.sceneLoaded())
+    dispatchLocal(EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)
@@ -408,7 +411,7 @@ const loadGameserver = async (
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
-        assignedAt: null
+        assignedAt: null!
       })
       return true
     } catch (err) {
@@ -418,7 +421,6 @@ const loadGameserver = async (
 }
 
 const shutdownGameserver = async (app: Application, instanceId: string) => {
-  engineStarted = false
   console.log('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {

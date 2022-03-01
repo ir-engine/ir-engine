@@ -1,24 +1,37 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+
+import { defineMappedComponent } from '../../ecs/functions/ComponentFunctions'
+
+// export type InteractionContent = {
+//   type: 'text',
+//   value: string
+// } | {
+//   type: 'model',
+//   url: string
+// } | {
+//   type: 'image',
+//   url: string
+// } | {
+//   type: 'html',
+//   value: string
+// }
 
 export type InteractableComponentType = {
-  interactable?: boolean
-  interactionType?: string
+  interactionType?: 'equippable' | 'ui-modal'
+  // interactionContent?: InteractionContent[]
   interactionText?: string
   interactionDistance?: number
-  interactionThemeIndex?: number
   interactionName?: string
   interactionDescription?: string
-  interactionImages?: any
-  interactionVideos?: any
-  interactionUrls?: any
-  interactionModels?: any
+  interactionImages?: string[]
+  interactionVideos?: string[]
+  interactionUrls?: string[]
+  interactionModels?: string[]
   interactionUserData?: any
-  mediaIndex?: number
-  callback?: any
   action?: any
-  intensity?: number
   validUserId?: UserId
 }
 
-export const InteractableComponent = createMappedComponent<InteractableComponentType>('InteractableComponent')
+export const InteractableComponent = defineMappedComponent('interactable')
+  .withReactiveType<InteractableComponentType>()
+  .build()

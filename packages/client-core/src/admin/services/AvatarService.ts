@@ -1,11 +1,10 @@
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
-
 import { createState, useState } from '@speigg/hookstate'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const AVATAR_PAGE_LIMIT = 12
@@ -25,7 +24,7 @@ store.receptors.push((action: AvatarActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'AVATARS_RETRIEVED':
-        s.merge({
+        return s.merge({
           avatars: action.avatars.data,
           skip: action.avatars.skip,
           limit: action.avatars.limit,
@@ -36,9 +35,11 @@ store.receptors.push((action: AvatarActionType): any => {
           lastFetched: Date.now()
         })
       case 'AVATAR_CREATED':
-        s.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
       case 'AVATAR_REMOVED':
-        s.merge({ updateNeeded: true })
+        return s.merge({ updateNeeded: true })
+      case 'AVATAR_UPDATED':
+        return s.merge({ updateNeeded: true })
     }
   }, action.type)
 })
@@ -49,7 +50,11 @@ export const useAvatarState = () => useState(state) as any as typeof state
 
 //Service
 export const AvatarService = {
-  fetchAdminAvatars: async (incDec?: 'increment' | 'decrement', skip = accessAvatarState().skip.value) => {
+  fetchAdminAvatars: async (
+    incDec?: 'increment' | 'decrement',
+    skip = accessAvatarState().skip.value,
+    search: string | null = null
+  ) => {
     const dispatch = useDispatch()
     {
       const adminAvatarState = accessAvatarState()
@@ -61,7 +66,8 @@ export const AvatarService = {
           userId: null,
           $limit: limit,
           $skip: skip * AVATAR_PAGE_LIMIT,
-          getAvatarThumbnails: true
+          getAvatarThumbnails: true,
+          search: search
         }
       })
       dispatch(AvatarAction.avatarsFetched(avatars))
@@ -72,6 +78,15 @@ export const AvatarService = {
     try {
       const result = await client.service('static-resource').create(data)
       dispatch(AvatarAction.avatarCreated(result))
+    } catch (error) {
+      console.error(error)
+    }
+  },
+  updateAdminAvatar: async (id: string, data: any) => {
+    const dispatch = useDispatch()
+    try {
+      const result = await client.service('static-resource').patch(id, data)
+      dispatch(AvatarAction.avatarUpdated(result))
     } catch (error) {
       console.error(error)
     }
@@ -104,6 +119,12 @@ export const AvatarAction = {
   avatarRemoved: (avatar: AvatarResult) => {
     return {
       type: 'AVATAR_REMOVED' as const,
+      avatar: avatar
+    }
+  },
+  avatarUpdated: (avatar: any) => {
+    return {
+      type: 'AVATAR_UPDATED' as const,
       avatar: avatar
     }
   }

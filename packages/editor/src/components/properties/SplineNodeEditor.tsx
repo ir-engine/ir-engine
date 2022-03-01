@@ -1,11 +1,14 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import TimelineIcon from '@mui/icons-material/Timeline'
 import { useTranslation } from 'react-i18next'
-import { PropertiesPanelButton } from '../inputs/Button'
-import { EditorComponentType } from './Util'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+
+import TimelineIcon from '@mui/icons-material/Timeline'
+
+import { PropertiesPanelButton } from '../inputs/Button'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType } from './Util'
 
 /**
  * SplineNodeEditor used to create and customize splines in the scene.

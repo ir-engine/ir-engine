@@ -1,6 +1,7 @@
-import io from 'socket.io-client'
-import type { FeathersApplication } from '@feathersjs/feathers'
 import feathers from '@feathersjs/client'
+import type { FeathersApplication } from '@feathersjs/feathers'
+import io from 'socket.io-client'
+
 import type { ServiceTypes } from '@xrengine/common/declarations'
 
 const feathersClient = feathers() // as FeathersApplication<ServiceTypes>

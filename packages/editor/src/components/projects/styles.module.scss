@@ -1,0 +1,379 @@
+@use "../theme.scss" as theme;
+
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+    background: theme.$panel;
+    height: 50px;
+
+    .navContainer {
+        width: 90vw;
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+
+        .logoBlock {
+            width: 100px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position-y: 50%;
+        }
+
+        .profileButton {
+            display: flex;
+            align-items: center;
+            color: theme.$text;
+            background: transparent;
+
+            span { margin-right: 5px; font-size: 14px; }
+            &:hover, &:focus-visible { color: theme.$green; }
+        }
+
+        .backdrop {
+            position: fixed;
+            width: 100vw;
+            height: calc(100vh - 50px);
+            top: 50px;
+            left: 0;
+            background: #00000080;
+            z-index: 100;
+        }
+
+        .profileMenuBlock {
+            position: absolute;
+            right: 0;
+
+            .profileMenuContainer {
+                z-index: 100;
+                background: theme.$panel;
+                top: 70px;
+                bottom: unset;
+                right: 0;
+                left: unset;
+                transform: unset;
+                border-radius: 10px;
+
+                div[class^="_closeButton"] { display: none; }
+            }
+        }
+    }
+}
+
+.projectPage {
+    width: 100%;
+    display: flex;
+    background-color: theme.$background2;
+    pointer-events: auto;
+}
+
+.projectPageContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-between;
+    margin: 30px auto;
+    width: 90vw;
+    background-color: theme.$panel;
+    padding: 30px;
+    border-radius: 10px;
+    min-height: calc(100vh - 110px);
+    max-width: 1280px;
+
+    .projectGridContainer {
+        display: flex;
+        flex: 1 0 100%;
+        width: 100%;
+        flex-direction: column;
+        border-radius: 3px;
+
+        .projectGridHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            position: relative;
+
+            h2 { font-size: 24px; }
+            .btn {
+                margin: 0;
+                height: 40px;
+                width: 90px;
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .searchInputRoot {
+                background: theme.$panel2;
+                display: flex;
+                align-items: center;
+                width: 100%;
+                max-width: 500px;
+                height: 40px;
+                margin: 0 30px;
+
+                button {
+                    color: theme.$text2;
+                    padding: 10px;
+
+                    &:hover, &:focus-visible { color: theme.$text; }
+                }
+
+                .inputRoot {
+                    flex: 1;
+                    color: theme.$text;
+                }
+            }
+
+            @media (max-width: 600px) {
+                flex-wrap: wrap;
+
+                .searchInputRoot { margin: 20px 0 0 0; }
+                .btn {
+                    position: absolute;
+                    top: -2px;
+                    right: 0;
+                    height: 35px;
+                    width: 75px;
+                    font-size: 14px;
+                }
+            }
+        }
+
+        .projectGrid {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+
+            .expansionList {
+                background: transparent;
+                padding: 0;
+                box-shadow: none;
+                margin-top: 15px;
+
+                &::before { display: none; }
+
+                .expansionSummary {
+                    color: theme.$text2;
+                    font-size: 15px;
+                    padding: 0;
+                    min-height: 30px;
+                }
+
+                .expansionSummaryContent {
+                    margin: 0;
+                    height: 30px;
+
+                    button {
+                        padding: 0;
+                        color: theme.$text2;
+                        margin-left: -16px;
+                        svg { width: 40px; height: auto; transition: all .2s ease-out;}
+                    }
+
+                    h3 { line-height: 30px; margin-left: -5px; }
+                }
+
+                .expansionSummaryExpanded {
+                    button>svg { transform: rotate(90deg); }
+                }
+
+                .expansionDetail { padding: 8px 0; }
+            }
+
+            .listContainer {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+
+                .itemContainer {
+                    width: 232px;
+                    padding: 10px;
+                    flex-shrink: 0;
+                    background: theme.$panel2;
+                    border-radius: 3px;
+                    position: relative;
+                    overflow: hidden;
+
+                    a { text-decoration: none; &:hover { color: theme.$text; }}
+                    &:hover, &:focus-within { cursor: pointer;  outline: solid 1px theme.$blue; }
+
+                    .thumbnailContainer {
+                        width: 100%;
+                        height: 125px;
+                        background-size: cover;
+                    }
+
+                    .headerConatiner {
+                        display: flex;
+                        margin-top: 12px;
+
+                        .header {
+                            width: calc(100% - 24px);
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: theme.$text;
+                        }
+
+                        button {
+                            width: 24px;
+                            height: 24px;
+                            color: theme.$text2;
+                            padding: 0;
+
+                            svg { width: 22px; }
+
+                            &:hover, &:focus-within { color: theme.$blueHover; }
+                        }
+                    }
+
+                    .installedIcon {
+                        position: absolute;
+                        top: 2px;
+                        right: 2px;
+
+                        svg { position: relative; z-index: 1; }
+
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            background: theme.$blue;
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 50%;
+                            top: -25px;
+                            right: -25px;
+                        }
+                    }
+
+                    .description {
+                        font-size: 12px;
+                        margin-top: 8px;
+                        color: theme.$text2;
+                        height: 45px;
+                        overflow: hidden;
+                        position: relative;
+
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 15px;
+                            background: linear-gradient(180deg, transparent 0%, theme.$panel2 100%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .welcomeContainer {
+        max-width: 460px;
+        margin: 0 auto 30px auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+
+        h1 { width: 100%; font-size: 30px; text-align: center; }
+        h2 { width: 100%; font-size: 15px; text-align: center; margin-top: 10px; color: theme.$text2; }
+        button {
+            margin-right: 0;
+            margin-top: 30px;
+            height: 35px;
+            width: 135px;
+        }
+    }
+}
+
+.filterMenu {
+    background: theme.$panel;
+
+    .filterMenuItem {
+        position: relative;
+        color: theme.$text;
+        font-size: 14px;
+        padding-left: 35px;
+
+        &:hover, &:focus-visible {
+            background: theme.$blueHover;
+        }
+
+        &>svg, &>.progressbar { position: absolute; left: 10px; width: 15px; height: auto; }
+    }
+}
+
+.createProjectDialog {
+    background: theme.$panel2;
+    color: theme.$text;
+    width: 300px;
+
+    .inputContainer {
+        color: theme.$text;
+        width: 100%;
+        font-size: 14px;
+    }
+    .input {
+        border-color: theme.$text;
+    }
+
+    .input:hover + .outline { border-color: theme.$text; }
+    .input:focus + .outline, .outline { border-color: theme.$text2; }
+
+    .btn {
+        margin-top: 10px;
+        height: 35px;
+        width: 85px;
+        font-size: 15px;
+    }
+
+    .errorMessage { color: theme.$red; margin: 5px 2px; }
+
+    .processing {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        svg { color: theme.$blue; }
+        .text { margin-top: 10px; color: theme.$text2; }
+    }
+}
+
+.deleteDialog {
+    background: theme.$panel2;
+    color: theme.$text;
+    width: 300px;
+
+    .contentWrapper {
+        display: flex;
+        justify-content: center;
+
+        .cancelBtn {
+            margin: 0 10px;
+            height: 35px;
+            width: 85px;
+            font-size: 14px;
+            background: transparent;
+            color: theme.$blue;
+
+            &:hover, &:focus-visible {
+                background: theme.$blue;
+                color: theme.$text;
+            }
+        }
+
+        .confirmBtn {
+            margin: 0 10px;
+            height: 35px;
+            width: 85px;
+            font-size: 14px;
+            background: theme.$red;
+
+            &:hover, &:focus-visible {
+                opacity: 0.8;
+            }
+        }
+    }
+}

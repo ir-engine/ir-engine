@@ -1,17 +1,19 @@
 import React, { useCallback } from 'react'
-import AssetGrid from './AssetGrid'
-import { AssetPanelContentContainer } from './AssetsPanel'
+
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import { EditorControlComponent } from '../../classes/EditorControlComponent'
 import EditorCommands from '../../constants/EditorCommands'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { setTransformMode } from '../../systems/EditorControlSystem'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../../classes/EditorControlComponent'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import AssetGrid from './AssetGrid'
+import { AssetPanelContentContainer } from './AssetsPanel'
 
 /**
  * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
