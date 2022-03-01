@@ -8,6 +8,7 @@ import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { EditorAction } from '../services/EditorServices'
+import { SelectionAction } from '../services/SelectionServices'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
@@ -62,6 +63,7 @@ export class ProjectManager {
     CommandManager.instance.history.clear()
 
     SceneManager.instance.onEmitSceneModified
+    store.dispatch(SelectionAction.changedSceneGraph())
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)

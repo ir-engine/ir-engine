@@ -1,3 +1,4 @@
+import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -7,6 +8,7 @@ import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface RemoveObjectCommandParams extends CommandParams {
@@ -100,6 +102,7 @@ export default class RemoveObjectsCommand extends Command {
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }

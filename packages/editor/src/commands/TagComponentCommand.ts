@@ -1,3 +1,4 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
@@ -8,6 +9,7 @@ import {
 
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
 import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export enum TagComponentOperation {
@@ -69,6 +71,7 @@ export default class TagComponentCommand extends Command {
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       SceneManager.instance.onEmitSceneModified()
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, undefined))
     }
   }
 
@@ -95,5 +98,6 @@ export default class TagComponentCommand extends Command {
     }
 
     SceneManager.instance.onEmitSceneModified()
+    store.dispatch(SelectionAction.changedObject(objects, undefined))
   }
 }

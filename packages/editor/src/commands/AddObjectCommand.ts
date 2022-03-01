@@ -104,6 +104,7 @@ export default class AddObjectCommand extends Command {
       }
 
       SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 

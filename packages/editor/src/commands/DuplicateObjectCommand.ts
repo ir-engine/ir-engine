@@ -1,3 +1,4 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
@@ -7,6 +8,7 @@ import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface DuplicateObjectCommandParams extends CommandParams {
@@ -89,6 +91,7 @@ export default class DuplicateObjectCommand extends Command {
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }

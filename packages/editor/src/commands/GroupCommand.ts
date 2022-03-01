@@ -123,6 +123,7 @@ export default class GroupCommand extends Command {
       }
 
       SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }
