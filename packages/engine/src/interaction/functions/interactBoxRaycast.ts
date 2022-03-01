@@ -91,7 +91,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
     (a: any, b: any) => a[2] - b[2]
   )[0]
 
-  const interactable = getComponent(entityInteractable, InteractableComponent)
+  const interactable = getComponent(entityInteractable, InteractableComponent).value
   const distance = interactable?.interactionDistance ?? interactiveReachDistance
 
   const resultIsCloseEnough = distanceToPlayer! < distance
