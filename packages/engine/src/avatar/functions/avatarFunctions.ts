@@ -127,18 +127,17 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const velocityComponent = getComponent(entity, VelocityComponent)
+  const avatarComponent = getComponent(entity, AvatarComponent)
 
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   ;(avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
     animationComponent.mixer,
-    velocityComponent.velocity
+    velocityComponent.velocity,
+    avatarComponent
   )
 
-  if (avatarAnimationComponent?.currentState) {
-    // AnimationRenderer.mountCurrentState(entity)
-  }
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)
 }

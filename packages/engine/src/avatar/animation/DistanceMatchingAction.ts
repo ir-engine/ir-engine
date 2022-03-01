@@ -24,6 +24,11 @@ export class DistanceMatchingAction {
     this.action.time = findTimeFromDistanceTrack(this.distanceTrack, this.distanceTraveled)
   }
 
+  updateFollowerAction(otherAction: DistanceMatchingAction) {
+    const timeRatio = otherAction.action.getClip().duration / this.action.getClip().duration
+    otherAction.setTime(this.action.time * timeRatio)
+  }
+
   setTime(time: number) {
     this.action.time = time
     this.distanceTraveled = findDistanceFromDistanceTrack(this.distanceTrack, time)

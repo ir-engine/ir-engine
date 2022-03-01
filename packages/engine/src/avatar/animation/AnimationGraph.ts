@@ -1,12 +1,5 @@
 import { AnimationState } from './AnimationState'
-
-class AnimationStateTransitionRule {
-  nextState: AnimationState
-
-  canEnterTransition(): boolean {
-    return false
-  }
-}
+import { AnimationStateTransitionRule } from './AnimationStateTransitionsRule'
 
 /** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
 export class AnimationGraph {
@@ -18,31 +11,35 @@ export class AnimationGraph {
   /** Current state */
   currentState: AnimationState
 
+  stateChangeHandlers: any[]
+
   constructor() {
     this.transitionRules = {}
     this.states = {}
   }
 
-  update = (delta: number): void => {
+  update(delta: number): void {
     if (this.currentState) {
       const transitions = this.transitionRules[this.currentState.name]
 
       if (transitions) {
         for (const rule of transitions) {
           if (rule.canEnterTransition() && rule.nextState) {
-            const prevState = this.currentState
-            this.currentState?.exit()
-            this.currentState = rule.nextState
-            this.currentState.enter(prevState)
+            this.changeState(rule.nextState)
           }
         }
       }
     }
 
-    if (this.currentState) this.currentState.update(delta)
+    this.currentState?.update(delta)
   }
 
-  addStateChangeHandler = (): void => {
-    // Todo: replace the updateNetwork with events
+  changeState(name: string): void {
+    const newState = this.states[name]
+    if ((this.currentState && this.currentState.name === name) || !newState) return
+    const prevState = this.currentState
+    this.currentState?.exit()
+    this.currentState = newState
+    this.currentState.enter(prevState)
   }
 }

@@ -11,6 +11,7 @@ import { World } from '../../ecs/classes/World'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 
 const upVector = new Vector3(0, 1, 0)
 const forward = new Vector3(0, 0, 1)
@@ -55,7 +56,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   // newVelocity = velocity sim position * moveSpeed
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
-  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
+  controller.currentSpeed = smoothDamp(controller.currentSpeed, moveSpeed, controller.speedVelocity, 0.1, timeStep)
+  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.currentSpeed)
 
   // avatar velocity = newVelocity (horizontal plane)
   velocity.velocity.setX(newVelocity.x)

@@ -9,21 +9,28 @@ import {
   Bone
 } from 'three'
 import { matchesVector3 } from '../../ecs/functions/Action'
-import { lerp } from '../../common/functions/MathLerpFunctions'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { Entity } from '../../ecs/classes/Entity'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { Engine } from '../../ecs/classes/Engine'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
 /** State of the avatar animation */
 
 export const AvatarStates = {
-  DEFAULT: 'DEFAULT',
-  IDLE: 'IDLE',
-  WALK: 'WALK',
-  RUN: 'RUN',
+  LOCOMOTION: 'LOCOMOTION',
   JUMP: 'JUMP',
-  INTERACTING: 'INTERACTING',
-  EMOTE: 'EMOTE',
-  LOOPABLE_EMOTE: 'LOOPABLE_EMOTE',
-
-  LOCOMOTION: 'Locomotion'
+  //Emotes
+  CLAP: 'CLAP',
+  CRY: 'CRY',
+  KISS: 'KISS',
+  WAVE: 'WAVE',
+  LAUGH: 'LAUGH',
+  DEFEAT: 'DEFEAT',
+  DANCE1: 'DANCE1',
+  DANCE2: 'DANCE2',
+  DANCE3: 'DANCE3',
+  DANCE4: 'DANCE4'
 }
 
 export const matchesAvatarState = matches.some(
@@ -38,18 +45,26 @@ export const AvatarAnimations = {
   ROLLING_AFTER_FALL: 'falling_to_roll',
 
   // Walking and running
+  // TODO: Probably can remove non-root
+  // locomotion animations to save some bandwith
   IDLE: 'idle',
   FALLING_LONG: 'abcd',
   WALK_FORWARD: 'walk_forward',
   WALK_FORWARD_ROOT: 'walk_forward_root',
   WALK_BACKWARD: 'walk_backward',
+  WALK_BACKWARD_ROOT: 'walk_backward_root',
   WALK_STRAFE_RIGHT: 'walk_right',
+  WALK_STRAFE_RIGHT_ROOT: 'walk_right_root',
   WALK_STRAFE_LEFT: 'walk_left',
+  WALK_STRAFE_LEFT_ROOT: 'walk_left_root',
   RUN_FORWARD: 'run_forward',
   RUN_FORWARD_ROOT: 'run_forward_root',
   RUN_BACKWARD: 'run_backward',
+  RUN_BACKWARD_ROOT: 'run_backward_root',
   RUN_STRAFE_RIGHT: 'run_right',
+  RUN_STRAFE_RIGHT_ROOT: 'run_right_root',
   RUN_STRAFE_LEFT: 'run_left',
+  RUN_STRAFE_LEFT_ROOT: 'run_left_root',
 
   // Emotes
   CLAP: 'clapping',
@@ -217,5 +232,12 @@ export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undef
   return {
     velocity: velocity,
     distanceTrack: distTrack
+  }
+}
+
+export const changeAvatarAnimationState = (entity: Entity, newStateName: string) => {
+  if (isEntityLocalClient(entity)) {
+    const params = {}
+    dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
   }
 }

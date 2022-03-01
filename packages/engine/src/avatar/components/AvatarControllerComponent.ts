@@ -11,6 +11,10 @@ export type AvatarControllerComponentType = {
   isWalking: boolean
   localMovementDirection: Vector3
   velocitySimulator: VectorSpringSimulator
+  // Below two values used to smoothly transition between
+  // walk and run speeds
+  currentSpeed: number
+  speedVelocity: { value: number }
 }
 
 export const AvatarControllerComponent =
