@@ -70,7 +70,7 @@ export function ViewportPanelContainer() {
     } else {
       initializeRefTranform.current = true
     }
-  }, [modeState.transformModeChanged])
+  }, [modeState.transformMode])
 
   useEffect(() => {
     if (initializeRefSelect.current) {

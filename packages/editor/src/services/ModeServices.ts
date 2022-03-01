@@ -7,7 +7,6 @@ type ModeServiceStateType = {
   playModeChanged: boolean
   flyModeChanged: boolean
   transformMode: string
-  transformModeChanged: boolean
   transformSpaceModeChanged: boolean
   transformPivotModeChanged: boolean
   snapSettingsChanged: boolean
@@ -18,7 +17,6 @@ const state = createState<ModeServiceStateType>({
   playModeChanged: false,
   flyModeChanged: false,
   transformMode: '',
-  transformModeChanged: false,
   transformSpaceModeChanged: false,
   transformPivotModeChanged: false,
   snapSettingsChanged: false
@@ -34,7 +32,7 @@ store.receptors.push((action: ModeActionType): any => {
       case 'FLY_MODE_CHANGED':
         return s.merge({ flyModeChanged: action.flyModeChanged })
       case 'TRANSFORM_MODE_CHANGED':
-        return s.merge({ transformModeChanged: action.transformModeChanged, transformMode: action.mode })
+        return s.merge({ transformMode: action.mode })
       case 'TRANSFORM_SPACE_CHANGED':
         return s.merge({ transformSpaceModeChanged: action.transformSpaceModeChanged })
       case 'TRANSFORM_PIVOT_CHANGED':
@@ -75,8 +73,7 @@ export const ModeAction = {
   changedTransformMode: (mode: string) => {
     return {
       type: 'TRANSFORM_MODE_CHANGED' as const,
-      mode,
-      transformModeChanged: !accessModeState().transformModeChanged.value
+      mode
     }
   },
   changedTransformSpaceMode: () => {

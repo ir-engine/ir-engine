@@ -61,13 +61,14 @@ export class ProjectManager {
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
-    store.dispatch(EditorAction.projectLoaded(true))
     SceneManager.instance.onEmitSceneModified
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
       store.dispatch(EditorErrorAction.throwError(error))
       throw error
+    } else {
+      store.dispatch(EditorAction.projectLoaded(true))
     }
   }
 
