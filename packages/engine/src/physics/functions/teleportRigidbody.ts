@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
+import { isKinematicBody } from '../classes/Physics'
 
 export const teleportRigidbody = (body: PhysX.PxRigidActor, translation: Vector3, rotation?: Quaternion) => {
   const currentPose = body.getGlobalPose()
@@ -11,5 +12,10 @@ export const teleportRigidbody = (body: PhysX.PxRigidActor, translation: Vector3
     currentPose.rotation.z = rotation.z
     currentPose.rotation.w = rotation.w
   }
+
+  if (isKinematicBody(body)) {
+    body.setKinematicTarget(currentPose)
+  }
+
   body.setGlobalPose(currentPose, true)
 }

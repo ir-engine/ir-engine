@@ -223,10 +223,14 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
   const object3d = getComponent(entity, Object3DComponent)
   if (object3d) {
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
-    const body = createBody(entity, data, shapes)
-    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
-    addComponent(entity, ColliderComponent, { body })
-    addComponent(entity, CollisionComponent, { collisions: [] })
+    // As we might call collider deserialize on every child of the object now,
+    // so this sanity check is needed now.
+    if (shapes.length > 0) {
+      const body = createBody(entity, data, shapes)
+      body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
+      addComponent(entity, ColliderComponent, { body })
+      addComponent(entity, CollisionComponent, { collisions: [] })
+    }
   }
 }
 

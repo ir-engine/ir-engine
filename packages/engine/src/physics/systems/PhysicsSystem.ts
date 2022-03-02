@@ -92,24 +92,13 @@ const processBodies = () => {
 
     if (hasComponent(entity, AvatarComponent)) continue
 
-    if (isStaticBody(collider.body)) {
+    if (Engine.isEditor || isStaticBody(collider.body)) {
       const body = collider.body as PhysX.PxRigidDynamic
       const currentPose = body.getGlobalPose()
 
       if (velocity) velocity.velocity.subVectors(currentPose.translation as Vector3, transform.position)
 
-      currentPose.translation.x = transform.position.x
-      currentPose.translation.y = transform.position.y
-      currentPose.translation.z = transform.position.z
-      currentPose.rotation.x = transform.rotation.x
-      currentPose.rotation.y = transform.rotation.y
-      currentPose.rotation.z = transform.rotation.z
-      currentPose.rotation.w = transform.rotation.w
-
-      if (isKinematicBody(collider.body)) {
-        body.setKinematicTarget(currentPose)
-      }
-      body.setGlobalPose(currentPose, true)
+      teleportRigidbody(body, transform.position, transform.rotation)
     } else if (isDynamicBody(collider.body)) {
       const body = collider.body as PhysX.PxRigidDynamic
 
