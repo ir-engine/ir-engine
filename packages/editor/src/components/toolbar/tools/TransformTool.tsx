@@ -34,7 +34,7 @@ const TransformTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup}>
-      <InfoTooltip id="translate-button" info="[T] Translate" position="bottom">
+      <InfoTooltip title="[T] Translate" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Translate)}
@@ -42,7 +42,7 @@ const TransformTool = () => {
           <OpenWithIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <InfoTooltip id="rotate-button" info="[R] Rotate" position="bottom">
+      <InfoTooltip title="[R] Rotate" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Rotate)}
@@ -50,7 +50,7 @@ const TransformTool = () => {
           <SyncIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <InfoTooltip id="scale-button" info="[Y] Scale" position="bottom">
+      <InfoTooltip title="[Y] Scale" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Scale)}

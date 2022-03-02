@@ -12,14 +12,14 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addItem } from '../dnd'
+import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
 import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
@@ -154,7 +154,6 @@ export default function HierarchyPanel() {
       const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.entityNode]
       cameraComponent.refocus = true
-      cameraComponent.dirty = true
     }
   }, [])
 
@@ -272,7 +271,7 @@ export default function HierarchyPanel() {
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -290,7 +289,15 @@ export default function HierarchyPanel() {
         return
       }
 
-      if (addItem(item)) return
+      if (item.url) {
+        CommandManager.instance.addMedia({ url: item.url })
+        return
+      }
+
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item)
+        return
+      }
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: useWorld().entityTree.rootNode
@@ -298,8 +305,6 @@ export default function HierarchyPanel() {
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
-
-      if (isAsset(item)) return true
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {

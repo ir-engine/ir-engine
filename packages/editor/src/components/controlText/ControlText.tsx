@@ -1,42 +1,31 @@
-import { useState as useHookstate } from '@speigg/hookstate'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
-import { Vector2 } from 'three'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
-import editorTheme from '@xrengine/client-core/src/util/theme'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
-import { AssetTypes, ItemTypes } from '../../constants/AssetTypes'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
-import { EditorErrorAction } from '../../services/EditorErrorServices'
-import { accessEditorState, useEditorState } from '../../services/EditorServices'
+import { useEditorState } from '../../services/EditorServices'
 import { useModeState } from '../../services/ModeServices'
 import { useSelectionState } from '../../services/SelectionServices'
-import AssetDropZone from '../assets/AssetDropZone'
-import { addItemAtCursorPosition } from '../dnd'
-import * as styles from './Viewport.module.scss'
+import styles from './styles.module.scss'
 
 /**
- * ViewportPanelContainer used to render viewport.
+ * ControlText used to render viewport.
  *
  * @author Robert Long
  * @constructor
  */
-export function ViewportPanelContainer() {
+export function ControlText() {
   const editorState = useEditorState()
   const selectionState = useSelectionState()
   const modeState = useModeState()
-  const dispatch = useDispatch()
   const [editorInitialized, setEditorInitialized] = useState<boolean>(false)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
-  const sceneLoaded = useHookstate(accessEditorState().sceneName)
   const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
@@ -90,39 +79,6 @@ export function ViewportPanelContainer() {
     }
   }, [editorState.rendererInitialized.value])
 
-  const [{ canDrop, isOver }, dropRef] = useDrop({
-    accept: [ItemTypes.Node, ...AssetTypes],
-    drop(item: any, monitor) {
-      const mousePos = monitor.getClientOffset()
-
-      if (item.type === ItemTypes.Node) {
-        if (item.multiple) {
-          SceneManager.instance.reparentToSceneAtCursorPosition(item.value, mousePos)
-        } else {
-          SceneManager.instance.reparentToSceneAtCursorPosition([item.value], mousePos)
-        }
-
-        return
-      }
-
-      addItemAtCursorPosition(item, mousePos as Vector2)
-    },
-    collect: (monitor) => ({
-      canDrop: monitor.canDrop(),
-      isOver: monitor.isOver()
-    })
-  })
-
-  const onAfterUploadAssets = useCallback((assets) => {
-    Promise.all(
-      assets.map((url) => {
-        CommandManager.instance.addMedia(url)
-      })
-    ).catch((err) => {
-      dispatch(EditorErrorAction.throwError(err))
-    })
-  }, [])
-
   let controlsText
 
   if (flyModeEnabled) {
@@ -161,21 +117,5 @@ export function ViewportPanelContainer() {
       '| [G] ' + t('editor:viewport.command.grab') + ' | [ESC] ' + t('editor:viewport.command.deselectAll')
   }
 
-  return (
-    <div
-      className={styles.viewportContainer}
-      style={{
-        borderColor: isOver ? (canDrop ? editorTheme.blue : editorTheme.red) : 'transparent',
-        backgroundColor: sceneLoaded.value ? undefined! : 'grey'
-      }}
-      ref={dropRef}
-    >
-      {!sceneLoaded.value && (
-        <img style={{ opacity: 0.2 }} className={styles.viewportBackgroundImage} src="/static/xrengine.png" />
-      )}
-      <div className={styles.controlsText}>{controlsText}</div>
-      <AssetDropZone afterUpload={onAfterUploadAssets} />
-    </div>
-  )
+  return <div className={styles.controlsText}>{controlsText}</div>
 }
-export default ViewportPanelContainer

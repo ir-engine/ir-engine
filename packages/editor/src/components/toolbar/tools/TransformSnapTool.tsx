@@ -100,7 +100,7 @@ const TransformSnapTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-snap">
-      <InfoTooltip info="[C] Toggle Snap Mode">
+      <InfoTooltip title="[C] Toggle Snap Mode">
         <button
           onClick={onToggleSnap}
           className={styles.toolButton + ' ' + (snapSetting.mode === SnapMode.Grid ? styles.selected : '')}

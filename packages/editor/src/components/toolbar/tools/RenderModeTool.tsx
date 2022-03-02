@@ -36,7 +36,7 @@ const RenderModeTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="Render Mode">
+      <InfoTooltip title="Render Mode">
         <div className={styles.toolIcon}>
           <WbSunnyOutlinedIcon fontSize="small" />
         </div>

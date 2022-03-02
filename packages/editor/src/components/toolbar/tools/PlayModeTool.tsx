@@ -37,7 +37,7 @@ const PlayModeTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="preview">
-      <InfoTooltip info={isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}>
+      <InfoTooltip title={isInPlayMode ? 'Stop Previewing Scene' : 'Preview Scene'}>
         <button
           disabled={!Engine.sceneLoaded}
           onClick={onTogglePlayMode}
