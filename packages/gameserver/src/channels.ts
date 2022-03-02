@@ -402,8 +402,10 @@ const loadGameserver = async (
 
   if (isReady || isNeedingNewServer) {
     await handleInstance(app, status, locationId, channelId, userId)
-    if (!engineStarted && sceneId != null) await loadEngine(app, sceneId)
-    engineStarted = true
+    if (!engineStarted && sceneId != null) {
+      engineStarted = true
+      await loadEngine(app, sceneId)
+    }
   } else {
     try {
       const instance = await app.service('instance').get(app.instance.id)
