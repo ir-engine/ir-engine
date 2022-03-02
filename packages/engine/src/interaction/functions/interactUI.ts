@@ -1,5 +1,5 @@
 import Hls from 'hls.js'
-import { AxesHelper, MathUtils, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
+import { AxesHelper, BufferGeometry, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
 
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -16,7 +16,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeContentScaleForCamera } from '../../xrui/functions/computeContentScaleForCamera'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractedComponent } from '../components/InteractedComponent'
@@ -32,13 +32,14 @@ const MODEL_ELEVATION_ACTIVE = 0.3
 const TITLE_POS_INACTIVE = new Vector3(0, 0.5, 0)
 const TITLE_POS_ACTIVE = new Vector3(0, 0.4, 0)
 
-const INTERACTING_CAMERA_POSITION = new Vector3(0, 0, -2)
+const INTERACTING_UI_POSITION = new Vector3(0, 0, -0.3)
 const INTERACTING_CAMERA_ROTATION = new Quaternion()
 
 const ANCHORED_POSITION = new Map<Entity, Vector3>()
 const ANCHORED_ROTATION = new Map<Entity, Quaternion>()
 
 const scratchVector = new Vector3()
+const scratchQuat = new Quaternion()
 const invCameraRotation = new Quaternion()
 
 export function createInteractUI(modelEntity: Entity) {
@@ -54,26 +55,34 @@ export function createInteractUI(modelEntity: Entity) {
   //   scale: new Vector3(1, 1, 1)
   // })
 
-  if (!Engine.isEditor) {
-    addComponent(modelEntity, DesiredTransformComponent, {
-      position: transform.position.clone(),
-      rotation: transform.rotation.clone(),
-      positionRate: 2,
-      rotationRate: 1,
-      lockRotationAxis: [false, false, false]
-    })
-  }
+  // if (!Engine.isEditor) {
+  //   addComponent(modelEntity, DesiredTransformComponent, {
+  //     position: transform.position.clone(),
+  //     rotation: transform.rotation.clone(),
+  //     positionRate: 2,
+  //     rotationRate: 1,
+  //     lockRotationAxis: [false, false, false]
+  //   })
+  // }
 
   ui.container.then((c) => {
     const modelObj = getComponent(modelEntity, Object3DComponent).value
+    modelObj.traverse((obj) => {
+      const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
+      if (mesh.material) {
+        mesh.material.transparent = true
+        mesh.renderOrder = 1
+      }
+    })
     setObjectLayers(modelObj, ObjectLayers.UI)
-    const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
-    const pos = boundingBoxComponent.box.getCenter(new Vector3())
-    ANCHORED_POSITION.set(modelEntity, pos)
-    ANCHORED_ROTATION.set(modelEntity, modelObj.quaternion)
-    c.position.copy(pos)
+    // const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
+    // const pos = boundingBoxComponent.box.getCenter(new Vector3())
+    ANCHORED_POSITION.set(modelEntity, modelObj.position.clone())
+    ANCHORED_ROTATION.set(modelEntity, modelObj.quaternion.clone())
+    c.position.copy(modelObj.position)
 
     c.rootLayer.traverseLayersPreOrder((layer) => {
+      layer.shouldApplyDOMLayout = false
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = 0
     })
@@ -184,14 +193,13 @@ export function createInteractUI(modelEntity: Entity) {
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   if (Engine.isEditor) return
 
-  const container = getComponent(xrui.entity, XRUIComponent)?.container
+  const uiContainer = getComponent(xrui.entity, XRUIComponent)?.container
   const anchoredPosition = ANCHORED_POSITION.get(modelEntity)!
   const anchoredRotation = ANCHORED_ROTATION.get(modelEntity)!
 
-  if (!container || !anchoredPosition) return
+  if (!uiContainer || !anchoredPosition) return
 
   const modelMesh = getComponent(modelEntity, Object3DComponent).value
-  const modelDesiredTranform = getComponent(modelEntity, DesiredTransformComponent)
   const modelTransform = getComponent(modelEntity, TransformComponent)
 
   const world = useWorld()
@@ -223,50 +231,52 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   if (nextMode !== currentMode) {
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
-      Engine.camera.attach(container)
+      Engine.camera.attach(uiContainer)
     } else {
-      Engine.scene.attach(container)
+      Engine.scene.attach(uiContainer)
     }
   }
 
-  const root = container.rootLayer
-  const rootMat = root.contentMesh.material as MeshBasicMaterial
   const alpha = world.delta
 
-  const title = container.rootLayer.querySelector('.interactive-title')!
-  title.shouldApplyDOMLayout = false
+  const root = uiContainer.rootLayer
+  const rootMat = root.contentMesh.material as MeshBasicMaterial
+
+  const title = uiContainer.rootLayer.querySelector('.interactive-title')!
   const titleMat = title.contentMesh.material as MeshBasicMaterial
 
-  const eKey = container.rootLayer.querySelector('.interactive-e-key')!
-  eKey.shouldApplyDOMLayout = false
+  const eKey = uiContainer.rootLayer.querySelector('.interactive-e-key')!
   const eKeyMat = eKey.contentMesh.material as MeshBasicMaterial
 
-  const description = container.rootLayer.querySelector('.interactive-description')!
-  description.shouldApplyDOMLayout = false
+  const description = uiContainer.rootLayer.querySelector('.interactive-description')!
   const descriptionMat = description.contentMesh.material as MeshBasicMaterial
 
-  const model = container.rootLayer.querySelector('.interactive-model')!
+  const modelContainer = uiContainer.rootLayer.querySelector('.interactive-model')!
+  modelContainer.position.lerp(modelContainer.domLayout.position, alpha)
+  modelContainer.quaternion.slerp(modelContainer.domLayout.quaternion, alpha)
+  modelContainer.scale.lerp(modelContainer.domLayout.scale, alpha)
 
   if (nextMode === 'inactive') {
+    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    uiContainer.position.lerp(anchoredPosition, alpha)
+    uiContainer.quaternion.slerp(scratchQuat.setFromRotationMatrix(Engine.camera.matrix), alpha * 10)
+    uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha)
+
     if (modelMesh.parent !== Engine.scene) {
       Engine.scene.attach(modelMesh)
       modelTransform.position.copy(modelMesh.position)
       modelTransform.rotation.copy(modelMesh.quaternion)
+      modelTransform.scale.copy(modelMesh.scale)
     }
 
-    modelDesiredTranform.position.copy(anchoredPosition)
-    modelDesiredTranform.position.y = anchoredPosition.y
-    modelDesiredTranform.rotation.copy(anchoredRotation)
+    modelTransform.position.lerp(anchoredPosition, alpha)
+    modelTransform.rotation.slerp(anchoredRotation, alpha)
     modelTransform.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
-
-    container.position.lerp(anchoredPosition, alpha)
-    container.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    const targetScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
-    container.scale.lerp(scratchVector.setScalar(targetScale), alpha)
 
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
 
     title.position.lerp(TITLE_POS_INACTIVE, alpha)
+    title.scale.lerp(title.domLayout.scale, alpha)
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 3)
 
     description.position.lerp(description.domLayout.position, alpha)
@@ -276,25 +286,28 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha * 3)
   } else if (nextMode === 'active') {
+    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    uiContainer.position.lerp(anchoredPosition, alpha)
+    uiContainer.quaternion.slerp(scratchQuat.setFromRotationMatrix(Engine.camera.matrix), alpha * 10)
+    uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha)
+
     if (modelMesh.parent !== Engine.scene) {
       Engine.scene.attach(modelMesh)
       modelTransform.position.copy(modelMesh.position)
       modelTransform.rotation.copy(modelMesh.quaternion)
+      modelTransform.scale.copy(modelMesh.scale)
     }
 
-    modelDesiredTranform.position.copy(anchoredPosition)
-    modelDesiredTranform.position.y = anchoredPosition.y + MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
-    modelDesiredTranform.rotation.copy(anchoredRotation)
+    const modelTargetPosition = scratchVector.copy(anchoredPosition)
+    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
+    modelTransform.position.lerp(modelTargetPosition, alpha)
+    modelTransform.rotation.slerp(anchoredRotation, alpha)
     modelTransform.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
-
-    container.position.lerp(anchoredPosition, alpha)
-    container.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    const targetScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
-    container.scale.lerp(scratchVector.setScalar(targetScale), alpha)
 
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
 
     title.position.lerp(TITLE_POS_ACTIVE, alpha)
+    title.scale.lerp(title.domLayout.scale, alpha)
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha * 3)
 
     description.position.lerp(description.domLayout.position, alpha)
@@ -304,37 +317,47 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 1, alpha * 3)
   } else if (nextMode === 'interacting') {
-    const dist = INTERACTING_CAMERA_POSITION.z
-    const size = container.rootLayer.domSize
-    const containerScale = computeContentScaleForCamera(dist, size.x, size.y, 'contain') * 0.92
+    const uiSize = uiContainer.rootLayer.domSize
+    const uiContainerScale =
+      ObjectFitFunctions.computeContentFitScaleForCamera(INTERACTING_UI_POSITION.z, uiSize.x, uiSize.y, 'contain') *
+      0.92
+    uiContainer.position.lerp(INTERACTING_UI_POSITION, alpha)
+    uiContainer.quaternion.slerp(INTERACTING_CAMERA_ROTATION, alpha * 10)
+    uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha * 1.2)
 
     const modelTransform = getComponent(modelEntity, TransformComponent)
     const modelBounds = getComponent(modelEntity, BoundingBoxComponent)
     const modelSize = modelBounds.box.getSize(scratchVector)
-    const modelScale = computeContentScaleForCamera(dist / 2, modelSize.x, modelSize.y, 'contain') * 0.1
+    const modelScale =
+      ObjectFitFunctions.computeContentFitScale(
+        modelSize.x,
+        modelSize.y,
+        modelContainer.domSize.x,
+        modelContainer.domSize.y,
+        'contain'
+      ) * 0.5
 
-    container.position.lerp(INTERACTING_CAMERA_POSITION, alpha)
-    container.quaternion.copy(INTERACTING_CAMERA_ROTATION)
-    container.scale.lerp(scratchVector.setScalar(containerScale), alpha * 1.2)
-
-    if (modelMesh.parent !== model) {
-      model.attach(modelMesh)
+    if (modelMesh.parent !== modelContainer) {
+      modelContainer.attach(modelMesh)
       modelTransform.position.copy(modelMesh.position)
       modelTransform.rotation.copy(modelMesh.quaternion)
+      modelTransform.scale.copy(modelMesh.scale)
     }
 
     invCameraRotation.copy(Engine.camera.quaternion).invert()
 
-    modelDesiredTranform.position.copy(model.domLayout.position)
-    modelDesiredTranform.position.x = -0.2
-    modelDesiredTranform.position.multiplyScalar(modelScale)
-    modelDesiredTranform.position.z = Math.abs(dist * 0.1)
-    modelDesiredTranform.rotation.copy(invCameraRotation)
-    modelTransform.scale.lerp(scratchVector.setScalar(modelScale), alpha * 1.2)
+    const modelPosition = modelContainer.domLayout.position.multiplyScalar(modelScale)
+    modelPosition.x -= 0.1
+    // modelPosition.z = Math.abs(Engine.camera.near - INTERACTING_UI_POSITION.z) / 2
+    modelTransform.position.lerp(modelPosition, alpha)
+    modelTransform.rotation.slerp(invCameraRotation, alpha * 10)
+    modelTransform.scale.lerp(scratchVector.setScalar(modelScale), alpha * 1.1)
 
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha * 3)
 
     title.position.lerp(title.domLayout.position, alpha)
+    title.scale.lerp(title.domLayout.scale, alpha)
+
     eKey.position.lerp(eKey.domLayout.position, alpha)
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha * 3)
 

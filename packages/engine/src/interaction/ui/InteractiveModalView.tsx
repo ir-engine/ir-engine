@@ -109,7 +109,7 @@ export const InteractiveModalView = () => {
 
           <div className="interactive-model" xr-layer="true"></div>
         </div>
-
+        {/* 
         <button
           className="interactive-link"
           xr-layer="true"
@@ -119,7 +119,7 @@ export const InteractiveModalView = () => {
           }}
         >
           Open Link
-        </button>
+        </button> */}
       </div>
 
       <div className="interactive-content"></div>
@@ -153,7 +153,7 @@ export const InteractiveModalView = () => {
           align-items: flex-start;
           flex-direction: row;
           align-items: stretch;
-          height: 260px;
+          height: 360px;
         }
 
         .interactive-description {
@@ -161,7 +161,6 @@ export const InteractiveModalView = () => {
           overflow: hidden;
           text-align: left;
           font-size: 10px;
-          height: 500px;
           flex: 1;
         }
 
@@ -193,6 +192,7 @@ export const InteractiveModalView = () => {
         }
 
         .interactive-e-key {
+          position: absolute;
           overflow: hidden; // contain margin
         }
 
