@@ -1,7 +1,7 @@
-import { AssetLoader } from 'src/assets/classes/AssetLoader'
-import { Engine } from 'src/ecs/classes/Engine'
 import matches from 'ts-matches'
 
+import { AssetLoader } from '../assets/classes/AssetLoader'
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { IKRigComponent } from '../ikrig/components/IKRigComponent'
