@@ -71,6 +71,15 @@ export class DissolveEffect {
 
     const fragmentTextureShader = `
       gl_FragColor = texture2D(origin_texture, vUv);
+      float offset = posY - time;
+      if(offset > (-0.01 - rand(time) * 0.3)){
+        gl_FragColor.r = 0.0;
+        gl_FragColor.g = 1.0;
+        gl_FragColor.b = 0.0;
+      }
+      if(offset > 0.0){
+        discard;
+      }
     `
 
     const myMaterial = extendMaterial(object.material, {
@@ -78,6 +87,9 @@ export class DissolveEffect {
       header: '',
       headerVertex: '',
       headerFragment: '',
+      material: {
+        skinning: true
+      },
       vertex: {
         '#include <clipping_planes_pars_vertex>': `
           varying vec2 vUv;
