@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
+
 import { isKinematicBody } from '../classes/Physics'
 
 export const teleportRigidbody = (body: PhysX.PxRigidActor, translation: Vector3, rotation?: Quaternion) => {
