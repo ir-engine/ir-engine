@@ -15,7 +15,7 @@ export const teleportRigidbody = (body: PhysX.PxRigidActor, translation: Vector3
   }
 
   if (isKinematicBody(body)) {
-    body.setKinematicTarget(currentPose)
+    ;(body as PhysX.PxRigidDynamic).setKinematicTarget(currentPose)
   }
 
   body.setGlobalPose(currentPose, true)
