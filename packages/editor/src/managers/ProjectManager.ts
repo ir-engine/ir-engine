@@ -37,7 +37,7 @@ export class ProjectManager {
 
     this.initializing = true
 
-    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getAnimations()]
+    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()]
 
     await Promise.all(tasks)
 
