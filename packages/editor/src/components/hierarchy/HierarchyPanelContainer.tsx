@@ -14,10 +14,10 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { CommandManager } from '../../managers/CommandManager'
+import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
@@ -65,6 +65,7 @@ const MemoTreeNode = memo(HierarchyTreeNode, areEqual)
 export default function HierarchyPanel() {
   const { t } = useTranslation()
   const onUpload = useUpload(uploadOptions)
+  const selectionState = useSelectionState()
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
@@ -124,16 +125,16 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
+    updateHierarchy()
+  }, [selectionState.sceneGraphChanged.value])
 
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updateHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), updateHierarchy)
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChanged)
-    }
-  }, [])
+  useEffect(() => {
+    updateHierarchy()
+  }, [selectionState.selectionChanged.value])
+
+  useEffect(() => {
+    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+  }, [selectionState.objectChanged.value])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {

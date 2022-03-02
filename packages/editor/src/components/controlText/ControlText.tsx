@@ -5,9 +5,11 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
-import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { useEditorState } from '../../services/EditorServices'
+import { useModeState } from '../../services/ModeServices'
+import { useSelectionState } from '../../services/SelectionServices'
 import styles from './styles.module.scss'
 
 /**
@@ -17,6 +19,10 @@ import styles from './styles.module.scss'
  * @constructor
  */
 export function ControlText() {
+  const editorState = useEditorState()
+  const selectionState = useSelectionState()
+  const modeState = useModeState()
+  const [editorInitialized, setEditorInitialized] = useState<boolean>(false)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -35,22 +41,43 @@ export function ControlText() {
     setTransformMode(mode)
   }, [])
 
-  const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    CommandManager.instance.addListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-  }, [])
+  const onEditorInitialized = () => {
+    setEditorInitialized(true)
+  }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-      CommandManager.instance.removeListener(EditorEvents.TRANSFROM_MODE_CHANGED.toString(), onTransformModeChanged)
+    if (editorInitialized && editorState.rendererInitialized.value) {
+      onFlyModeChanged()
     }
-  }, [])
+  }, [modeState.flyModeChanged.value])
+
+  useEffect(() => {
+    if (editorInitialized && editorState.rendererInitialized.value) {
+      onTransformModeChanged(modeState.transformMode.value)
+    }
+  }, [modeState.transformMode.value])
+
+  useEffect(() => {
+    if (editorInitialized && editorState.rendererInitialized.value) {
+      onSelectionChanged()
+    }
+  }, [selectionState.selectionChanged.value])
+
+  const initRenderer = () => SceneManager.instance.initializeRenderer()
+
+  useEffect(() => {
+    if (editorState.projectLoaded.value === true) {
+      initRenderer()
+    }
+  }, [editorState.projectLoaded.value])
+
+  useEffect(() => {
+    if (editorState.rendererInitialized.value === true) {
+      onEditorInitialized()
+    } else {
+      setEditorInitialized(false)
+    }
+  }, [editorState.rendererInitialized.value])
 
   let controlsText
 

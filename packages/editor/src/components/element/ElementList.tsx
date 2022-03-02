@@ -15,11 +15,11 @@ import { IconButton, Tooltip } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
 import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
+import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
@@ -130,15 +130,12 @@ const MemoAssetGridItem = memo(PrefabListItem)
  */
 export function ElementList() {
   const { t } = useTranslation()
+  const selectionState = useSelectionState()
   const [prefabs, setPrefabs] = useState(getPrefabList())
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updatePrefabList)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SCENE_GRAPH_CHANGED.toString(), updatePrefabList)
-    }
-  }, [])
+    updatePrefabList()
+  }, [selectionState.sceneGraphChanged.value])
 
   const updatePrefabList = () => setPrefabs(getPrefabList())
 

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SnapMode, SnapModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import AttractionsIcon from '@mui/icons-material/Attractions'
 
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { ModeAction, useModeState } from '../../../services/ModeServices'
 import { setSnapMode, toggleSnapMode } from '../../../systems/EditorControlSystem'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -49,14 +49,18 @@ const defaultSnapSetting = {
 }
 
 const TransformSnapTool = () => {
+  const modeState = useModeState()
+  const dispatch = useDispatch()
+  const initializeRef = React.useRef<boolean>(false)
   const [snapSetting, setSnapSetting] = useState(defaultSnapSetting)
-  useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), updateSnapSettings)
 
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SNAP_SETTINGS_CHANGED.toString(), updateSnapSettings)
+  useEffect(() => {
+    if (initializeRef.current) {
+      updateSnapSettings()
+    } else {
+      initializeRef.current = true
     }
-  }, [])
+  }, [modeState.snapSettingsChanged.value])
 
   const updateSnapSettings = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
@@ -72,21 +76,21 @@ const TransformSnapTool = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.translationSnap = snapValue
     SceneManager.instance.grid.setSize(snapValue)
-    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+    dispatch(ModeAction.changedSnapSettings())
     setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   const onChangeRotationSnap = (snapValue: number) => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     editorControlComponent.rotationSnap = snapValue
-    CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+    dispatch(ModeAction.changedSnapSettings())
     setSnapMode(SnapMode.Grid, editorControlComponent)
   }
 
   // const onChangeScaleSnap = (snapValue: number) => {
   //   const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
   //   editorControlComponent.scaleSnap = snapValue
-  //   CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+  //   dispatch(ModeAction.changedSnapSettings())
   //   setSnapMode(SnapMode.Grid)
   // }
 

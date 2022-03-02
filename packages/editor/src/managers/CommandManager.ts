@@ -1,5 +1,6 @@
 import EventEmitter from 'events'
 
+import { store } from '@xrengine/client-core/src/store'
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -31,8 +32,8 @@ import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
 import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import isInputSelected from '../functions/isInputSelected'
+import { EditorErrorAction } from '../services/EditorErrorServices'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -137,10 +138,6 @@ export class CommandManager extends EventEmitter {
     withHistory = true
   ) {
     this.setProperty([node], params, withHistory)
-  }
-
-  emitEvent = (event: EditorEvents, ...args: any[]): void => {
-    this.emit(event.toString(), ...args)
   }
 
   /**
@@ -262,7 +259,7 @@ export class CommandManager extends EventEmitter {
     } else if ((data = event.clipboardData.getData('text')) !== '') {
       try {
         const url = new URL(data)
-        this.addMedia({ url: url.href }).catch((error) => this.emitEvent(EditorEvents.ERROR, error))
+        this.addMedia({ url: url.href }).catch((error) => store.dispatch(EditorErrorAction.throwError(error)))
       } catch (e) {
         console.warn('Clipboard contents did not contain a valid url')
       }
@@ -355,7 +352,6 @@ export class CommandManager extends EventEmitter {
       updateFunc()
     }
 
-    CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
     return node
   }
 }

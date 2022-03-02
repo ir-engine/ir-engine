@@ -1,11 +1,14 @@
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { serializeObject3DArray } from '../functions/debug'
 import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export default class ToggleSelectionCommand extends Command {
@@ -49,10 +52,17 @@ export default class ToggleSelectionCommand extends Command {
   }
 
   emitAfterExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+    if (this.shouldEmitEvent) {
+      ControlManager.instance.onSelectionChanged()
+      SceneManager.instance.updateOutlinePassSelection()
+      store.dispatch(SelectionAction.changedSelection())
+    }
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent) CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent) {
+      ControlManager.instance.onBeforeSelectionChanged()
+      store.dispatch(SelectionAction.changedBeforeSelection())
+    }
   }
 }
