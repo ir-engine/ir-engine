@@ -1,11 +1,14 @@
-import styles from './VideoSeeker.module.scss'
-import React, { useState, useEffect } from 'react'
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+
+import secondsToString from '@xrengine/common/src/utils/secondsToString'
 // import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 // import PauseIcon from '@mui/icons-material/Pause'
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import triggerNavigation from '@xrengine/common/src/utils/triggerNavigation'
-import secondsToString from '@xrengine/common/src/utils/secondsToString'
-import classNames from 'classnames'
+
+import styles from './VideoSeeker.module.scss'
+
 const playBtnImageSrc = '/icons/play-shadow.png'
 const pauseBtnImageSrc = '/icons/pause-shadow.png'
 const backBtnImageSrc = '/icons/back-btn-shadow.png'

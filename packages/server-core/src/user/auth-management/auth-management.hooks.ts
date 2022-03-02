@@ -1,6 +1,8 @@
-import authenticate from '../../hooks/authenticate'
 import { iff } from 'feathers-hooks-common'
+
 import isAction from '@xrengine/server-core/src/hooks/is-action'
+
+import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {

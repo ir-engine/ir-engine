@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import getBasicMimetype from '../util/get-basic-mimetype'
 
 export default (): Hook => {

@@ -1,9 +1,14 @@
-import { Params } from '@feathersjs/feathers/lib'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
-export class Authentication extends Service {
+export type AdminAuthSettingDataType = AdminAuthSettingInterface
+
+export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -11,17 +16,10 @@ export class Authentication extends Service {
     this.app = app
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
     const loggedInUser = extractLoggedInUserFromParams(params)
     const data = auth.data.map((el) => {
-      if (loggedInUser.userRole !== 'admin')
-        return {
-          id: el.id,
-          entity: el.entity,
-          service: el.service,
-          authStrategies: JSON.parse(JSON.parse(el.authStrategies))
-        }
       let oauth = JSON.parse(el.oauth)
       let authStrategies = JSON.parse(el.authStrategies)
       let local = JSON.parse(el.local)
@@ -35,6 +33,14 @@ export class Authentication extends Service {
       if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
+
+      if (loggedInUser.userRole !== 'admin')
+        return {
+          id: el.id,
+          entity: el.entity,
+          service: el.service,
+          authStrategies: authStrategies
+        }
 
       const returned = {
         ...el,

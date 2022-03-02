@@ -1,4 +1,5 @@
 import { SkinnedMesh } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 type IKObjType = {

@@ -4,8 +4,10 @@ import type * as x from '@feathersjs/feathers'
 import '@feathersjs/transport-commons'
 import * as k8s from '@kubernetes/client-node'
 import type SocketIO from 'socket.io'
-import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
+
 import { ServiceTypes } from '@xrengine/common/declarations'
+
+import { SocketWebRTCServerTransport } from '../gameserver/src/SocketWebRTCServerTransport'
 
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common

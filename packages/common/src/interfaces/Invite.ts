@@ -5,6 +5,7 @@ export type Invite = {
   inviteType?: string
   groupName?: string
   invitee: User
+  inviteeId?: string
   token: string
   user: User
   userId: string

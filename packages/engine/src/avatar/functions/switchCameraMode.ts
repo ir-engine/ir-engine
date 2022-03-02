@@ -1,4 +1,5 @@
 import { Material, SkinnedMesh } from 'three'
+
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'

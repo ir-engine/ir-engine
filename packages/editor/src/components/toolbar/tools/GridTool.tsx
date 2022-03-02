@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
+
 import GridOnIcon from '@mui/icons-material/GridOn'
-import * as styles from '../styles.module.scss'
-import { InfoTooltip } from '../../layout/Tooltip'
-import NumericStepperInput from '../../inputs/NumericStepperInput'
+
 import EditorEvents from '../../../constants/EditorEvents'
-import { SceneManager } from '../../../managers/SceneManager'
 import { CommandManager } from '../../../managers/CommandManager'
+import { SceneManager } from '../../../managers/SceneManager'
+import NumericStepperInput from '../../inputs/NumericStepperInput'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const GridTool = () => {
   const [isGridVisible, setGridVisible] = useState(true)
@@ -39,7 +41,7 @@ const GridTool = () => {
 
   return (
     <div id="transform-grid" className={styles.toolbarInputGroup}>
-      <InfoTooltip info="Toggle Grid Visibility">
+      <InfoTooltip title="Toggle Grid Visibility">
         <button
           onClick={onToggleGridVisible}
           className={styles.toolButton + ' ' + (isGridVisible ? styles.selected : '')}

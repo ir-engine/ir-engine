@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
+
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-import { CommandManager } from '../../../managers/CommandManager'
+
 import EditorEvents from '../../../constants/EditorEvents'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
 import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
+import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
   const [renderMode, setRenderMode] = useState<RenderModesType>(SceneManager.instance.renderMode)
@@ -33,7 +35,7 @@ const RenderModeTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="Render Mode">
+      <InfoTooltip title="Render Mode">
         <div className={styles.toolIcon}>
           <WbSunnyOutlinedIcon fontSize="small" />
         </div>

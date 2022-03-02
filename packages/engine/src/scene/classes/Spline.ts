@@ -1,7 +1,9 @@
-import { Vector3, BufferGeometry, BufferAttribute, CatmullRomCurve3, Line, LineBasicMaterial, Object3D } from 'three'
+import { BufferAttribute, BufferGeometry, CatmullRomCurve3, Line, LineBasicMaterial, Object3D, Vector3 } from 'three'
+
 import { removeElementFromArray } from '@xrengine/common/src/utils/removeElementFromArray'
-import SplineHelper from './SplineHelper'
+
 import { ObjectLayers } from '../constants/ObjectLayers'
+import SplineHelper from './SplineHelper'
 
 export default class Spline extends Object3D {
   ARC_SEGMENTS = 200

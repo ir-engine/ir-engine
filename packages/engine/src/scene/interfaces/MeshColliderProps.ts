@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
+
 import { ColliderTypes } from '../../physics/types/PhysicsTypes'
 
 export interface MeshColliderProps {

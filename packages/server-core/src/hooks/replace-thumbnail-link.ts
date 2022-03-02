@@ -1,8 +1,9 @@
-import config from '../appconfig'
 import { Hook, HookContext } from '@feathersjs/feathers'
-import uploadThumbnailLinkHook from './upload-thumbnail-link'
-import { useStorageProvider } from '../media/storageprovider/storageprovider'
 import _ from 'lodash'
+
+import config from '../appconfig'
+import { useStorageProvider } from '../media/storageprovider/storageprovider'
+import uploadThumbnailLinkHook from './upload-thumbnail-link'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {

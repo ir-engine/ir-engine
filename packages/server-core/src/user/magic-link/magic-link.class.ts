@@ -1,13 +1,14 @@
+import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
-import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import * as path from 'path'
 import * as pug from 'pug'
-import { IdentityProvider } from '../identity-provider/identity-provider.class'
-import { BadRequest } from '@feathersjs/errors'
-import config from '../../appconfig'
 import requireMainFilename from 'require-main-filename'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import Paginated from '../../types/PageObject'
+import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
+import { IdentityProvider } from '../identity-provider/identity-provider.class'
 
 interface Data {}
 
@@ -109,7 +110,7 @@ export class Magiclink implements ServiceMethods<Data> {
     let subscription
     let username
     if (subscriptionId != null) {
-      subscription = await this.app.service('subscription').find({
+      subscription = await this.app.service('subscription' as any).find({
         id: subscriptionId
       })
 

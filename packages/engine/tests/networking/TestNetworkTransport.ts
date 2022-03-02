@@ -1,6 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { NetworkTransportHandler } from '../../src/networking/classes/Network'
+
 import { Action } from '../../src/ecs/functions/Action'
+import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
 
 export class TestNetworkTransport implements NetworkTransport {

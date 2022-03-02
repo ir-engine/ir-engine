@@ -1,17 +1,22 @@
-import React, { useCallback, useEffect, memo, useState, MouseEventHandler } from 'react'
-import { MediaGrid } from '../layout/MediaGrid'
-import { unique } from '../../functions/utils'
-import { ContextMenuTrigger, ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import { ItemTypes } from '../../constants/AssetTypes'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
-import { FileDataType } from './FileDataType'
 import InfiniteScroll from 'react-infinite-scroller'
-import { CircularProgress } from '@mui/material'
-import FolderIcon from '@mui/icons-material/Folder'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
 import DescriptionIcon from '@mui/icons-material/Description'
+import FolderIcon from '@mui/icons-material/Folder'
+import { CircularProgress } from '@mui/material'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { unique } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
+import { SceneManager } from '../../managers/SceneManager'
+import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
+import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 
 type FileListItemProps = {
@@ -44,10 +49,6 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
   )
 }
 
-MediaGrid.defaultProps = {
-  minWidth: '100px'
-}
-
 type FileBrowserItemType = {
   contextMenuId: string
   item: FileDataType
@@ -68,8 +69,10 @@ function FileBrowserItem(props: FileBrowserItemType) {
     CommandManager.instance.addMedia({ url: trigger.item.url })
   }, [])
 
-  const placeObjectAtOrigin = useCallback((_, trigger) => {
-    CommandManager.instance.addMedia({ url: trigger.item.url }, undefined, undefined, false)
+  const placeObjectAtOrigin = useCallback(async (_, trigger) => {
+    const node = await CommandManager.instance.addMedia({ url: trigger.item.url })
+    const transformComponent = getComponent(node.entity, TransformComponent)
+    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
   }, [])
 
   const copyURL = useCallback((_, trigger) => {
@@ -125,8 +128,8 @@ function FileBrowserItem(props: FileBrowserItemType) {
     multiple: false
   }))
 
-  const [{ isOver, canDrop, moni }, drop] = useDrop({
-    accept: [...ItemTypes.FileBrowserContent],
+  const [_, drop] = useDrop({
+    accept: [...SupportedFileTypes],
     drop: (dropItem) => {
       moveContent((dropItem as any).id, item.id)
     },
@@ -160,7 +163,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
             />
           ) : (
             <FileListItem
-              iconComponent={item.iconComponent}
+              iconComponent={item.Icon}
               onClick={onClickItem}
               label={item.label}
               isRenaming={renamingAsset}

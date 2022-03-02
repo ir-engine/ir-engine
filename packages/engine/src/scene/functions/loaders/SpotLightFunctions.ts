@@ -1,5 +1,7 @@
+import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, SpotLight, TorusGeometry, Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color, SpotLight, MeshBasicMaterial, Mesh, TorusGeometry, ConeGeometry, DoubleSide } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,

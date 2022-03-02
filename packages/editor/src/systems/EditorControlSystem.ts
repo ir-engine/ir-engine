@@ -1,4 +1,20 @@
+import {
+  Box3,
+  Intersection,
+  Layers,
+  MathUtils,
+  Object3D,
+  Plane,
+  Quaternion,
+  Ray,
+  Raycaster,
+  Vector2,
+  Vector3
+} from 'three'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -13,33 +29,19 @@ import {
   TransformPivot,
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import {
-  Vector3,
-  Quaternion,
-  Raycaster,
-  MathUtils,
-  Layers,
-  Object3D,
-  Vector2,
-  Intersection,
-  Box3,
-  Plane,
-  Ray
-} from 'three'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -453,7 +455,7 @@ export default async function EditorControlSystem(_: World) {
         cancel(editorControlComponent)
       } else if (getInput(EditorActionSet.focusSelection)) {
         cameraComponent.focusedObjects = CommandManager.instance.selected
-        cameraComponent.dirty = true
+        cameraComponent.refocus = true
       } else if (getInput(EditorActionSet.setTranslateMode)) {
         setTransformMode(TransformMode.Translate, false, editorControlComponent)
       } else if (getInput(EditorActionSet.setRotateMode)) {
@@ -489,12 +491,10 @@ export default async function EditorControlSystem(_: World) {
 
       if (zoomDelta !== 0) {
         cameraComponent.zoomDelta = zoomDelta
-        cameraComponent.dirty = true
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
         if (result && result.node) {
-          cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true
         }
@@ -502,12 +502,10 @@ export default async function EditorControlSystem(_: World) {
         cameraComponent.isPanning = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       } else if (orbiting) {
         cameraComponent.isOrbiting = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       }
     }
   }

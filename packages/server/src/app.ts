@@ -1,31 +1,32 @@
-import fs from 'fs'
+import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+import { feathers } from '@feathersjs/feathers'
+import socketio from '@feathersjs/socketio'
+import * as k8s from '@kubernetes/client-node'
+import compress from 'compression'
+import cors from 'cors'
+import { EventEmitter } from 'events'
+import feathersLogger from 'feathers-logger'
+import swagger from 'feathers-swagger'
+import sync from 'feathers-sync'
+import helmet from 'helmet'
 import path from 'path'
 import favicon from 'serve-favicon'
-import compress from 'compression'
-import helmet from 'helmet'
-import cors from 'cors'
-import swagger from 'feathers-swagger'
-import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, errorHandler } from '@feathersjs/express'
-import socketio from '@feathersjs/socketio'
-import logger from '@xrengine/server-core/src/logger'
-import channels from './channels'
-import authentication from '@xrengine/server-core/src/user/authentication'
-import config from '@xrengine/server-core/src/appconfig'
-import sync from 'feathers-sync'
-import * as k8s from '@kubernetes/client-node'
 import winston from 'winston'
-import feathersLogger from 'feathers-logger'
-import { EventEmitter } from 'events'
-import services from '@xrengine/server-core/src/services'
-import sequelize from '@xrengine/server-core/src/sequelize'
-import { Application } from '@xrengine/server-core/declarations'
+
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import services from '@xrengine/server-core/src/services'
+import authentication from '@xrengine/server-core/src/user/authentication'
+
+import channels from './channels'
 
 const emitter = new EventEmitter()
 
 // @ts-ignore
-const app = express(feathers()) as any as Application
+const app = express(feathers()) as any //as Application
 
 app.set('nextReadyEmitter', emitter)
 
@@ -146,7 +147,9 @@ try {
   })
 
   if (isDev && !config.db.forceRefresh) {
-    app.service('project')._fetchDevLocalProjects()
+    app.isSetup.then(() => {
+      app.service('project')._fetchDevLocalProjects()
+    })
   }
 } catch (err) {
   console.log('Server init failure')

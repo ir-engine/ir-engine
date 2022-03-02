@@ -5,35 +5,38 @@ import {
   Euler,
   Mesh,
   PerspectiveCamera,
+  AudioListener as PositionalAudioListener,
   Quaternion,
-  Scene,
-  AudioListener as PositionalAudioListener
+  Scene
 } from 'three'
-import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
+import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
+import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
+import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { createWorld, World } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
+import { useWorld } from './ecs/functions/SystemHooks'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { FontManager } from './xrui/classes/FontManager'
-import { createWorld, World } from './ecs/classes/World'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { registerPrefabs } from './scene/functions/registerPrefabs'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
-import { useWorld } from './ecs/functions/SystemHooks'
-import { isClient } from './common/functions/isClient'
 import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
+import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { registerPrefabs } from './scene/functions/registerPrefabs'
+import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
+import { FontManager } from './xrui/classes/FontManager'
+
 // threejs overrides
 
 // @ts-ignore
@@ -212,16 +215,16 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
         systemModulePromise: import('./renderer/WebGLRendererSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xr/systems/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./input/systems/ClientInputSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       }
     )
   }
@@ -342,6 +345,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./renderer/HighlightSystem')
+      },
+      {
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
+        type: SystemUpdateType.PRE_RENDER
       }
     )
   }
@@ -381,5 +388,5 @@ export const shutdownEngine = async () => {
   Engine.engineTimer?.clear()
   Engine.engineTimer = null!
 
-  await reset()
+  reset()
 }

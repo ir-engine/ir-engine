@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
-import { UnauthorizedException, NotFoundException, UnauthenticatedException } from '../util/exceptions/exception'
+
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {

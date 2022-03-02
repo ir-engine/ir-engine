@@ -1,4 +1,5 @@
 import React from 'react'
+
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import InstanceTable from './InstanceTable'

@@ -1,4 +1,5 @@
 import '@feathersjs/transport-commons'
+
 import { Application } from '@xrengine/server-core/declarations'
 
 export default (app: Application): void => {

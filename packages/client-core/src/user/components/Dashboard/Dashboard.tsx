@@ -1,3 +1,6 @@
+import clsx from 'clsx'
+import React from 'react'
+
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
@@ -7,8 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import { styled, useTheme } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import clsx from 'clsx'
-import React from 'react'
+
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'

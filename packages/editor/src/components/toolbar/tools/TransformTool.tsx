@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import SyncIcon from '@mui/icons-material/Sync'
-import HeightIcon from '@mui/icons-material/Height'
-import OpenWithIcon from '@mui/icons-material/OpenWith'
+
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformMode, TransformModeType } from '@xrengine/engine/src/scene/constants/transformConstants'
 
-import * as styles from '../styles.module.scss'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { InfoTooltip } from '../../layout/Tooltip'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SceneManager } from '../../../managers/SceneManager'
+import HeightIcon from '@mui/icons-material/Height'
+import OpenWithIcon from '@mui/icons-material/OpenWith'
+import SyncIcon from '@mui/icons-material/Sync'
+
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
+import EditorEvents from '../../../constants/EditorEvents'
+import { CommandManager } from '../../../managers/CommandManager'
+import { SceneManager } from '../../../managers/SceneManager'
 import { setTransformMode } from '../../../systems/EditorControlSystem'
+import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const TransformTool = () => {
   const [transformMode, changeTransformMode] = useState<TransformModeType>(TransformMode.Translate)
@@ -31,7 +33,7 @@ const TransformTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup}>
-      <InfoTooltip id="translate-button" info="[T] Translate" position="bottom">
+      <InfoTooltip title="[T] Translate" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Translate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Translate)}
@@ -39,7 +41,7 @@ const TransformTool = () => {
           <OpenWithIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <InfoTooltip id="rotate-button" info="[R] Rotate" position="bottom">
+      <InfoTooltip title="[R] Rotate" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Rotate ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Rotate)}
@@ -47,7 +49,7 @@ const TransformTool = () => {
           <SyncIcon fontSize="small" />
         </button>
       </InfoTooltip>
-      <InfoTooltip id="scale-button" info="[Y] Scale" position="bottom">
+      <InfoTooltip title="[Y] Scale" placement="bottom">
         <button
           className={styles.toolButton + ' ' + (transformMode === TransformMode.Scale ? styles.selected : '')}
           onClick={() => setTransformMode(TransformMode.Scale)}

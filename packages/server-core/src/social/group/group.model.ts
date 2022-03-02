@@ -1,6 +1,9 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { GroupInterface } from '@xrengine/common/src/dbmodels/Group'
+
+import { Application } from '../../../declarations'
+
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const group = sequelizeClient.define<Model<GroupInterface>>(

@@ -1,5 +1,7 @@
+import { CameraHelper, Color, DirectionalLight, Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { CameraHelper, DirectionalLight, Vector2, Color } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,

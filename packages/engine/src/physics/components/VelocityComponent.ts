@@ -1,6 +1,7 @@
 import { Types } from 'bitecs'
 import { create } from 'lodash'
 import { Vector3 } from 'three'
+
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 /**

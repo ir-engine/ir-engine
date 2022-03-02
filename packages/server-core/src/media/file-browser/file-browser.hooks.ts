@@ -1,4 +1,5 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 

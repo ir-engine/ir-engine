@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useCallback, memo, useContext } from 'react'
-import { ContextMenu, MenuItem } from '../layout/ContextMenu'
+import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import { FixedSizeList, areEqual } from 'react-window'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { addItem } from '../dnd'
-import useUpload from '../assets/useUpload'
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { useTranslation } from 'react-i18next'
-import { cmdOrCtrlString } from '../../functions/utils'
-import EditorEvents from '../../constants/EditorEvents'
-import { CommandManager } from '../../managers/CommandManager'
-import EditorCommands from '../../constants/EditorCommands'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import Hotkeys from 'react-hot-keys'
+import { useTranslation } from 'react-i18next'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { areEqual, FixedSizeList } from 'react-window'
+
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
-import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
+
+import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
+import EditorCommands from '../../constants/EditorCommands'
+import EditorEvents from '../../constants/EditorEvents'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
+import { cmdOrCtrlString } from '../../functions/utils'
+import { CommandManager } from '../../managers/CommandManager'
+import useUpload from '../assets/useUpload'
+import { addPrefabElement } from '../element/ElementList'
+import { ContextMenu, MenuItem } from '../layout/ContextMenu'
 import { AppContext } from '../Search/context'
+import { HeirarchyTreeCollapsedNodeType, HeirarchyTreeNodeType, heirarchyTreeWalker } from './HeirarchyTreeWalker'
+import { getNodeElId, HierarchyTreeNode, HierarchyTreeNodeData, RenameNodeData } from './HierarchyTreeNode'
 import styles from './styles.module.scss'
 
 /**
@@ -151,7 +153,6 @@ export default function HierarchyPanel() {
       const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.entityNode]
       cameraComponent.refocus = true
-      cameraComponent.dirty = true
     }
   }, [])
 
@@ -269,7 +270,7 @@ export default function HierarchyPanel() {
   /* Rename functions */
 
   const [, treeContainerDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) return
 
@@ -287,7 +288,15 @@ export default function HierarchyPanel() {
         return
       }
 
-      if (addItem(item)) return
+      if (item.url) {
+        CommandManager.instance.addMedia({ url: item.url })
+        return
+      }
+
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item)
+        return
+      }
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: useWorld().entityTree.rootNode
@@ -295,8 +304,6 @@ export default function HierarchyPanel() {
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
-
-      if (isAsset(item)) return true
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {

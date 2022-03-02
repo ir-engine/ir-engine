@@ -1,6 +1,6 @@
-import { Network } from '../classes/Network'
-import { World } from '../../ecs/classes/World'
 import { Engine } from '../../ecs/classes/Engine'
+import { World } from '../../ecs/classes/World'
+import { Network } from '../classes/Network'
 import { validateNetworkObjects } from '../functions/validateNetworkObjects'
 import { createDataReader } from '../serialization/DataReader'
 

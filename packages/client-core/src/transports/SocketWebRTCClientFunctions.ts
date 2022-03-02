@@ -1,24 +1,26 @@
+import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+
+import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
   accessMediaInstanceConnectionState,
   MediaLocationInstanceConnectionAction
 } from '../common/services/MediaInstanceConnectionService'
-import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
-import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -107,7 +109,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
 
   // Get information for how to consume data from server and init a data consumer
   networkTransport.socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
-    // console.log('WebRTCConsumeData', options)
+    console.log('WebRTCConsumeData', options)
     const dataConsumer = await networkTransport.recvTransport.consumeData(options)
 
     // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
@@ -132,7 +134,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   networkTransport.socket.on(
     MessageTypes.WebRTCCreateProducer.toString(),
     async (socketId, mediaTag, producerId, channelType: ChannelType, channelId) => {
-      // console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
+      console.log('WebRTCCreateProducer', socketId, mediaTag, producerId, channelType, channelId)
       const selfProducerIds = [MediaStreams.instance?.camVideoProducer?.id, MediaStreams.instance?.camAudioProducer?.id]
       const channelConnectionState = accessMediaInstanceConnectionState()
       if (

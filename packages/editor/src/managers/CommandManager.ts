@@ -1,44 +1,44 @@
 import EventEmitter from 'events'
+
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+
 import History from '../classes/History'
-import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import AddObjectCommand, { AddObjectCommandParams } from '../commands/AddObjectCommand'
 import AddToSelectionCommand from '../commands/AddToSelectionCommand'
 import Command from '../commands/Command'
 import DuplicateObjectCommand, { DuplicateObjectCommandParams } from '../commands/DuplicateObjectCommand'
+import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
+import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
+import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
 import RemoveFromSelectionCommand from '../commands/RemoveFromSelectionCommand'
 import RemoveObjectsCommand, { RemoveObjectCommandParams } from '../commands/RemoveObjectsCommand'
 import ReparentCommand, { ReparentCommandParams } from '../commands/ReparentCommand'
 import ReplaceSelectionCommand from '../commands/ReplaceSelectionCommand'
-import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
-import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
-import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
-import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
 import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/RotateAroundCommand'
+import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
 import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
-import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
-import isInputSelected from '../functions/isInputSelected'
-import { SceneManager } from './SceneManager'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
-import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
+import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
+import EditorEvents from '../constants/EditorEvents'
+import isInputSelected from '../functions/isInputSelected'
 
 export type CommandParamsType =
   | AddObjectCommandParams
   | RemoveObjectCommandParams
   | DuplicateObjectCommandParams
-  | ModifyPropertyCommandParams
+  | ModifyPropertyCommandParams<any>
   | ReparentCommandParams
   | GroupCommandParams
   | PositionCommandParams
@@ -112,7 +112,11 @@ export class CommandManager extends EventEmitter {
     this.history.execute(new this.commands[command](this.selected, params))
   }
 
-  setProperty(affectedEntityNodes: EntityTreeNode[], params: ModifyPropertyCommandParams, withHistory = true) {
+  setProperty<C extends MappedComponent<any, any>>(
+    affectedEntityNodes: EntityTreeNode[],
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     if (withHistory) {
       this.executeCommandWithHistory(EditorCommands.MODIFY_PROPERTY, affectedEntityNodes, params)
     } else {
@@ -120,11 +124,18 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  setPropertyOnSelectionEntities(params: ModifyPropertyCommandParams, withHistory = true) {
+  setPropertyOnSelectionEntities<C extends MappedComponent<any, any>>(
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     this.setProperty(this.selected, params, withHistory)
   }
 
-  setPropertyOnEntityNode(node: EntityTreeNode, params: ModifyPropertyCommandParams, withHistory = true) {
+  setPropertyOnEntityNode<C extends MappedComponent<any, any>>(
+    node: EntityTreeNode,
+    params: ModifyPropertyCommandParams<C>,
+    withHistory = true
+  ) {
     this.setProperty([node], params, withHistory)
   }
 
@@ -258,7 +269,7 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode, updatePosition = true) {
+  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode): Promise<EntityTreeNode> {
     let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
@@ -273,7 +284,7 @@ export class CommandManager extends EventEmitter {
           node,
           {
             component: ModelComponent,
-            properties: { src: url, initialScale: 'fit' }
+            properties: { src: url }
           },
           false
         )
@@ -317,7 +328,7 @@ export class CommandManager extends EventEmitter {
           node,
           {
             component: AudioComponent,
-            properties: { paths: [url] }
+            properties: { audioSource: url }
           },
           false
         )
@@ -342,11 +353,6 @@ export class CommandManager extends EventEmitter {
       })
 
       updateFunc()
-
-      if (updatePosition) {
-        const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
-      }
     }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)
