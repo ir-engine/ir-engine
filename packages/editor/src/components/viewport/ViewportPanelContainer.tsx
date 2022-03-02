@@ -32,9 +32,7 @@ export function ViewportPanelContainer() {
   const selectionState = useSelectionState()
   const modeState = useModeState()
   const dispatch = useDispatch()
-  const initializeRefFly = React.useRef<boolean>(false)
-  const initializeRefTranform = React.useRef<boolean>(false)
-  const initializeRefSelect = React.useRef<boolean>(false)
+  const [editorInitialized, setEditorInitialized] = useState<boolean>(false)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
   const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
@@ -54,29 +52,25 @@ export function ViewportPanelContainer() {
     setTransformMode(mode)
   }, [])
 
-  const onEditorInitialized = useCallback(() => {}, [])
+  const onEditorInitialized = () => {
+    setEditorInitialized(true)
+  }
 
   useEffect(() => {
-    if (initializeRefFly.current && editorState.rendererInitialized.value) {
+    if (editorInitialized && editorState.rendererInitialized.value) {
       onFlyModeChanged()
-    } else {
-      initializeRefFly.current = true
     }
   }, [modeState.flyModeChanged])
 
   useEffect(() => {
-    if (initializeRefTranform.current) {
+    if (editorInitialized && editorState.rendererInitialized.value) {
       onTransformModeChanged(modeState.transformMode.value)
-    } else {
-      initializeRefTranform.current = true
     }
   }, [modeState.transformMode])
 
   useEffect(() => {
-    if (initializeRefSelect.current) {
+    if (editorInitialized && editorState.rendererInitialized.value) {
       onSelectionChanged()
-    } else {
-      initializeRefSelect.current = true
     }
   }, [selectionState.selectionChanged])
 
@@ -91,6 +85,8 @@ export function ViewportPanelContainer() {
   useEffect(() => {
     if (editorState.rendererInitialized.value === true) {
       onEditorInitialized()
+    } else {
+      setEditorInitialized(false)
     }
   }, [editorState.rendererInitialized])
 

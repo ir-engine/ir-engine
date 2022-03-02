@@ -66,9 +66,6 @@ export default function HierarchyPanel() {
   const { t } = useTranslation()
   const onUpload = useUpload(uploadOptions)
   const selectionState = useSelectionState()
-  const initializeRefSceneGraph = React.useRef<boolean>(false)
-  const initializeRefSelect = React.useRef<boolean>(false)
-  const initializeRefObjects = React.useRef<boolean>(false)
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
@@ -128,27 +125,15 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    if (initializeRefSceneGraph.current) {
-      updateHierarchy()
-    } else {
-      initializeRefSceneGraph.current = true
-    }
+    updateHierarchy()
   }, [selectionState.sceneGraphChanged])
 
   useEffect(() => {
-    if (initializeRefSelect.current) {
-      updateHierarchy()
-    } else {
-      initializeRefSelect.current = true
-    }
+    updateHierarchy()
   }, [selectionState.selectionChanged])
 
   useEffect(() => {
-    if (initializeRefObjects.current) {
-      onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-    } else {
-      initializeRefObjects.current = true
-    }
+    onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
   }, [selectionState.objectChanged])
 
   /* Event handlers */
