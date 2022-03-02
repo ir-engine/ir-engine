@@ -1,6 +1,7 @@
 import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
+import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../ecs/classes/Engine'
 import { findRootBone, processRootAnimation } from './animation/Util'
 import { getDefaultSkeleton } from './functions/avatarFunctions'
@@ -18,11 +19,15 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  async getAnimations(): Promise<AnimationClip[]> {
+  async getDefaultAnimations() {
+    const gltf = await AssetLoader.loadAsync({ url: Engine.publicPath + '/default_assets/Animations.glb' })
+    this.getAnimations(gltf)
+  }
+
+  getAnimations(gltf: GLTF): AnimationClip[] {
     if (this._animations) {
       return this._animations
     }
-    const gltf = await AssetLoader.loadAsync({ url: Engine.publicPath + '/default_assets/Animations.glb' })
     gltf.scene.traverse((child: SkinnedMesh) => {
       if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
         this._defaultSkeleton = child

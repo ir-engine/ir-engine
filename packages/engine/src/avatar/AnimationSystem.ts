@@ -1,3 +1,5 @@
+import { AssetLoader } from 'src/assets/classes/AssetLoader'
+import { Engine } from 'src/ecs/classes/Engine'
 import matches from 'ts-matches'
 
 import { World } from '../ecs/classes/World'
@@ -28,7 +30,7 @@ export default async function AnimationSystem(world: World) {
     })
   }
 
-  await AnimationManager.instance.getAnimations()
+  await AnimationManager.instance.getDefaultAnimations()
 
   return () => {
     const { delta } = world

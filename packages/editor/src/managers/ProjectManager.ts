@@ -1,6 +1,8 @@
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
@@ -36,7 +38,7 @@ export class ProjectManager {
 
     this.initializing = true
 
-    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getAnimations()]
+    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()]
 
     await Promise.all(tasks)
 
