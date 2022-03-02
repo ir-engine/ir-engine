@@ -17,8 +17,6 @@ export default async function HighlightSystem(world: World) {
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
           Engine.effectComposer.OutlineEffect.selection.add(obj)
-          Engine.effectComposer.OutlineEffect.visibleEdgeColor = compHL.color
-          Engine.effectComposer.OutlineEffect.hiddenEdgeColor = compHL.hiddenColor
         }
       })
     }

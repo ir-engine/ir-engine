@@ -118,7 +118,7 @@ export default async function InteractiveSystem(world: World) {
     }
 
     for (const entity of subfocusQuery.enter()) {
-      addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff, edgeStrength: 1 })
+      addComponent(entity, HighlightComponent, {})
     }
     for (const entity of subfocusQuery.exit()) {
       removeComponent(entity, HighlightComponent)
