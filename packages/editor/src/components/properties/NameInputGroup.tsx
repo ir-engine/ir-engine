@@ -32,7 +32,6 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  */
 export const NameInputGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
-  const initializeRef = React.useRef<boolean>(false)
   const nodeName = getComponent(props.node.entity, NameComponent)?.name
 
   const [name, setName] = useState(nodeName)
@@ -40,11 +39,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (initializeRef.current) {
-      onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
-    } else {
-      initializeRef.current = true
-    }
+    onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
   }, [selectionState.objectChanged])
 
   const onObjectChange = (_: any, propertyName: string) => {

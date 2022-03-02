@@ -106,8 +106,6 @@ const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
 export const PropertiesPanelContainer = () => {
   //setting the props and state
   const selectionState = useSelectionState()
-  const initializeRefS = React.useRef<boolean>(false)
-  const initializeRefO = React.useRef<boolean>(false)
   const [selected, setSelected] = useState(CommandManager.instance.selected)
   const { t } = useTranslation()
 
@@ -127,19 +125,11 @@ export const PropertiesPanelContainer = () => {
   }
 
   useEffect(() => {
-    if (initializeRefS.current) {
-      onSelectionChanged()
-    } else {
-      initializeRefS.current = true
-    }
+    onSelectionChanged()
   }, [selectionState.selectionChanged])
 
   useEffect(() => {
-    if (initializeRefO.current) {
-      onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-    } else {
-      initializeRefO.current = true
-    }
+    onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
   }, [selectionState.objectChanged])
 
   const onChangeVisible = (value) => {

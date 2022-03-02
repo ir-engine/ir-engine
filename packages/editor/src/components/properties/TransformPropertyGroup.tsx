@@ -25,7 +25,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
-  const initializeRef = React.useRef<boolean>(false)
   const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
 
   const forceUpdate = useCallback(() => updateState({}), [])
@@ -36,11 +35,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
-    if (initializeRef.current) {
-      forceUpdate()
-    } else {
-      initializeRef.current = true
-    }
+    forceUpdate()
   }, [selectionState.objectChanged])
 
   //function to handle the position properties
