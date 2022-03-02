@@ -71,7 +71,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const deleteActiveScene = async () => {
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
-      console.debug(editorState.sceneName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         dispatch(EditorAction.sceneChanged(null))
         history.push(`/editor/${editorState.projectName.value}`)
@@ -123,7 +122,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
           </Button>
         </div>
         <div className={styles.contentContainer + ' ' + styles.sceneGridContainer}>
-          {console.debug(scenes)}
           {scenes.map((scene, i) => {
             return (
               <div className={styles.sceneContainer} key={i}>
