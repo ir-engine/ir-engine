@@ -1,5 +1,6 @@
 import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
+import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -56,7 +57,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   // newVelocity = velocity sim position * moveSpeed
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
-  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(moveSpeed)
+  controller.currentSpeed = smoothDamp(controller.currentSpeed, moveSpeed, controller.speedVelocity, 0.1, timeStep)
+  newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.currentSpeed)
 
   // avatar velocity = newVelocity (horizontal plane)
   velocity.velocity.setX(newVelocity.x)
