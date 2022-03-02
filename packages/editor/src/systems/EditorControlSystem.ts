@@ -12,6 +12,7 @@ import {
   Vector3
 } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -36,12 +37,12 @@ import { EditorCameraComponent, EditorCameraComponentType } from '../classes/Edi
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { ModeAction } from '../services/ModeServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -516,6 +517,8 @@ export const setTransformMode = (
   multiplePlacement?: boolean,
   editorControlComponent?: EditorControlComponentType
 ): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -538,17 +541,19 @@ export const setTransformMode = (
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFROM_MODE_CHANGED, mode)
+  dispatch(ModeAction.changedTransformMode(mode))
 }
 
 export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: EditorControlComponentType): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
   }
 
   editorControlComponent.snapMode = snapMode
-  CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+  dispatch(ModeAction.changedSnapSettings())
 }
 
 export const toggleSnapMode = (editorControlComponent?: EditorControlComponentType): void => {
@@ -564,6 +569,8 @@ export const toggleSnapMode = (editorControlComponent?: EditorControlComponentTy
 }
 
 export const setTransformPivot = (pivot: TransformPivotType, editorControlComponent?: EditorControlComponentType) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -571,7 +578,7 @@ export const setTransformPivot = (pivot: TransformPivotType, editorControlCompon
 
   editorControlComponent.transformPivot = pivot
   editorControlComponent.transformPivotChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_PIVOT_CHANGED)
+  dispatch(ModeAction.changedTransformPivotMode())
 }
 
 export const toggleTransformPivot = (editorControlComponent?: EditorControlComponentType) => {
@@ -590,6 +597,8 @@ export const setTransformSpace = (
   transformSpace: TransformSpace,
   editorControlComponent?: EditorControlComponentType
 ) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -597,7 +606,7 @@ export const setTransformSpace = (
 
   editorControlComponent.transformSpace = transformSpace
   editorControlComponent.transformSpaceChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
+  dispatch(ModeAction.changedTransformSpaceMode())
 }
 
 export const toggleTransformSpace = (editorControlComponent?: EditorControlComponentType) => {

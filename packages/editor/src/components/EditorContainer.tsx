@@ -17,15 +17,14 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
-import EditorEvents from '../constants/EditorEvents'
 import { saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { CacheManager } from '../managers/CacheManager'
-import { CommandManager } from '../managers/CommandManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
+import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
@@ -114,6 +113,9 @@ const EditorContainer = () => {
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
   const sceneLoaded = useEngineState().sceneLoaded
+
+  const errorState = useEditorErrorState()
+  const editorError = errorState.error
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -470,16 +472,18 @@ const EditorContainer = () => {
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
-      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })
   }, [])
+
+  useHookedEffect(() => {
+    if (editorError) {
+      onEditorError(editorError.value)
+    }
+  }, [editorError])
 
   useEffect(() => {
     return () => {
       setEditorReady(false)
-      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
-      CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       ProjectManager.instance.dispose()
     }
   }, [])
