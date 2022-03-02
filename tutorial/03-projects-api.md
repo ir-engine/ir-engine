@@ -4,6 +4,8 @@ Projects are folders that contain all your custom code, assets and scenes. They 
 
 Pictured below is an example of 4 projects installed. By default, only the 'default-project' is installed, which in a production environment is read only. You can find the default project under `/packages/projects/default-project/`
 
+In a production environment, the builder process will install all projects according to the `project` database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
+
 ![](./images/03-projects-folder.png)
 
 ## Configuration
@@ -43,6 +45,8 @@ Projects can also be installed and managed from the /admin/projects route. Click
 ![](./images/03-projects-admin-install-new.png)
 
 ![](./images/03-projects-admin.png)
+
+In local development, the 'Remove Project' button has been disabled, as to ensure no accidental loss of data.
 
 This runs `git clone` in the background, same as above, but will then upload all of the repository's files to the storage provider. These files will then be downloaded and installed to the local file system each time the docker builder pod runs. This allows full version controlled access for local development flow and version locking for production deployment.
 
