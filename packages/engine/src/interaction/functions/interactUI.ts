@@ -258,7 +258,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 
   if (nextMode === 'inactive') {
     const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
-    uiContainer.position.lerp(anchoredPosition, alpha)
+    uiContainer.position.lerp(anchoredPosition, alpha * 0.8)
     uiContainer.quaternion.slerp(scratchQuat.setFromRotationMatrix(Engine.camera.matrix), alpha * 10)
     uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha)
 
@@ -300,7 +300,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 
     const modelTargetPosition = scratchVector.copy(anchoredPosition)
     modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
-    modelTransform.position.lerp(modelTargetPosition, alpha)
+    modelTransform.position.lerp(modelTargetPosition, alpha * 0.5)
     modelTransform.rotation.slerp(anchoredRotation, alpha)
     modelTransform.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
 
@@ -321,9 +321,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     const uiContainerScale =
       ObjectFitFunctions.computeContentFitScaleForCamera(INTERACTING_UI_POSITION.z, uiSize.x, uiSize.y, 'contain') *
       0.92
-    uiContainer.position.lerp(INTERACTING_UI_POSITION, alpha)
+    uiContainer.position.lerp(INTERACTING_UI_POSITION, alpha * 10)
     uiContainer.quaternion.slerp(INTERACTING_CAMERA_ROTATION, alpha * 10)
-    uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha * 1.2)
+    uiContainer.scale.lerp(scratchVector.setScalar(uiContainerScale), alpha * 1.5)
 
     const modelTransform = getComponent(modelEntity, TransformComponent)
     const modelBounds = getComponent(modelEntity, BoundingBoxComponent)
