@@ -464,7 +464,7 @@ const EditorContainer = () => {
     if (editorError) {
       onEditorError(editorError.value)
     }
-  }, [editorError.value])
+  }, [editorError])
 
   useEffect(() => {
     return () => {
