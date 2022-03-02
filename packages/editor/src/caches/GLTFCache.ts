@@ -1,4 +1,5 @@
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+
 export default class GLTFCache {
   cache: Map<any, any>
   constructor() {
@@ -7,7 +8,7 @@ export default class GLTFCache {
   get(url) {
     const absoluteURL = new URL(url, (window as any).location).href
     if (this.cache.has(absoluteURL)) {
-      return this.cache.get(absoluteURL)
+      return new Map(JSON.parse(JSON.stringify([...this.cache]))).get(absoluteURL)
     } else {
       const loadPromise = AssetLoader.loadAsync(url)
       this.cache.set(absoluteURL, loadPromise)

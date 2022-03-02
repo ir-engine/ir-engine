@@ -1,5 +1,5 @@
-import { Texture, TextureLoader } from 'three'
 import loadTexture from '@xrengine/engine/src/assets/functions/loadTexture'
+import { Texture, TextureLoader } from 'three'
 
 class Cache {
   _cache = new Map<string, Promise<Texture>>()
@@ -25,7 +25,7 @@ export default class TextureCache extends Cache {
     if (!this._cache.has(absoluteURL)) {
       this._cache.set(absoluteURL, loadTexture(absoluteURL, this.textureLoader))
     }
-    return this._cache.get(absoluteURL)
+    return new Map(JSON.parse(JSON.stringify([...this._cache]))).get(absoluteURL)
   }
 
   disposeAndClear() {
