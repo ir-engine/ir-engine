@@ -1,4 +1,5 @@
 import { AnimationAction } from 'three'
+
 import { lerp } from '../../common/functions/MathLerpFunctions'
 
 // Updates animation action time

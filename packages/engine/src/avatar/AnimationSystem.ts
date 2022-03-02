@@ -1,12 +1,13 @@
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { AnimationComponent } from './components/AnimationComponent'
-import { AnimationManager } from './AnimationManager'
-import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
-import { World } from '../ecs/classes/World'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import matches from 'ts-matches'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+
+import { World } from '../ecs/classes/World'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { IKRigComponent } from '../ikrig/components/IKRigComponent'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { AnimationManager } from './AnimationManager'
+import { AnimationComponent } from './components/AnimationComponent'
+import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 
 const animationQuery = defineQuery([AnimationComponent, IKRigComponent, AvatarAnimationComponent])
 // const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])

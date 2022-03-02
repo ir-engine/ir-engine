@@ -1,4 +1,5 @@
 import { AnimationAction, LoopOnce, LoopRepeat, Vector2 } from 'three'
+
 import { BlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction } from './DistanceMatchingAction'
 import { AvatarStates } from './Util'

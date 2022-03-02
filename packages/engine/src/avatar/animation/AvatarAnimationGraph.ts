@@ -1,4 +1,5 @@
 import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
+
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponentType } from '../components/AvatarComponent'
@@ -12,7 +13,7 @@ import {
 } from './AnimationStateTransitionsRule'
 import { BlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction } from './DistanceMatchingAction'
-import { AvatarStates, AvatarAnimations } from './Util'
+import { AvatarAnimations, AvatarStates } from './Util'
 
 const getAnimationAction = (name: string, mixer: AnimationMixer) => {
   const clip = AnimationClip.findByName(AnimationManager.instance._animations, name)

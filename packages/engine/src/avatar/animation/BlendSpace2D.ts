@@ -1,6 +1,5 @@
 // TODO: Add Delaunay triangulation to sample points and interpolate samples based on nearest triangles
 // https://arrowinmyknee.com/2020/10/13/deep-dive-into-blendspace-in-ue4/
-
 import { AnimationAction, Vector2 } from 'three'
 
 // BlendSpace 2D allow any number of animations to be blended between based on a 2D input value

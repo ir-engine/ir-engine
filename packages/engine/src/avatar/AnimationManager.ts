@@ -1,4 +1,5 @@
 import { AnimationClip, Bone, SkinnedMesh } from 'three'
+
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { Engine } from '../ecs/classes/Engine'
 import { findRootBone, processRootAnimation } from './animation/Util'

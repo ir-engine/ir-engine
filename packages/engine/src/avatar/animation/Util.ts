@@ -1,18 +1,19 @@
-import matches from 'ts-matches'
 import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationClip,
-  Vector3,
+  Bone,
   Quaternion,
   SkinnedMesh,
-  Bone
+  Vector3
 } from 'three'
-import { matchesVector3 } from '../../ecs/functions/Action'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { Entity } from '../../ecs/classes/Entity'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import matches from 'ts-matches'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { matchesVector3 } from '../../ecs/functions/Action'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 
 /** State of the avatar animation */
