@@ -77,5 +77,6 @@ export class ProjectManager {
     CacheManager.clearCaches()
     SceneManager.instance.dispose()
     ControlManager.instance.dispose()
+    store.dispatch(EditorAction.projectLoaded(false))
   }
 }
