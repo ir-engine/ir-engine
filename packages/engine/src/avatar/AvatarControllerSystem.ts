@@ -10,18 +10,13 @@ import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { setAvatarHeadOpacity } from './functions/avatarFunctions'
-import {
-  alignXRCameraPositionWithAvatar,
-  alignXRCameraRotationWithAvatar,
-  moveAvatar,
-  moveXRAvatar,
-  rotateXRAvatar
-} from './functions/moveAvatar'
+import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
 
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
-  walkSpeed = 1.5
-  runSpeed = 5
+  // Speeds are same as animation's root motion
+  walkSpeed = 1.6762927669761485
+  runSpeed = 3.769894125544925
   jumpHeight = 4
 }
 
@@ -29,8 +24,7 @@ export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
 
-  const tempVec = new Vector3(),
-    lastCamPos = new Vector3(),
+  const lastCamPos = new Vector3(),
     displacement = new Vector3()
 
   return () => {
