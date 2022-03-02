@@ -1,5 +1,6 @@
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -16,6 +17,7 @@ import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
+import AvatarDetail from './AvatarDetail'
 
 interface Props {
   openView: boolean
@@ -41,6 +43,7 @@ const ViewAvatar = (props: Props) => {
   })
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
+  const ref = useRef(null)
   const handleCloseDrawer = () => {
     closeViewModel(false)
   }
@@ -187,39 +190,7 @@ const ViewAvatar = (props: Props) => {
               </Paper>
             </div>
           ) : (
-            <div>
-              <Typography
-                variant="h4"
-                component="h4"
-                className={`${classes.mb20px} ${classes.mt5} ${classes.headingFont}`}
-              >
-                Avatar Information
-              </Typography>
-              <Grid container spacing={3} className={classes.mt5}>
-                <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Name:
-                  </Typography>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    Description:
-                  </Typography>
-                </Grid>
-                <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.name || <span className={classes.spanNone}>None</span>}
-                  </Typography>
-                  <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                    {avatarData?.description || <span className={classes.spanNone}>None</span>}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Avatar
-              </Typography>
-              <img src={avatarData?.url} alt="avatar" />
-              {/* {avatarData?.url || <span className={classes.spanNone}>None</span>} */}
-              <div className={classes.scopeContainer}></div>
-            </div>
+            <AvatarDetail avatarData={avatarData} />
           )}
           <DialogActions className={classes.mb10}>
             {editMode ? (

@@ -83,7 +83,7 @@ export const AvatarService = {
           files: [blob],
           args: [
             {
-              key: `avatars/public/${thumbnail['name']}`,
+              key: `projects/default-project/avatars/${thumbnail['name']}`,
               contentType: 'model/gltf-binary',
               staticResourceType: data.staticResourceType
             }

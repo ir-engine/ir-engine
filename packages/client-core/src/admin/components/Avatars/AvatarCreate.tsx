@@ -112,15 +112,19 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
 
     if (validateForm(newAvatar, formErrors)) {
+      const canvas = document.createElement('canvas')
+      const newContext = canvas.getContext('2d')
+      newContext?.drawImage(renderer.domElement, 0, 0)
       if (selectedFile) {
-        const canvas = document.createElement('canvas')
-        const newContext = canvas.getContext('2d')
-        newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob(async (blob) => {
           await AvatarService.createAdminAvatar(blob!, selectedFile, data)
         })
-      } else {
-        await AvatarService.createAdminAvatar(null as any, selectedFile, data)
+      }
+
+      if (selectedAvatarlUrl) {
+        canvas.toBlob(async (blob) => {
+          await AvatarService.createAdminAvatar(blob!, selectedAvatarlUrl, data)
+        })
       }
       clearState()
       handleClose()
@@ -153,6 +157,8 @@ const AvatarCreate = ({ handleClose, open }) => {
     controls.update()
 
     scene.children = scene.children.filter((c) => c.name !== 'avatar')
+    console.log(scene)
+
     const file = e.target.files[0]
     const reader = new FileReader()
     reader.onload = (fileData) => {

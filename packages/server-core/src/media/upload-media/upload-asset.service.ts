@@ -28,7 +28,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   const provider = useStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
-  const key = `${args.key}_${new Date().getTime()}`
+  const key = args.key
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
       staticResourceType: args.staticResourceType || 'avatar',
