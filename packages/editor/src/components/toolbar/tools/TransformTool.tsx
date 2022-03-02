@@ -25,7 +25,7 @@ const TransformTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.transformMode])
+  }, [modeState.transformMode.value])
 
   const updateTransformMode = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

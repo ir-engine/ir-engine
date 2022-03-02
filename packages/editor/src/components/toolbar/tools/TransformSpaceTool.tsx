@@ -33,7 +33,7 @@ const TransformSpaceTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.transformSpaceModeChanged])
+  }, [modeState.transformSpaceModeChanged.value])
 
   const updateTransformSpace = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

@@ -60,7 +60,7 @@ const TransformSnapTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.snapSettingsChanged])
+  }, [modeState.snapSettingsChanged.value])
 
   const updateSnapSettings = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

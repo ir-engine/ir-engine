@@ -36,7 +36,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   useEffect(() => {
     forceUpdate()
-  }, [selectionState.objectChanged])
+  }, [selectionState.objectChanged.value])
 
   //function to handle the position properties
   const onChangePosition = (value) => {

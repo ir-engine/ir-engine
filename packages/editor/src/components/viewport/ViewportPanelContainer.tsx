@@ -60,19 +60,19 @@ export function ViewportPanelContainer() {
     if (editorInitialized && editorState.rendererInitialized.value) {
       onFlyModeChanged()
     }
-  }, [modeState.flyModeChanged])
+  }, [modeState.flyModeChanged.value])
 
   useEffect(() => {
     if (editorInitialized && editorState.rendererInitialized.value) {
       onTransformModeChanged(modeState.transformMode.value)
     }
-  }, [modeState.transformMode])
+  }, [modeState.transformMode.value])
 
   useEffect(() => {
     if (editorInitialized && editorState.rendererInitialized.value) {
       onSelectionChanged()
     }
-  }, [selectionState.selectionChanged])
+  }, [selectionState.selectionChanged.value])
 
   const initRenderer = () => SceneManager.instance.initializeRenderer()
 
@@ -80,7 +80,7 @@ export function ViewportPanelContainer() {
     if (editorState.projectLoaded.value === true) {
       initRenderer()
     }
-  }, [editorState.projectLoaded])
+  }, [editorState.projectLoaded.value])
 
   useEffect(() => {
     if (editorState.rendererInitialized.value === true) {
@@ -88,7 +88,7 @@ export function ViewportPanelContainer() {
     } else {
       setEditorInitialized(false)
     }
-  }, [editorState.rendererInitialized])
+  }, [editorState.rendererInitialized.value])
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],

@@ -126,11 +126,11 @@ export const PropertiesPanelContainer = () => {
 
   useEffect(() => {
     onSelectionChanged()
-  }, [selectionState.selectionChanged])
+  }, [selectionState.selectionChanged.value])
 
   useEffect(() => {
     onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged])
+  }, [selectionState.objectChanged.value])
 
   const onChangeVisible = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {

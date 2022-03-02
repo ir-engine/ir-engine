@@ -29,7 +29,7 @@ const RenderModeTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.renderModeChanged])
+  }, [modeState.renderModeChanged.value])
 
   const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
   const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])

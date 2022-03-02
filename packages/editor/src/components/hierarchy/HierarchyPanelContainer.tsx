@@ -126,15 +126,15 @@ export default function HierarchyPanel() {
 
   useEffect(() => {
     updateHierarchy()
-  }, [selectionState.sceneGraphChanged])
+  }, [selectionState.sceneGraphChanged.value])
 
   useEffect(() => {
     updateHierarchy()
-  }, [selectionState.selectionChanged])
+  }, [selectionState.selectionChanged.value])
 
   useEffect(() => {
     onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged])
+  }, [selectionState.objectChanged.value])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {

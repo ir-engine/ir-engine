@@ -35,7 +35,7 @@ store.receptors.push((action: SelectionActionType): any => {
           propertyName: action.propertyName
         })
       case 'SCENE_GRAPH_CHANGED':
-        return s.merge({ objectChanged: action.sceneGraphChanged })
+        return s.merge({ sceneGraphChanged: action.sceneGraphChanged })
     }
   }, action.type)
 })

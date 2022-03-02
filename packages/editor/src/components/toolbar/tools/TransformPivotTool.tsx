@@ -34,7 +34,7 @@ const TransformPivotTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.transformPivotModeChanged])
+  }, [modeState.transformPivotModeChanged.value])
 
   const updateTransformPivot = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)

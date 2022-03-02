@@ -21,7 +21,7 @@ const PlayModeTool = () => {
     } else {
       initializeRef.current = true
     }
-  }, [modeState.playModeChanged])
+  }, [modeState.playModeChanged.value])
 
   const updatePlayModeSetting = () => {
     setInPlayMode(ControlManager.instance.isInPlayMode)

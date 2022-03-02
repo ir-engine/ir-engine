@@ -87,7 +87,7 @@ export const ModelPreviewPanel = (props) => {
     } else {
       initializeRefFly.current = true
     }
-  }, [modeState.flyModeChanged])
+  }, [modeState.flyModeChanged.value])
 
   useEffect(() => {
     SceneManager.instance.initializeRenderer()
