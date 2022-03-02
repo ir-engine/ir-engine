@@ -25,9 +25,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
     if (shapes.length > 0) {
       let body = createBody(entity, json.props, shapes)
       // ;(body as PhysX.PxRigidBody).setMass(10)
-
-      if (Engine.isEditor) body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
-      else body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, false)
+      body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, false)
 
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
