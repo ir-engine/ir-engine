@@ -49,7 +49,7 @@ const TransformSpaceTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
-      <InfoTooltip info="[Z] Toggle Transform Space">
+      <InfoTooltip title="[Z] Toggle Transform Space">
         <button onClick={onToggleTransformSpace} className={styles.toolButton}>
           <LanguageIcon fontSize="small" />
         </button>

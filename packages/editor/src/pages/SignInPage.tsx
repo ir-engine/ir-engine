@@ -5,8 +5,6 @@ import styled from 'styled-components'
 import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
-import { ProjectGridContainer, ProjectGridContent } from '../components/projects/ProjectGrid'
-
 /**
  * Creating styled component using section.
  * Used as a parent container in view.
@@ -57,6 +55,29 @@ export const StyledProjectsHeader = (styled as any).div`
  display: flex;
  justify-content: space-between;
  align-items: center;
+`
+
+/**
+ *
+ * @author Robert Long
+ */
+const ProjectGridContainer = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: ${(props) => props.theme.panel2};
+  border-radius: 3px;
+`
+
+/**
+ *
+ * @author Robert Long
+ */
+const ProjectGridContent = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px;
 `
 
 export const SignInPage = () => {

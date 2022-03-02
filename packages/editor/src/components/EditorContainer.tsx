@@ -1,15 +1,15 @@
-import { DockLayout, DockMode, LayoutData } from 'rc-dock'
+import { DockLayout, DockMode, LayoutData, TabData } from 'rc-dock'
 import 'rc-dock/dist/rc-dock.css'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useHistory, withRouter } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { useHookedEffect } from '@xrengine/client-core/src/hooks/useHookedEffect'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { unloadScene } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -27,9 +27,10 @@ import { CommandManager } from '../managers/CommandManager'
 import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import AssetsPanel from './assets/AssetsPanel'
+import AssetDropZone from './assets/AssetDropZone'
 import ProjectBrowserPanel from './assets/ProjectBrowserPanel'
 import ScenesPanel from './assets/ScenesPanel'
+import { ControlText } from './controlText/ControlText'
 import ConfirmDialog from './dialogs/ConfirmDialog'
 import ErrorDialog from './dialogs/ErrorDialog'
 import ExportProjectDialog from './dialogs/ExportProjectDialog'
@@ -37,6 +38,7 @@ import { ProgressDialog } from './dialogs/ProgressDialog'
 import SaveNewProjectDialog from './dialogs/SaveNewProjectDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
+import ElementList from './element/ElementList'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { DialogContext } from './hooks/useDialog'
 import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
@@ -45,7 +47,6 @@ import { AppContext } from './Search/context'
 import Search from './Search/Search'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
-import ViewportPanelContainer from './viewport/ViewportPanelContainer'
 
 /**
  *Styled component used as dock container.
@@ -58,7 +59,6 @@ export const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
-    opacity: 0.8;
     border: none;
   }
   .dock-panel:first-child {
@@ -66,31 +66,34 @@ export const DockContainer = (styled as any).div`
     z-index: 99;
   }
   .dock-panel[data-dockid="+5"] {
-    visibility: hidden;
     pointer-events: none;
   }
+  .dock-panel[data-dockid="+5"] .dock-bar { display: none; }
+  .dock-panel[data-dockid="+5"] .dock { background: transparent; }
   .dock-divider {
     pointer-events: auto;
     background:rgba(1,1,1,${(props) => props.dividerAlpha});
   }
   .dock {
     border-radius: 4px;
-    background: #282C31;
+    background: ${(props) => props.theme.panel}E0;
   }
   .dock-top .dock-bar {
     font-size: 12px;
     border-bottom: 1px solid rgba(0,0,0,0.2);
-    background: #282C31;
+    background: transparent;
   }
   .dock-tab {
-    background: #282C31; 
+    background: transparent;
     border-bottom: none;
   }
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
-    color: #ffffff; 
+    border-bottom: 1px solid #ddd;
   }
+  .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
+  .dock-tab > div { padding: 2px 12px; }
   .dock-ink-bar {
-    background-color: #ffffff; 
+    background-color: 2px solid ${(props) => props.theme.blue};
   }
 `
 /**
@@ -110,6 +113,7 @@ const EditorContainer = () => {
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
   const modified = editorState.sceneModified
+  const sceneLoaded = useEngineState().sceneLoaded
 
   const [searchElement, setSearchElement] = React.useState('')
   const [searchHierarchy, setSearchHierarchy] = React.useState('')
@@ -227,6 +231,10 @@ const EditorContainer = () => {
         error={error}
       />
     )
+  }
+
+  const onProjectLoaded = () => {
+    SceneManager.instance.initializeRenderer()
   }
 
   const onCloseProject = () => {
@@ -430,7 +438,6 @@ const EditorContainer = () => {
   }
 
   useEffect(() => {
-    console.log('toggleRefetchScenes')
     dockPanelRef.current &&
       dockPanelRef.current.updateTab('scenePanel', {
         id: 'scenePanel',
@@ -441,21 +448,29 @@ const EditorContainer = () => {
           </PanelDragContainer>
         ),
         content: (
-          <ScenesPanel
-            newScene={onNewScene}
-            toggleRefetchScenes={toggleRefetchScenes}
-            projectName={projectName.value}
-            loadScene={reRouteToLoadScene}
-          />
+          <ScenesPanel newScene={onNewScene} toggleRefetchScenes={toggleRefetchScenes} loadScene={reRouteToLoadScene} />
         )
       })
   }, [toggleRefetchScenes])
+
+  useEffect(() => {
+    if (sceneLoaded.value && dockPanelRef.current) {
+      dockPanelRef.current.updateTab('viewPanel', {
+        id: 'viewPanel',
+        title: 'Viewport',
+        content: <div />
+      })
+
+      dockPanelRef.current.updateTab('filesPanel', dockPanelRef.current.find('filesPanel') as TabData, true)
+    }
+  }, [sceneLoaded])
 
   useEffect(() => {
     CacheManager.init()
 
     ProjectManager.instance.init().then(() => {
       setEditorReady(true)
+      CommandManager.instance.addListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.addListener(EditorEvents.ERROR.toString(), onEditorError)
     })
   }, [])
@@ -463,6 +478,7 @@ const EditorContainer = () => {
   useEffect(() => {
     return () => {
       setEditorReady(false)
+      CommandManager.instance.removeListener(EditorEvents.PROJECT_LOADED.toString(), onProjectLoaded)
       CommandManager.instance.removeListener(EditorEvents.ERROR.toString(), onEditorError)
       ProjectManager.instance.dispose()
     }
@@ -526,7 +542,6 @@ const EditorContainer = () => {
                   content: (
                     <ScenesPanel
                       newScene={onNewScene}
-                      projectName={projectName.value}
                       toggleRefetchScenes={toggleRefetchScenes}
                       loadScene={reRouteToLoadScene}
                     />
@@ -552,14 +567,25 @@ const EditorContainer = () => {
           children: [
             {
               id: '+5',
-              tabs: [{ id: 'viewPanel', title: 'Viewport', content: <div /> }],
+              tabs: [
+                {
+                  id: 'viewPanel',
+                  title: 'Viewport',
+                  content: (
+                    <div className={styles.bgImageBlock}>
+                      <img src="/static/xrengine.png" />
+                      <h2>{t('editor:selectSceneMsg')}</h2>
+                    </div>
+                  )
+                }
+              ],
               size: 1
             }
           ]
         },
         {
           mode: 'vertical' as DockMode,
-          size: 3,
+          size: 2,
           children: [
             {
               tabs: [
@@ -587,18 +613,6 @@ const EditorContainer = () => {
                     </PanelDragContainer>
                   ),
                   content: <PropertiesPanelContainer />
-                },
-                {
-                  id: 'assetsPanel',
-                  title: (
-                    <PanelDragContainer>
-                      <PanelTitle>
-                        Elements
-                        <Search elementsName="element" handleInputChange={handleInputChangeElement} />
-                      </PanelTitle>
-                    </PanelDragContainer>
-                  ),
-                  content: <AssetsPanel />
                 }
               ]
             }
@@ -608,19 +622,25 @@ const EditorContainer = () => {
     }
   }
   return (
-    <div className={styles.editorContainer} id="editor-container">
+    <div
+      id="editor-container"
+      className={styles.editorContainer}
+      style={sceneLoaded.value ? { background: 'transparent' } : {}}
+    >
       <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
         <DndWrapper id="editor-container">
           <DragLayer />
           <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+          <ElementList />
+          <ControlText />
           <div className={styles.workspaceContainer}>
-            <ViewportPanelContainer />
+            <AssetDropZone />
             <AppContext.Provider value={{ searchElement, searchHierarchy }}>
               <DockContainer>
                 <DockLayout
                   ref={dockPanelRef}
                   defaultLayout={defaultLayout}
-                  style={{ position: 'absolute', left: 5, top: 55, right: 5, bottom: 5 }}
+                  style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
                 />
               </DockContainer>
             </AppContext.Provider>

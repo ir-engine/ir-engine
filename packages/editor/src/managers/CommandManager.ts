@@ -3,7 +3,7 @@ import EventEmitter from 'events'
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
@@ -12,7 +12,6 @@ import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelCompo
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import History from '../classes/History'
 import AddObjectCommand, { AddObjectCommandParams } from '../commands/AddObjectCommand'
@@ -34,7 +33,6 @@ import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
 import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
 import EditorEvents from '../constants/EditorEvents'
 import isInputSelected from '../functions/isInputSelected'
-import { SceneManager } from './SceneManager'
 
 export type CommandParamsType =
   | AddObjectCommandParams
@@ -271,7 +269,7 @@ export class CommandManager extends EventEmitter {
     }
   }
 
-  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode, updatePosition = true) {
+  async addMedia({ url }, parent?: EntityTreeNode, before?: EntityTreeNode): Promise<EntityTreeNode> {
     let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
@@ -355,11 +353,6 @@ export class CommandManager extends EventEmitter {
       })
 
       updateFunc()
-
-      if (updatePosition) {
-        const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
-      }
     }
 
     CommandManager.instance.emitEvent(EditorEvents.FILE_UPLOADED)

@@ -35,7 +35,6 @@ const StyledNodeEditor = (styled as any).div`
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${(props) => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `
