@@ -475,7 +475,7 @@ const EditorContainer = () => {
     })
   }, [])
 
-  useEffect(() => {
+  useHookedEffect(() => {
     if (editorError) {
       onEditorError(editorError.value)
     }
