@@ -137,10 +137,3 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
     deserializer(entity, component)
   }
 }
-
-export const registerSceneLoadPromise = (promise: Promise<any>) => {
-  Engine.sceneLoadPromises.push(promise)
-  promise.then(() => {
-    Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-  })
-}

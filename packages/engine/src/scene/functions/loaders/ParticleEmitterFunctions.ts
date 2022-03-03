@@ -17,8 +17,6 @@ import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitte
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { RenderedComponent } from '../../components/RenderedComponent'
-import { addError, removeError } from '../ErrorFunctions'
-import { registerSceneLoadPromise } from '../SceneLoading'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -54,36 +52,27 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 
   const props = parseParticleEmitterProperties(json.props)
 
-  registerSceneLoadPromise(
-    new Promise<void>((resolve) => {
-      AssetLoader.load(props.src, (texture) => {
-        const mesh = new ParticleEmitterMesh(props, texture)
-        addComponent(entity, ParticleEmitterComponent, mesh)
-        addComponent(entity, Object3DComponent, { value: mesh })
-        addComponent(entity, RenderedComponent, {})
-        resolve()
-      })
-    })
-  )
+  const texture = AssetLoader.getFromCache(props.src)
+  const mesh = new ParticleEmitterMesh(props, texture)
+  addComponent(entity, ParticleEmitterComponent, mesh)
+  addComponent(entity, Object3DComponent, { value: mesh })
+  addComponent(entity, RenderedComponent, {})
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
 }
 
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
   if (props.src) {
-    AssetLoader.load(
-      props.src,
-      (texture) => {
-        const component = getComponent(entity, ParticleEmitterComponent)
-        ;(component.material as ShaderMaterial).uniforms.map.value = texture
-        component.updateParticles()
-        removeError(entity, 'error')
-      },
-      undefined,
-      (error) => {
-        addError(entity, 'error', error.message)
-      }
-    )
+    const texture = AssetLoader.getFromCache(props.src)
+    const component = getComponent(entity, ParticleEmitterComponent)
+    ;(component.material as ShaderMaterial).uniforms.map.value = texture
+    component.updateParticles()
+    // removeError(entity, 'error')
+    // },
+    //   undefined,
+    //   (error) => {
+    //     addError(entity, 'error', error.message)
+    //   }
   }
 }
 
