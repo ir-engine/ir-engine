@@ -15,6 +15,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 
@@ -46,9 +47,13 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
   if (properties.src) {
     try {
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
-      const gltf = AssetLoader.getFromCache(component.src) as GLTF
-      addComponent(entity, Object3DComponent, { value: gltf.scene })
-      parseGLTFModel(entity, component, gltf.scene)
+      const gltf = AssetLoader.getFromCache(properties.src) as GLTF
+      const scene = cloneObject3D(gltf.scene)
+      // the problem here is ECS remove & add does not seem to trigger exit and enter queries properly...
+      // setTimeout(() => {
+      addComponent(entity, Object3DComponent, { value: scene })
+      // }, 100)
+      parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)

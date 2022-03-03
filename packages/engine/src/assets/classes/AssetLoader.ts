@@ -235,7 +235,7 @@ const load = async (
 
 const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, resolve)
+    load(url, resolve, onProgress, reject)
   })
 }
 

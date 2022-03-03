@@ -77,6 +77,14 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   return () => {
+    for (const entity of sceneObjectQuery.exit()) {
+      const obj3d = getComponent(entity, Object3DComponent, true).value
+
+      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
+
+      obj3d.removeFromParent()
+    }
+
     for (const entity of sceneObjectQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
@@ -99,14 +107,6 @@ export default async function SceneObjectSystem(world: World) {
 
       /** @todo this breaks a bunch of stuff */
       // obj3d.visible = hasComponent(entity, VisibleComponent)
-    }
-
-    for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value
-
-      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
-
-      obj3d.removeFromParent()
     }
 
     // Enable second camera layer for persistant entities for fun portal effects
