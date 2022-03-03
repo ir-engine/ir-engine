@@ -36,6 +36,7 @@ import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { Updatable } from '../../scene/interfaces/Updatable'
+import { AnimationState } from '../animation/AnimationState'
 import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -143,9 +144,34 @@ export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure)
 
 export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
   const animationComponent = getComponent(entity, AnimationComponent)
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const velocityComponent = getComponent(entity, VelocityComponent)
-  const avatarComponent = getComponent(entity, AvatarComponent)
+
+  let avatarComponent = getComponent(entity, AvatarComponent)
+  if (!avatarComponent) {
+    const modelContainer = getComponent(entity, Object3DComponent).value
+    avatarComponent = addComponent(entity, AvatarComponent, {
+      avatarHalfHeight: 10,
+      avatarHeight: 20,
+      modelContainer,
+      isGrounded: true
+    })
+  }
+
+  let avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  if (!avatarAnimationComponent) {
+    avatarAnimationComponent = addComponent(entity, AvatarAnimationComponent, {
+      animationGraph: new AvatarAnimationGraph(),
+      currentState: new AnimationState(),
+      prevState: new AnimationState(),
+      prevVelocity: new Vector3()
+    })
+  }
+
+  let velocityComponent = getComponent(entity, VelocityComponent)
+  if (!velocityComponent) {
+    velocityComponent = addComponent(entity, VelocityComponent, {
+      velocity: new Vector3()
+    })
+  }
 
   animationComponent.mixer?.stopAllAction()
 
