@@ -9,6 +9,7 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -16,12 +17,12 @@ import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControl
 
 import { ArrowBack, Check, Help } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
+
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 
 interface Props {
   changeActiveMenu: Function

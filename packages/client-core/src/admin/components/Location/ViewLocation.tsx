@@ -1,6 +1,8 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
 import { Save } from '@mui/icons-material'
 import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
@@ -27,7 +29,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   openView: boolean

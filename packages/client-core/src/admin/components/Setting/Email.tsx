@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button, Divider, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
@@ -8,9 +9,9 @@ import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
-import { useTranslation } from 'react-i18next'
-const { t } = useTranslation()
 import { useStyles } from './styles'
+
+const { t } = useTranslation()
 
 interface emailProps {}
 

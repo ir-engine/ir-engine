@@ -1,7 +1,10 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
 
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -30,9 +33,6 @@ import { staticResourceService, useStaticResourceState } from '../../services/St
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { useTranslation } from 'react-i18next'
-import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
 
 interface Props {
   openView: boolean

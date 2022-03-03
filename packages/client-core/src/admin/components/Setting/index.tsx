@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import CloseIcon from '@mui/icons-material/Close'
 import MenuIcon from '@mui/icons-material/Menu'
@@ -16,7 +17,6 @@ import Redis from './Redis'
 import Server from './Server'
 import Sidebar from './SideBar'
 import { useStyles } from './styles'
-import { useTranslation } from 'react-i18next'
 
 const Setting = () => {
   const classes = useStyles()

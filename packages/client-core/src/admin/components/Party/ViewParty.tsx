@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { Save } from '@mui/icons-material'
@@ -23,8 +25,6 @@ import { InstanceService } from '../../services/InstanceService'
 import { useLocationState } from '../../services/LocationService'
 import { LocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
-import { useTranslation } from 'react-i18next'
-import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { useStyles } from '../../styles/ui'
 
 interface Props {

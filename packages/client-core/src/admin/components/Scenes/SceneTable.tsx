@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -9,7 +10,6 @@ import { sceneColumns, SceneData, SceneProps } from '../../common/variables/scen
 import { SCENE_PAGE_LIMIT, SceneService, useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
 import ViewScene from './ViewScene'
-import { useTranslation } from 'react-i18next'
 
 const SceneTable = (props: SceneProps) => {
   const classes = useStyles()

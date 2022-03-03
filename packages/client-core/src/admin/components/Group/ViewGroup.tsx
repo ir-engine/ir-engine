@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -16,8 +19,6 @@ import Typography from '@mui/material/Typography'
 
 import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   groupAdmin: Group

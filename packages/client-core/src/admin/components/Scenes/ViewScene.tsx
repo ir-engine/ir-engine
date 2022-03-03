@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Grid, Paper, Typography } from '@mui/material'
 import Container from '@mui/material/Container'
@@ -12,7 +13,6 @@ import TableRow from '@mui/material/TableRow'
 
 import { entityColumns, EntityData, ViewSceneProps } from '../../common/variables/scene'
 import { useStyles } from '../../styles/ui'
-import { useTranslation } from 'react-i18next'
 
 const ViewScene = (props: ViewSceneProps) => {
   const { adminScene, viewModal, closeViewModal } = props

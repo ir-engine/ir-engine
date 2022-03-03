@@ -1,9 +1,12 @@
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator'
 import { useHistory } from 'react-router-dom'
 import { Dropdown } from 'semantic-ui-react'
+
+import { User } from '@xrengine/common/src/interfaces/User'
 
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Button from '@mui/material/Button'
@@ -21,8 +24,6 @@ import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
 import { useDispatch } from '../../../store'
 import styles from '../Admin.module.scss'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean

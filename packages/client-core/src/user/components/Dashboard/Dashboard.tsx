@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import AppBar from '@mui/material/AppBar'
@@ -14,7 +15,6 @@ import Typography from '@mui/material/Typography'
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   children?: JSX.Element

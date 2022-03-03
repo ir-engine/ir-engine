@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
@@ -13,7 +14,6 @@ import { useAuthState } from '../../../user/services/AuthService'
 import CreateModel from '../../common/CreateModel'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import { useTranslation } from 'react-i18next'
 import { validateForm } from '../../common/validation/formValidation'
 import { PartyProps } from '../../common/variables/party'
 import { InstanceService } from '../../services/InstanceService'

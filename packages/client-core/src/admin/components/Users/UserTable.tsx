@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { User } from '@xrengine/common/src/interfaces/User'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
@@ -8,8 +11,6 @@ import { userColumns, UserData, UserProps } from '../../common/variables/user'
 import { USER_PAGE_LIMIT, UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import ViewUser from './ViewUser'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { useTranslation } from 'react-i18next'
 
 const UserTable = (props: UserProps) => {
   const { search } = props

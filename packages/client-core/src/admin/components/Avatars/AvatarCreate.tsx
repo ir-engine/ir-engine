@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AVATAR_FILE_ALLOWED_EXTENSIONS } from '@xrengine/common/src/constants/AvatarConstants'
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { ArrowBack, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -19,7 +20,7 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
-import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
+
 const Input = styled('input')({
   display: 'none'
 })

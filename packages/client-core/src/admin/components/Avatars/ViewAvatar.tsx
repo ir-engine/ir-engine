@@ -1,4 +1,9 @@
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -15,10 +20,6 @@ import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
-import _ from 'lodash'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { useTranslation } from 'react-i18next'
-import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 interface Props {
   openView: boolean

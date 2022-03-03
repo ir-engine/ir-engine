@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -11,7 +12,6 @@ import { useStyles } from '../../styles/ui'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
-import { useTranslation } from 'react-i18next'
 
 const Users = () => {
   const classes = useStyles()

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -7,7 +8,6 @@ import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
-import { useTranslation } from 'react-i18next'
 
 const Location = () => {
   const classes = useStyles()

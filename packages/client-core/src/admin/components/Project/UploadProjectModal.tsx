@@ -1,5 +1,8 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
@@ -15,8 +18,6 @@ import TextField from '@mui/material/TextField'
 import { ProjectService } from '../../../common/services/ProjectService'
 import { useDispatch } from '../../../store'
 import styles from './Projects.module.scss'
-import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean

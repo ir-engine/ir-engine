@@ -1,11 +1,11 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
-import { useTranslation } from 'react-i18next'
 import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
 

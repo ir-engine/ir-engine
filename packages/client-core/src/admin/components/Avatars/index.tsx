@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
@@ -6,7 +7,6 @@ import Grid from '@mui/material/Grid'
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import AvatarCreate from './AvatarCreate'
-import { useTranslation } from 'react-i18next'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {

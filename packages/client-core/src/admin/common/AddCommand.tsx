@@ -1,4 +1,7 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
@@ -9,8 +12,6 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
-import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
-import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 
 import { useStyles } from '../styles/ui'

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 
@@ -22,7 +23,6 @@ import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
-import { useTranslation } from 'react-i18next'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

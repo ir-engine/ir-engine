@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
@@ -6,7 +7,6 @@ import Switch from '@mui/material/Switch'
 
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { useTranslation } from 'react-i18next'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
 import { useStyles } from './styles'

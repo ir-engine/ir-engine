@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
+
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
 import Button from '@mui/material/Button'
@@ -16,8 +19,6 @@ import Typography from '@mui/material/Typography'
 
 import { client } from '../../../../feathers'
 import styles from '../UserMenu.module.scss'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   changeActiveLocation: (location: Location) => void

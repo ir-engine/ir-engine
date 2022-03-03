@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
@@ -9,8 +12,6 @@ import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
 import { useStyles } from '../../styles/ui'
 import ViewAvatar from './ViewAvatar'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { useTranslation } from 'react-i18next'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

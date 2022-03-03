@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { User, CreateEditUser } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
 import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
 
 import { AlertService } from '../../common/services/AlertService'

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
@@ -10,7 +11,6 @@ import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
 import { useStyles } from '../../styles/ui'
 import ViewGroup from './ViewGroup'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   search: string

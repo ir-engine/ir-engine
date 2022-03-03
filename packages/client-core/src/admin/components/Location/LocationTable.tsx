@@ -1,6 +1,8 @@
 import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 
@@ -19,7 +21,6 @@ import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import ViewLocation from './ViewLocation'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props

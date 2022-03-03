@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -15,7 +16,6 @@ import Switch from '@mui/material/Switch'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import { useStyles } from './styles'
-import { useTranslation } from 'react-i18next'
 
 interface serverProps {}
 

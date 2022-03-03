@@ -1,5 +1,6 @@
 import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -18,7 +19,6 @@ import InviteModel from './InviteModel'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
-import { useTranslation } from 'react-i18next'
 
 interface TabPanelProps {
   children?: React.ReactNode

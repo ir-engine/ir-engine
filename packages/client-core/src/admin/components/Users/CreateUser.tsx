@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -24,8 +26,6 @@ import { UserRoleService, useUserRoleState } from '../../services/UserRoleServic
 import { UserService } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
-import { useTranslation } from 'react-i18next'
-import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
 
 interface Props {
   open: boolean

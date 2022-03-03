@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
 
 import { Edit } from '@mui/icons-material'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -18,8 +21,6 @@ import { BotCommandService, useBotCommandState } from '../../services/BotsComman
 import { BotService, useBotState } from '../../services/BotsService'
 import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
-import { useTranslation } from 'react-i18next'
-import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
 
 const DisplayBots = () => {
   const classes = useStyles()

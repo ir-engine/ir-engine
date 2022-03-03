@@ -1,5 +1,8 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { GroupScope } from '@xrengine/common/src/interfaces/Group'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -15,8 +18,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { useStyles } from '../../styles/ui'
-import { useTranslation } from 'react-i18next'
-import { GroupScope } from '@xrengine/common/src/interfaces/Group'
 
 interface Props {
   open: boolean

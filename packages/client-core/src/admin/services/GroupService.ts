@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { Group, CreateGroup } from '@xrengine/common/src/interfaces/Group'
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 
 import { AlertService } from '../../common/services/AlertService'

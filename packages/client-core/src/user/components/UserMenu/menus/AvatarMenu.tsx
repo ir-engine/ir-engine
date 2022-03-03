@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -14,7 +15,6 @@ import { LazyImage } from '../../../../common/components/LazyImage'
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 
 interface Props {
   changeActiveMenu: Function

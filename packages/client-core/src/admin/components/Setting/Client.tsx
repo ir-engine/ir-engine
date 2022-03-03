@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
@@ -7,7 +8,6 @@ import Switch from '@mui/material/Switch'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import { useStyles } from './styles'
-import { useTranslation } from 'react-i18next'
 
 interface clientProps {}
 

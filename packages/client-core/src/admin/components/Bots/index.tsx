@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { List } from '@mui/icons-material'
 import Card from '@mui/material/Card'
@@ -9,7 +10,6 @@ import Typography from '@mui/material/Typography'
 import { useStyles } from '../../styles/ui'
 import CreateBot from './CreateBot'
 import DisplayBots from './DisplayBots'
-import { useTranslation } from 'react-i18next'
 
 const Bots = () => {
   const classes = useStyles()

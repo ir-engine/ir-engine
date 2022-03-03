@@ -1,6 +1,9 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
+
+import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { Autorenew, Face, Save } from '@mui/icons-material'
@@ -11,6 +14,7 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
@@ -24,8 +28,6 @@ import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useStyles } from '../../styles/ui'
-import { useTranslation } from 'react-i18next'
-import { CreateBotAsAdmin, BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
 
 interface Menu {
   value: string

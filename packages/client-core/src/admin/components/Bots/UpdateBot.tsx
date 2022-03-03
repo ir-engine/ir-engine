@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { Autorenew, Save } from '@mui/icons-material'
@@ -24,8 +26,6 @@ import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useStyles } from '../../styles/ui'
-import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean

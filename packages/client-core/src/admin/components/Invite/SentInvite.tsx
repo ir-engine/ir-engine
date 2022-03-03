@@ -1,5 +1,6 @@
 import { useConfirm } from 'material-ui-confirm'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Delete } from '@mui/icons-material'
 import FirstPageIcon from '@mui/icons-material/FirstPage'
@@ -22,7 +23,6 @@ import makeStyles from '@mui/styles/makeStyles'
 import { InviteService } from '../../../social/services/InviteService'
 import { useInviteState } from '../../../social/services/InviteService'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
-import { useTranslation } from 'react-i18next'
 import { useDispatch } from '../../../store'
 
 interface Props {

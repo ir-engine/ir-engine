@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Grid, Paper, Typography } from '@mui/material'
 import { InputBase } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { SettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
-import { useTranslation } from 'react-i18next'
 import { useStyles } from './styles'
 
 interface AnalyticsProps {}
