@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { ServerSetting, PatchServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
 import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'

@@ -1,7 +1,7 @@
 import { createState, none, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
-import { Group, CreateGroup } from '@xrengine/common/src/interfaces/Group'
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 

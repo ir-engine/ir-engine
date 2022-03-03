@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
@@ -7,8 +8,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
-import { useTranslation } from 'react-i18next'
 
 type GameServerWarningsProps = {
   locationName: string

@@ -1,6 +1,7 @@
 import { Downgraded } from '@speigg/hookstate'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
@@ -20,7 +21,6 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { useTranslation } from 'react-i18next'
 
 import {
   Launch,

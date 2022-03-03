@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import CloseIcon from '@mui/icons-material/Close'
 import Fade from '@mui/material/Fade'
@@ -7,7 +8,6 @@ import IconButton from '@mui/material/IconButton'
 import Modal from '@mui/material/Modal'
 
 import styles from './AlertModals.module.scss'
-import { useTranslation } from 'react-i18next'
 
 export interface WarningRetryModalProps {
   open: boolean

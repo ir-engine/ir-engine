@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
@@ -8,7 +9,6 @@ import { useDispatch } from '../../store'
 import { useAlertState } from '../services/AlertService'
 import { AlertService } from '../services/AlertService'
 import styles from './Common.module.scss'
-import { useTranslation } from 'react-i18next'
 
 interface Props {}
 
