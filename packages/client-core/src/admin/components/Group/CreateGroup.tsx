@@ -16,6 +16,7 @@ import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { useStyles } from '../../styles/ui'
 import { useTranslation } from 'react-i18next'
+import { GroupScope } from '@xrengine/common/src/interfaces/Group'
 
 interface Props {
   open: boolean
@@ -38,7 +39,7 @@ const CreateGroup = (props: Props) => {
   const [state, setState] = useState({
     name: '',
     description: '',
-    scopeTypes: [] as any[],
+    scopeTypes: [] as GroupScope[],
     formErrors: {
       name: '',
       description: '',

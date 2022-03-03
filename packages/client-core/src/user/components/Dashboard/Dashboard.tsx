@@ -14,9 +14,10 @@ import Typography from '@mui/material/Typography'
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
-  children?: any
+  children?: JSX.Element
 }
 
 /**
@@ -34,6 +35,7 @@ const Dashboard = ({ children }: Props) => {
   const [open, setOpen] = React.useState(false)
   const admin = authState.user
   const isLoggedIn = authState.isLoggedIn.value
+  const { t } = useTranslation()
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -63,7 +65,7 @@ const Dashboard = ({ children }: Props) => {
             <Menu />
           </IconButton>
           <div className={classes.appBarHeadingContainer}>
-            <Typography variant="h6">Dashboard</Typography>
+            <Typography variant="h6">{t('user:dashboard.dashboard')}</Typography>
             {admin?.name.value && (
               <div className={classes.avatarPosition}>
                 <Avatar className={classes.orange}>{admin?.name?.value.charAt(0)?.toUpperCase()}</Avatar>

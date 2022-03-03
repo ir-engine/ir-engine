@@ -16,10 +16,15 @@ import Typography from '@mui/material/Typography'
 
 import { client } from '../../../../feathers'
 import styles from '../UserMenu.module.scss'
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
+import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
 
-const LocationMenu = ({ changeActiveLocation }) => {
+interface Props {
+  changeActiveLocation: (location: Location) => void
+}
+const LocationMenu = (props: Props) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState<any>(null!)
+  const [locationDetails, setLocationsDetails] = useState<LocationResult>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -48,7 +53,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
           search
         }
       })
-      .then((res) => {
+      .then((res: LocationResult) => {
         setLocationsDetails(res)
       })
   }
@@ -96,7 +101,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
                   )
                 }}
               />
-              <Button className={styles.newLocation} onClick={() => changeActiveLocation({ location_setting: {} })}>
+              <Button className={styles.newLocation} onClick={() => props.changeActiveLocation(LocationSeed)}>
                 <AddIcon />
                 {t('user:usermenu.locationTable.lbl-new')}
               </Button>
@@ -120,9 +125,9 @@ const LocationMenu = ({ changeActiveLocation }) => {
                         key={i}
                         tabIndex={0}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') changeActiveLocation(row)
+                          if (e.key === 'Enter') props.changeActiveLocation(row)
                         }}
-                        onClick={() => changeActiveLocation(row)}
+                        onClick={() => props.changeActiveLocation(row)}
                       >
                         {tableHeaders.map((headCell) => (
                           <TableCell className={styles.tableCell} key={headCell.id}>

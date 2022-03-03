@@ -20,10 +20,12 @@ const LocationPage = (props: Props) => {
 
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
-      {engineState.isEngineInitialized.value || <LoadingCircle />}
-      <LoadEngineWithScene />
-      <NetworkInstanceProvisioning locationName={locationName} />
-      <LoadLocationScene locationName={props.match.params.locationName} />
+      <>
+        {engineState.isEngineInitialized.value || <LoadingCircle />}
+        <LoadEngineWithScene />
+        <NetworkInstanceProvisioning locationName={locationName} />
+        <LoadLocationScene locationName={props.match.params.locationName} />
+      </>
     </Layout>
   )
 }

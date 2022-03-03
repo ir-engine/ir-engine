@@ -17,6 +17,8 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { useTranslation } from 'react-i18next'
+
 import {
   createEngine,
   initializeBrowser,
@@ -139,7 +141,7 @@ export const loadLocation = () => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading Objects'))
 
   const dispatch = useDispatch()
-
+  const { t } = useTranslation()
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
   let entitiesToLoad = 0
@@ -148,7 +150,9 @@ export const loadLocation = () => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
         const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        const message = Engine.sceneLoadPromises.length ? 'Loading Objects' : 'Loading Complete'
+        const message = Engine.sceneLoadPromises.length
+          ? t('common:loader.loadingObjects')
+          : t('common:loader.loadingComplete')
         dispatchLocal(EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), message))
         break
     }
@@ -157,7 +161,7 @@ export const loadLocation = () => {
 
   const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
   loadSceneFromJSON(sceneData).then(() => {
-    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining World'))
+    dispatchLocal(EngineActions.loadingStateChanged(100, t('common:loader.joiningWorld')))
 
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))

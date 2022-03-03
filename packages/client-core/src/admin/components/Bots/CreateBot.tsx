@@ -69,8 +69,8 @@ const CreateBot = () => {
   //Call custom hooks
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
   useFetchAdminLocations(user, adminLocationState, LocationService)
-
-  const handleChangeCommand = (e) => {
+  AddCommand
+  const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     setCommand({ ...command, id: uuidv4(), [name]: value })
   }

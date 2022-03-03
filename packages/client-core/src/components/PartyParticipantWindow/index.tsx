@@ -20,6 +20,7 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { useTranslation } from 'react-i18next'
 
 import {
   Launch,
@@ -70,6 +71,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
+  const { t } = useTranslation()
 
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -429,7 +431,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         </div>
         <audio key={peerId + '_audio'} ref={audioRef} />
         <div className={styles['user-controls']}>
-          <div className={styles['username']}>{peerId === 'me_cam' ? 'You' : user?.name}</div>
+          <div className={styles['username']}>{peerId === 'me_cam' ? t('user:person.you') : user?.name}</div>
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (
@@ -440,7 +442,13 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 </Tooltip>
               ) : null}
               {enableGlobalMute && peerId !== 'me_cam' && peerId !== 'me_screen' && audioStream && (
-                <Tooltip title={!audioProducerGlobalMute ? 'Mute for everyone' : 'Unmute for everyone'}>
+                <Tooltip
+                  title={
+                    !audioProducerGlobalMute
+                      ? (t('user:person.muteForEveryone') as string)
+                      : (t('user:person.unmuteForEveryone') as string)
+                  }
+                >
                   <IconButton
                     color="secondary"
                     size="small"
@@ -454,13 +462,13 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
               {audioStream && !audioProducerPaused ? (
                 <Tooltip
                   title={
-                    isSelfUser && audioStream?.paused === false
-                      ? 'Mute me'
+                    (isSelfUser && audioStream?.paused === false
+                      ? t('user:person.muteMe')
                       : isSelfUser && audioStream?.paused === true
-                      ? 'Unmute me'
+                      ? t('user:person.unmuteMe')
                       : peerId !== 'me_cam' && peerId !== 'me_screen' && audioStream?.paused === false
-                      ? 'Mute this person'
-                      : 'Unmute this person'
+                      ? t('user:person.muteThisPerson')
+                      : t('user:person.unmuteThisPerson')) as string
                   }
                 >
                   <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={toggleAudio}>
@@ -479,7 +487,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 </Tooltip>
               ) : null}
               {
-                <Tooltip title="Open Picture in Picture">
+                <Tooltip title={t('user:person.openPictureInPicture') as string}>
                   <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={togglePiP}>
                     <Launch className={styles.pipBtn} />
                   </IconButton>

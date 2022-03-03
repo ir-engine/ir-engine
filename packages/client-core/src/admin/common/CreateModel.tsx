@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 interface Props {
   handleClose: () => void
   open: boolean
-  children: any
+  children: JSX.Element | JSX.Element[]
   text: string
   action: string
   submit: () => void

@@ -1,6 +1,7 @@
 import React from 'react'
 
 import styles from './Me.module.scss'
+import { useTranslation } from 'react-i18next'
 
 declare var MediaRecorder: any
 declare const window: any
@@ -320,6 +321,8 @@ function Player({ srcBlob }) {
 export default function RecordingApp() {
   let [recordScreen, setRecordScreen] = React.useState(false)
   let [audio, setAudio] = React.useState(false)
+  const { t } = useTranslation()
+
   let {
     status,
     liveStream,
@@ -348,27 +351,27 @@ export default function RecordingApp() {
   return (
     <article className={styles.recordContainer}>
       <div onClick={() => setRecorderToggle((prevState) => !prevState)}>
-        <h1>Video recorder</h1>
+        <h1>{t('common:recording.videoRecorder')}</h1>
         {status}
       </div>
       {!recorderToggle ? null : (
         <div>
-          <dialog open={status === 'acquiring_media'}>Waiting for permissions</dialog>
+          <dialog open={status === 'acquiring_media'}>{t('common:recording.waitingForPermissions')}</dialog>
           <p>
-            Select video source <br />
+            {t('common:recording.selectVideoSource')} <br />
             <label className={styles.recordOptions}>
               <input type="radio" checked={recordScreen} onChange={() => setRecordScreen((prevState) => !prevState)} />{' '}
-              Screen
+              {t('common:recording.screen')}
             </label>
             <label className={styles.recordOptions}>
               <input type="radio" checked={!recordScreen} onChange={() => setRecordScreen((prevState) => !prevState)} />{' '}
-              Camera
+              {t('common:recording.camera')}
             </label>
           </p>
           <p>
             <label className={styles.recordOptions}>
               <input type="checkbox" checked={audio} onChange={() => setAudio((prevState) => !prevState)} />
-              Microphone
+              {t('common:recording.microphone')}
             </label>
           </p>
           <section>
@@ -381,22 +384,22 @@ export default function RecordingApp() {
                   startRecording()
                 }}
               >
-                Start recording
+                {t('common:recording.startRecording')}
               </button>
             )}
             {status === 'recording' && (
               <button type="button" onClick={pauseRecording}>
-                Pause recording
+                {t('common:recording.pauseRecording')}
               </button>
             )}
             {status === 'paused' && (
               <button type="button" onClick={resumeRecording}>
-                Resume recording
+                {t('common:recording.resumeRecording')}
               </button>
             )}
             {status === 'recording' && (
               <button type="button" onClick={stopRecording}>
-                Stop recording
+                {t('common:recording.stopRecording')}
               </button>
             )}
           </section>

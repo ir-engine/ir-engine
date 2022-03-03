@@ -17,7 +17,7 @@ import { useStyles } from '../styles/ui'
 
 interface Props {
   command: BotCommands
-  handleChangeCommand: (e: any) => void
+  handleChangeCommand: (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void
   addCommandData: (command: BotCommands) => void
   commandData: BotCommands[]
   removeCommand: (id: string) => void

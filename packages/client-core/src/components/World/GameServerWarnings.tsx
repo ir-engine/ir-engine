@@ -7,9 +7,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-
-import { usePartyState } from '../../social/services/PartyService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
+import { useTranslation } from 'react-i18next'
 
 type GameServerWarningsProps = {
   locationName: string
@@ -36,6 +35,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -79,8 +79,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
           open: true,
-          title: 'Browser Error',
-          body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+          title: t('common:gameServer.browserError'),
+          body: t('common:gameServer.browserErrorMessage'),
           noCountdown: true
         })
         break
@@ -89,8 +89,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
-          title: 'No Available Servers',
-          body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
+          title: t('common:gameServer.noAvailableServers'),
+          body: t('common:gameServer.noAvailableServersMessage'),
           action: async () => LocationInstanceConnectionService.provisionServer(currentLocation.id),
           parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
           noCountdown: false
@@ -103,8 +103,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'World disconnected',
-          body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
+          title: t('common:gameServer.worldDisconnected'),
+          body: t('common:gameServer.worldDisconnectedMessage'),
           action: async () => window.location.reload(),
           timeout: 30000,
           noCountdown: false
@@ -116,8 +116,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'WebGL not enabled',
-          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
+          title: t('common:gameServer.webGLNotEnabled'),
+          body: t('common:gameServer.webGLNotEnabledMessage'),
           action: async () => window.location.reload(),
           noCountdown: true
         })
@@ -126,8 +126,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.USER_KICKED:
         setModalValues({
           open: true,
-          title: "You've been kicked from the world",
-          body: 'You were kicked from this world for the following reason: ' + message,
+          title: t('common:gameServer.youKickedFromWorld'),
+          body: `${t('common:gameServer.youKickedFromWorldMessage')}: ${message}`,
           noCountdown: true
         })
         break
@@ -135,8 +135,10 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INVALID_LOCATION:
         setModalValues({
           open: true,
-          title: 'Invalid location',
-          body: `We can't find the location '${props.locationName}'. It may be misspelled, or it may not exist.`,
+          title: t('common:gameServer.invalidLocation'),
+          body: `${t('common:gameServer.cantFindLocation')} '${props.locationName}'. ${t(
+            'common:gameServer.misspelledOrNotExist'
+          )}`,
           noCountdown: true
         })
         break

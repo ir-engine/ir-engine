@@ -12,11 +12,11 @@ import styles from './Profile.module.scss'
 
 interface Props {
   avatarUrl: string
-  auth: any
+  //auth: any
 }
 
-const UserProfile = (props: Props): any => {
-  const { auth } = props
+const UserProfile = (props: Props): JSX.Element => {
+  //const { auth } = props
   const user = useAuthState().user
   const { t } = useTranslation()
   const [file, setFile] = useState({})

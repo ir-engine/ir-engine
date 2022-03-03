@@ -10,6 +10,7 @@ import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { useHookedEffect } from '../../hooks/useHookedEffect'
 import { useSceneState } from '../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
+import { useTranslation } from 'react-i18next'
 
 interface LoadingUIState {
   imageWidth: number
@@ -52,7 +53,7 @@ const LoadingDetailView = (props: {
   const sceneState = useSceneState()
   const engineState = useEngineState()
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
-
+  const { t } = useTranslation()
   const colors = useHookstate({
     main: '',
     background: '',
@@ -175,7 +176,7 @@ const LoadingDetailView = (props: {
         </div> */}
         <div id="loading-ui" xr-layer="true">
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
-            loading
+            {t('common:gameServer.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
             {engineState.loadingProgress.value}%

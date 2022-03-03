@@ -35,7 +35,7 @@ const DisplayBots = () => {
   const [botName, setBotName] = useState('')
   const [botId, setBotId] = useState('')
 
-  const handleChangeCommand = (e) => {
+  const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     setCommand({ ...command, [name]: value })
   }

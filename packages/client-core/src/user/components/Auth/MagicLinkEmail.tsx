@@ -43,7 +43,7 @@ const defaultState = {
 
 const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props): any => {
+const MagicLinkEmail = (props: Props): JSX.Element => {
   const { type, isAddConnection } = props
 
   const auth = useAuthState()
@@ -69,15 +69,15 @@ const MagicLinkEmail = (props: Props): any => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
-  const handleInput = (e: any): any => {
+  const handleInput = (e: any): void => {
     setState({ ...state, [e.target.name]: e.target.value })
   }
 
-  const handleCheck = (e: any): any => {
+  const handleCheck = (e: any): void => {
     setState({ ...state, [e.target.name]: e.target.checked })
   }
 
-  const handleSubmit = (e: any): any => {
+  const handleSubmit = (e: any): void => {
     e.preventDefault()
     if (!isAddConnection) {
       AuthService.createMagicLink(state.emailPhone, authState)
@@ -190,6 +190,6 @@ const MagicLinkEmail = (props: Props): any => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: Props): any => <MagicLinkEmail {...props} />
+const MagicLinkEmailWrapper = (props: Props): JSX.Element => <MagicLinkEmail {...props} />
 
 export default MagicLinkEmailWrapper
