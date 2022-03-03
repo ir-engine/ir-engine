@@ -26,7 +26,6 @@ const PropertyGroupHeader = (styled as any).div`
 
 // PropertyGroupDescription used to show the property group description
 const PropertyGroupDescription = (styled as any).div`
-  background-color: ${(props) => props.theme.panel};
   color: ${(props) => props.theme.text2};
   white-space: pre-wrap;
   padding: 0 8px 8px;

@@ -49,7 +49,7 @@ const StatsTool = () => {
   return (
     <>
       <div className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer} id="stats">
-        <InfoTooltip info="Toggle Stats">
+        <InfoTooltip title="Toggle Stats">
           <button onClick={toggleStats} className={styles.toolButton + ' ' + (isVisible ? styles.selected : '')}>
             <SsidChartIcon fontSize="small" />
           </button>

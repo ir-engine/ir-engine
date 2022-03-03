@@ -6,7 +6,6 @@ import { ProjectService } from '@xrengine/client-core/src/common/services/Projec
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import {
   ArrowRightRounded,
@@ -36,7 +35,6 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
-import { ErrorMessage } from './ProjectGrid'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -129,7 +127,7 @@ const ProjectsPage = () => {
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
   const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [query, setQuery] = useState('')
   const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
@@ -220,6 +218,7 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
+
     dispatch(EditorAction.sceneChanged(null))
     dispatch(EditorAction.projectChanged(project.name))
     history.push(`/editor/${project.name}`)
@@ -398,7 +397,7 @@ const ProjectsPage = () => {
             </Button>
           </div>
           <div className={styles.projectGrid}>
-            {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
+            {error && <div className={styles.errorMsg}>{error.message}</div>}
             {(!query || filter.installed) && (
               <ProjectExpansionList
                 id={t(`editor.projects.installed`)}
@@ -457,6 +456,7 @@ const ProjectsPage = () => {
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
       <DeleteDialog
         open={isDeleteDialogOpen}
+        isProjectMenu
         onCancel={closeDeleteConfirm}
         onClose={closeDeleteConfirm}
         onConfirm={deleteProject}

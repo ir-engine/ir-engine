@@ -21,8 +21,8 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationState } from '../animations/AnimationState'
-import { AvatarAnimationGraph } from '../animations/AvatarAnimationGraph'
+import { AnimationState } from '../animation/AnimationState'
+import { AvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -209,7 +209,9 @@ export const createAvatarController = (entity: Entity) => {
       isJumping: false,
       isWalking: false,
       localMovementDirection: new Vector3(),
-      velocitySimulator
+      velocitySimulator,
+      currentSpeed: 0,
+      speedVelocity: { value: 0 }
     })
   }
 }
