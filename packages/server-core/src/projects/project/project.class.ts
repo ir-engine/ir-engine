@@ -307,6 +307,10 @@ export class Project extends Service {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
         }
 
+        if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
+          fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
+        }
+
         console.log('[Projects]: removing project', id, name)
         await deleteProjectFilesInStorageProvider(name)
         await super.remove(id, params)
