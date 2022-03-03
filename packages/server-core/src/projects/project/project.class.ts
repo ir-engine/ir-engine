@@ -149,6 +149,7 @@ export class Project extends Service {
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
+        await deleteProjectFilesInStorageProvider(name)
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super.remove(id)
       }
