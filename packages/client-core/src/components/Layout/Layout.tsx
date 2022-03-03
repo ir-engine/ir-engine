@@ -41,7 +41,7 @@ interface Props {
   useLoadingScreenOpacity?: boolean
   login?: boolean
   pageTitle: string
-  children?: JSX.Element
+  children?: JSX.Element | JSX.Element[]
   hideVideo?: boolean
   hideFullscreen?: boolean
   theme?: any

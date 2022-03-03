@@ -11,6 +11,7 @@ import { createEntity } from '../../../src/ecs/functions/EntityFunctions'
 import { VectorSpringSimulator } from '../../../src/physics/classes/springs/VectorSpringSimulator'
 import { VelocityComponent } from '../../../src/physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../src/physics/enums/CollisionGroups'
+import { Object3DComponent } from '../../../src/scene/components/Object3DComponent'
 
 // all components depended on by the moveAvatar function
 const createMovingAvatar = (world) => {
@@ -20,8 +21,13 @@ const createMovingAvatar = (world) => {
     velocity: new Vector3()
   })
 
+  const tiltContainer = new Group()
+  tiltContainer.name = 'Actor (tiltContainer)' + entity
+
   const modelContainer = new Group()
   modelContainer.name = 'Actor (modelContainer)' + entity
+
+  tiltContainer.add(modelContainer)
 
   addComponent(
     entity,
@@ -34,6 +40,8 @@ const createMovingAvatar = (world) => {
     },
     world
   )
+
+  addComponent(entity, Object3DComponent, { value: tiltContainer })
 
   const controller = world.physics.createController(
     {
@@ -74,7 +82,9 @@ const createMovingAvatar = (world) => {
       isWalking: false,
       // set input to move in a straight line on X/Z axis / horizontal diagonal
       localMovementDirection: new Vector3(1, 0, 1),
-      velocitySimulator
+      velocitySimulator,
+      currentSpeed: 0,
+      speedVelocity: { value: 0 }
     },
     world
   )

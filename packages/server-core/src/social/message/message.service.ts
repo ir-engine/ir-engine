@@ -1,3 +1,5 @@
+import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
+
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
 import messageDocs from './message.docs'
@@ -41,7 +43,7 @@ export default (app: Application) => {
    * @returns {@Object} created message
    * @author Vyacheslav Solovjov
    */
-  service.publish('created', async (data): Promise<any> => {
+  service.publish('created', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
@@ -99,7 +101,7 @@ export default (app: Application) => {
    * @returns removed data
    * @author Vyacheslav Solovjov
    */
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
@@ -157,7 +159,7 @@ export default (app: Application) => {
    * @returns {@Object} updated message
    * @author Vyacheslav Solovjov
    */
-  service.publish('patched', async (data): Promise<any> => {
+  service.publish('patched', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []

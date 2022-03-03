@@ -1,6 +1,7 @@
 import { createState, State, useHookstate } from '@speigg/hookstate'
 import getImagePalette from 'image-palette-core'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -10,7 +11,6 @@ import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { useHookedEffect } from '../../hooks/useHookedEffect'
 import { useSceneState } from '../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
-import { useTranslation } from 'react-i18next'
 
 interface LoadingUIState {
   imageWidth: number
@@ -178,7 +178,7 @@ const LoadingDetailView = (props: {
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
             {t('common:gameServer.loading')}
           </div>
-          <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
+          <div id="progress-text" xr-layer="true" xr-pixel-ratio="8">
             {engineState.loadingProgress.value}%
           </div>
           <div id="progress-container" xr-layer="true">
@@ -190,7 +190,7 @@ const LoadingDetailView = (props: {
               isLabelVisible={false}
             />
           </div>
-          <div id="loading-details" xr-layer="true" xr-pixel-ratio="3">
+          <div id="loading-details" xr-layer="true" xr-pixel-ratio="8">
             {engineState.loadingDetails.value}
           </div>
         </div>

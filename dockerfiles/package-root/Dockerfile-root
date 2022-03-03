@@ -9,3 +9,12 @@ WORKDIR /app
 RUN apt-get -y install build-essential meson python3-testresources python3-venv python3-pip git
 RUN npm install -g lerna cross-env rimraf ts-eager --loglevel notice
 
+COPY package.json .
+COPY packages/common/package.json ./packages/common/
+COPY packages/engine/package.json ./packages/engine/
+COPY packages/matchmaking/package.json ./packages/matchmaking/
+COPY packages/projects/package.json ./packages/projects/
+COPY packages/server-core/package.json ./packages/server-core/
+COPY project-package-jsons ./
+
+RUN npm install --production=false --loglevel notice --legacy-peer-deps

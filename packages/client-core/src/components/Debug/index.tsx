@@ -1,5 +1,6 @@
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -8,7 +9,6 @@ import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/function
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { useTranslation } from 'react-i18next'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -62,13 +62,17 @@ export const Debug = () => {
     return {
       ...Object.fromEntries(
         [...Engine.currentWorld.namedEntities.entries()]
-          .map(([key, value]) => {
+          .map(([key, eid]) => {
             try {
               return [
-                key + '(' + value + ')',
+                key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, value).reduce((components, C: MappedComponent<any, any>) => {
-                    if (C !== NameComponent) components.push([C._name, { ...getComponent(value, C as any) }])
+                  getEntityComponents(Engine.currentWorld, eid).reduce((components, C: MappedComponent<any, any>) => {
+                    if (C !== NameComponent) {
+                      engineState.fixedTick.value
+                      const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                      components.push([C._name, { ...component }])
+                    }
                     return components
                   }, [] as [string, any][])
                 )

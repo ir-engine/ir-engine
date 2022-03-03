@@ -10,7 +10,7 @@ import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 
 export const createBoxComponent = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)
+  const interactable = getComponent(entity, InteractableComponent)?.value
   const dynamic =
     (hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)) ||
     (interactable && interactable.interactionType === 'equippable')
@@ -28,8 +28,8 @@ export const createBoxComponent = (entity: Entity) => {
 
   // expand bounding box to
   object3D.traverse((obj3d: Mesh) => {
-    if (obj3d instanceof Mesh) {
-      if (!obj3d.geometry.boundingBox) obj3d.geometry.computeBoundingBox()
+    if (obj3d.isMesh) {
+      obj3d.geometry.computeBoundingBox()
       const aabb = new Box3().copy(obj3d.geometry.boundingBox!)
       if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
       if (hasBoxExpanded) {

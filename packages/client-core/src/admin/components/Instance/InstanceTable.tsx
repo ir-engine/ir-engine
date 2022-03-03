@@ -1,4 +1,8 @@
 import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -7,9 +11,6 @@ import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
 import { InstanceService, INSTNCE_PAGE_LIMIT, useInstanceState } from '../../services/InstanceService'
 import { useStyles } from '../../styles/ui'
-import { useTranslation } from 'react-i18next'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 
 interface Props {
   fetchAdminState?: any
@@ -89,6 +90,7 @@ const InstanceTable = (props: Props) => {
     ipAddress: string,
     currentUsers: Number,
     channelId: string,
+    podName: string,
     locationId?: Location
   ): InstanceData => {
     return {
@@ -97,6 +99,7 @@ const InstanceTable = (props: Props) => {
       currentUsers,
       locationId: locationId?.name || '',
       channelId,
+      podName,
       action: (
         <a
           href="#h"
@@ -114,7 +117,7 @@ const InstanceTable = (props: Props) => {
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.channelId, el.location)
+    createData(el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
   )
 
   return (

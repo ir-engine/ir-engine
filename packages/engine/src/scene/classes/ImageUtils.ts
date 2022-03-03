@@ -13,6 +13,7 @@ import {
   MeshBasicMaterial,
   OrthographicCamera,
   PlaneBufferGeometry,
+  PMREMGenerator,
   RawShaderMaterial,
   RGBAFormat,
   Scene,
