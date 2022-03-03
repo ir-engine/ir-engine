@@ -163,6 +163,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
     locationId: locationId,
+    podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
     assigned: false,
     assignedAt: null!
   })
@@ -210,7 +211,8 @@ const handleInstance = async (
       currentUsers: 1,
       locationId: locationId,
       channelId: channelId,
-      ipAddress: ipAddress
+      ipAddress: ipAddress,
+      podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local'
     } as InstanceMetadata
     await createNewInstance(app, newInstance)
   } else {
@@ -392,7 +394,6 @@ const loadGameserver = async (
 
   const isReady = status.state === 'Ready'
   const isNeedingNewServer =
-    !engineStarted &&
     !config.kubernetes.enabled &&
     (status.state === 'Shutdown' ||
       app.instance == null ||
@@ -400,9 +401,11 @@ const loadGameserver = async (
       app.instance.channelId !== channelId)
 
   if (isReady || isNeedingNewServer) {
-    engineStarted = true
     await handleInstance(app, status, locationId, channelId, userId)
-    if (sceneId != null) await loadEngine(app, sceneId)
+    if (!engineStarted && sceneId != null) {
+      engineStarted = true
+      await loadEngine(app, sceneId)
+    }
   } else {
     try {
       const instance = await app.service('instance').get(app.instance.id)
@@ -411,6 +414,7 @@ const loadGameserver = async (
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
+        podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
         assignedAt: null!
       })
       return true
@@ -439,6 +443,7 @@ const shutdownGameserver = async (app: Application, instanceId: string) => {
       allocated: false
     })
   }
+  app.instance.ended = true
   if (config.kubernetes.enabled) {
     delete app.instance
     const gsName = app.gameServer.objectMeta.name
@@ -508,9 +513,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   // count again here, as it may have changed
   const activeUsersCount = getActiveUsersCount(user)
-  if (activeUsersCount < 1) {
-    await shutdownGameserver(app, instanceId)
-  }
+  if (activeUsersCount < 1) await shutdownGameserver(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
