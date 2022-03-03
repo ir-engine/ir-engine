@@ -83,7 +83,7 @@ export const AvatarService = {
           files: [blob],
           args: [
             {
-              key: `projects/default-project/avatars/${thumbnail['name']}`,
+              key: `avatars/public/${new Date().getTime()}${thumbnail['name']}`,
               contentType: 'model/gltf-binary',
               staticResourceType: data.staticResourceType
             }
@@ -98,9 +98,24 @@ export const AvatarService = {
       console.error(error)
     }
   },
-  updateAdminAvatar: async (id: string, data: any) => {
+  updateAdminAvatar: async (id: string, blob: Blob, thumbnail: Blob, data: any) => {
     const dispatch = useDispatch()
     try {
+      if (blob) {
+        const uploadArguments: AdminAssetUploadType = {
+          type: 'admin-file-upload',
+          files: [blob],
+          args: [
+            {
+              key: data.key,
+              contentType: 'model/gltf-binary',
+              staticResourceType: data.staticResourceType
+            }
+          ]
+        }
+        const response = await client.service('upload-asset').create(uploadArguments)
+        data.url = response[0]
+      }
       const result = await client.service('static-resource').patch(id, data)
       dispatch(AvatarAction.avatarUpdated(result))
     } catch (error) {

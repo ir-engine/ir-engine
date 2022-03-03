@@ -33,7 +33,9 @@ const AvatarDetail = ({ avatarData }) => {
       <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
         Avatar
       </Typography>
-      <img src={avatarData?.url} alt="avatar" style={{ width: '300px', height: '250px' }} />
+      <div style={{ width: '500px' }}>
+        <img src={avatarData?.url} alt="avatar" />
+      </div>
       {/* {avatarData?.url || <span className={classes.spanNone}>None</span>} */}
       <div className={classes.scopeContainer}></div>
     </div>

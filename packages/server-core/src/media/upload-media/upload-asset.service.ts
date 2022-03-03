@@ -55,10 +55,10 @@ export const addGenericAssetToS3AndStaticResources = async (
   // add asset to static resources
   const assetURL = getCachedAsset(key, provider.cacheDomain)
   if (existingAsset.rows.length) {
-    promises.push(provider.deleteResources([existingAsset.data[0].id]))
+    promises.push(provider.deleteResources([existingAsset.rows[0].id]))
     promises.push(
       app.service('static-resource').patch(
-        existingAsset.data[0].id,
+        existingAsset.rows[0].id,
         {
           url: assetURL,
           key: key
