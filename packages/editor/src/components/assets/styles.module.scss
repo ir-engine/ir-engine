@@ -3,6 +3,13 @@
 .assetsPanel {
   height: 100%;
 }
+.panelContainer {
+  height: 100%;
+  position: relative;
+  flex: 1;
+  background-color: transparent;
+  overflow-y: auto;
+}
 
 .fileListItemContainer {
   width: 100%;
@@ -50,4 +57,97 @@
 .input {
   flex: 1;
   color: #f1f1f1;
+}
+
+.contentContainer {
+  display: flex;
+  flex: 1;
+  overflow: auto;
+}
+
+.btnConatiner {
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  padding: 10px 10px 0 10px;
+
+  .newBtn {
+    margin: 0;
+    height: 35px;
+    width: 100px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.sceneGridContainer {
+  display: grid;
+  grid-gap: 10px;
+  width: 100%;
+  margin-bottom: auto;
+  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+
+  .sceneContainer {
+    border-radius: 4px;
+    overflow: hidden;
+    background: theme.$background2;
+    min-height: 125px;
+    cursor: pointer;
+
+    .thumbnailContainer {
+      height: calc(100% - 40px);
+      width: 100%;
+    }
+
+    .detailBlock {
+      padding-left: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .inputContainer {
+        background: theme.$panel;
+        color: theme.$text;
+
+        .input {
+          font-size: 12px;
+          padding: 0 5px;
+        }
+      }
+    }
+
+    button {
+      color: theme.$text;
+    }
+
+    &:hover,
+    &:focus-visible {
+      outline: solid 2px theme.$blue;
+      .detailBlock {
+        color: theme.$text;
+      }
+    }
+  }
+}
+
+.sceneContextMenu {
+  background: theme.$panel;
+  color: theme.$text;
+
+  .menuItem {
+    font-size: 14px;
+    &:hover,
+    &:focus-visible {
+      background: theme.$blue;
+    }
+  }
 }

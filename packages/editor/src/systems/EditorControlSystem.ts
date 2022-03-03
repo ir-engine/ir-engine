@@ -12,6 +12,7 @@ import {
   Vector3
 } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -36,12 +37,12 @@ import { EditorCameraComponent, EditorCameraComponentType } from '../classes/Edi
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
+import { ModeAction } from '../services/ModeServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -455,7 +456,7 @@ export default async function EditorControlSystem(_: World) {
         cancel(editorControlComponent)
       } else if (getInput(EditorActionSet.focusSelection)) {
         cameraComponent.focusedObjects = CommandManager.instance.selected
-        cameraComponent.dirty = true
+        cameraComponent.refocus = true
       } else if (getInput(EditorActionSet.setTranslateMode)) {
         setTransformMode(TransformMode.Translate, false, editorControlComponent)
       } else if (getInput(EditorActionSet.setRotateMode)) {
@@ -491,12 +492,10 @@ export default async function EditorControlSystem(_: World) {
 
       if (zoomDelta !== 0) {
         cameraComponent.zoomDelta = zoomDelta
-        cameraComponent.dirty = true
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
         if (result && result.node) {
-          cameraComponent.dirty = true
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true
         }
@@ -504,12 +503,10 @@ export default async function EditorControlSystem(_: World) {
         cameraComponent.isPanning = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       } else if (orbiting) {
         cameraComponent.isOrbiting = true
         cameraComponent.cursorDeltaX = getInput(EditorActionSet.cursorDeltaX)
         cameraComponent.cursorDeltaY = getInput(EditorActionSet.cursorDeltaY)
-        cameraComponent.dirty = true
       }
     }
   }
@@ -520,6 +517,8 @@ export const setTransformMode = (
   multiplePlacement?: boolean,
   editorControlComponent?: EditorControlComponentType
 ): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -542,17 +541,19 @@ export const setTransformMode = (
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFROM_MODE_CHANGED, mode)
+  dispatch(ModeAction.changedTransformMode(mode))
 }
 
 export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: EditorControlComponentType): void => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
   }
 
   editorControlComponent.snapMode = snapMode
-  CommandManager.instance.emitEvent(EditorEvents.SNAP_SETTINGS_CHANGED)
+  dispatch(ModeAction.changedSnapSettings())
 }
 
 export const toggleSnapMode = (editorControlComponent?: EditorControlComponentType): void => {
@@ -568,6 +569,8 @@ export const toggleSnapMode = (editorControlComponent?: EditorControlComponentTy
 }
 
 export const setTransformPivot = (pivot: TransformPivotType, editorControlComponent?: EditorControlComponentType) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -575,7 +578,7 @@ export const setTransformPivot = (pivot: TransformPivotType, editorControlCompon
 
   editorControlComponent.transformPivot = pivot
   editorControlComponent.transformPivotChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_PIVOT_CHANGED)
+  dispatch(ModeAction.changedTransformPivotMode())
 }
 
 export const toggleTransformPivot = (editorControlComponent?: EditorControlComponentType) => {
@@ -594,6 +597,8 @@ export const setTransformSpace = (
   transformSpace: TransformSpace,
   editorControlComponent?: EditorControlComponentType
 ) => {
+  const dispatch = useDispatch()
+
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
@@ -601,7 +606,7 @@ export const setTransformSpace = (
 
   editorControlComponent.transformSpace = transformSpace
   editorControlComponent.transformSpaceChanged = true
-  CommandManager.instance.emitEvent(EditorEvents.TRANSFORM_SPACE_CHANGED)
+  dispatch(ModeAction.changedTransformSpaceMode())
 }
 
 export const toggleTransformSpace = (editorControlComponent?: EditorControlComponentType) => {

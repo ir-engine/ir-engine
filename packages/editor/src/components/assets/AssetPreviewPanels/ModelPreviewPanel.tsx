@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import { useDispatch } from '@xrengine/client-core/src/store'
 import {
   initialize3D,
   onWindowResize,
@@ -9,6 +10,9 @@ import {
 } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+
+import { EditorAction, useEditorState } from '../../../services/EditorServices'
+import { useModeState } from '../../../services/ModeServices'
 
 /**
  * @author Abhishek Pathak
@@ -34,6 +38,8 @@ let scene: Scene
 let renderer: WebGLRenderer = null!
 
 export const ModelPreviewPanel = (props) => {
+  const modeState = useModeState()
+  const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
 
   const loadModel = async () => {

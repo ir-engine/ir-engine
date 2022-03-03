@@ -1,5 +1,7 @@
 import { Op } from 'sequelize'
 
+import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import userRalationshipDocs from './user-ralationship.docs'
@@ -67,7 +69,7 @@ export default (app: Application) => {
   //   }))
   // })
 
-  service.publish('patched', async (data): Promise<any> => {
+  service.publish('patched', async (data: UserRelationshipInterface): Promise<any> => {
     try {
       const inverseRelationship = await (app.service('user-relationship') as any).Model.findOne({
         where: {
@@ -103,8 +105,8 @@ export default (app: Application) => {
           data.dataValues.user = await app.service('user').get(data.userId)
           data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
         } else {
-          data.user = await app.service('user').get(data.userId)
-          data.relatedUser = await app.service('user').get(data.relatedUserId)
+          ;(data as any).user = await app.service('user').get(data.userId)
+          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
         }
         // const avatarResult = await app.service('static-resource').find({
         //   query: {
@@ -152,7 +154,7 @@ export default (app: Application) => {
     }
   })
 
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data: UserRelationshipInterface): Promise<any> => {
     try {
       const channel = await (app.service('channel') as any).Model.findOne({
         where: {
@@ -175,8 +177,8 @@ export default (app: Application) => {
         data.dataValues.user = await app.service('user').get(data.userId)
         data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
       } else {
-        data.user = await app.service('user').get(data.userId)
-        data.relatedUser = await app.service('user').get(data.relatedUserId)
+        ;(data as any).user = await app.service('user').get(data.userId)
+        ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
       }
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

@@ -8,6 +8,7 @@
   width: 100%;
   position: fixed;
   pointer-events: none;
+  background: theme.$background2;
 }
 
 .workspaceContainer {
@@ -54,5 +55,23 @@
   .dialogPaper {
     margin-bottom: 10vh;
     background: transparent;
+  }
+}
+
+.bgImageBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+
+  img { opacity: 0.8; filter: unquote($string: "invert()"); margin-top: -50px; }
+  h2 {
+    width: 100%;
+    font-size: 20px;
+    text-align: center;
+    color: theme.$text2;
+    margin-top: 30px;
   }
 }

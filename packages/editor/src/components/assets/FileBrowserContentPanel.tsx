@@ -15,9 +15,7 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
-import { AssetsPanelContainer } from '../layout/Flex'
 import { ToolButton } from '../toolbar/ToolButton'
-import { AssetPanelContentContainer } from './AssetsPanel'
 import FileBrowserGrid from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
@@ -91,10 +89,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       label: file.name,
       size: file.size,
       nodeClass: prefabType,
+      prefabType,
       url: file.url,
       type: file.type,
-      initialProps: { src: new URL(file.url) },
-      iconComponent: prefabIcons[prefabType]
+      Icon: prefabIcons[prefabType]
     }
   })
 
@@ -197,8 +195,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
-        <AssetsPanelContainer id="file-browser-panel" className={styles.assetsPanel}>
-          <AssetPanelContentContainer>
+        <div id="file-browser-panel" className={styles.panelContainer}>
+          <div className={styles.contentContainer}>
             <FileBrowserGrid
               items={files}
               onSelect={onSelect}
@@ -210,8 +208,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               setFileProperties={setFileProperties}
               addNewFolder={addNewFolder}
             />
-          </AssetPanelContentContainer>
-        </AssetsPanelContainer>
+          </div>
+        </div>
       </ContextMenuTrigger>
 
       <ContextMenu id={'uniqueId_current'} hideOnLeave={true}>

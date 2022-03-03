@@ -10,66 +10,23 @@ import { NativeTypes } from 'react-dnd-html5-backend'
 export const ItemTypes = {
   File: NativeTypes.FILE,
   Folder: 'folder',
-  FileBrowserContent: [
-    'png',
-    'jpeg',
-    'jpg',
-    'gif',
-    'gltf',
-    'glb',
-    'mp4',
-    'mp3',
-    'mpeg',
-    'tsx',
-    'ts',
-    'js',
-    'drcs',
-    'uvol',
-    NativeTypes.FILE,
-    'folder',
-    'image/png',
-    'image/jpeg',
-    'video/mp4',
-    'audio/mpeg',
-    'model/gltf'
-  ],
-  Audios: ['mp3', 'mpeg'],
-  Images: ['png', 'jpeg', 'jpg', 'gif'],
-  Models: ['glb', 'gltf'],
+  Audios: ['mp3', 'mpeg', 'audio/mpeg'],
+  Images: ['png', 'jpeg', 'jpg', 'gif', 'image/png', 'image/jpeg'],
+  Models: ['glb', 'gltf', 'model/gltf'],
   Scripts: ['tsx', 'ts', 'jsx', 'js'],
-  Videos: ['mp4', 'm3u8'],
+  Videos: ['mp4', 'm3u8', 'video/mp4'],
   Volumetrics: ['drcs', 'uvol'],
-  //TODO: Need to check if following types are really used or not.
   Node: 'Node',
-  Model: 'Model',
-  Image: 'Image',
-  Video: 'Video',
-  Volumetric: 'Volumetric',
-  Audio: 'Audio',
-  Element: 'Element'
+  Prefab: 'Prefab'
 }
 
-/**
- * AssetTypes array containing types of items used.
- *
- * @author Robert Long
- * @type {Array}
- */
-export const AssetTypes = [
-  ItemTypes.Model,
-  ItemTypes.Image,
-  ItemTypes.Video,
-  ItemTypes.Audio,
-  ItemTypes.Volumetric,
-  ItemTypes.Element
+export const SupportedFileTypes = [
+  ...ItemTypes.Images,
+  ...ItemTypes.Audios,
+  ...ItemTypes.Videos,
+  ...ItemTypes.Volumetrics,
+  ...ItemTypes.Models,
+  ...ItemTypes.Scripts,
+  ItemTypes.Folder,
+  ItemTypes.File
 ]
-
-/**
- * isAsset function to check item exists in array types or not.
- *
- * @author Robert Long
- * @param {object} item
- */
-export function isAsset(item) {
-  return AssetTypes.indexOf(item.type) !== -1
-}

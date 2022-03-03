@@ -92,11 +92,11 @@ const createOfflineUser = (sceneData: SceneJson) => {
 
 const injectedSystems: SystemModuleType<any>[] = [
   {
-    type: 'FIXED',
+    type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/XRUILoadingSystem')
   },
   {
-    type: 'FIXED',
+    type: 'PRE_RENDER',
     systemModulePromise: import('@xrengine/client-core/src/systems/AvatarUISystem')
   }
 ]
