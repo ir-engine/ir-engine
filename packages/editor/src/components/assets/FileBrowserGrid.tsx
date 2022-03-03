@@ -157,7 +157,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     multiple: false
   }))
 
-  const [_, drop] = useDrop({
+  const [{ isOver, canDrop, moni }, drop] = useDrop({
     accept: [...SupportedFileTypes],
     drop: (dropItem) => {
       if ((dropItem as any).id) {
