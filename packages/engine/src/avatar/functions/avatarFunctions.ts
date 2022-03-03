@@ -144,14 +144,15 @@ export const rigAvatarModel = (entity: Entity) => (boneStructure: BoneStructure)
 
 export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group) => {
   const animationComponent = getComponent(entity, AnimationComponent)
+  animationComponent.mixer?.stopAllAction()
+  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
 
   let avatarComponent = getComponent(entity, AvatarComponent)
   if (!avatarComponent) {
-    const modelContainer = getComponent(entity, Object3DComponent).value
     avatarComponent = addComponent(entity, AvatarComponent, {
       avatarHalfHeight: 10,
       avatarHeight: 20,
-      modelContainer,
+      sourceSkeletonRoot,
       isGrounded: true
     })
   }
@@ -173,9 +174,6 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
     })
   }
 
-  animationComponent.mixer?.stopAllAction()
-
-  animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   ;(avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
     animationComponent.mixer,
     velocityComponent.velocity,
