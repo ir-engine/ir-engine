@@ -56,7 +56,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 
   registerSceneLoadPromise(
     new Promise<void>((resolve) => {
-      AssetLoader.load({ url: props.src }, (texture) => {
+      AssetLoader.load(props.src, (texture) => {
         const mesh = new ParticleEmitterMesh(props, texture)
         addComponent(entity, ParticleEmitterComponent, mesh)
         addComponent(entity, Object3DComponent, { value: mesh })
@@ -72,7 +72,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
   if (props.src) {
     AssetLoader.load(
-      { url: props.src },
+      props.src,
       (texture) => {
         const component = getComponent(entity, ParticleEmitterComponent)
         ;(component.material as ShaderMaterial).uniforms.map.value = texture

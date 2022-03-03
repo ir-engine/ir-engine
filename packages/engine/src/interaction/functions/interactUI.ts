@@ -133,7 +133,7 @@ export function createInteractUI(modelEntity: Entity) {
 //             }
 
 //             //load glb file
-//             AssetLoader.loadAsync({ url: mediaData[mediaIndex].path }).then((model) => {
+//             AssetLoader.loadAsync(mediaData[mediaIndex].path).then((model) => {
 //               const object3d = new Object3D()
 //               model.scene.traverse((mesh) => {
 //                 //@ts-ignore

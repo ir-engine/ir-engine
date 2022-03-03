@@ -142,14 +142,14 @@ export const loadLocation = () => {
 
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
-  let entitiesToLoad = 0
 
   const receptor = (action: EngineActionType) => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        const entitesCompleted = entitiesToLoad - Engine.sceneLoadPromises.length
-        const message = Engine.sceneLoadPromises.length ? 'Loading Objects' : 'Loading Complete'
-        dispatchLocal(EngineActions.loadingStateChanged(Math.round((100 * entitesCompleted) / entitiesToLoad), message))
+        const message = action.count === Engine.sceneLoadPromises.length ? 'Loading Objects' : 'Loading Complete'
+        dispatchLocal(
+          EngineActions.loadingStateChanged(Math.round((100 * action.count) / Engine.sceneLoadPromises.length), message)
+        )
         break
     }
   }
@@ -162,6 +162,4 @@ export const loadLocation = () => {
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   })
-
-  entitiesToLoad = Engine.sceneLoadPromises.length
 }
