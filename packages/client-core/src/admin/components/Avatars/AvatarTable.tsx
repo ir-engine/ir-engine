@@ -37,9 +37,10 @@ const AvatarTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    AvatarService.fetchAdminAvatars(incDec, newPage)
+    AvatarService.fetchAdminAvatars(incDec, newPage, null)
     setPage(newPage)
   }
+  console.log(adminAvatarState.value)
 
   const handleCloseModel = () => {
     setPopConfirmOpen(false)
@@ -54,7 +55,8 @@ const AvatarTable = (props: Props) => {
     if (user?.id.value && adminAvatarState.updateNeeded.value) {
       AvatarService.fetchAdminAvatars('increment', 0, search)
     }
-    AvatarService.fetchAdminAvatars('increment', 0, search)
+
+    // AvatarService.fetchAdminAvatars('increment', 0, search)
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
@@ -111,7 +113,7 @@ const AvatarTable = (props: Props) => {
         column={avatarColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminAvatars.value.length}
+        count={adminAvatarCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

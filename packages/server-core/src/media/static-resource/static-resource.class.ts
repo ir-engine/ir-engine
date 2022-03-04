@@ -1,5 +1,6 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -65,7 +66,7 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
       }
       return {
         data: result.rows,
-        total: result.total
+        total: result.count
       }
     } else return super.find(params)
   }

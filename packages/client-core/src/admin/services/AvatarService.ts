@@ -71,7 +71,9 @@ export const AvatarService = {
           search: search
         }
       })
-      dispatch(AvatarAction.avatarsFetched(avatars))
+      if (avatars.data.length) {
+        dispatch(AvatarAction.avatarsFetched(avatars))
+      }
     }
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: any) => {
