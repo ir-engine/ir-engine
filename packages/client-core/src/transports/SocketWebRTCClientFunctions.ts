@@ -11,6 +11,7 @@ import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/c
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
@@ -20,7 +21,7 @@ import {
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
-import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
+import { getMediaTransport, SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -35,7 +36,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   const dispatch = useDispatch()
 
   const isWorldConnection = networkTransport.type === TransportTypes.world
-  console.log('onConnectToInstance', TransportTypes.world)
+  console.log('onConnectToInstance', networkTransport.type)
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected())
@@ -167,7 +168,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
     networkTransport.reconnecting = false
-    console.log('socket reconnect')
+    console.log('world socket reconnect')
   })
 
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
@@ -186,11 +187,78 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.on('disconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED })
     networkTransport.reconnecting = true
+
+    networkTransport.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance) {
+        const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+        consumer?.pause()
+      }
+    })
+
+    networkTransport.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance) {
+        const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+        consumer?.resume()
+      }
+    })
+
+    networkTransport.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance)
+        MediaStreams.instance.consumers = MediaStreams.instance.consumers.filter((c) => c.id !== consumerId)
+      EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+    })
+
+    EngineEvents.instance.removeEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
+      closeConsumer(networkTransport, consumer.consumer)
+    )
   })
+
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
     networkTransport.reconnecting = false
-    console.log('socket reconnect')
+    await onConnectToInstance(networkTransport)
+    await updateNearbyAvatars()
+    const mediaTransport = getMediaTransport()
+    const request = networkTransport.request
+    const socket = networkTransport.socket
+    if (MediaStreams.instance.videoStream) {
+      if (MediaStreams.instance?.camVideoProducer != null) {
+        if (socket.connected === true && typeof request === 'function')
+          await request(MessageTypes.WebRTCCloseProducer.toString(), {
+            producerId: MediaStreams.instance?.camVideoProducer.id
+          })
+        await MediaStreams.instance?.camVideoProducer?.close()
+        await configureMediaTransports(mediaTransport, ['video'])
+        await createCamVideoProducer(mediaTransport)
+      }
+      MediaStreamService.updateCamVideoState()
+    }
+    if (MediaStreams.instance.audioStream) {
+      if (MediaStreams.instance?.camAudioProducer != null) {
+        if (socket.connected === true && typeof request === 'function')
+          await request(MessageTypes.WebRTCCloseProducer.toString(), {
+            producerId: MediaStreams.instance?.camAudioProducer.id
+          })
+        await MediaStreams.instance?.camAudioProducer?.close()
+        await configureMediaTransports(mediaTransport, ['audio'])
+        await createCamAudioProducer(mediaTransport)
+      }
+      MediaStreamService.updateCamAudioState()
+    }
+    // if (MediaStreams.instance.screenVideoProducer) {
+    //   if (socket.connected === true && typeof request === 'function')
+    //     await request(MessageTypes.WebRTCCloseProducer.toString(), {
+    //       producerId: MediaStreams.instance.screenVideoProducer.id
+    //     })
+    //   await MediaStreams.instance.screenVideoProducer?.close()
+    // }
+    // if (MediaStreams.instance.screenAudioProducer) {
+    //   if (socket.connected === true && typeof request === 'function')
+    //     await request(MessageTypes.WebRTCCloseProducer.toString(), {
+    //       producerId: MediaStreams.instance.screenAudioProducer.id
+    //     })
+    //   await MediaStreams.instance.screenAudioProducer?.close()
+    // }
   })
 
   networkTransport.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
@@ -350,8 +418,13 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
   // any time a transport transitions to closed,
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
-    if (networkTransport.leaving !== true && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
-      EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
+    if (!networkTransport.leaving && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
+      EngineEvents.instance.dispatchEvent({
+        type:
+          networkTransport.type === 'world'
+            ? SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED
+            : SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED
+      })
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
         'If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.'
@@ -404,7 +477,10 @@ export async function configureMediaTransports(
   networkTransport: SocketWebRTCClientTransport | null,
   mediaTypes: string[]
 ): Promise<boolean> {
-  if (mediaTypes.indexOf('video') > -1 && MediaStreams.instance.videoStream == null) {
+  if (
+    mediaTypes.indexOf('video') > -1 &&
+    (MediaStreams.instance.videoStream == null || !MediaStreams.instance.videoStream.active)
+  ) {
     await MediaStreams.instance.startCamera()
 
     if (MediaStreams.instance.videoStream == null) {
@@ -413,7 +489,10 @@ export async function configureMediaTransports(
     }
   }
 
-  if (mediaTypes.indexOf('audio') > -1 && MediaStreams.instance.audioStream == null) {
+  if (
+    mediaTypes.indexOf('audio') > -1 &&
+    (MediaStreams.instance.audioStream == null || !MediaStreams.instance.audioStream.active)
+  ) {
     await MediaStreams.instance.startMic()
 
     if (MediaStreams.instance.audioStream == null) {
@@ -456,7 +535,7 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
       let produceInProgress = false
       await new Promise((resolve) => {
         const waitForProducer = setInterval(async () => {
-          if (!MediaStreams.instance.camVideoProducer) {
+          if (!MediaStreams.instance.camVideoProducer || MediaStreams.instance.camVideoProducer.closed) {
             if (!produceInProgress) {
               produceInProgress = true
               MediaStreams.instance.camVideoProducer = await transport.produce({
@@ -467,7 +546,7 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
             }
           } else {
             clearInterval(waitForProducer)
-            produceInProgress = true
+            produceInProgress = false
             resolve(true)
           }
         }, 100)
@@ -518,7 +597,7 @@ export async function createCamAudioProducer(networkTransport: SocketWebRTCClien
       let produceInProgress = false
       await new Promise((resolve) => {
         const waitForProducer = setInterval(async () => {
-          if (!MediaStreams.instance.camAudioProducer) {
+          if (!MediaStreams.instance.camAudioProducer || MediaStreams.instance.camAudioProducer.closed) {
             if (!produceInProgress) {
               produceInProgress = true
               MediaStreams.instance.camAudioProducer = await transport.produce({
@@ -593,10 +672,8 @@ export async function endVideoChat(
         })
       }
 
-      if (networkTransport.recvTransport != null && networkTransport.recvTransport.closed !== true)
-        await networkTransport.recvTransport.close()
-      if (networkTransport.sendTransport != null && networkTransport.sendTransport.closed !== true)
-        await networkTransport.sendTransport.close()
+      if (networkTransport.recvTransport?.closed !== true) await networkTransport.recvTransport.close()
+      if (networkTransport.sendTransport?.closed !== true) await networkTransport.sendTransport.close()
 
       resetProducer()
       return true
