@@ -96,6 +96,7 @@ export class MappedComponentSetupAPI<_Schema extends bitECS.ISchema = any, _Type
 export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: string, schema?: S) => {
   const component = bitECS.defineComponent(schema)
   const componentMap = new Map<number, T & SoAProxy<S>>()
+  const componentMapOldValues = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
   if (schema) {
@@ -114,6 +115,18 @@ export const createMappedComponent = <T, S extends bitECS.ISchema = {}>(name: st
     value: function (eid: number) {
       // return componentMap[eid]
       return componentMap.get(eid)
+    }
+  })
+  Object.defineProperty(component, '_getPrevious', {
+    value: function (eid: number) {
+      // return componentMap[eid]
+      return componentMapOldValues.get(eid)
+    }
+  })
+  Object.defineProperty(component, '_setPrevious', {
+    value: function (eid: number, value: any) {
+      // return componentMap[eid]
+      return componentMapOldValues.set(eid, value)
     }
   })
   Object.defineProperty(component, 'set', {
@@ -194,7 +207,8 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
   }
-  if (bitECS.hasComponent(world, component, entity) || getRemoved) return component.get(entity)
+  if (getRemoved) return component._getPrevious(entity)
+  if (bitECS.hasComponent(world, component, entity)) return component.get(entity)
   return null!
 }
 
@@ -237,6 +251,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
   }
+  component._setPrevious(entity, getComponent(entity, component))
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 
