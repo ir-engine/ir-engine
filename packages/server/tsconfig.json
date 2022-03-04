@@ -28,6 +28,7 @@
   },
   "exclude": [
     "../projects/projects/**",
+    "./upload/**",
     "**/node_modules/**"
   ],
   "include": [
