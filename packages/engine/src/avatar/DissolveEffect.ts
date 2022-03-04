@@ -1,6 +1,4 @@
-import { Mesh, MeshStandardMaterial, Object3D, ShaderLib, ShaderMaterial, UniformsLib } from 'three'
-
-import { CustomMaterial, extendMaterial } from './ExtendMaterial'
+import { Mesh, Object3D } from 'three'
 
 export class DissolveEffect {
   time = 0
