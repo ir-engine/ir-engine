@@ -1,3 +1,5 @@
+import { DataTypes } from 'sequelize'
+
 import type { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterface'
 
 const config: ProjectConfigInterface = {
@@ -30,7 +32,8 @@ const config: ProjectConfigInterface = {
     }
   },
   services: undefined,
-  databaseSeed: undefined
+  databaseSeed: undefined,
+  settings: []
 }
 
 export default config

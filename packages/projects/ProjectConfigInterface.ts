@@ -54,6 +54,8 @@ export interface ProjectConfigInterface {
    * @returns {Array<ServicesSeedConfig>}
    */
   databaseSeed?: string
+
+  settings?: Array<any>
 }
 
 type InstallFunctionType = (app: Application) => Promise<any>
