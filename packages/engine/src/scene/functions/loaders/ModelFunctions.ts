@@ -1,12 +1,9 @@
 import { AnimationClip, Mesh, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import {
-  LoopAnimationComponent,
-  LoopAnimationComponentType
-} from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 
+import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -73,9 +70,7 @@ export const updateModel: ComponentUpdateFunction = async (
       const scene = model?.scene as any
       scene.play = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        //@ts-ignore
         const animationComponent = getComponent(entity, AnimationComponent)
         if (
           loopAnimationComponent.activeClipIndex >= 0 &&
@@ -93,13 +88,11 @@ export const updateModel: ComponentUpdateFunction = async (
       }
       scene.pause = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
         if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
       }
       scene.stop = () => {
         //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        //@ts-ignore
         const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
         if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
       }
