@@ -1,3 +1,4 @@
+import { createState } from '@speigg/hookstate'
 import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -12,7 +13,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
+import { InteractableComponent, InteractableComponentType } from '../../../interaction/components/InteractableComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { LinkComponent, LinkComponentType } from '../../components/LinkComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -35,7 +36,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
 ) => {
   const obj3d = new Object3D()
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, InteractableComponent, { action: 'link' })
+  addComponent(entity, InteractableComponent, createState({ action: 'link' } as InteractableComponentType))
 
   if (Engine.isEditor) {
     const geometry = new PlaneBufferGeometry()

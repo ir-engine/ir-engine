@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
@@ -9,9 +10,8 @@ import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -20,7 +20,6 @@ import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
-import { NetworkWorldAction } from '../../engine/src/networking/functions/NetworkWorldAction'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { closeTransport } from './WebRTCFunctions'
 
@@ -33,30 +32,33 @@ export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => 
   if (config.kubernetes.enabled) {
     await cleanupOldGameservers(transport)
     app.gameServer = await app.agonesSDK.getGameServer()
-    const name = app.gameServer.objectMeta.name
 
-    const gsIdentifier = gsNameRegex.exec(name)!
-    stringSubdomainNumber = await getFreeSubdomain(transport, gsIdentifier[1], 0)
-    app.gsSubdomainNumber = stringSubdomainNumber
-
-    const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
-    const params = {
-      ChangeBatch: {
-        Changes: [
-          {
-            Action: 'UPSERT',
-            ResourceRecordSet: {
-              Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
-              ResourceRecords: [{ Value: app.gameServer.status.address }],
-              TTL: 0,
-              Type: 'A'
-            }
-          }
-        ]
-      },
-      HostedZoneId: config.aws.route53.hostedZoneId
-    }
-    if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
+    // We used to provision subdomains for gameservers, e.g. 00001.gameserver.domain.com
+    // This turned out to be unnecessary, and in fact broke Firefox's ability to connect via
+    // UDP, so the following was commented out.
+    // const name = app.gameServer.objectMeta.name
+    // const gsIdentifier = gsNameRegex.exec(name)!
+    // stringSubdomainNumber = await getFreeSubdomain(transport, gsIdentifier[1], 0)
+    // app.gsSubdomainNumber = stringSubdomainNumber
+    //
+    // const Route53 = new AWS.Route53({ ...config.aws.route53.keys })
+    // const params = {
+    //   ChangeBatch: {
+    //     Changes: [
+    //       {
+    //         Action: 'UPSERT',
+    //         ResourceRecordSet: {
+    //           Name: `${stringSubdomainNumber}.${config.gameserver.domain}`,
+    //           ResourceRecords: [{ Value: app.gameServer.status.address }],
+    //           TTL: 0,
+    //           Type: 'A'
+    //         }
+    //       }
+    //     ]
+    //   },
+    //   HostedZoneId: config.aws.route53.hostedZoneId
+    // }
+    // if (config.gameserver.local !== true) await Route53.changeResourceRecordSets(params as any).promise()
   } else {
     try {
       // is this needed?
@@ -71,11 +73,7 @@ export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => 
 
   // Set up our gameserver according to our current environment
   const localIp = await getLocalServerIp(app.isChannelInstance)
-  const announcedIp = config.kubernetes.enabled
-    ? config.gameserver.local === true
-      ? app.gameServer.status.address
-      : `${stringSubdomainNumber!}.${config.gameserver.domain}`
-    : localIp.ipAddress
+  const announcedIp = config.kubernetes.enabled ? app.gameServer.status.address : localIp.ipAddress
 
   localConfig.mediasoup.webRtcTransport.listenIps = [
     {
@@ -156,9 +154,6 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
     'default',
     'gameservers'
   )
-  const gsIds = (gameservers?.body! as any).items.map((gs) =>
-    gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
-  )
 
   await Promise.all(
     instances.rows.map((instance) => {
@@ -175,6 +170,10 @@ export async function cleanupOldGameservers(transport: SocketWebRTCServerTranspo
           })
         : Promise.resolve()
     })
+  )
+
+  const gsIds = (gameservers?.body! as any).items.map((gs) =>
+    gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)![1] : null
   )
 
   await transport.app.service('gameserver-subdomain-provision').patch(
@@ -276,14 +275,14 @@ export const handleJoinWorld = async (
   const inviteCode = data['inviteCode']
 
   if (inviteCode) {
-    const result = await transport.app.service('user').find({
+    const result = (await transport.app.service('user').find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
       }
-    })
+    })) as any
 
-    let users = result.data
+    let users = result.data as User[]
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {

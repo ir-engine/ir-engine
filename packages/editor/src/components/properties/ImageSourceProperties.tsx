@@ -31,7 +31,18 @@ export const ImageSourceProperties: EditorComponentType = (props) => {
       <InputGroup
         name="Transparency Mode"
         label={t('editor:properties.image.lbl-transparency')}
-        info={t('editor:properties.image.info-transparency')}
+        info={
+          <>
+            <span>{t('editor:properties.image.info-transparency')}</span>
+            <br />
+            <span>{t('editor:properties.image.info-opaque')}</span>
+            <br />
+            <span>{t('editor:properties.image.info-blend')}</span>
+            <br />
+            <span>{t('editor:properties.image.info-mask')}</span>
+            <br />
+          </>
+        }
       >
         <SelectInput
           options={imageTransparencyOptions}
