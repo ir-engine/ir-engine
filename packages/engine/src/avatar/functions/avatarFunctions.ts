@@ -21,7 +21,7 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
-import { LoopAnimationComponent, LoopAnimationComponentType } from '../../avatar/components/LoopAnimationComponent'
+import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
@@ -146,11 +146,12 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
-  ;(avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
-    animationComponent.mixer,
-    velocityComponent.velocity,
-    avatarComponent
-  )
+  if (avatarAnimationComponent)
+    (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
+      animationComponent.mixer,
+      velocityComponent.velocity,
+      avatarComponent
+    )
 
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)
