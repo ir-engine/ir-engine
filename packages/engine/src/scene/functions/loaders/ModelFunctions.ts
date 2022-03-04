@@ -66,6 +66,9 @@ export const updateModel: ComponentUpdateFunction = async (
   if (properties.src) {
     try {
       const model = await loadGLTFModel(entity)
+
+      // TODO: move all loopable component stuff to LoopableAnimationFunctions, contingent on #5384
+
       //add callback
       const scene = model?.scene as any
       scene.play = () => {
