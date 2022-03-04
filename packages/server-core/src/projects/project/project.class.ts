@@ -149,6 +149,7 @@ export class Project extends Service {
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
+        await deleteProjectFilesInStorageProvider(name)
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super.remove(id)
       }
@@ -305,6 +306,10 @@ export class Project extends Service {
         // run project uninstall script
         if (projectConfig.onEvent) {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        }
+
+        if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
+          fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
         }
 
         console.log('[Projects]: removing project', id, name)
