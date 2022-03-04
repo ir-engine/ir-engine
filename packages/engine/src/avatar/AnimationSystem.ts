@@ -78,7 +78,10 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
+    }
 
+    for (const entity of avatarAnimationQuery(world)) {
+      const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.update(deltaTime)
