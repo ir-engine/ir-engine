@@ -17,7 +17,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
@@ -117,12 +116,12 @@ export default async function InteractiveSystem(world: World) {
       showInteractUI(entity)
     }
 
-    for (const entity of subfocusQuery.enter()) {
-      addComponent(entity, HighlightComponent, {})
-    }
-    for (const entity of subfocusQuery.exit()) {
-      removeComponent(entity, HighlightComponent)
-    }
+    // for (const entity of subfocusQuery.enter()) {
+    //   addComponent(entity, HighlightComponent, {})
+    // }
+    // for (const entity of subfocusQuery.exit()) {
+    //   removeComponent(entity, HighlightComponent)
+    // }
 
     for (const [entity, ui] of InteractiveUI) {
       updateInteractUI(entity, ui)

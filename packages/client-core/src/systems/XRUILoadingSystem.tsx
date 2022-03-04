@@ -46,11 +46,11 @@ export default async function XRUILoadingSystem(world: World) {
 
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-    if (!Engine.xrSession) {
-      Engine.camera.rotateY(world.delta * 0.35)
-    } else {
-      // todo: figure out how to make this work properly for VR
-    }
+    // if (!Engine.xrSession && !Engine.hasJoinedWorld) {
+    //   Engine.camera.rotateY(world.delta * 0.35)
+    // } else {
+    //   // todo: figure out how to make this work properly for VR
+    // }
 
     if (Engine.activeCameraEntity) {
       const xrui = getComponent(ui.entity, XRUIComponent)

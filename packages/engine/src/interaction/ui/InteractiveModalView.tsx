@@ -103,26 +103,26 @@ export const InteractiveModalView = () => {
           <div
             className="interactive-description"
             xr-layer="true"
-            xr-pixel-ratio="0.8"
+            xr-pixel-ratio="0.9"
             dangerouslySetInnerHTML={{ __html: description.value || '' }}
           ></div>
 
           <div className="interactive-model" xr-layer="true"></div>
         </div>
-        {/* 
+
         <button
           className="interactive-link"
           xr-layer="true"
-          xr-pixel-ratio="0.8"
+          xr-pixel-ratio="2"
           onClick={() => {
             window.open(url.value, '_blank')!.focus()
           }}
         >
-          Open Link
-        </button> */}
+          Buy Now
+        </button>
       </div>
 
-      <div className="interactive-content"></div>
+      {/* <div className="interactive-content"></div> */}
 
       {/* {renderMedia(detailState)} */}
 
@@ -130,14 +130,15 @@ export const InteractiveModalView = () => {
         {`
 
         .interactive-modal {
-          background-color: #000000dd;
+          background-color: rgb(20,20,50,0.9);
           color: white;
           font-family: 'Roboto', sans-serif;
-          border: 6px solid white;
+          border: 0.5px solid white;
           border-radius: 40px;
-          box-shadow: #fff2 0 0 20px;
+          // box-shadow: #fff2 0 0 20px;
           width: ${162 * 4}px;
           height: ${100 * 4}px;
+          margin:1px;
         }
 
         .interactive-content {
@@ -148,16 +149,30 @@ export const InteractiveModalView = () => {
           display: auto;
         }
 
+        .interactive-link {
+          display: ${url ? 'auto' : 'none'};
+          position: absolute;
+          top: 0;
+          left: 30px;
+          width: 140px;
+          height: 40px;
+          border-radius: 20px;
+          background-color: white;
+          border: none;
+          color: rgb(20,20,50,0,1);
+          fontSize: 20px;
+        }
+
         .interactive-flex {
           display: flex;
           align-items: flex-start;
           flex-direction: row;
           align-items: stretch;
-          height: 360px;
+          height: 300px;
         }
 
         .interactive-description {
-          margin: 20px;
+          margin: 0 20px;
           overflow: hidden;
           text-align: left;
           font-size: 10px;
@@ -210,13 +225,6 @@ export const InteractiveModalView = () => {
         
         .interacting .interactive-e-key {
           display: none
-        }
-
-        .interactive-link {
-          display: ${url ? 'auto' : 'none'};
-          fontSize: 25px;
-          backgroundColor: #000000dd;
-          color: white;
         }
 
         button:hover {
