@@ -43,7 +43,6 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
-    // @ts-ignore
     app.setup = async function (...args: any) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')

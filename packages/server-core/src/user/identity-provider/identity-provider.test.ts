@@ -6,10 +6,11 @@ import { Application } from '../../../declarations'
 
 let providers: any = []
 
-describe.skip('identity-provider service', () => {
+describe('identity-provider service', () => {
   let app: Application
-  before(() => {
+  before(async () => {
     app = createApp()
+    await app.setup()
   })
 
   it('registered the service', async () => {

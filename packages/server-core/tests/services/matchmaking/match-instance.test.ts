@@ -18,12 +18,12 @@ interface ticketsTestData {
   user: User
 }
 
-describe('matchmaking match-instance service', () => {
+describe.skip('matchmaking match-instance service', () => {
   let scope: nock.Scope
   const ticketsNumber = 3
   const users: User[] = []
   const tickets: ticketsTestData[] = []
-  const gamemode = 'msa-private-test'
+  const gamemode = 'test-private-test'
   const tier = 'bronze'
 
   const commonLocationSettings = {
@@ -46,6 +46,7 @@ describe('matchmaking match-instance service', () => {
   let app: Application
   before(async () => {
     app = createApp()
+    await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)
 
@@ -69,7 +70,7 @@ describe('matchmaking match-instance service', () => {
         name: `game-${gamemode}`,
         slugifiedName: `game-${gamemode}`,
         maxUsersPerInstance: 30,
-        sceneId: `msa/game-${gamemode}`,
+        sceneId: `test/game-${gamemode}`,
         location_settings: commonLocationSettings as any,
         isLobby: false,
         isFeatured: false

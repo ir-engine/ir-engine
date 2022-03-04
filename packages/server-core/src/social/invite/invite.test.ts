@@ -7,11 +7,13 @@ import { Application } from '../../../declarations'
 let invites: any = []
 let user: any = null
 
-describe.skip('invite service', () => {
+describe('invite service', () => {
   let app: Application
 
   before(async () => {
     app = createApp()
+    await app.setup()
+
     await app.service('invite').hooks({
       before: {
         find: []

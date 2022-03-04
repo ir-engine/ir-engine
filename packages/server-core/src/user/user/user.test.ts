@@ -6,10 +6,11 @@ import { Application } from '../../../declarations'
 
 let users: any = []
 
-describe.skip('user service', () => {
+describe('user service', () => {
   let app: Application
-  before(() => {
+  before(async () => {
     app = createApp()
+    await app.setup()
   })
 
   it('registered the service', async () => {
@@ -58,7 +59,8 @@ describe.skip('user service', () => {
       const item = await app.service('user').find({
         query: {
           id: user.id
-        }
+        },
+        isInternal: true
       })
 
       assert.ok(item, 'user item is found')
@@ -100,28 +102,33 @@ describe.skip('user service', () => {
     const item = await app.service('user').find({
       query: {
         action: 'invite-code-lookup'
-      }
+      },
+      isInternal: true
     })
 
     assert.ok(item, 'user items is found')
   })
 
   it('should patch users', async () => {
-    const partyId = v1()
     for (const user of users) {
-      await app.service('user').patch(user.id, {
-        instanceId: partyId
-      })
+      const newName = v1()
+      await app.service('user').patch(
+        user.id,
+        {
+          name: newName
+        },
+        {
+          isInternal: true
+        }
+      )
+      const { name } = await app.service('user').get(user.id)
+      assert.equal(newName, name)
     }
   })
 
   it('should remove users', async () => {
     for (const user of users) {
-      const item = await app.service('user').remove(null, {
-        query: {
-          id: user.id
-        }
-      })
+      const item = await app.service('user').remove(user.id)
       assert.ok(item, 'user item is removed')
     }
   })

@@ -12,10 +12,11 @@ import { getAvatarFromStaticResources } from './avatar-helper'
 // const debugThumbnail = false
 
 // causes CI/CD weirdness
-describe.skip('avatar-helper', () => {
+describe('avatar-helper', () => {
   let app: Application
-  before(() => {
+  before(async () => {
     app = createApp()
+    await app.setup()
   })
 
   // describe('generateAvatarThumbnail', () => {
