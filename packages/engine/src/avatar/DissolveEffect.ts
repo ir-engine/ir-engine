@@ -46,9 +46,6 @@ export class DissolveEffect {
       const textArray = text.split(pattern)
       if (textArray.length != 0) {
         const idx = textArray[0].length + pattern.length
-        console.log(text.slice(0, idx))
-        console.log(text.slice(idx))
-        console.log(text.slice(0, idx) + word + text.slice(idx))
         return text.slice(0, idx) + word + text.slice(idx)
       } else {
         return text
@@ -59,10 +56,6 @@ export class DissolveEffect {
     const material = object.material as any
     const hasTexture = !!material.map
 
-    if (hasUV && !hasTexture) {
-      debugger
-    }
-
     const vertexNonUVShader = `
       vec2 clipSpace = gl_Position.xy / gl_Position.w;
       vUv3 = clipSpace * 0.5 + 0.5;
@@ -70,33 +63,33 @@ export class DissolveEffect {
       `
 
     const vertexUVShader = `
-      vUv3 = uv
+      vUv3 = uv;
       vPosition = position.y;
       `
 
     const fragmentColorShader = `
-        float offset = vPosition - time;
-        if(offset > (-0.01 - rand(time) * 0.3)){
-        gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
-        gl_FragColor.r = 0.0;
-        gl_FragColor.g = 1.0;
-        gl_FragColor.b = 0.0;
-        }
-        if(offset > 0.0){
-        discard;
-        }
+      float offset = vPosition - time;
+      if(offset > (-0.01 - rand(time) * 0.3)){
+      gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
+      gl_FragColor.r = 0.0;
+      gl_FragColor.g = 1.0;
+      gl_FragColor.b = 0.0;
+      }
+      if(offset > 0.0){
+      discard;
+      }
       `
 
     const fragmentTextureShader = `
       float offset = vPosition - time;
       if(offset > (-0.01 - rand(time) * 0.3)){
-        gl_FragColor = texture2D(origin_texture, vUv3);
-        gl_FragColor.r = 0.0;
-        gl_FragColor.g = 1.0;
-        gl_FragColor.b = 0.0;
+      gl_FragColor = texture2D(origin_texture, vUv3);
+      gl_FragColor.r = 0.0;
+      gl_FragColor.g = 1.0;
+      gl_FragColor.b = 0.0;
       }
       if(offset > 0.0){
-        discard;
+      discard;
       }
       `
 
@@ -104,50 +97,47 @@ export class DissolveEffect {
       value: -200
     }
 
-    try {
-      material.onBeforeCompile = (shader) => {
-        shader.uniforms.color = {
-          value: material.color
-        }
-
-        shader.uniforms.origin_texture = {
-          value: material.map
-        }
-
-        shader.uniforms.time = material.userData.time
-
-        let vertexShader = appendText(
-          shader.vertexShader,
-          '#include <clipping_planes_pars_vertex>',
-          `
-          varying vec2 vUv3;
-          varying float vPosition;
-           `
-        )
-        vertexShader = appendText(vertexShader, '#include <project_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
-        shader.vertexShader = vertexShader
-
-        let fragmentShader = appendText(
-          shader.fragmentShader,
-          '#include <clipping_planes_pars_fragment>',
-          `
-          uniform vec3 color;
-          varying vec2 vUv3;
-          varying float vPosition;
-          uniform float time;
-          uniform sampler2D texture_dissolve;
-          uniform sampler2D origin_texture;
-          float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
-          `
-        )
-        fragmentShader = appendText(
-          fragmentShader,
-          '#include <output_fragment>',
-          hasTexture ? fragmentTextureShader : fragmentColorShader
-        )
-        shader.fragmentShader = fragmentShader
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.color = {
+        value: material.color
       }
-    } catch (error) {
+
+      shader.uniforms.origin_texture = {
+        value: material.map
+      }
+
+      shader.uniforms.time = material.userData.time
+
+      let vertexShader = appendText(
+        shader.vertexShader,
+        '#include <clipping_planes_pars_vertex>',
+        `
+        varying vec2 vUv3;
+        varying float vPosition;
+         `
+      )
+      vertexShader = appendText(vertexShader, '#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
+      shader.vertexShader = vertexShader
+
+      let fragmentShader = appendText(
+        shader.fragmentShader,
+        '#include <clipping_planes_pars_fragment>',
+        `
+        uniform vec3 color;
+        varying vec2 vUv3;
+        varying float vPosition;
+        uniform float time;
+        uniform sampler2D texture_dissolve;
+        uniform sampler2D origin_texture;
+        float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
+        `
+      )
+      fragmentShader = appendText(
+        fragmentShader,
+        '#include <output_fragment>',
+        hasTexture ? fragmentTextureShader : fragmentColorShader
+      )
+      shader.fragmentShader = fragmentShader
       debugger
     }
 
