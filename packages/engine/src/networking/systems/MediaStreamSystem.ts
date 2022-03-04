@@ -11,6 +11,7 @@ import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 /** System class for media streaming. */
 export class MediaStreams {
   static EVENTS = {
+    TRIGGER_REQUEST_CURRENT_PRODUCERS: 'NETWORK_TRANSPORT_EVENT_REQUEST_CURRENT_PRODUCERS',
     TRIGGER_UPDATE_CONSUMERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS',
     CLOSE_CONSUMER: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER',
     UPDATE_NEARBY_LAYER_USERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_NEARBY_LAYER_USERS'
@@ -314,7 +315,7 @@ export const updateNearbyAvatars = () => {
 }
 
 // every 5 seconds
-const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
+const NEARBY_AVATAR_UPDATE_PERIOD = 60 * 5
 
 export default async function MediaStreamSystem() {
   let nearbyAvatarTick = 0
@@ -342,7 +343,7 @@ export default async function MediaStreamSystem() {
 
     if (isClient) {
       nearbyAvatarTick++
-      if (nearbyAvatarTick > NEARYBY_AVATAR_UPDATE_PERIOD) {
+      if (nearbyAvatarTick > NEARBY_AVATAR_UPDATE_PERIOD) {
         nearbyAvatarTick = 0
         updateNearbyAvatars()
       }
