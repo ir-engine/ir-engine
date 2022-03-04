@@ -54,6 +54,7 @@ export const ModelPreviewPanel = (props) => {
       const result = scene.getObjectByName(model.name)
       if (result) scene.remove(result)
       scene.add(model)
+      setLoading(false)
       renderScene({ scene, camera, renderer })
     } catch (err) {
       setLoading(false)
@@ -61,7 +62,7 @@ export const ModelPreviewPanel = (props) => {
     }
   }
 
-  if (renderer && loading) loadModel()
+  if (renderer) loadModel()
 
   useEffect(() => {
     const init = initialize3D()
@@ -86,12 +87,16 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
-      {loading ||
-        (error && (
-          <div className={styles.container}>
-            {error.length ? <h1 className={styles.error}>{error}</h1> : <CircularProgress />}
-          </div>
-        ))}
+      {loading && (
+        <div className={styles.container}>
+          <CircularProgress />
+        </div>
+      )}
+      {error && (
+        <div className={styles.container}>
+          <h1 className={styles.error}>{error}</h1>
+        </div>
+      )}
       <div id="stage" style={{ width: '300px', height: '200px', margin: 'auto' }}></div>
     </>
   )
