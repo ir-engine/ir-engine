@@ -15,7 +15,7 @@ import UserSettings from './UserSettings'
 interface Props {
   open: boolean
   handleClose: () => void
-  avatarUrl: string
+  avatarUrl?: string
   //auth: any
 }
 

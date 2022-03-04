@@ -11,7 +11,7 @@ import { useAuthState } from '../../services/AuthService'
 import styles from './Profile.module.scss'
 
 interface Props {
-  avatarUrl: string
+  avatarUrl?: string
   //auth: any
 }
 

@@ -153,6 +153,7 @@ const AvatarMenu = (props: Props) => {
 
       avatarElementList.push(
         <div
+          key={`avatarMenuItem${index}`}
           className={styles.menuItem}
           style={{
             width: menuItemWidth,
