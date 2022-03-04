@@ -150,6 +150,7 @@ export const createApp = (): Application => {
     if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect()
       agonesSDK.ready().catch((err) => {
+        console.log(err)
         throw new Error(
           '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
         )

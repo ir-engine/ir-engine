@@ -25,7 +25,7 @@ export const HelperToggleTool = () => {
   return (
     <>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Physics Helpers">
+        <InfoTooltip title="Toggle Physics Helpers">
           <button
             onClick={togglePhysicsDebug}
             className={
@@ -39,7 +39,7 @@ export const HelperToggleTool = () => {
         </InfoTooltip>
       </div>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Node Helpers">
+        <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
             className={

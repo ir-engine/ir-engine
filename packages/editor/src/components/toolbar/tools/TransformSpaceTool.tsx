@@ -6,9 +6,8 @@ import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformCo
 import LanguageIcon from '@mui/icons-material/Language'
 
 import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import EditorEvents from '../../../constants/EditorEvents'
-import { CommandManager } from '../../../managers/CommandManager'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useModeState } from '../../../services/ModeServices'
 import { setTransformSpace, toggleTransformSpace } from '../../../systems/EditorControlSystem'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -24,15 +23,17 @@ const transformSpaceOptions = [
 ]
 
 const TransformSpaceTool = () => {
+  const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
   const [transformSpace, changeTransformSpace] = useState(TransformSpace.World)
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), updateTransformSpace)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.TRANSFORM_SPACE_CHANGED.toString(), updateTransformSpace)
+    if (initializeRef.current) {
+      updateTransformSpace()
+    } else {
+      initializeRef.current = true
     }
-  }, [])
+  }, [modeState.transformSpaceModeChanged.value])
 
   const updateTransformSpace = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
@@ -49,7 +50,7 @@ const TransformSpaceTool = () => {
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
-      <InfoTooltip info="[Z] Toggle Transform Space">
+      <InfoTooltip title="[Z] Toggle Transform Space">
         <button onClick={onToggleTransformSpace} className={styles.toolButton}>
           <LanguageIcon fontSize="small" />
         </button>
