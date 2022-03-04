@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
@@ -11,8 +11,11 @@ import {
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
+import CircularProgress from '@mui/material/CircularProgress'
+
 import { EditorAction, useEditorState } from '../../../services/EditorServices'
 import { useModeState } from '../../../services/ModeServices'
+import styles from '../styles.module.scss'
 
 /**
  * @author Abhishek Pathak
@@ -41,17 +44,24 @@ export const ModelPreviewPanel = (props) => {
   const modeState = useModeState()
   const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const loadModel = async () => {
-    const model = await loadAvatarModelAsset(url)
-    model.name = 'avatar'
-    const result = scene.getObjectByName(model.name)
-    if (result) scene.remove(result)
-    scene.add(model)
-    renderScene({ scene, camera, renderer })
+    try {
+      const model = await loadAvatarModelAsset(url)
+      model.name = 'avatar'
+      const result = scene.getObjectByName(model.name)
+      if (result) scene.remove(result)
+      scene.add(model)
+      renderScene({ scene, camera, renderer })
+    } catch (err) {
+      setLoading(false)
+      setError(err.message)
+    }
   }
 
-  if (renderer) loadModel()
+  if (renderer && loading) loadModel()
 
   useEffect(() => {
     const init = initialize3D()
@@ -65,7 +75,7 @@ export const ModelPreviewPanel = (props) => {
     controls.maxDistance = 10
     controls.target.set(0, 1.25, 0)
     controls.update()
-    loadModel()
+    if (loading) loadModel()
 
     window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
 
@@ -76,6 +86,12 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
+      {loading ||
+        (error && (
+          <div className={styles.container}>
+            {error.length ? <h1 className={styles.error}>{error}</h1> : <CircularProgress />}
+          </div>
+        ))}
       <div id="stage" style={{ width: '300px', height: '200px', margin: 'auto' }}></div>
     </>
   )

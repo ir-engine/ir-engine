@@ -8,9 +8,12 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefa
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
@@ -66,6 +69,32 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const [openConfirmModel, setConfirmModel] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
   const [contentToDeleteType, setContentToDeleteType] = useState('')
+
+  const breadcrumbs = selectedDirectory
+    .slice(1, -1)
+    .split('/')
+    .map((file, index, arr) => {
+      if (arr.length - 1 == index) {
+        return (
+          <Typography key={file} style={{ color: '#fff', fontSize: '0.9rem' }}>
+            {file}
+          </Typography>
+        )
+      } else {
+        return (
+          <Link
+            underline="hover"
+            key={file}
+            color="#5d646c"
+            style={{ fontSize: '0.9rem' }}
+            href="#"
+            onClick={() => handleClick(file)}
+          >
+            {file}
+          </Link>
+        )
+      }
+    })
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
@@ -183,14 +212,35 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const currentContentRef = useRef(currentContent)
 
   const headGrid = {
-    display: 'grid',
-    gridTemplateColumns: '1fr auto',
-    gridGap: '20px'
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '20px'
   }
+
+  function handleClick(targetFolder: string) {
+    const pattern = /([^\/]+)/g
+    const result = selectedDirectory.match(pattern)
+    if (!result) return
+    let newPath = '/'
+    for (const folder of result) {
+      if (folder != targetFolder) {
+        newPath += folder + '/'
+      } else {
+        newPath += folder + '/'
+        break
+      }
+    }
+    setSelectedDirectory(newPath)
+  }
+
   return (
     <>
       <div style={headGrid}>
         <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" />
+        <Breadcrumbs maxItems={3} classes={{ separator: styles.separator }} separator="›" aria-label="breadcrumb">
+          {breadcrumbs}
+        </Breadcrumbs>
         <ToolButton icon={AutorenewIcon} onClick={onRefreshDirectory} id="refreshDir" />
       </div>
 

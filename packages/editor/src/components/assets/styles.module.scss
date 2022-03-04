@@ -151,3 +151,20 @@
     }
   }
 }
+
+.container {
+  height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  color: #c53a7d;
+  font-weight: bold;
+}
+
+.separator {
+  color: #5d646c;
+}

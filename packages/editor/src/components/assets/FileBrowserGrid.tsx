@@ -198,7 +198,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
             <FileListItem
               iconComponent={item.Icon}
               onClick={onClickItem}
-              label={item.label}
+              label={`${item.label}.${item.type}`}
               isRenaming={renamingAsset}
               onNameChanged={onNameChanged}
             />

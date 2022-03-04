@@ -531,7 +531,8 @@
       "cutAsset": "Cut",
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
-      "renameAsset": "Rename"
+      "renameAsset": "Rename",
+      "viewAssetProperties": "View Properties"
     }
   },
   "hierarchy": {
