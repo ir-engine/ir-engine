@@ -145,7 +145,12 @@ const Projects = () => {
     try {
       if (project) {
         const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
-        await ProjectService.removeProject(projectToRemove.id!)
+        if (projectToRemove) {
+          await ProjectService.removeProject(projectToRemove.id)
+          handleCloseRemoveModel()
+        } else {
+          throw Error('Failed to find the project')
+        }
       }
     } catch (err) {
       console.log(err)

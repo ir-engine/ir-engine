@@ -9,8 +9,8 @@ import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 
-const animationQuery = defineQuery([AnimationComponent, IKRigComponent, AvatarAnimationComponent])
-// const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+const animationQuery = defineQuery([AnimationComponent])
+const avatarAnimationQuery = defineQuery([AnimationComponent, IKRigComponent, AvatarAnimationComponent])
 
 export default async function AnimationSystem(world: World) {
   world.receptors.push(animationActionReceptor)
@@ -37,7 +37,10 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
+    }
 
+    for (const entity of avatarAnimationQuery(world)) {
+      const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.update(deltaTime)
