@@ -1,9 +1,12 @@
 import React, { useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
+import { onWindowResize } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
+
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
 import { JsonPreviewPanel } from './AssetPreviewPanels/JsonPreviewPanel'
+import { camera, renderer, scene } from './AssetPreviewPanels/ModelPreviewPanel'
 import { ModelPreviewPanel } from './AssetPreviewPanels/ModelPreviewPanel'
 import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
@@ -41,7 +44,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
   })
 
   const onLayoutChanged = () => {
-    console.log('Layout is Changed:')
+    if (renderer) onWindowResize({ camera, renderer, scene })
   }
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
@@ -66,6 +69,7 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
       case 'image/jpeg':
       case 'png':
       case 'jpeg':
+      case 'jpg':
         const imagePreviewPanel = {
           PreviewSource: ImagePreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }

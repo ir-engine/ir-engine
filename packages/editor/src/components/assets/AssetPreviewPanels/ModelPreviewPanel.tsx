@@ -36,9 +36,9 @@ const ModelPreview = (styled as any).canvas`
  * @returns
  */
 
-let camera: PerspectiveCamera
-let scene: Scene
-let renderer: WebGLRenderer = null!
+export let camera: PerspectiveCamera
+export let scene: Scene
+export let renderer: WebGLRenderer = null!
 
 export const ModelPreviewPanel = (props) => {
   const modeState = useModeState()
@@ -97,7 +97,7 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error}</h1>
         </div>
       )}
-      <div id="stage" style={{ width: '300px', height: '200px', margin: 'auto' }}></div>
+      <div id="stage" style={{ width: '100%', height: '100%' }}></div>
     </>
   )
 }

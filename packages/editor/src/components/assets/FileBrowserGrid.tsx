@@ -121,7 +121,14 @@ function FileBrowserItem(props: FileBrowserItemType) {
   }, [])
 
   const viewAssetProperties = useCallback((_, trigger) => {
-    setFileProperties(trigger.item)
+    if (trigger.item.type == 'folder') {
+      setFileProperties({
+        ...trigger.item,
+        url: trigger.item.url + '/' + trigger.item.id
+      })
+    } else {
+      setFileProperties(trigger.item)
+    }
     setOpenPropertiesModel(true)
   }, [])
 

@@ -97,8 +97,25 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
+  removeDir(path: string) {
+    if (fs.existsSync(path)) {
+      const files = fs.readdirSync(path)
+      if (files.length > 0) {
+        files.forEach((filename) => {
+          if (fs.statSync(path + filename).isDirectory()) {
+            this.removeDir(path + filename)
+          } else {
+            fs.unlinkSync(path + filename)
+          }
+        })
+        fs.rmdirSync(path)
+      } else {
+        fs.rmdirSync(path)
+      }
+    }
+  }
+
   deleteResources(keys: string[]) {
-    //Currently Not able to delete dir
     const blobs = this.getStorage()
 
     return Promise.all<boolean>(
@@ -113,9 +130,15 @@ export class LocalStorage implements StorageProviderInterface {
             if (exists) {
               blobs.remove(key, (err) => {
                 if (err) {
-                  console.error(err)
-                  resolve(false)
-                  return
+                  const filePath = path.join(this.PATH_PREFIX, key)
+                  if (fs.statSync(filePath).isDirectory()) {
+                    this.removeDir(filePath)
+                    resolve(true)
+                  } else {
+                    resolve(false)
+                    console.error(err)
+                    return
+                  }
                 }
                 resolve(true)
               })
