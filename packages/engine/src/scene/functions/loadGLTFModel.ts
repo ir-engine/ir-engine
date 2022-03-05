@@ -83,11 +83,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   }
 
   for (const mesh of meshesToProcess) {
-    if (mesh === obj3d) {
-      createObjectEntityFromGLTF(entity, obj3d)
-      continue
-    }
-
     const e = createEntity()
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
