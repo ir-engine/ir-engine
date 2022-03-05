@@ -1,7 +1,9 @@
-import { Mesh, Object3D } from 'three'
+import { AnimationClip, Mesh, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -10,6 +12,7 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -27,6 +30,20 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   isDynamicObject: false
 }
 
+export const AnimatedObjectCallbacks = [
+  { label: 'None', value: 'none' },
+  { label: 'Play', value: 'play' },
+  { label: 'Pause', value: 'pause' },
+  { label: 'Stop', value: 'stop' }
+]
+
+type AnimatedObject3D = UpdateableObject3D & {
+  play()
+  pause()
+  stop()
+  callbacks()
+}
+
 export const deserializeModel: ComponentDeserializeFunction = (
   entity: Entity,
   component: ComponentJson<ModelComponentType>
@@ -36,7 +53,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-
   registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
@@ -45,11 +61,47 @@ export const updateModel: ComponentUpdateFunction = async (
   properties: ModelComponentType
 ): Promise<void> => {
   const component = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh
+  const obj3d = getComponent(entity, Object3DComponent).value as AnimatedObject3D
 
   if (properties.src) {
     try {
-      await loadGLTFModel(entity)
+      const model = await loadGLTFModel(entity)
+
+      // TODO: move all loopable component stuff to LoopableAnimationFunctions, contingent on #5384
+
+      //add callback
+      const scene = model?.scene as any
+      scene.play = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        const animationComponent = getComponent(entity, AnimationComponent)
+        if (
+          loopAnimationComponent.activeClipIndex >= 0 &&
+          animationComponent.animations[loopAnimationComponent.activeClipIndex]
+        ) {
+          loopAnimationComponent.action = animationComponent.mixer.clipAction(
+            AnimationClip.findByName(
+              animationComponent.animations,
+              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+            )
+          )
+          loopAnimationComponent.action.paused = false
+          loopAnimationComponent.action.play()
+        }
+      }
+      scene.pause = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
+      }
+      scene.stop = () => {
+        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+        if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+      }
+      scene.callbacks = () => {
+        return AnimatedObjectCallbacks
+      }
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)
