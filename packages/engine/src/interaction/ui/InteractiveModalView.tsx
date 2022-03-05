@@ -118,6 +118,24 @@ export const InteractiveModalView = () => {
         Buy Now
       </button>
 
+      <div className="rating">
+        <span xr-layer="true" className="star-1">
+          ★
+        </span>
+        <span xr-layer="true" className="star-2">
+          ★
+        </span>
+        <span xr-layer="true" className="star-3">
+          ★
+        </span>
+        <span xr-layer="true" className="star-4">
+          ★
+        </span>
+        <span xr-layer="true" className="star-5">
+          ★
+        </span>
+      </div>
+
       {/* <div className="content"></div> */}
 
       {/* {renderMedia(detailState)} */}
@@ -148,7 +166,7 @@ export const InteractiveModalView = () => {
         .link {
           display: ${url ? 'auto' : 'none'};
           position: absolute;
-          top: 0;
+          top: 20px;
           left: 30px;
           width: 140px;
           height: 40px;
@@ -168,7 +186,7 @@ export const InteractiveModalView = () => {
         }
 
         .description {
-          margin: 0 20px;
+          margin: 20px;
           overflow: hidden;
           text-align: left;
           font-size: 10px;
@@ -186,8 +204,8 @@ export const InteractiveModalView = () => {
         }
 
         .title div {
-          font-size: 15px;
-          padding: 20px;
+          font-size: 18px;
+          padding: 25px;
           text-align: center;
           width: 200px;
           margin: 0 auto;
@@ -225,6 +243,13 @@ export const InteractiveModalView = () => {
 
         button:hover {
           background-color: darkgrey;
+        }
+
+        .rating {
+          position: absolute;
+          top: 30px;
+          right: 30px;
+          font-size: 28px;
         }
 
       `}

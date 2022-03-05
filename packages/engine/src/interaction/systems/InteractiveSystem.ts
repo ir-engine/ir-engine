@@ -71,8 +71,10 @@ export default async function InteractiveSystem() {
     for (const entity of interactorsQuery()) {
       interactBoxRaycast(entity, interactives)
       const interactor = getComponent(entity, InteractorComponent)
-      for (const s of interactor.subFocusedArray) {
-        addComponent(s, HighlightComponent, {})
+      if (interactor.focusedInteractive) {
+        if (!hasComponent(interactor.focusedInteractive, HighlightComponent)) {
+          addComponent(interactor.focusedInteractive, HighlightComponent, {})
+        }
       }
     }
 

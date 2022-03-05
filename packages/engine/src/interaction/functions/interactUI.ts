@@ -66,13 +66,6 @@ export function createInteractUI(modelEntity: Entity) {
     const modelComp = getComponent(modelEntity, Object3DComponent)
 
     const modelObj = modelComp.value
-    modelObj.traverse((obj) => {
-      const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
-      if (mesh.material) {
-        mesh.material.transparent = true
-        mesh.renderOrder = 1
-      }
-    })
     setObjectLayers(modelObj, ObjectLayers.UI)
 
     const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
@@ -109,8 +102,8 @@ export function createInteractUI(modelEntity: Entity) {
 //       xrui.container.refresh()
 //       const mediaIndex = data.mediaIndex
 //       const mediaData = data.mediaData
-//       const videoLayer = xrui.container.rootLayer.querySelector(`#interactive-ui-video-${entityIndex}`)
-//       const modelLayer = xrui.container.rootLayer.querySelector(`#interactive-ui-model-${entityIndex}`)
+//       const videoLayer = xrui.container.rootLayer.querySelector(`#ui-video-${entityIndex}`)
+//       const modelLayer = xrui.container.rootLayer.querySelector(`#ui-model-${entityIndex}`)
 //       const videoElement = videoLayer?.element as HTMLMediaElement
 //       if (mediaData[mediaIndex]) {
 //         // refresh video element
@@ -219,17 +212,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   let nextMode = currentMode
 
   if (hasFocus) {
+    if (nextMode === 'inactive') nextMode = 'active'
     if (interacted) {
       nextMode = currentMode === 'interacting' ? 'active' : 'interacting'
-    } else {
-      const localPosition = getComponent(world.localClientEntity, TransformComponent)?.position
-      const interactable = getComponent(modelEntity, InteractableComponent)
-      const dismissDistance = (interactable.interactionDistance.value || 2) * 2
-      if (localPosition) {
-        if (anchoredPosition.distanceTo(localPosition) > dismissDistance) {
-          nextMode = 'active'
-        }
-      }
     }
   } else {
     nextMode = 'inactive'
@@ -243,13 +228,13 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     } else {
       Engine.scene.attach(uiContainer)
     }
-
-    const hasHighlight = hasComponent(modelEntity, HighlightComponent)
-    if (nextMode === 'inactive' && hasHighlight) {
-      removeComponent(modelEntity, HighlightComponent)
-    } else if (!hasHighlight) {
-      addComponent(modelEntity, HighlightComponent, {})
-    }
+    modelGroup.traverse((obj) => {
+      const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
+      if (mesh.material) {
+        mesh.material.transparent = nextMode === 'interacting'
+        mesh.renderOrder = nextMode === 'interacting' ? 1 : 0
+      }
+    })
   }
 
   const transitionStart = transitionStartTime.get(modelEntity)
@@ -259,21 +244,29 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const root = uiContainer.rootLayer
   const rootMat = root.contentMesh.material as MeshBasicMaterial
 
-  const title = uiContainer.rootLayer.querySelector('.interactive-title')!
+  const title = uiContainer.rootLayer.querySelector('.title')!
   const titleMat = title.contentMesh.material as MeshBasicMaterial
 
-  const eKey = uiContainer.rootLayer.querySelector('.interactive-e-key')!
+  const eKey = uiContainer.rootLayer.querySelector('.hint')!
   const eKeyMat = eKey.contentMesh.material as MeshBasicMaterial
 
-  const description = uiContainer.rootLayer.querySelector('.interactive-description')!
+  const description = uiContainer.rootLayer.querySelector('.description')!
   const descriptionMat = description.contentMesh.material as MeshBasicMaterial
 
-  const modelContainer = uiContainer.rootLayer.querySelector('.interactive-model')!
+  const stars = [
+    uiContainer.rootLayer.querySelector('.star-1')!,
+    uiContainer.rootLayer.querySelector('.star-2')!,
+    uiContainer.rootLayer.querySelector('.star-3')!,
+    uiContainer.rootLayer.querySelector('.star-4')!,
+    uiContainer.rootLayer.querySelector('.star-5')!
+  ]
+
+  const modelContainer = uiContainer.rootLayer.querySelector('.model')!
   modelContainer.position.lerp(modelContainer.domLayout.position, alpha)
   modelContainer.quaternion.slerp(modelContainer.domLayout.quaternion, alpha)
   modelContainer.scale.lerp(modelContainer.domLayout.scale, alpha)
 
-  const link = uiContainer.rootLayer.querySelector('.interactive-link')!
+  const link = uiContainer.rootLayer.querySelector('.link')!
   const linkMat = link.contentMesh.material as MeshBasicMaterial
 
   if (nextMode === 'inactive') {
@@ -305,6 +298,13 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
+    }
   } else if (nextMode === 'active') {
     const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
     uiContainer.position.lerp(anchoredPosition, alpha)
@@ -336,6 +336,13 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 1, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
+    }
   } else if (nextMode === 'interacting') {
     const uiSize = uiContainer.rootLayer.domSize
     const uiContainerScale =
@@ -377,6 +384,14 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 
     link.position.lerp(link.domLayout.position, alpha)
     linkMat.opacity = MathUtils.lerp(linkMat.opacity, 1, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      const alpha = Math.min((transitionElapsed - i * 0.1) / (TRANSITION_DURATION * 3), 1)
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale, alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 1, alpha)
+    }
   }
 }
 
@@ -392,7 +407,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 //   const userData = object3D.value.userData
 
 //   //refresh video
-//   const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
+//   const videoElement = xrui.layer.querySelector(`#ui-video-${userData.parentEntity}`)
 //   if (videoElement && videoElement.element) {
 //     //TODO: sometimes the video rendering does not work, set resize for refreshing
 //     videoElement.element.style.height = 0
@@ -425,7 +440,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 //   const object3D = getComponent(ui.entity, Object3DComponent) as any
 //   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 //   const userData = object3D.value.userData
-//   const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
+//   const videoElement = xrui.layer.querySelector(`#ui-video-${userData.parentEntity}`)
 //   if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
 
 //   object3D.value.visible = false
