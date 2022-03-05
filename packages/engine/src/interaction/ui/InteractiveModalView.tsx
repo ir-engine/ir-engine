@@ -166,7 +166,7 @@ export const InteractiveModalView = () => {
         .link {
           display: ${url ? 'auto' : 'none'};
           position: absolute;
-          top: 20px;
+          top: 30px;
           left: 30px;
           width: 140px;
           height: 40px;
