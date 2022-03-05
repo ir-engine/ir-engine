@@ -1,9 +1,11 @@
+import appRootPath from 'app-root-path'
+import path from 'path'
+
+import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import path from 'path'
-import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
-import appRootPath from 'app-root-path'
 
 export const retriggerBuilderService = async (app: Application) => {
   try {

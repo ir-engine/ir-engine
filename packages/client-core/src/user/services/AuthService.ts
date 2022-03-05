@@ -1,4 +1,10 @@
 import { createState, Downgraded, useState } from '@speigg/hookstate'
+// TODO: Decouple this
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import axios from 'axios'
+import querystring from 'querystring'
+import { v1 } from 'uuid'
+
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -13,11 +19,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-// TODO: Decouple this
-// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-import axios from 'axios'
-import querystring from 'querystring'
-import { v1 } from 'uuid'
+
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
@@ -720,7 +722,7 @@ export const AuthService = {
         })
     }
   },
-  removeAvatar: async (keys: [string]) => {
+  removeAvatar: async (keys: string) => {
     const dispatch = useDispatch()
     {
       await client

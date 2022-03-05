@@ -1,15 +1,16 @@
 import React from 'react'
+
 import MainMenu from '../mainMenu'
-import GridTool from './tools/GridTool'
 import * as styles from './styles.module.scss'
-import TransformTool from './tools/TransformTool'
-import TransformPivotTool from './tools/TransformPivotTool'
-import TransformSpaceTool from './tools/TransformSpaceTool'
-import TransformSnapTool from './tools/TransformSnapTool'
-import PlayModeTool from './tools/PlayModeTool'
-import StatsTool from './tools/StatsTool'
-import RenderModeTool from './tools/RenderModeTool'
+import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'
+import PlayModeTool from './tools/PlayModeTool'
+import RenderModeTool from './tools/RenderModeTool'
+import StatsTool from './tools/StatsTool'
+import TransformPivotTool from './tools/TransformPivotTool'
+import TransformSnapTool from './tools/TransformSnapTool'
+import TransformSpaceTool from './tools/TransformSpaceTool'
+import TransformTool from './tools/TransformTool'
 
 type ToolBarProps = {
   menu?: any

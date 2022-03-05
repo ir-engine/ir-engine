@@ -1,5 +1,7 @@
 import assert from 'assert'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { Engine } from '../../../ecs/classes/Engine'
 import { createWorld } from '../../../ecs/classes/World'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'

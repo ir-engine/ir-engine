@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import Button from '@mui/material/Button'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-// @ts-ignore
-import styles from '../UserMenu.module.scss'
-import { NavigateNext, NavigateBefore } from '@mui/icons-material'
-//import { LocalInputTagComponent } from '../../../../../engine/src/input/components/LocalInputTagComponent'
-import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
-import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
+
+import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
+import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-const EmoteMenu = (props: any): any => {
+import { NavigateBefore, NavigateNext } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+
+// @ts-ignore
+import styles from '../UserMenu.module.scss'
+
+type Props = { changeActiveMenu: (menu: any) => {} }
+
+const EmoteMenu = (props: Props): any => {
   const MAX_EMOTE_PER_PAGE = 6
   const MIN_EMOTE_PER_PAGE = 5
 
@@ -29,67 +33,67 @@ const EmoteMenu = (props: any): any => {
     {
       body: <img src="/static/grinning.svg" alt="Dance 4" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
+        onClick: () => runAnimation(AvatarStates.DANCE4)
       }
     },
     {
       body: <img src="/static/sad.svg" alt="sad" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CLAP })
+        onClick: () => runAnimation(AvatarStates.CLAP)
       }
     },
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.KISS })
+        onClick: () => runAnimation(AvatarStates.KISS)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.CRY })
+        onClick: () => runAnimation(AvatarStates.CRY)
       }
     },
     {
       body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
+        onClick: () => runAnimation(AvatarStates.DANCE1)
       }
     },
     {
       body: <img src="/static/clap1.svg" alt="Dance 2" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
+        onClick: () => runAnimation(AvatarStates.DANCE2)
       }
     },
     {
       body: <img src="/static/victory.svg" alt="Dance 3" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
+        onClick: () => runAnimation(AvatarStates.DANCE3)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.LAUGH })
+        onClick: () => runAnimation(AvatarStates.LAUGH)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.DEFEAT })
+        onClick: () => runAnimation(AvatarStates.DEFEAT)
       }
     },
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.EMOTE, { animationName: AvatarAnimations.WAVE })
+        onClick: () => runAnimation(AvatarStates.WAVE)
       }
     },
     {
       body: <img src="/static/restart.svg" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
+        //onClick: () => runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.IDLE })
       }
     }
   ])
@@ -117,11 +121,9 @@ const EmoteMenu = (props: any): any => {
     effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
   }
 
-  const runAnimation = (animationName: string, params: WeightsParameterType) => {
+  const runAnimation = (stateName: string) => {
     const entity = Engine.currentWorld.localClientEntity
-
-    AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
-
+    changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     props.changeActiveMenu(null)
   }

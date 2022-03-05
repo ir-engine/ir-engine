@@ -1,12 +1,14 @@
-import { Group } from '@xrengine/common/src/interfaces/Group'
 import React, { useEffect, useState } from 'react'
+
+import { Group } from '@xrengine/common/src/interfaces/Group'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
-import { GroupService, GROUP_PAGE_LIMIT, useGroupState } from '../../services/GroupService'
+import { columns, Data } from '../../common/variables/group'
+import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
 import { useStyles } from '../../styles/ui'
-import { columns, Data } from './Variables'
 import ViewGroup from './ViewGroup'
 
 interface Props {
@@ -27,11 +29,11 @@ const GroupTable = (props: Props) => {
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
-  const adminGroupCount = adminGroupState.total
+  const adminGroupCount = adminGroupState.total.value
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(incDec)
+    GroupService.getGroupService(incDec, null, newPage)
     setPage(newPage)
   }
 
@@ -109,7 +111,7 @@ const GroupTable = (props: Props) => {
         column={columns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminGroups.length}
+        count={adminGroupCount}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

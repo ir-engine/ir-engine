@@ -1,7 +1,7 @@
 name: publish-gh-container
 on:
   release:
-    types: [created]
+    types: []
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest

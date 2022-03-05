@@ -1,6 +1,9 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { Invite as InviteDataType } from '@xrengine/common/src/interfaces/Invite'
+
 import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 /**
@@ -8,7 +11,7 @@ import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-m
  *
  * @author Vyacheslav Solovjov
  */
-export class Invite extends Service {
+export class Invite<T = InviteDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -24,7 +27,7 @@ export class Invite extends Service {
    * @returns invite data
    * @author Vyacheslav Solovjov
    */
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     if (params && params.query) {
       const query = params.query
       if (params.query.type === 'received') {
@@ -91,13 +94,13 @@ export class Invite extends Service {
     return super.find(params)
   }
 
-  async remove(id: string, params?: Params): Promise<any> {
+  async remove(id: string, params?: Params): Promise<T> {
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = extractLoggedInUserFromParams(params)
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service('user-relationship').remove(relatedUserId, params)
     }
-    return super.remove(id)
+    return (await super.remove(id)) as T
   }
 }

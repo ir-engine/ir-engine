@@ -11,7 +11,16 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
+import {
+  ComponentDeserializeFunction,
+  ComponentSerializeFunction,
+  ComponentShouldDeserializeFunction,
+  ComponentUpdateFunction
+} from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
@@ -19,24 +28,17 @@ import {
   getComponentCountOfType,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { CubemapBakeComponent, CubemapBakeComponentType } from '../../components/CubemapBakeComponent'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentShouldDeserializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Engine } from '../../../ecs/classes/Engine'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
-import { CubemapBakeRefreshTypes } from '../../types/CubemapBakeRefreshTypes'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
+import { CubemapBakeComponent, CubemapBakeComponentType } from '../../components/CubemapBakeComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
-import { textureLoader } from '../../constants/Util'
-import { CubemapBakeSettings } from '../../types/CubemapBakeSettings'
-import { setObjectLayers } from '../setObjectLayers'
 import { ObjectLayers } from '../../constants/ObjectLayers'
+import { textureLoader } from '../../constants/Util'
+import { CubemapBakeRefreshTypes } from '../../types/CubemapBakeRefreshTypes'
+import { CubemapBakeSettings } from '../../types/CubemapBakeSettings'
+import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
+import { setObjectLayers } from '../setObjectLayers'
 
 const quat = new Quaternion(0)
 export const SCENE_COMPONENT_CUBEMAP_BAKE = 'cubemapbake'
@@ -46,7 +48,7 @@ export const SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES = {
     bakePositionOffset: { x: 0, y: 0, z: 0 },
     bakeScale: { x: 1, y: 1, z: 1 },
     bakeType: CubemapBakeTypes.Baked,
-    resolution: 512,
+    resolution: 1024,
     refreshMode: CubemapBakeRefreshTypes.OnAwake,
     envMapOrigin: '',
     boxProjection: true
@@ -95,7 +97,8 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
 export const updateCubemapBake: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const bakeComponent = getComponent(entity, CubemapBakeComponent)
-  obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
+  if (obj3d.userData.gizmo)
+    obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
 }
 
 export const updateCubemapBakeTexture = (options: CubemapBakeSettings) => {
@@ -133,9 +136,13 @@ export const prepareSceneForBake = (world = useWorld()): Scene => {
     const obj3d = getComponent(node.entity, Object3DComponent)?.value as Mesh<any, MeshStandardMaterial>
 
     if (obj3d) {
-      if (obj3d.material) obj3d.material.roughness = 1
-      parents[node.parentNode.entity].add(obj3d)
-      parents[node.entity] = obj3d
+      const newObj = obj3d.clone(false)
+      if (newObj.material) {
+        newObj.material = obj3d.material.clone()
+        newObj.material.roughness = 1
+      }
+      parents[node.parentNode.entity].add(newObj)
+      parents[node.entity] = newObj
     }
   })
 

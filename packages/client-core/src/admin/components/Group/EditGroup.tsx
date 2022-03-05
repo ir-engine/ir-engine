@@ -1,17 +1,19 @@
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
+
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
-import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { useStyles } from '../../styles/ui'
-import { formValid } from './validation'
 
 interface Props {
   groupAdmin: any
@@ -62,7 +64,7 @@ const EditGroup = (props: Props) => {
     temp.scopeTypes = !state.scopeTypes.length ? "Scope can't be empty" : ''
 
     setState({ ...state, formErrors: temp })
-    if (formValid(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
       setState({
         ...state,

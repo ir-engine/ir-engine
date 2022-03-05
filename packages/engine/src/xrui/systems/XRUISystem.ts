@@ -1,17 +1,19 @@
 import { Color, Mesh, Raycaster } from 'three'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { XRUIManager } from '../classes/XRUIManager'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions } from '../../ecs/classes/EngineService'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import { XRUIManager } from '../classes/XRUIManager'
+import { XRUIComponent } from '../components/XRUIComponent'
 
 export default async function XRUISystem(world: World) {
   const renderer = Engine.renderer
@@ -44,6 +46,7 @@ export default async function XRUISystem(world: World) {
   // }
 
   const screenRaycaster = new Raycaster()
+  screenRaycaster.layers.enableAll()
   xrui.interactionRays = [screenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
@@ -53,22 +56,23 @@ export default async function XRUISystem(world: World) {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
-      if (hit) {
+      if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
+        return
       }
     }
 
     for (const entity of avatar(world)) {
-      const modelContainer = getComponent(entity, AvatarComponent).modelContainer
-      const intersectObjects = screenRaycaster.intersectObjects([modelContainer])
+      const model = getComponent(entity, Object3DComponent).value
+      const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchLocal(EngineActions.userAvatarTapped(userId))
         return
       }
     }
-    dispatchLocal(EngineActions.userAvatarTapped(''))
+    dispatchLocal(EngineActions.userAvatarTapped(null!))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
@@ -128,6 +132,7 @@ export default async function XRUISystem(world: World) {
     if (!addedEventListeners) {
       const canvas = Engine.renderer.getContext().canvas
       canvas.addEventListener('click', redirectDOMEvent)
+      canvas.addEventListener('contextmenu', redirectDOMEvent)
       canvas.addEventListener('dblclick', redirectDOMEvent)
       addedEventListeners = true
     }
@@ -161,8 +166,8 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
-      layer.update()
+      const xrui = getComponent(entity, XRUIComponent)
+      xrui.container.update()
     }
 
     // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.camera.projectionMatrix)

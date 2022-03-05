@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { Types } from 'bitecs'
+import * as bitECS from 'bitecs'
 import { Vector3 } from 'three'
+
 import { Engine } from '../classes/Engine'
 import { createWorld } from '../classes/World'
 import {
@@ -14,7 +16,6 @@ import {
 } from './ComponentFunctions'
 import { createEntity } from './EntityFunctions'
 import { useWorld } from './SystemHooks'
-import * as bitECS from 'bitecs'
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {

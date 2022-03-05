@@ -1,6 +1,9 @@
 import assert, { strictEqual } from 'assert'
+
+import '../../../tests/util/patchBrowserForNode'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import '../../patchEngineNode'
 import { GamepadAxis, GamepadButtons, MouseInput, TouchInputs } from '../enums/InputEnums'
 import {
   handleKey,
@@ -14,8 +17,6 @@ import {
   prevTouchPosition,
   usingThumbstick
 } from './ClientInputSchema'
-import '../../patchEngineNode'
-import '../../../tests/util/patchBrowserForNode'
 
 describe('clientInputSchema', () => {
   beforeEach(() => {
@@ -167,10 +168,6 @@ describe('clientInputSchema', () => {
       clientY: 0
     }
 
-    Engine.mouseInputEnabled = false
-    handleMouseMovement(touchEvent as unknown as MouseEvent)
-    assert(Engine.inputState.size === 0)
-    Engine.mouseInputEnabled = true
     handleMouseMovement(touchEvent as unknown as MouseEvent)
     assert(Engine.inputState.get(MouseInput.MousePosition)?.lifecycleState === LifecycleValue.Started)
     assert(Engine.inputState.get(MouseInput.MouseMovement)?.lifecycleState === LifecycleValue.Started)
@@ -189,10 +186,6 @@ describe('clientInputSchema', () => {
       clientY: 0
     }
 
-    Engine.mouseInputEnabled = false
-    handleMouseButton(touchEvent as unknown as MouseEvent)
-    assert(Engine.inputState.size === 0)
-    Engine.mouseInputEnabled = true
     handleMouseButton(touchEvent as unknown as MouseEvent)
     assert(Engine.inputState.get(MouseInput.MouseClickDownPosition)?.lifecycleState === LifecycleValue.Started)
     assert(Engine.inputState.get(MouseInput.LeftButton)?.lifecycleState === LifecycleValue.Started)

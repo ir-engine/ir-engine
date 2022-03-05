@@ -1,4 +1,5 @@
-import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
+import { isClient } from '../../common/functions/isClient'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   handleContextMenu,
   handleKey,
@@ -13,8 +14,7 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { isClient } from '../../common/functions/isClient'
+import { handleGamepadConnected, handleGamepadDisconnected } from './GamepadInput'
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
 

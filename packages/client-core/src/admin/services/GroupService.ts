@@ -1,9 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { AlertService } from '../../common/services/AlertService'
 import { createState, useState } from '@speigg/hookstate'
+
 import { Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+
 /**
  *
  * @param files FIle type
@@ -12,7 +15,7 @@ import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
  */
 
 //State
-export const GROUP_PAGE_LIMIT = 10
+export const GROUP_PAGE_LIMIT = 12
 
 export const state = createState({
   group: [] as Array<Group>,
@@ -58,16 +61,19 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
+  getGroupService: async (
+    incDec?: 'increment' | 'decrement',
+    search: string | null = null,
+    skip = accessGroupState().skip.value
+  ) => {
     const dispatch = useDispatch()
     {
-      const skip = accessGroupState().skip.value
       const limit = accessGroupState().limit.value
       try {
         dispatch(GroupAction.fetchingGroup())
         const list = await client.service('group').find({
           query: {
-            $skip: skip,
+            $skip: skip * GROUP_PAGE_LIMIT,
             $limit: limit,
             search: search
           }

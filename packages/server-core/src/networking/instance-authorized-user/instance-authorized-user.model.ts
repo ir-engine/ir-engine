@@ -1,10 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { InstanceAuthorizedUserInterface } from '@xrengine/common/src/dbmodels/InstanceAuthorizedUser'
+
 import { Application } from '../../../declarations'
-// import Location from './location.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const instanceAuthorizedUser = sequelizeClient.define(
+  const instanceAuthorizedUser = sequelizeClient.define<Model<InstanceAuthorizedUserInterface>>(
     'instance_authorized_user',
     {
       id: {

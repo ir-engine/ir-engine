@@ -1,5 +1,6 @@
-import { Prompt } from 'react-router-dom'
 import React, { useEffect } from 'react'
+import { Prompt } from 'react-router-dom'
+
 type BrowserPromptProps = {
   message: ((...args: any[]) => any) | string
 }

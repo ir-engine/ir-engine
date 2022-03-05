@@ -1,14 +1,19 @@
-import Command, { CommandParams } from './Command'
-import { serializeVector3, serializeObject3D } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
 import { Matrix4, Vector3 } from 'three'
-import EditorEvents from '../constants/EditorEvents'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import arrayShallowEqual from '../functions/arrayShallowEqual'
+import { serializeObject3D, serializeVector3 } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface PositionCommandParams extends CommandParams {
   positions: Vector3 | Vector3[]
@@ -68,7 +73,9 @@ export default class PositionCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects, 'position')
+      ControlManager.instance.onObjectsChanged(this.affectedObjects, 'position')
+      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'position'))
     }
   }
 

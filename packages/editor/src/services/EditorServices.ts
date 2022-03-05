@@ -1,23 +1,36 @@
-import { store } from '@xrengine/client-core/src/store'
 import { createState, useState } from '@speigg/hookstate'
+
+import { store } from '@xrengine/client-core/src/store'
 
 type EditorServiceStateType = {
   projectName: string | null
   sceneName: string | null
+  sceneModified: boolean
+  projectLoaded: boolean
+  rendererInitialized: boolean
 }
 
 const state = createState<EditorServiceStateType>({
   projectName: null,
-  sceneName: null
+  sceneName: null,
+  sceneModified: false,
+  projectLoaded: false,
+  rendererInitialized: false
 })
 
 store.receptors.push((action: EditorActionType): any => {
   state.batch((s) => {
     switch (action.type) {
-      case 'EDITOR_SCENE_LOADED':
-        return s.merge({ sceneName: action.sceneName })
+      case 'EDITOR_SCENE_CHANGED':
+        return s.merge({ sceneName: action.sceneName, sceneModified: false })
+      case 'EDITOR_PROJECT_CHANGED':
+        return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
+      case 'EDITOR_SCENE_MODIFIED':
+        return s.merge({ sceneModified: action.modified })
       case 'EDITOR_PROJECT_LOADED':
-        return s.merge({ projectName: action.projectName })
+        return s.merge({ projectLoaded: action.loaded })
+      case 'EDITOR_RENDERER_INITIALIZED':
+        return s.merge({ rendererInitialized: action.initialized })
     }
   }, action.type)
 })
@@ -31,16 +44,34 @@ export const EditorService = {}
 
 //Action
 export const EditorAction = {
-  sceneLoaded: (sceneName: string | null) => {
+  projectChanged: (projectName: string | null) => {
     return {
-      type: 'EDITOR_SCENE_LOADED' as const,
+      type: 'EDITOR_PROJECT_CHANGED' as const,
+      projectName
+    }
+  },
+  sceneChanged: (sceneName: string | null) => {
+    return {
+      type: 'EDITOR_SCENE_CHANGED' as const,
       sceneName
     }
   },
-  projectLoaded: (projectName: string | null) => {
+  sceneModified: (modified: boolean) => {
+    return {
+      type: 'EDITOR_SCENE_MODIFIED' as const,
+      modified
+    }
+  },
+  projectLoaded: (loaded: boolean) => {
     return {
       type: 'EDITOR_PROJECT_LOADED' as const,
-      projectName
+      loaded
+    }
+  },
+  rendererInitialized: (initialized: boolean) => {
+    return {
+      type: 'EDITOR_RENDERER_INITIALIZED' as const,
+      initialized
     }
   }
 }

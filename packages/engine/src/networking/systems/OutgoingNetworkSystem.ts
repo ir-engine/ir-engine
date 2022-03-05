@@ -1,12 +1,12 @@
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { defineQuery } from '../../ecs/functions/ComponentFunctions'
-import { Network } from '../classes/Network'
-import { World } from '../../ecs/classes/World'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkTransport } from '../interfaces/NetworkTransport'
+import { World } from '../../ecs/classes/World'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkTransport } from '../interfaces/NetworkTransport'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********
@@ -14,10 +14,14 @@ import { createDataWriter } from '../serialization/DataWriter'
  **********/
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
-const ownedNetworkTransformsQuery = defineQuery([NetworkObjectAuthorityTag, NetworkObjectComponent, TransformComponent])
+const authoritativeNetworkTransformsQuery = defineQuery([
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  TransformComponent
+])
 
 const serializeAndSend = (world: World, serialize: Function, sendData: Function) => {
-  const ents = isClient ? ownedNetworkTransformsQuery(world) : networkTransformsQuery(world)
+  const ents = authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
     const data = serialize(world, ents)
 

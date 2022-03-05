@@ -311,53 +311,14 @@ gameserver:
     annotations: {}
     name:
 
-
-testbot:
-  enabled: true
-  name: xrengine-testbot
-  suspend: true
-
-  image:
-    repository: lagunalabs/xrengine-testbot
-    tag: latest
-    pullPolicy: IfNotPresent
-
-  imagePullSecrets: []
-  nameOverride: ""
-  fullnameOverride: ""
-
-  serviceAccount:
-    create: true
-    annotations: {}
-    name:
-
-  resources: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  podSecurityContext: {}
-  securityContext: {}
-
-  extraEnv:
-    API_SERVER: http://xrsocial.local
-    SITE_TITLE: MyXR
-    SITE_DESC: Connected Worlds for Everyone
-    APP_ENV: production
-
 ########### Subcharts - values here will overwrite the subchart
 
-mariadb:
-  enabled: false
-  nameOverride: xrengine-mariadb
-  db:
-    name: xrengine
-    user: server
-    password: password
-    existingSecret:
-  replication:
-    enabled: false
-  externalHost: ""  # use to override - must set mariadb.enabled to false
-  externalPort: 3306
+sql:
+  database: xrengine
+  user: server
+  password: password
+  host: 10.0.2.2
+  port: 3304
 
 agones:
   enabled: false

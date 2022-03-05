@@ -1,30 +1,32 @@
+import Hls from 'hls.js'
+import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, VideoTexture } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Mesh, MeshStandardMaterial, sRGBEncoding, LinearFilter, VideoTexture, Object3D } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
+import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineEvents } from '../../../ecs/classes/EngineEvents'
+import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
+import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ImageComponent } from '../../components/ImageComponent'
+import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
-import { isClient } from '../../../common/functions/isClient'
-import { ImageComponent } from '../../components/ImageComponent'
-import { ImageProjection } from '../../classes/ImageUtils'
+import { addError, removeError } from '../ErrorFunctions'
+import isHLS from '../isHLS'
 import { resizeImageMesh } from './ImageFunctions'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
-import { MediaComponent } from '../../components/MediaComponent'
-import isHLS from '../isHLS'
-import Hls from 'hls.js'
-import { accessEngineState } from '../../../ecs/classes/EngineService'
-import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
-import { EngineEvents } from '../../../ecs/classes/EngineEvents'
-import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'

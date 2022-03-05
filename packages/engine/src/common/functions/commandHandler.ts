@@ -1,10 +1,12 @@
-import { Entity } from '../../ecs/classes/Entity'
+import { Vector2, Vector3 } from 'three'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { Vector2, Vector3 } from 'three'
-import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 import { AutoPilotClickRequestComponent } from '../../navigation/component/AutoPilotClickRequestComponent'
+import { AutoPilotOverrideComponent } from '../../navigation/component/AutoPilotOverrideComponent'
 
 //The values the commands that must have in the start
 export const commandStarters = ['/', '//']

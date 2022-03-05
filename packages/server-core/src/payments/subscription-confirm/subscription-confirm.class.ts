@@ -1,9 +1,10 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import chargebee from 'chargebee'
+
+import { Application } from '../../../declarations'
 import logger from '../../logger'
+import Paginated from '../../types/PageObject'
 
 interface Data {}
 
@@ -26,11 +27,11 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
 
   async setup() {}
 
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     let chargebeeSubscription
     const userId = (params as any).query.customer_id
 
@@ -55,7 +56,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
       const subscription = (subscriptionResult as any).data[0]
       const subscriptionType = await this.app.service('subscription-type').get(subscription.plan)
       await this.app.service('subscription').patch(id, {
-        status: 1,
+        status: true,
         totalSeats: subscriptionType.seats,
         filledSeats: 0,
         unusedSeats: subscriptionType.seats,
@@ -82,7 +83,7 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
     return null!
   }
 
-  async create(data: Data, params: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -90,15 +91,15 @@ export class SubscriptionConfirm implements ServiceMethods<Data> {
     return data
   }
 
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

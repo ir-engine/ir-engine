@@ -1,19 +1,20 @@
 import { defineQuery } from 'bitecs'
 import {
-  Mesh,
-  Points,
-  SphereBufferGeometry,
   BoxBufferGeometry,
-  PlaneBufferGeometry,
   BufferGeometry,
-  MeshBasicMaterial,
-  Vector3,
-  Matrix4,
-  Quaternion,
-  MeshStandardMaterial,
+  Float32BufferAttribute,
   Material,
-  Float32BufferAttribute
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  PlaneBufferGeometry,
+  Points,
+  Quaternion,
+  SphereBufferGeometry,
+  Vector3
 } from 'three'
+
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -50,6 +51,7 @@ export const DebugRenderer = () => {
   const _boxGeometry = new BoxBufferGeometry()
   const _planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
   let enabled = false
+  globalThis._meshes = _meshes
 
   const setEnabled = (_enabled) => {
     enabled = _enabled
@@ -234,6 +236,8 @@ export const DebugRenderer = () => {
     if (enabled !== _enabled) {
       enabled = _enabled
       setEnabled(_enabled)
+      if (enabled) Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+      else Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
     }
 
     if (!enabled) return

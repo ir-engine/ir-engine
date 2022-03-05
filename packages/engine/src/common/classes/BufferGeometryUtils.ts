@@ -6,8 +6,8 @@ import {
   InterleavedBuffer,
   InterleavedBufferAttribute,
   TriangleFanDrawMode,
-  TriangleStripDrawMode,
   TrianglesDrawMode,
+  TriangleStripDrawMode,
   Vector3
 } from 'three'
 

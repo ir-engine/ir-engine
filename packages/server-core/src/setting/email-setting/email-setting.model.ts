@@ -1,9 +1,12 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { EmailSettingInterface } from '@xrengine/common/src/dbmodels/EmailSetting'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const EmailSetting = sequelizeClient.define(
+  const EmailSetting = sequelizeClient.define<Model<EmailSettingInterface>>(
     'emailSetting',
     {
       id: {

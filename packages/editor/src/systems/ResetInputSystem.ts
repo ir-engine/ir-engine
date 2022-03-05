@@ -1,5 +1,6 @@
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { InputComponent } from '../classes/InputComponent'
 import { ActionKey } from '../controls/input-mappings'
 
@@ -14,8 +15,8 @@ export default async function ResetInputSystem(_: World) {
       inputComponent.resetKeys?.forEach((key: ActionKey) => {
         const actionState = inputComponent.actionState[key]
         const initialActionState = inputComponent.defaultState[key]
-        // BUG: this.defaultState might not be correct
-        if (typeof actionState === 'object' && typeof inputComponent.defaultState === 'object') {
+
+        if (typeof actionState === 'object' && typeof initialActionState === 'object') {
           inputComponent.actionState[key] = Object.assign(inputComponent.actionState[key] ?? {}, initialActionState)
         } else {
           inputComponent.actionState[key] = initialActionState

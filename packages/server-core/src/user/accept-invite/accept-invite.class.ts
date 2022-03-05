@@ -1,8 +1,9 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
-import { Application } from '../../../declarations'
 import { BadRequest } from '@feathersjs/errors'
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+
+import { Application } from '../../../declarations'
 import logger from '../../logger'
+import Paginated from '../../types/PageObject'
 
 interface Data {}
 
@@ -186,8 +187,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid party ID')
           }
 
+          const patchUser: any = { partyId: invite.targetObjectId }
           await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-            partyId: invite.targetObjectId
+            ...patchUser
           })
 
           const { query, ...paramsCopy } = params
@@ -219,7 +221,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           return new BadRequest('Invalid invitee ID')
         }
 
-        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProvider
+        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProviders
 
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = (await this.app.service('user-relationship').find({
@@ -313,9 +315,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid party ID')
           }
 
-          await this.app.service('user').patch(invite.inviteeId, {
-            partyId: invite.targetObjectId
-          })
+          const patchUser: any = { partyId: invite.targetObjectId }
+          await this.app.service('user').patch(invite.inviteeId, { ...patchUser })
 
           const { query, ...paramsCopy } = params
 

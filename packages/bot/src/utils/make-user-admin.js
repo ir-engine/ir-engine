@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv');
+import cli from "cli";
+
+const dotenv = require('dotenv-flow');
 const Sequelize = require('sequelize');
+import appRootPath from 'app-root-path'
 const { scopeTypeSeed } = require('@xrengine/server-core/src/scope/scope-type/scope-type.seed')
 
-dotenv.config();
+dotenv.config({
+    path: appRootPath.path,
+    silent: true
+})
 const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
@@ -72,13 +78,17 @@ export const makeAdmin = async (userId) => {
             userMatch.userRole = 'admin';
             await userMatch.save();
             for(const { type } of scopeTypeSeed.templates) {
-              try {
-                await Scope.create({ userId: userId, type })
-              } catch (e) { console.log(e) }
+                try {
+                    const existingScope = await Scope.findOne({ where: { userId: userId, type }})
+                    if (existingScope == null)
+                        await Scope.create({ userId: userId, type })
+                } catch (e) { console.log(e) }
             }
-        }
 
-        console.log(`User with id ${userId} made an admin` );
+            console.log(`User with id ${userId} made an admin` );
+        } else {
+            console.log(`User with id ${userId} does not exist`)
+        }
     }
     catch (err) {
         console.log(err);

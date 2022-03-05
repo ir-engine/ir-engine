@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Container from '@mui/material/Container'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import { Link } from 'react-router-dom'
-import styles from './Auth.module.scss'
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
+
 import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
+import styles from './Auth.module.scss'
 
 const initialState = {
   jwt: true,

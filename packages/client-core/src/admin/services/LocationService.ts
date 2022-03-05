@@ -1,17 +1,17 @@
-import { store, useDispatch } from '../../store'
+import { createState, useState } from '@speigg/hookstate'
+
+import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
+import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
+import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
+
 import { AlertService } from '../../common/services/AlertService'
 import { ErrorAction } from '../../common/services/ErrorService'
 import { client } from '../../feathers'
-
-import { createState, useState } from '@speigg/hookstate'
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
-import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
+import { store, useDispatch } from '../../store'
 
 //State
-export const LOCATION_PAGE_LIMIT = 100
+export const LOCATION_PAGE_LIMIT = 12
 
 const state = createState({
   locations: [] as Array<Location>,
@@ -95,7 +95,11 @@ export const LocationService = {
       }
     }
   },
-  fetchAdminLocations: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
+  fetchAdminLocations: async (
+    incDec?: 'increment' | 'decrement',
+    value: string | null = null,
+    skip = accessLocationState().skip.value
+  ) => {
     const dispatch = useDispatch()
     {
       try {
@@ -104,7 +108,7 @@ export const LocationService = {
             $sort: {
               name: 1
             },
-            $skip: accessLocationState().skip.value,
+            $skip: skip * LOCATION_PAGE_LIMIT,
             $limit: accessLocationState().limit.value,
             adminnedLocations: true,
             search: value

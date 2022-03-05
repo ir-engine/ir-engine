@@ -1,7 +1,8 @@
 import assert from 'assert'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { parseSceneDataCacheURLs, cleanSceneDataCacheURLs, sceneRelativePathIdentifier, corsPath } from './scene-parser'
 import _ from 'lodash'
+
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { cleanSceneDataCacheURLs, corsPath, parseSceneDataCacheURLs, sceneRelativePathIdentifier } from './scene-parser'
 
 describe('Scene Helper Functions', () => {
   const storageProvider = useStorageProvider()

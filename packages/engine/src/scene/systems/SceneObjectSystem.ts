@@ -1,25 +1,25 @@
 import { Material, Mesh, Vector3 } from 'three'
-import { ObjectLayers } from '../constants/ObjectLayers'
+
+import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { isNode } from '../../common/functions/getEnvironment'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { ModelComponent } from '../components/ModelComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
-import { UpdatableComponent } from '../components/UpdatableComponent'
-import { Updatable } from '../interfaces/Updatable'
-import { World } from '../../ecs/classes/World'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
-import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { isClient } from '../../common/functions/isClient'
 import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { reparentObject3D } from '../functions/ReparentFunction'
+import { ShadowComponent } from '../components/ShadowComponent'
+import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
+import { UpdatableComponent } from '../components/UpdatableComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
+import { ObjectLayers } from '../constants/ObjectLayers'
+import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
-import { ModelComponent } from '../components/ModelComponent'
-import { isNode } from '../../common/functions/getEnvironment'
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { reparentObject3D } from '../functions/ReparentFunction'
+import { Updatable } from '../interfaces/Updatable'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -100,6 +100,9 @@ export default async function SceneObjectSystem(world: World) {
       }
 
       processObject3d(entity)
+
+      /** @todo this breaks a bunch of stuff */
+      // obj3d.visible = hasComponent(entity, VisibleComponent)
     }
 
     for (const entity of sceneObjectQuery.exit()) {
@@ -119,9 +122,11 @@ export default async function SceneObjectSystem(world: World) {
       ;(replacementObj as any).entity = entity
       replacementObj.parent = obj3d.value.parent
 
-      const parent = obj3d.value.parent!
-      const index = parent.children.indexOf(obj3d.value)
-      parent.children.splice(index, 1, replacementObj)
+      const parent = obj3d.value.parent
+      if (parent) {
+        const index = parent.children.indexOf(obj3d.value)
+        parent.children.splice(index, 1, replacementObj)
+      }
 
       obj3d.value.parent = null
       obj3d.value = replacementObj

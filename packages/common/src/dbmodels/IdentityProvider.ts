@@ -1,3 +1,5 @@
+import { UserId } from '../interfaces/UserId'
+
 export interface IdentityProviderInterface {
   id: string
   token: string
@@ -10,4 +12,5 @@ export interface IdentityProviderInterface {
   resetToken: string
   resetExpires: string
   type: string
+  userId: UserId
 }

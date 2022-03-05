@@ -1,9 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { PartyInterface } from '@xrengine/common/src/dbmodels/Party'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Party = sequelizeClient.define(
+  const Party = sequelizeClient.define<Model<PartyInterface>>(
     'party',
     {
       id: {

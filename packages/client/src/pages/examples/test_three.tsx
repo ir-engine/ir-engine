@@ -1,5 +1,3 @@
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 import React, { useEffect } from 'react'
 import {
   AmbientLight,
@@ -12,6 +10,9 @@ import {
   Vector3,
   WebGLRenderer
 } from 'three'
+
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
+import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 
 const canvasStyle = {
   zIndex: 0,

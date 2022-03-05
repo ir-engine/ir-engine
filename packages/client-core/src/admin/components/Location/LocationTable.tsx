@@ -1,7 +1,9 @@
-import Avatar from '@mui/material/Avatar'
-import Chip from '@mui/material/Chip'
 import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import Avatar from '@mui/material/Avatar'
+import Chip from '@mui/material/Chip'
+
 import { useErrorState } from '../../../common/services/ErrorService'
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -12,7 +14,7 @@ import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { locationColumns, LocationProps } from '../../common/variables/location'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LocationService, LOCATION_PAGE_LIMIT, useLocationState } from '../../services/LocationService'
+import { LOCATION_PAGE_LIMIT, LocationService, useLocationState } from '../../services/LocationService'
 import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
@@ -49,7 +51,7 @@ const LocationTable = (props: LocationProps) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(incDec)
+    LocationService.fetchAdminLocations(incDec, null, newPage)
     setPage(newPage)
   }
 

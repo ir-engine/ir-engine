@@ -1,10 +1,11 @@
+import { createState, useState } from '@speigg/hookstate'
+
+import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+
+import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { AlertService } from '../../common/services/AlertService'
 import { accessAuthState } from '../../user/services/AuthService'
-
-import { createState, useState } from '@speigg/hookstate'
-import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
@@ -24,7 +25,7 @@ store.receptors.push((action: RouteActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'ADMIN_ROUTE_ACTIVE_RECEIVED':
-        return s.merge({ activeRoutes: action.data, updateNeeded: false })
+        return s.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
     }
   }, action.type)
 })

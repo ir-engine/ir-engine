@@ -1,9 +1,10 @@
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
+
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
-import appRootPath from 'app-root-path'
 
 const storageProvider = useStorageProvider()
 

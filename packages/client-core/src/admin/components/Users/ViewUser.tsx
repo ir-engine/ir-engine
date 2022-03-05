@@ -1,4 +1,8 @@
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -14,19 +18,18 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import AlertMessage from '../../common/AlertMessage'
+import AutoComplete from '../../common/AutoComplete'
+import InputSelect from '../../common/InputSelect'
+import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
-import { validateUserForm } from './validation'
-import AlertMessage from '../../common/AlertMessage'
-import AutoComplete from '../../common/AutoComplete'
-import _ from 'lodash'
-import InputSelect from '../../common/InputSelect'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 
 interface Props {
   openView: boolean
@@ -143,7 +146,7 @@ const ViewUser = (props: Props) => {
     temp.userRole = !state.userRole ? "User role can't be empty" : ''
     temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       UserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)

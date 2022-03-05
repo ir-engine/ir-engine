@@ -6,6 +6,10 @@ https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f
 
 **Your own sandbox in the Metaverse. Take what you need, or launch the full stack.**
 
+We [XR Foundation](https://github.com/xrfoundation) believe that the Metaverse, Web AR, VR. XR should be easy.
+
+We want a Star Trek future where participating in immersive communication technology and shared simulations should be as easy and natural as making a website.
+
 - Includes a self-deployable platform, UI, worlds, avatars, and games
 - Fully customizable for any kind of game, social experience, event or spatial web app
 - User management, avatars and inventory with optional blockchain integration (see our Blockchain-in-a-Box repo)

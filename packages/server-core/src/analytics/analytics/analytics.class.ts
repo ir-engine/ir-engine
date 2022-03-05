@@ -1,14 +1,19 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
+
+import { AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+
+import { Application } from '../../../declarations'
+
+export type AnalyticsDataType = AdminAnalyticsResult
 
 /**
  * A class for Intance service
  *
  * @author Vyacheslav Solovjov
  */
-export class Analytics extends Service {
+export class Analytics<T = AnalyticsDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -16,10 +21,10 @@ export class Analytics extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
-    if (params.query!.action === 'dailyUsers') {
+  async find(params?: Params): Promise<T[] | Paginated<T> | any> {
+    if (params?.query!.action === 'dailyUsers') {
       const limit = params.query!.$limit || 30
-      const returned = {
+      const returned: AnalyticsDataType = {
         total: limit,
         data: [] as Array<any>
       }
@@ -41,7 +46,7 @@ export class Analytics extends Service {
         })
       }
       return returned
-    } else if (params.query!.action === 'dailyNewUsers') {
+    } else if (params?.query!.action === 'dailyNewUsers') {
       const limit = params.query!.$limit || 30
       const returned = {
         total: limit,

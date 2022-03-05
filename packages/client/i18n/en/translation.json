@@ -7,17 +7,26 @@
     },
     "editor": {
         "projects": {
+            "title": "Projects",
             "header": "Please Login",
             "welcomeMsg": "Welcome",
             "locationHeader": "Locations",
             "projectHeader": "Projects",
             "sceneHeader": "Scenes",
-            "description": "If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
+            "description": "If you are new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
             "lbl-startTutorial": "Start Tutorial",
             "lbl-newProject": "New Project",
+            "lbl-createProject": "Create",
             "lbl-newScene": "New Scene",
+            "lbl-searchProject": "Search Existing Projects...",
             "back": "Back",
-            "contextMenu": "Delete Project"
+            "contextMenu": "Delete Project",
+            "installed": "Installed Projects",
+            "official": "Official Projects",
+            "community": "Community Projects",
+            "install": "Install",
+            "uninstall": "Uninstall",
+            "rename": "Rename"
         }
     },
     "error": {

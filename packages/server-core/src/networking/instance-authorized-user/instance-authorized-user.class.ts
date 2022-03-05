@@ -1,11 +1,12 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { InstanceAuthorizedUser as InstanceAuthorizedUserInterface } from '@xrengine/common/src/interfaces/InstanceAuthorizedUser'
+
 import { Application } from '../../../declarations'
 
-interface Data {}
+export type InstanceAuthorizedUserDataType = InstanceAuthorizedUserInterface
 
-interface ServiceOptions {}
-
-export class InstanceAuthorizedUser extends Service {
+export class InstanceAuthorizedUser<T = InstanceAuthorizedUserDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
