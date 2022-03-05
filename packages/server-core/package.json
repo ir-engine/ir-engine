@@ -53,7 +53,7 @@
     "@xrengine/common": "^0.5.0",
     "@xrengine/engine": "^0.5.0",
     "@xrengine/matchmaking": "^0.5.0",
-    "aws-sdk": "2.1086.0",
+    "aws-sdk": "2.1087.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
     "cors-anywhere": "^0.4.4",
