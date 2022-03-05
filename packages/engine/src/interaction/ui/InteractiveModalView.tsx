@@ -186,7 +186,7 @@ export const InteractiveModalView = () => {
         }
 
         .description {
-          margin: 20px;
+          margin: 0 20px;
           overflow: hidden;
           text-align: left;
           font-size: 10px;
