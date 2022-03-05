@@ -23,7 +23,7 @@ const projectionMatrix = new Matrix4().makePerspective(
 const frustum = new Frustum()
 const vec3 = new Vector3()
 
-type RaycastResult = [Entity, boolean, number?, number?]
+type RaycastResult = [Entity, boolean, number]
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
@@ -31,71 +31,48 @@ type RaycastResult = [Entity, boolean, number?, number?]
  * @param {Entity[]} raycastList
  */
 
-export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void => {
-  const interacts = getComponent(entity, InteractorComponent)
-  if (!isEntityLocalClient(entity)) {
-    interacts.subFocusedArray = []
-    interacts.focusedInteractive = null!
-    return
-  }
-
+export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
+  const interactor = getComponent(entity, InteractorComponent)
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller) return
 
-  if (!raycastList.length) {
-    return
-  }
+  if (!interactor) return
 
-  interacts.frustumCamera.updateMatrixWorld()
-  interacts.frustumCamera.matrixWorldInverse.copy(interacts.frustumCamera.matrixWorld).invert()
+  if (!raycastList.length) return
 
-  mat4.multiplyMatrices(projectionMatrix, interacts.frustumCamera.matrixWorldInverse)
+  interactor.frustumCamera.updateMatrixWorld()
+  interactor.frustumCamera.matrixWorldInverse.copy(interactor.frustumCamera.matrixWorld).invert()
+
+  mat4.multiplyMatrices(projectionMatrix, interactor.frustumCamera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)
 
   const subFocusedArray = raycastList
     .map((entityIn): RaycastResult => {
       const boundingBox = getComponent(entityIn, BoundingBoxComponent)
-      if (!boundingBox.box) {
-        return [entityIn, false, 0]
-      }
-      if (boundingBox.dynamic) {
-        const object3D = getComponent(entityIn, Object3DComponent)
-        let object3DAABB = new Box3()
-        object3D.value.traverse((mesh: Mesh) => {
-          if (mesh instanceof Mesh) {
-            if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox() // only here for edge cases, this would already be calculated
-            const meshAABB = new Box3().copy(mesh.geometry.boundingBox!)
-            meshAABB.applyMatrix4(mesh.matrixWorld)
-            object3DAABB.union(meshAABB)
-          }
-        })
-        boundingBox.box.copy(object3DAABB)
-        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
-      } else {
-        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
-      }
+      if (!boundingBox.box) return [entityIn, false, 0]
+      return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
     })
     .filter((value) => value[1])
 
   if (!subFocusedArray.length) {
-    interacts.subFocusedArray = []
-    interacts.focusedInteractive = null!
+    interactor.subFocusedArray = []
+    interactor.focusedInteractive = null!
     return
   }
 
-  interacts.subFocusedArray = subFocusedArray.map((v: any) => [getComponent(v[0], Object3DComponent).value, v[3]])
+  interactor.subFocusedArray = subFocusedArray.map((v) => v[0])
 
-  const [entityInteractable, doesIntersectFrustrum, distanceToPlayer] = subFocusedArray.sort(
+  const [entityInteractable, doesIntersectFrustrum, distanceToInteractor] = subFocusedArray.sort(
     (a: any, b: any) => a[2] - b[2]
   )[0]
 
   const interactable = getComponent(entityInteractable, InteractableComponent).value
   const distance = interactable?.interactionDistance ?? interactiveReachDistance
 
-  const resultIsCloseEnough = distanceToPlayer! < distance
+  const resultIsCloseEnough = distanceToInteractor! < distance
   if (resultIsCloseEnough) {
-    interacts.focusedInteractive = entityInteractable
+    interactor.focusedInteractive = entityInteractable
   }
 }

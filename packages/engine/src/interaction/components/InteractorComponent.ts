@@ -6,7 +6,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 export type InteractorComponentType = {
   focusedInteractive: Entity
   frustumCamera: PerspectiveCamera
-  subFocusedArray: any[]
+  subFocusedArray: Entity[]
 }
 
 export const InteractorComponent = createMappedComponent<InteractorComponentType>('InteractorComponent')

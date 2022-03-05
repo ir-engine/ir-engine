@@ -31,10 +31,8 @@ import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractedComponent } from '../components/InteractedComponent'
-import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
-import { InteractiveUI } from '../systems/InteractiveSystem'
+import { InteractorComponent } from '../components/InteractorComponent'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'
-import { hideInteractText, showInteractText } from './interactText'
 
 const MODEL_SCALE_INACTIVE = new Vector3(1, 1, 1)
 const MODEL_SCALE_ACTIVE = new Vector3(1.2, 1.2, 1.2)
@@ -213,13 +211,14 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const modelGroup = getComponent(modelEntity, Object3DComponent).value
 
   const world = useWorld()
-  const hasFocus = hasComponent(modelEntity, InteractiveFocusedComponent)
+  const localInteractor = getComponent(world.localClientEntity, InteractorComponent)
+  const hasFocus = localInteractor.focusedInteractive === modelEntity
   const interacted = hasComponent(modelEntity, InteractedComponent)
 
   const currentMode = xrui.state.mode.value
   let nextMode = currentMode
 
-  if (currentMode === 'interacting' || interacted) {
+  if (hasFocus) {
     if (interacted) {
       nextMode = currentMode === 'interacting' ? 'active' : 'interacting'
     } else {
@@ -232,8 +231,6 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
         }
       }
     }
-  } else if (hasFocus) {
-    nextMode = 'active'
   } else {
     nextMode = 'inactive'
   }
@@ -250,7 +247,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     const hasHighlight = hasComponent(modelEntity, HighlightComponent)
     if (nextMode === 'inactive' && hasHighlight) {
       removeComponent(modelEntity, HighlightComponent)
-    } else if (!hasComponent) {
+    } else if (!hasHighlight) {
       addComponent(modelEntity, HighlightComponent, {})
     }
   }
@@ -384,56 +381,56 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 }
 
 //TODO: Show interactive UI
-export const showInteractUI = (entity: Entity) => {
-  const ui = InteractiveUI.get(entity)
-  if (!ui) return
-  const xrui = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrui) return
-  const object3D = getComponent(ui.entity, Object3DComponent) as any
-  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+// export const showInteractUI = (entity: Entity) => {
+//   const ui = InteractiveUI.get(entity)
+//   if (!ui) return
+//   const xrui = getComponent(ui.entity, XRUIComponent) as any
+//   if (!xrui) return
+//   const object3D = getComponent(ui.entity, Object3DComponent) as any
+//   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 
-  const userData = object3D.value.userData
+//   const userData = object3D.value.userData
 
-  //refresh video
-  const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
-  if (videoElement && videoElement.element) {
-    //TODO: sometimes the video rendering does not work, set resize for refreshing
-    videoElement.element.style.height = 0
-    if (videoElement.element.style.display == 'block') {
-      videoElement.element.load()
-      videoElement.element.addEventListener(
-        'loadeddata',
-        function () {
-          videoElement.element.style.height = 'auto'
-          videoElement.element.play()
-        },
-        false
-      )
-    } else {
-      videoElement.element.pause()
-    }
-  }
+//   //refresh video
+//   const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
+//   if (videoElement && videoElement.element) {
+//     //TODO: sometimes the video rendering does not work, set resize for refreshing
+//     videoElement.element.style.height = 0
+//     if (videoElement.element.style.display == 'block') {
+//       videoElement.element.load()
+//       videoElement.element.addEventListener(
+//         'loadeddata',
+//         function () {
+//           videoElement.element.style.height = 'auto'
+//           videoElement.element.play()
+//         },
+//         false
+//       )
+//     } else {
+//       videoElement.element.pause()
+//     }
+//   }
 
-  object3D.value.visible = true
-  hideInteractText(userData.interactTextEntity)
-}
+//   object3D.value.visible = true
+//   hideInteractText(userData.interactTextEntity)
+// }
 
-//TODO: Hide interactive UI
-export const hideInteractUI = (entity: Entity) => {
-  const ui = InteractiveUI.get(entity)
-  if (!ui) return
-  const xrui = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrui) return
+// //TODO: Hide interactive UI
+// export const hideInteractUI = (entity: Entity) => {
+//   const ui = InteractiveUI.get(entity)
+//   if (!ui) return
+//   const xrui = getComponent(ui.entity, XRUIComponent) as any
+//   if (!xrui) return
 
-  const object3D = getComponent(ui.entity, Object3DComponent) as any
-  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
-  const userData = object3D.value.userData
-  const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
-  if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
+//   const object3D = getComponent(ui.entity, Object3DComponent) as any
+//   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+//   const userData = object3D.value.userData
+//   const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
+//   if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
 
-  object3D.value.visible = false
-  showInteractText(userData.interactTextEntity, entity)
-}
+//   object3D.value.visible = false
+//   showInteractText(userData.interactTextEntity, entity)
+// }
 
 //TODO: Get interactive UI
 
