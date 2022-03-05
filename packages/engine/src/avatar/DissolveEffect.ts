@@ -1,4 +1,16 @@
-import { Mesh, Object3D } from 'three'
+import {
+  Color,
+  Mesh,
+  Object3D,
+  ShaderLib,
+  ShaderMaterial,
+  TangentSpaceNormalMap,
+  UniformsLib,
+  UniformsUtils,
+  Vector2
+} from 'three'
+
+import { CustomMaterial, extendMaterial } from './ExtendMaterial'
 
 export class DissolveEffect {
   time = 0
@@ -26,8 +38,8 @@ export class DissolveEffect {
     if (this.time <= this.maxHeight) {
       this.object.traverse((child) => {
         if (child['material'] && child.name !== 'light_obj' && child.name !== 'plate_obj') {
-          if (child.material.userData && child.material.userData.time) {
-            child.material.userData.time.value = this.time
+          if (child.material.uniforms && child.material.uniforms.time) {
+            child.material.uniforms.time.value = this.time
           }
         }
       })
@@ -40,19 +52,53 @@ export class DissolveEffect {
   }
 
   static getDissolveTexture(object: Mesh): any {
-    const appendText = (text, pattern, word) => {
-      const textArray = text.split(pattern)
-      if (textArray.length != 0) {
-        const idx = textArray[0].length + pattern.length
-        return text.slice(0, idx) + word + text.slice(idx)
-      } else {
-        return text
-      }
-    }
-
     const hasUV = object.geometry.hasAttribute('uv')
     const material = object.material as any
     const hasTexture = !!material.map
+
+    const shaderNameMapping = {
+      MeshLambertMaterial: 'lambert',
+      MeshBasicMaterial: 'basic',
+      MeshStandardMaterial: 'standard',
+      MeshPhongMaterial: 'phong',
+      MeshMatcapMaterial: 'matcap',
+      MeshToonMaterial: 'toon',
+      PointsMaterial: 'points',
+      LineDashedMaterial: 'dashed',
+      MeshDepthMaterial: 'depth',
+      MeshNormalMaterial: 'normal',
+      MeshDistanceMaterial: 'distanceRGBA',
+      SpriteMaterial: 'sprite'
+    }
+
+    let uniforms = {
+      color: {
+        value: (material as any).color
+      },
+      diffuse: {
+        value: (material as any).color
+      },
+      origin_texture: {
+        value: (material as any).map
+      },
+      time: {
+        value: -200
+      }
+    }
+
+    console.error(shaderNameMapping[material.type])
+
+    const shader = ShaderLib[shaderNameMapping[material.type] ?? 'standard']
+    let fragmentShader = shader.fragmentShader
+    let vertexShader = shader.vertexShader
+
+    Object.keys(shader.uniforms).forEach((key) => {
+      if (material[key]) {
+        uniforms[key] = { value: material[key] }
+      }
+    })
+
+    uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
 
     const vertexNonUVShader = `
       vec2 clipSpace = gl_Position.xy / gl_Position.w;
@@ -90,55 +136,52 @@ export class DissolveEffect {
       discard;
       }
       `
+    const vertexHeaderShader = `
+      varying vec2 vUv3;
+      varying float vPosition;
+    `
 
-    material.userData.time = {
-      value: -200
+    const fragmentHeaderShader = `
+      uniform vec3 color;
+      varying vec2 vUv3;
+      varying float vPosition;
+      uniform float time;
+      uniform sampler2D texture_dissolve;
+      uniform sampler2D origin_texture;
+      float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
+    `
+
+    const appendText = (text, pattern, word) => {
+      const textArray = text.split(pattern)
+      if (textArray.length != 0) {
+        const idx = textArray[0].length + pattern.length
+        return text.slice(0, idx) + word + text.slice(idx)
+      } else {
+        return text
+      }
     }
 
-    material.onBeforeCompile = (shader) => {
-      shader.uniforms.color = {
-        value: material.color
-      }
+    vertexShader = appendText(vertexShader, '#include <clipping_planes_pars_vertex>', vertexHeaderShader)
+    vertexShader = appendText(vertexShader, '#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
 
-      shader.uniforms.origin_texture = {
-        value: material.map
-      }
+    fragmentShader = appendText(fragmentShader, '#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
+    fragmentShader = appendText(
+      fragmentShader,
+      '#include <output_fragment>',
+      hasTexture ? fragmentTextureShader : fragmentColorShader
+    )
 
-      shader.uniforms.time = material.userData.time
+    const myMaterial = new ShaderMaterial({
+      uniforms,
+      vertexShader: vertexShader,
+      fragmentShader: fragmentShader,
+      lights: true
+    })
 
-      let vertexShader = appendText(
-        shader.vertexShader,
-        '#include <clipping_planes_pars_vertex>',
-        `
-        varying vec2 vUv3;
-        varying float vPosition;
-         `
-      )
-      vertexShader = appendText(vertexShader, '#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
-      shader.vertexShader = vertexShader
+    console.error(uniforms)
 
-      let fragmentShader = appendText(
-        shader.fragmentShader,
-        '#include <clipping_planes_pars_fragment>',
-        `
-        uniform vec3 color;
-        varying vec2 vUv3;
-        varying float vPosition;
-        uniform float time;
-        uniform sampler2D texture_dissolve;
-        uniform sampler2D origin_texture;
-        float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
-        `
-      )
-      fragmentShader = appendText(
-        fragmentShader,
-        '#include <output_fragment>',
-        hasTexture ? fragmentTextureShader : fragmentColorShader
-      )
-      shader.fragmentShader = fragmentShader
-      debugger
-    }
+    return myMaterial
 
-    return material
+    // return material
   }
 }
