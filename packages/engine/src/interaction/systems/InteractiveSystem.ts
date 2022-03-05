@@ -33,12 +33,7 @@ export default async function InteractiveSystem() {
   const interactorsQuery = defineQuery([InteractorComponent])
 
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactableQuery = defineQuery([
-    InteractableComponent,
-    BoundingBoxComponent,
-    Object3DComponent,
-    Not(AvatarComponent)
-  ])
+  const interactableQuery = defineQuery([InteractableComponent, Object3DComponent, Not(AvatarComponent)])
 
   const interactedQuery = defineQuery([InteractedComponent])
 
