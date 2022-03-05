@@ -22,17 +22,17 @@
     flex-direction: column;
     outline: none;
     overflow: hidden;
-    background: theme.$panel;
+    background: transparent;
     color: theme.$text2;
 
     &:hover, &:focus {
-        background-color: theme.$hover;
+        background-color: theme.$panel;
         color: theme.$text;
     }
 
     &.rootNode {
-        border-bottom: theme.$borderStyle;
-        background: theme.$panel2;
+        border-bottom: rgba($color: theme.$panel2, $alpha: 0.8);
+        background: rgba($color: theme.$panel, $alpha: 0.8);
     }
 
     &.selected {
@@ -42,7 +42,7 @@
         &:hover, &:focus { background-color: theme.$blueHover; }
     }
 
-    &:active, &.active { background: theme.$bluePressed; }
+    &:active, &.active { background: theme.$blue; }
 }
 
 .selectTarget {

@@ -6,12 +6,16 @@ type EditorServiceStateType = {
   projectName: string | null
   sceneName: string | null
   sceneModified: boolean
+  projectLoaded: boolean
+  rendererInitialized: boolean
 }
 
 const state = createState<EditorServiceStateType>({
   projectName: null,
   sceneName: null,
-  sceneModified: false
+  sceneModified: false,
+  projectLoaded: false,
+  rendererInitialized: false
 })
 
 store.receptors.push((action: EditorActionType): any => {
@@ -23,6 +27,10 @@ store.receptors.push((action: EditorActionType): any => {
         return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
       case 'EDITOR_SCENE_MODIFIED':
         return s.merge({ sceneModified: action.modified })
+      case 'EDITOR_PROJECT_LOADED':
+        return s.merge({ projectLoaded: action.loaded })
+      case 'EDITOR_RENDERER_INITIALIZED':
+        return s.merge({ rendererInitialized: action.initialized })
     }
   }, action.type)
 })
@@ -52,6 +60,18 @@ export const EditorAction = {
     return {
       type: 'EDITOR_SCENE_MODIFIED' as const,
       modified
+    }
+  },
+  projectLoaded: (loaded: boolean) => {
+    return {
+      type: 'EDITOR_PROJECT_LOADED' as const,
+      loaded
+    }
+  },
+  rendererInitialized: (initialized: boolean) => {
+    return {
+      type: 'EDITOR_RENDERER_INITIALIZED' as const,
+      initialized
     }
   }
 }

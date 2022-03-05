@@ -135,10 +135,11 @@ export class EngineRenderer {
     this.renderContext = context!
     const options: WebGLRendererParameters = {
       precision: 'highp',
-      powerPreference: isIOS() ? 'default' : 'high-performance',
+      powerPreference: 'high-performance',
+      stencil: false,
+      antialias: !Engine.isHMD,
       canvas,
       context,
-      antialias: !Engine.isHMD,
       preserveDrawingBuffer: !Engine.isHMD
     }
 

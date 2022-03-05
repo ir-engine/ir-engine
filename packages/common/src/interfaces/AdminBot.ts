@@ -38,6 +38,7 @@ export interface Instance {
   ipAddress?: string
   channelId?: string
   currentUsers: number
+  podName: string
   ended: boolean
   createdAt: string
   updatedAt: string

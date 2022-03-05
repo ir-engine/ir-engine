@@ -4,6 +4,7 @@ export interface Instance {
   ipAddress: string
   locationId: string
   channelId: string
+  podName?: string
   ended?: boolean
   assigned?: boolean
   assignedAt?: Date
@@ -14,6 +15,7 @@ export const InstanceSeed: Instance = {
   id: '',
   ipAddress: '',
   currentUsers: 0,
+  podName: '',
   locationId: '',
   channelId: ''
 }
