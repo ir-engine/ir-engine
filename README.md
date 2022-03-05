@@ -34,11 +34,11 @@ A lot has changed during development, and our monorepo has gotten quite large. T
 git clone --depth 1 https://github.com/xrfoundation/xrengine
 ```
 
-Installation instructions are [here](/tutorial/01-installation.md)
+Installation instructions are [here](/docs/docs/0_installation/01-installation.md)
 
-## Tutorial
+## Documentation
 
-The official XREngine tutorial can be found [here](/tutorial/00-start-here.md)
+The official XREngine docs can be found [here](/docs/docs/0_start-here.md)
 
 ## Let's build it together
 We believe that projects like this are extremely complex and difficult, and can only be built when large groups of people work together, out in the open. If you believe that your calling is to build a free, open network that everyone, everywhere can get value from, then you are welcome in our community, and we'll do our best to get you set up.
