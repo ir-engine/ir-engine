@@ -6,11 +6,11 @@
 module.exports = {
   sidebar: {
     'Getting Started': [
-        'introduction',
-        'installation',
-        'coreconcepts', 
-        'architecture', 
-        'contributing',
+        // 'introduction',
+        // 'installation',
+        // 'coreconcepts', 
+        // 'architecture', 
+        // 'contributing',
         {
           type: 'category',
           label: 'Packages',
