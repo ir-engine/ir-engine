@@ -6,7 +6,7 @@ Pictured below is an example of 4 projects installed. By default, only the 'defa
 
 In a production environment, the builder process will install all projects according to the `project` database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
 
-![](./images/03-projects-folder.png)
+![](./images/projects-folder.png)
 
 ## Configuration
 
@@ -42,9 +42,9 @@ This will create a folder name `myrepo` which must contain an `xrengine.config.t
 
 Projects can also be installed and managed from the /admin/projects route. Click the 'Add Project' 
 
-![](./images/03-projects-admin-install-new.png)
+![](./images/projects-admin-install-new.png)
 
-![](./images/03-projects-admin.png)
+![](./images/projects-admin.png)
 
 In local development, the 'Remove Project' button has been disabled, as to ensure no accidental loss of data.
 
