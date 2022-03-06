@@ -1,3 +1,4 @@
+import { pipe } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -63,13 +64,14 @@ const processBoundingBox = (entity: Entity, force = false) => {
   }
 }
 
-const processRaycasts = (physics: Physics) => {
+const processRaycasts = (world: World) => {
   for (const entity of raycastQuery()) {
-    physics.doRaycast(getComponent(entity, RaycastComponent))
+    world.physics.doRaycast(getComponent(entity, RaycastComponent))
   }
+  return world
 }
 
-const processNetworkBodies = () => {
+const processNetworkBodies = (world: World) => {
   for (const entity of networkColliderQuery()) {
     const network = getComponent(entity, NetworkObjectComponent)
 
@@ -82,9 +84,10 @@ const processNetworkBodies = () => {
 
     teleportRigidbody(body, transform.position, transform.rotation)
   }
+  return world
 }
 
-const processBodies = () => {
+const processBodies = (world: World) => {
   for (const entity of colliderQuery()) {
     const velocity = getComponent(entity, VelocityComponent)
     const collider = getComponent(entity, ColliderComponent)
@@ -111,26 +114,27 @@ const processBodies = () => {
       transform.rotation.copy(currentPose.rotation as Quaternion)
     }
   }
+  return world
 }
 
-const processCollisions = (physics: Physics) => {
+const processCollisions = (world: World) => {
   // clear collision components
   for (const entity of collisionComponent()) {
     getComponent(entity, CollisionComponent).collisions = []
   }
 
   // populate collision components with events over last simulation
-  for (const collisionEvent of physics.collisionEventQueue) {
+  for (const collisionEvent of world.physics.collisionEventQueue) {
     if (collisionEvent.controllerID) {
-      const controller = physics.controllers.get(collisionEvent.controllerID)
+      const controller = world.physics.controllers.get(collisionEvent.controllerID)
       const entity = (controller as any).userData
       getComponent(entity, CollisionComponent).collisions.push(collisionEvent)
     }
     if (collisionEvent.shapeA) {
-      const bodyAID = physics.bodyIDByShapeID.get((collisionEvent.shapeA as any)._id)!
-      const bodyA = physics.bodies.get(bodyAID)
-      const bodyBID = physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)!
-      const bodyB = physics.bodies.get(bodyBID)
+      const bodyAID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeA as any)._id)!
+      const bodyA = world.physics.bodies.get(bodyAID)
+      const bodyBID = world.physics.bodyIDByShapeID.get((collisionEvent.shapeB as any)._id)!
+      const bodyB = world.physics.bodies.get(bodyBID)
       if (!bodyA || !bodyB) continue
       const entityA = (bodyA as any).userData?.entity
       const entityB = (bodyB as any).userData?.entity
@@ -154,8 +158,12 @@ const processCollisions = (physics: Physics) => {
   }
 
   // clear collision queue
-  physics.collisionEventQueue = []
+  world.physics.collisionEventQueue = []
+
+  return world
 }
+
+const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function PhysicsSystem(world: World) {
   world.receptors.push(physicsActionReceptor)
@@ -177,10 +185,7 @@ export default async function PhysicsSystem(world: World) {
       }
     }
 
-    processRaycasts(world.physics)
-    processNetworkBodies()
-    processBodies()
-    processCollisions(world.physics)
+    simulationPipeline(world)
 
     if (Engine.isEditor) return
 
