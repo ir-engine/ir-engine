@@ -1,8 +1,5 @@
 import { useHookstate } from '@speigg/hookstate'
-import React, { ReactNode, useRef } from 'react'
-import 'react'
-import { useState } from 'react'
-import { useEffect } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
 import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'

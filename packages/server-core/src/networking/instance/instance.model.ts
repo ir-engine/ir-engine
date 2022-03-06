@@ -21,6 +21,9 @@ export default (app: Application) => {
       channelId: {
         type: DataTypes.STRING
       },
+      podName: {
+        type: DataTypes.STRING
+      },
       currentUsers: {
         type: DataTypes.INTEGER,
         defaultValue: 0

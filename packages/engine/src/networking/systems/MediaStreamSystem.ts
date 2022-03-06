@@ -151,13 +151,13 @@ export class MediaStreams {
    * @returns Whether the camera is started or not. */
   async startCamera(): Promise<boolean> {
     console.log('start camera')
-    if (this.videoStream) return false
+    if (this.videoStream?.active) return false
     return await this.getVideoStream()
   }
 
   async startMic(): Promise<boolean> {
     console.log('start Mic')
-    if (this.audioStream) return false
+    if (this.audioStream?.active) return false
     return await this.getAudioStream()
   }
 
@@ -316,12 +316,12 @@ export const updateNearbyAvatars = () => {
 // every 5 seconds
 const NEARYBY_AVATAR_UPDATE_PERIOD = 60 * 5
 
-export default async function MediaStreamSystem(world: World) {
+export default async function MediaStreamSystem() {
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
   return () => {
-    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && !executeInProgress) {
       executeInProgress = true
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {

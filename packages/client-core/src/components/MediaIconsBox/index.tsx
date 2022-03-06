@@ -112,7 +112,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
@@ -126,7 +126,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
