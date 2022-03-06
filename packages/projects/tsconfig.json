@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

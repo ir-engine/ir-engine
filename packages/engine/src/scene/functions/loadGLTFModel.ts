@@ -78,7 +78,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, obj3d)
+    obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
 
