@@ -231,15 +231,9 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
 }
 
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
-  const transform = getComponent(entity, TransformComponent)
-  const [position, quaternion, scale] = getTransform(
-    mesh.getWorldPosition(new Vector3()),
-    mesh.getWorldQuaternion(new Quaternion()),
-    mesh.getWorldScale(new Vector3()),
-    transform.position,
-    transform.rotation,
-    transform.scale
-  )
+  const position = mesh.getWorldPosition(new Vector3())
+  const quaternion = mesh.getWorldQuaternion(new Quaternion())
+  const scale = mesh.getWorldScale(new Vector3())
   const config: ObstacleConfig = {
     isCapsule: mesh.userData.isCapsule,
     radius: scale.x,
