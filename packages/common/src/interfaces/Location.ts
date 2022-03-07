@@ -12,22 +12,6 @@ export interface Location {
   isFeatured: boolean
   location_settings?: LocationSettings
   location_setting?: LocationSettings
-<<<<<<< HEAD
-}
-
-export interface LocationFetched {
-  id: string
-  name: string
-  slugifiedName: string
-  maxUsersPerInstance: number
-  sceneId: string
-  locationSettingsId: string
-  locationSetting: LocationSettings
-  isLobby: boolean
-  isFeatured: boolean
-  location_setting?: any
-=======
->>>>>>> Fixed a bug with minikube client local file loading.
 }
 
 export const LocationSeed: Location = {

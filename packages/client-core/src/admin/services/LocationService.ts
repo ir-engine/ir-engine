@@ -149,11 +149,7 @@ export const LocationService = {
 export const LocationAction = {
   locationsRetrieved: (locations: LocationResult) => {
     locations.data.forEach((locationData) => {
-<<<<<<< HEAD
-      if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-=======
       if (locationData.location_setting) locationData.locationSettings = locationData.location_setting
->>>>>>> Fixed a bug with minikube client local file loading.
     })
     return {
       type: 'ADMIN_LOCATIONS_RETRIEVED' as const,

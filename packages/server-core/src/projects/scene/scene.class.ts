@@ -17,11 +17,7 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 const storageProvider = useStorageProvider()
 const NEW_SCENE_NAME = 'New-Scene'
 
-<<<<<<< HEAD
-export const getSceneData = (projectName, sceneName, metadataOnly, internal) => {
-=======
 export const getSceneData = (projectName, sceneName, metadataOnly, clientFetch) => {
->>>>>>> Fixed a bug with minikube client local file loading.
   const newSceneJsonPath = path.resolve(
     appRootPath.path,
     `packages/projects/projects/${projectName}/${sceneName}.scene.json`
@@ -32,11 +28,7 @@ export const getSceneData = (projectName, sceneName, metadataOnly, clientFetch) 
   const sceneThumbnailPath = getCachedAsset(
     `projects/${projectName}/${sceneName}.thumbnail.jpeg`,
     storageProvider.cacheDomain,
-<<<<<<< HEAD
-    internal
-=======
     clientFetch
->>>>>>> Fixed a bug with minikube client local file loading.
   )
 
   const sceneData: SceneData = {
@@ -48,11 +40,7 @@ export const getSceneData = (projectName, sceneName, metadataOnly, clientFetch) 
       : parseSceneDataCacheURLs(
           JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')),
           storageProvider.cacheDomain,
-<<<<<<< HEAD
-          internal
-=======
           clientFetch
->>>>>>> Fixed a bug with minikube client local file loading.
         )
   }
 
@@ -109,11 +97,7 @@ export class Scene implements ServiceMethods<any> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 
-<<<<<<< HEAD
-    const sceneData = getSceneData(projectName, sceneName, metadataOnly, params.provider == null)
-=======
     const sceneData = getSceneData(projectName, sceneName, metadataOnly, clientFetch)
->>>>>>> Fixed a bug with minikube client local file loading.
 
     return {
       data: sceneData

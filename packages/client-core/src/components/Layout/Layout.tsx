@@ -2,6 +2,7 @@ import React, { Fragment, Suspense, useCallback, useEffect, useRef, useState } f
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
+import { any } from 'ts-matches'
 
 import {
   ClientSettingService,
@@ -20,6 +21,8 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
@@ -59,7 +62,11 @@ const Layout = (props: Props): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const [showMediaIcons, setShowMediaIcons] = useState(true)
+  const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
+  let mediaIconTimer: any
+  let bottomIconTimer: any
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
@@ -94,6 +101,31 @@ const Layout = (props: Props): any => {
     respawnAvatar(useWorld().localClientEntity)
   }
 
+  const handleShowMediaIcons = () => {
+    if (showMediaIcons) clearTimeout(mediaIconTimer)
+    setShowMediaIcons(!showMediaIcons)
+  }
+
+  const handleShowBottomIcons = () => {
+    if (showBottomIcons) clearTimeout(bottomIconTimer)
+    setShowBottomIcons(!showBottomIcons)
+  }
+
+  const setTimerForMediaIcons = () => {
+    mediaIconTimer = setTimeout(() => {
+      setShowMediaIcons(false)
+    }, 10000)
+  }
+
+  const setTimerForBottomIcons = () => {
+    bottomIconTimer = setTimeout(() => {
+      setShowBottomIcons(false)
+    }, 10000)
+  }
+
+  if (showMediaIcons) setTimerForMediaIcons()
+  if (showBottomIcons) setTimerForBottomIcons()
+
   const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
   const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
 
@@ -113,11 +145,31 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
+              {showMediaIcons ? (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.showIconMedia}`}
+                  onClick={handleShowMediaIcons}
+                >
+                  <KeyboardDoubleArrowUpIcon />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={`${styles.smBtn} ${styles.showIconMedia}`}
+                  onClick={handleShowMediaIcons}
+                >
+                  <KeyboardDoubleArrowDownIcon />
+                </button>
+              )}
               {children}
-              <MediaIconsBox />
-              <UserMenu />
-              <div style={{ opacity: layoutOpacity }}>
-                <header>
+              {showMediaIcons && (
+                <div className={showMediaIcons ? styles.animateTop : ''}>
+                  <MediaIconsBox />
+                </div>
+              )}
+              {showMediaIcons && (
+                <header className={showMediaIcons ? styles.animateTop : styles.animateBottom}>
                   {path === '/login' && <NavMenu login={login} />}
                   {!props.hideVideo && (
                     <>
@@ -129,36 +181,62 @@ const Layout = (props: Props): any => {
                     </>
                   )}
                 </header>
-
-                {!iOS() && (
-                  <>
-                    {props.hideFullscreen ? null : fullScreenActive ? (
-                      <button type="button" className={styles.fullScreen} onClick={handle.exit}>
-                        <FullscreenExit />
-                      </button>
-                    ) : (
-                      <button type="button" className={styles.fullScreen} onClick={handle.enter}>
-                        <ZoomOutMap />
-                      </button>
-                    )}
-                  </>
-                )}
-
-                <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+              )}
+              {showBottomIcons ? (
+                <button type="button" className={`${styles.btn} ${styles.showIcon}`} onClick={handleShowBottomIcons}>
+                  <KeyboardDoubleArrowDownIcon />
+                </button>
+              ) : (
+                <button type="button" className={`${styles.smBtn} ${styles.showIcon}`} onClick={handleShowBottomIcons}>
+                  <KeyboardDoubleArrowUpIcon />
+                </button>
+              )}
+              {showBottomIcons && <UserMenu animate={showBottomIcons ? styles.animateBottom : ''} />}
+              {showBottomIcons && (
+                <div style={{ opacity: layoutOpacity }}>
+                  <UIDialog />
+                  <Alerts />
+                  {isTouchAvailable && (
+                    <Suspense fallback={<></>}>
+                      <TouchGamepad layout="default" />
+                    </Suspense>
+                  )}
+                  <Debug />
+                </div>
+              )}
+              {showBottomIcons && !iOS() && (
+                <>
+                  {props.hideFullscreen ? null : fullScreenActive ? (
+                    <button
+                      type="button"
+                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : ''} `}
+                      onClick={handle.exit}
+                    >
+                      <FullscreenExit />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : ''} `}
+                      onClick={handle.enter}
+                    >
+                      <ZoomOutMap />
+                    </button>
+                  )}
+                </>
+              )}
+              {showBottomIcons && (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.respawn} ${showBottomIcons ? styles.animateBottom : ''} `}
+                  id="respawn"
+                  onClick={respawnCallback}
+                >
                   <Refresh />
                 </button>
+              )}
 
-                <UIDialog />
-                <Alerts />
-                {isTouchAvailable && (
-                  <Suspense fallback={<></>}>
-                    <TouchGamepad layout="default" />
-                  </Suspense>
-                )}
-                <Debug />
-                {/* <RecordingApp /> */}
-                <InstanceChat />
-              </div>
+              <InstanceChat animate={styles.animateBottom} />
             </section>
           </ThemeProvider>
         </StyledEngineProvider>
