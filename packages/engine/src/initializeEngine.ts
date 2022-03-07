@@ -67,7 +67,6 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
   Engine.camera.add(Engine.audioListener)
-  Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -295,6 +294,10 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
       },
       {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
+      },
+      {
         type: SystemUpdateType.FIXED,
         systemModulePromise: import('./bot/systems/BotHookSystem')
       },
@@ -309,10 +312,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
