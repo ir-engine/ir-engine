@@ -73,8 +73,8 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
   async patch(id: string, data: any, params?: Params): Promise<T[] | T> {
     const authSettings = await this.app.service('authentication-setting').get(id)
-    let existingOauth = JSON.parse(authSettings.oauth)
-    let existingCallback = JSON.parse(authSettings.callback)
+    let existingOauth = JSON.parse(authSettings.oauth as any)
+    let existingCallback = JSON.parse(authSettings.callback as any)
     if (typeof existingOauth === 'string') existingOauth = JSON.parse(existingOauth)
     if (typeof existingCallback === 'string') existingCallback = JSON.parse(existingCallback)
 
