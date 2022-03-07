@@ -18,7 +18,7 @@ interface ticketsTestData {
   user: User
 }
 
-describe.skip('matchmaking match-instance service', () => {
+describe('matchmaking match-instance service', () => {
   let scope: nock.Scope
   const ticketsNumber = 3
   const users: User[] = []
@@ -175,7 +175,7 @@ describe.skip('matchmaking match-instance service', () => {
     // test cleanup
     await app.service('match-instance').remove(matchInstance[0].id)
 
-    const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver)
+    const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver!)
     assert(gameServerInstance)
     assert(!gameServerInstance.ended)
 
@@ -217,7 +217,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service('match-instance').remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.gameserver)))
+    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.gameserver!)))
   })
 
   it('does not assign players if match is not found', async () => {

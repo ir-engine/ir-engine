@@ -3,6 +3,7 @@ import { v1 } from 'uuid'
 
 import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
+import { InviteDataType } from './invite.class'
 
 let invites: any = []
 let user: any = null
@@ -54,14 +55,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -77,14 +77,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -100,14 +99,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)

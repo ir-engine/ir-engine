@@ -1,6 +1,8 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
+import { User } from '@xrengine/common/src/interfaces/User'
+
 import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
 
@@ -23,11 +25,11 @@ describe('user service', () => {
     const avatarId = 'CyberbotGreen'
     const userRole = 'guest'
 
-    const item = await app.service('user').create({
+    const item = (await app.service('user').create({
       name,
       avatarId,
       userRole
-    })
+    })) as User
     users.push(item)
 
     assert.equal(item.name, name)
@@ -41,11 +43,11 @@ describe('user service', () => {
     const avatarId = 'CyberbotGreen'
     const userRole = 'user'
 
-    const item = await app.service('user').create({
+    const item = (await app.service('user').create({
       name,
       avatarId,
       userRole
-    })
+    })) as User
     users.push(item)
 
     assert.equal(item.name, name)
