@@ -18,7 +18,7 @@ interface ticketsTestData {
   user: User
 }
 
-describe('matchmaking match-instance service', () => {
+describe.skip('matchmaking match-instance service', () => {
   let scope: nock.Scope
   const ticketsNumber = 3
   const users: User[] = []
