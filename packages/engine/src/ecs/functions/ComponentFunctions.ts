@@ -201,7 +201,7 @@ export const getComponent = <T, S extends bitECS.ISchema>(
 export const addComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
-  args: T | Partial<SoAProxy<S>>,
+  args: T | SoAProxy<S>,
   world = useWorld()
 ) => {
   if (typeof entity === 'undefined' || entity === null) {

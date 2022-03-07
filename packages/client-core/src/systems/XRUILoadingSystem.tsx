@@ -1,18 +1,17 @@
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import { DoubleSide, MathUtils, Mesh, MeshBasicMaterial, PerspectiveCamera, SphereGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { receiveActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { computeContentScaleForCamera } from '@xrengine/engine/src/xrui/functions/computeContentScaleForCamera'
 import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
+import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -47,11 +46,11 @@ export default async function XRUILoadingSystem(world: World) {
 
   return () => {
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR
-    if (!Engine.xrSession) {
-      Engine.camera.rotateY(world.delta * 0.35)
-    } else {
-      // todo: figure out how to make this work properly for VR
-    }
+    // if (!Engine.xrSession && !Engine.hasJoinedWorld) {
+    //   Engine.camera.rotateY(world.delta * 0.35)
+    // } else {
+    //   // todo: figure out how to make this work properly for VR
+    // }
 
     if (Engine.activeCameraEntity) {
       const xrui = getComponent(ui.entity, XRUIComponent)
@@ -62,7 +61,7 @@ export default async function XRUILoadingSystem(world: World) {
         const contentWidth = ui.state.imageWidth.value / ppu
         const contentHeight = ui.state.imageHeight.value / ppu
 
-        const scale = computeContentScaleForCamera(dist, contentWidth, contentHeight, 'cover')
+        const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
         xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
         xrui.container.position.z = -dist
         xrui.container.parent = Engine.camera

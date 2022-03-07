@@ -6,7 +6,12 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../../physics/components/CollisionComponent'
-import { createBody, getAllShapesFromObject3D, ShapeOptions } from '../../../physics/functions/createCollider'
+import {
+  createBody,
+  createColliderForObject3D,
+  getAllShapesFromObject3D,
+  ShapeOptions
+} from '../../../physics/functions/createCollider'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -17,13 +22,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<ShapeOptions>
 ): void => {
-  const object3d = getComponent(entity, Object3DComponent)
-  if (object3d) {
-    const shapes = getAllShapesFromObject3D(entity, object3d.value as any, json.props)
-    const body = createBody(entity, json.props, shapes)
-    addComponent(entity, ColliderComponent, { body })
-    addComponent(entity, CollisionComponent, { collisions: [] })
-  }
+  createColliderForObject3D(entity, json.props, false)
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
