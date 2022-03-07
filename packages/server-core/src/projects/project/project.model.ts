@@ -37,7 +37,9 @@ export default (app: Application) => {
     }
   )
 
-  ;(Project as any).associate = (models: any): void => {}
+  ;(Project as any).associate = (models: any): void => {
+    ;(Project as any).hasOne(models.projectSetting, { foreignKey: 'projectId' })
+  }
 
   return Project
 }

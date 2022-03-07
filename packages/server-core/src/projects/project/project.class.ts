@@ -13,6 +13,10 @@ import config from '../../appconfig'
 import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import {
+  addSettingsAgainstProject,
+  removeSettingsAgainstProject
+} from '../../setting/project-setting/project-setting.helper'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
@@ -112,6 +116,11 @@ export class Project extends Service {
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+
+    if (projectConfig.settings && projectConfig.settings.length > 0) {
+      await addSettingsAgainstProject(this.app, projectName, projectConfig.settings)
+    }
+
     return Promise.resolve()
   }
 
@@ -257,6 +266,10 @@ export class Project extends Service {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
 
+    if (projectConfig.settings && projectConfig.settings.length > 0) {
+      await addSettingsAgainstProject(this.app, projectName, projectConfig.settings)
+    }
+
     return returned
   }
 
@@ -306,6 +319,10 @@ export class Project extends Service {
         // run project uninstall script
         if (projectConfig.onEvent) {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        }
+
+        if (projectConfig.settings && projectConfig.settings.length > 0) {
+          await removeSettingsAgainstProject(this.app, name, projectConfig.settings)
         }
 
         if (fs.existsSync(path.resolve(projectsRootFolder, name))) {

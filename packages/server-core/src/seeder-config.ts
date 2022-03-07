@@ -22,6 +22,9 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
         try {
           const config: ProjectConfigInterface =
             require(`../../projects/projects/${dirent.name}/xrengine.config.ts`).default
+          if (config && config.settings && config.settings.length > 0) {
+            seedProjectSettings(dirent.name, config.settings)
+          }
           if (!config.databaseSeed) return null
           return path.join(dirent.name, config.databaseSeed)
         } catch (e) {
@@ -32,6 +35,8 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
       .map((seedDir) => require(`../../projects/projects/${seedDir}`).default)
       .flat()
   : []
+
+const seedProjectSettings = async (projectName, settings) => {}
 
 export const seeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,

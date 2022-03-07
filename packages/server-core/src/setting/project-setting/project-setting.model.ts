@@ -20,7 +20,7 @@ export default (app: Application) => {
   })
 
   ;(ProjectSetting as any).associate = (models: any): void => {
-    ;(ProjectSetting as any).belongsTo(models.project, { foreignKey: 'projectID' })
+    ;(ProjectSetting as any).belongsTo(models.project, { foreignKey: 'projectId', required: true, allowNull: false })
   }
 
   return ProjectSetting
