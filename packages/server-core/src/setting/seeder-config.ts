@@ -7,6 +7,7 @@ import { chargebeeSeed } from './chargebee-setting/chargebee-setting.seed'
 import { clientSeed } from './client-setting/client-setting.seed'
 import { emailSeed } from './email-setting/email-setting.seed'
 import { gameServerSeed } from './game-server-setting/game-server-setting.seed'
+import { projectSettingSeed } from './project-setting/project-setting.seed'
 import { redisSeed } from './redis-setting/redis-setting.seed'
 import { serverSeed } from './server-setting/server-setting.seed'
 
@@ -19,7 +20,8 @@ export const settingSeeds: Array<ServicesSeedConfig> = [
   awsSeed,
   chargebeeSeed,
   redisSeed,
-  analyticsSeed
+  analyticsSeed,
+  projectSettingSeed
 ]
 
 export default settingSeeds

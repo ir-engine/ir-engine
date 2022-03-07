@@ -36,6 +36,7 @@ export default (app: Application) => {
       }
     }
   )
+
   ;(Project as any).associate = (models: any): void => {}
 
   return Project
