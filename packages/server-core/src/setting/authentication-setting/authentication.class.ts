@@ -4,6 +4,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
@@ -68,5 +69,30 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       skip: auth.skip,
       data
     }
+  }
+
+  async patch(id: string, data: any, params?: Params): Promise<T[] | T> {
+    const authSettings = await this.app.service('authentication-setting').get(id)
+    let existingOauth = JSON.parse(authSettings.oauth)
+    let existingCallback = JSON.parse(authSettings.callback)
+    if (typeof existingOauth === 'string') existingOauth = JSON.parse(existingOauth)
+    if (typeof existingCallback === 'string') existingCallback = JSON.parse(existingCallback)
+
+    let newOAuth = JSON.parse(data.oauth)
+    data.callback = existingCallback
+
+    for (let key of Object.keys(newOAuth)) {
+      newOAuth[key] = JSON.parse(newOAuth[key])
+      if (config.authentication.oauth[key].scope) newOAuth[key].scope = config.authentication.oauth[key].scope
+      if (config.authentication.oauth[key].custom_data)
+        newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
+      if (key !== 'default' && !data.callback[key]) data.callback[key] = config.authentication.callback[key]
+      newOAuth[key] = JSON.stringify(newOAuth[key])
+    }
+
+    data.oauth = JSON.stringify(newOAuth)
+    data.callback = JSON.stringify(data.callback)
+
+    return super.patch(id, data, params)
   }
 }
