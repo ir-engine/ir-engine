@@ -239,17 +239,21 @@ const ViewAvatar = (props: Props) => {
     }
     if (validateForm(state, state.formErrors)) {
       const canvas = document.createElement('canvas')
+      canvas.width = 500
+      canvas.height = 250
       const newContext = canvas.getContext('2d')
-      newContext?.drawImage(renderer.domElement, 0, 0)
+      const img = document.getElementById('avatar')
+      const imgConvas: any = renderer ? renderer.domElement : img
+      newContext?.drawImage(imgConvas, -20, 20)
       if (selectedFile) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.updateAdminAvatar(avatarData.id, blob!, selectedFile, data)
+          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), selectedFile, data)
         })
       }
 
       if (selectedAvatarlUrl) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.updateAdminAvatar(avatarData.id, blob!, selectedAvatarlUrl, data)
+          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), selectedAvatarlUrl, data)
         })
       }
       // await AvatarService.updateAdminAvatar(avatarData.id, data)
@@ -352,11 +356,13 @@ const ViewAvatar = (props: Props) => {
                     formErrors={state.formErrors.url}
                     name="avatarUrl"
                   />
-                  <div id="stage" style={{ width: '400px', height: '200px' }}></div>
+                  <div id="stage" style={{ width: '500px', height: '250px' }}>
+                    <img src={state.url} alt="avatar" id="avatar" />
+                  </div>
                 </>
               ) : (
                 <>
-                  <div id="stage" style={{ width: '400px', height: '200px' }}></div>
+                  <div id="stage" style={{ width: '500px', height: '250px' }}></div>
                   <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                     <Input
                       accept={AVATAR_FILE_ALLOWED_EXTENSIONS}

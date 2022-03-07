@@ -7,7 +7,9 @@ import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
-  REGEX_VALID_URL
+  REGEX_VALID_URL,
+  THUMBNAIL_HEIGHT,
+  THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
@@ -113,17 +115,19 @@ const AvatarCreate = ({ handleClose, open }) => {
 
     if (validateForm(newAvatar, formErrors)) {
       const canvas = document.createElement('canvas')
+      canvas.width = 500
+      canvas.height = 250
       const newContext = canvas.getContext('2d')
-      newContext?.drawImage(renderer.domElement, 0, 0)
+      newContext?.drawImage(renderer.domElement, -20, 20)
       if (selectedFile) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.createAdminAvatar(blob!, selectedFile, data)
+          await AvatarService.createAdminAvatar(new File([blob!], data.name), selectedFile, data)
         })
       }
 
       if (selectedAvatarlUrl) {
         canvas.toBlob(async (blob) => {
-          await AvatarService.createAdminAvatar(blob!, selectedAvatarlUrl, data)
+          await AvatarService.createAdminAvatar(new File([blob!], data.name), selectedAvatarlUrl, data)
         })
       }
       clearState()
