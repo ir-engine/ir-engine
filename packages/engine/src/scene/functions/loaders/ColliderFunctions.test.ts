@@ -15,10 +15,6 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SCENE_COMPONENT_COLLIDER } from './ColliderFunctions'
 
-globalThis.PhysX = {
-  PxBoxGeometry: class {}
-} as any
-
 let transform2 = {
   translation: new Vector3(Math.random(), Math.random(), Math.random()),
   rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random())
@@ -39,16 +35,22 @@ describe('ColliderFunctions', () => {
     }
   })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     world = createWorld()
     Engine.currentWorld = world
     entity = createEntity()
+    await Engine.currentWorld.physics.createScene({ verbose: true })
 
     body = {
       getGlobalPose: () => transform2,
       setGlobalPose: (t: any) => (transform2 = t),
       _debugNeedsUpdate: false
     }
+  })
+
+  afterEach(() => {
+    Engine.currentWorld = null!
+    delete (globalThis as any).PhysX
   })
 
   const sceneComponentData = {}
