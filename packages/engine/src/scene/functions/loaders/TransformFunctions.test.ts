@@ -1,51 +1,145 @@
 import assert from 'assert'
-import { Euler, Quaternion } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { createWorld } from '../../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Entity } from '../../../ecs/classes/Entity'
+import { createWorld, World } from '../../../ecs/classes/World'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { deserializeTransform } from './TransformFunctions'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import {
+  deserializeTransform,
+  parseTransformProperties,
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  serializeTransform
+} from './TransformFunctions'
 
 const EPSILON = 10e-8
 
 describe('TransformFunctions', () => {
-  it('deserializeTransform', () => {
-    const world = createWorld()
+  let world: World
+  let entity: Entity
+
+  beforeEach(() => {
+    world = createWorld()
     Engine.currentWorld = world
-    const entity = createEntity()
+    entity = createEntity()
+  })
 
-    const quat = new Quaternion().random()
-    const euler = new Euler().setFromQuaternion(quat, 'XYZ')
-    const sceneComponentData = {
-      position: { x: 1, y: 2, z: 3 },
-      rotation: { x: euler.x, y: euler.y, z: euler.z },
-      scale: { x: 1.25, y: 2.5, z: 5 }
-    }
-    const sceneComponent: ComponentJson = {
-      name: 'transform',
-      props: sceneComponentData
-    }
+  const sceneComponentData = {
+    position: new Vector3(Math.random(), Math.random(), Math.random()),
+    rotation: new Euler(Math.random(), Math.random(), Math.random()),
+    scale: new Vector3(Math.random(), Math.random(), Math.random())
+  }
 
-    deserializeTransform(entity, sceneComponent)
+  const sceneComponent: ComponentJson = {
+    name: SCENE_COMPONENT_TRANSFORM,
+    props: sceneComponentData
+  }
 
-    assert(hasComponent(entity, TransformComponent))
-    const { position, rotation, scale } = getComponent(entity, TransformComponent)
-    assert.equal(position.x, 1)
-    assert.equal(position.y, 2)
-    assert.equal(position.z, 3)
+  describe('deserializeTransform()', () => {
+    it('creates Transform Component with provided component data', () => {
+      deserializeTransform(entity, sceneComponent)
 
-    // must compare absolute as negative quaternions represent equivalent rotations
-    assert(Math.abs(rotation.x) - Math.abs(quat.x) < EPSILON)
-    assert(Math.abs(rotation.y) - Math.abs(quat.y) < EPSILON)
-    assert(Math.abs(rotation.z) - Math.abs(quat.z) < EPSILON)
-    assert(Math.abs(rotation.w) - Math.abs(quat.w) < EPSILON)
+      const transformComponent = getComponent(entity, TransformComponent)
+      assert(transformComponent)
+      assert(Math.abs(transformComponent.position.x - sceneComponentData.position.x) < EPSILON)
+      assert(Math.abs(transformComponent.position.y - sceneComponentData.position.y) < EPSILON)
+      assert(Math.abs(transformComponent.position.z - sceneComponentData.position.z) < EPSILON)
 
-    assert.equal(scale.x, 1.25)
-    assert.equal(scale.y, 2.5)
-    assert.equal(scale.z, 5)
+      const rot = new Quaternion().setFromEuler(sceneComponentData.rotation)
+      assert(Math.abs(transformComponent.rotation.x - rot.x) < EPSILON)
+      assert(Math.abs(transformComponent.rotation.y - rot.y) < EPSILON)
+      assert(Math.abs(transformComponent.rotation.z - rot.z) < EPSILON)
+      assert(Math.abs(transformComponent.rotation.w - rot.w) < EPSILON)
+
+      assert(Math.abs(transformComponent.scale.x - sceneComponentData.scale.x) < EPSILON)
+      assert(Math.abs(transformComponent.scale.y - sceneComponentData.scale.y) < EPSILON)
+      assert(Math.abs(transformComponent.scale.z - sceneComponentData.scale.z) < EPSILON)
+    })
+
+    describe('Editor vs Location', () => {
+      it('creates Transform in Location', () => {
+        addComponent(entity, EntityNodeComponent, { components: [] })
+
+        deserializeTransform(entity, sceneComponent)
+
+        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+        assert(!entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
+      })
+
+      it('creates Transform in Editor', () => {
+        Engine.isEditor = true
+
+        addComponent(entity, EntityNodeComponent, { components: [] })
+
+        deserializeTransform(entity, sceneComponent)
+
+        const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+        assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
+
+        Engine.isEditor = false
+      })
+    })
+  })
+
+  describe.skip('updateTransform', () => {})
+
+  describe('serializeTransform()', () => {
+    it('should properly serialize transform', () => {
+      deserializeTransform(entity, sceneComponent)
+      const result = serializeTransform(entity)
+
+      assert(Math.abs(result?.props.position.x - sceneComponentData.position.x) < EPSILON)
+      assert(Math.abs(result?.props.position.y - sceneComponentData.position.y) < EPSILON)
+      assert(Math.abs(result?.props.position.z - sceneComponentData.position.z) < EPSILON)
+
+      assert(Math.abs(result?.props.rotation.x - sceneComponentData.rotation.x) < EPSILON)
+      assert(Math.abs(result?.props.rotation.y - sceneComponentData.rotation.y) < EPSILON)
+      assert(Math.abs(result?.props.rotation.z - sceneComponentData.rotation.z) < EPSILON)
+
+      assert(Math.abs(result?.props.scale.x - sceneComponentData.scale.x) < EPSILON)
+      assert(Math.abs(result?.props.scale.y - sceneComponentData.scale.y) < EPSILON)
+      assert(Math.abs(result?.props.scale.z - sceneComponentData.scale.z) < EPSILON)
+    })
+
+    it('should return undefine if there is no transform component', () => {
+      assert(serializeTransform(entity) === undefined)
+    })
+  })
+
+  describe('parseTransformProperties()', () => {
+    it('should use default component values', () => {
+      const componentData = parseTransformProperties({})
+      assert.deepEqual(componentData.position, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position)
+      assert.deepEqual(
+        componentData.rotation,
+        new Quaternion().setFromEuler(
+          new Euler(
+            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.x,
+            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.y,
+            SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.rotation.z
+          )
+        )
+      )
+      assert.deepEqual(componentData.scale, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.scale)
+    })
+
+    it('should use passed values', () => {
+      const componentData = parseTransformProperties({ ...sceneComponentData })
+      assert.deepEqual(componentData.position, sceneComponentData.position)
+      assert.deepEqual(
+        componentData.rotation,
+        new Quaternion().setFromEuler(
+          new Euler(sceneComponentData.rotation.x, sceneComponentData.rotation.y, sceneComponentData.rotation.z)
+        )
+      )
+      assert.deepEqual(componentData.scale, sceneComponentData.scale)
+    })
   })
 })

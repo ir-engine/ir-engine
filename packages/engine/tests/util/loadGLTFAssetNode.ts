@@ -4,7 +4,6 @@ import path from 'path'
 
 import { createGLTFLoader } from '../../src/assets/functions/createGLTFLoader'
 import { GLTF } from '../../src/assets/loaders/gltf/GLTFLoader'
-import '../../src/patchEngineNode.ts'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)

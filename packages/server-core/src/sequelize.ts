@@ -43,7 +43,6 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
-    // @ts-ignore
     app.setup = async function (...args: any) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -103,6 +102,7 @@ export default (app: Application): void => {
                         isSeeded = false
                       }
                     } else if (settingsServiceNames.indexOf(config.path) > 0) {
+                      console.log('settings template', template)
                       const result = await service.find()
                       isSeeded = result.total > 0
                     } else {
