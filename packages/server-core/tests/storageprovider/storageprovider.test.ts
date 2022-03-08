@@ -10,6 +10,7 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
 import { getContentType } from '../../src/util/fileUtils'
 import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
+import config from '../../src/appconfig'
 
 const https = require('https')
 
@@ -27,7 +28,10 @@ describe('storageprovider', () => {
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
     process.env.STORAGE_AWS_ACCESS_KEY_SECRET
   ) {
-    storageProviders.push(new S3Provider())
+    console.log('config', config)
+    const s3Provider = new S3Provider()
+    console.log('s3Provider', s3Provider)
+    storageProviders.push(s3Provider)
   }
 
   storageProviders.forEach((provider) => {
