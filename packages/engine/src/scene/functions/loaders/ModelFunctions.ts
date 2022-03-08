@@ -1,5 +1,3 @@
-import { Mesh, Object3D } from 'three'
-
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
@@ -37,7 +35,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-
   updateModel(entity, props)
 }
 

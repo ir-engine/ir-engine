@@ -1,15 +1,13 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
@@ -77,16 +75,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    createObjectEntityFromGLTF(entity, obj3d)
+    obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
 
   for (const mesh of meshesToProcess) {
-    if (mesh === obj3d) {
-      createObjectEntityFromGLTF(entity, obj3d)
-      continue
-    }
-
     const e = createEntity()
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
@@ -182,6 +175,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (obj3d.animations?.length) {
     // We only have to update the mixer time for this animations on each frame
+    if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
     addComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(obj3d),
       animationSpeed: 1,
