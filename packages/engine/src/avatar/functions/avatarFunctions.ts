@@ -49,7 +49,7 @@ import { SkeletonUtils } from '../SkeletonUtils'
 
 const vec3 = new Vector3()
 
-const loadAvatarModelAsset = async (avatarURL: string) => {
+export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync({
     url: avatarURL,
     castShadow: true,
