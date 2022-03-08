@@ -33,18 +33,7 @@ const config: ProjectConfigInterface = {
   },
   services: undefined,
   databaseSeed: undefined,
-  settings: [
-    {
-      settingName: 'secret1', // string
-      type: DataTypes.STRING, // typeof sequelize.DataTypes
-      scopes: ['editor:write'] // optional, default to admin only
-    },
-    {
-      settingName: 'secret2', // string
-      type: DataTypes.NUMBER, // typeof sequelize.DataTypes
-      scopes: [] // optional, default to admin only
-    }
-  ]
+  settings: []
 }
 
 export default config
