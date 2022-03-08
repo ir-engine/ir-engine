@@ -102,6 +102,7 @@ export default (app: Application): void => {
                         isSeeded = false
                       }
                     } else if (settingsServiceNames.indexOf(config.path) > 0) {
+                      console.log('settings template', template)
                       const result = await service.find()
                       isSeeded = result.total > 0
                     } else {

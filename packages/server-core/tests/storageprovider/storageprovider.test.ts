@@ -23,6 +23,7 @@ describe('storageprovider', () => {
 
   const storageProviders: StorageProviderInterface[] = []
   storageProviders.push(new LocalStorage())
+  console.log('process.env', process.env, process.env.STORAGE_S3_ENDPOINT)
   if (
     process.env.STORAGE_S3_TEST_RESOURCE_BUCKET &&
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
