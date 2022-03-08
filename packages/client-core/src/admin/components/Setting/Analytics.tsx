@@ -43,7 +43,7 @@ const Analytics = (props: AnalyticsProps) => {
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          Analytics
+          ANALYTICS
         </Typography>
         <div className={classes.root}>
           <Grid container spacing={3}>

@@ -4,7 +4,6 @@ import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
 import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
@@ -18,7 +17,6 @@ const Redis = (props: Props) => {
   const classes = useStyles()
   const redisSettingState = useAdminRedisSettingState()
   const [redisSetting] = redisSettingState?.redisSettings?.value || []
-  const dispatch = useDispatch()
   const [enabled, setEnabled] = React.useState({
     checkedA: true,
     checkedB: true
