@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
-import { Button, Grid, MenuItem, TextField, Typography } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { Button, Grid, IconButton, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -18,7 +19,7 @@ const Project = (props: Props) => {
   const projects = projectState.projects
   const [projectSetting] = projectSettingState?.projectSettings?.value || []
 
-  const [settings, setSettings] = useState(projectSetting.settings || [])
+  const [settings, setSettings] = useState(projectSetting?.settings || [])
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : null)
 
   useEffect(() => {
@@ -33,6 +34,49 @@ const Project = (props: Props) => {
 
   const handleProjectChange = (projectId) => {
     setSelectedProject(projectId)
+  }
+
+  const handleAddNewSetting = () => {
+    const tempSetting = JSON.parse(JSON.stringify(settings))
+
+    tempSetting.push({
+      keyName: '',
+      value: '',
+      scopes: []
+    })
+
+    setSettings(tempSetting)
+  }
+
+  const handleKeyNameChange = (index, e) => {
+    const tempSetting = JSON.parse(JSON.stringify(settings))
+
+    tempSetting[index].keyName = e.target.value
+    setSettings(tempSetting)
+  }
+
+  const handleValueChange = (index, e) => {
+    const tempSetting = JSON.parse(JSON.stringify(settings))
+
+    tempSetting[index].value = e.target.value
+    setSettings(tempSetting)
+  }
+
+  const handleDeleteSetting = (index) => {
+    const tempSetting = JSON.parse(JSON.stringify(settings))
+
+    tempSetting.splice(index, 1)
+    setSettings(tempSetting)
+  }
+
+  const handleCancel = () => {
+    const tempSetting = JSON.parse(JSON.stringify(projectSetting?.settings || []))
+
+    setSettings(tempSetting)
+  }
+
+  const handleSubmit = () => {
+    // TODO save/update setting against the selected project
   }
 
   return (
@@ -54,16 +98,60 @@ const Project = (props: Props) => {
                   ))}
               </TextField>
             </Grid>
-            <Grid item container>
-              {settings.map((setting, index) => (
-                <Grid item key={index}></Grid>
-              ))}
+            <Grid item container xs={12}>
+              {settings &&
+                settings.map((setting, index) => (
+                  <Grid item container key={index} spacing={1} xs={12}>
+                    <Grid item spacing={1} xs={3}>
+                      <label>Key Name</label>
+                      <Paper component="div" className={classes.createInput}>
+                        <InputBase
+                          name="port"
+                          className={classes.input}
+                          value={setting.keyName}
+                          style={{ color: '#fff' }}
+                          onChange={(e) => handleKeyNameChange(index, e)}
+                        />
+                      </Paper>
+                    </Grid>
+                    <Grid item spacing={1} xs={3}>
+                      <label>Value</label>
+                      <Paper component="div" className={classes.createInput}>
+                        <InputBase
+                          name="port"
+                          className={classes.input}
+                          value={setting.value}
+                          style={{ color: '#fff' }}
+                          onChange={(e) => handleValueChange(index, e)}
+                        />
+                      </Paper>
+                    </Grid>
+                    <Grid item spacing={1} xs={5}>
+                      <label>Scopes</label>
+                      <Paper component="div" className={classes.createInput}></Paper>
+                    </Grid>
+                    <Grid item spacing={1} xs={1}>
+                      <IconButton onClick={() => handleDeleteSetting(index)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                ))}
             </Grid>
             <Grid item xs={6} sm={4}>
-              <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit">
+              <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleAddNewSetting}>
                 Add New Setting
               </Button>
             </Grid>
+          </Grid>
+          <Grid item container xs={12}>
+            <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+              Cancel
+            </Button>
+            &nbsp; &nbsp;
+            <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
+              Save
+            </Button>
           </Grid>
         </div>
       </form>
