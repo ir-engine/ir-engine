@@ -48,10 +48,11 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   if (!obj3d) {
     obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+    obj3d.userData.mesh = new Mesh()
   }
 
-  const video = obj3d.userData.mesh
-  video.name = VIDEO_MESH_NAME
+  if (!obj3d.userData.mesh) obj3d.userData.mesh = { name: VIDEO_MESH_NAME }
+  else obj3d.userData.mesh.name = VIDEO_MESH_NAME
 
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
@@ -174,7 +175,7 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
 
 export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = (video) => {
   if (video.userData.videoEl) {
-    if (video.userData.videoEl.parent) video.userData.videoEl.remove()
+    if (video.userData.videoEl.parent) video.userData.videoEl.removeFromParent()
     delete video.userData.videoEl
   }
 
@@ -184,7 +185,7 @@ export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = 
   }
 }
 
-const setupHLS = (entity: Entity, url: string): Hls => {
+export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()
   hls.on(Hls.Events.ERROR, function (event, data) {
     if (data.fatal) {
@@ -233,7 +234,7 @@ export const toggleVideo = (entity: Entity) => {
   }
 }
 
-const parseVideoProperties = (props): Partial<VideoComponentType> => {
+export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
     videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
     elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
