@@ -50,7 +50,7 @@
     "@xrengine/engine": "^0.5.0",
     "@xrengine/projects": "^0.5.0",
     "@xrengine/server-core": "^0.5.0",
-    "aws-sdk": "2.1088.0",
+    "aws-sdk": "2.1089.0",
     "compression": "1.7.4",
     "cors": "2.8.5",
     "feathers-logger": "0.3.2",
