@@ -3,7 +3,9 @@ import nock from 'nock'
 
 import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
 import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
-import app from '@xrengine/server/src/app'
+import { createApp } from '@xrengine/server/src/app'
+
+import { Application } from '../../../declarations'
 
 interface User {
   id: string
@@ -16,12 +18,12 @@ interface ticketsTestData {
   user: User
 }
 
-describe('matchmaking match-instance service', () => {
+describe.skip('matchmaking match-instance service', () => {
   let scope: nock.Scope
   const ticketsNumber = 3
   const users: User[] = []
   const tickets: ticketsTestData[] = []
-  const gamemode = 'msa-private-test'
+  const gamemode = 'test-private-test'
   const tier = 'bronze'
 
   const commonLocationSettings = {
@@ -41,7 +43,11 @@ describe('matchmaking match-instance service', () => {
     }
   }
 
+  let app: Application
   before(async () => {
+    app = createApp()
+    await app.setup()
+
     scope = nock(FRONTEND_SERVICE_URL)
 
     const ticketsService = app.service('match-ticket')
@@ -64,7 +70,7 @@ describe('matchmaking match-instance service', () => {
         name: `game-${gamemode}`,
         slugifiedName: `game-${gamemode}`,
         maxUsersPerInstance: 30,
-        sceneId: `msa/game-${gamemode}`,
+        sceneId: `test/game-${gamemode}`,
         location_settings: commonLocationSettings as any,
         isLobby: false,
         isFeatured: false
@@ -169,7 +175,7 @@ describe('matchmaking match-instance service', () => {
     // test cleanup
     await app.service('match-instance').remove(matchInstance[0].id)
 
-    const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver)
+    const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver!)
     assert(gameServerInstance)
     assert(!gameServerInstance.ended)
 
@@ -211,7 +217,7 @@ describe('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service('match-instance').remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.gameserver)))
+    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.gameserver!)))
   })
 
   it('does not assign players if match is not found', async () => {

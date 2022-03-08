@@ -73,7 +73,7 @@ const loadScene = async (app: Application, scene: string) => {
     createEngine()
     initializeNode()
     await initializeCoreSystems()
-    await initializeRealtimeSystems()
+    await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
     await initializeProjectSystems(projects, systems)
 
@@ -233,6 +233,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.hostId = userId
     initializeNode()
     await initializeMediaServerSystems()
+    await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await initializeProjectSystems(projects, [])
 
