@@ -17,8 +17,7 @@ const settingsServiceNames = [
   'email-setting',
   'game-server-setting',
   'redis-setting',
-  'server-setting',
-  'project-setting'
+  'server-setting'
 ]
 
 export default (app: Application): void => {
