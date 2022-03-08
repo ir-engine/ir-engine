@@ -32,8 +32,7 @@ const config: ProjectConfigInterface = {
     }
   },
   services: undefined,
-  databaseSeed: undefined,
-  settings: []
+  databaseSeed: undefined
 }
 
 export default config

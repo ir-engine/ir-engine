@@ -5,7 +5,6 @@ import { Button, Grid, IconButton, InputBase, MenuItem, Paper, TextField, Typogr
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import { useStyles } from './styles'
 
 interface Props {}
@@ -15,11 +14,9 @@ const Project = (props: Props) => {
   const authState = useAuthState()
   const user = authState.user
   const projectState = useProjectState()
-  const projectSettingState = useProjectSettingState()
   const projects = projectState.projects
-  const [projectSetting] = projectSettingState?.projectSettings?.value || []
 
-  const [settings, setSettings] = useState(projectSetting?.settings || [])
+  const [settings, setSettings] = useState([])
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : null)
 
   useEffect(() => {
@@ -28,7 +25,6 @@ const Project = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && selectedProject) {
-      ProjectSettingService.fetchProjectSetting(selectedProject)
     }
   }, [authState?.user?.id?.value, selectedProject])
 
@@ -70,7 +66,7 @@ const Project = (props: Props) => {
   }
 
   const handleCancel = () => {
-    const tempSetting = JSON.parse(JSON.stringify(projectSetting?.settings || []))
+    const tempSetting = JSON.parse(JSON.stringify([]))
 
     setSettings(tempSetting)
   }
