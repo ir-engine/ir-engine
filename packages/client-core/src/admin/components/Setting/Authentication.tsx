@@ -319,7 +319,7 @@ const Account = (props: Props) => {
                     value={keySecret?.discord?.key || ''}
                     name="key"
                     style={{ color: '#fff' }}
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
                     className={classes.input}
                     type={showPassword.discord.key ? 'text' : 'password'}
                   />
@@ -336,7 +336,7 @@ const Account = (props: Props) => {
                     value={keySecret?.discord?.secret || ''}
                     name="secret"
                     style={{ color: '#fff' }}
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
                     className={classes.input}
                     type={showPassword.discord.secret ? 'text' : 'password'}
                   />
