@@ -33,10 +33,10 @@
   },
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
-    "@mui/icons-material": "5.4.4",
-    "@mui/material": "5.4.4",
+    "@mui/icons-material": "5.5.0",
+    "@mui/material": "5.5.0",
     "@mui/styled-engine-sc": "5.4.2",
-    "@mui/styles": "5.4.4",
+    "@mui/styles": "5.5.0",
     "@rollup/plugin-inject": "4.0.4",
     "@speigg/hookstate": "3.0.13-stable-state",
     "@types/react": "17.0.39",
