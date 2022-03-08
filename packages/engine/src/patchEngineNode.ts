@@ -11,7 +11,8 @@ import 'url-polyfill'
 ;(globalThis as any).self = globalThis
 
 // import URL from 'url'
-;(globalThis as any).self.URL = URL(globalThis as any).Blob = Blob
+;(globalThis as any).self.URL = URL
+;(globalThis as any).Blob = Blob
 
 // patch navigator
 if (!globalThis.navigator)

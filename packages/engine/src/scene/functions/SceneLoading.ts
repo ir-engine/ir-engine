@@ -37,8 +37,6 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
     } else if (typeof val === 'string') {
       if (AssetLoader.isSupported(val)) {
         try {
-          // construct a URL object ensures the url is valid
-          new URL(AssetLoader.getAbsolutePath(val))
           const promise = AssetLoader.loadAsync(val, onProgress)
           promises.push(promise)
         } catch (e) {
