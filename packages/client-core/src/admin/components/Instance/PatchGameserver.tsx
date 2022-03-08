@@ -1,3 +1,8 @@
+import { useAuthState } from '../../../user/services/AuthService'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import { GameserverService } from '../../services/GameserverService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
@@ -9,11 +14,6 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import { GameserverService } from '../../services/GameserverService'
-import { LocationService, useLocationState } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -46,7 +46,7 @@ const PatchGameserver = (props: Props) => {
         location: ''
       })
     }
-  }, [location.created.value])
+  }, [location.created])
 
   const handleChange = (e) => {
     const { name, value } = e.target
