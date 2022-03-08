@@ -237,6 +237,7 @@ const ViewAvatar = (props: Props) => {
     if (!state.url) {
       temp.url = "avatar url can't be empty"
     }
+    const url = selectedAvatarlUrl ? selectedAvatarlUrl : state.url
     if (validateForm(state, state.formErrors)) {
       const canvas = document.createElement('canvas')
       canvas.width = 500
@@ -245,15 +246,15 @@ const ViewAvatar = (props: Props) => {
       const img = document.getElementById('avatar')
       const imgConvas: any = renderer ? renderer.domElement : img
       newContext?.drawImage(imgConvas, -20, 20)
+      console.log(canvas)
+      console.log(imgConvas)
       if (selectedFile) {
         canvas.toBlob(async (blob) => {
           await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), selectedFile, data)
         })
-      }
-
-      if (selectedAvatarlUrl) {
+      } else {
         canvas.toBlob(async (blob) => {
-          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), selectedAvatarlUrl, data)
+          await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), url, data)
         })
       }
       // await AvatarService.updateAdminAvatar(avatarData.id, data)
@@ -357,7 +358,7 @@ const ViewAvatar = (props: Props) => {
                     name="avatarUrl"
                   />
                   <div id="stage" style={{ width: '500px', height: '250px' }}>
-                    <img src={state.url} alt="avatar" id="avatar" />
+                    <img src={state.url} alt="avatar" id="avatar" crossOrigin="anonymous" />
                   </div>
                 </>
               ) : (
