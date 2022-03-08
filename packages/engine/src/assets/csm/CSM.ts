@@ -1,18 +1,19 @@
 import {
+  Box3,
+  DirectionalLight,
+  Material,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  Object3D,
+  PerspectiveCamera,
+  ShaderChunk,
+  Shader as ShaderType,
   Vector2,
   Vector3,
-  DirectionalLight,
-  MathUtils,
-  ShaderChunk,
-  Matrix4,
-  Box3,
-  Object3D,
-  WebGLRenderTarget,
-  PerspectiveCamera,
-  Material,
-  Shader as ShaderType,
-  Mesh
+  WebGLRenderTarget
 } from 'three'
+
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -295,7 +296,12 @@ export class CSM {
     const breaksVec2 = []
     const shaders = this.shaders
 
-    function CSMonBeforeCompile(shader: ShaderType) {
+    const originalOnBeforeCompile = material.onBeforeCompile
+    function CSMonBeforeCompile(shader: ShaderType, renderer) {
+      if (!this.camera) {
+        if (originalOnBeforeCompile) originalOnBeforeCompile(shader, renderer)
+        return
+      }
       const far = Math.min(this.camera.far, this.maxFar)
       this.getExtendedBreaks(breaksVec2)
 
@@ -369,7 +375,7 @@ export class CSM {
   dispose(): void {
     const shaders = this.shaders
     shaders.forEach(function (shader: ShaderType, material: Material) {
-      material.onBeforeCompile = null!
+      material.onBeforeCompile = () => {}
       material.defines!.USE_CSM = null!
       material.defines!.CSM_CASCADES = null!
       material.defines!.CSM_FADE = null!

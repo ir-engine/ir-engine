@@ -1,20 +1,22 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { createWorld, World } from '../../../ecs/classes/World'
-import { hasComponent, addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ErrorComponent } from '../../components/ErrorComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import { SCENE_COMPONENT_AUDIO, deserializeAudio, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
+import { deserializeAudio, SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
 
 const testURLs = {
   noContentType: { url: 'noContentType' },

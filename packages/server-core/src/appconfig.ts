@@ -1,14 +1,48 @@
-import dotenv from 'dotenv-flow'
 import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
+import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
+
 import '@xrengine/engine/src/patchEngineNode'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
+// ensure process fails properly
+process.on('exit', async (code) => {
+  console.log('Server EXIT:', code)
+})
+
+process.on('SIGTERM', async (err) => {
+  console.log('Server SIGTERM')
+  console.log(err)
+  process.exit(1)
+})
+process.on('SIGINT', () => {
+  console.log('RECEIVED SIGINT')
+  process.exit(1)
+})
+
+//emitted when an uncaught JavaScript exception bubbles
+process.on('uncaughtException', (err) => {
+  console.log('UNCAUGHT EXCEPTION')
+  console.log(err)
+  process.exit(1)
+})
+
+//emitted whenever a Promise is rejected and no error handler is attached to it
+process.on('unhandledRejection', (reason, p) => {
+  console.log('UNHANDLED REJECTION')
+  console.log(reason)
+  console.log(p)
+  process.exit(1)
+})
+
 if (globalThis.process?.env.APP_ENV === 'development') {
+  // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
   var fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
     var fromEnvPath = appRootPath.path + '/.env.local.default'
@@ -257,6 +291,7 @@ const aws = {
   }
 }
 
+console.log('aws settings in appconfig', aws, aws.s3.endpoint)
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
   apiKey: process.env.CHARGEBEE_API_KEY!

@@ -15,7 +15,7 @@ export interface AdminBot {
 export interface BotCommands {
   id: string
   name: string
-  description: string
+  description?: string
   createdAt: string
   updatedAt: string
   botId: string
@@ -38,6 +38,7 @@ export interface Instance {
   ipAddress?: string
   channelId?: string
   currentUsers: number
+  podName: string
   ended: boolean
   createdAt: string
   updatedAt: string

@@ -1,20 +1,9 @@
 import { Theme } from '@mui/material/styles'
-
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
 export const useStyle = makeStyles((theme: Theme) =>
   createStyles({
-    paperDialog: {
-      background: 'rgb(58, 65, 73) !important',
-      color: '#f1f1f1'
-    },
-    spanDange: {
-      color: '#FF8C00'
-    },
-    spanNone: {
-      color: '#808080'
-    },
     spanWhite: {
       color: '#f1f1f1'
     },

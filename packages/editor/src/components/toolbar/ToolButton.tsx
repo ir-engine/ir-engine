@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+
 import { InfoTooltip } from '../layout/Tooltip'
 
 /**
@@ -53,8 +54,8 @@ interface ToolButtonProp {
  */
 export function ToolButton({ id, icon, onClick, isSelected, tooltip }: ToolButtonProp) {
   return (
-    <InfoTooltip id={id} info={tooltip} position="bottom">
-      <StyledToolButton isSelected={isSelected} onClick={onClick}>
+    <InfoTooltip title={tooltip!} placement="bottom">
+      <StyledToolButton isSelected={isSelected} onClick={onClick} id={id}>
         <Icon as={icon} />
       </StyledToolButton>
     </InfoTooltip>

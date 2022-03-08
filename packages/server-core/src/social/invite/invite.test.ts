@@ -1,12 +1,20 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
-import app from '../../../../server/src/app'
+
+import { createApp } from '../../../../server/src/app'
+import { Application } from '../../../declarations'
+import { InviteDataType } from './invite.class'
 
 let invites: any = []
 let user: any = null
 
 describe('invite service', () => {
+  let app: Application
+
   before(async () => {
+    app = createApp()
+    await app.setup()
+
     await app.service('invite').hooks({
       before: {
         find: []
@@ -47,14 +55,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -70,14 +77,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -93,14 +99,13 @@ describe('invite service', () => {
     const token = `${v1()}@xrengine.io`
     const identityProviderType = 'email'
 
-    const item = await app.service('invite').create({
+    const item = (await app.service('invite').create({
       inviteType,
       token,
       targetObjectId: user.userId,
-      inviteCode: null,
       identityProviderType,
-      inviteeId: null
-    })
+      inviteeId: null!
+    })) as InviteDataType
     invites.push(item)
 
     assert.equal(item.inviteType, inviteType)
@@ -134,9 +139,9 @@ describe('invite service', () => {
   // })
 
   it('should remove invites', async () => {
-    invites.forEach(async (invite) => {
+    for (const invite of invites) {
       const item = await app.service('invite').remove(invite.id, {})
       assert.ok(item, 'invite item is removed')
-    })
+    }
   })
 })

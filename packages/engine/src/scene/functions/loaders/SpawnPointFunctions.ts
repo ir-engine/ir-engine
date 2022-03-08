@@ -1,4 +1,5 @@
-import { Object3D, BoxHelper, Mesh, BoxBufferGeometry } from 'three'
+import { BoxBufferGeometry, BoxHelper, Mesh, Object3D } from 'three'
+
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
@@ -24,8 +25,13 @@ const GLTF_PATH = '/static/editor/spawn-point.glb' // Static
 export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity: Entity) => {
   addComponent(entity, SpawnPointComponent, {})
 
-  const obj3d = new Object3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
+  let obj3d: Object3D = null!
+  if (hasComponent(entity, Object3DComponent)) {
+    obj3d = getComponent(entity, Object3DComponent).value
+  } else {
+    obj3d = new Object3D()
+    addComponent(entity, Object3DComponent, { value: obj3d })
+  }
 
   if (Engine.isEditor) {
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)

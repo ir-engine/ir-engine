@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
@@ -84,7 +85,8 @@ const InstanceTable = (props: Props) => {
     ipAddress: string,
     currentUsers: Number,
     locationId: any,
-    channelId: string
+    channelId: string,
+    podName: string
   ): InstanceData => {
     return {
       id,
@@ -92,6 +94,7 @@ const InstanceTable = (props: Props) => {
       currentUsers,
       locationId: locationId?.name || '',
       channelId,
+      podName,
       action: (
         <a
           href="#h"
@@ -109,7 +112,7 @@ const InstanceTable = (props: Props) => {
   }
 
   const rows = adminInstances.instances.value.map((el: any) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '')
+    createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '', el.podName)
   )
 
   return (

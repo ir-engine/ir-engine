@@ -1,8 +1,10 @@
-import React from 'react'
 import { createState } from '@speigg/hookstate'
-import { useUserState } from '../../user/services/UserService'
+import React from 'react'
+
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+
+import { useUserState } from '../../user/services/UserService'
 
 const styles = {
   avatarName: {

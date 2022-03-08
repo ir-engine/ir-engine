@@ -1,4 +1,5 @@
 import { Color, DirectionalLight } from 'three'
+
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -79,6 +80,10 @@ export default async function EntityNodeEventSystem(_: World) {
 
     for (const _ of postProcessingQuery.exit()) {
       configureEffectComposer(true)
+    }
+
+    for (const _ of postProcessingQuery.enter()) {
+      configureEffectComposer()
     }
 
     for (const _ of scenePreviewCameraQuery.exit()) {

@@ -1,10 +1,13 @@
 import React, { useCallback, useState } from 'react'
-import * as styles from '../styles.module.scss'
-import SquareFootIcon from '@mui/icons-material/SquareFoot'
-import SelectAllIcon from '@mui/icons-material/SelectAll'
+
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+
+import SelectAllIcon from '@mui/icons-material/SelectAll'
+import SquareFootIcon from '@mui/icons-material/SquareFoot'
+
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
   const [, updateState] = useState<any>()
@@ -22,7 +25,7 @@ export const HelperToggleTool = () => {
   return (
     <>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Physics Helpers">
+        <InfoTooltip title="Toggle Physics Helpers">
           <button
             onClick={togglePhysicsDebug}
             className={
@@ -36,7 +39,7 @@ export const HelperToggleTool = () => {
         </InfoTooltip>
       </div>
       <div id="transform-grid" className={styles.toolbarInputGroup + ' ' + styles.playButtonContainer}>
-        <InfoTooltip info="Toggle Node Helpers">
+        <InfoTooltip title="Toggle Node Helpers">
           <button
             onClick={toggleNodeHelpers}
             className={

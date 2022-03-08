@@ -1,4 +1,5 @@
 import { MathUtils } from 'three'
+
 import { World } from '../../ecs/classes/World'
 
 type TransitionType = 'IN' | 'OUT' | 'NONE'
@@ -17,7 +18,7 @@ export const createTransitionState = (transitionPeriodSeconds: number) => {
       alpha += world.delta / transitionPeriodSeconds
       alpha = MathUtils.clamp(alpha, 0, 1)
       callback(currentState === 'IN' ? alpha : 1 - alpha)
-      if (alpha > 1) setState('NONE')
+      if (alpha >= 1) setState('NONE')
     }
   }
 

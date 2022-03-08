@@ -1,7 +1,9 @@
+import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
+
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { Vector3, Matrix3, Box3, Sphere, Spherical } from 'three'
+
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
 const ZOOM_SPEED = 0.1
@@ -24,10 +26,8 @@ export default async function GizmoSystem(world: World) {
 
     for (const entity of cameraQuery()) {
       const cameraComponent = getComponent(entity, EditorCameraComponent)
-
-      if (!cameraComponent.dirty) return
-
       const camera = getComponent(entity, Object3DComponent)?.value
+
       if (cameraComponent.zoomDelta) {
         const distance = camera.position.distanceTo(cameraComponent.center!)
         delta.set(0, 0, cameraComponent.zoomDelta * distance * ZOOM_SPEED)
@@ -79,7 +79,7 @@ export default async function GizmoSystem(world: World) {
         const distance = camera.position.distanceTo(cameraComponent.center)
         delta
           .set(cameraComponent.cursorDeltaX, -cameraComponent.cursorDeltaY, 0)
-          .multiplyScalar(distance * PAN_SPEED)
+          .multiplyScalar(Math.max(distance, 1) * PAN_SPEED)
           .applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         camera.position.add(delta)
         cameraComponent.center.add(delta)
@@ -100,8 +100,6 @@ export default async function GizmoSystem(world: World) {
 
         cameraComponent.isOrbiting = false
       }
-
-      cameraComponent.dirty = false
     }
   }
 }

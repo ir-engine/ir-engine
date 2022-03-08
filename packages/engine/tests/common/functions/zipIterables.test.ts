@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import zipIterators from '../../../src/common/functions/zipIterators'
 
 describe('zipIterators', () => {

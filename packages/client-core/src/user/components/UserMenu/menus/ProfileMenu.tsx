@@ -1,5 +1,14 @@
+import * as polyfill from 'credential-handler-polyfill'
+import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -7,13 +16,7 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
-import React, { useEffect, useState } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
@@ -27,7 +30,7 @@ import { getAvatarURLForUser, Views } from '../util'
 interface Props {
   changeActiveMenu?: any
   setProfileMenuOpen?: any
-
+  className?: string
   hideLogin?: any
 }
 
@@ -262,7 +265,7 @@ const ProfileMenu = (props: Props): any => {
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel}>
+    <div className={styles.menuPanel + (props.className ? ' ' + props.className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>

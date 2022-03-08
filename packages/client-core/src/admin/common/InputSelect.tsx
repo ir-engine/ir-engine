@@ -1,8 +1,10 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
+
 import FormControl from '@mui/material/FormControl'
-import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
+
 import { useStyles } from '../styles/ui'
 
 interface Props {

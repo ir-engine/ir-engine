@@ -1,9 +1,11 @@
 import assert from 'assert'
 import Sinon from 'sinon'
-// import rewire from 'rewire'
-import { AssetLoader } from './AssetLoader'
+import { Mesh } from 'three'
+
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
+// import rewire from 'rewire'
+import { AssetLoader } from './AssetLoader'
 
 /**
  * tests
@@ -11,10 +13,7 @@ import { AssetType } from '../enum/AssetType'
 describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
-      const asset = {
-        traverse: Sinon.spy(),
-        children: []
-      }
+      const asset = new Mesh()
       const params = {
         url: '',
         castShadow: true,

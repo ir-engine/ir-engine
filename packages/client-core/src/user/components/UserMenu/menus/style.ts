@@ -5,7 +5,7 @@ import makeStyles from '@mui/styles/makeStyles'
 export const useStyle = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
-      background: 'rgb(0 0 0 / 26%)',
+      background: '#666666',
       display: 'flex',
       alignItems: 'center',
       width: 400
@@ -40,7 +40,7 @@ export const useStyle = makeStyles((theme: Theme) =>
       color: '#f1f1f1'
     },
     paper2: {
-      background: 'rgb(0 0 0 / 26%)',
+      background: '#666666',
       display: 'flex',
       alignItems: 'center',
       width: '100%',

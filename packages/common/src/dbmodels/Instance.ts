@@ -4,6 +4,7 @@ export interface InstanceInterface {
   channelId: string
   currentUsers: number
   ended: boolean
+  podName: string
   assigned: boolean
   assignedAt: Date
 }

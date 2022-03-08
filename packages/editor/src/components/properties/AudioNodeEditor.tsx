@@ -1,20 +1,23 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import AudioInput from '../inputs/AudioInput'
-import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-import AudioSourceProperties from './AudioSourceProperties'
-import { EditorComponentType, updateProperty } from './Util'
 import { useTranslation } from 'react-i18next'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { PropertiesPanelButton } from '../inputs/Button'
-import MediaSourceProperties from './MediaSourceProperties'
-import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+
+import AudioInput from '../inputs/AudioInput'
+import { PropertiesPanelButton } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import AudioSourceProperties from './AudioSourceProperties'
+import MediaSourceProperties from './MediaSourceProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.

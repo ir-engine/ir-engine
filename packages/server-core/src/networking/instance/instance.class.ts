@@ -1,14 +1,19 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
+
+import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+
+import { Application } from '../../../declarations'
+
+export type InstanceDataType = InstanceInterface
 
 /**
  * A class for Intance service
  *
  * @author Vyacheslav Solovjov
  */
-export class Instance extends Service {
+export class Instance<T = InstanceDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -21,7 +26,7 @@ export class Instance extends Service {
    * @param params of query with an acton or user role
    * @returns user object
    */
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const action = params?.query?.action
     const search = params?.query?.search
     const skip = params?.query?.$skip ? params.query.$skip : 0

@@ -1,5 +1,6 @@
-import { createTheme } from '@mui/material/styles'
 import { useTheme as styledUseTheme } from 'styled-components'
+
+import { createTheme } from '@mui/material/styles'
 
 const theme = createTheme({
   lato: "'Lato', sans-serif",

@@ -1,5 +1,6 @@
-import { loadPhysX } from './loadPhysX'
 import assert from 'assert'
+
+import { loadPhysX } from './loadPhysX'
 
 describe('loadPhysX', () => {
   after(() => {

@@ -1,17 +1,12 @@
 # syntax = docker/dockerfile:1.2
 # not slim because we need github depedencies
-FROM node:16-buster-slim as builder
+FROM root-builder as builder
 
-RUN apt update
 # Create app directory
 WORKDIR /app
 
-RUN apt-get -y install python3-pip  git
-
-COPY package.json .
 COPY packages/bot/package.json ./packages/bot/
-COPY packages/engine/package.json ./packages/engine/
-COPY packages/server-core/package.json ./packages/server-core/
+
 RUN npm install --production=false --loglevel notice --legacy-peer-deps
 RUN npm run install-test-e2e
 # copy then compile the code

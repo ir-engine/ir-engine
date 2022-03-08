@@ -1,18 +1,21 @@
-import ClickAwayListener from '@mui/material/ClickAwayListener'
+import React, { useEffect, useState } from 'react'
+
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
-import React, { useState, useEffect } from 'react'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+
+import EmoteMenu from './menus//EmoteMenu'
 import AvatarMenu from './menus/AvatarMenu'
-import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
+import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import styles from './UserMenu.module.scss'
 import { Views } from './util'
-import EmoteMenu from './menus//EmoteMenu'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 export interface UserMenuProps {
   enableSharing?: boolean

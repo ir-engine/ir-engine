@@ -1,6 +1,9 @@
 import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
+
+import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+
 import { Application } from '../../../declarations'
-import { uploadAvatarStaticResource, getAvatarFromStaticResources, AvatarUploadArguments } from './avatar-helper'
+import { AvatarUploadArguments, getAvatarFromStaticResources, uploadAvatarStaticResource } from './avatar-helper'
 
 export class Avatar implements ServiceMethods<any> {
   app: Application
@@ -16,7 +19,7 @@ export class Avatar implements ServiceMethods<any> {
     return (await getAvatarFromStaticResources(this.app, name))[0]
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<AvatarProps[]> {
     return await getAvatarFromStaticResources(this.app)
   }
 

@@ -1,10 +1,12 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import Typography from '@mui/material/Typography'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+
 import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 

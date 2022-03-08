@@ -1,30 +1,30 @@
+import React, { useEffect } from 'react'
+
 import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
-import {
-  MediaInstanceConnectionService,
-  useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import {
   LocationInstanceConnectionAction,
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  useMediaInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import React, { useEffect } from 'react'
-import { retriveLocationByName } from './LocationLoadHelper'
-import GameServerWarnings from './GameServerWarnings'
-import { usePartyState } from '../../social/services/PartyService'
+
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
+import GameServerWarnings from './GameServerWarnings'
+import { retriveLocationByName } from './LocationLoadHelper'
 
 interface Props {
   locationName: string
@@ -45,6 +45,9 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   // 1. Ensure api server connection in and set up reset listener
   useEffect(() => {
     AuthService.doLoginAuto(true)
+
+    // start listening for users joining or leaving the location
+    AuthService.listenForUserPatch()
   }, [])
 
   useEffect(() => {
@@ -72,9 +75,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
           const parsed = new URL(window.location.href).searchParams.get('instanceId')
           instanceId = parsed
         }
-
-        // start listening for users joining or leaving the location
-        AuthService.listenForUserPatch()
 
         LocationInstanceConnectionService.provisionServer(
           currentLocation.id.value,

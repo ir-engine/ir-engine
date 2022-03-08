@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import TransformPropertyGroup from './TransformPropertyGroup'
-import NameInputGroup from './NameInputGroup'
-import InputGroup from '../inputs/InputGroup'
-import BooleanInput from '../inputs/BooleanInput'
 import { useTranslation } from 'react-i18next'
-import EditorEvents from '../../constants/EditorEvents'
-import { CommandManager } from '../../managers/CommandManager'
-import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
+import styled from 'styled-components'
+
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
-import EditorCommands from '../../constants/EditorCommands'
-import { TagComponentOperation } from '../../commands/TagComponentCommand'
+import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+
+import { TagComponentOperation } from '../../commands/TagComponentCommand'
+import EditorCommands from '../../constants/EditorCommands'
+import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
+import { CommandManager } from '../../managers/CommandManager'
+import { useSelectionState } from '../../services/SelectionServices'
+import BooleanInput from '../inputs/BooleanInput'
+import InputGroup from '../inputs/InputGroup'
+import NameInputGroup from './NameInputGroup'
+import TransformPropertyGroup from './TransformPropertyGroup'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -33,7 +35,6 @@ const StyledNodeEditor = (styled as any).div`
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${(props) => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
 `
@@ -103,6 +104,7 @@ const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
  */
 export const PropertiesPanelContainer = () => {
   //setting the props and state
+  const selectionState = useSelectionState()
   const [selected, setSelected] = useState(CommandManager.instance.selected)
   const { t } = useTranslation()
 
@@ -122,14 +124,12 @@ export const PropertiesPanelContainer = () => {
   }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
+    onSelectionChanged()
+  }, [selectionState.selectionChanged.value])
 
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), onSelectionChanged)
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectsChanged)
-    }
-  }, [])
+  useEffect(() => {
+    onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
+  }, [selectionState.objectChanged.value])
 
   const onChangeVisible = (value) => {
     CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {

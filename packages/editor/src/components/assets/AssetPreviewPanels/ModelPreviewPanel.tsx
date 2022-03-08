@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import styled from 'styled-components'
-import { SceneManager } from '../../../managers/SceneManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import { ProjectManager } from '../../../managers/ProjectManager'
-import { CommandManager } from '../../../managers/CommandManager'
+import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { FlyControlComponent } from '../../../classes/FlyControlComponent'
+import { ProjectManager } from '../../../managers/ProjectManager'
+import { SceneManager } from '../../../managers/SceneManager'
+import { EditorAction, useEditorState } from '../../../services/EditorServices'
+import { useModeState } from '../../../services/ModeServices'
 
 /**
  * @author Abhishek Pathak
@@ -29,12 +32,17 @@ const ModelPreview = (styled as any).canvas`
  */
 
 export const ModelPreviewPanel = (props) => {
+  const modeState = useModeState()
+  const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
+  const initializeRefFly = React.useRef<boolean>(false)
   const assestPanelRef = React.createRef<HTMLCanvasElement>()
 
   const scene = new Scene()
   const camera = new PerspectiveCamera(75)
   // const editor = new Editor(null, { camera, scene })
+
+  const editorState = useEditorState()
 
   const [flyModeEnabled, setFlyModeEnabled] = useState(false)
 
@@ -73,18 +81,19 @@ export const ModelPreviewPanel = (props) => {
     setFlyModeEnabled(flyControlComponent.enable)
   }, [setFlyModeEnabled])
 
-  const onEditorInitialized = useCallback(() => {
-    CommandManager.instance.addListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
-    CommandManager.instance.removeListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
-  }, [onFlyModeChanged])
+  useEffect(() => {
+    if (initializeRefFly.current && editorState.rendererInitialized.value) {
+      onFlyModeChanged()
+    } else {
+      initializeRefFly.current = true
+    }
+  }, [modeState.flyModeChanged.value])
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDERER_INITIALIZED.toString(), onEditorInitialized)
     SceneManager.instance.initializeRenderer()
     renderScene()
 
     return () => {
-      CommandManager.instance.removeListener(EditorEvents.FLY_MODE_CHANGED.toString(), onFlyModeChanged)
       ProjectManager.instance.dispose()
     }
   }, [])

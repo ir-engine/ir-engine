@@ -1,6 +1,8 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { GroupUserRankInterface } from '@xrengine/common/src/dbmodels/GroupUserRank'
+
+import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')

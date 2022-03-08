@@ -1,11 +1,17 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
-import app from '../../../../server/src/app'
+
+import { createApp } from '../../../../server/src/app'
+import { Application } from '../../../declarations'
 
 let providers: any = []
 
 describe('identity-provider service', () => {
-  before(async () => {})
+  let app: Application
+  before(async () => {
+    app = createApp()
+    await app.setup()
+  })
 
   it('registered the service', async () => {
     const service = await app.service('identity-provider')
@@ -69,7 +75,7 @@ describe('identity-provider service', () => {
   })
 
   it('should find identity providers', async () => {
-    providers.forEach(async (provider) => {
+    for (const provider of providers) {
       const item = await app.service('identity-provider').find({
         query: {
           userId: provider.userId
@@ -77,17 +83,17 @@ describe('identity-provider service', () => {
       })
 
       assert.ok(item, 'Identity provider item is found')
-    })
+    }
   })
 
   it('should remove identity providers', async () => {
-    providers.forEach(async (provider) => {
+    for (const provider of providers) {
       const item = await app.service('identity-provider').remove(null, {
         query: {
           userId: provider.userId
         }
       })
       assert.ok(item, 'Identity provider item is removed')
-    })
+    }
   })
 })

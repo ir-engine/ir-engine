@@ -1,7 +1,9 @@
 import React from 'react'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
+
 import SearchIcon from '@mui/icons-material/Search'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+
 import { useStyles } from './styles'
 
 interface Props {

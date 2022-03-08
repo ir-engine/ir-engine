@@ -1,8 +1,8 @@
-import dauria from 'dauria'
 import { Hook, HookContext } from '@feathersjs/feathers'
-import * as path from 'path'
+import dauria from 'dauria'
 import _ from 'lodash'
 import { extension } from 'mime-types'
+import * as path from 'path'
 
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {

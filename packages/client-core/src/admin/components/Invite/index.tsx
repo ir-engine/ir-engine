@@ -1,3 +1,6 @@
+import { ConfirmProvider } from 'material-ui-confirm'
+import React, { useEffect } from 'react'
+
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -6,8 +9,7 @@ import { Theme } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import makeStyles from '@mui/styles/makeStyles'
-import { ConfirmProvider } from 'material-ui-confirm'
-import React, { useEffect } from 'react'
+
 import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'

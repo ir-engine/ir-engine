@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
@@ -11,9 +15,8 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import React, { useEffect, useState } from 'react'
-import { ProjectService, PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
+
+import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
@@ -140,7 +143,12 @@ const Projects = () => {
     try {
       if (project) {
         const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
-        await ProjectService.removeProject(projectToRemove.id!)
+        if (projectToRemove) {
+          await ProjectService.removeProject(projectToRemove.id)
+          handleCloseRemoveModel()
+        } else {
+          throw Error('Failed to find the project')
+        }
       }
     } catch (err) {
       console.log(err)

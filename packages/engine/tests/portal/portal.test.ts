@@ -1,14 +1,15 @@
+import appRootPath from 'app-root-path'
 import assert from 'assert'
-import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
+import dotenv from 'dotenv-flow'
+
 import sceneJson from '@xrengine/projects/default-project/default.scene.json'
-import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
-import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { Engine } from '../../src/ecs/classes/Engine'
-import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
 import { parseSceneDataCacheURLs } from '@xrengine/server-core/src/projects/scene/scene-parser'
 
-import appRootPath from 'app-root-path'
-import dotenv from 'dotenv-flow'
+import { Engine } from '../../src/ecs/classes/Engine'
+import { EngineEvents } from '../../src/ecs/classes/EngineEvents'
+import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
+import { useWorld } from '../../src/ecs/functions/SystemHooks'
+import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
 
 dotenv.config({
   path: appRootPath.path,
