@@ -145,29 +145,26 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
-              {showMediaIcons ? (
+              {showMediaIcons && (
                 <button
                   type="button"
-                  className={`${styles.btn} ${styles.showIconMedia}`}
+                  className={`${styles.btn} ${styles.showIconMedia} ${styles.animateTop}`}
                   onClick={handleShowMediaIcons}
                 >
                   <KeyboardDoubleArrowUpIcon />
                 </button>
-              ) : (
+              )}{' '}
+              {!showMediaIcons && (
                 <button
                   type="button"
-                  className={`${styles.smBtn} ${styles.showIconMedia}`}
+                  className={`${styles.smBtn} ${styles.showIconMedia} ${styles.animateTop}`}
                   onClick={handleShowMediaIcons}
                 >
                   <KeyboardDoubleArrowDownIcon />
                 </button>
               )}
               {children}
-              {showMediaIcons && (
-                <div className={showMediaIcons ? styles.animateTop : ''}>
-                  <MediaIconsBox />
-                </div>
-              )}
+              {showMediaIcons && <MediaIconsBox animate={styles.animateTop} />}
               {showMediaIcons && (
                 <header className={showMediaIcons ? styles.animateTop : styles.animateBottom}>
                   {path === '/login' && <NavMenu login={login} />}
@@ -182,12 +179,21 @@ const Layout = (props: Props): any => {
                   )}
                 </header>
               )}
-              {showBottomIcons ? (
-                <button type="button" className={`${styles.btn} ${styles.showIcon}`} onClick={handleShowBottomIcons}>
+              {showBottomIcons && (
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.showIcon} ${styles.animateBottom}`}
+                  onClick={handleShowBottomIcons}
+                >
                   <KeyboardDoubleArrowDownIcon />
                 </button>
-              ) : (
-                <button type="button" className={`${styles.smBtn} ${styles.showIcon}`} onClick={handleShowBottomIcons}>
+              )}{' '}
+              {!showBottomIcons && (
+                <button
+                  type="button"
+                  className={`${styles.smBtn} ${styles.showIcon} ${styles.animateBottom} ${styles.animateBottom}`}
+                  onClick={handleShowBottomIcons}
+                >
                   <KeyboardDoubleArrowUpIcon />
                 </button>
               )}
@@ -235,7 +241,6 @@ const Layout = (props: Props): any => {
                   <Refresh />
                 </button>
               )}
-
               <InstanceChat animate={styles.animateBottom} />
             </section>
           </ThemeProvider>

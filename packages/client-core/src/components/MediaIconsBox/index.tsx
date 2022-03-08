@@ -36,7 +36,10 @@ import FaceIcon from '@mui/icons-material/Face'
 
 import styles from './MediaIconsBox.module.scss'
 
-const MediaIconsBox = (props) => {
+interface Props {
+  animate?: any
+}
+const MediaIconsBox = (props: Props) => {
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -141,7 +144,7 @@ const MediaIconsBox = (props) => {
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
   return (
-    <section className={styles.drawerBox}>
+    <section className={`${styles.drawerBox} ${props.animate}`}>
       {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.connected.value === true ? (
         <button
           type="button"
