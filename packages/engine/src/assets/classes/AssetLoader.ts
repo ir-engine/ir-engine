@@ -155,6 +155,18 @@ const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+/**
+ * Returns true if the given file type is supported
+ * Note: images are not supported on node
+ * @param assetFileName
+ * @returns
+ */
+const isSupported = (assetFileName: string) => {
+  const assetClass = getAssetClass(assetFileName)
+  if (isClient) return !!assetClass
+  return assetClass === AssetClass.Model
+}
+
 //@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
@@ -253,6 +265,7 @@ export const AssetLoader = {
   getAbsolutePath,
   getAssetType,
   getAssetClass,
+  isSupported,
   getLoader,
   assetLoadCallback,
   load,

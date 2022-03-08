@@ -29,16 +29,21 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
   loadSceneEntity(new EntityTreeNode(entity), { name: prefabType, components })
 }
 
-const pathRegex = /\/[\s\S]+\.\S+/
-
 export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
   const promises: any[] = []
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
       promises.push(...preCacheAssets(val, onProgress))
     } else if (typeof val === 'string') {
-      if (val.match(pathRegex)) {
-        promises.push(AssetLoader.loadAsync(val, onProgress))
+      if (AssetLoader.isSupported(val)) {
+        try {
+          // construct a URL object ensures the url is valid
+          new URL(AssetLoader.getAbsolutePath(val))
+          const promise = AssetLoader.loadAsync(val, onProgress)
+          promises.push(promise)
+        } catch (e) {
+          console.log(e)
+        }
       }
     }
   }

@@ -6,7 +6,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -86,6 +86,7 @@ export default async function SceneObjectSystem(world: World) {
     }
 
     for (const entity of sceneObjectQuery.enter()) {
+      if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 

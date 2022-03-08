@@ -40,7 +40,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
 export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
   const component = getComponent(entity, ModelComponent)
-
   if (properties.src) {
     try {
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
