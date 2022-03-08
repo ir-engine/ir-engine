@@ -9,6 +9,7 @@ module.exports = {
   extension: [
     'ts'
   ],
+  bail: true,
   exit: true,
   recursive: true,
   jobs: '1',
