@@ -2,6 +2,7 @@
 import { Blob } from 'buffer'
 // needed for URL.createObjectURL
 import 'url-polyfill'
+
 ;(globalThis as any).Blob = Blob
 
 // patch navigator
