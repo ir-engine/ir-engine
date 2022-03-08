@@ -9,6 +9,12 @@ import { useStyles } from './styles'
 
 interface Props {}
 
+interface ProjectSetting {
+  keyName: string
+  value: any
+  scopes: any
+}
+
 const Project = (props: Props) => {
   const classes = useStyles()
   const authState = useAuthState()
@@ -16,7 +22,7 @@ const Project = (props: Props) => {
   const projectState = useProjectState()
   const projects = projectState.projects
 
-  const [settings, setSettings] = useState([])
+  const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : null)
 
   useEffect(() => {
