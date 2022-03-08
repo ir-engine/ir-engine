@@ -5,12 +5,12 @@ import fetch from 'node-fetch'
 import path from 'path'
 import { v4 as uuid } from 'uuid'
 
+import config from '../../src/appconfig'
 import LocalStorage from '../../src/media/storageprovider/local.storage'
 import S3Provider from '../../src/media/storageprovider/s3.storage'
 import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
 import { getContentType } from '../../src/util/fileUtils'
 import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
-import config from '../../src/appconfig'
 
 const https = require('https')
 
