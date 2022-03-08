@@ -67,7 +67,6 @@ export const initializeBrowser = () => {
   Engine.camera.layers.enable(ObjectLayers.Avatar)
   Engine.camera.layers.enable(ObjectLayers.UI)
   Engine.camera.add(Engine.audioListener)
-  Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
   const os = detectOS(navigator.userAgent)
@@ -152,10 +151,6 @@ export const initializeMediaServerSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
-    },
-    {
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
     }
   )
 
@@ -215,16 +210,16 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
         systemModulePromise: import('./renderer/WebGLRendererSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xr/systems/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./input/systems/ClientInputSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       }
     )
   }
@@ -295,6 +290,10 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
       },
       {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
+      },
+      {
         type: SystemUpdateType.FIXED,
         systemModulePromise: import('./bot/systems/BotHookSystem')
       },
@@ -309,10 +308,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -345,6 +340,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./renderer/HighlightSystem')
+      },
+      {
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
+        type: SystemUpdateType.PRE_RENDER
       }
     )
   }
@@ -352,8 +351,15 @@ export const initializeSceneSystems = async () => {
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeRealtimeSystems = async (pose = true) => {
+export const initializeRealtimeSystems = async (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
+
+  if (media) {
+    systemsToLoad.push({
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./networking/systems/MediaStreamSystem')
+    })
+  }
 
   if (pose) {
     systemsToLoad.push(
@@ -384,5 +390,5 @@ export const shutdownEngine = async () => {
   Engine.engineTimer?.clear()
   Engine.engineTimer = null!
 
-  await reset()
+  reset()
 }

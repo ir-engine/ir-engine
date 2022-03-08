@@ -13,6 +13,7 @@ export default class ErrorIcon extends Mesh {
     }
     errorTexturePromise = loadTexture('/static/editor/media-error.png').then((texture) => {
       if (!texture) return null
+      texture.format = RGBAFormat
       texture.magFilter = NearestFilter
       return texture
     })

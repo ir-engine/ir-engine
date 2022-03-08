@@ -149,6 +149,7 @@ export class Project extends Service {
 
     for (const { name, id } of data) {
       if (!locallyInstalledProjects.includes(name)) {
+        await deleteProjectFilesInStorageProvider(name)
         console.warn(`[Projects]: Project ${name} not found, assuming removed`)
         await super.remove(id)
       }
@@ -211,8 +212,8 @@ export class Project extends Service {
     const urlParts = data.url.split('/')
     let projectName = urlParts.pop()
     if (!projectName) throw new Error('Git repo must be plain URL')
-    if (projectName.substring(-4) === '.git') projectName = projectName.slice(0, -4)
-    if (projectName.substring(-1) === '/') projectName = projectName.slice(0, -1)
+    if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
+    if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
     const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
@@ -305,6 +306,10 @@ export class Project extends Service {
         // run project uninstall script
         if (projectConfig.onEvent) {
           await onProjectEvent(this.app, name, projectConfig.onEvent, 'onUninstall')
+        }
+
+        if (fs.existsSync(path.resolve(projectsRootFolder, name))) {
+          fs.rmSync(path.resolve(projectsRootFolder, name), { recursive: true })
         }
 
         console.log('[Projects]: removing project', id, name)

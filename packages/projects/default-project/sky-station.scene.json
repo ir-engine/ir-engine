@@ -62,7 +62,7 @@
             "envMapIntensity": 3.5,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 512,
+              "resolution": 1024,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -243,7 +243,7 @@
                 "edgeStrength": 1,
                 "pulseSpeed": 0,
                 "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 2230538,
+                "hiddenEdgeColor": 16777215,
                 "resolutionScale": 0.5,
                 "width": -1,
                 "height": -1,

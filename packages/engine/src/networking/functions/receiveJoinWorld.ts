@@ -21,12 +21,12 @@ export type JoinWorldProps = {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    dispatchLocal(EngineActions.connectToWorldTimeout(true))
     return
   }
   const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
-  dispatchLocal(EngineActions.joinedWorld(true) as any)
+  dispatchLocal(EngineActions.joinedWorld())
   const world = useWorld()
   world.fixedTick = tick
 

@@ -79,10 +79,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       systemModulePromise: import('../systems/GizmoSystem'),
       type: SystemUpdateType.PRE_RENDER,
       args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
-      type: SystemUpdateType.PRE_RENDER
     }
   ]
 
@@ -95,8 +91,8 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
 
   useEffect(() => {
     const { projectName, sceneName } = props.match.params
-    projectName && dispatch(EditorAction.projectLoaded(projectName))
-    sceneName && dispatch(EditorAction.sceneLoaded(sceneName))
+    dispatch(EditorAction.projectChanged(projectName ?? null))
+    dispatch(EditorAction.sceneChanged(sceneName ?? null))
   }, [props.match.params.projectName, props.match.params.sceneName])
 
   useEffect(() => {

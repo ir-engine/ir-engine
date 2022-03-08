@@ -150,6 +150,7 @@ export const createApp = (): Application => {
     if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect()
       agonesSDK.ready().catch((err) => {
+        console.log(err)
         throw new Error(
           '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
         )
@@ -188,32 +189,3 @@ export const createApp = (): Application => {
 
   return app
 }
-
-process.on('exit', async () => {
-  console.log('Server EXIT')
-})
-
-process.on('SIGTERM', async (err) => {
-  console.log('Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('RECEIVED SIGINT')
-  process.exit()
-})
-
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs

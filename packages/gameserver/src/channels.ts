@@ -1,7 +1,9 @@
+import { Paginated } from '@feathersjs/feathers/lib'
 import '@feathersjs/transport-commons'
 import { decode } from 'jsonwebtoken'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -71,7 +73,7 @@ const loadScene = async (app: Application, scene: string) => {
     createEngine()
     initializeNode()
     await initializeCoreSystems()
-    await initializeRealtimeSystems()
+    await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
     await initializeProjectSystems(projects, systems)
 
@@ -109,7 +111,7 @@ const loadScene = async (app: Application, scene: string) => {
 
   console.log('Scene loaded!')
   clearInterval(loadingInterval)
-  dispatchLocal(EngineActions.joinedWorld(true) as any)
+  dispatchLocal(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -133,7 +135,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   }
 
   console.log('Creating new instance:', newInstance)
-  const instanceResult = await app.service('instance').create(newInstance)
+  const instanceResult = (await app.service('instance').create(newInstance)) as InstanceInterface
   await app.agonesSDK.allocate()
   app.instance = instanceResult
 
@@ -148,7 +150,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: instanceResult.id
-      })
+      } as any)
     }
   }
 }
@@ -161,8 +163,9 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
     currentUsers: existingInstance.currentUsers + 1,
     channelId: channelId,
     locationId: locationId,
+    podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
     assigned: false,
-    assignedAt: null
+    assignedAt: null!
   })
 
   if (app.gsSubdomainNumber != null) {
@@ -176,7 +179,7 @@ const assignExistingInstance = async (app: Application, existingInstance, channe
       const provision = gsSubProvision.data[0]
       await app.service('gameserver-subdomain-provision').patch(provision.id, {
         instanceId: existingInstance.id
-      })
+      } as any)
     }
   }
 }
@@ -199,16 +202,17 @@ const handleInstance = async (
   } as any
   if (locationId) existingInstanceQuery.locationId = locationId
   else if (channelId) existingInstanceQuery.channelId = channelId
-  const existingInstanceResult = await app.service('instance').find({
+  const existingInstanceResult = (await app.service('instance').find({
     query: existingInstanceQuery
-  })
+  })) as Paginated<InstanceInterface>
   // console.log('existingInstanceResult', existingInstanceResult.data)
   if (existingInstanceResult.total === 0) {
     const newInstance = {
       currentUsers: 1,
       locationId: locationId,
       channelId: channelId,
-      ipAddress: ipAddress
+      ipAddress: ipAddress,
+      podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local'
     } as InstanceMetadata
     await createNewInstance(app, newInstance)
   } else {
@@ -229,6 +233,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.hostId = userId
     initializeNode()
     await initializeMediaServerSystems()
+    await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await initializeProjectSystems(projects, [])
 
@@ -238,8 +243,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
 
     Engine.sceneLoaded = true
-    dispatchLocal(EngineActions.sceneLoaded(true) as any)
-    dispatchLocal(EngineActions.joinedWorld(true) as any)
+    dispatchLocal(EngineActions.sceneLoaded())
+    dispatchLocal(EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)
@@ -390,7 +395,6 @@ const loadGameserver = async (
 
   const isReady = status.state === 'Ready'
   const isNeedingNewServer =
-    !engineStarted &&
     !config.kubernetes.enabled &&
     (status.state === 'Shutdown' ||
       app.instance == null ||
@@ -398,9 +402,11 @@ const loadGameserver = async (
       app.instance.channelId !== channelId)
 
   if (isReady || isNeedingNewServer) {
-    engineStarted = true
     await handleInstance(app, status, locationId, channelId, userId)
-    if (sceneId != null) await loadEngine(app, sceneId)
+    if (!engineStarted && sceneId != null) {
+      engineStarted = true
+      await loadEngine(app, sceneId)
+    }
   } else {
     try {
       const instance = await app.service('instance').get(app.instance.id)
@@ -409,7 +415,8 @@ const loadGameserver = async (
       await app.service('instance').patch(app.instance.id, {
         currentUsers: (instance.currentUsers as number) + 1,
         assigned: false,
-        assignedAt: null
+        podName: config.kubernetes.enabled ? app.gameServer?.objectMeta?.name : 'local',
+        assignedAt: null!
       })
       return true
     } catch (err) {
@@ -419,7 +426,6 @@ const loadGameserver = async (
 }
 
 const shutdownGameserver = async (app: Application, instanceId: string) => {
-  engineStarted = false
   console.log('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
@@ -438,6 +444,7 @@ const shutdownGameserver = async (app: Application, instanceId: string) => {
       allocated: false
     })
   }
+  app.instance.ended = true
   if (config.kubernetes.enabled) {
     delete app.instance
     const gsName = app.gameServer.objectMeta.name
@@ -507,9 +514,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   // count again here, as it may have changed
   const activeUsersCount = getActiveUsersCount(user)
-  if (activeUsersCount < 1) {
-    await shutdownGameserver(app, instanceId)
-  }
+  if (activeUsersCount < 1) await shutdownGameserver(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {

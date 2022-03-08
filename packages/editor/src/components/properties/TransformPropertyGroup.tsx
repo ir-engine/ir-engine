@@ -6,8 +6,8 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import EditorCommands from '../../constants/EditorCommands'
-import EditorEvents from '../../constants/EditorEvents'
 import { CommandManager } from '../../managers/CommandManager'
+import { useSelectionState } from '../../services/SelectionServices'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
@@ -22,6 +22,7 @@ const euler = new Euler()
  * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
+  const selectionState = useSelectionState()
   const [, updateState] = useState<any>()
   const { t } = useTranslation()
   const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
@@ -29,14 +30,13 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const forceUpdate = useCallback(() => updateState({}), [])
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
     euler.setFromQuaternion(transfromComponent.rotation)
     setState({ x: euler.x, y: euler.y, z: euler.z })
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), forceUpdate)
-    }
   }, [])
+
+  useEffect(() => {
+    forceUpdate()
+  }, [selectionState.objectChanged.value])
 
   //function to handle the position properties
   const onChangePosition = (value) => {

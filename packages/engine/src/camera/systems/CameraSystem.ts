@@ -6,6 +6,7 @@ import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
+import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -285,25 +286,27 @@ export default async function CameraSystem(world: World) {
       camRayCastCache.maxDistance = -1
     }
 
-    const [followCameraEntity] = followCameraQuery(world)
-    if (followCameraEntity !== undefined) {
-      updateFollowCamera(followCameraEntity, delta)
-      updateAvatarOpacity(followCameraEntity)
-    }
+    if (accessEngineState().sceneLoaded.value) {
+      const [followCameraEntity] = followCameraQuery(world)
+      if (followCameraEntity !== undefined) {
+        updateFollowCamera(followCameraEntity, delta)
+        updateAvatarOpacity(followCameraEntity)
+      }
 
-    for (const entity of targetCameraRotationQuery(world)) {
-      updateCameraTargetRotation(entity, delta)
-    }
+      for (const entity of targetCameraRotationQuery(world)) {
+        updateCameraTargetRotation(entity, delta)
+      }
 
-    if (Engine.xrManager?.isPresenting) {
-      // Current WebXRManager.updateCamera() typedef is incorrect
-      ;(Engine.xrManager as any).updateCamera(Engine.camera)
-    } else if (followCameraEntity !== undefined) {
-      const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
-      Engine.camera.position.copy(transform.position)
-      Engine.camera.quaternion.copy(transform.rotation)
-      Engine.camera.scale.copy(transform.scale)
-      Engine.camera.updateMatrixWorld()
+      if (Engine.xrManager?.isPresenting) {
+        // Current WebXRManager.updateCamera() typedef is incorrect
+        ;(Engine.xrManager as any).updateCamera(Engine.camera)
+      } else if (followCameraEntity !== undefined) {
+        const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
+        Engine.camera.position.copy(transform.position)
+        Engine.camera.quaternion.copy(transform.rotation)
+        Engine.camera.scale.copy(transform.scale)
+        Engine.camera.updateMatrixWorld()
+      }
     }
   }
 }

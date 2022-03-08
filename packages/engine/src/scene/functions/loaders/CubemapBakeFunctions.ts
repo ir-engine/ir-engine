@@ -48,7 +48,7 @@ export const SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES = {
     bakePositionOffset: { x: 0, y: 0, z: 0 },
     bakeScale: { x: 1, y: 1, z: 1 },
     bakeType: CubemapBakeTypes.Baked,
-    resolution: 512,
+    resolution: 1024,
     refreshMode: CubemapBakeRefreshTypes.OnAwake,
     envMapOrigin: '',
     boxProjection: true

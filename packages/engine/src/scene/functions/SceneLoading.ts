@@ -5,6 +5,7 @@ import { accessEngineState, EngineActions } from '../../ecs/classes/EngineServic
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
@@ -32,9 +33,12 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  Engine.sceneLoaded = false
+
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-  dispatchLocal(EngineActions.sceneLoading(true) as any)
+
+  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -69,7 +73,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
-  dispatchLocal(EngineActions.sceneLoaded(true) as any).delay(2)
+  dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
 /**

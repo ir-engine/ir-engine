@@ -5,7 +5,8 @@ import path from 'path'
 
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
-import app from '../../server/src/app'
+import { createApp } from '../../server/src/app'
+import { Application } from '../declarations'
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
@@ -22,6 +23,11 @@ const newestSceneName = 'test_scene_rename'
 const params = { isInternal: true }
 
 describe('scene.test', () => {
+  let app: Application
+  before(() => {
+    app = createApp()
+  })
+
   // wait for initial project loading to occur in CI/CD
   before(async () => {
     await new Promise((resolve) => setTimeout(resolve, 3000))

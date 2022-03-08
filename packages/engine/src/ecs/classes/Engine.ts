@@ -37,7 +37,6 @@ export class Engine {
 
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
-  public static xrSupported = false
   public static isBot = 'window' in globalThis ? isBot(window) : false
 
   public static isHMD = false

@@ -37,21 +37,6 @@ const InteractableOption = [
   }
 ]
 
-const InteractableTheme = [
-  {
-    label: 'Theme 01',
-    value: 0
-  },
-  {
-    label: 'Theme 02',
-    value: 1
-  },
-  {
-    label: 'Theme 03',
-    value: 2
-  }
-]
-
 export const InteractableGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -80,19 +65,12 @@ export const InteractableGroup: EditorComponentType = (props) => {
   //   })
   // }
 
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+  const interactableComponent = getComponent(props.node.entity, InteractableComponent)?.value
   if (!interactableComponent) return null!
 
-  const renderInfoBoxOptions = () => {
+  const renderInteractableModalOptions = () => {
     return (
       <>
-        <InputGroup name="Interaction Theme" label={t('editor:properties.interaction.theme')}>
-          <SelectInput
-            options={InteractableTheme}
-            value={interactableComponent.interactionThemeIndex}
-            onChange={updateProperty(InteractableComponent, 'interactionThemeIndex')}
-          />
-        </InputGroup>
         <InputGroup name="Interaction Name" label={t('editor:properties.interaction.name')}>
           <StringInput
             value={interactableComponent.interactionName}
@@ -154,21 +132,21 @@ export const InteractableGroup: EditorComponentType = (props) => {
       <InputGroup name="Interaction Type" label={t('editor:properties.interaction.type')}>
         <SelectInput
           options={InteractableOption}
-          value={interactableComponent.interactionType}
+          value={interactableComponent.interactionType || ''}
           onChange={onChangeInteractionType}
         />
       </InputGroup>
       <NumericInputGroup
         name="Interaction Distance"
         label={t('editor:properties.interaction.distance')}
-        onChange={updateProperty(InteractableComponent, 'intensity')}
+        onChange={updateProperty(InteractableComponent, 'interactionDistance')}
         min={0}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={interactableComponent.intensity || 0}
+        value={interactableComponent.interactionDistance || 0}
       />
-      {interactableComponent.interactionType === 'infoBox' ? renderInfoBoxOptions() : null}
+      {interactableComponent.interactionType === 'ui-modal' ? renderInteractableModalOptions() : null}
     </Fragment>
   )
 }

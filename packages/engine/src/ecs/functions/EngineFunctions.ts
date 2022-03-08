@@ -3,20 +3,20 @@ import { Color, Object3D } from 'three'
 
 import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
+import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { Engine } from '../classes/Engine'
+import { EngineActions } from '../classes/EngineService'
 import { Entity } from '../classes/Entity'
 import { EntityTreeNode } from '../classes/EntityTree'
 import { World } from '../classes/World'
 import { hasComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { unloadSystems } from './SystemFunctions'
-import { useWorld } from './SystemHooks'
 
 /** Reset the engine and remove everything from memory. */
-export async function reset(): Promise<void> {
+export function reset() {
   console.log('RESETTING ENGINE')
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
@@ -72,14 +72,20 @@ export async function reset(): Promise<void> {
 }
 
 export const unloadScene = async (world: World, removePersisted = false) => {
+  await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
   Engine.sceneLoaded = false
+  dispatchLocal(EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null
 
   isClient && configureEffectComposer()
+
+  for (const world of Engine.worlds) {
+    world.execute(50, world.elapsedTime)
+  }
 }
 
 export const unloadAllEntities = (world: World, removePersisted = false) => {
@@ -131,6 +137,8 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
 
     sceneObjectsToRemove.push(o)
   })
+
+  world.namedEntities.clear()
 
   sceneObjectsToRemove.forEach((o) => Engine.scene.remove(o))
   entitiesToRemove.forEach((entity) => removeEntity(entity, true))

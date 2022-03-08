@@ -37,7 +37,6 @@ import FaceIcon from '@mui/icons-material/Face'
 import styles from './MediaIconsBox.module.scss'
 
 const MediaIconsBox = (props) => {
-  const [xrSupported, setXRSupported] = useState(false)
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -63,7 +62,6 @@ const MediaIconsBox = (props) => {
   const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   const engineState = useEngineState()
-  let callbackDone = false
 
   useEffect(() => {
     navigator.mediaDevices
@@ -76,13 +74,6 @@ const MediaIconsBox = (props) => {
       })
       .catch((err) => console.log('could not get media devices', err))
   }, [])
-
-  useEffect(() => {
-    if (engineState.joinedWorld.value && !callbackDone) {
-      setXRSupported(Engine.xrSupported)
-      callbackDone = true
-    }
-  }, [engineState.joinedWorld.value])
 
   const handleFaceClick = async () => {
     const partyId =
@@ -121,7 +112,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
@@ -135,7 +126,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
@@ -146,7 +137,6 @@ const MediaIconsBox = (props) => {
 
   const handleVRClick = () => dispatchLocal(EngineActions.xrStart() as any)
 
-  const xrEnabled = Engine.xrSupported === true
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
@@ -184,13 +174,8 @@ const MediaIconsBox = (props) => {
           }
         </>
       ) : null}
-      {xrSupported ? (
-        <button
-          type="button"
-          id="UserXR"
-          className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)}
-          onClick={handleVRClick}
-        >
+      {engineState.xrSupported.value ? (
+        <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
         </button>
       ) : null}
