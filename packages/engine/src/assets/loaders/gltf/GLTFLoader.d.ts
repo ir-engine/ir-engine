@@ -39,6 +39,7 @@ export interface GLTF {
 export class GLTFLoader extends Loader {
   constructor(manager?: LoadingManager)
   dracoLoader: DRACOLoader | null
+  ktx2Loader: KTX2Loader | null
 
   load(
     url: string,
@@ -119,11 +120,6 @@ export class GLTFParser {
   loadAnimation: (animationIndex: number) => Promise<AnimationClip>
   loadNode: (nodeIndex: number) => Promise<Object3D>
   loadScene: () => Promise<Group>
-  options: {
-    ktx2Loader: KTX2Loader
-    meshoptDecoder: any
-    manager: LoadingManager
-  }
 }
 
 export interface GLTFLoaderPlugin {
