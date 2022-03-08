@@ -100,7 +100,6 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
     }
   }
 
-
   const scene = getComponent(entity, Object3DComponent).value as any
 
   scene.play = () => {
