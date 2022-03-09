@@ -1,6 +1,7 @@
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -99,6 +100,13 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
   })
 }
 
+const spawnDebugPhysicsObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.spawnDebugPhysicsObject>
+) => {
+  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
+}
+
 const destroyObjectNetworkActionReceptor = (
   world: World,
   action: ReturnType<typeof NetworkWorldAction.destroyObject>
@@ -194,6 +202,9 @@ const createNetworkActionReceptor = (world: World) =>
       )
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClientNetworkActionReceptor(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObjectNetworkActionReceptor(world, a))
+      .when(NetworkWorldAction.spawnDebugPhysicsObject.matches, (a) =>
+        spawnDebugPhysicsObjectNetworkActionReceptor(world, a)
+      )
       .when(NetworkWorldAction.destroyObject.matches, (a) => destroyObjectNetworkActionReceptor(world, a))
       .when(NetworkWorldAction.requestAuthorityOverObject.matches, (a) =>
         requestAuthorityOverObjectNetworkActionReceptor(world, a)
@@ -210,6 +221,7 @@ export const NetworkActionReceptors = {
   addClientNetworkActionReceptor,
   removeClientNetworkActionReceptor,
   spawnObjectNetworkActionReceptor,
+  spawnPhysicsObjectNetworkActionReceptor: spawnDebugPhysicsObjectNetworkActionReceptor,
   destroyObjectNetworkActionReceptor,
   requestAuthorityOverObjectNetworkActionReceptor,
   transferAuthorityOfObjectNetworkActionReceptor,

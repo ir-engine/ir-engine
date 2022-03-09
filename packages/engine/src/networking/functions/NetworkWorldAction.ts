@@ -46,6 +46,16 @@ export class NetworkWorldAction {
     }
   )
 
+  static spawnDebugPhysicsObject = defineActionCreator(
+    {
+      type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
+      config: matches.any.optional()
+    },
+    (action) => {
+      action.$cache = true
+    }
+  )
+
   static spawnAvatar = defineActionCreator(
     {
       ...NetworkWorldAction.spawnObject.actionShape,

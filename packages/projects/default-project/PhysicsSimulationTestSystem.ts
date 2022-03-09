@@ -1,4 +1,4 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
 import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -63,6 +63,18 @@ export default async function PhysicsSimulationTestSystem(world: World) {
   }
 }
 
+export const boxDynamicConfig = {
+  type: 'box' as ColliderTypes,
+  bodyType: BodyType.DYNAMIC,
+  collisionLayer: CollisionGroups.Default,
+  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars,
+  staticFriction: 1,
+  dynamicFriction: 1,
+  restitution: 0.1,
+  spawnPosition: new Vector3(0, 35, 5),
+  spawnScale: new Vector3(1, 1, 1)
+}
+
 export const generateSimulationData = (numOfObjectsToGenerate) => {
   // Auto generate objects
   for (let index = 0; index < numOfObjectsToGenerate; index++) {
@@ -93,14 +105,17 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
   // TODO: Generating the object as a network object here may result in an error sometimes,
   // the reason being the spawn object network action from server is received before the object has been added to the scene locally.
   // In order to test network functionality, call the generateSimulationData directly from scene loading logic in code for now.
-  generatePhysicsObject(config, new Vector3(0, 15, 0))
+  generatePhysicsObject(config, new Vector3(0, 15, 0), true)
 }
 
 const defaultSpawnPosition = new Vector3()
+const defaultScalePosition = new Vector3(1, 1, 1)
+
 export const generatePhysicsObject = (
   config: ShapeOptions,
   spawnPosition = defaultSpawnPosition,
-  isNetworkObject = false
+  isNetworkObject = false,
+  scale = defaultScalePosition
 ) => {
   let type = config.type
 
@@ -133,15 +148,18 @@ export const generatePhysicsObject = (
 
   // Add empty model node
   const entity = createEntity()
-  let entityTreeNode = new EntityTreeNode(entity, getUUID())
+  const uuid = getUUID()
+  let entityTreeNode = new EntityTreeNode(entity, uuid)
   createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
 
   let nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = 'test physics obj ' + Math.random().toString()
+  nameComponent.name = uuid
 
+  let objectScaler = new Object3D().add(mesh)
+  objectScaler.scale.copy(scale) // Scaling of visual mesh
   let obj3d = getComponent(entity, Object3DComponent).value
-  obj3d.add(mesh)
-  console.log(obj3d.scale)
+  obj3d.add(objectScaler)
+  obj3d.scale.copy(scale) // This sets the scale for physics mesh
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
   const world = useWorld()
