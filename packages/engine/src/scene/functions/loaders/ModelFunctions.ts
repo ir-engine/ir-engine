@@ -45,10 +45,15 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
       const gltf = AssetLoader.getFromCache(properties.src) as GLTF
       const scene = cloneObject3D(gltf.scene)
-      // the problem here is ECS remove & add does not seem to trigger exit and enter queries properly...
-      // setTimeout(() => {
-      addComponent(entity, Object3DComponent, { value: scene })
-      // }, 100)
+      // TODO: remove this if and timeout with next bitecs update
+      // the problem here is ECS remove & add does not trigger exit and enter queries, need to use queues instead
+      if (Engine.isEditor) {
+        setTimeout(() => {
+          addComponent(entity, Object3DComponent, { value: scene })
+        }, 100)
+      } else {
+        addComponent(entity, Object3DComponent, { value: scene })
+      }
       parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
