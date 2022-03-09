@@ -1,4 +1,3 @@
-// patches for headless-gl - currently unused
 import { Blob } from 'buffer'
 import fetch, { Headers, Request, Response } from 'node-fetch'
 // needed for URL.createObjectURL
@@ -14,6 +13,9 @@ import 'url-polyfill'
 ;(globalThis as any).self.URL = URL
 ;(globalThis as any).Blob = Blob
 
+// patches for headless-gl - currently unused
+
+/*
 // patch navigator
 if (!globalThis.navigator)
   (globalThis as any).navigator = {
@@ -59,3 +61,4 @@ Object.assign((globalThis as any).document, {
     }
   }
 })
+*/
