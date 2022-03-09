@@ -188,6 +188,7 @@
             "name":"Name",
             "update":"Update",
             "invalidateCache":"Invalidate Cache",
+            "viewProjectFiles":"View Project Files",
             "remove":"Remove",
             "addProject":"Add Project",
             "rebuild":"Rebuild",
