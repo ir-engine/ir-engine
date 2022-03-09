@@ -1,5 +1,8 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { GroupScope } from '@xrengine/common/src/interfaces/Group'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -19,7 +22,7 @@ import { useStyles } from '../../styles/ui'
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
-  adminGroupState?: any
+  //adminGroupState?: any
 }
 
 interface ScopeData {
@@ -32,11 +35,12 @@ const CreateGroup = (props: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const adminScopeTypes = adminScopeTypeState.scopeTypes
+  const { t } = useTranslation()
 
   const [state, setState] = useState({
     name: '',
     description: '',
-    scopeTypes: [] as any[],
+    scopeTypes: [] as GroupScope[],
     formErrors: {
       name: '',
       description: '',
@@ -61,8 +65,8 @@ const CreateGroup = (props: Props) => {
     event.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
-    temp.name = !state.name ? "Name can't be empty" : ''
-    temp.description = !state.description ? "Description can't be empty" : ''
+    temp.name = !state.name ? t('admin:components.group.nameCantEmpty') : ''
+    temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       GroupService.createGroupByAdmin({ name, description, scopeTypes })
@@ -92,9 +96,9 @@ const CreateGroup = (props: Props) => {
         <Container maxWidth="sm" className={classes.marginTp}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
             <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-              Create New Group
+              {t('admin:components.group.createNewGroup')}
             </DialogTitle>
-            <label>Name</label>
+            <label>{t('admin:components.group.name')}</label>
             <Paper
               component="div"
               className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
@@ -102,14 +106,14 @@ const CreateGroup = (props: Props) => {
               <InputBase
                 className={classes.input}
                 name="name"
-                placeholder="Enter group name"
+                placeholder={t('admin:components.group.enterGroupName')}
                 style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.name}
                 onChange={handleChange}
               />
             </Paper>
-            <label>Description</label>
+            <label>{t('admin:components.group.description')}</label>
             <Paper
               component="div"
               className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
@@ -117,7 +121,7 @@ const CreateGroup = (props: Props) => {
               <InputBase
                 className={classes.input}
                 name="description"
-                placeholder="Enter description"
+                placeholder={t('admin:components.group.enterGroupDescription')}
                 style={{ color: '#fff' }}
                 autoComplete="off"
                 value={state.description}
@@ -127,7 +131,7 @@ const CreateGroup = (props: Props) => {
             <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
             <DialogActions className={classes.marginTp}>
               <Button type="submit" className={classes.saveBtn}>
-                Submit
+                {t('admin:components.group.submit')}
               </Button>
               <Button
                 onClick={() => {
@@ -141,7 +145,7 @@ const CreateGroup = (props: Props) => {
                 }}
                 className={classes.saveBtn}
               >
-                Cancel
+                {t('admin:components.group.cancel')}
               </Button>
             </DialogActions>
           </form>

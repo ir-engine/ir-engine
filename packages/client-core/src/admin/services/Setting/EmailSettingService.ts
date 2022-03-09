@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
+import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
 import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
@@ -40,7 +40,7 @@ export const EmailSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  patchEmailSetting: async (data: any, id: string) => {
+  patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {
