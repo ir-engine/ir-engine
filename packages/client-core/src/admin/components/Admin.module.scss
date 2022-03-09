@@ -1,4 +1,4 @@
-@import "../../styles/imports.module.scss";
+@import '../../styles/imports.module.scss';
 
 .admin {
   display: flex;
@@ -73,41 +73,39 @@
 .thead {
   .trow {
     .tcell {
-      color: lighten(white, 0.80);
+      color: lighten(white, 0.8);
       background-color: black;
-      .iconsContainer{
+      .iconsContainer {
         display: flex;
-        h3{
+        h3 {
           margin-right: 5px;
         }
       }
-      &.actionCell{
-        display: flex;  
+      &.actionCell {
+        display: flex;
         flex-direction: row;
         flex-flow: wrap;
-        :global(.MuiButtonBase-root){
+        :global(.MuiButtonBase-root) {
           width: fit-content;
           margin-right: 5px;
         }
       }
-      :global(.MuiButtonBase-root){
-        color: lighten(white, 0.80);
+      :global(.MuiButtonBase-root) {
+        color: lighten(white, 0.8);
       }
     }
 
     .tcellSelectable {
-
-      
-       .currentUser{
-        color: lighten(white, 0.80);
+      .currentUser {
+        color: lighten(white, 0.8);
         background-color: $FacebookBlue;
         padding-top: 5px;
         padding-bottom: 5px;
         &:hover {
-          background-color: #145cee;;
+          background-color: #145cee;
           cursor: pointer;
         }
-       }
+      }
     }
   }
 
@@ -115,7 +113,7 @@
     cursor: pointer;
 
     .tcell {
-      color: lighten(white, 0.80);
+      color: lighten(white, 0.8);
       background-color: black;
     }
   }
@@ -175,7 +173,7 @@
 .locationModalButtons {
   justify-content: space-between;
 }
-.previewImage{
+.previewImage {
   height: 100px;
   max-width: 250px;
 }

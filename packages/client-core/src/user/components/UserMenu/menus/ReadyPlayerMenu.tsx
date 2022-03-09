@@ -9,6 +9,7 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -37,20 +38,20 @@ export const ReadyPlayerMenu = (props: Props) => {
   const { t } = useTranslation()
 
   const { isPublicAvatar, changeActiveMenu } = props
-  const [selectedFile, setSelectedFile] = useState<any>(null)
+  const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
-  const [entity, setEntity] = useState<any>(null)
-  const panelRef = useRef<any>()
+  const [entity, setEntity] = useState<Entity | undefined>()
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   useEffect(() => {
     const world = useWorld()
-    const entity = createEntity()
-    addAnimationLogic(entity, world, setEntity, panelRef)
+    const entityItem = createEntity()
+    addAnimationLogic(entityItem, world, setEntity, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera
@@ -114,7 +115,7 @@ export const ReadyPlayerMenu = (props: Props) => {
   }
 
   const uploadAvatar = () => {
-    if (error) {
+    if (error || selectedFile === undefined) {
       return
     }
 

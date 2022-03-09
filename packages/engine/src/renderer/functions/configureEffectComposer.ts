@@ -12,7 +12,7 @@ import { NearestFilter, RGBAFormat, WebGLRenderTarget } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getAllComponentsOfType } from '../../ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '../../scene/components/PostprocessingComponent'
-import { EffectMap, Effects } from '../../scene/constants/PostProcessing'
+import { EffectMap, Effects, OutlineEffectProps } from '../../scene/constants/PostProcessing'
 
 export const configureEffectComposer = (remove?: boolean): void => {
   Engine.effectComposer.removeAllPasses()
@@ -67,7 +67,11 @@ export const configureEffectComposer = (remove?: boolean): void => {
       Engine.effectComposer[key] = eff
       effects.push(eff)
     } else if (key === Effects.OutlineEffect) {
-      const eff = new effectClass(Engine.scene, Engine.camera, effect)
+      let outlineEffect = effect as OutlineEffectProps
+      if (Engine.isEditor) {
+        outlineEffect = { ...outlineEffect, hiddenEdgeColor: 0x22090a }
+      }
+      const eff = new effectClass(Engine.scene, Engine.camera, outlineEffect)
       Engine.effectComposer[key] = eff
       effects.push(eff)
     } else {

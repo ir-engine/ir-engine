@@ -90,7 +90,7 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const [entity, setEntity] = useState<any>(null)
-  const panelRef = useRef<any>()
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   console.log(avatarModel)
 
@@ -155,9 +155,9 @@ export const AvatarSelectMenu = (props: Props) => {
 
   useEffect(() => {
     const world = useWorld()
-    const entity = createEntity()
+    const entityItem = createEntity()
 
-    addAnimationLogic(entity, world, setEntity, panelRef)
+    addAnimationLogic(entityItem, world, setEntity, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera
@@ -446,7 +446,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 classes={{ root: classes.rootBtn }}
                 endIcon={<SystemUpdateAlt />}
               >
-                Avatar
+                {t('user:avatar.avatar')}
               </Button>
             </label>
             <label htmlFor="contained-button-file-t">
@@ -462,7 +462,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 classes={{ root: classes.rootBtn }}
                 endIcon={<AccountCircle />}
               >
-                Thumbnail
+                {t('user:avatar.lbl-thumbnail')}
               </Button>
             </label>
           </div>

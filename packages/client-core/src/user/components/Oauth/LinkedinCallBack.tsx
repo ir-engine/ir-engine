@@ -7,7 +7,7 @@ import Container from '@mui/material/Container'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 
-const LinkedinCallbackComponent = (props): any => {
+const LinkedinCallbackComponent = (props): JSX.Element => {
   const { loginUserByJwt, refreshConnections } = props
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }

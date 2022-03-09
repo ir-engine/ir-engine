@@ -223,23 +223,21 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
   const object3d = getComponent(entity, Object3DComponent)
   if (object3d) {
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
-    const body = createBody(entity, data, shapes)
-    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
-    addComponent(entity, ColliderComponent, { body })
-    addComponent(entity, CollisionComponent, { collisions: [] })
+    // As we might call collider deserialize on every child of the object now,
+    // so this sanity check is needed now.
+    if (shapes.length > 0) {
+      const body = createBody(entity, data, shapes)
+      body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
+      addComponent(entity, ColliderComponent, { body })
+      addComponent(entity, CollisionComponent, { collisions: [] })
+    }
   }
 }
 
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
-  const transform = getComponent(entity, TransformComponent)
-  const [position, quaternion, scale] = getTransform(
-    mesh.getWorldPosition(new Vector3()),
-    mesh.getWorldQuaternion(new Quaternion()),
-    mesh.getWorldScale(new Vector3()),
-    transform.position,
-    transform.rotation,
-    transform.scale
-  )
+  const position = mesh.getWorldPosition(new Vector3())
+  const quaternion = mesh.getWorldQuaternion(new Quaternion())
+  const scale = mesh.getWorldScale(new Vector3())
   const config: ObstacleConfig = {
     isCapsule: mesh.userData.isCapsule,
     radius: scale.x,
