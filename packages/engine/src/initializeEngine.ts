@@ -350,8 +350,8 @@ export const initializeSceneSystems = async () => {
     )
   }
 
-  const loader = getGLTFLoader()
   if (isClient || Engine.isEditor) {
+    const loader = getGLTFLoader()
     initializeKTX2Loader(loader)
   }
 
