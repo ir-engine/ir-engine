@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -96,7 +96,7 @@ export const useInviteState = () => useState(state) as any as typeof state
 
 //Service
 export const InviteService = {
-  sendInvite: async (data: any) => {
+  sendInvite: async (data: SendInvite) => {
     const dispatch = useDispatch()
     {
       if (data.identityProviderType === 'email') {

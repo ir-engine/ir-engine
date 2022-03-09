@@ -31,7 +31,7 @@ const initialState = {
 }
 
 interface Props {
-  auth?: any
+  //auth?: any
   enableFacebookSocial?: boolean
   enableGithubSocial?: boolean
   enableGoogleSocial?: boolean
@@ -42,7 +42,7 @@ const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
 
   const { t } = useTranslation()
-  const location: any = useLocation()
+  const location = useLocation()
 
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
@@ -84,12 +84,12 @@ const FlatSignIn = (props: Props) => {
     AuthService.loginUserByOAuth('facebook', location)
   }
 
-  const handleResetPassword = (token: string, password: string): any => {
+  const handleResetPassword = (token: string, password: string): void => {
     AuthService.resetPassword(token, password)
   }
 
-  let component = null! as any
-  let footer = null! as any
+  let component: JSX.Element
+  let footer: JSX.Element
 
   switch (view) {
     case 'sign-up':

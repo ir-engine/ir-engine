@@ -1,9 +1,12 @@
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TextValidator, ValidatorForm } from 'react-material-ui-form-validator'
 import { useHistory } from 'react-router-dom'
 import { Dropdown } from 'semantic-ui-react'
+
+import { User } from '@xrengine/common/src/interfaces/User'
 
 import MuiAlert, { AlertProps } from '@mui/material/Alert'
 import Button from '@mui/material/Button'
@@ -24,8 +27,8 @@ import styles from '../Admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  users: any
+  handleClose: () => void
+  users: User[]
 }
 
 function Alert(props: AlertProps) {
@@ -99,6 +102,7 @@ const InviteModel = (props: Props) => {
   const [providerType, setProviderType] = React.useState('email')
   // const [openInvite ,setOpenInvite] = React.useState(false);
   const [openWarning, setOpenWarning] = React.useState(false)
+  const { t } = useTranslation()
   const [error, setError] = React.useState('')
   const dispatch = useDispatch()
   const handleCloseWarning = (event, reason) => {
@@ -184,7 +188,7 @@ const InviteModel = (props: Props) => {
       handleClose()
     } else {
       setOpenSnabar(true)
-      setWarning('Please fill all required fields!')
+      setWarning(t('admin:components.invite.fillAllRequiredFields'))
     }
   }
 
@@ -206,9 +210,9 @@ const InviteModel = (props: Props) => {
   const stateOptions: StateOption[] = []
   users.forEach((el) => {
     stateOptions.push({
-      key: el.id,
+      key: el.id ?? '',
       text: el.name,
-      value: el.id
+      value: el.id ?? ''
     })
   })
 
@@ -253,7 +257,7 @@ const InviteModel = (props: Props) => {
             })}
           >
             <Typography variant="h5" align="center" className="mt-4 mb-4" component="h4" style={{ color: '#fff' }}>
-              Send Invite
+              {t('admin:components.invite.sendInvite')}
             </Typography>
             <Dropdown
               placeholder="Users"
@@ -274,11 +278,11 @@ const InviteModel = (props: Props) => {
                     margin="normal"
                     fullWidth
                     id="passcode"
-                    label="Enter valid Passcode or None"
+                    label={t('admin:components.invite.enterValidPasscode')}
                     name="passcode"
                     value={passcode}
                     validators={['isPasscode']}
-                    errorMessages={['Invalid Invite Code']}
+                    errorMessages={[t('admin:components.invite.invalidInviteCode')]}
                     onChange={(e) => setPasscode(e.target.value)}
                   />
                 </Grid>
@@ -287,7 +291,7 @@ const InviteModel = (props: Props) => {
                     className={classes.root}
                     id="outlined-select-currency-native"
                     select
-                    label="Target type"
+                    label={t('admin:components.invite.targetType')}
                     value={currency}
                     onChange={handleChange}
                     SelectProps={{
@@ -309,7 +313,7 @@ const InviteModel = (props: Props) => {
                   <TextField
                     id="outlined-select-currency-native"
                     select
-                    label="Identity provider  type"
+                    label={t('admin:components.invite.identityProviderType')}
                     value={providerType}
                     onChange={handleChangeType}
                     SelectProps={{
@@ -335,7 +339,7 @@ const InviteModel = (props: Props) => {
                 margin="normal"
                 fullWidth
                 id="maxUsers"
-                label="Please enter US phone number or E-mail"
+                label={t('admin:components.invite.enterPhoneOrEmail')}
                 name="token"
                 required
                 className="mb-4"
@@ -347,10 +351,10 @@ const InviteModel = (props: Props) => {
               <FormGroup row className={styles.locationModalButtons}>
                 {' '}
                 <Button type="submit" variant="contained" style={{ background: 'rgb(58, 65, 73)', color: '#fff' }}>
-                  Send Invitation
+                  {t('admin:components.invite.sendInvitation')}
                 </Button>
                 <Button type="submit" variant="contained" onClick={handleClose}>
-                  Cancel
+                  {t('admin:components.invite.cancel')}
                 </Button>
               </FormGroup>
             </ValidatorForm>

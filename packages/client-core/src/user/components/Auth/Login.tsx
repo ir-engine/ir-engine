@@ -26,13 +26,19 @@ const initialState = {
   emailMagicLink: false
 }
 
-const TabPanel = (props: any): any => {
+interface Props {
+  children: JSX.Element
+  value: number
+  index: number
+}
+
+const TabPanel = (props: Props): JSX.Element => {
   const { children, value, index } = props
 
   return <Fragment>{value === index && children}</Fragment>
 }
 
-const SignIn = (): any => {
+const SignIn = (): JSX.Element => {
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [state, setState] = useState(initialState)

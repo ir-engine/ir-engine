@@ -21,7 +21,7 @@ euler2YXZ.order = 'YXZ'
 const desiredTransformQuery = defineQuery([DesiredTransformComponent])
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent])
-const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, IKRigComponent])
 
 export default async function AnimationSystem(world: World) {
   world.receptors.push(animationActionReceptor)
