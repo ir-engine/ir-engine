@@ -63,7 +63,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   interactor.subFocusedArray = subFocusedArray.map((v) => v[0])
 
   let focussed = interactor.focusedInteractive
-  if (!focussed && subFocusedArray.length) {
+  if (!focussed) {
     const [entityInteractable, doesIntersectFrustrum, distanceToInteractor] = subFocusedArray.sort(
       (a: any, b: any) => a[2] - b[2]
     )[0]
@@ -71,16 +71,13 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
     focussed = entityInteractable
   }
 
-  let resultIsCloseEnough = false
-  if (focussed) {
-    const interactable = getComponent(focussed, InteractableComponent).value
-    const interactDistance = interactable?.interactionDistance ?? interactiveReachDistance
-    const boundingBox = getComponent(focussed, BoundingBoxComponent)
-    const distance = boundingBox.box.distanceToPoint(transform.position)
-    resultIsCloseEnough = distance < interactDistance
-  }
+  const interactable = getComponent(focussed, InteractableComponent).value
+  const interactDistance = interactable?.interactionDistance ?? interactiveReachDistance
+  const boundingBox = getComponent(focussed, BoundingBoxComponent)
+  const distance = boundingBox.box.distanceToPoint(transform.position)
 
-  if (focussed && resultIsCloseEnough) {
+  const resultIsCloseEnough = distance < interactDistance
+  if (resultIsCloseEnough) {
     interactor.focusedInteractive = focussed
     if (!interactor.subFocusedArray.includes(focussed)) {
       interactor.subFocusedArray.unshift(focussed)

@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface, CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { AdminAssetUploadType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
@@ -76,7 +76,7 @@ export const AvatarService = {
       }
     }
   },
-  createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: any) => {
+  createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
       if (blob) {
@@ -100,7 +100,7 @@ export const AvatarService = {
       console.error(error)
     }
   },
-  updateAdminAvatar: async (id: string, blob: Blob, thumbnail: Blob, data: any) => {
+  updateAdminAvatar: async (id: string, blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
       if (blob) {
@@ -109,7 +109,7 @@ export const AvatarService = {
           files: [blob],
           args: [
             {
-              key: data.key,
+              key: data.key!,
               contentType: 'model/gltf-binary',
               staticResourceType: data.staticResourceType
             }
@@ -143,19 +143,19 @@ export const AvatarAction = {
       avatars: avatars
     }
   },
-  avatarCreated: (avatar: AvatarResult) => {
+  avatarCreated: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_CREATED' as const,
       avatar: avatar
     }
   },
-  avatarRemoved: (avatar: AvatarResult) => {
+  avatarRemoved: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_REMOVED' as const,
       avatar: avatar
     }
   },
-  avatarUpdated: (avatar: any) => {
+  avatarUpdated: (avatar: AvatarInterface) => {
     return {
       type: 'AVATAR_UPDATED' as const,
       avatar: avatar

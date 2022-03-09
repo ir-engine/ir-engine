@@ -7,10 +7,9 @@ import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
-  REGEX_VALID_URL,
-  THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH
+  REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -94,7 +93,7 @@ const AvatarCreate = ({ handleClose, open }) => {
   }
 
   const uploadByUrls = async () => {
-    const data = {
+    const data: CreateEditAdminAvatar = {
       name: newAvatar.avatarName,
       description: newAvatar.description,
       url: newAvatar.avatarUrl,
@@ -102,15 +101,15 @@ const AvatarCreate = ({ handleClose, open }) => {
     }
     let temp = formErrors
     if (!newAvatar.avatarName) {
-      temp.avatarName = "Name can't be empty"
+      temp.avatarName = t('admin:components.avatar.nameCantEmpty')
     }
     if (!newAvatar.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.avatar.descriptionCantEmpty')
     }
     if (!selectUse) {
-      temp.avatarUrl = !newAvatar.avatarUrl ? "avatar url can't be empty" : ''
+      temp.avatarUrl = !newAvatar.avatarUrl ? t('admin:components.avatar.avatarUrlCantEmpty') : ''
     } else {
-      temp.avatarUrl = !selectedFile ? "Avatar can't be empty" : ''
+      temp.avatarUrl = !selectedFile ? t('admin:components.avatar.avatarCantEmpty') : ''
     }
 
     if (validateForm(newAvatar, formErrors)) {
@@ -133,7 +132,7 @@ const AvatarCreate = ({ handleClose, open }) => {
       clearState()
       handleClose()
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.avatar.fillRequiredFields'))
       setOpenAlter(true)
     }
   }
@@ -283,7 +282,6 @@ const AvatarCreate = ({ handleClose, open }) => {
                   name="description"
                   formErrors={formErrors.description}
                 />
-
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {
