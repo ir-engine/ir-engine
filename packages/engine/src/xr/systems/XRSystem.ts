@@ -58,10 +58,10 @@ export default async function XRSystem(world: World) {
   // TEMPORARY - precache controller model
   // Cache hand models
   await Promise.all([
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
+    AssetLoader.loadAsync('/default_assets/controllers/hands/left.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/right.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
   Engine.currentWorld.receptors.push((action: EngineActionType) => {

@@ -1,11 +1,7 @@
-import { AnimationClip, Mesh, Object3D } from 'three'
-
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { getGLTFLoader } from '../../../assets/classes/AssetLoader'
-import { initializeKTX2Loader } from '../../../assets/functions/createGLTFLoader'
-import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -13,14 +9,13 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
-import { loadGLTFModel, overrideTexture } from '../loadGLTFModel'
-import { registerSceneLoadPromise } from '../SceneLoading'
+import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
@@ -32,83 +27,37 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   isDynamicObject: false
 }
 
-export const AnimatedObjectCallbacks = [
-  { label: 'None', value: 'none' },
-  { label: 'Play', value: 'play' },
-  { label: 'Pause', value: 'pause' },
-  { label: 'Stop', value: 'stop' }
-]
-
-type AnimatedObject3D = UpdateableObject3D & {
-  play()
-  pause()
-  stop()
-  callbacks()
-}
-
 export const deserializeModel: ComponentDeserializeFunction = (
   entity: Entity,
   component: ComponentJson<ModelComponentType>
 ) => {
   const props = parseModelProperties(component.props)
-  addComponent(entity, Object3DComponent, { value: new Object3D() }) // Temperarily hold a value
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
-
-  registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
+  updateModel(entity, props)
 }
 
-export const updateModel: ComponentUpdateFunction = async (
-  entity: Entity,
-  properties: ModelComponentType
-): Promise<void> => {
+export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
   const component = getComponent(entity, ModelComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value as AnimatedObject3D
-
   if (properties.src) {
     try {
-      const model = await loadGLTFModel(entity)
-
-      // TODO: move all loopable component stuff to LoopableAnimationFunctions, contingent on #5384
-
-      //add callback
-      const scene = model?.scene as any
-      scene.play = () => {
-        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        const animationComponent = getComponent(entity, AnimationComponent)
-        if (
-          loopAnimationComponent.activeClipIndex >= 0 &&
-          animationComponent.animations[loopAnimationComponent.activeClipIndex]
-        ) {
-          loopAnimationComponent.action = animationComponent.mixer.clipAction(
-            AnimationClip.findByName(
-              animationComponent.animations,
-              animationComponent.animations[loopAnimationComponent.activeClipIndex].name
-            )
-          )
-          loopAnimationComponent.action.paused = false
-          loopAnimationComponent.action.play()
-        }
+      hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+      const gltf = AssetLoader.getFromCache(properties.src) as GLTF
+      const scene = cloneObject3D(gltf.scene)
+      // TODO: remove this if and timeout with next bitecs update
+      // the problem here is ECS remove & add does not trigger exit and enter queries, need to use queues instead
+      if (Engine.isEditor) {
+        setTimeout(() => {
+          addComponent(entity, Object3DComponent, { value: scene })
+        }, 100)
+      } else {
+        addComponent(entity, Object3DComponent, { value: scene })
       }
-      scene.pause = () => {
-        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
-      }
-      scene.stop = () => {
-        //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
-        const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-        if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
-      }
-      scene.callbacks = () => {
-        return AnimatedObjectCallbacks
-      }
+      parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
       addError(entity, 'srcError', err.message)
-      Promise.resolve(err)
     }
   }
 
@@ -118,12 +67,11 @@ export const updateModel: ComponentUpdateFunction = async (
       removeError(entity, 'envMapError')
     } catch (err) {
       addError(entity, 'envMapError', err.message)
-      Promise.resolve(err)
     }
   }
 
-  if (component.parsed && typeof properties.textureOverride !== 'undefined') {
-    overrideTexture(entity, obj3d)
+  if (typeof properties.textureOverride !== 'undefined') {
+    overrideTexture(entity)
   }
 }
 

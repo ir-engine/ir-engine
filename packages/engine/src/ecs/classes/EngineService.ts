@@ -159,10 +159,10 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.SCENE_UNLOADED
     }
   },
-  sceneEntityLoaded: (entitiesLeft: number) => {
+  sceneEntityLoaded: (count: number) => {
     return {
       type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-      entitiesLeft
+      count
     }
   },
   ////////////////
