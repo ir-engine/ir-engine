@@ -11,9 +11,10 @@ import { useWorld } from '../../ecs/functions/SystemHooks'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isDynamicBody, isKinematicBody, isStaticBody, Physics } from '../classes/Physics'
+import { isDynamicBody, isStaticBody } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -72,17 +73,37 @@ const processRaycasts = (world: World) => {
 }
 
 const processNetworkBodies = (world: World) => {
+  // Set network state to physics body pose for objects not owned by this user.
   for (const entity of networkColliderQuery()) {
     const network = getComponent(entity, NetworkObjectComponent)
 
-    // Set network state to physics body pose for objects not owned by this user.
-    if (network.ownerId === Engine.userId) continue
+    const nameComponent = getComponent(entity, NameComponent)
+
+    // Ignore if we own this object or no new network state has been received for this object
+    // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
+    if (network.ownerId === Engine.userId || network.lastTick < world.fixedTick) {
+      console.log('ignoring state for:', nameComponent)
+      continue
+    }
 
     const collider = getComponent(entity, ColliderComponent)
     const transform = getComponent(entity, TransformComponent)
     const body = collider.body as PhysX.PxRigidDynamic
 
     teleportRigidbody(body, transform.position, transform.rotation)
+
+    const linearVelocity = getComponent(entity, VelocityComponent).velocity
+    body.setLinearVelocity(linearVelocity, true)
+
+    console.log(
+      'physics velocity of network object:',
+      nameComponent.name,
+      network.lastTick,
+      world.fixedTick,
+      linearVelocity.x,
+      linearVelocity.y,
+      linearVelocity.z
+    )
   }
   return world
 }

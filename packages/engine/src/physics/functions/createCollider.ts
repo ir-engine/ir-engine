@@ -1,6 +1,7 @@
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
@@ -9,9 +10,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getGeometryType } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
-import { getTransform } from './parseModelColliders'
 import { vectorToArray } from './physxHelpers'
 
 /**
@@ -230,6 +231,8 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
       body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
+      const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
+      addComponent(entity, VelocityComponent, { velocity })
     }
   }
 }

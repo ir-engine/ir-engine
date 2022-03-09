@@ -96,7 +96,8 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
     ownerIndex: action.ownerIndex,
     networkId: action.networkId,
     prefab: action.prefab,
-    parameters: action.parameters
+    parameters: action.parameters,
+    lastTick: 0
   })
 }
 
