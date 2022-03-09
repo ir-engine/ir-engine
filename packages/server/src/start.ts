@@ -6,13 +6,14 @@ import config from '@xrengine/server-core/src/appconfig'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
 import logger from '@xrengine/server-core/src/logger'
 
-import app from './app'
+import { createApp } from './app'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 
 export const start = async (): Promise<void> => {
+  const app = createApp()
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
     const processList = await (

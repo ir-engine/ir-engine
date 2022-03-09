@@ -1,7 +1,7 @@
 import { createState, none, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
-import { Group } from '@xrengine/common/src/interfaces/Group'
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 
@@ -198,7 +198,7 @@ export const GroupService = {
       }
     }
   },
-  createGroup: async (values: any) => {
+  createGroup: async (values: CreateGroup) => {
     const dispatch = useDispatch()
     {
       try {
@@ -212,7 +212,7 @@ export const GroupService = {
       }
     }
   },
-  patchGroup: async (values: any) => {
+  patchGroup: async (values: Group) => {
     const dispatch = useDispatch()
     {
       const patch = {}

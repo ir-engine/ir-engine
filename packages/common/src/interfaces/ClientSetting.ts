@@ -10,3 +10,13 @@ export interface ClientSetting {
   icon192px: string
   icon512px: string
 }
+
+export interface PatchClientSetting {
+  logo: string
+  title: string
+  icon192px: string
+  icon512px: string
+  favicon16px: string
+  favicon32px: string
+  siteDescription: string
+}

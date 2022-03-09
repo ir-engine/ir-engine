@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { Autorenew, Save } from '@mui/icons-material'
@@ -28,7 +30,7 @@ import { useStyles } from '../../styles/ui'
 interface Props {
   open: boolean
   handleClose: () => void
-  bot: any
+  bot?: AdminBot
 }
 
 const UpdateBot = (props: Props) => {
@@ -54,6 +56,7 @@ const UpdateBot = (props: Props) => {
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const user = useAuthState().user
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (bot) {
@@ -61,7 +64,7 @@ const UpdateBot = (props: Props) => {
         name: bot?.name,
         description: bot?.description,
         instance: bot?.instance?.id || '',
-        location: bot?.location?.id
+        location: bot?.location?.id || ''
       })
     }
   }, [bot])
@@ -72,13 +75,13 @@ const UpdateBot = (props: Props) => {
     let temp = formErrors
     switch (names) {
       case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
+        temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
         break
       case 'description':
-        temp.description = value.length < 2 ? 'Description is required!' : ''
+        temp.description = value.length < 2 ? t('admin:components.bot.descriptionCantEmpty') : ''
         break
       case 'location':
-        temp.location = value.length < 2 ? 'Location is required!' : ''
+        temp.location = value.length < 2 ? t('admin:components.bot.locationCantEmpty') : ''
         break
       default:
         break
@@ -112,22 +115,22 @@ const UpdateBot = (props: Props) => {
     }
     let temp = formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.bot.nameCantEmpty')
     }
     if (!state.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.bot.descriptionCantEmpty')
     }
     if (!state.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.bot.locationCantEmpty')
     }
     setFormErrors(temp)
-    if (validateForm(state, formErrors)) {
+    if (validateForm(state, formErrors) && bot) {
       BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
     } else {
-      setError('Please fill all required field!')
+      setError(t('admin:components.bot.fillRequiredField'))
       setOpenAlter(true)
     }
   }
@@ -155,9 +158,9 @@ const UpdateBot = (props: Props) => {
         classes={{ paper: classes.paperDialog }}
         onClose={handleClose}
       >
-        <DialogTitle id="form-dialog-title">UPDATE BOT</DialogTitle>
+        <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
-          <label>Name</label>
+          <label>{t('admin:components.bot.name')}</label>
           <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
             <InputBase
               name="name"
@@ -168,7 +171,7 @@ const UpdateBot = (props: Props) => {
               onChange={handleInputChange}
             />
           </Paper>
-          <label>Description</label>
+          <label>{t('admin:components.bot.description')}</label>
           <Paper
             component="div"
             className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
@@ -176,14 +179,14 @@ const UpdateBot = (props: Props) => {
             <InputBase
               className={classes.input}
               name="description"
-              placeholder="Enter description"
+              placeholder={t('admin:components.bot.enterDescription')}
               style={{ color: '#fff' }}
               value={state.description}
               onChange={handleInputChange}
             />
           </Paper>
 
-          <label>Location</label>
+          <label>{t('admin:components.bot.location')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <Paper
@@ -203,7 +206,7 @@ const UpdateBot = (props: Props) => {
                     MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select location</em>
+                      <em>{t('admin:components.bot.selectLocation')}</em>
                     </MenuItem>
                     {locationData.value.map((el) => (
                       <MenuItem value={el.id} key={el.id}>
@@ -223,7 +226,7 @@ const UpdateBot = (props: Props) => {
             </Grid>
           </Grid>
 
-          <label>Instance</label>
+          <label>{t('admin:components.bot.instance')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <Paper component="div" className={classes.createInput}>
@@ -244,7 +247,7 @@ const UpdateBot = (props: Props) => {
                     MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select instance</em>
+                      <em>{t('admin:components.bot.selectInstance')}</em>
                     </MenuItem>
                     {currentInstance.map((el) => (
                       <MenuItem value={el.id} key={el.id}>
@@ -276,10 +279,10 @@ const UpdateBot = (props: Props) => {
               handleClose()
             }}
           >
-            CANCEL
+            {t('admin:components.bot.cancel')}
           </Button>
           <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleUpdate}>
-            <Save style={{ marginRight: '10px' }} /> save
+            <Save style={{ marginRight: '10px' }} /> {t('admin:components.bot.save')}
           </Button>
         </DialogActions>
       </Dialog>

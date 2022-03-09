@@ -44,7 +44,7 @@ const NavUserBadge = (props: Props): any => {
     <div className={styles.userWidget}>
       {isLoggedIn && (
         <div className={styles.flex}>
-          <Dropdown avatarUrl={user && user.avatarUrl} auth={auth} logoutUser={handleLogout} />
+          <Dropdown avatarUrl={user.avatarUrl?.value} logoutUser={handleLogout} />
         </div>
       )}
       {!isLoggedIn && login === true && (

@@ -28,10 +28,10 @@ import styles from '../UserMenu.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
-  changeActiveMenu?: any
-  setProfileMenuOpen?: any
+  changeActiveMenu?: (type: string | null) => void
+  setProfileMenuOpen?: (open: boolean) => void
   className?: string
-  hideLogin?: any
+  hideLogin?: boolean
 }
 
 const initialState = {
@@ -47,10 +47,10 @@ const initialState = {
   emailMagicLink: false
 }
 
-const ProfileMenu = (props: Props): any => {
+const ProfileMenu = (props: Props): JSX.Element => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
-  const location: any = useLocation()
+  const location = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -161,7 +161,7 @@ const ProfileMenu = (props: Props): any => {
     // window.location.reload()
   }
 
-  const handleWalletLoginClick = async (e) => {
+  /*  const handleWalletLoginClick = async (e) => {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
@@ -186,7 +186,7 @@ const ProfileMenu = (props: Props): any => {
     console.log(result)
 
     AuthService.loginUserByXRWallet(result)
-  }
+  }*/
 
   const handleShowId = () => {
     setShowUserId(!showUserId)

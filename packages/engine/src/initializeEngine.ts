@@ -14,6 +14,8 @@ import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-
 
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
@@ -151,10 +153,6 @@ export const initializeMediaServerSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
-    },
-    {
-      type: SystemUpdateType.PRE_RENDER,
-      systemModulePromise: import('./networking/systems/MediaStreamSystem')
     }
   )
 
@@ -352,11 +350,20 @@ export const initializeSceneSystems = async () => {
     )
   }
 
+  if (isClient) initializeKTX2Loader(getGLTFLoader())
+
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeRealtimeSystems = async (pose = true) => {
+export const initializeRealtimeSystems = async (media = true, pose = true) => {
   const systemsToLoad: SystemModuleType<any>[] = []
+
+  if (media) {
+    systemsToLoad.push({
+      type: SystemUpdateType.PRE_RENDER,
+      systemModulePromise: import('./networking/systems/MediaStreamSystem')
+    })
+  }
 
   if (pose) {
     systemsToLoad.push(

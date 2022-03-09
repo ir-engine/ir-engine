@@ -240,8 +240,8 @@ export default {
           }
           return context
         } catch (err) {
-          logger.error('USER AFTER CREATE ERROR')
-          logger.error(err)
+          console.error('USER AFTER CREATE ERROR')
+          console.error(err)
         }
         return null!
       }

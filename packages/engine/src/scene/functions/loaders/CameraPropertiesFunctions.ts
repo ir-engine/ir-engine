@@ -39,8 +39,7 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   addComponent(entity, CameraPropertiesComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
-
-  if (isClient && !Engine.isEditor) {
+  else if (isClient) {
     matchActionOnce(NetworkWorldAction.spawnAvatar.matches, (spawnAction) => {
       if (spawnAction.$from === Engine.userId) {
         setCameraProperties(useWorld().localClientEntity, json.props)
@@ -75,7 +74,7 @@ export const serializeCameraProperties: ComponentSerializeFunction = (entity) =>
   }
 }
 
-const parseCameraPropertiesProperties = (props): CameraPropertiesComponentType => {
+export const parseCameraPropertiesProperties = (props): CameraPropertiesComponentType => {
   return {
     fov: props.fov ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.fov,
     cameraNearClip: props.cameraNearClip ?? SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES.cameraNearClip,
