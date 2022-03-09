@@ -2,6 +2,8 @@ import { AnimationClip, Mesh, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { getGLTFLoader } from '../../../assets/classes/AssetLoader'
+import { initializeKTX2Loader } from '../../../assets/functions/createGLTFLoader'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '../../../avatar/components/LoopAnimationComponent'
 import {
@@ -53,6 +55,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   addComponent(entity, ModelComponent, props)
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
+
   registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
