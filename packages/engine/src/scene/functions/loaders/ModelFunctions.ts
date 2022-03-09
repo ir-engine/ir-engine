@@ -1,6 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader, getGLTFLoader } from '../../../assets/classes/AssetLoader'
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
 import {
   ComponentDeserializeFunction,
