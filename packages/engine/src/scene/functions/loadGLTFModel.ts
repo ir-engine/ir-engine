@@ -15,6 +15,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -91,7 +92,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
+    const transformComponent = addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
       scale: mesh.getWorldScale(new Vector3())
@@ -99,6 +100,13 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
+    addComponent(e, TransformChildComponent, {
+      parent: entity,
+      offsetPosition: new Vector3().copy(transformComponent.position).sub(obj3d.getWorldPosition(new Vector3())),
+      offsetQuaternion: new Quaternion()
+        .copy(transformComponent.rotation)
+        .multiply(obj3d.getWorldQuaternion(new Quaternion()).invert())
+    })
 
     createObjectEntityFromGLTF(e, mesh)
   }

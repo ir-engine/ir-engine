@@ -258,6 +258,21 @@ export default async function DebugHelpersSystem(world: World) {
         velocityArrowHelper.setDirection(vel.normalize())
         velocityArrowHelper.position.copy(transform.position)
       }
+
+      if (Engine.isEditor) {
+        collider.body.setGlobalPose(
+          {
+            translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z },
+            rotation: {
+              x: transform.rotation.x,
+              y: transform.rotation.y,
+              z: transform.rotation.z,
+              w: transform.rotation.w
+            }
+          },
+          true
+        )
+      }
     }
 
     // ===== INTERACTABLES ===== //
