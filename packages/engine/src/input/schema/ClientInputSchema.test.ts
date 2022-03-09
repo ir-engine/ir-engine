@@ -1,6 +1,5 @@
 import assert, { strictEqual } from 'assert'
 
-import '../../../tests/util/patchBrowserForNode'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import '../../patchEngineNode'

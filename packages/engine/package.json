@@ -25,7 +25,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
-    "test": "mocha --config .mocharc.js",
+    "test": "mocha --config .mocharc.js -r jsdom-global/register",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
@@ -82,6 +82,8 @@
     "@types/yuka": "0.7.1",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
+    "jsdom": "19.0.0",
+    "jsdom-global": "3.0.2",
     "mocha": "9.2.0",
     "mock-require": "3.0.3",
     "proxyquire": "^2.1.3",

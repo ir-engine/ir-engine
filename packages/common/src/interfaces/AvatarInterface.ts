@@ -20,4 +20,5 @@ export interface CreateEditAdminAvatar {
   description: string
   url: string
   staticResourceType: string
+  key?: string
 }

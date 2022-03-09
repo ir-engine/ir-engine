@@ -2,6 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AvatarInterface, CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+import { AdminAssetUploadType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
@@ -70,21 +71,53 @@ export const AvatarService = {
           search: search
         }
       })
-      dispatch(AvatarAction.avatarsFetched(avatars))
+      if (avatars.data.length) {
+        dispatch(AvatarAction.avatarsFetched(avatars))
+      }
     }
   },
-  createAdminAvatar: async (data: CreateEditAdminAvatar) => {
+  createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
+      if (blob) {
+        const uploadArguments: AdminAssetUploadType = {
+          type: 'admin-file-upload',
+          files: [blob],
+          args: [
+            {
+              key: `avatars/public/${new Date().getTime()}${thumbnail['name']}`,
+              contentType: 'model/gltf-binary',
+              staticResourceType: data.staticResourceType
+            }
+          ]
+        }
+        const response = await client.service('upload-asset').create(uploadArguments)
+        data.url = response[0]
+      }
       const result = await client.service('static-resource').create(data)
       dispatch(AvatarAction.avatarCreated(result))
     } catch (error) {
       console.error(error)
     }
   },
-  updateAdminAvatar: async (id: string, data: CreateEditAdminAvatar) => {
+  updateAdminAvatar: async (id: string, blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()
     try {
+      if (blob) {
+        const uploadArguments: AdminAssetUploadType = {
+          type: 'admin-file-upload',
+          files: [blob],
+          args: [
+            {
+              key: data.key!,
+              contentType: 'model/gltf-binary',
+              staticResourceType: data.staticResourceType
+            }
+          ]
+        }
+        const response = await client.service('upload-asset').create(uploadArguments)
+        data.url = response[0]
+      }
       const result = await client.service('static-resource').patch(id, data)
       dispatch(AvatarAction.avatarUpdated(result))
     } catch (error) {

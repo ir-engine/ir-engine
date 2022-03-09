@@ -302,7 +302,8 @@
        },
        "avatar":{
         "fillRequiredFields":"Please fill all required field",
-        "avatarUrlCantEmpty":"avatar url can't be empty",
+        "avatarUrlCantEmpty":"Avatar url can't be empty",
+        "avatarCantEmpty":"Avatar can't be empty",
         "descriptionCantEmpty":"Description can't be empty",
         "nameCantEmpty":"Name can't be empty"
        },

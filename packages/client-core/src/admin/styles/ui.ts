@@ -487,6 +487,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     positionRight: {
       position: 'absolute',
       right: '10px'
+    },
+    avatarWidth: {
+      width: '40px'
     }
   })
 )
