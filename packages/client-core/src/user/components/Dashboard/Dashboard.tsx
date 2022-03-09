@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 
@@ -19,7 +20,7 @@ import { useStylesForDashboard } from './styles'
 import styles from './styles.module.scss'
 
 interface Props {
-  children?: any
+  children?: JSX.Element
 }
 
 /**
@@ -38,6 +39,8 @@ const Dashboard = ({ children }: Props) => {
   const admin = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const user = authState.user
+  const isLoggedIn = authState.isLoggedIn.value
+  const { t } = useTranslation()
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (

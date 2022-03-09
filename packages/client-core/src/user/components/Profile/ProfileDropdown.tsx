@@ -16,23 +16,23 @@ import { useAuthState } from '../../services/AuthService'
 import ProfileModal from './index'
 
 interface Props {
-  avatarUrl: any
-  logoutUser: any
-  auth: any
+  avatarUrl?: string
+  logoutUser: () => void
+  //auth: any
 }
 
-const MenuListComposition = (props: Props): any => {
+const MenuListComposition = (props: Props): JSX.Element => {
   const history = useHistory()
-  const { avatarUrl, logoutUser, auth } = props
+  const { avatarUrl, logoutUser } = props
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const anchorRef = useRef<HTMLButtonElement>(null)
   const { t } = useTranslation()
   const user = useAuthState().user
-  const handleToggle = (): any => {
+  const handleToggle = (): void => {
     setOpen((prevOpen) => !prevOpen)
   }
-  const handleModal = (): any => {
+  const handleModal = (): void => {
     setModalOpen(true)
     setOpen(false)
   }
@@ -43,12 +43,12 @@ const MenuListComposition = (props: Props): any => {
 
     setOpen(false)
   }
-  const handleLogout = (): any => {
+  const handleLogout = (): void => {
     logoutUser()
     setOpen(false)
   }
 
-  const handleListKeyDown = (event: KeyboardEvent): any => {
+  const handleListKeyDown = (event: KeyboardEvent): void => {
     if (event.key === 'Tab') {
       event.preventDefault()
       setOpen(false)
@@ -58,11 +58,11 @@ const MenuListComposition = (props: Props): any => {
   // const handleContacts = () => {
   //   history.push('/friends/friends')
   // }
-  const handleAdminConsole = (): any => {
+  const handleAdminConsole = (): void => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     history.push('/admin')
   }
-  const modalClose = (): any => {
+  const modalClose = (): void => {
     setModalOpen(false)
   }
   const prevOpen = useRef(open)
@@ -113,7 +113,7 @@ const MenuListComposition = (props: Props): any => {
           )}
         </Popper>
       </div>
-      <ProfileModal open={modalOpen} handleClose={modalClose} avatarUrl={avatarUrl} auth={auth} />
+      <ProfileModal open={modalOpen} handleClose={modalClose} avatarUrl={avatarUrl} />
     </div>
   )
 }

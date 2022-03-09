@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -16,9 +17,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import { useStyles } from './styles'
 
-interface serverProps {
-  fetchServerSettings?: any
-}
+interface serverProps {}
 
 const Server = (props: serverProps) => {
   const classes = useStyles()
@@ -29,6 +28,7 @@ const Server = (props: serverProps) => {
   const id = serverSetting?.id
   const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
   const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (serverSetting) {
@@ -82,12 +82,12 @@ const Server = (props: serverProps) => {
   return (
     <form onSubmit={handleSave}>
       <Typography component="h1" className={classes.settingsHeading}>
-        SERVER
+        {t('admin:components.setting.server')}
       </Typography>
       <Grid container spacing={3} key={serverSetting?.id || ''}>
         <Grid item xs={12} sm={6}>
           <br />
-          <label>Mode</label>
+          <label>{t('admin:components.setting.mode')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="mode"
@@ -97,7 +97,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.mode || 'test'}
             />
           </Paper>
-          <label> Host Name</label>
+          <label> {t('admin:components.setting.hostName')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="hostname"
@@ -107,7 +107,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.hostname || 'test'}
             />
           </Paper>
-          <label>Port</label>
+          <label>{t('admin:components.setting.port')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="port"
@@ -117,7 +117,7 @@ const Server = (props: serverProps) => {
               style={{ color: '#fff' }}
             />
           </Paper>
-          <label> Client Host</label>
+          <label> {t('admin:components.setting.clientHost')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="clienthost"
@@ -127,7 +127,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.clientHost || ''}
             />
           </Paper>
-          <label>Root Directory</label>
+          <label>{t('admin:components.setting.rootDirectory')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="rootDir"
@@ -137,7 +137,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.rootDir || ''}
             />
           </Paper>
-          <label>Public Directory</label>
+          <label>{t('admin:components.setting.publicDirectory')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="publicDir"
@@ -147,7 +147,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.publicDir || ''}
             />
           </Paper>
-          <label>Node Modules Directory</label>
+          <label>{t('admin:components.setting.nodeModulesDirectory')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="nodeModule"
@@ -157,7 +157,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.nodeModulesDir || ''}
             />
           </Paper>{' '}
-          <label>Local StorageProvider </label>
+          <label>{t('admin:components.setting.localStorageProvider')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="localStorageProvider"
@@ -167,7 +167,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.localStorageProvider || ''}
             />
           </Paper>
-          <label> Perform Dry Run</label>
+          <label> {t('admin:components.setting.performDryRun')}</label>
           <Paper component="div" className={classes.createInput}>
             <Switch
               disabled
@@ -180,7 +180,7 @@ const Server = (props: serverProps) => {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <label>Storage Provider </label>
+          <label>{t('admin:components.setting.storageProvider')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="StorageProvider"
@@ -190,7 +190,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.storageProvider || ''}
             />
           </Paper>
-          <label>Google Analytics Tracking ID </label>
+          <label>{t('admin:components.setting.googleAnalyticsTrackingId')} </label>
           <Paper component="div" className={classes.createInput}>
             <IconButton size="large">
               <Icon icon="emojione:key" />
@@ -234,7 +234,7 @@ const Server = (props: serverProps) => {
               </ListItem>
             </List>
           </Collapse>
-          <label>URL</label>
+          <label>{t('admin:components.setting.url')}</label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="url"
@@ -244,7 +244,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.url || ''}
             />
           </Paper>
-          <label> CertPath </label>
+          <label> {t('admin:components.setting.certPath')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="certPath"
@@ -254,7 +254,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.certPath || ''}
             />
           </Paper>
-          <label> KeyPath </label>
+          <label> {t('admin:components.setting.keyPath')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="keyPath"
@@ -264,7 +264,7 @@ const Server = (props: serverProps) => {
               value={serverSetting?.keyPath || ''}
             />
           </Paper>
-          <label> Github Private Key </label>
+          <label> {t('admin:components.setting.githubPrivateKey')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="GithubPrivateKey"
@@ -274,7 +274,7 @@ const Server = (props: serverProps) => {
               onChange={(e) => setGitPem(e.target.value)}
             />
           </Paper>
-          <label> Local </label>
+          <label> {t('admin:components.setting.local')} </label>
           <Paper component="div" className={classes.createInput}>
             <Switch
               disabled
@@ -285,7 +285,7 @@ const Server = (props: serverProps) => {
               inputProps={{ 'aria-label': 'primary checkbox' }}
             />
           </Paper>
-          <label> Release Name </label>
+          <label> {t('admin:components.setting.releaseName')} </label>
           <Paper component="div" className={classes.createInput}>
             <InputBase
               name="releaseName"
@@ -298,11 +298,11 @@ const Server = (props: serverProps) => {
         </Grid>
       </Grid>
       <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-        Cancel
+        {t('admin:components.setting.cancel')}
       </Button>
       &nbsp; &nbsp;
       <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit">
-        Save
+        {t('admin:components.setting.save')}
       </Button>
     </form>
   )

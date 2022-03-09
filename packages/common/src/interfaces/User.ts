@@ -1,3 +1,4 @@
+import { AdminScopeType } from './AdminScopeType'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
@@ -51,6 +52,13 @@ export const UserSeed: User = {
   },
   identityProviders: [],
   locationAdmins: []
+}
+
+export interface CreateEditUser {
+  name: string
+  avatarId: string
+  userRole: string
+  scopes: AdminScopeType[]
 }
 
 export function resolveUser(user: any): User {

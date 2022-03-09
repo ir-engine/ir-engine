@@ -14,6 +14,8 @@ import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-
 
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
@@ -347,6 +349,8 @@ export const initializeSceneSystems = async () => {
       }
     )
   }
+
+  if (isClient) initializeKTX2Loader(getGLTFLoader())
 
   await initSystems(world, systemsToLoad)
 }

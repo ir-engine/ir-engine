@@ -4,11 +4,11 @@ import Slider from '@mui/material/Slider'
 
 interface Props {
   value: number
-  onChange: any
-  arialabelledby: any
+  onChange: (event: Event, value: number | number[], activeThumb: number) => void
+  arialabelledby: string
 }
 
-const CommonSlider = (props: Props): any => (
+const CommonSlider = (props: Props): JSX.Element => (
   <Slider value={props.value} onChange={props.onChange} aria-labelledby={props.arialabelledby} />
 )
 

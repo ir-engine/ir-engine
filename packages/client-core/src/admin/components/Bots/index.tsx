@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { List } from '@mui/icons-material'
 import Card from '@mui/material/Card'
@@ -12,6 +13,8 @@ import DisplayBots from './DisplayBots'
 
 const Bots = () => {
   const classes = useStyles()
+  const { t } = useTranslation()
+
   return (
     <div>
       <Grid container={true} spacing={4}>
@@ -24,7 +27,7 @@ const Bots = () => {
             <Paper className={classes.botHeader}>
               <Typography className={classes.botTitle}>
                 <List className={classes.pTop5} />
-                <span className={classes.mLeft10}> XREngine bots </span>
+                <span className={classes.mLeft10}> {t('admin:components.bot.xrEngineBots')} </span>
               </Typography>
             </Paper>
             <DisplayBots />

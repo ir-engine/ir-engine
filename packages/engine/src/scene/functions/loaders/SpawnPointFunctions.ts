@@ -37,7 +37,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
     if (!spawnPointHelperModel) {
-      const { scene } = await AssetLoader.loadAsync({ url: GLTF_PATH })
+      const { scene } = await AssetLoader.loadAsync(GLTF_PATH)
       spawnPointHelperModel = scene
     }
 

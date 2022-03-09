@@ -27,4 +27,5 @@ export interface SceneDetailInterface {
   description?: string
   entities?: any
   version?: string
+  sid?: string
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
@@ -34,7 +35,7 @@ const AvatarMenu = (props: Props) => {
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
-  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<any>(null!)
+  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<UserAvatar | null>()
 
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
@@ -101,11 +102,11 @@ const AvatarMenu = (props: Props) => {
     setPage(page - 1)
   }
 
-  const selectAvatar = (avatarResources: any) => {
+  const selectAvatar = (avatarResources: UserAvatar) => {
     const avatar = avatarResources.avatar
-    setSelectedAvatarId(avatar.name)
-    if (avatarId !== avatar.name) {
-      setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url)
+    setSelectedAvatarId(avatar?.name || '')
+    if (avatarId !== avatar?.name) {
+      setAvatar(avatar?.name || '', avatar?.url || '', avatarResources?.userThumbnail?.url || '')
     }
   }
 
@@ -126,7 +127,7 @@ const AvatarMenu = (props: Props) => {
 
   const removeAvatar = (e, confirmation) => {
     e.stopPropagation()
-    if (confirmation) {
+    if (confirmation && avatarTobeDeleted?.avatar?.key) {
       AuthService.removeAvatar(avatarTobeDeleted.avatar.key)
     }
 
@@ -152,6 +153,7 @@ const AvatarMenu = (props: Props) => {
 
       avatarElementList.push(
         <div
+          key={`avatarMenuItem${index}`}
           className={styles.menuItem}
           style={{
             width: menuItemWidth,
@@ -191,9 +193,9 @@ const AvatarMenu = (props: Props) => {
           }}
         >
           <CardContent onClick={() => selectAvatar(characterAvatar)}>
-            <LazyImage key={avatar.id} src={characterAvatar['user-thumbnail'].url} alt={avatar.name} />
+            <LazyImage key={avatar.id} src={characterAvatar?.userThumbnail?.url || ''} alt={avatar.name} />
             {avatar.userId ? (
-              avatarTobeDeleted && avatarTobeDeleted.avatar.url === avatar.url ? (
+              avatarTobeDeleted && avatarTobeDeleted?.avatar?.url === avatar.url ? (
                 <div className={styles.confirmationBlock}>
                   <p>{t('user:usermenu.avatar.confirmation')}</p>
                   <button
