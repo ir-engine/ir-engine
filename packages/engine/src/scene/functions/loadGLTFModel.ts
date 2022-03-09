@@ -4,6 +4,7 @@ import { NavMesh, Polygon } from 'yuka'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
@@ -90,6 +91,9 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
+    const localPosition = new Vector3().copy(mesh.position)
+    const localRotation = new Quaternion().copy(mesh.quaternion)
+
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
     const transformComponent = addComponent(e, TransformComponent, {
@@ -100,13 +104,14 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
-    addComponent(e, TransformChildComponent, {
-      parent: entity,
-      offsetPosition: new Vector3().copy(transformComponent.position).sub(obj3d.getWorldPosition(new Vector3())),
-      offsetQuaternion: new Quaternion()
-        .copy(transformComponent.rotation)
-        .multiply(obj3d.getWorldQuaternion(new Quaternion()).invert())
-    })
+
+    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
+    if (Engine.isEditor)
+      addComponent(e, TransformChildComponent, {
+        parent: entity,
+        offsetPosition: localPosition,
+        offsetQuaternion: localRotation
+      })
 
     createObjectEntityFromGLTF(e, mesh)
   }
