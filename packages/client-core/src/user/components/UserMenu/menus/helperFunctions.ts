@@ -20,7 +20,6 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
 const t = i18next.t
 interface SceneProps {
@@ -57,7 +56,12 @@ export const validate = (obj) => {
   return ''
 }
 
-export const addAnimationLogic = (entity: Entity, world: World, setEntity: any, panelRef: any) => {
+export const addAnimationLogic = (
+  entity: Entity,
+  world: World,
+  setEntity: (entity: Entity) => void,
+  panelRef: React.MutableRefObject<HTMLDivElement | undefined>
+) => {
   addComponent(entity, AnimationComponent, {
     // empty object3d as the mixer gets replaced when model is loaded
     mixer: new AnimationMixer(new Object3D()),

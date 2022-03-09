@@ -13,12 +13,12 @@ export interface AdminBot {
 }
 
 export interface BotCommands {
-  id: string
+  id?: string
   name: string
   description?: string
-  createdAt: string
-  updatedAt: string
-  botId: string
+  createdAt?: string
+  updatedAt?: string
+  botId?: string
 }
 
 export interface Location {
@@ -49,11 +49,13 @@ export interface CreateBotAsAdmin {
   name: string
   instanceId?: string | null
   userId?: string
-  command?: Array<{
-    id: string
-    name: string
-    description: string
-  }>
+  command?: Array<BotCommands>
   description: string
   locationId: string
+}
+
+export interface CreateBotCammand {
+  name: string
+  description?: string
+  botId: string
 }

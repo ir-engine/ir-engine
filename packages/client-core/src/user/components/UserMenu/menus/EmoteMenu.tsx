@@ -13,7 +13,7 @@ import styles from '../UserMenu.module.scss'
 
 type Props = { changeActiveMenu: (menu: any) => {} }
 
-const EmoteMenu = (props: Props): any => {
+const EmoteMenu = (props: Props): JSX.Element => {
   const MAX_EMOTE_PER_PAGE = 6
   const MIN_EMOTE_PER_PAGE = 5
 

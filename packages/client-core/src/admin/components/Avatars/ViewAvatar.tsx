@@ -9,6 +9,8 @@ import {
   MIN_AVATAR_FILE_SIZE,
   REGEX_VALID_URL
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
@@ -40,8 +42,8 @@ const Input = styled('input')({
 
 interface Props {
   openView: boolean
-  closeViewModel?: any
-  avatarData: any
+  closeViewModel?: (open: boolean) => void
+  avatarData: AvatarInterface
 }
 
 let camera: PerspectiveCamera
@@ -74,16 +76,16 @@ const ViewAvatar = (props: Props) => {
 
   const ref = useRef(null)
   const handleCloseDrawer = () => {
-    closeViewModel(false)
+    closeViewModel && closeViewModel(false)
   }
 
   const initialData = () => {
     setState({
       ...state,
-      name: avatarData.name || '',
-      key: avatarData.key || '',
-      url: avatarData.url || '',
-      description: avatarData.description || '',
+      name: avatarData?.name || '',
+      key: avatarData?.key || '',
+      url: avatarData?.url || '',
+      description: avatarData?.description || '',
       formErrors: {
         name: '',
         key: '',
@@ -220,7 +222,7 @@ const ViewAvatar = (props: Props) => {
   }
 
   const updateAvatar = async () => {
-    const data = {
+    const data: CreateEditAdminAvatar = {
       name: state.name,
       description: state.description,
       url: state.url,
@@ -229,13 +231,13 @@ const ViewAvatar = (props: Props) => {
     }
     let temp = state.formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.avatar.nameCantEmpty')
     }
     if (!state.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.avatar.descriptionCantEmpty')
     }
     if (!state.url) {
-      temp.url = "avatar url can't be empty"
+      temp.url = t('admin:components.avatar.avatarUrlCantEmpty')
     }
     const url = selectedAvatarlUrl ? selectedAvatarlUrl : state.url
     if (validateForm(state, state.formErrors)) {
@@ -257,11 +259,10 @@ const ViewAvatar = (props: Props) => {
           await AvatarService.updateAdminAvatar(avatarData.id, new File([blob!], data.name), url, data)
         })
       }
-      // await AvatarService.updateAdminAvatar(avatarData.id, data)
       setEditMode(false)
-      closeViewModel(false)
+      closeViewModel && closeViewModel(false)
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.avatar.fillRequiredFields'))
       setOpenAlter(true)
     }
   }
@@ -303,9 +304,9 @@ const ViewAvatar = (props: Props) => {
           {editMode ? (
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                Update avatar Information
+                {t('user:avatar.uploadAvatarInfo')}
               </Typography>
-              <label>Name</label>
+              <label>{t('user:avatar.name')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
@@ -313,7 +314,7 @@ const ViewAvatar = (props: Props) => {
                 <InputBase
                   className={classes.input}
                   name="name"
-                  placeholder="Enter name"
+                  placeholder={t('user:avatar.enterName')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
@@ -384,8 +385,8 @@ const ViewAvatar = (props: Props) => {
                   </label>
                 </>
               )}
-              {/* <label>Avatar url</label>
-              <Paper
+              {/* <label>{t('user:avatar.avatarUrl')}</label> */}
+              {/* <Paper
                 component="div"
                 className={state.formErrors.url.length > 0 ? classes.redBorder : classes.createInput}
               >
@@ -410,7 +411,7 @@ const ViewAvatar = (props: Props) => {
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>
-                  Submit
+                  {t('user:avatar.submit')}
                 </Button>
                 <Button
                   className={classes.saveBtn}
@@ -424,7 +425,7 @@ const ViewAvatar = (props: Props) => {
                     }
                   }}
                 >
-                  CANCEL
+                  {t('user:avatar.cancel')}
                 </Button>
               </div>
             ) : (
@@ -435,10 +436,10 @@ const ViewAvatar = (props: Props) => {
                     setEditMode(true)
                   }}
                 >
-                  EDIT
+                  {t('user:avatar.edit')}
                 </Button>
                 <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
-                  CANCEL
+                  {t('user:avatar.cancel')}
                 </Button>
               </div>
             )}

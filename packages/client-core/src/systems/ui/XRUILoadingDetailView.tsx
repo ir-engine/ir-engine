@@ -1,6 +1,7 @@
 import { createState, State, useHookstate } from '@speigg/hookstate'
 import getImagePalette from 'image-palette-core'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -52,7 +53,7 @@ const LoadingDetailView = (props: {
   const sceneState = useSceneState()
   const engineState = useEngineState()
   const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
-
+  const { t } = useTranslation()
   const colors = useHookstate({
     main: '',
     background: '',
@@ -174,8 +175,8 @@ const LoadingDetailView = (props: {
           <img xr-layer="true" xr-pixel-ratio="1" src={thumbnailUrl} crossOrigin="anonymous" />
         </div> */}
         <div id="loading-ui" xr-layer="true">
-          <div id="loading-text" xr-layer="true" xr-pixel-ratio="8">
-            loading
+          <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
+            {t('common:gameServer.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="8">
             {engineState.loadingProgress.value}%

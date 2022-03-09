@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -17,6 +18,7 @@ const FormDialog = () => {
   const handleClose = () => {
     setOpen(false)
   }
+  const { t } = useTranslation()
 
   return (
     <div>
@@ -26,19 +28,19 @@ const FormDialog = () => {
         aria-labelledby="form-dialog-title"
         classes={{ paper: classes.paperDialog }}
       >
-        <DialogTitle id="form-dialog-title"> No access</DialogTitle>
+        <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.notAccess')}</DialogTitle>
         <DialogContent>
           <DialogContentText className={classex.spanNone}>
-            To access this resource, please enter your username here to ask for access.
+            {t('admin:components.dialog.askAccessResourceMessage')}
           </DialogContentText>
           <TextField autoFocus id="name" label="Username" type="text" fullWidth />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} className={classex.spanNone}>
-            Cancel
+            {t('admin:components.dialog.cancel')}
           </Button>
           <Button onClick={handleClose} className={classex.spanDange}>
-            Submit
+            {t('admin:components.dialog.submit')}
           </Button>
         </DialogActions>
       </Dialog>

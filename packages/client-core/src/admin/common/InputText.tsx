@@ -7,9 +7,9 @@ import Paper from '@mui/material/Paper'
 import { useStyles } from '../styles/ui'
 
 interface Props {
-  value: any
-  formErrors: any
-  handleInputChange: any
+  value: string
+  formErrors: string
+  handleInputChange: (e: any) => void
   name: string
 }
 

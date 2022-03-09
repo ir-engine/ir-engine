@@ -11,11 +11,10 @@ import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 
 interface Props {
-  classes: any
+  //classes: any
 }
 
 const ForgotPasswordComponent = (props: Props): any => {
-  const { classes } = props
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 
@@ -78,6 +77,6 @@ const ForgotPasswordComponent = (props: Props): any => {
   )
 }
 
-const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />
+const ForgotPasswordWrapper = (props: Props): JSX.Element => <ForgotPasswordComponent {...props} />
 
 export default ForgotPasswordWrapper

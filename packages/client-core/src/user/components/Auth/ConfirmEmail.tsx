@@ -13,7 +13,7 @@ import styles from './Auth.module.scss'
 
 interface Props {}
 
-const ConfirmEmail = (props: Props): any => {
+const ConfirmEmail = (props: Props): JSX.Element => {
   const auth = useAuthState()
   const { t } = useTranslation()
   const handleResendEmail = (e: any): any => {
@@ -34,11 +34,13 @@ const ConfirmEmail = (props: Props): any => {
           <Box mt={3}>
             <Typography variant="body2" color="textSecondary" align="center">
               <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
-                Please check your email to verify your account. If you didn&apos;t get an email, please click
-                <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>
-                  here
-                </Button>{' '}
-                to resend the verification email.
+                {t('user:auth.confirmEmail.resendEmail', {
+                  here: `${(
+                    <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>
+                      here
+                    </Button>
+                  )}`
+                })}
               </Trans>
             </Typography>
           </Box>
@@ -48,6 +50,6 @@ const ConfirmEmail = (props: Props): any => {
   )
 }
 
-const ConfirmEmailWrapper = (props): any => <ConfirmEmail {...props} />
+const ConfirmEmailWrapper = (props): JSX.Element => <ConfirmEmail {...props} />
 
 export default ConfirmEmailWrapper
