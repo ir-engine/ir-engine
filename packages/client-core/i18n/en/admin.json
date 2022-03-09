@@ -299,7 +299,10 @@
             "googleAnalyticsTrackingId":"Google Analytics Tracking ID",
             "certPath":"CertPath",
             "keyPath":"KeyPath",
-            "githubPrivateKey":"Github Private Key"
+            "githubPrivateKey":"Github Private Key",
+            "project": "PROJECT",
+            "addNewSetting": "Add New Setting",
+            "selectProject": "Select Project",
        },
        "avatar":{
         "fillRequiredFields":"Please fill all required field",

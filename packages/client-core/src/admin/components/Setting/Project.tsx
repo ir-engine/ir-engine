@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Button, Grid, IconButton, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
@@ -19,6 +20,7 @@ const Project = (props: Props) => {
   const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
+  const { t } = useTranslation()
   const projectState = useProjectState()
   const projects = projectState.projects
 
@@ -85,12 +87,12 @@ const Project = (props: Props) => {
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          PROJECT
+          {t('admin:components.setting.project')}
         </Typography>
         <div className={classes.root}>
           <Grid container spacing={3}>
             <Grid item xs={6} sm={4}>
-              <label>Select Project</label>
+              <label>{t('admin:components.setting.selectProject')}</label>
               <TextField select value={selectedProject} className={classes.selectInput}>
                 {projects.value &&
                   projects.value.map((proj, index) => (
@@ -142,17 +144,17 @@ const Project = (props: Props) => {
             </Grid>
             <Grid item xs={6} sm={4}>
               <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleAddNewSetting}>
-                Add New Setting
+                {t('admin:components.setting.addNewSetting')}
               </Button>
             </Grid>
           </Grid>
           <Grid item container xs={12}>
             <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-              Cancel
+              {t('admin:components.setting.cancel')}
             </Button>
             &nbsp; &nbsp;
             <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
-              Save
+              {t('admin:components.setting.save')}
             </Button>
           </Grid>
         </div>
