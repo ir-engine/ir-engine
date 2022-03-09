@@ -99,12 +99,12 @@ export default async function EntityNodeEventSystem(_: World) {
     /* Misc */
     for (const entity of videoAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh.removeFromParent()
+      obj3d.userData.textureMesh?.removeFromParent()
     }
 
     for (const entity of volumetricAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh.removeFromParent()
+      obj3d.userData.textureMesh?.removeFromParent()
     }
   }
 }
