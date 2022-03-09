@@ -107,7 +107,7 @@ export const initialize3D = () => {
   const frontLight = new DirectionalLight(0xfafaff, 0.7)
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+  const hemi = new HemisphereLight(0xffffff, 0xffffff, 2)
   scene.add(backLight)
   scene.add(backLight.target)
   scene.add(frontLight)
