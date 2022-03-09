@@ -104,7 +104,7 @@ export function NodeIssuesIcon({ node }) {
   }
 
   return (
-    <Tooltip renderContent={renderInfo}>
+    <Tooltip title={renderInfo()}>
       <IssueIcon color={severityToColor[maxSeverity]} />
     </Tooltip>
   )

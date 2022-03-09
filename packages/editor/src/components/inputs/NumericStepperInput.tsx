@@ -80,13 +80,13 @@ export function NumericStepperInput({
 
   return (
     <StepperInputContainer style={style} className={className}>
-      <InfoTooltip info={decrementTooltip} position="bottom">
+      <InfoTooltip title={decrementTooltip} placement="bottom">
         <StepperButton left onClick={onDecrement}>
           <ArrowLeftIcon fontSize="small" />
         </StepperButton>
       </InfoTooltip>
       <NumericInput {...rest} onChange={onChange} value={value} mediumStep={mediumStep} />
-      <InfoTooltip info={incrementTooltip} position="bottom">
+      <InfoTooltip title={incrementTooltip} placement="bottom">
         <StepperButton right onClick={onIncrement}>
           <ArrowRightIcon fontSize="small" />
         </StepperButton>

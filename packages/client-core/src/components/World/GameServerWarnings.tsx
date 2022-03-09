@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { LocationInstanceConnectionService } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import {
+  LocationInstanceConnectionService,
+  useLocationInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { SocketWebRTCClientTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -8,7 +14,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
-import { usePartyState } from '../../social/services/PartyService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 type GameServerWarningsProps = {
@@ -27,7 +32,8 @@ enum WarningModalTypes {
   INSTANCE_DISCONNECTED,
   USER_KICKED,
   INVALID_LOCATION,
-  INSTANCE_WEBGL_DISCONNECTED
+  INSTANCE_WEBGL_DISCONNECTED,
+  CHANNEL_DISCONNECTED
 }
 
 const GameServerWarnings = (props: GameServerWarningsProps) => {
@@ -35,7 +41,10 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   const [modalValues, setModalValues] = useState(initialModalValues)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
+  const chatState = useChatState()
+  const instanceConnectionState = useLocationInstanceConnectionState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -58,7 +67,13 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       updateWarningModal(WarningModalTypes.USER_KICKED, message)
     )
 
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () =>
+      updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
+    )
+
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, reset)
+
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, reset)
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
     var db = indexedDB.open('test')
@@ -79,8 +94,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
           open: true,
-          title: 'Browser Error',
-          body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+          title: t('common:gameServer.browserError'),
+          body: t('common:gameServer.browserErrorMessage'),
           noCountdown: true
         })
         break
@@ -89,8 +104,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
-          title: 'No Available Servers',
-          body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
+          title: t('common:gameServer.noAvailableServers'),
+          body: t('common:gameServer.noAvailableServersMessage'),
           action: async () => LocationInstanceConnectionService.provisionServer(currentLocation.id),
           parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
           noCountdown: false
@@ -103,10 +118,28 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'World disconnected',
-          body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
+          title: t('common:gameServer.worldDisconnected'),
+          body: t('common:gameServer.worldDisconnectedMessage'),
           action: async () => window.location.reload(),
           timeout: 30000,
+          noCountdown: false
+        })
+        break
+
+      case WarningModalTypes.CHANNEL_DISCONNECTED:
+        if (!Engine.userId) return
+        if (transport.left) return
+
+        const channels = chatState.channels.channels.value
+        const instanceChannel = Object.values(channels).find(
+          (channel) => channel.instanceId === instanceConnectionState.instance.id.value
+        )
+        setModalValues({
+          open: true,
+          title: 'Media disconnected',
+          body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
+          action: async () => MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true),
+          timeout: 15000,
           noCountdown: false
         })
         break
@@ -116,8 +149,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'WebGL not enabled',
-          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
+          title: t('common:gameServer.webGLNotEnabled'),
+          body: t('common:gameServer.webGLNotEnabledMessage'),
           action: async () => window.location.reload(),
           noCountdown: true
         })
@@ -126,8 +159,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.USER_KICKED:
         setModalValues({
           open: true,
-          title: "You've been kicked from the world",
-          body: 'You were kicked from this world for the following reason: ' + message,
+          title: t('common:gameServer.youKickedFromWorld'),
+          body: `${t('common:gameServer.youKickedFromWorldMessage')}: ${message}`,
           noCountdown: true
         })
         break
@@ -135,8 +168,10 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INVALID_LOCATION:
         setModalValues({
           open: true,
-          title: 'Invalid location',
-          body: `We can't find the location '${props.locationName}'. It may be misspelled, or it may not exist.`,
+          title: t('common:gameServer.invalidLocation'),
+          body: `${t('common:gameServer.cantFindLocation')} '${props.locationName}'. ${t(
+            'common:gameServer.misspelledOrNotExist'
+          )}`,
           noCountdown: true
         })
         break

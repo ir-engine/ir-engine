@@ -139,7 +139,6 @@ export const loadLocation = () => {
   dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading Objects'))
 
   const dispatch = useDispatch()
-
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
   let entitiesToLoad = 0

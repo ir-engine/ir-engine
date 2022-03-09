@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -14,13 +15,13 @@ const SceneTable = (props: SceneProps) => {
   const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
-
+  const { t } = useTranslation()
   const scene = useSceneState()
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
   const [singleScene, setSingleScene] = React.useState<SceneDetailInterface>(null!)
   const [open, setOpen] = React.useState(false)
-  const [sceneName, setSceneName] = React.useState<any>('')
+  const [sceneName, setSceneName] = React.useState<string | JSX.Element>('')
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [sceneId, setSceneId] = React.useState('')
   const [page, setPage] = React.useState(0)
@@ -68,8 +69,8 @@ const SceneTable = (props: SceneProps) => {
     name: string | JSX.Element,
     type: string | JSX.Element,
     description: string | JSX.Element,
-    entity: any,
-    version: any
+    entity: number | JSX.Element,
+    version: string | JSX.Element
   ): SceneData => {
     return {
       id,
@@ -82,7 +83,7 @@ const SceneTable = (props: SceneProps) => {
         <>
           <a href="#h" className={classes.actionStyle}>
             <span className={classes.spanWhite} onClick={() => handleViewScene(id)}>
-              View
+              {t('admin:components.index.view')}
             </span>
           </a>
           <a
@@ -94,7 +95,7 @@ const SceneTable = (props: SceneProps) => {
               setSceneName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={classes.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )
@@ -104,11 +105,11 @@ const SceneTable = (props: SceneProps) => {
   const rows = sceneData?.value.map((el) => {
     return createData(
       el.id!,
-      el.name || <span className={classes.spanNone}>None</span>,
-      el.type || <span className={classes.spanNone}>None</span>,
-      el.description || <span className={classes.spanNone}>None</span>,
-      el.entities?.length || <span className={classes.spanNone}>None</span>,
-      el.version || <span className={classes.spanNone}>None</span>
+      el.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.type || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.description || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.entities?.length || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.version || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
     )
   })
 

@@ -1,6 +1,6 @@
 import matches from 'ts-matches'
 
-import { matchesWeightsParameters } from '../../avatar/animations/Util'
+import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   defineActionCreator,
   matchesNetworkId,

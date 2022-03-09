@@ -1,0 +1,15 @@
+@use "../theme.scss" as theme;
+
+.controlsText {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  pointer-events: none;
+  color: theme.$text2;
+  padding: 8px;
+  height: 30px;
+  background: theme.$panel2;
+  width: 100vw;
+  z-index: 1000;
+  text-align: right;
+}

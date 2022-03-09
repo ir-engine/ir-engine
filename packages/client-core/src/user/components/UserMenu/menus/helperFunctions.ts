@@ -20,7 +20,6 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
 const t = i18next.t
 interface SceneProps {
@@ -57,7 +56,12 @@ export const validate = (obj) => {
   return ''
 }
 
-export const addAnimationLogic = (entity: Entity, world: World, setEntity: any, panelRef: any) => {
+export const addAnimationLogic = (
+  entity: Entity,
+  world: World,
+  setEntity: (entity: Entity) => void,
+  panelRef: React.MutableRefObject<HTMLDivElement | undefined>
+) => {
   addComponent(entity, AnimationComponent, {
     // empty object3d as the mixer gets replaced when model is loaded
     mixer: new AnimationMixer(new Object3D()),
@@ -103,7 +107,7 @@ export const initialize3D = () => {
   const frontLight = new DirectionalLight(0xfafaff, 0.7)
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+  const hemi = new HemisphereLight(0xffffff, 0xffffff, 2)
   scene.add(backLight)
   scene.add(backLight.target)
   scene.add(frontLight)

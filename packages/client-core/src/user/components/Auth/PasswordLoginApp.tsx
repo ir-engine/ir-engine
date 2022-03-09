@@ -16,7 +16,7 @@ const initialState = { email: '', password: '' }
 
 interface Props {}
 
-export const PasswordLoginApp = (props: Props): any => {
+export const PasswordLoginApp = (props: Props): JSX.Element => {
   const {} = props
   const { t } = useTranslation()
 
@@ -94,6 +94,6 @@ export const PasswordLoginApp = (props: Props): any => {
   )
 }
 
-const PasswordLoginWrapper = (props: Props): any => <PasswordLoginApp {...props} />
+const PasswordLoginWrapper = (props: Props): JSX.Element => <PasswordLoginApp {...props} />
 
 export default PasswordLoginWrapper

@@ -1,10 +1,13 @@
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { Invite as InviteDataType } from '@xrengine/common/src/interfaces/Invite'
+import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+
+export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
 /**
  * A class for Invite service

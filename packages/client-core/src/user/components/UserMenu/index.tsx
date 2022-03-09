@@ -41,7 +41,7 @@ HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
-const UserMenu = (): any => {
+const UserMenu = (): JSX.Element => {
   const [engineLoaded, setEngineLoaded] = useState(false)
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 

@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { BotCommands } from '@xrengine/common/src/interfaces/AdminBot'
+import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
 
 import { client } from '../../feathers'
 import { useDispatch } from '../../store'
@@ -10,7 +10,7 @@ import { store } from '../../store'
 export const BOTS_PAGE_LIMIT = 100
 
 const state = createState({
-  botCommand: [],
+  botCommand: [] as BotCommands[],
   skip: 0,
   limit: BOTS_PAGE_LIMIT,
   total: 0,
@@ -37,7 +37,7 @@ export const useBotCommandState = () => useState(state) as any as typeof state
 
 //Service
 export const BotCommandService = {
-  createBotCammand: async (data: any) => {
+  createBotCammand: async (data: CreateBotCammand) => {
     const dispatch = useDispatch()
     try {
       const botCammand = await client.service('bot-command').create(data)
