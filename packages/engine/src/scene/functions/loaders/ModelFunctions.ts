@@ -56,11 +56,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
 
-  const loader = getGLTFLoader()
-  if (!loader.ktx2Loader) {
-    initializeKTX2Loader(getGLTFLoader())
-  }
-
   registerSceneLoadPromise(updateModel(entity, props) as any as Promise<void>)
 }
 
