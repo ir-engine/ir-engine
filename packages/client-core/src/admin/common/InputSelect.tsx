@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
@@ -17,6 +18,8 @@ interface Props {
 
 const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props) => {
   const classes = useStyles()
+  const { t } = useTranslation()
+
   return (
     <Paper component="div" className={formErrors.length > 0 ? classes.redBorder : classes.createInput}>
       <FormControl fullWidth disabled={menu.length > 0 ? false : true}>
@@ -32,7 +35,9 @@ const InputSelect = ({ formErrors, value, handleInputChange, name, menu }: Props
           MenuProps={{ classes: { paper: classes.selectPaper } }}
         >
           <MenuItem value="" disabled>
-            <em>Select {name}</em>
+            <em>
+              {t('admin:components.common.select')} {name}
+            </em>
           </MenuItem>
           {menu.map((el, index) => (
             <MenuItem value={el.value} key={index}>

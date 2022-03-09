@@ -2,7 +2,7 @@ import React from 'react'
 
 import styles from './SquareLoader.module.scss'
 
-const Loader = (): any => {
+const Loader = (): JSX.Element => {
   return (
     <div className={styles['wrapper']}>
       <div className={styles['box']}>

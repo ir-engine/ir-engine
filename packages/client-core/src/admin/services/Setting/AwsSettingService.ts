@@ -1,6 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AdminAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+import { AdminAwsSettingResult } from '@xrengine/common/src/interfaces/AdminAwsSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -43,7 +44,7 @@ export const AwsSettingService = {
       }
     }
   },
-  patchAwsSetting: async (data: any, id: string) => {
+  patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {
@@ -60,7 +61,7 @@ export const AwsSettingService = {
 //Action
 export const AwsSettingAction = {
   // TODO: add interface
-  awsSettingRetrieved: (adminAWSSettingResult: any) => {
+  awsSettingRetrieved: (adminAWSSettingResult: AdminAwsSettingResult) => {
     return {
       type: 'ADMIN_AWS_SETTING_FETCHED' as const,
       adminAWSSettingResult: adminAWSSettingResult

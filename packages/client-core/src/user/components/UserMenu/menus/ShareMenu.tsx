@@ -16,10 +16,10 @@ import { useDispatch } from '../../../../store'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 
-const ShareMenu = (): any => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
-  const refLink = useRef<any>(null!)
+  const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
   const dispatch = useDispatch()

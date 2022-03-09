@@ -52,7 +52,7 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseTransformProperties = (props: any): TransformComponentType => {
+export const parseTransformProperties = (props: any): TransformComponentType => {
   const result = {} as TransformComponentType
 
   let tempV3 = props.position ?? SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES.position

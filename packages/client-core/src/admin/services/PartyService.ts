@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -95,7 +95,7 @@ export const PartyService = {
       dispatch(PartyAction.partyRemoved(result))
     }
   },
-  patchParty: async (id: string, party: any) => {
+  patchParty: async (id: string, party: PatchParty) => {
     const dispatch = useDispatch()
     {
       try {

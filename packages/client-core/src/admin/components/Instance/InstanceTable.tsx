@@ -1,4 +1,8 @@
 import React, { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -30,6 +34,7 @@ const InstanceTable = (props: Props) => {
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [instanceId, setInstanceId] = React.useState('')
   const [instanceName, setInstanceName] = React.useState('')
+  const { t } = useTranslation()
 
   const user = useAuthState().user
   const adminInstanceState = useInstanceState()
@@ -84,9 +89,9 @@ const InstanceTable = (props: Props) => {
     id: string,
     ipAddress: string,
     currentUsers: Number,
-    locationId: any,
     channelId: string,
-    podName: string
+    podName: string,
+    locationId?: Location
   ): InstanceData => {
     return {
       id,
@@ -105,14 +110,14 @@ const InstanceTable = (props: Props) => {
             setInstanceName(ipAddress)
           }}
         >
-          <span className={classes.spanDange}>Delete</span>
+          <span className={classes.spanDange}>{t('admin:components.locationModel.lbl-delete')}</span>
         </a>
       )
     }
   }
 
-  const rows = adminInstances.instances.value.map((el: any) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || '', el.podName)
+  const rows = adminInstances.instances.value.map((el: Instance) =>
+    createData(el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
   )
 
   return (
