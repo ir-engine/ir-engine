@@ -1,7 +1,6 @@
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -150,10 +149,12 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const shouldWrite = entity && !hasComponent(entity, NetworkObjectAuthorityTag)
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, shouldWrite)
-  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity, shouldWrite)
-  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity, shouldWrite)
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 
+  const nameComponent = getComponent(entity, NameComponent)
+  console.log('network state set for:', nameComponent.name, world.fixedTick)
   const network = getComponent(entity, NetworkObjectComponent)
   network.lastTick = world.fixedTick
 }

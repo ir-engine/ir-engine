@@ -10,7 +10,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { getGeometryType } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { ObstaclesComponent } from '../components/ObstaclesComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
@@ -232,9 +231,8 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
       body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
-      const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
-      const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
-      addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
+      const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
+      addComponent(entity, VelocityComponent, { velocity })
     }
   }
 }

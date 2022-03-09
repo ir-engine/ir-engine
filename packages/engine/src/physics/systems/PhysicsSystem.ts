@@ -82,7 +82,7 @@ const processNetworkBodies = (world: World) => {
     // Ignore if we own this object or no new network state has been received for this object
     // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
     if (network.ownerId === Engine.userId || network.lastTick < world.fixedTick) {
-      // console.log('ignoring state for:', nameComponent)
+      console.log('ignoring state for:', nameComponent)
       continue
     }
 
@@ -92,20 +92,18 @@ const processNetworkBodies = (world: World) => {
 
     teleportRigidbody(body, transform.position, transform.rotation)
 
-    const linearVelocity = getComponent(entity, VelocityComponent).linear
-    const angularVelocity = getComponent(entity, VelocityComponent).angular
+    const linearVelocity = getComponent(entity, VelocityComponent).velocity
     body.setLinearVelocity(linearVelocity, true)
-    body.setAngularVelocity(angularVelocity, true)
 
-    // console.log(
-    //   'physics velocity of network object:',
-    //   nameComponent.name,
-    //   network.lastTick,
-    //   world.fixedTick,
-    //   angularVelocity.x,
-    //   angularVelocity.y,
-    //   angularVelocity.z
-    // )
+    console.log(
+      'physics velocity of network object:',
+      nameComponent.name,
+      network.lastTick,
+      world.fixedTick,
+      linearVelocity.x,
+      linearVelocity.y,
+      linearVelocity.z
+    )
   }
   return world
 }
