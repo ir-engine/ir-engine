@@ -1,21 +1,22 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
 
+import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
+import { Person } from '@mui/icons-material'
+import { ClickAwayListener } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
-import Avatar from '@mui/material/Avatar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import MenuComponent from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import { styled, useTheme } from '@mui/material/styles'
-import Toolbar from '@mui/material/Toolbar'
+import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-import { useAuthState } from '../../services/AuthService'
+import { AuthService, useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
+import styles from './styles.module.scss'
 
 interface Props {
   children?: any
@@ -35,16 +36,8 @@ const Dashboard = ({ children }: Props) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const admin = authState.user
-  const isLoggedIn = authState.isLoggedIn.value
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const openMenu = Boolean(anchorEl)
-  const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const user = authState.user
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -55,56 +48,46 @@ const Dashboard = ({ children }: Props) => {
     }
     setOpen(open)
   }
+
   return (
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar className={classes.header}>
-          <IconButton
-            color="inherit"
-            style={{ color: 'white' }}
-            aria-label="open drawer"
-            onClick={handleDrawerOpen(true)}
-            edge="start"
-            className={clsx(classes.menuButton, {
-              [classes.hide]: open
-            })}
-            size="large"
-          >
-            <Menu />
-          </IconButton>
-          <div className={classes.appBarHeadingContainer}>
-            <Typography variant="h6">Dashboard</Typography>
-            {admin?.name.value && (
-              <IconButton
-                className={classes.avatarPosition}
-                id="basic-button"
-                aria-controls={open ? 'basic-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={openMenu ? 'true' : undefined}
-                onClick={handleClickMenu}
-              >
-                <Avatar className={classes.orange}>{admin?.name?.value.charAt(0)?.toUpperCase()}</Avatar>
-                <Typography variant="h6" className={clsx(classes.marginLft, classes.appBarHeadingName)}>
-                  {admin?.name.value}
-                </Typography>
-              </IconButton>
-            )}
-          </div>
-        </Toolbar>
+        <nav className={styles.navbar}>
+          <div className={styles.navContainer}>
+            <IconButton
+              color="inherit"
+              style={{ color: 'white' }}
+              aria-label="open drawer"
+              onClick={handleDrawerOpen(true)}
+              edge="start"
+              className={clsx(classes.menuButton, {
+                [classes.hide]: open
+              })}
+              size="large"
+            >
+              <Menu />
+            </IconButton>
+            <div className={classes.appBarHeadingContainer}>
+              <Typography variant="h6">Dashboard</Typography>
 
-        <MenuComponent
-          id="basic-menu"
-          anchorEl={anchorEl}
-          open={openMenu}
-          onClose={handleClose}
-          MenuListProps={{
-            'aria-labelledby': 'basic-button'
-          }}
-        >
-          <MenuItem onClick={handleClose}>My account</MenuItem>
-          <MenuItem onClick={handleClose}>Logout</MenuItem>
-        </MenuComponent>
+              <IconButton onClick={() => setProfileMenuOpen(true)} className={styles.profileButton} disableRipple>
+                <span>{user.name.value}</span>
+                <Person />
+              </IconButton>
+              {profileMenuOpen && (
+                <>
+                  <div className={styles.backdrop}></div>
+                  <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
+                    <div className={styles.profileMenuBlock}>
+                      <ProfileMenu setProfileMenuOpen={setProfileMenuOpen} className={styles.profileMenuContainer} />
+                    </div>
+                  </ClickAwayListener>
+                </>
+              )}
+            </div>
+          </div>
+        </nav>
       </AppBar>
       <Drawer
         variant={open ? 'temporary' : 'permanent'}
