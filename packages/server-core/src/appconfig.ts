@@ -291,7 +291,6 @@ const aws = {
   }
 }
 
-console.log('aws settings in appconfig', aws, aws.s3.endpoint)
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
   apiKey: process.env.CHARGEBEE_API_KEY!

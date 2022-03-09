@@ -56,7 +56,7 @@ export const loadExtensions = async (gltf: GLTF) => {
   }
 }
 
-const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
+const processModelAsset = (asset: Mesh): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
@@ -65,9 +65,6 @@ const processModelAsset = (asset: Mesh, params: AssetLoaderParamType): void => {
     if (haveAnyLODs(child)) loddables.push(child)
 
     if (!child.isMesh) return
-
-    if (typeof params.receiveShadow !== 'undefined') child.receiveShadow = params.receiveShadow
-    if (typeof params.castShadow !== 'undefined') child.castShadow = params.castShadow
 
     if (replacedMaterials.has(child.material)) {
       child.material = replacedMaterials.get(child.material)
@@ -158,6 +155,18 @@ const getAssetClass = (assetFileName: string): AssetClass => {
   }
 }
 
+/**
+ * Returns true if the given file type is supported
+ * Note: images are not supported on node
+ * @param assetFileName
+ * @returns
+ */
+const isSupported = (assetFileName: string) => {
+  const assetClass = getAssetClass(assetFileName)
+  if (isClient) return !!assetClass
+  return assetClass === AssetClass.Model
+}
+
 //@ts-ignore
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
@@ -178,63 +187,55 @@ export const getLoader = (assetType: AssetType) => {
   }
 }
 
-type AssetLoaderParamType = {
-  url: string
-  cache?: boolean
-  castShadow?: boolean
-  receiveShadow?: boolean
-  instanced?: boolean
-}
-
-const assetLoadCallback =
-  (url: string, assetType: AssetType, params, onLoad: (response: any) => void) => async (asset) => {
-    const assetClass = AssetLoader.getAssetClass(url)
-    if (assetClass === AssetClass.Model) {
-      if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
-        await loadExtensions(asset)
-      }
-
-      if (assetType === AssetType.FBX) {
-        asset = { scene: asset }
-      } else if (assetType === AssetType.VRM) {
-        asset = asset.userData.vrm
-      }
-
-      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-      if (asset.scene.userData) asset.scene.userData.type = assetType
-      if (asset.userData) asset.userData.type = assetType
-
-      AssetLoader.processModelAsset(asset.scene, params)
+const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+  const assetClass = AssetLoader.getAssetClass(url)
+  if (assetClass === AssetClass.Model) {
+    if (assetType === AssetType.glTF || assetType === AssetType.VRM) {
+      await loadExtensions(asset)
     }
 
-    params.cache && AssetLoader.Cache.set(url, asset)
-    onLoad(asset)
+    if (assetType === AssetType.FBX) {
+      asset = { scene: asset }
+    } else if (assetType === AssetType.VRM) {
+      asset = asset.userData.vrm
+    }
+
+    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+    if (asset.scene.userData) asset.scene.userData.type = assetType
+    if (asset.userData) asset.userData.type = assetType
+
+    AssetLoader.processModelAsset(asset.scene)
   }
 
+  AssetLoader.Cache.set(url, asset)
+  onLoad(asset)
+}
+
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
+
 const load = async (
-  params: AssetLoaderParamType,
+  _url: string,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {}
 ) => {
-  params.cache = typeof params.cache === 'undefined' || params.cache
-  if (!params.url) {
+  if (!_url) {
     onError(new Error('URL is empty'))
     return
   }
-  const url = isAbsolutePath(params.url) ? params.url : Engine.publicPath + params.url
+  const url = getAbsolutePath(_url)
 
-  if (params.cache && AssetLoader.Cache.has(url)) {
+  if (AssetLoader.Cache.has(url)) {
     onLoad(AssetLoader.Cache.get(url))
   }
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  const callback = assetLoadCallback(url, assetType, params, onLoad)
+  const callback = assetLoadCallback(url, assetType, onLoad)
 
   try {
-    // TODO: fix instancing for GLTFs
-    // if (params.instanced) {
+    // TODO: fix instancing for GLTFs - move this to the gltf loader
+    // if (instanced) {
     //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
     // } else {
     loader.load(url, callback, onProgress, onError)
@@ -244,15 +245,15 @@ const load = async (
   }
 }
 
-const loadAsync = async (params: AssetLoaderParamType) => {
+const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(params, resolve, () => {}, resolve)
+    load(url, resolve, onProgress, reject)
   })
 }
 
 // TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
 const getFromCache = (url: string) => {
-  return AssetLoader.Cache.get(isAbsolutePath(url) ? url : Engine.publicPath + url)
+  return AssetLoader.Cache.get(getAbsolutePath(url))
 }
 
 export const AssetLoader = {
@@ -261,8 +262,10 @@ export const AssetLoader = {
   LOD_DISTANCES: DEFAULT_LOD_DISTANCES,
   processModelAsset,
   handleLODs,
+  getAbsolutePath,
   getAssetType,
   getAssetClass,
+  isSupported,
   getLoader,
   assetLoadCallback,
   load,

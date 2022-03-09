@@ -65,11 +65,6 @@ export class ParticleEmitterMesh extends Mesh {
 
   constructor(args: any, texture: Texture) {
     super()
-    // TODO: refactor this to use registerSceneLoadPromise
-    this.createParticles(args, texture)
-  }
-
-  createParticles(args, texture: Texture) {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index

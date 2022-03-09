@@ -1,8 +1,6 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
@@ -21,7 +19,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
 import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
@@ -219,32 +216,4 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
 
   const modelComponent = getComponent(entity, ModelComponent)
   if (modelComponent) modelComponent.parsed = true
-}
-
-export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
-  const modelComponent = getComponent(entity, ModelComponent)
-
-  return new Promise<GLTF | undefined>((resolve, reject) => {
-    AssetLoader.load(
-      { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
-      (res: GLTF) => {
-        if (res.scene instanceof Object3D) {
-          const modelComponentAsync = getComponent(entity, ModelComponent)
-          if (modelComponentAsync && modelComponentAsync.src === modelComponent.src) {
-            // TODO: refactor this
-            if (getComponent(entity, ReplaceObject3DComponent)) removeComponent(entity, ReplaceObject3DComponent)
-            addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-            res.scene.animations = res.animations
-          }
-          resolve(res)
-        } else {
-          reject({ message: 'Not a valid object' })
-        }
-      },
-      null!,
-      (err) => {
-        reject(err)
-      }
-    )
-  })
 }
