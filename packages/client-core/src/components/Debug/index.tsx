@@ -7,8 +7,10 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchFrom, dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
 export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
@@ -17,6 +19,25 @@ export const Debug = () => {
   const { t } = useTranslation()
   function setupListener() {
     window.addEventListener('keydown', downHandler)
+    console.log('setup keypress')
+    window.addEventListener('keypress', (ev) => {
+      if (ev.key === 'p') {
+        if (document.activeElement?.querySelector('canvas')) {
+          togglePhysicsDebug()
+          toggleAvatarDebug()
+        }
+      }
+
+      if (ev.key === 'q') {
+        if (document.activeElement?.querySelector('canvas')) {
+          dispatchFrom(Engine.userId, () =>
+            NetworkWorldAction.spawnDebugPhysicsObject({
+              config: boxDynamicConfig // Any custom config can be provided here
+            })
+          )
+        }
+      }
+    })
   }
 
   // If pressed key is our target key then set to true
