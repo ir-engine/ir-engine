@@ -96,7 +96,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
-    const transformComponent = addComponent(e, TransformComponent, {
+    addComponent(e, TransformComponent, {
       position: mesh.getWorldPosition(new Vector3()),
       rotation: mesh.getWorldQuaternion(new Quaternion()),
       scale: mesh.getWorldScale(new Vector3())
