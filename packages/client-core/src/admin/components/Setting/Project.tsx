@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import DeleteIcon from '@mui/icons-material/Delete'
-import { Button, Grid, IconButton, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
+import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
+
+import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
+import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import { useStyles } from './styles'
 
 interface Props {}
 
 interface ProjectSetting {
-  keyName: string
+  key: string
   value: any
-  scopes: any
 }
 
 const Project = (props: Props) => {
@@ -24,12 +25,53 @@ const Project = (props: Props) => {
   const projectState = useProjectState()
   const projects = projectState.projects
 
+  const projectSettingState = useProjectSettingState()
+  const projectSettings = projectSettingState.projectSetting
+
   const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
-  const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : null)
+  const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
 
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])
+
+  useEffect(() => {
+    if (selectedProject) {
+      resetSettingsFromSchema()
+    }
+  }, [selectedProject])
+
+  useEffect(() => {
+    if (projectSettings.value && projectSettings.value?.length > 0) {
+      let tempSettings = JSON.parse(JSON.stringify(settings))
+
+      for (let setting of tempSettings) {
+        for (let savedSetting of projectSettings.value) {
+          if ((setting.key = savedSetting.key)) {
+            setting.value = savedSetting.value
+          }
+        }
+      }
+    }
+  }, [projectSettings.value])
+
+  const resetSettingsFromSchema = async () => {
+    const projectName = projects.value.filter((proj) => proj.id === selectedProject)
+    const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
+
+    if (projectConfig && projectConfig?.settings) {
+      let tempSetting = [] as ProjectSetting[]
+
+      for (let setting of projectConfig.settings) {
+        tempSetting.push({ key: setting.key, value: '' })
+      }
+
+      setSettings(tempSetting)
+      ProjectSettingService.fetchProjectSetting(selectedProject)
+    } else {
+      setSettings([])
+    }
+  }
 
   useEffect(() => {
     if (user?.id?.value != null && selectedProject) {
@@ -40,25 +82,6 @@ const Project = (props: Props) => {
     setSelectedProject(projectId)
   }
 
-  const handleAddNewSetting = () => {
-    const tempSetting = JSON.parse(JSON.stringify(settings))
-
-    tempSetting.push({
-      keyName: '',
-      value: '',
-      scopes: []
-    })
-
-    setSettings(tempSetting)
-  }
-
-  const handleKeyNameChange = (index, e) => {
-    const tempSetting = JSON.parse(JSON.stringify(settings))
-
-    tempSetting[index].keyName = e.target.value
-    setSettings(tempSetting)
-  }
-
   const handleValueChange = (index, e) => {
     const tempSetting = JSON.parse(JSON.stringify(settings))
 
@@ -66,17 +89,8 @@ const Project = (props: Props) => {
     setSettings(tempSetting)
   }
 
-  const handleDeleteSetting = (index) => {
-    const tempSetting = JSON.parse(JSON.stringify(settings))
-
-    tempSetting.splice(index, 1)
-    setSettings(tempSetting)
-  }
-
   const handleCancel = () => {
-    const tempSetting = JSON.parse(JSON.stringify([]))
-
-    setSettings(tempSetting)
+    resetSettingsFromSchema()
   }
 
   const handleSubmit = () => {
@@ -103,26 +117,26 @@ const Project = (props: Props) => {
               </TextField>
             </Grid>
             <Grid item container xs={12}>
-              {settings &&
+              {settings?.length > 0 ? (
                 settings.map((setting, index) => (
                   <Grid item container key={index} spacing={1} xs={12}>
-                    <Grid item spacing={1} xs={3}>
+                    <Grid item xs={6}>
                       <label>Key Name</label>
                       <Paper component="div" className={classes.createInput}>
                         <InputBase
-                          name="port"
+                          name="key"
+                          disabled
                           className={classes.input}
-                          value={setting.keyName}
+                          value={setting.key}
                           style={{ color: '#fff' }}
-                          onChange={(e) => handleKeyNameChange(index, e)}
                         />
                       </Paper>
                     </Grid>
-                    <Grid item spacing={1} xs={3}>
+                    <Grid item xs={6}>
                       <label>Value</label>
                       <Paper component="div" className={classes.createInput}>
                         <InputBase
-                          name="port"
+                          name="value"
                           className={classes.input}
                           value={setting.value}
                           style={{ color: '#fff' }}
@@ -130,33 +144,26 @@ const Project = (props: Props) => {
                         />
                       </Paper>
                     </Grid>
-                    <Grid item spacing={1} xs={5}>
-                      <label>Scopes</label>
-                      <Paper component="div" className={classes.createInput}></Paper>
-                    </Grid>
-                    <Grid item spacing={1} xs={1}>
-                      <IconButton onClick={() => handleDeleteSetting(index)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Grid>
                   </Grid>
-                ))}
+                ))
+              ) : (
+                <Grid item marginBottom="20px">
+                  <Typography>No schema available in xrengine.config.ts</Typography>
+                </Grid>
+              )}
             </Grid>
-            <Grid item xs={6} sm={4}>
-              <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleAddNewSetting}>
-                {t('admin:components.setting.addNewSetting')}
+          </Grid>
+          {settings?.length > 0 && (
+            <Grid item container xs={12}>
+              <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
+                {t('admin:components.setting.cancel')}
+              </Button>
+              &nbsp; &nbsp;
+              <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
+                {t('admin:components.setting.save')}
               </Button>
             </Grid>
-          </Grid>
-          <Grid item container xs={12}>
-            <Button sx={{ maxWidth: '100%' }} variant="outlined" style={{ color: '#fff' }} onClick={handleCancel}>
-              {t('admin:components.setting.cancel')}
-            </Button>
-            &nbsp; &nbsp;
-            <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
-              {t('admin:components.setting.save')}
-            </Button>
-          </Grid>
+          )}
         </div>
       </form>
     </div>

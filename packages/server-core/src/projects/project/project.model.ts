@@ -26,6 +26,9 @@ export default (app: Application) => {
       },
       repositoryPath: {
         type: DataTypes.STRING
+      },
+      settings: {
+        type: DataTypes.STRING
       }
     },
     {

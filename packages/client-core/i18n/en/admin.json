@@ -301,7 +301,6 @@
       "keyPath": "KeyPath",
       "githubPrivateKey": "Github Private Key",
       "project": "PROJECT",
-      "addNewSetting": "Add New Setting",
       "selectProject": "Select Project"
     },
     "avatar": {
