@@ -1,13 +1,16 @@
-import { Id, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
 
-export class ProjectSetting extends Service {
-  app: Application
+interface Data {}
+interface ServiceOptions {}
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+export class ProjectSetting implements ServiceMethods<Data> {
+  app: Application
+  options: ServiceOptions
+
+  constructor(options: ServiceOptions = {}, app: Application) {
+    this.options = options
     this.app = app
   }
 
@@ -40,4 +43,14 @@ export class ProjectSetting extends Service {
 
     return result
   }
+
+  async setup(): Promise<any> {}
+
+  async get(): Promise<any> {}
+
+  async create(): Promise<any> {}
+
+  async remove(): Promise<any> {}
+
+  async update(): Promise<any> {}
 }
