@@ -4,6 +4,7 @@ import { NavMesh, Polygon } from 'yuka'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
@@ -15,6 +16,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -89,6 +91,9 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
+    const localPosition = new Vector3().copy(mesh.position)
+    const localRotation = new Quaternion().copy(mesh.quaternion)
+
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
@@ -99,6 +104,14 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
+
+    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
+    if (Engine.isEditor)
+      addComponent(e, TransformChildComponent, {
+        parent: entity,
+        offsetPosition: localPosition,
+        offsetQuaternion: localRotation
+      })
 
     createObjectEntityFromGLTF(e, mesh)
   }
