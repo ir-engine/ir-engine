@@ -28,6 +28,7 @@ import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { isStaticBody } from '../../physics/classes/Physics'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -94,6 +95,7 @@ export default async function DebugHelpersSystem(world: World) {
   }
   Engine.currentWorld.receptors.push(receptor)
 
+  const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const ikDebugQuery = defineQuery([IKObj])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
@@ -345,6 +347,21 @@ export default async function DebugHelpersSystem(world: World) {
     }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
+
+    // TODO: move this to an editor action receptor after commands have been updated to FLUX pattern
+    if (Engine.isEditor) {
+      for (const entity of obstacleQuery()) {
+        const obstaclesComponent = getComponent(entity, ObstaclesComponent)
+        if (obstaclesComponent) {
+          for (const obstacle of obstaclesComponent.obstacles) {
+            const mesh = (obstacle as any)._mesh
+            mesh.updateMatrixWorld(true, true)
+            obstacle.setPosition(mesh.getWorldPosition(new Vector3()))
+            obstacle.setRotation(mesh.getWorldQuaternion(new Quaternion()))
+          }
+        }
+      }
+    }
 
     physicsDebugRenderer(world, physicsDebugEnabled)
   }
