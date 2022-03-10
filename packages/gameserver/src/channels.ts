@@ -602,12 +602,12 @@ export default (app: Application): void => {
       return
     }
 
-    console.log(app.gameServer)
     console.log('gameserver-load patched')
     console.log({ id, ipAddress, podName, locationId, sceneId })
 
-    const gsName = app.gameServer.objectMeta.name
-    const status = app.gameServer.status as GameserverStatus
+    const gsResult = await app.agonesSDK.getGameServer()
+    const gsName = gsResult.objectMeta.name
+    const status = gsResult.status as GameserverStatus
 
     // Validate if pod name match
     if (gsName !== podName) {
