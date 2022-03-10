@@ -42,7 +42,7 @@
     "@xrengine/common": "^0.5.1",
     "@xrengine/engine": "^0.5.1",
     "apexcharts": "^3.28.3",
-    "axios": "0.26.0",
+    "axios": "0.26.1",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.3.0",
     "emailjs-com": "3.2.0",
