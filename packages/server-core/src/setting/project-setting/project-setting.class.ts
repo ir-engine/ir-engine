@@ -15,31 +15,14 @@ export class ProjectSetting implements ServiceMethods<Data> {
   }
 
   async find(params?: Params): Promise<any> {
-    const id = params?.projectId || ''
-    const key = params?.key || ''
-    const result = await this.app.service('project').find({ id: id })
-
-    const settingsValue = JSON.parse(result.settings)
-
-    if (key) {
-      let keyValue = ''
-
-      for (let setting of settingsValue) {
-        if (setting.key === key) {
-          keyValue = setting.value
-        }
-      }
-
-      return keyValue
-    }
+    const result = await this.app.service('project').find(params)
+    const settingsValue = result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
 
     return settingsValue
   }
 
   async patch(id: Id, params?: Params): Promise<any> {
-    const data = params?.data || ''
-
-    const result = await this.app.service('project').patch(id, { settings: JSON.stringify(data) })
+    const result = await this.app.service('project').updateSettings(id, params)
 
     return result
   }

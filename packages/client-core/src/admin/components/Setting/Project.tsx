@@ -6,6 +6,7 @@ import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
+import { useHookedEffect } from '../../../hooks/useHookedEffect'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import { useStyles } from './styles'
@@ -26,7 +27,7 @@ const Project = (props: Props) => {
   const projects = projectState.projects
 
   const projectSettingState = useProjectSettingState()
-  const projectSettings = projectSettingState.projectSetting
+  const projectSetting = projectSettingState.projectSetting
 
   const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
@@ -41,19 +42,20 @@ const Project = (props: Props) => {
     }
   }, [selectedProject])
 
-  useEffect(() => {
-    if (projectSettings.value && projectSettings.value?.length > 0) {
+  useHookedEffect(() => {
+    if (projectSetting.value && projectSetting.value?.length > 0) {
       let tempSettings = JSON.parse(JSON.stringify(settings))
 
-      for (let setting of tempSettings) {
-        for (let savedSetting of projectSettings.value) {
-          if ((setting.key = savedSetting.key)) {
-            setting.value = savedSetting.value
-          }
+      for (let [index, setting] of tempSettings.entries()) {
+        const savedSetting = projectSetting.value.filter((item) => item.key === setting.key)
+        if (savedSetting.length > 0) {
+          tempSettings[index].value = savedSetting[0].value
         }
       }
+
+      setSettings(tempSettings)
     }
-  }, [projectSettings.value])
+  }, [projectSetting])
 
   const resetSettingsFromSchema = async () => {
     const projectName = projects.value.filter((proj) => proj.id === selectedProject)

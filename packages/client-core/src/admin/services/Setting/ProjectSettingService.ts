@@ -32,15 +32,23 @@ export const useProjectSettingState = () => useState(state) as any as typeof sta
 
 //Service
 export const ProjectSettingService = {
-  fetchProjectSetting: async (projectId: string, key?: string) => {
-    const projectSetting = await client.service('project-setting').find({ projectId, key })
+  fetchProjectSetting: async (projectId: string) => {
+    const projectSetting = await client.service('project-setting').find({
+      query: {
+        $limit: 1,
+        id: projectId,
+        $select: ['settings']
+      }
+    })
     store.dispatch(ProjectSettingAction.projectSettingFetched(projectSetting))
   },
 
   // restricted to admin scope
   updateProjectSetting: async (projectId: string, data: ProjectSettingValue[]) => {
     const dispatch = useDispatch()
-    const result = await client.service('project-setting').patch(projectId, { data })
+
+    await client.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
+
     dispatch(ProjectSettingAction.projectSettingUpdated())
     ProjectSettingService.fetchProjectSetting(projectId)
   }
