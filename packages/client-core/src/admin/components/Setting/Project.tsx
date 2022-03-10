@@ -94,7 +94,7 @@ const Project = (props: Props) => {
   }
 
   const handleSubmit = () => {
-    // TODO save/update setting against the selected project
+    ProjectSettingService.updateProjectSetting(selectedProject, settings)
   }
 
   return (

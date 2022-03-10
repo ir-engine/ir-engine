@@ -32,19 +32,17 @@ export const useProjectSettingState = () => useState(state) as any as typeof sta
 
 //Service
 export const ProjectSettingService = {
-  fetchProjectSetting: async (projectName: string, key?: string) => {
-    const projects = await client.service('project-setting').find({ projectName, key })
-    console.log(projects)
-    store.dispatch(ProjectSettingAction.projectSettingFetched(projects.data))
+  fetchProjectSetting: async (projectId: string, key?: string) => {
+    const projectSetting = await client.service('project-setting').find({ projectId, key })
+    store.dispatch(ProjectSettingAction.projectSettingFetched(projectSetting))
   },
 
   // restricted to admin scope
-  updateProjectSetting: async (projectName: string, data: ProjectSettingValue[]) => {
+  updateProjectSetting: async (projectId: string, data: ProjectSettingValue[]) => {
     const dispatch = useDispatch()
-    const result = await client.service('project-setting').update({ projectName, data })
-    console.log('Upload project result', result)
+    const result = await client.service('project-setting').patch(projectId, { data })
     dispatch(ProjectSettingAction.projectSettingUpdated())
-    ProjectSettingService.fetchProjectSetting(projectName)
+    ProjectSettingService.fetchProjectSetting(projectId)
   }
 }
 
