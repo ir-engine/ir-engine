@@ -49,12 +49,8 @@ import { SkeletonUtils } from '../SkeletonUtils'
 
 const vec3 = new Vector3()
 
-const loadAvatarModelAsset = async (avatarURL: string) => {
-  const model = await AssetLoader.loadAsync({
-    url: avatarURL,
-    castShadow: true,
-    receiveShadow: true
-  })
+export const loadAvatarModelAsset = async (avatarURL: string) => {
+  const model = await AssetLoader.loadAsync(avatarURL)
   if (!model.scene) return
   const parent = new Group()
   const root = new Group()

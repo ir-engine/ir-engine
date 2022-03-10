@@ -1,3 +1,5 @@
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 export interface SceneColumn {
   id: 'name' | 'description' | 'type' | 'entity' | 'version' | 'action'
   label: string
@@ -74,7 +76,7 @@ export interface SceneProps {
 }
 
 export interface ViewSceneProps {
-  adminScene: any
+  adminScene: SceneDetailInterface
   viewModal: boolean
-  closeViewModal: any
+  closeViewModal: (open: boolean) => void
 }

@@ -98,7 +98,7 @@ const loadScene = async (app: Application, scene: string) => {
   const receptor = (action: EngineActionType) => {
     switch (action.type) {
       case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        entitiesLeft = action.entitiesLeft
+        entitiesLeft = action.count
         break
     }
   }

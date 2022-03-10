@@ -119,6 +119,7 @@
   },
   "dependencies": {
     "@xrengine/engine": "^0.4.13",
-    "dotenv": "14.3.2"
+    "dotenv": "14.3.2",
+    "react-json-view": "^1.21.3"
   }
 }

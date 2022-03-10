@@ -1,5 +1,6 @@
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
@@ -28,11 +29,43 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
   loadSceneEntity(new EntityTreeNode(entity), { name: prefabType, components })
 }
 
+export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
+  const promises: any[] = []
+  for (const [key, val] of Object.entries(sceneData)) {
+    if (val && typeof val === 'object') {
+      promises.push(...preCacheAssets(val, onProgress))
+    } else if (typeof val === 'string') {
+      if (AssetLoader.isSupported(val)) {
+        try {
+          const promise = AssetLoader.loadAsync(val, onProgress)
+          promises.push(promise)
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+  }
+  return promises
+}
+
 /**
  * Loads a scene from scene json
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  const onProgress = () => {
+    // TODO: get more granular progress data based on percentage of each asset
+    // we probably need to query for metadata to get the size of each request if we can
+  }
+  const onComplete = () => {
+    dispatchLocal(EngineActions.sceneEntityLoaded(promisesCompleted++) as any)
+  }
+  const promises = preCacheAssets(sceneData, onProgress)
+  Engine.sceneLoadPromises = promises
+  promises.forEach((promise) => promise.then(onComplete))
+  let promisesCompleted = 0
+  await Promise.all(promises)
+
   Engine.sceneLoaded = false
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
@@ -110,12 +143,4 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
   if (deserializer) {
     deserializer(entity, component)
   }
-}
-
-export const registerSceneLoadPromise = (promise: Promise<any>) => {
-  Engine.sceneLoadPromises.push(promise)
-  promise.then(() => {
-    Engine.sceneLoadPromises.splice(Engine.sceneLoadPromises.indexOf(promise), 1)
-    dispatchLocal(EngineActions.sceneEntityLoaded(Engine.sceneLoadPromises.length) as any)
-  })
 }

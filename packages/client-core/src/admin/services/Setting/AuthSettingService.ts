@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { AdminAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
 import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
@@ -52,7 +52,7 @@ export const AuthSettingService = {
       AlertService.dispatchAlertError(err)
     }
   },
-  patchAuthSetting: async (data: any, id: string) => {
+  patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     const dispatch = useDispatch()
     try {
       await client.service('authentication-setting').patch(id, data)

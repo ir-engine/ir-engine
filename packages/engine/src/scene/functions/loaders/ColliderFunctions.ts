@@ -3,17 +3,10 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionComponent } from '../../../physics/components/CollisionComponent'
-import {
-  createBody,
-  createColliderForObject3D,
-  getAllShapesFromObject3D,
-  ShapeOptions
-} from '../../../physics/functions/createCollider'
+import { createColliderForObject3D, ShapeOptions } from '../../../physics/functions/createCollider'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_COLLIDER = 'collider'
 export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {}

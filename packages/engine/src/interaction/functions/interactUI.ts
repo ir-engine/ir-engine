@@ -142,7 +142,7 @@ export function createInteractUI(modelEntity: Entity) {
 //             }
 
 //             //load glb file
-//             AssetLoader.loadAsync({ url: mediaData[mediaIndex].path }).then((model) => {
+//             AssetLoader.loadAsync(mediaData[mediaIndex].path).then((model) => {
 //               const object3d = new Object3D()
 //               model.scene.traverse((mesh) => {
 //                 //@ts-ignore
@@ -195,16 +195,16 @@ const transitionStartTime = new Map<Entity, number>()
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   if (Engine.isEditor) return
 
+  const world = useWorld()
   const uiContainer = getComponent(xrui.entity, XRUIComponent)?.container
   const anchoredPosition = ANCHORED_POSITION.get(modelEntity)!
   const anchoredRotation = ANCHORED_ROTATION.get(modelEntity)!
+  const localInteractor = getComponent(world.localClientEntity, InteractorComponent)
 
-  if (!uiContainer || !anchoredPosition) return
+  if (!uiContainer || !anchoredPosition || !localInteractor) return
 
   const modelGroup = getComponent(modelEntity, Object3DComponent).value
 
-  const world = useWorld()
-  const localInteractor = getComponent(world.localClientEntity, InteractorComponent)
   const hasFocus = localInteractor.focusedInteractive === modelEntity
   const interacted = hasComponent(modelEntity, InteractedComponent)
 

@@ -1,11 +1,10 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
@@ -17,11 +16,11 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
 import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
@@ -92,6 +91,9 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
+    const localPosition = new Vector3().copy(mesh.position)
+    const localRotation = new Quaternion().copy(mesh.quaternion)
+
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
     addComponent(e, TransformComponent, {
@@ -102,6 +104,14 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
+
+    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
+    if (Engine.isEditor)
+      addComponent(e, TransformChildComponent, {
+        parent: entity,
+        offsetPosition: localPosition,
+        offsetQuaternion: localRotation
+      })
 
     createObjectEntityFromGLTF(e, mesh)
   }
@@ -219,32 +229,4 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
 
   const modelComponent = getComponent(entity, ModelComponent)
   if (modelComponent) modelComponent.parsed = true
-}
-
-export const loadGLTFModel = (entity: Entity): Promise<GLTF | undefined> => {
-  const modelComponent = getComponent(entity, ModelComponent)
-
-  return new Promise<GLTF | undefined>((resolve, reject) => {
-    AssetLoader.load(
-      { url: modelComponent.src, instanced: modelComponent.isUsingGPUInstancing },
-      (res: GLTF) => {
-        if (res.scene instanceof Object3D) {
-          const modelComponentAsync = getComponent(entity, ModelComponent)
-          if (modelComponentAsync && modelComponentAsync.src === modelComponent.src) {
-            // TODO: refactor this
-            if (getComponent(entity, ReplaceObject3DComponent)) removeComponent(entity, ReplaceObject3DComponent)
-            addComponent(entity, ReplaceObject3DComponent, { replacement: res })
-            res.scene.animations = res.animations
-          }
-          resolve(res)
-        } else {
-          reject({ message: 'Not a valid object' })
-        }
-      },
-      null!,
-      (err) => {
-        reject(err)
-      }
-    )
-  })
 }
