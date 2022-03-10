@@ -26,6 +26,7 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
       await app.service('gameserver-load').patch({
         id: freeInstance.id,
         ipAddress: freeInstance.ipAddress,
+        podName: freeInstance.podName,
         locationId,
         sceneId: location.data[0].sceneId
       })
