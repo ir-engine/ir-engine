@@ -14,12 +14,13 @@ export type EditorComponentType = React.FC<EditorPropType> & {
 
 export const updateProperty = <C extends ComponentConstructor<any, any>, K extends keyof ComponentType<C>>(
   component: C,
-  propName: K
+  propName: K,
+  ...args: any
 ) => {
   return (value: ComponentType<C>[K]) => {
     CommandManager.instance.setPropertyOnSelectionEntities({
       component,
-      properties: { [propName]: value } as ComponentType<C>
+      properties: { [propName]: value, ...args } as ComponentType<C>
     })
   }
 }
