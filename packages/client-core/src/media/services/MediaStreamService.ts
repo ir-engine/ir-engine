@@ -10,6 +10,7 @@ const state = createState({
   isCamVideoEnabled: false,
   isCamAudioEnabled: false,
   isFaceTrackingEnabled: false,
+  enableBydefault: true,
   nearbyLayerUsers: [] as NearbyUser[],
   consumers: []
 })
@@ -23,6 +24,8 @@ store.receptors.push((action: MediaStreamActionType): any => {
         return s.isCamAudioEnabled.set(action.isEnable)
       case 'FACE_TRACKING_CHANGED':
         return s.isFaceTrackingEnabled.set(action.isEnable)
+      case 'MEDIA_ENABLE_BY_DEFAULT':
+        return s.enableBydefault.set(action.isEnable)
       case 'CONSUMERS_CHANGED':
         return s.consumers.set(action.consumers)
       case 'NEARBY_LAYER_USERS_CHANGED':
@@ -54,7 +57,10 @@ export const MediaStreamService = {
   },
   updateFaceTrackingState: () => {
     const ms = MediaStreams.instance
-    store.dispatch(MediaStreamAction.setFaceTrackingState(ms && ms.faceTracking))
+    store.dispatch(MediaStreamAction.setFaceTrackingState(ms != null && ms.faceTracking))
+  },
+  updateEnableMediaByDefault: () => {
+    store.dispatch(MediaStreamAction.setMediaEnabledByDefault(false))
   }
 }
 
@@ -69,6 +75,9 @@ export const MediaStreamAction = {
   },
   setFaceTrackingState: (isEnable: boolean) => {
     return { type: 'FACE_TRACKING_CHANGED' as const, isEnable }
+  },
+  setMediaEnabledByDefault: (isEnable: boolean) => {
+    return { type: 'MEDIA_ENABLE_BY_DEFAULT' as const, isEnable }
   },
   setConsumers: (consumers: any[]): any => {
     return { type: 'CONSUMERS_CHANGED' as const, consumers }

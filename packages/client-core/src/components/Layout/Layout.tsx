@@ -1,8 +1,7 @@
-import React, { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
-import { any } from 'ts-matches'
 
 import {
   ClientSettingService,
@@ -12,12 +11,12 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
+import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
@@ -65,6 +64,7 @@ const Layout = (props: Props): any => {
   const [showMediaIcons, setShowMediaIcons] = useState(true)
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
+  const channelConnectionState = useMediaInstanceConnectionState()
   let mediaIconTimer: any
   let bottomIconTimer: any
 
@@ -114,13 +114,13 @@ const Layout = (props: Props): any => {
   const setTimerForMediaIcons = () => {
     mediaIconTimer = setTimeout(() => {
       setShowMediaIcons(false)
-    }, 10000)
+    }, 15000)
   }
 
   const setTimerForBottomIcons = () => {
     bottomIconTimer = setTimeout(() => {
       setShowBottomIcons(false)
-    }, 10000)
+    }, 15000)
   }
 
   if (showMediaIcons) setTimerForMediaIcons()

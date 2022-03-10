@@ -20,7 +20,6 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import {
   startFaceTracking,
@@ -78,19 +77,36 @@ const MediaIconsBox = (props: Props) => {
       .catch((err) => console.log('could not get media devices', err))
   }, [])
 
+  useEffect(() => {
+    if (mediastream.enableBydefault.value) {
+      if (channelConnectionState.connected.value) {
+        if (!isCamAudioEnabled.value) handleMicClick()
+        if (!isCamVideoEnabled.value) {
+          handleCamClick()
+          handleFaceClick()
+        }
+        MediaStreamService.updateEnableMediaByDefault()
+      }
+    }
+  }, [channelConnectionState.connected.value])
+
   const handleFaceClick = async () => {
     const partyId =
       currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true
         ? 'instance'
         : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {
+      MediaStreams.instance.setFaceTracking(false)
       stopFaceTracking()
       stopLipsyncTracking()
+      MediaStreamService.updateFaceTrackingState()
     } else {
       const mediaTransport = getMediaTransport()
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
+        MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
         startLipsyncTracking()
+        MediaStreamService.updateFaceTrackingState()
       }
     }
   }
