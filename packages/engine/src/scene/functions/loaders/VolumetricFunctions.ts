@@ -1,4 +1,11 @@
+import { Box3, Group, RGBAFormat } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
+import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
+import { loadGrowingEffectObject } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
 import {
   ComponentDeserializeFunction,
@@ -9,7 +16,7 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -19,7 +26,9 @@ import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('volumetric/player').default.prototype
+    player: typeof import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player').default.prototype
+    isEffect: boolean
+    time: number
   }
   play()
   pause()
@@ -27,12 +36,15 @@ type VolumetricObject3D = UpdateableObject3D & {
   callbacks()
 }
 
-let DracosisPlayer = null! as typeof import('volumetric/player').default
+let DracosisPlayer =
+  null! as typeof import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player').default
 
 if (isClient) {
-  Promise.all([import('volumetric/player')]).then(([module1]) => {
-    DracosisPlayer = module1.default
-  })
+  Promise.all([import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player')]).then(
+    ([module1]) => {
+      DracosisPlayer = module1.default
+    }
+  )
 }
 
 export const VolumetricCallbacks = [
@@ -69,7 +81,14 @@ export const updateVolumetric: ComponentUpdateFunction = async (
 ) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
-  const paths = component.paths.filter((p) => p)
+  // const paths = component.paths.filter((p) => p)
+  const paths = [
+    'https://172.160.10.156:8642/uvol/liam.drcs',
+    'https://172.160.10.156:8642/uvol/brennan.drcs',
+    'https://172.160.10.156:8642/uvol/sam_low_fuse.drcs'
+  ]
+  let height = 0
+  let step = 0.001
 
   if (typeof properties.paths !== 'undefined' && paths.length) {
     try {
@@ -84,7 +103,19 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         paths,
         playMode: component.playMode as any,
         onMeshBuffering: (_progress) => {},
-        onFrameShow: () => {}
+        onHandleEvent: (type, data) => {
+          if (type != 'frameupdate') {
+            console.error(type)
+          }
+          if (type == 'videostatus' && data.status == 'initplay') {
+            height = calculateHeight(obj3d)
+            height = height * obj3d.scale.y + 1
+            step = height / 150
+            setupLoadingEffect(entity, obj3d)
+            obj3d.userData.isEffect = true
+            obj3d.userData.time = 0
+          }
+        }
       })
 
       removeError(entity, 'error')
@@ -92,6 +123,22 @@ export const updateVolumetric: ComponentUpdateFunction = async (
       obj3d.update = () => {
         if (obj3d.userData.player.hasPlayed) {
           obj3d.userData.player?.handleRender(() => {})
+        }
+        if (obj3d.userData.isEffect) {
+          if (obj3d.userData.time <= height) {
+            obj3d.traverse((child: any) => {
+              if (child['material']) {
+                if (child.material.uniforms) child.material.uniforms.time.value = obj3d.userData.time
+              }
+            })
+
+            obj3d.userData.time += step
+          } else {
+            obj3d.userData.isEffect = false
+            endLoadingEffect(entity, obj3d)
+            obj3d.userData.player.updateStatus('ready')
+            obj3d.userData.player.play()
+          }
         }
       }
 
@@ -159,6 +206,79 @@ export const toggleVolumetric = (entity: Entity): boolean => {
     }
     return true
   }
+}
+
+const endLoadingEffect = (entity, object) => {
+  const plateComponent = getComponent(entity, AvatarEffectComponent)
+  plateComponent.originMaterials.forEach(({ id, material }) => {
+    object.traverse((obj) => {
+      if (obj.uuid === id) {
+        obj['material'] = material
+      }
+    })
+  })
+
+  let pillar: any = null!
+  let plate: any = null!
+
+  const childrens = object.children
+  for (let i = 0; i < childrens.length; i++) {
+    if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+    if (childrens[i].name === 'plate_obj') plate = childrens[i]
+  }
+
+  if (pillar !== null) {
+    pillar.traverse(function (child) {
+      if (child['material']) child['material'].dispose()
+    })
+
+    pillar.parent.remove(pillar)
+  }
+
+  if (plate !== null) {
+    plate.traverse(function (child) {
+      if (child['material']) child['material'].dispose()
+    })
+
+    plate.parent.remove(plate)
+  }
+
+  removeComponent(entity, AvatarDissolveComponent)
+  removeComponent(entity, AvatarEffectComponent)
+}
+
+const setupLoadingEffect = (entity, obj) => {
+  const materialList: Array<MaterialMap> = []
+  obj.traverse((object) => {
+    if (object.material && object.material.clone) {
+      // Transparency fix
+      object.material.format = RGBAFormat
+      const material = object.material.clone()
+      materialList.push({
+        id: object.uuid,
+        material: material
+      })
+      object.material = DissolveEffect.getDissolveTexture(object)
+    }
+  })
+  loadGrowingEffectObject(entity, materialList)
+}
+
+const calculateHeight = (obj3d) => {
+  let childObject
+  obj3d.children.forEach((child) => {
+    if (!childObject && (child.type == 'Group' || child.type == 'Object3D' || child.type == 'Mesh')) {
+      childObject = child
+    }
+  })
+
+  //calculate the uvol model height
+  const bbox = new Box3().setFromObject(childObject)
+  let height = 1
+  if (bbox.max.y != undefined && bbox.min.y != undefined) {
+    height = bbox.max.y - bbox.min.y
+  }
+  return height
 }
 
 const parseVolumetricProperties = (props): VolumetricVideoComponentType => {
