@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import InputGroup from '../inputs/InputGroup'
-import StringInput from '../inputs/StringInput'
-import styled from 'styled-components'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CommandManager } from '../../managers/CommandManager'
+import styled from 'styled-components'
+
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import EditorEvents from '../../constants/EditorEvents'
+
+import { CommandManager } from '../../managers/CommandManager'
+import { useSelectionState } from '../../services/SelectionServices'
+import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
 
 /**
@@ -29,6 +31,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {
+  const selectionState = useSelectionState()
   const nodeName = getComponent(props.node.entity, NameComponent)?.name
 
   const [name, setName] = useState(nodeName)
@@ -36,11 +39,8 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChange)
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.OBJECTS_CHANGED.toString(), onObjectChange)
-    }
-  }, [])
+    onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
+  }, [selectionState.objectChanged.value])
 
   const onObjectChange = (_: any, propertyName: string) => {
     if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)

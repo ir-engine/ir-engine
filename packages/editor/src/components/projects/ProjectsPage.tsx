@@ -1,40 +1,41 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
+
+import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
+import {
+  ArrowRightRounded,
+  Check,
+  Clear,
+  Delete,
+  Download,
+  DownloadDone,
+  FilterList,
+  Search,
+  Settings
+} from '@mui/icons-material'
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  CircularProgress,
   IconButton,
   InputBase,
   Menu,
-  Paper,
   MenuItem,
-  CircularProgress
+  Paper
 } from '@mui/material'
-import {
-  ArrowRightRounded,
-  Clear,
-  FilterList,
-  Search,
-  Settings,
-  Check,
-  Delete,
-  Download,
-  DownloadDone
-} from '@mui/icons-material'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { Button, MediumButton } from '../inputs/Button'
-import { ErrorMessage } from './ProjectGrid'
+
 import { getProjects } from '../../functions/projectFunctions'
-import { CreateProjectDialog } from './CreateProjectDialog'
 import { EditorAction } from '../../services/EditorServices'
-import styles from './styles.module.scss'
+import { Button, MediumButton } from '../inputs/Button'
+import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
-import { isDev } from '@xrengine/common/src/utils/isDev'
+import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
   if (a > b) return -1
@@ -126,7 +127,7 @@ const ProjectsPage = () => {
   const [communityProjects, setCommunityProjects] = useState<ProjectInterface[]>([])
   const [activeProject, setActiveProject] = useState<ProjectInterface | null>(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
   const [query, setQuery] = useState('')
   const [filterAnchorEl, setFilterAnchorEl] = useState<any>(null)
   const [projectAnchorEl, setProjectAnchorEl] = useState<any>(null)
@@ -217,8 +218,9 @@ const ProjectsPage = () => {
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
-    dispatch(EditorAction.sceneLoaded(null))
-    dispatch(EditorAction.projectLoaded(project.name))
+
+    dispatch(EditorAction.sceneChanged(null))
+    dispatch(EditorAction.projectChanged(project.name))
     history.push(`/editor/${project.name}`)
   }
 
@@ -395,7 +397,7 @@ const ProjectsPage = () => {
             </Button>
           </div>
           <div className={styles.projectGrid}>
-            {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
+            {error && <div className={styles.errorMsg}>{error.message}</div>}
             {(!query || filter.installed) && (
               <ProjectExpansionList
                 id={t(`editor.projects.installed`)}
@@ -454,6 +456,7 @@ const ProjectsPage = () => {
       <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
       <DeleteDialog
         open={isDeleteDialogOpen}
+        isProjectMenu
         onCancel={closeDeleteConfirm}
         onClose={closeDeleteConfirm}
         onConfirm={deleteProject}

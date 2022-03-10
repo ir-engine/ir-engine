@@ -1,9 +1,12 @@
-import { Mesh, Color, PlaneBufferGeometry, ShaderMaterial, DoubleSide, Plane, Vector3 } from 'three'
-import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
+import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Vector3 } from 'three'
+
+import { store } from '@xrengine/client-core/src/store'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { addIsHelperFlag } from '@xrengine/engine/src/scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+
+import { GridToolAction } from '../services/GridToolServices'
+
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
@@ -135,11 +138,11 @@ export default class EditorInfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    CommandManager.instance.emitEvent(EditorEvents.GRID_HEIGHT_CHANGED, value)
+    store.dispatch(GridToolAction.changeGridToolHeight(value))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    CommandManager.instance.emitEvent(EditorEvents.GRID_VISIBILITY_CHANGED, this.visible)
+    store.dispatch(GridToolAction.changeGridToolVisibility(this.visible))
   }
 }

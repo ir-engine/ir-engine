@@ -1,10 +1,10 @@
 /** List of Asset Classes. */
 export enum AssetClass {
-  Model,
-  Image,
-  Video,
-  Audio,
-  Document,
-  Text,
-  Script
+  Model = 'Model',
+  Image = 'Image',
+  Video = 'Video',
+  Audio = 'Audio',
+  Document = 'Document',
+  Text = 'Text',
+  Script = 'Script'
 }

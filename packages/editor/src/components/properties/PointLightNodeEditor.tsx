@@ -1,14 +1,17 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ColorInput from '../inputs/ColorInput'
-import LightbulbIcon from '@mui/icons-material/Lightbulb'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import LightShadowProperties from './LightShadowProperties'
 import { useTranslation } from 'react-i18next'
-import { EditorComponentType, updateProperty } from './Util'
+
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
+
+import LightbulbIcon from '@mui/icons-material/Lightbulb'
+
+import ColorInput from '../inputs/ColorInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import LightShadowProperties from './LightShadowProperties'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 export const PointLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

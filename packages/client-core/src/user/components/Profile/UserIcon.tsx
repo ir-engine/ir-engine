@@ -1,20 +1,22 @@
+import classNames from 'classnames'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import Button from '@mui/material/Button'
-import styles from './Profile.module.scss'
 import TextField from '@mui/material/TextField'
-import classNames from 'classnames'
+
 import { AuthService } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../services/AuthService'
+import styles from './Profile.module.scss'
 
 interface Props {
-  avatarUrl: string
-  auth: any
+  avatarUrl?: string
+  //auth: any
 }
 
-const UserProfile = (props: Props): any => {
-  const { auth } = props
+const UserProfile = (props: Props): JSX.Element => {
+  //const { auth } = props
   const user = useAuthState().user
   const { t } = useTranslation()
   const [file, setFile] = useState({})

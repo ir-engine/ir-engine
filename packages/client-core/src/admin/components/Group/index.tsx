@@ -1,6 +1,9 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import React, { useState } from 'react'
+
 import Search from '../../common/Search'
 import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
@@ -10,6 +13,7 @@ const GroupConsole = () => {
   const classes = useStyles()
   const [groupOpen, setGroupOpen] = useState(false)
   const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => {
     setGroupOpen(open)
@@ -32,7 +36,7 @@ const GroupConsole = () => {
               variant="contained"
               onClick={() => openModalCreate(true)}
             >
-              Create group
+              {t('admin:components.group.createGroup')}
             </Button>
           </Grid>
         </Grid>

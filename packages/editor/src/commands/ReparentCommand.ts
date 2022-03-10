@@ -1,14 +1,19 @@
 import { Vector3 } from 'three'
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+
+import EditorCommands from '../constants/EditorCommands'
+import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import { ControlManager } from '../managers/ControlManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface ReparentCommandParams extends CommandParams {
   /** Parent object which will hold objects being added by this command */
@@ -101,17 +106,22 @@ export default class ReparentCommand extends Command {
   }
 
   emitBeforeExecuteEvent() {
-    if (this.shouldEmitEvent && this.isSelected)
-      CommandManager.instance.emitEvent(EditorEvents.BEFORE_SELECTION_CHANGED)
+    if (this.shouldEmitEvent && this.isSelected) {
+      ControlManager.instance.onBeforeSelectionChanged()
+      store.dispatch(SelectionAction.changedBeforeSelection())
+    }
   }
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        CommandManager.instance.emitEvent(EditorEvents.SELECTION_CHANGED)
+        ControlManager.instance.onSelectionChanged()
+        SceneManager.instance.updateOutlinePassSelection()
+        store.dispatch(SelectionAction.changedSelection())
       }
 
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 

@@ -1,9 +1,11 @@
+import { createState, none, useState } from '@speigg/hookstate'
+
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
-import { User } from '@xrengine/common/src/interfaces/User'
-import { useDispatch, store } from '../../store'
-import { client } from '../../feathers'
-import { createState, useState, none } from '@speigg/hookstate'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
+import { User } from '@xrengine/common/src/interfaces/User'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 const state = createState({
@@ -98,7 +100,7 @@ export const UserService = {
             userId
           }
         })
-        .then((res: any) => {
+        .then((res: Relationship) => {
           dispatch(UserAction.loadedUserRelationship(res as Relationship))
         })
         .catch((err: any) => {

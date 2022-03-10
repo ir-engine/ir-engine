@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { SubscriptionTypeInterface } from '@xrengine/common/src/dbmodels/SubscriptionType'
+
+import { Application } from '../../../declarations'
 
 export type SubscriptionTypeDataType = SubscriptionTypeInterface
 

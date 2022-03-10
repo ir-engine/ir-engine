@@ -1,13 +1,16 @@
-import { Application } from '../../../declarations'
-import multer from 'multer'
 import { Params } from '@feathersjs/feathers'
-import hooks from './upload-asset.hooks'
 import express from 'express'
-import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import _ from 'lodash'
+import multer from 'multer'
+
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
-import { useStorageProvider } from '../storageprovider/storageprovider'
+
+import { Application } from '../../../declarations'
+import restrictUserRole from '../../hooks/restrict-user-role'
+import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
+import { useStorageProvider } from '../storageprovider/storageprovider'
+import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
 
@@ -25,12 +28,11 @@ export const addGenericAssetToS3AndStaticResources = async (
   const provider = useStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
-
-  const existingAsset = await app.service('static-resource').find({
-    query: {
-      staticResourceType: args.staticResourceType,
-      // safely spread conditional params so we can query by name if it is given, otherwise fall back to key
-      ...(args.name ? { name: args.name } : { key: args.key }),
+  const key = args.key
+  const existingAsset = await app.service('static-resource').Model.findAndCountAll({
+    where: {
+      staticResourceType: args.staticResourceType || 'avatar',
+      ...(args.name ? { name: args.name } : { key: key }),
       ...userIdQuery
     }
   })
@@ -40,9 +42,9 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   promises.push(
     new Promise<void>(async (resolve) => {
-      await provider.createInvalidation([args.key])
+      await provider.createInvalidation([key])
       await provider.putObject({
-        Key: args.key,
+        Key: key,
         Body: file,
         ContentType: args.contentType
       })
@@ -51,15 +53,15 @@ export const addGenericAssetToS3AndStaticResources = async (
   )
 
   // add asset to static resources
-  const assetURL = getCachedAsset(args.key, provider.cacheDomain)
-  if (existingAsset.data.length) {
-    promises.push(provider.deleteResources([existingAsset.data[0].id]))
+  const assetURL = getCachedAsset(key, provider.cacheDomain)
+  if (existingAsset.rows.length) {
+    promises.push(provider.deleteResources([existingAsset.rows[0].id]))
     promises.push(
       app.service('static-resource').patch(
-        existingAsset.data[0].id,
+        existingAsset.rows[0].id,
         {
           url: assetURL,
-          key: args.key
+          key: key
         },
         { isInternal: true }
       )
@@ -71,7 +73,7 @@ export const addGenericAssetToS3AndStaticResources = async (
           name: args.name ?? null,
           mimeType: args.contentType,
           url: assetURL,
-          key: args.key,
+          key: key,
           staticResourceType: args.staticResourceType,
           ...userIdQuery
         },
@@ -79,7 +81,6 @@ export const addGenericAssetToS3AndStaticResources = async (
       )
     )
   }
-
   await Promise.all(promises)
   return assetURL
 }
@@ -112,9 +113,7 @@ export default (app: Application): void => {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           return Promise.all(
-            params?.files.map((file, i) =>
-              addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
-            )
+            data?.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] }))
           )
         }
       }

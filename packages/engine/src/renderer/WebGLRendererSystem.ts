@@ -19,22 +19,24 @@ import {
   WebGLRendererParameters,
   WebGLRenderTarget
 } from 'three'
-import { ClientStorage } from '../common/classes/ClientStorage'
-import { nowMilliseconds } from '../common/functions/nowMilliseconds'
+
 import { isIOS } from '@xrengine/common/src/utils/isIOS'
+
+import { ClientStorage } from '../common/classes/ClientStorage'
+import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
+import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import WebGL from './THREE.WebGL'
+import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
+import { World } from '../ecs/classes/World'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { World } from '../ecs/classes/World'
-import { configureEffectComposer } from './functions/configureEffectComposer'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
-import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
 import { databasePrefix, RENDERER_SETTINGS } from './EngineRnedererConstants'
-import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { receiveActionOnce } from '../networking/functions/matchActionOnce'
+import { configureEffectComposer } from './functions/configureEffectComposer'
+import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
   // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
@@ -133,10 +135,11 @@ export class EngineRenderer {
     this.renderContext = context!
     const options: WebGLRendererParameters = {
       precision: 'highp',
-      powerPreference: isIOS() ? 'default' : 'high-performance',
+      powerPreference: 'high-performance',
+      stencil: false,
+      antialias: !Engine.isHMD,
       canvas,
       context,
-      antialias: !Engine.isHMD,
       preserveDrawingBuffer: !Engine.isHMD
     }
 

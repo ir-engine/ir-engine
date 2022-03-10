@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
+
 import { ClientSettingService } from '../../../admin/services/Setting/ClientSettingService'
 import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
 
 interface Props {
-  onClick: any
+  onClick?: () => void
 }
 
-const Logo = (props: Props): any => {
+const Logo = (props: Props): JSX.Element => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const [logo, setLogo] = useState(clientSetting?.logo)
@@ -23,7 +24,7 @@ const Logo = (props: Props): any => {
 
   return (
     <div className="logo">
-      <img src={logo} alt="logo" crossOrigin="anonymous" className="logo" onClick={props.onClick ?? null} />
+      <img src={logo} alt="logo" crossOrigin="anonymous" className="logo" onClick={props.onClick} />
     </div>
   )
 }

@@ -1,6 +1,12 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -11,14 +17,14 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import React, { useEffect, useState } from 'react'
-import { ProjectService, PROJECT_PAGE_LIMIT, useProjectState } from '../../../common/services/ProjectService'
+
+import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from './Projects.module.scss'
 import UploadProjectModal from './UploadProjectModal'
+import ViewProjectFiles from './ViewProjectFiles'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -31,14 +37,18 @@ const Projects = () => {
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
   const githubAppState = useGithubAppState()
-  const githubAppRepos = githubAppState.repos
+  const githubAppRepos = githubAppState.repos.value
+  const { t } = useTranslation()
+  const [projectName, setProjectName] = useState('')
+  const [showProjectFiles, setShowProjectFiles] = useState(false)
 
   const headCell = [
     // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-    { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'update', numeric: false, disablePadding: true, label: 'Update' },
-    { id: 'invalidate', numeric: false, disablePadding: false, label: 'Invalidate Cache' },
-    { id: 'remove', numeric: false, disablePadding: false, label: 'Remove' }
+    { id: 'name', numeric: false, disablePadding: false, label: t('admin:components.project.name') },
+    { id: 'update', numeric: false, disablePadding: true, label: t('admin:components.project.update') },
+    { id: 'invalidate', numeric: false, disablePadding: false, label: t('admin:components.project.invalidateCache') },
+    { id: 'view', numeric: false, disablePadding: false, label: t('admin:components.project.viewProjectFiles') },
+    { id: 'remove', numeric: false, disablePadding: false, label: t('admin:components.project.remove') }
   ]
 
   function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -140,7 +150,12 @@ const Projects = () => {
     try {
       if (project) {
         const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
-        await ProjectService.removeProject(projectToRemove.id!)
+        if (projectToRemove) {
+          await ProjectService.removeProject(projectToRemove.id)
+          handleCloseRemoveModel()
+        } else {
+          throw Error('Failed to find the project')
+        }
       }
     } catch (err) {
       console.log(err)
@@ -229,6 +244,11 @@ const Projects = () => {
     setPopupRemoveConfirmOpen(false)
   }
 
+  const handleViewProject = (name: string) => {
+    setProjectName(name)
+    setShowProjectFiles(true)
+  }
+
   return (
     <div>
       <Paper className={styles.adminRoot}>
@@ -241,7 +261,7 @@ const Projects = () => {
               color="primary"
               onClick={onOpenUploadModal}
             >
-              {'Add Project'}
+              {t('admin:components.project.addProject')}
             </Button>
           </Grid>
           <Grid item xs={6}>
@@ -252,7 +272,7 @@ const Projects = () => {
               color="primary"
               onClick={ProjectService.triggerReload}
             >
-              {'Rebuild'}
+              {t('admin:components.project.rebuild')}
             </Button>
           </Grid>
         </Grid>
@@ -310,6 +330,18 @@ const Projects = () => {
                       {user.userRole.value === 'admin' && (
                         <Button
                           className={styles.checkbox}
+                          onClick={() => handleViewProject(row.name)}
+                          name="stereoscopic"
+                          color="primary"
+                        >
+                          <VisibilityIcon />
+                        </Button>
+                      )}
+                    </TableCell>
+                    <TableCell className={styles.tcell} align="right">
+                      {user.userRole.value === 'admin' && (
+                        <Button
+                          className={styles.checkbox}
                           onClick={() => handleOpenRemoveConfirmation(row)}
                           name="stereoscopic"
                           color="primary"
@@ -347,7 +379,7 @@ const Projects = () => {
           handleCloseModel={handleCloseReuploadModel}
           submit={tryReuploadProjects}
           name={project?.name}
-          label={'project'}
+          label={t('admin:components.project.project')}
           type="rebuild"
         />
         <ConfirmModel
@@ -355,7 +387,7 @@ const Projects = () => {
           handleCloseModel={handleCloseInvalidateModel}
           submit={handleInvalidateCache}
           name={project?.name}
-          label={"storage provider's cache of"}
+          label={t('admin:components.project.storageProvidersCacheOf')}
           type="invalidates"
         />
         <ConfirmModel
@@ -363,9 +395,12 @@ const Projects = () => {
           handleCloseModel={handleCloseRemoveModel}
           submit={onRemoveProject}
           name={project?.name}
-          label={'project'}
+          label={t('admin:components.project.project')}
         />
       </Paper>
+      {showProjectFiles && projectName && (
+        <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
+      )}
     </div>
   )
 }

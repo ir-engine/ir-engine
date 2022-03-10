@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import EditorContainer from '../components/EditorContainer'
+import { RouteComponentProps } from 'react-router-dom'
+
+import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeBrowser,
@@ -8,13 +14,9 @@ import {
   initializeProjectSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
+
+import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
-import { RouteComponentProps } from 'react-router-dom'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useDispatch } from '@xrengine/client-core/src/store'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
@@ -77,10 +79,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       systemModulePromise: import('../systems/GizmoSystem'),
       type: SystemUpdateType.PRE_RENDER,
       args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('@xrengine/engine/src/scene/systems/EntityNodeEventSystem'),
-      type: SystemUpdateType.PRE_RENDER
     }
   ]
 
@@ -93,8 +91,8 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
 
   useEffect(() => {
     const { projectName, sceneName } = props.match.params
-    projectName && dispatch(EditorAction.projectLoaded(projectName))
-    sceneName && dispatch(EditorAction.sceneLoaded(sceneName))
+    dispatch(EditorAction.projectChanged(projectName ?? null))
+    dispatch(EditorAction.sceneChanged(sceneName ?? null))
   }, [props.match.params.projectName, props.match.params.sceneName])
 
   useEffect(() => {

@@ -1,24 +1,29 @@
-import { ArrowBack, Check, Help } from '@mui/icons-material'
-import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import CircularProgress from '@mui/material/CircularProgress'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
+
 import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
-import React, { useEffect, useState, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer, Vector3 } from 'three'
+
+import { ArrowBack, Check, Help } from '@mui/icons-material'
+import CircularProgress from '@mui/material/CircularProgress'
+
+import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
-import { validate, initialize3D, onWindowResize, addAnimationLogic } from './helperFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
+
 interface Props {
   changeActiveMenu: Function
   uploadAvatarModel?: Function
@@ -33,20 +38,20 @@ export const ReadyPlayerMenu = (props: Props) => {
   const { t } = useTranslation()
 
   const { isPublicAvatar, changeActiveMenu } = props
-  const [selectedFile, setSelectedFile] = useState<any>(null)
+  const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [error, setError] = useState('')
   const [obj, setObj] = useState<any>(null)
-  const [entity, setEntity] = useState<any>(null)
-  const panelRef = useRef<any>()
+  const [entity, setEntity] = useState<Entity | undefined>()
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   useEffect(() => {
     const world = useWorld()
-    const entity = createEntity()
-    addAnimationLogic(entity, world, setEntity, panelRef)
+    const entityItem = createEntity()
+    addAnimationLogic(entityItem, world, setEntity, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera
@@ -110,7 +115,7 @@ export const ReadyPlayerMenu = (props: Props) => {
   }
 
   const uploadAvatar = () => {
-    if (error) {
+    if (error || selectedFile === undefined) {
       return
     }
 

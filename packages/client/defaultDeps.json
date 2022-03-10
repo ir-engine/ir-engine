@@ -230,6 +230,18 @@
     "uuid",
     "web-worker",
     "yuka",
-    "yup"
+    "yup",
+    "@etherealjs/web-layer/three",
+    "@mui/base/AutocompleteUnstyled",
+    "@mui/icons-material/CleaningServices",
+    "@mui/icons-material/ErrorOutline",
+    "@mui/icons-material/Refresh",
+    "@mui/icons-material/SelectAll",
+    "@mui/icons-material/ShoppingCart",
+    "@mui/icons-material/SquareFoot",
+    "@mui/icons-material/Timeline",
+    "@mui/material/Menu",
+    "@pixiv/three-vrm",
+    "image-palette-core"
   ]
 }

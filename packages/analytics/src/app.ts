@@ -1,18 +1,19 @@
 import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio'
-import { Application } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import logger from '@xrengine/server-core/src/logger'
-import sequelize from '@xrengine/server-core/src/sequelize'
-import services from '@xrengine/server-core/src/services'
-import authentication from '@xrengine/server-core/src/user/authentication'
 import compress from 'compression'
 import cors from 'cors'
 import { EventEmitter } from 'events'
 import feathersLogger from 'feathers-logger'
 import helmet from 'helmet'
 import winston from 'winston'
+
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import services from '@xrengine/server-core/src/services'
+import authentication from '@xrengine/server-core/src/user/authentication'
 
 export const createApp = (): Application => {
   const emitter = new EventEmitter()
@@ -91,31 +92,3 @@ export const createApp = (): Application => {
 
   return app
 }
-
-process.on('exit', async () => {
-  console.log('Server EXIT')
-})
-
-process.on('SIGTERM', async (err) => {
-  console.log('Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('RECEIVED SIGINT')
-  process.exit()
-})
-
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})

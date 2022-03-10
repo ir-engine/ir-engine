@@ -1,9 +1,11 @@
 import { Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
-import { Application } from '../../../declarations'
-import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
+
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
+import { Application } from '../../../declarations'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
+import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 const storageProvider = useStorageProvider()
 
@@ -59,7 +61,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    */
   async update(from: string, { destination, isCopy, renameTo }, params?: Params) {
     // TODO
-    throw new Error('[File Browser]: Temporarily disabled for instability. - TODO')
+    // throw new Error('[File Browser]: Temporarily disabled for instability. - TODO')
     return this.store.moveObject(from, destination, isCopy, renameTo)
   }
 
@@ -70,7 +72,6 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    */
   async patch(path: string, data: PatchParams, params?: Params) {
-    console.log(path, data)
     await this.store.putObject({
       Key: path,
       Body: data.body,

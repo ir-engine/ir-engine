@@ -1,16 +1,19 @@
 import React from 'react'
-import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+
 import Search from '../../common/Search'
-import PartyTable from './PartyTable'
-import CreateParty from './CreateParty'
 import { useStyles } from '../../styles/ui'
+import CreateParty from './CreateParty'
+import PartyTable from './PartyTable'
 
 const Party = () => {
   const classes = useStyles()
   const [partyModelOpen, setPartyModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
-
+  const { t } = useTranslation()
   const openModalCreate = () => {
     setPartyModelOpen(true)
   }
@@ -30,7 +33,7 @@ const Party = () => {
         </Grid>
         <Grid item xs={3}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
-            Create New Party
+            {t('admin:components.party.createNewParty')}
           </Button>
         </Grid>
       </Grid>

@@ -1,12 +1,14 @@
 import React from 'react'
+
 import Drawer from '@mui/material/Drawer'
 import Paper from '@mui/material/Paper'
+
 import { useStyles } from '../styles/ui'
 
 interface Props {
   openView: boolean
   handleCloseDrawe: () => void
-  children: any
+  children: JSX.Element | JSX.Element[]
 }
 
 export default function ViewDrawer(props: Props) {

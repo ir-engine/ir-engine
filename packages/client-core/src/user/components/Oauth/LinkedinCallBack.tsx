@@ -1,11 +1,13 @@
-import { useLocation, withRouter } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation, withRouter } from 'react-router-dom'
+
+import Container from '@mui/material/Container'
+
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
-import Container from '@mui/material/Container'
-import { useTranslation } from 'react-i18next'
 
-const LinkedinCallbackComponent = (props): any => {
+const LinkedinCallbackComponent = (props): JSX.Element => {
   const { loginUserByJwt, refreshConnections } = props
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }

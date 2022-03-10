@@ -1,4 +1,5 @@
 import { createState, Downgraded, useState } from '@speigg/hookstate'
+
 import { store } from '../store'
 
 const state = createState({
@@ -16,7 +17,7 @@ if (typeof window !== 'undefined') {
   )
   if (rawState) {
     const newState = JSON.parse(rawState)
-    console.log(newState)
+    //console.log(newState)
     state.merge(newState)
   }
 }

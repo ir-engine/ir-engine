@@ -1,11 +1,13 @@
 import { Forbidden } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
+
+import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../../declarations'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
-import { Paginated } from '@feathersjs/feathers/lib'
 
 export type UserDataType = UserInterface
 /**
@@ -75,7 +77,8 @@ export class User<T = UserDataType> extends Service<T> {
       delete params.query.action
       delete params.query.search
       const loggedInUser = extractLoggedInUserFromParams(params)
-      if (loggedInUser.userRole !== 'admin') throw new Forbidden('Must be system admin to execute this action')
+      if (!params.isInternal && loggedInUser.userRole !== 'admin')
+        throw new Forbidden('Must be system admin to execute this action')
 
       const searchedUser = await (this.app.service('user') as any).Model.findAll({
         where: {
@@ -113,7 +116,7 @@ export class User<T = UserDataType> extends Service<T> {
       return super.find(params)
     } else {
       const loggedInUser = extractLoggedInUserFromParams(params)
-      if (loggedInUser?.userRole !== 'admin' && params.isInternal != true)
+      if (loggedInUser?.userRole !== 'admin' && !params.isInternal)
         throw new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }

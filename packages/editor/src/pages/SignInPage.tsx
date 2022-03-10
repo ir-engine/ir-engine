@@ -1,9 +1,9 @@
-import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
-import { ProjectGridContainer, ProjectGridContent } from '../components/projects/ProjectGrid'
+
+import SignIn from '@xrengine/client-core/src/user/components/Auth/Login'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 /**
  * Creating styled component using section.
@@ -55,6 +55,29 @@ export const StyledProjectsHeader = (styled as any).div`
  display: flex;
  justify-content: space-between;
  align-items: center;
+`
+
+/**
+ *
+ * @author Robert Long
+ */
+const ProjectGridContainer = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: ${(props) => props.theme.panel2};
+  border-radius: 3px;
+`
+
+/**
+ *
+ * @author Robert Long
+ */
+const ProjectGridContent = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px;
 `
 
 export const SignInPage = () => {

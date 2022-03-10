@@ -1,12 +1,15 @@
-import Command, { CommandParams } from './Command'
-import { serializeObject3DArray } from '../functions/debug'
-import EditorCommands from '../constants/EditorCommands'
-import { CommandManager } from '../managers/CommandManager'
-import EditorEvents from '../constants/EditorEvents'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+
+import EditorCommands from '../constants/EditorCommands'
+import { serializeObject3DArray } from '../functions/debug'
+import { CommandManager } from '../managers/CommandManager'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export interface RemoveObjectCommandParams extends CommandParams {
   /** Whether to deselect object or not */
@@ -98,7 +101,8 @@ export default class RemoveObjectsCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
+      SceneManager.instance.onEmitSceneModified
+      store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
 }

@@ -1,14 +1,16 @@
-import { store, useDispatch } from '../../store'
+import { createState, none, useState } from '@speigg/hookstate'
+import _ from 'lodash'
+
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
+import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
+import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
+
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
-import { UserAction } from '../../user/services/UserService'
+import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
+import { UserAction } from '../../user/services/UserService'
 import { ChatService } from './ChatService'
-import { Group } from '@xrengine/common/src/interfaces/Group'
-import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
-import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
-import { createState, useState, none } from '@speigg/hookstate'
-import _ from 'lodash'
 
 //State
 
@@ -196,7 +198,7 @@ export const GroupService = {
       }
     }
   },
-  createGroup: async (values: any) => {
+  createGroup: async (values: CreateGroup) => {
     const dispatch = useDispatch()
     {
       try {
@@ -210,7 +212,7 @@ export const GroupService = {
       }
     }
   },
-  patchGroup: async (values: any) => {
+  patchGroup: async (values: Group) => {
     const dispatch = useDispatch()
     {
       const patch = {}

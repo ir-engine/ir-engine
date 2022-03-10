@@ -1,4 +1,5 @@
-import { Color, Object3D, Raycaster, Vector3, Intersection, Mesh, MeshStandardMaterial, Vector2 } from 'three'
+import { Color, Intersection, Mesh, MeshStandardMaterial, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
@@ -63,7 +64,7 @@ export default class TransformGizmo extends Object3D {
 
   static async load() {
     if (gizmoGltf) return Promise.resolve(gizmoGltf)
-    gizmoGltf = await AssetLoader.loadAsync({ url: GLTF_PATH })
+    gizmoGltf = await AssetLoader.loadAsync(GLTF_PATH)
     return gizmoGltf
   }
 

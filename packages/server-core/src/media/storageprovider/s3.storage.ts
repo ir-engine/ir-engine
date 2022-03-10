@@ -1,8 +1,10 @@
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 import AWS from 'aws-sdk'
 import { PresignedPost } from 'aws-sdk/clients/s3'
 import path from 'path'
 import S3BlobStore from 's3-blob-store'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 import config from '../../appconfig'
 import {
   SignedURLResponse,
@@ -46,21 +48,20 @@ export class S3Provider implements StorageProviderInterface {
     return this
   }
 
-  checkObjectExistence = async (key: string): Promise<any> => {
-    try {
-      await this.provider
-        .getObjectAcl({
-          Bucket: this.bucket,
-          Key: key
-        })
-        .promise()
-      return new Error(`Object of key ${key} already exists`)
-    } catch (err) {
-      if (err.code === 'NoSuchKey') return null
-      else {
-        return err
+  checkObjectExistence = (key: string): Promise<any> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await this.provider
+          .getObjectAcl({
+            Bucket: this.bucket,
+            Key: key
+          })
+          .promise()
+        reject(new Error(`Object of key ${key} already exists`))
+      } catch (err) {
+        resolve(err.code === 'NoSuchKey' ? null : err)
       }
-    }
+    })
   }
 
   getObject = async (key: string): Promise<StorageObjectInterface> => {

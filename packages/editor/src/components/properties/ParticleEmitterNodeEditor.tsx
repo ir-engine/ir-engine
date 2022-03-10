@@ -1,21 +1,24 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import ColorInput from '../inputs/ColorInput'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import Vector3Input from '../inputs/Vector3Input'
-import SelectInput from '../inputs/SelectInput'
-import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
-import { camelPad } from '../../functions/utils'
 import { useTranslation } from 'react-i18next'
-import GrainIcon from '@mui/icons-material/Grain'
-import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
-import { EditorComponentType, updateProperty } from './Util'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
+import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+
+import GrainIcon from '@mui/icons-material/Grain'
+
+import { camelPad } from '../../functions/utils'
+import ColorInput from '../inputs/ColorInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import Vector3Input from '../inputs/Vector3Input'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 //creating object containing Curve options for SelectInput
 const CurveOptions = Object.keys(EasingFunctions).map((name) => ({

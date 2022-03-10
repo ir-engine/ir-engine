@@ -1,4 +1,5 @@
-import { PropertyBinding, AnimationClip, Object3D, Mesh, SkinnedMesh, KeyframeTrack, Bone } from 'three'
+import { AnimationClip, Bone, KeyframeTrack, Mesh, Object3D, PropertyBinding, SkinnedMesh } from 'three'
+
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -59,7 +60,7 @@ function cloneAnimationClip(sourceAnimationClip: AnimationClip, cloneUUIDLookup:
 export default function cloneObject3D(source: Object3D, preserveUUIDs?: boolean): Object3DWithEntity {
   const cloneLookup = new Map<Object3D, Object3D>()
   const cloneUUIDLookup = new Map<string, string>()
-  const clone = source.clone() as Object3DWithEntity
+  const clone = source.clone(true) as Object3DWithEntity
 
   parallelTraverse(source, clone, (sourceNode, clonedNode) => {
     cloneLookup.set(sourceNode, clonedNode)

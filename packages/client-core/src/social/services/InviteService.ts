@@ -1,10 +1,12 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
-import { accessAuthState } from '../../user/services/AuthService'
-import { AlertService } from '../../common/services/AlertService'
-import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
 import { createState, useState } from '@speigg/hookstate'
+
+import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
+
+import { AlertService } from '../../common/services/AlertService'
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
+import { accessAuthState } from '../../user/services/AuthService'
 
 const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -94,7 +96,7 @@ export const useInviteState = () => useState(state) as any as typeof state
 
 //Service
 export const InviteService = {
-  sendInvite: async (data: any) => {
+  sendInvite: async (data: SendInvite) => {
     const dispatch = useDispatch()
     {
       if (data.identityProviderType === 'email') {

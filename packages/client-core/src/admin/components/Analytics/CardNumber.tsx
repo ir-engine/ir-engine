@@ -1,8 +1,9 @@
 import React from 'react'
-import makeStyles from '@mui/styles/makeStyles'
+
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
+import makeStyles from '@mui/styles/makeStyles'
 
 const useStyles = makeStyles({
   root: {
@@ -24,7 +25,16 @@ const useStyles = makeStyles({
   }
 })
 
-const CardNumber = ({ data }: any) => {
+interface Props {
+  data: {
+    number: number
+    label: string
+    color1: string
+    color2: string
+  }
+}
+
+const CardNumber = ({ data }: Props) => {
   const classes = useStyles()
 
   return (

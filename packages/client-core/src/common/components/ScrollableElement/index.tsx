@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+
 import styles from './ScrollableElement.module.scss'
 
 type ScrollableElementPropsType = {
-  children?: any
+  children?: JSX.Element
   height?: number
-  scrollContainerClass?: any
-  topShadowClass?: any
-  bottomShadowClass?: any
+  scrollContainerClass?: string
+  topShadowClass?: string
+  bottomShadowClass?: string
 }
 
 const ScrollableElement = (props: ScrollableElementPropsType) => {

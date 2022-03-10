@@ -1,8 +1,10 @@
-import { store, useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
+
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+
+import { client } from '../../feathers'
+import { store, useDispatch } from '../../store'
 
 //State
 export const USER_PAGE_LIMIT = 100

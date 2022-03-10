@@ -1,31 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import ViewDrawer from '../../common/ViewDrawer'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
-import { useStyles } from '../../styles/ui'
-import Grid from '@mui/material/Grid'
-import Paper from '@mui/material/Paper'
-import Button from '@mui/material/Button'
-import DialogActions from '@mui/material/DialogActions'
+import { useTranslation } from 'react-i18next'
+
+import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
 import { Save } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
 import FormControl from '@mui/material/FormControl'
+import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
+import Typography from '@mui/material/Typography'
+
+import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import { useLocationState } from '../../services/LocationService'
-import { useInstanceState } from '../../services/InstanceService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { InstanceService } from '../../services/InstanceService'
-import { LocationService } from '../../services/LocationService'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { validateForm } from '../../common/validation/formValidation'
+import ViewDrawer from '../../common/ViewDrawer'
+import { useInstanceState } from '../../services/InstanceService'
+import { InstanceService } from '../../services/InstanceService'
+import { useLocationState } from '../../services/LocationService'
+import { LocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: boolean
   closeViewModel: () => void
-  partyAdmin: any
+  partyAdmin?: AdminParty
   editMode: boolean
   handleEditMode: (open: boolean) => void
 }
@@ -48,14 +53,19 @@ export default function ViewParty(props: Props) {
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const locationData = adminLocationState.locations
+  const { t } = useTranslation()
 
   //Call custom hooks
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
   useFetchAdminLocations(user, adminLocationState, LocationService)
 
   useEffect(() => {
-    if (partyAdmin.instance?.id || partyAdmin?.location?.name) {
-      setUpdateParty({ ...updateParty, instance: partyAdmin.instance?.id, location: partyAdmin.location?.id })
+    if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {
+      setUpdateParty({
+        ...updateParty,
+        instance: partyAdmin?.instance?.id ?? '',
+        location: partyAdmin?.location?.id ?? ''
+      })
     }
   }, [partyAdmin])
 
@@ -64,10 +74,10 @@ export default function ViewParty(props: Props) {
     let temp = updateParty.formErrors
     switch (name) {
       case 'location':
-        temp.location = value.length < 2 ? 'Location is required' : ''
+        temp.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
         break
       case 'instance':
-        temp.instance = value.length < 2 ? 'Instance is required' : ''
+        temp.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
         break
       default:
         break
@@ -80,20 +90,20 @@ export default function ViewParty(props: Props) {
   })
 
   const handleSubmit = async () => {
-    const data = {
+    const data: PatchParty = {
       locationId: updateParty.location,
       instanceId: updateParty.instance
     }
     let temp = updateParty.formErrors
     if (!updateParty.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.party.locationCantEmpty')
     }
     if (!updateParty.instance) {
-      temp.instance = "Instance can't be empty"
+      temp.instance = t('admin:components.party.instanceCantEmpty')
     }
     setUpdateParty({ ...updateParty, formErrors: temp })
 
-    if (validateForm(updateParty, updateParty.formErrors)) {
+    if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
       await PartyService.patchParty(partyAdmin.id, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModel()
@@ -117,10 +127,10 @@ export default function ViewParty(props: Props) {
         <Container maxWidth="sm">
           <div className={classes.mt10}>
             <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-              Update party
+              {t('admin:components.party.updateParty')}
             </Typography>
 
-            <label>Instance</label>
+            <label>{t('admin:components.party.instance')}</label>
             <Paper
               component="div"
               className={updateParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
@@ -138,7 +148,7 @@ export default function ViewParty(props: Props) {
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select instance</em>
+                    <em>{t('admin:components.party.selectInstance')}</em>
                   </MenuItem>
                   {data.map((el) => (
                     <MenuItem value={el?.id} key={el?.id}>
@@ -149,7 +159,7 @@ export default function ViewParty(props: Props) {
               </FormControl>
             </Paper>
 
-            <label>Location</label>
+            <label>{t('admin:components.party.location')}</label>
             <Paper
               component="div"
               className={updateParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
@@ -167,7 +177,7 @@ export default function ViewParty(props: Props) {
                   MenuProps={{ classes: { paper: classes.selectPaper } }}
                 >
                   <MenuItem value="" disabled>
-                    <em>Select location</em>
+                    <em>{t('admin:components.party.selectLocation')}</em>
                   </MenuItem>
                   {locationData.value.map((el) => (
                     <MenuItem value={el?.id} key={el?.id}>
@@ -186,30 +196,36 @@ export default function ViewParty(props: Props) {
             component="h4"
             className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
           >
-            Instance
+            {t('admin:components.party.instance')}
           </Typography>
           <Grid container spacing={2} className={classes.pdlarge}>
             <Grid item xs={6}>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                Ip Address:
+                {t('admin:components.party.ipAddress')}:
               </Typography>
               {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                User:
+                {t('admin:components.party.user')}:
               </Typography>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                Active:
+                {t('admin:components.party.active')}:
               </Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                {partyAdmin?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
+                {partyAdmin?.instance?.ipAddress || (
+                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                )}
               </Typography>
               <Typography variant="h5" component="h5" className={classes.mb10}>
                 {partyAdmin?.instance?.currentUsers}
               </Typography>
               <Typography variant="h5" component="h5" className={classes.mb10}>
-                <span className={classes.spanNone}>{partyAdmin?.instance?.ended === 1 ? 'No' : 'Yes'}</span>
+                <span className={classes.spanNone}>
+                  {partyAdmin?.instance?.ended === true
+                    ? t('admin:components.index.no')
+                    : t('admin:components.index.yes')}
+                </span>
               </Typography>
             </Grid>
           </Grid>
@@ -219,30 +235,34 @@ export default function ViewParty(props: Props) {
             component="h4"
             className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
           >
-            Location
+            {t('admin:components.party.location')}
           </Typography>
           <Grid container spacing={2} className={classes.pdlarge}>
             <Grid item xs={6}>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                Name:
+                {t('admin:components.locationModel.lbl-name')}:
               </Typography>
               {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                Maximum user:
+                {t('admin:components.locationModel.lbl-maxuser')}:
               </Typography>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                scene:
+                {t('admin:components.locationModel.lbl-scene')}:
               </Typography>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h6" component="h6" className={classes.mb10}>
-                {partyAdmin?.location?.name || <span className={classes.spanNone}>None</span>}
+                {partyAdmin?.location?.name || (
+                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                )}
               </Typography>
               <Typography variant="h5" component="h5" className={classes.mb10}>
                 {partyAdmin?.location?.maxUsersPerInstance}
               </Typography>
               <Typography variant="h5" component="h5" className={classes.mb10}>
-                {partyAdmin?.location?.sceneId || <span className={classes.spanNone}>None</span>}
+                {partyAdmin?.location?.sceneId || (
+                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                )}
               </Typography>
             </Grid>
           </Grid>
@@ -255,19 +275,19 @@ export default function ViewParty(props: Props) {
               <span style={{ marginRight: '15px' }}>
                 <Save />
               </span>{' '}
-              Submit
+              {t('admin:components.party.submit')}
             </Button>
             <Button className={classes.saveBtn} onClick={() => handleEditMode(false)}>
-              CANCEL
+              {t('admin:components.party.cancel')}
             </Button>
           </div>
         ) : (
           <div className={classes.marginTpM}>
             <Button className={classes.saveBtn} onClick={() => handleEditMode(true)}>
-              EDIT
+              {t('admin:components.party.edit')}
             </Button>
             <Button onClick={() => closeViewModel()} className={classes.saveBtn}>
-              CANCEL
+              {t('admin:components.party.cancel')}
             </Button>
           </div>
         )}

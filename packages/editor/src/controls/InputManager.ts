@@ -1,14 +1,15 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+
 import { InputComponent, InputComponentType } from '../classes/InputComponent'
 import isInputSelected from '../functions/isInputSelected'
 import { SceneManager } from '../managers/SceneManager'
-import { InputMapping, ActionKey, Action, ActionState, SpecialAliases, MouseButtons } from './input-mappings'
+import { Action, ActionKey, ActionState, InputMapping, MouseButtons, SpecialAliases } from './input-mappings'
 
 export default class InputManager {
   canvas: HTMLCanvasElement
   boundingClientRect: DOMRect
   inputComponent: InputComponentType
-  // mouseDownTarget: any
+  mouseDownTarget: EventTarget | null
 
   constructor(canvas) {
     this.canvas = canvas
@@ -24,9 +25,9 @@ export default class InputManager {
     canvas.addEventListener('contextmenu', this.onContextMenu)
     window.addEventListener('blur', this.onWindowBlur)
 
-    // this.mouseDownTarget = null
-    // window.addEventListener('mousedown', this.onWindowMouseDown)
-    // window.addEventListener('mouseup', this.onWindowMouseUp)
+    this.mouseDownTarget = null
+    window.addEventListener('mousedown', this.onWindowMouseDown)
+    window.addEventListener('mouseup', this.onWindowMouseUp)
   }
 
   handleActionCallback = (action: Action, event: Event) => {
@@ -104,13 +105,19 @@ export default class InputManager {
 
   // ------------- Mouse Events ------------- //
 
-  // onWindowMouseDown = (event: MouseEvent) => {
-  //   this.mouseDownTarget = event.target
-  // }
+  onWindowMouseDown = (event: MouseEvent) => {
+    this.mouseDownTarget = event.target
+  }
+
+  onWindowMouseUp = (event: MouseEvent) => {
+    if (event.target !== this.canvas && this.mouseDownTarget === this.canvas) {
+      this.onMouseUp(event)
+    }
+
+    this.mouseDownTarget = null
+  }
 
   onMouseDown = (event: MouseEvent): void => {
-    // this.mouseDownTarget = event.target
-
     this.inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
     const mouseMapping = this.inputComponent.activeMapping.mouse
     if (!mouseMapping) return
@@ -132,16 +139,6 @@ export default class InputManager {
       if (mouseDown.position) this.handlePosition(this.inputComponent.actionState, mouseDown.position.key, event)
     }
   }
-
-  // onWindowMouseUp = (event: MouseEvent) => {
-  //   const canvas = this.canvas
-  //   const mouseDownTarget = this.mouseDownTarget
-  //   this.mouseDownTarget = null
-  //   if (event.target === canvas || mouseDownTarget !== canvas) {
-  //     return
-  //   }
-  //   this.onMouseUp(event)
-  // }
 
   onMouseUp = (event: MouseEvent): void => {
     this.inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
@@ -283,7 +280,7 @@ export default class InputManager {
     canvas.removeEventListener('click', this.onClick)
     canvas.removeEventListener('contextmenu', this.onContextMenu)
     window.removeEventListener('blur', this.onWindowBlur)
-    // window.removeEventListener('mousedown', this.onWindowMouseDown)
-    // window.removeEventListener('mouseup', this.onWindowMouseUp)
+    window.removeEventListener('mousedown', this.onWindowMouseDown)
+    window.removeEventListener('mouseup', this.onWindowMouseUp)
   }
 }

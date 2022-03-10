@@ -1,20 +1,22 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
+
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { createWorld, World } from '../../../ecs/classes/World'
-import { hasComponent, addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ErrorComponent } from '../../components/ErrorComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
-import { SCENE_COMPONENT_AUDIO, deserializeAudio, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
+import { deserializeAudio, SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
 
 const testURLs = {
   noContentType: { url: 'noContentType' },
@@ -88,6 +90,7 @@ describe('AudioFunctions', () => {
     },
     '../../../common/functions/resolveMedia': {
       resolveMedia: (url: string) => {
+        if (url === 'error') return Promise.reject(new Error())
         return testURLs[url]
       }
     }
@@ -246,6 +249,12 @@ describe('AudioFunctions', () => {
         await audioFunctions.updateAudio(entity, {})
 
         assert(audioComponent.audioSource === sceneComponentData.audioSource)
+      })
+
+      it('should add error component if some error occurs while fetching data', async () => {
+        audioComponent.audioSource = 'error'
+        await audioFunctions.updateAudio(entity, { audioSource: 'error' })
+        assert(hasComponent(entity, ErrorComponent))
       })
 
       it('should add error component if content type of source can not be determined', async () => {
@@ -483,6 +492,13 @@ describe('AudioFunctions', () => {
 
       assert(audioEl.isPlaying !== prevState)
     })
+
+    it('should do nothing if no audio component is there', async () => {
+      const entity = createEntity()
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+      audioFunctions.toggleAudio(entity)
+      assert(true)
+    })
   })
 
   describe('parseAudioProperties()', () => {
@@ -525,6 +541,42 @@ describe('AudioFunctions', () => {
       assert(componentData.coneInnerAngle === props.coneInnerAngle)
       assert(componentData.coneOuterAngle === props.coneOuterAngle)
       assert(componentData.coneOuterGain === props.coneOuterGain)
+    })
+  })
+
+  describe('prepareAudioForGLTFExport()', () => {
+    let audio: Object3D = new Object3D()
+    let audioEl: Object3D = new Object3D()
+    let textureMesh: Object3D = new Object3D()
+
+    describe('Audio Element', () => {
+      beforeEach(() => {
+        audio = new Object3D()
+        audioEl = new Object3D()
+        audio.userData.audioEl = audioEl
+        audio.add(audioEl)
+      })
+
+      it('should remove audio element', () => {
+        audioFunctions.prepareAudioForGLTFExport(audio)
+        assert(!audio.children.includes(audioEl))
+        assert(!audio.userData.audioEl)
+      })
+    })
+
+    describe('Audio Texture mesh', () => {
+      beforeEach(() => {
+        audio = new Object3D()
+        textureMesh = new Object3D()
+        audio.userData.textureMesh = textureMesh
+        audio.add(textureMesh)
+      })
+
+      it('should remove texture mesh', () => {
+        audioFunctions.prepareAudioForGLTFExport(audio)
+        assert(!audio.children.includes(audio.userData.textureMesh))
+        assert(!audio.userData.textureMesh)
+      })
     })
   })
 })

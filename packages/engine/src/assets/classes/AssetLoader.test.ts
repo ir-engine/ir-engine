@@ -1,10 +1,11 @@
 import assert from 'assert'
 import Sinon from 'sinon'
-// import rewire from 'rewire'
-import { AssetLoader } from './AssetLoader'
+import { Mesh } from 'three'
+
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
-import { Mesh } from 'three'
+// import rewire from 'rewire'
+import { AssetLoader } from './AssetLoader'
 
 /**
  * tests
@@ -13,13 +14,7 @@ describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
       const asset = new Mesh()
-      const params = {
-        url: '',
-        castShadow: true,
-        receiveShadow: true
-      }
-
-      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset, params))
+      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset))
     })
   })
 
@@ -87,13 +82,7 @@ describe('AssetLoader', async () => {
     })
 
     it('should give error for empty url', async () => {
-      const params = {
-        url: '',
-        castShadow: true,
-        receiveShadow: true
-      }
-
-      AssetLoader.load(params, undefined, undefined, (err) => {
+      AssetLoader.load('', undefined, undefined, (err) => {
         assert.notEqual(err, null)
       })
     })
@@ -104,14 +93,10 @@ describe('AssetLoader', async () => {
       sandbox.stub(AssetLoader.Cache, 'has').returns(true)
       sandbox.stub(AssetLoader.Cache, 'get').returns(assetContent)
 
-      const params = {
-        url: 'www.test.com/file.gltf',
-        castShadow: true,
-        receiveShadow: true
-      }
+      const url = 'www.test.com/file.gltf'
 
       // Run & Assert
-      AssetLoader.load(params, (res) => {
+      AssetLoader.load(url, (res) => {
         assert.equal(res, assetContent)
       })
     })

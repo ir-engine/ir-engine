@@ -1,6 +1,8 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
-import { Application } from '../../../declarations'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
+
+import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -17,6 +19,9 @@ export default (app: Application) => {
         type: DataTypes.STRING
       },
       channelId: {
+        type: DataTypes.STRING
+      },
+      podName: {
         type: DataTypes.STRING
       },
       currentUsers: {

@@ -1,24 +1,27 @@
+import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+
+import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import {
   accessMediaInstanceConnectionState,
   MediaLocationInstanceConnectionAction
 } from '../common/services/MediaInstanceConnectionService'
-import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
 import { MediaStreamService } from '../media/services/MediaStreamService'
 import { useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
-import { SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
-import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
+import { getMediaTransport, SocketWebRTCClientTransport } from './SocketWebRTCClientTransport'
 
 export const getChannelTypeIdFromTransport = (networkTransport: SocketWebRTCClientTransport) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -33,7 +36,7 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
   const dispatch = useDispatch()
 
   const isWorldConnection = networkTransport.type === TransportTypes.world
-  console.log('onConnectToInstance', TransportTypes.world)
+  console.log('onConnectToInstance', networkTransport.type)
 
   if (isWorldConnection) {
     dispatch(LocationInstanceConnectionAction.instanceServerConnected())
@@ -165,30 +168,106 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED })
     networkTransport.reconnecting = false
-    console.log('socket reconnect')
+    console.log('world socket reconnect')
   })
 
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
     const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
-    await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-      userIds: userIds || [],
-      channelType: 'instance'
-    })
-    MediaStreamService.triggerUpdateNearbyLayerUsers()
+    EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS, userIds })
   })
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
   await createDataProducer(networkTransport, 'instance')
 }
 
 export async function onConnectToMediaInstance(networkTransport: SocketWebRTCClientTransport) {
+  const channelConnectionState = accessMediaInstanceConnectionState()
   networkTransport.socket.on('disconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED })
     networkTransport.reconnecting = true
+
+    networkTransport.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance) {
+        const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+        consumer?.pause()
+      }
+    })
+
+    networkTransport.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance) {
+        const consumer = MediaStreams.instance.consumers.find((c) => c.id === consumerId)
+        consumer?.resume()
+      }
+    })
+
+    networkTransport.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
+      if (MediaStreams.instance)
+        MediaStreams.instance.consumers = MediaStreams.instance.consumers.filter((c) => c.id !== consumerId)
+      EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+    })
+
+    EngineEvents.instance.removeEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
+      closeConsumer(networkTransport, consumer.consumer)
+    )
+
+    EngineEvents.instance.removeEventListener(
+      MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS,
+      async ({ userIds }) => {
+        await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+          userIds: userIds || [],
+          channelType: channelConnectionState.channelType.value,
+          channelId: channelConnectionState.channelId.value
+        })
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      }
+    )
   })
+
   networkTransport.socket.io.on('reconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED })
     networkTransport.reconnecting = false
-    console.log('socket reconnect')
+    await onConnectToInstance(networkTransport)
+    await updateNearbyAvatars()
+    const mediaTransport = getMediaTransport()
+    const request = networkTransport.request
+    const socket = networkTransport.socket
+    if (MediaStreams.instance.videoStream) {
+      if (MediaStreams.instance?.camVideoProducer != null) {
+        if (socket.connected === true && typeof request === 'function')
+          await request(MessageTypes.WebRTCCloseProducer.toString(), {
+            producerId: MediaStreams.instance?.camVideoProducer.id
+          })
+        await MediaStreams.instance?.camVideoProducer?.close()
+        await configureMediaTransports(mediaTransport, ['video'])
+        await createCamVideoProducer(mediaTransport)
+      }
+      MediaStreamService.updateCamVideoState()
+    }
+    if (MediaStreams.instance.audioStream) {
+      if (MediaStreams.instance?.camAudioProducer != null) {
+        if (socket.connected === true && typeof request === 'function')
+          await request(MessageTypes.WebRTCCloseProducer.toString(), {
+            producerId: MediaStreams.instance?.camAudioProducer.id
+          })
+        await MediaStreams.instance?.camAudioProducer?.close()
+        await configureMediaTransports(mediaTransport, ['audio'])
+        await createCamAudioProducer(mediaTransport)
+      }
+      MediaStreamService.updateCamAudioState()
+    }
+    // if (MediaStreams.instance.screenVideoProducer) {
+    //   if (socket.connected === true && typeof request === 'function')
+    //     await request(MessageTypes.WebRTCCloseProducer.toString(), {
+    //       producerId: MediaStreams.instance.screenVideoProducer.id
+    //     })
+    //   await MediaStreams.instance.screenVideoProducer?.close()
+    // }
+    // if (MediaStreams.instance.screenAudioProducer) {
+    //   if (socket.connected === true && typeof request === 'function')
+    //     await request(MessageTypes.WebRTCCloseProducer.toString(), {
+    //       producerId: MediaStreams.instance.screenAudioProducer.id
+    //     })
+    //   await MediaStreams.instance.screenAudioProducer?.close()
+    // }
   })
 
   networkTransport.socket.on(MessageTypes.WebRTCPauseConsumer.toString(), async (consumerId) => {
@@ -214,17 +293,17 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
     closeConsumer(networkTransport, consumer.consumer)
   )
+  EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS, async ({ userIds }) => {
+    await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+      userIds: userIds || [],
+      channelType: channelConnectionState.channelType.value,
+      channelId: channelConnectionState.channelId.value
+    })
+    MediaStreamService.triggerUpdateNearbyLayerUsers()
+  })
 
   await initRouter(networkTransport)
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
-  const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
-
-  const channelConnectionState = accessMediaInstanceConnectionState()
-  await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: userIds || [],
-    channelType: channelConnectionState.channelType.value,
-    channelId: channelConnectionState.channelId.value
-  })
 }
 
 export async function createDataProducer(
@@ -348,8 +427,13 @@ export async function createTransport(networkTransport: SocketWebRTCClientTransp
   // any time a transport transitions to closed,
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
-    if (networkTransport.leaving !== true && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
-      EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED })
+    if (!networkTransport.leaving && (state === 'closed' || state === 'failed' || state === 'disconnected')) {
+      EngineEvents.instance.dispatchEvent({
+        type:
+          networkTransport.type === 'world'
+            ? SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED
+            : SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED
+      })
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
         'If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.'
@@ -402,7 +486,10 @@ export async function configureMediaTransports(
   networkTransport: SocketWebRTCClientTransport | null,
   mediaTypes: string[]
 ): Promise<boolean> {
-  if (mediaTypes.indexOf('video') > -1 && MediaStreams.instance.videoStream == null) {
+  if (
+    mediaTypes.indexOf('video') > -1 &&
+    (MediaStreams.instance.videoStream == null || !MediaStreams.instance.videoStream.active)
+  ) {
     await MediaStreams.instance.startCamera()
 
     if (MediaStreams.instance.videoStream == null) {
@@ -411,7 +498,10 @@ export async function configureMediaTransports(
     }
   }
 
-  if (mediaTypes.indexOf('audio') > -1 && MediaStreams.instance.audioStream == null) {
+  if (
+    mediaTypes.indexOf('audio') > -1 &&
+    (MediaStreams.instance.audioStream == null || !MediaStreams.instance.audioStream.active)
+  ) {
     await MediaStreams.instance.startMic()
 
     if (MediaStreams.instance.audioStream == null) {
@@ -454,7 +544,7 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
       let produceInProgress = false
       await new Promise((resolve) => {
         const waitForProducer = setInterval(async () => {
-          if (!MediaStreams.instance.camVideoProducer) {
+          if (!MediaStreams.instance.camVideoProducer || MediaStreams.instance.camVideoProducer.closed) {
             if (!produceInProgress) {
               produceInProgress = true
               MediaStreams.instance.camVideoProducer = await transport.produce({
@@ -465,7 +555,7 @@ export async function createCamVideoProducer(networkTransport: SocketWebRTCClien
             }
           } else {
             clearInterval(waitForProducer)
-            produceInProgress = true
+            produceInProgress = false
             resolve(true)
           }
         }, 100)
@@ -516,7 +606,7 @@ export async function createCamAudioProducer(networkTransport: SocketWebRTCClien
       let produceInProgress = false
       await new Promise((resolve) => {
         const waitForProducer = setInterval(async () => {
-          if (!MediaStreams.instance.camAudioProducer) {
+          if (!MediaStreams.instance.camAudioProducer || MediaStreams.instance.camAudioProducer.closed) {
             if (!produceInProgress) {
               produceInProgress = true
               MediaStreams.instance.camAudioProducer = await transport.produce({
@@ -591,10 +681,8 @@ export async function endVideoChat(
         })
       }
 
-      if (networkTransport.recvTransport != null && networkTransport.recvTransport.closed !== true)
-        await networkTransport.recvTransport.close()
-      if (networkTransport.sendTransport != null && networkTransport.sendTransport.closed !== true)
-        await networkTransport.sendTransport.close()
+      if (networkTransport.recvTransport?.closed !== true) await networkTransport.recvTransport.close()
+      if (networkTransport.sendTransport?.closed !== true) await networkTransport.sendTransport.close()
 
       resetProducer()
       return true
@@ -697,7 +785,11 @@ export async function pauseConsumer(
   await transport.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.pause()
+  if (consumer && typeof consumer.pause === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: consumer,
+      action: 'pause'
+    })
 }
 
 export async function resumeConsumer(
@@ -711,7 +803,11 @@ export async function resumeConsumer(
   await transport.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.resume()
+  if (consumer && typeof consumer.resume === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: consumer,
+      action: 'resume'
+    })
 }
 
 export async function pauseProducer(
@@ -721,7 +817,11 @@ export async function pauseProducer(
   await transport.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
   })
-  await producer.pause()
+  if (producer && typeof producer.pause === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: producer,
+      action: 'pause'
+    })
 }
 
 export async function resumeProducer(
@@ -731,7 +831,11 @@ export async function resumeProducer(
   await transport.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
-  await producer.resume()
+  if (producer && typeof producer.resume === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: producer,
+      action: 'resume'
+    })
 }
 
 export async function globalMuteProducer(transport: SocketWebRTCClientTransport, producer: { id: any }) {

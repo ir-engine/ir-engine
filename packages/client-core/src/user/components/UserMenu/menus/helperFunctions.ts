@@ -1,25 +1,26 @@
-import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
 import i18next from 'i18next'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
-import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
+  AnimationMixer,
   Box3,
-  Vector3,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
   DirectionalLight,
   HemisphereLight,
+  Object3D,
+  PerspectiveCamera,
+  Scene,
   sRGBEncoding,
-  AnimationMixer,
-  Object3D
+  Vector3,
+  WebGLRenderer
 } from 'three'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+
+import { MAX_ALLOWED_TRIANGLES } from '@xrengine/common/src/constants/AvatarConstants'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
+import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+
 const t = i18next.t
 interface SceneProps {
   scene: Scene
@@ -55,7 +56,12 @@ export const validate = (obj) => {
   return ''
 }
 
-export const addAnimationLogic = (entity: Entity, world: World, setEntity: any, panelRef: any) => {
+export const addAnimationLogic = (
+  entity: Entity,
+  world: World,
+  setEntity: (entity: Entity) => void,
+  panelRef: React.MutableRefObject<HTMLDivElement | undefined>
+) => {
   addComponent(entity, AnimationComponent, {
     // empty object3d as the mixer gets replaced when model is loaded
     mixer: new AnimationMixer(new Object3D()),
@@ -101,7 +107,7 @@ export const initialize3D = () => {
   const frontLight = new DirectionalLight(0xfafaff, 0.7)
   frontLight.position.set(-1, 3, 1)
   frontLight.target.position.set(0, 1.5, 0)
-  const hemi = new HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+  const hemi = new HemisphereLight(0xffffff, 0xffffff, 2)
   scene.add(backLight)
   scene.add(backLight.target)
   scene.add(frontLight)

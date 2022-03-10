@@ -1,8 +1,11 @@
 import { Paginated, Params } from '@feathersjs/feathers'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import _ from 'lodash'
 import { Op } from 'sequelize'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+
+import { Application } from '../../../declarations'
 
 export type AvatarDataType = AvatarInterface
 
@@ -63,8 +66,12 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
       }
       return {
         data: result.rows,
-        total: result.total
+        total: result.count
       }
     } else return super.find(params)
+  }
+
+  async remove(id: string, params?: Params): Promise<T> {
+    return (await super.remove(id)) as T
   }
 }

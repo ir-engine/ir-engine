@@ -1,3 +1,7 @@
+import { ConfirmProvider } from 'material-ui-confirm'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -6,8 +10,7 @@ import { Theme } from '@mui/material/styles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import makeStyles from '@mui/styles/makeStyles'
-import { ConfirmProvider } from 'material-ui-confirm'
-import React, { useEffect } from 'react'
+
 import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
@@ -19,8 +22,8 @@ import { inviteStyles } from './styles'
 
 interface TabPanelProps {
   children?: React.ReactNode
-  index: any
-  value: any
+  index: number
+  value: number
 }
 
 const TabPanel = (props: TabPanelProps) => {
@@ -38,7 +41,7 @@ const TabPanel = (props: TabPanelProps) => {
     </div>
   )
 }
-const a11yProps = (index: any) => {
+const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`
@@ -68,6 +71,7 @@ const InvitesConsole = () => {
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const user = useAuthState().user
+  const { t } = useTranslation()
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
@@ -124,7 +128,7 @@ const InvitesConsole = () => {
           </Grid>
           <Grid item xs={3}>
             <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
-              Send Invite
+              {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
         </Grid>
@@ -136,8 +140,8 @@ const InvitesConsole = () => {
               aria-label="simple tabs example"
               classes={{ indicator: classes.indicator }}
             >
-              <Tab label="Received Invite" {...a11yProps(0)} />
-              <Tab label="Sent Invite" {...a11yProps(1)} />
+              <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
+              <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <>

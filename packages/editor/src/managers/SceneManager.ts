@@ -1,57 +1,59 @@
-import i18n from 'i18next'
 import {
-  Raycaster,
-  Vector2,
-  Vector3,
-  WebGLInfo,
-  WebGLRenderer,
+  Group,
+  Intersection,
+  Light,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  Intersection,
   Object3D,
   PerspectiveCamera,
+  Raycaster,
   Scene,
-  Group,
-  Light
+  Vector2,
+  Vector3,
+  WebGLInfo
 } from 'three'
-import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import { getCanvasBlob } from '../functions/thumbnails'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from './CommandManager'
-import EditorCommands from '../constants/EditorCommands'
-import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
-import isEmptyObject from '../functions/isEmptyObject'
-import { ControlManager } from './ControlManager'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+
+import { store } from '@xrengine/client-core/src/store'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { RenderModes, RenderModesType } from '../constants/RenderModes'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createGizmoEntity } from '../functions/createGizmoEntity'
-import { createCameraEntity } from '../functions/createCameraEntity'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { createEditorEntity } from '../functions/createEditorEntity'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EditorControlComponent } from '../classes/EditorControlComponent'
-import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
-import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
-import MeshCombinationGroup from '../classes/MeshCombinationGroup'
-import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
+import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
+import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+
+import { EditorControlComponent } from '../classes/EditorControlComponent'
+import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
+import MeshCombinationGroup from '../classes/MeshCombinationGroup'
+import EditorCommands from '../constants/EditorCommands'
+import { RenderModes, RenderModesType } from '../constants/RenderModes'
+import { createCameraEntity } from '../functions/createCameraEntity'
+import { createEditorEntity } from '../functions/createEditorEntity'
+import { createGizmoEntity } from '../functions/createGizmoEntity'
+import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
+import isEmptyObject from '../functions/isEmptyObject'
+import { getCanvasBlob } from '../functions/thumbnails'
+import { EditorAction } from '../services/EditorServices'
+import { ModeAction } from '../services/ModeServices'
+import { CommandManager } from './CommandManager'
+import { ControlManager } from './ControlManager'
 
 export type DefaultExportOptionsType = {
   combineMeshes: boolean
@@ -67,7 +69,6 @@ export class SceneManager {
   }
 
   isInitialized: boolean = false
-  sceneModified: boolean
   grid: EditorInfiniteGridHelper
   raycaster: Raycaster
   raycastTargets: Intersection<Object3D>[] = []
@@ -109,7 +110,6 @@ export class SceneManager {
     Engine.scene.add(this.grid)
     Engine.scene.add(this.transformGizmo)
 
-    this.sceneModified = false
     this.isInitialized = true
 
     return []
@@ -121,7 +121,7 @@ export class SceneManager {
    * @author Robert Long
    */
   onEmitSceneModified() {
-    this.sceneModified = true
+    store.dispatch(EditorAction.sceneModified(true))
   }
 
   /**
@@ -147,10 +147,9 @@ export class SceneManager {
       this.grid.setSize(editorControlComponent.translationSnap)
 
       configureEffectComposer()
-      CommandManager.instance.addListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
       window.addEventListener('resize', this.onResize)
 
-      CommandManager.instance.emitEvent(EditorEvents.RENDERER_INITIALIZED)
+      store.dispatch(EditorAction.rendererInitialized(true))
       EngineRenderer.instance.disableUpdate = false
 
       accessEngineRendererState().automatic.set(false)
@@ -260,8 +259,7 @@ export class SceneManager {
         break
     }
     Engine.renderer.shadowMap.needsUpdate = true
-
-    CommandManager.instance.emitEvent(EditorEvents.RENDER_MODE_CHANGED)
+    store.dispatch(ModeAction.changedRenderMode())
   }
 
   /**
@@ -499,7 +497,6 @@ export class SceneManager {
       Engine.scene.clear()
     }
 
-    CommandManager.instance.removeListener(EditorEvents.SELECTION_CHANGED.toString(), this.updateOutlinePassSelection)
     this.isInitialized = false
   }
 }

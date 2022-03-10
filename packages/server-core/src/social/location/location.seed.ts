@@ -1,5 +1,6 @@
-import { locationSettingsSeed } from '../location-settings/location-settings.seed'
 import { Location } from '@xrengine/common/src/interfaces/Location'
+
+import { locationSettingsSeed } from '../location-settings/location-settings.seed'
 
 export const locationSeed = {
   path: 'location',

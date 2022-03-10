@@ -1,3 +1,6 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { Grid, Paper, Typography } from '@mui/material'
 import Container from '@mui/material/Container'
 import Drawer from '@mui/material/Drawer'
@@ -7,13 +10,13 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import React from 'react'
+
 import { entityColumns, EntityData, ViewSceneProps } from '../../common/variables/scene'
 import { useStyles } from '../../styles/ui'
 
 const ViewScene = (props: ViewSceneProps) => {
   const { adminScene, viewModal, closeViewModal } = props
-
+  const { t } = useTranslation()
   const classes = useStyles()
 
   const createData = (id, name, index, components): EntityData => {
@@ -28,9 +31,9 @@ const ViewScene = (props: ViewSceneProps) => {
   const rows = adminScene?.entities?.map((el) => {
     return createData(
       el.id,
-      el.name || <span className={classes.spanNone}>None</span>,
-      el.index || <span className={classes.spanNone}>None</span>,
-      el.components.length || <span className={classes.spanNone}>None</span>
+      el.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.index || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+      el.components.length || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
     )
   })
 
@@ -53,42 +56,46 @@ const ViewScene = (props: ViewSceneProps) => {
         </Paper>
         <Container maxWidth="lg" className={classes.marginTop}>
           <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
-            Scene Information
+            {t('admin:components.scene.sceneInfo')}
           </Typography>
           <Container className={classes.mb40px}>
             <Grid container spacing={3}>
               <Grid item xs={6} sm={6}>
                 <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  Type:
+                  {t('admin:components.scene.type')}:
                 </Typography>
                 <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  SID:
+                  {t('admin:components.scene.sid')}:
                 </Typography>
                 <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Entities:
+                  {t('admin:components.scene.entities')}:
                 </Typography>
                 <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  version:
+                  {t('admin:components.scene.version')}:
                 </Typography>
                 <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Description:
+                  {t('admin:components.scene.description')}:
                 </Typography>
               </Grid>
               <Grid item xs={6} sm={6}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.type || <span className={classes.spanNone}>None</span>}
+                  {adminScene?.type || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.sid || <span className={classes.spanNone}>None</span>}
+                  {adminScene?.sid || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.entities?.length || <span className={classes.spanNone}>None</span>}
+                  {adminScene?.entities?.length || (
+                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  )}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.version || <span className={classes.spanNone}>None</span>}
+                  {adminScene?.version || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.description || <span className={classes.spanNone}>None</span>}
+                  {adminScene?.description || (
+                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  )}
                 </Typography>
               </Grid>
             </Grid>
@@ -96,7 +103,7 @@ const ViewScene = (props: ViewSceneProps) => {
           {adminScene?.entities && (
             <>
               <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
-                Entity Information
+                {t('admin:components.scene.entityInfo')}
               </Typography>
               <Container>
                 <TableContainer className={classes.groupContainer}>

@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react'
 import { createState } from '@speigg/hookstate'
-import { createXRUI } from '../../xrui/functions/createXRUI'
+import React, { useEffect, useState } from 'react'
+
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { PlayArrow, Pause } from '@mui/icons-material'
-import { MediaComponent, MediaComponentType } from '../../scene/components/MediaComponent'
+
+import { Pause, PlayArrow } from '@mui/icons-material'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { MediaComponent, MediaComponentType } from '../../scene/components/MediaComponent'
+import { createXRUI } from '../../xrui/functions/createXRUI'
 
 export function createMediaControlsView(data: MediaComponentType, entity: Entity) {
   return createXRUI(() => <MediaControlsView entity={entity} />, createMediaControlsState(data))

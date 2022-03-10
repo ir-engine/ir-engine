@@ -1,8 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import Grid from '@mui/material/Grid'
-import { InfoTooltip } from '../layout/Tooltip'
+
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import Grid from '@mui/material/Grid'
+
+import { InfoTooltip } from '../layout/Tooltip'
 
 /**
  * Used to provide styles for InputGroupContainer div.
@@ -97,7 +99,7 @@ export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
 `
 
 interface InputGroupInfoProp {
-  info: string
+  info: string | JSX.Element
 }
 
 /**
@@ -109,7 +111,7 @@ interface InputGroupInfoProp {
  */
 export function InputGroupInfo({ info }: InputGroupInfoProp) {
   return (
-    <InfoTooltip info={info}>
+    <InfoTooltip title={info}>
       <InputGroupInfoIcon />
     </InfoTooltip>
   )
@@ -121,15 +123,14 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
  * @author Robert Long
  * @type {Object}
  */
-
-interface InputGroupProp {
-  name: string
-  children: any
-  disabled?: boolean
-  info?: string
-  label?: string
-  value?: any
-}
+type InputGroupPropType = React.PropsWithChildren<
+  {
+    name: string
+    disabled?: boolean
+    label?: string
+    value?: any
+  } & Partial<InputGroupInfoProp>
+>
 
 /**
  * InputGroup used to render the view of component.
@@ -143,7 +144,7 @@ interface InputGroupProp {
  * @param       {string} label
  * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProp) {
+export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupPropType) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container spacing={2}>

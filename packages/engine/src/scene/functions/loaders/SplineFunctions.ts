@@ -1,17 +1,19 @@
 import { Object3D, Vector3 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
+
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import Spline from '../../classes/Spline'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
 
 export const SCENE_COMPONENT_SPLINE = 'spline'
 export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
@@ -55,7 +57,7 @@ export const serializeSpline: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseSplineProperties = (props: any): SplineComponentType => {
+export const parseSplineProperties = (props: any): SplineComponentType => {
   const result = { splinePositions: [] as Vector3[] }
 
   if (!props.splinePositions) return result

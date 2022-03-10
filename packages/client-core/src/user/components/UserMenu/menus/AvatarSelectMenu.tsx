@@ -1,34 +1,37 @@
-import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
-import Paper from '@mui/material/Paper'
-import InputBase from '@mui/material/InputBase'
-import Button from '@mui/material/Button'
-import { styled } from '@mui/material/styles'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_ALLOWED_TRIANGLES,
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
+  REGEX_VALID_URL,
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH,
-  REGEX_VALID_URL
+  THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Object3D, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+
+import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
+import Button from '@mui/material/Button'
+import InputBase from '@mui/material/InputBase'
+import Paper from '@mui/material/Paper'
+import { styled } from '@mui/material/styles'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
+
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
+import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 import { useStyle } from './style'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { validate, initialize3D, onWindowResize, addAnimationLogic } from './helperFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 interface Props {
   changeActiveMenu: Function
@@ -87,7 +90,7 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const [entity, setEntity] = useState<any>(null)
-  const panelRef = useRef<any>()
+  const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   console.log(avatarModel)
 
@@ -152,9 +155,9 @@ export const AvatarSelectMenu = (props: Props) => {
 
   useEffect(() => {
     const world = useWorld()
-    const entity = createEntity()
+    const entityItem = createEntity()
 
-    addAnimationLogic(entity, world, setEntity, panelRef)
+    addAnimationLogic(entityItem, world, setEntity, panelRef)
     const init = initialize3D()
     scene = init.scene
     camera = init.camera
@@ -443,7 +446,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 classes={{ root: classes.rootBtn }}
                 endIcon={<SystemUpdateAlt />}
               >
-                Avatar
+                {t('user:avatar.avatar')}
               </Button>
             </label>
             <label htmlFor="contained-button-file-t">
@@ -459,7 +462,7 @@ export const AvatarSelectMenu = (props: Props) => {
                 classes={{ root: classes.rootBtn }}
                 endIcon={<AccountCircle />}
               >
-                Thumbnail
+                {t('user:avatar.lbl-thumbnail')}
               </Button>
             </label>
           </div>

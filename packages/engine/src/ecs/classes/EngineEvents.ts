@@ -7,6 +7,7 @@ const EVENTS = {
   // TODO: add doc formatting to these
   SCENE_LOADED: 'CORE_SCENE_LOADED' as const, // { }
   SCENE_LOADING: 'CORE_SCENE_LOADING' as const, // { }
+  SCENE_UNLOADED: 'CORE_SCENE_UNLOADED' as const, // { }
   LOADING_PROGRESS: 'ENGINE_LOADING_PROGRESS' as const,
   SET_TELEPORTING: 'ENGINE_SET_TELEPORTING' as const,
   // INITALIZATION
@@ -18,6 +19,7 @@ const EVENTS = {
   LEAVE_WORLD: 'CORE_LEAVE_WORLD' as const, // { }
   SCENE_ENTITY_LOADED: 'CORE_SCENE_ENTITY_LOADED' as const, // { }
   LOADING_STATE_CHANGED: 'LOADING_STATE_CHANGED' as const,
+  XR_SUPPORTED: 'CORE_XR_SUPPORTED' as const,
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE' as const, // { renderer: boolean, physics: boolean }

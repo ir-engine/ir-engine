@@ -1,6 +1,8 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
 import { GroupUser as GroupUserInterface } from '@xrengine/common/src/interfaces/GroupUser'
+
+import { Application } from '../../../declarations'
 
 export type GroupUserDataType = GroupUserInterface
 

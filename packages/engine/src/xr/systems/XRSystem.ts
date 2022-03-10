@@ -1,21 +1,22 @@
 import { sRGBEncoding } from 'three'
+
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { cleanXRInputs } from '../functions/addControllerModels'
-import { endXR, startWebXR } from '../functions/WebXRFunctions'
-import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
-import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
+import { cleanXRInputs } from '../functions/addControllerModels'
+import { updateXRControllerAnimations } from '../functions/controllerAnimation'
+import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 const startXRSession = async () => {
   Engine.renderer.outputEncoding = sRGBEncoding
@@ -50,15 +51,17 @@ export default async function XRSystem(world: World) {
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputTagComponent, XRInputSourceComponent])
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
-  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+  ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
+    dispatchLocal(EngineActions.xrSupported(supported) as any)
+  })
 
   // TEMPORARY - precache controller model
   // Cache hand models
   await Promise.all([
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/left_controller.glb' }),
-    AssetLoader.loadAsync({ url: '/default_assets/controllers/hands/right_controller.glb' })
+    AssetLoader.loadAsync('/default_assets/controllers/hands/left.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/right.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb'),
+    AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
   Engine.currentWorld.receptors.push((action: EngineActionType) => {

@@ -1,4 +1,5 @@
 import assert from 'assert'
+
 import { Engine } from '../classes/Engine'
 import { createWorld, World } from '../classes/World'
 import { initSystems, unloadSystems } from './SystemFunctions'

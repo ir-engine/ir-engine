@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
+
 import { Edit } from '@mui/icons-material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -7,7 +12,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import React, { useEffect, useState } from 'react'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
@@ -20,18 +25,18 @@ import UpdateBot from './UpdateBot'
 const DisplayBots = () => {
   const classes = useStyles()
   const [expanded, setExpanded] = useState<string | false>('panel0')
-  const [command, setCommand] = useState({
+  const [command, setCommand] = useState<BotCommands>({
     name: '',
     description: ''
   })
   const [open, setOpen] = useState(false)
   const [openModel, setOpenModel] = useState(false)
-  const [bot, setBot] = useState('')
+  const [bot, setBot] = useState<AdminBot>()
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [botName, setBotName] = useState('')
   const [botId, setBotId] = useState('')
 
-  const handleChangeCommand = (e) => {
+  const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     setCommand({ ...command, [name]: value })
   }
@@ -44,6 +49,7 @@ const DisplayBots = () => {
   const botCommand = useBotCommandState()
   const user = useAuthState().user
   const botAdminData = botAdmin.bots
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (user.id.value && botAdmin.updateNeeded.value) {
@@ -73,7 +79,7 @@ const DisplayBots = () => {
   }
 
   const submitCommandBot = (id: string) => {
-    const data = {
+    const data: CreateBotCammand = {
       name: command.name,
       description: command.description,
       botId: id
@@ -129,10 +135,10 @@ const DisplayBots = () => {
                     <Grid container spacing={5}>
                       <Grid item xs={4}>
                         <Typography className={classes.thirdHeading} component="h1">
-                          Location:
+                          {t('admin:components.bot.location')}:
                         </Typography>
                         <Typography className={classes.thirdHeading} component="h1">
-                          Instance:
+                          {t('admin:components.bot.instance')}:
                         </Typography>
                       </Grid>
                       <Grid item xs={8}>
@@ -169,14 +175,14 @@ const DisplayBots = () => {
                   style={{ marginTop: '25px', marginBottom: '10px' }}
                   component="h1"
                 >
-                  Add more command
+                  {t('admin:components.bot.addMoreCommand')}
                 </Typography>
 
                 <AddCommand
                   command={command}
                   handleChangeCommand={handleChangeCommand}
                   addCommandData={() => addCommand(bot.id)}
-                  commandData={bot.botCommands}
+                  commandData={bot.botCommands ?? []}
                   removeCommand={removeCommand}
                 />
               </div>
@@ -185,7 +191,12 @@ const DisplayBots = () => {
         )
       })}
 
-      <AlertMessage open={open} handleClose={handleClose} severity="warning" message="Fill in command is required!" />
+      <AlertMessage
+        open={open}
+        handleClose={handleClose}
+        severity="warning"
+        message={t('admin:components.bot.commandRequired')}
+      />
 
       <UpdateBot open={openModel} handleClose={handleCloseModel} bot={bot} />
 

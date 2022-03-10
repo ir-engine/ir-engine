@@ -1,22 +1,25 @@
 import React, { useRef } from 'react'
-import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
+
+import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+
+import { FileCopy, Send } from '@mui/icons-material'
+import Button from '@mui/material/Button'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
-import { Send, FileCopy } from '@mui/icons-material'
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import styles from '../UserMenu.module.scss'
-import { InviteService } from '../../../../social/services/InviteService'
-import { useDispatch } from '../../../../store'
-import { useTranslation } from 'react-i18next'
-import { useInviteState } from '../../../../social/services/InviteService'
-import { useAuthState } from '../../../services/AuthService'
-import { AlertService } from '../../../../common/services/AlertService'
+import Typography from '@mui/material/Typography'
 
-const ShareMenu = (): any => {
+import { AlertService } from '../../../../common/services/AlertService'
+import { InviteService } from '../../../../social/services/InviteService'
+import { useInviteState } from '../../../../social/services/InviteService'
+import { useDispatch } from '../../../../store'
+import { useAuthState } from '../../../services/AuthService'
+import styles from '../UserMenu.module.scss'
+
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
-  const refLink = useRef<any>(null!)
+  const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
   const dispatch = useDispatch()

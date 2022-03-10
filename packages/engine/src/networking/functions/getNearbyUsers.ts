@@ -1,7 +1,8 @@
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Engine } from '../../ecs/classes/Engine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 export type NearbyUser = { id: UserId; distance: number }
 

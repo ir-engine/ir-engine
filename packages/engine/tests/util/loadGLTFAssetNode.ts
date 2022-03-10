@@ -1,9 +1,9 @@
-import { createGLTFLoader } from '../../src/assets/functions/createGLTFLoader'
-import { GLTF } from '../../src/assets/loaders/gltf/GLTFLoader'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
-import './patchBrowserForNode.ts'
+
+import { createGLTFLoader } from '../../src/assets/functions/createGLTFLoader'
+import { GLTF } from '../../src/assets/loaders/gltf/GLTFLoader'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)

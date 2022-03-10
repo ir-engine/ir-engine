@@ -1,11 +1,13 @@
-import DialogContent from '@mui/material/DialogContent'
 import React from 'react'
+
+import DialogContent from '@mui/material/DialogContent'
+
 import CreateModel from '../../common/CreateModel'
 import InputText from '../../common/InputText'
 
 interface Props {
   open: boolean
-  handleClose: any
+  handleClose: () => void
 }
 
 const createUser = (props: Props) => {
@@ -22,7 +24,7 @@ const createUser = (props: Props) => {
   return (
     <CreateModel open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
       <DialogContent>
-        <InputText value={role} formErrors={[]} handleInputChange={handleChange} name="role" />
+        <InputText value={role} formErrors={''} handleInputChange={handleChange} name="role" />
       </DialogContent>
     </CreateModel>
   )

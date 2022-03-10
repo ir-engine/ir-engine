@@ -7,11 +7,11 @@ import {
   InterleavedBufferAttribute,
   Loader,
   LoadingManager,
+  Material,
   Mesh,
   MeshStandardMaterial,
   Object3D,
   Scene,
-  Material,
   SkinnedMesh,
   Texture
 } from 'three'
@@ -39,6 +39,7 @@ export interface GLTF {
 export class GLTFLoader extends Loader {
   constructor(manager?: LoadingManager)
   dracoLoader: DRACOLoader | null
+  ktx2Loader: KTX2Loader | null
 
   load(
     url: string,

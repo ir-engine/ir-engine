@@ -1,5 +1,6 @@
 import assert from 'assert'
 import { Mesh, MeshStandardMaterial, Texture } from 'three'
+
 // import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
 
 describe('lightmap integration support', async () => {
