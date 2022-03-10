@@ -18,7 +18,7 @@ interface Props {
   completeAction: () => void
 }
 
-export const ResetPassword = (props: Props): any => {
+export const ResetPassword = (props: Props): JSX.Element => {
   const { token, completeAction } = props
   const initialState = { password: '', isSubmitted: false }
   const [state, setState] = useState(initialState)
@@ -63,10 +63,10 @@ export const ResetPassword = (props: Props): any => {
           {state.isSubmitted ? (
             <>
               <Typography component="h1" variant="h5" align="center">
-                Your password was successfully reset!
+                {t('user:auth.resetPassword.yourPasswordResetSuccess')}
               </Typography>
               <Typography variant="body2" align="center">
-                You can now log into the your account.
+                {t('user:auth.resetPassword.nowLoginYourAccount')}.
               </Typography>
               <Button fullWidth variant="contained" color="primary" className={styles.submit} onClick={completeAction}>
                 {t('user:auth.resetPassword.login')}

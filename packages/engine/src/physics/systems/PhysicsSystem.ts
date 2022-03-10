@@ -195,10 +195,6 @@ export default async function PhysicsSystem(world: World) {
       processBoundingBox(entity, true)
     }
 
-    for (const entity of boxQuery()) {
-      processBoundingBox(entity)
-    }
-
     for (const entity of colliderQuery.exit()) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent?.body) {
@@ -206,9 +202,9 @@ export default async function PhysicsSystem(world: World) {
       }
     }
 
-    simulationPipeline(world)
-
     if (Engine.isEditor) return
+
+    simulationPipeline(world)
 
     // step physics world
     for (let i = 0; i < world.physics.substeps; i++) {

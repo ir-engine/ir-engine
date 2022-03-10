@@ -173,17 +173,14 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
 
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
     const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
-    await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-      userIds: userIds || [],
-      channelType: 'instance'
-    })
-    MediaStreamService.triggerUpdateNearbyLayerUsers()
+    EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS, userIds })
   })
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
   await createDataProducer(networkTransport, 'instance')
 }
 
 export async function onConnectToMediaInstance(networkTransport: SocketWebRTCClientTransport) {
+  const channelConnectionState = accessMediaInstanceConnectionState()
   networkTransport.socket.on('disconnect', async () => {
     EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED })
     networkTransport.reconnecting = true
@@ -210,6 +207,18 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
 
     EngineEvents.instance.removeEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
       closeConsumer(networkTransport, consumer.consumer)
+    )
+
+    EngineEvents.instance.removeEventListener(
+      MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS,
+      async ({ userIds }) => {
+        await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+          userIds: userIds || [],
+          channelType: channelConnectionState.channelType.value,
+          channelId: channelConnectionState.channelId.value
+        })
+        MediaStreamService.triggerUpdateNearbyLayerUsers()
+      }
     )
   })
 
@@ -284,17 +293,17 @@ export async function onConnectToMediaInstance(networkTransport: SocketWebRTCCli
   EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) =>
     closeConsumer(networkTransport, consumer.consumer)
   )
+  EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_REQUEST_CURRENT_PRODUCERS, async ({ userIds }) => {
+    await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+      userIds: userIds || [],
+      channelType: channelConnectionState.channelType.value,
+      channelId: channelConnectionState.channelId.value
+    })
+    MediaStreamService.triggerUpdateNearbyLayerUsers()
+  })
 
   await initRouter(networkTransport)
   await Promise.all([initSendTransport(networkTransport), initReceiveTransport(networkTransport)])
-  const { userIds } = await networkTransport.request(MessageTypes.WebRTCRequestNearbyUsers.toString())
-
-  const channelConnectionState = accessMediaInstanceConnectionState()
-  await networkTransport.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: userIds || [],
-    channelType: channelConnectionState.channelType.value,
-    channelId: channelConnectionState.channelId.value
-  })
 }
 
 export async function createDataProducer(
@@ -776,7 +785,11 @@ export async function pauseConsumer(
   await transport.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.pause()
+  if (consumer && typeof consumer.pause === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: consumer,
+      action: 'pause'
+    })
 }
 
 export async function resumeConsumer(
@@ -790,7 +803,11 @@ export async function resumeConsumer(
   await transport.request(MessageTypes.WebRTCResumeConsumer.toString(), {
     consumerId: consumer.id
   })
-  await consumer.resume()
+  if (consumer && typeof consumer.resume === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: consumer,
+      action: 'resume'
+    })
 }
 
 export async function pauseProducer(
@@ -800,7 +817,11 @@ export async function pauseProducer(
   await transport.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
   })
-  await producer.pause()
+  if (producer && typeof producer.pause === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: producer,
+      action: 'pause'
+    })
 }
 
 export async function resumeProducer(
@@ -810,7 +831,11 @@ export async function resumeProducer(
   await transport.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
   })
-  await producer.resume()
+  if (producer && typeof producer.resume === 'function')
+    Network.instance.mediasoupOperationQueue.add({
+      object: producer,
+      action: 'resume'
+    })
 }
 
 export async function globalMuteProducer(transport: SocketWebRTCClientTransport, producer: { id: any }) {

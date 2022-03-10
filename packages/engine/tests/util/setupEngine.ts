@@ -1,5 +1,4 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import '@xrengine/engine/src/patchEngineNode'
 
 import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'

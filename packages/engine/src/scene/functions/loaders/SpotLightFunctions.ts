@@ -132,7 +132,7 @@ export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunctio
   }
 }
 
-const parseSpotLightProperties = (props): SpotLightComponentType => {
+export const parseSpotLightProperties = (props): SpotLightComponentType => {
   return {
     color: new Color(props.color ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.color),
     intensity: props.intensity ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.intensity,

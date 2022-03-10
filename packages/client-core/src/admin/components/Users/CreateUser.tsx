@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -27,8 +29,8 @@ import CreateUserRole from './CreateUserRole'
 
 interface Props {
   open: boolean
-  handleClose: any
-  closeViewModel: any
+  handleClose: (open: boolean) => void
+  closeViewModel: (open: boolean) => void
 }
 
 interface InputSelectProps {
@@ -38,7 +40,7 @@ interface InputSelectProps {
 
 const CreateUser = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-
+  const { t } = useTranslation()
   const classes = useStyles()
   const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
   const [state, setState] = React.useState({
@@ -114,29 +116,29 @@ const CreateUser = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required!` : ''
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.user.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
   const handleSubmit = () => {
-    const data = {
+    const data: CreateEditUser = {
       name: state.name,
       avatarId: state.avatar,
       userRole: state.userRole,
       scopes: state.scopes
     }
     let temp = state.formErrors
-    temp.name = !state.name ? "Name can't be empty" : ''
-    temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
-    temp.userRole = !state.userRole ? "User role can't be empty" : ''
-    temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
+    temp.name = !state.name ? t('admin:components.user.nameCantEmpty') : ''
+    temp.avatar = !state.avatar ? t('admin:components.user.avatarCantEmpty') : ''
+    temp.userRole = !state.userRole ? t('admin:components.user.userRoleCantEmpty') : ''
+    temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       UserService.createUser(data)
       closeViewModel(false)
       clearState()
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.user.fillRequiredField'))
       setOpenWarning(true)
     }
   }
@@ -175,7 +177,7 @@ const CreateUser = (props: Props) => {
       <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-            Create New User
+            {t('admin:components.user.createNewUser')}
           </DialogTitle>
           <InputText
             value={state.name}
@@ -198,18 +200,18 @@ const CreateUser = (props: Props) => {
             formErrors={state.formErrors.userRole}
           />
           <DialogContentText className={classes.marginBottm}>
-            <span className={classes.select}>Don't see user role? </span>{' '}
+            <span className={classes.select}>{t('admin:components.user.dontSeeUserRole')} </span>{' '}
             <a href="#h" className={classes.textLink} onClick={createUserRole}>
-              Create One
+              {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>
           <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
           <DialogActions>
             <Button className={classes.saveBtn} onClick={handleSubmit}>
-              Submit
+              {t('admin:components.user.submit')}
             </Button>
             <Button onClick={handleCancel} className={classes.saveBtn}>
-              Cancel
+              {t('admin:components.user.cancel')}
             </Button>
           </DialogActions>
         </Container>

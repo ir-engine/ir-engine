@@ -17,3 +17,12 @@ export type Invite = {
 export const InviteSeed = {
   id: ''
 }
+
+export interface SendInvite {
+  type: string
+  token: string
+  inviteCode?: string | null
+  invitee?: string | null
+  identityProviderType: string
+  targetObjectId: string
+}

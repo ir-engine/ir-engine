@@ -7,11 +7,7 @@ import Container from '@mui/material/Container'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const DiscordCallbackComponent = (props): any => {
+const DiscordCallbackComponent = (props): JSX.Element => {
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)

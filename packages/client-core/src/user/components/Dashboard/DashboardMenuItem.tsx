@@ -13,7 +13,7 @@ import { SidebarItems } from './DashboardItems'
 import { useStylesForDashboard } from './styles'
 
 interface Props {
-  authState?: any
+  //authState?: any
   location: any
 }
 

@@ -91,3 +91,8 @@ interface Twitter {
   key: string
   secret: string
 }
+
+export interface PatchAuthSetting {
+  authStrategies: string
+  oauth: string
+}
