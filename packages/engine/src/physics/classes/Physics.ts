@@ -477,6 +477,7 @@ export class Physics {
     const handle = this.obstacleContext.addObstacle(obstacle)
     ;(obstacle as any)._handle = handle
     this.obstacles.set(id, obstacle)
+    return obstacle
   }
 
   removeObstacle(obstacle: PhysX.PxObstacle) {
