@@ -15,34 +15,48 @@ declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     route: Route
   }
+
+  interface ServiceTypes {
+    'route-activate': {
+      create: ReturnType<typeof activateRoute>
+    }
+  }
+
+  interface ServiceTypes {
+    'routes-installed': {
+      find: ReturnType<typeof getInstalledRoutes>
+    }
+  }
 }
 
-export const getInstalledRoutes = async () => {
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
+export const getInstalledRoutes = async (): any => {
+  return async () => {
+    const projects = fs
+      .readdirSync(path.resolve(__dirname, '../../../../projects/projects/'), { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
 
-  const data: InstalledRoutesInterface[] = []
-  await Promise.all(
-    projects.map(async (project) => {
-      try {
-        if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
-          const projectConfig: ProjectConfigInterface = (
-            await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
-          ).default
-          data.push({
-            routes: Object.keys(projectConfig.routes!),
-            project
-          })
+    const data: InstalledRoutesInterface[] = []
+    await Promise.all(
+      projects.map(async (project) => {
+        try {
+          if (fs.existsSync(path.resolve(__dirname, `../../../../projects/projects/${project}/xrengine.config.ts`))) {
+            const projectConfig: ProjectConfigInterface = (
+              await import(`@xrengine/projects/projects/${project}/xrengine.config.ts`)
+            ).default
+            data.push({
+              routes: Object.keys(projectConfig.routes!),
+              project
+            })
+          }
+        } catch (e) {
+          console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
+          return
         }
-      } catch (e) {
-        console.warn('[getProjects]: Failed to read config for project', project, 'with error', e)
-        return
-      }
-    })
-  )
-  return { data }
+      })
+    )
+    return { data }
+  }
 }
 
 export const activateRoute = (routeService: Route): any => {
@@ -85,7 +99,7 @@ export default (app: Application): void => {
   app.use('route', event)
   // @ts-ignore
   app.use('routes-installed', {
-    find: getInstalledRoutes
+    find: getInstalledRoutes()
   })
   // @ts-ignore
   app.use('route-activate', {

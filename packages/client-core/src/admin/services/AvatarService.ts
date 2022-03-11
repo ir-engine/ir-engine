@@ -118,7 +118,7 @@ export const AvatarService = {
         const response = await client.service('upload-asset').create(uploadArguments)
         data.url = response[0]
       }
-      const result = await client.service('static-resource').patch(id, data)
+      const result = (await client.service('static-resource').patch(id, data)) as AvatarInterface
       dispatch(AvatarAction.avatarUpdated(result))
     } catch (error) {
       console.error(error)

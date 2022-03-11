@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAwsSetting as AdminAwsSettingInterface } from '@xrengine/common/src/interfaces/AdminAwsSetting'
@@ -49,5 +49,9 @@ export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
       skip: awsSetting.skip,
       data
     }
+  }
+
+  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
-import { UserResult } from '@xrengine/common/src/interfaces/UserResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -98,8 +98,8 @@ export const UserService = {
               $ne: 'guest'
             }
           }
-          const users = await client.service('user').find(params)
-          console.log(users)
+          const users = (await client.service('user').find(params)) as Paginated<User>
+
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {
@@ -111,7 +111,7 @@ export const UserService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('user').create(user)
+        const result = (await client.service('user').create(user)) as User
         dispatch(UserAction.userCreated(result))
       } catch (error) {
         console.error(error)
@@ -123,7 +123,7 @@ export const UserService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('user').patch(id, user)
+        const result = (await client.service('user').patch(id, user)) as User
         dispatch(UserAction.userPatched(result))
       } catch (error) {
         AlertService.dispatchAlertError(error.message)
@@ -133,7 +133,7 @@ export const UserService = {
   removeUserAdmin: async (id: string) => {
     const dispatch = useDispatch()
     {
-      const result = await client.service('user').remove(id)
+      const result = (await client.service('user').remove(id)) as User
       dispatch(UserAction.userAdminRemoved(result))
     }
   },
@@ -144,7 +144,7 @@ export const UserService = {
         const userState = accessUserState()
         const skip = userState.skip.value
         const limit = userState.limit.value
-        const result = await client.service('user').find({
+        const result = (await client.service('user').find({
           query: {
             $sort: {
               name: 1
@@ -154,7 +154,7 @@ export const UserService = {
             action: 'search',
             data
           }
-        })
+        })) as Paginated<User>
         dispatch(UserAction.searchedUser(result))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -170,7 +170,7 @@ export const UserService = {
 
 //Action
 export const UserAction = {
-  loadedUsers: (userResult: UserResult) => {
+  loadedUsers: (userResult: Paginated<User>) => {
     return {
       type: 'ADMIN_LOADED_USERS' as const,
       userResult: userResult
@@ -194,7 +194,7 @@ export const UserAction = {
       data: data
     }
   },
-  searchedUser: (userResult: UserResult) => {
+  searchedUser: (userResult: Paginated<User>) => {
     return {
       type: 'USER_SEARCH_ADMIN' as const,
       userResult: userResult

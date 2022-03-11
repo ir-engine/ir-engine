@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Party, PatchParty } from '@xrengine/common/src/interfaces/Party'
 
 import { Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -30,7 +30,7 @@ import { useStyles } from '../../styles/ui'
 interface Props {
   openView: boolean
   closeViewModel: () => void
-  partyAdmin?: AdminParty
+  partyAdmin?: Party
   editMode: boolean
   handleEditMode: (open: boolean) => void
 }
@@ -104,7 +104,7 @@ export default function ViewParty(props: Props) {
     setUpdateParty({ ...updateParty, formErrors: temp })
 
     if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
-      await PartyService.patchParty(partyAdmin.id, data)
+      await PartyService.patchParty(partyAdmin.id!, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModel()
     }

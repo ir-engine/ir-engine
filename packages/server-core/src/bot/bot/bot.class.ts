@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
@@ -36,5 +36,9 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
   async create(data): Promise<T> {
     data.instanceId = data.instanceId ? data.instanceId : null
     return (await super.create(data)) as T
+  }
+
+  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

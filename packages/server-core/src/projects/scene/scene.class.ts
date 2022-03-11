@@ -1,4 +1,4 @@
-import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -66,7 +66,7 @@ export class Scene implements ServiceMethods<any> {
 
   async setup() {}
 
-  async find(params): Promise<{ data: SceneDetailInterface[] }> {
+  async find(params?: Params): Promise<Paginated<SceneDetailInterface>> {
     const projects = await this.app.service('project').find(params)
 
     const scenes: SceneDetailInterface[] = []
@@ -84,9 +84,7 @@ export class Scene implements ServiceMethods<any> {
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return {
-      data: scenes
-    }
+    return { data: scenes } as Paginated<SceneDetailInterface>
   }
 
   // @ts-ignore

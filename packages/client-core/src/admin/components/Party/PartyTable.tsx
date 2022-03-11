@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -24,7 +24,7 @@ const PartyTable = (props: PartyPropsTable) => {
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
   const [viewModel, setViewModel] = useState(false)
-  const [partyAdmin, setPartyAdmin] = useState<AdminParty>()
+  const [partyAdmin, setPartyAdmin] = useState<Party>()
   const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
@@ -67,7 +67,7 @@ const PartyTable = (props: PartyPropsTable) => {
     setEditMode(open)
   }
 
-  const createData = (el: AdminParty, id: string, instance: any, location: any): PartyData => {
+  const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
     return {
       el,
       id,
@@ -99,10 +99,10 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData?.map((el: AdminParty) => {
+  const rows = adminPartyData?.map((el: Party) => {
     return createData(
       el,
-      el.id,
+      el.id!,
       el?.instance?.ipAddress || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
       el.location?.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
     )

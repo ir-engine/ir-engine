@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -41,7 +42,7 @@ export const useSceneState = () => useState(state) as any as typeof state
 export const SceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
     const dispatch = useDispatch()
-    const scenes = await client.service('scene').find()
+    const scenes = (await client.service('scene').find()) as Paginated<SceneDetailInterface>
     dispatch(SceneAction.scenesFetched(scenes.data))
   },
 

@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfaces/AdminAuthSetting'
-import { AdminAuthSettingResult } from '@xrengine/common/src/interfaces/AdminAuthSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -24,10 +24,10 @@ store.receptors.push((action: AuthSettingActionType): any => {
     switch (action.type) {
       case 'ADMIN_AUTH_SETTING_FETCHED':
         return s.merge({
-          authSettings: action.adminAuthSettingResult.data,
-          skip: action.adminAuthSettingResult.skip,
-          limit: action.adminAuthSettingResult.limit,
-          total: action.adminAuthSettingResult.total,
+          authSettings: action.adminAuthSetting.data,
+          skip: action.adminAuthSetting.skip,
+          limit: action.adminAuthSetting.limit,
+          total: action.adminAuthSetting.total,
           updateNeeded: false
         })
       case 'ADMIN_AUTH_SETTING_PATCHED':
@@ -46,7 +46,7 @@ export const AuthSettingService = {
     const dispatch = useDispatch()
     try {
       await waitForClientAuthenticated()
-      const authSetting = await client.service('authentication-setting').find()
+      const authSetting = (await client.service('authentication-setting').find()) as Paginated<AdminAuthSetting>
       dispatch(AuthSettingAction.authSettingRetrieved(authSetting))
     } catch (err) {
       AlertService.dispatchAlertError(err)
@@ -65,10 +65,10 @@ export const AuthSettingService = {
 
 //Action
 export const AuthSettingAction = {
-  authSettingRetrieved: (adminAuthSettingResult: AdminAuthSettingResult) => {
+  authSettingRetrieved: (adminAuthSetting: Paginated<AdminAuthSetting>) => {
     return {
       type: 'ADMIN_AUTH_SETTING_FETCHED' as const,
-      adminAuthSettingResult: adminAuthSettingResult
+      adminAuthSetting: adminAuthSetting
     }
   },
   authSettingPatched: () => {

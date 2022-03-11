@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { EmailSetting as EmailSettingInterface } from '@xrengine/common/src/interfaces/EmailSetting'
@@ -40,5 +40,9 @@ export class EmailSetting<T = EmailSettingDataType> extends Service<T> {
       skip: emailSetting.skip,
       data
     }
+  }
+
+  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

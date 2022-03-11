@@ -1,10 +1,13 @@
 import feathers from '@feathersjs/client'
 import type { FeathersApplication } from '@feathersjs/feathers'
+import type SocketIO from 'socket.io'
 import io from 'socket.io-client'
 
 import type { ServiceTypes } from '@xrengine/common/declarations'
 
-const feathersClient = feathers() // as FeathersApplication<ServiceTypes>
+const feathersClient = feathers() as FeathersApplication<ServiceTypes> & {
+  io: SocketIO.Server
+}
 const serverHost =
   process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
     ? `https://${(globalThis as any).process.env['VITE_SERVER_HOST']}:${

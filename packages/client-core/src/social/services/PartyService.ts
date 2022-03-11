@@ -114,16 +114,16 @@ export const PartyService = {
     let socketId: any
     const parties = await client.service('party').find()
     const userId = accessAuthState().user.id.value
-    if ((client as any).io && socketId === undefined) {
-      ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
+    if (client.io && socketId === undefined) {
+      client.io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)
         socketId = id
       })
-      ;(client as any).io.on('message-party', (data: any) => {
+      client.io.on('message-party', (data: any) => {
         console.warn('Message received, data: ', data)
       })
       ;(window as any).joinParty = (userId: number, partyId: number) => {
-        ;(client as any).io.emit(
+        client.io.emit(
           'join-party',
           {
             userId,
@@ -135,14 +135,14 @@ export const PartyService = {
         )
       }
       ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-        ;(client as any).io.emit('message-party-request', {
+        client.io.emit('message-party-request', {
           userId,
           partyId,
           message
         })
       }
       ;(window as any).partyInit = (userId: number) => {
-        ;(client as any).io.emit('party-init', { userId }, (response: any) => {
+        client.io.emit('party-init', { userId }, (response: any) => {
           response ? console.log('Init success', response) : console.log('Init failed')
         })
       }
