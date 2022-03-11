@@ -132,7 +132,7 @@ export const InteractiveModalView = () => {
           ★
         </span>
         <span xr-layer="true" className="star-5">
-          ★
+          ☆
         </span>
       </div>
 
