@@ -42,7 +42,7 @@
     "@vladmandic/face-api": "^1.6.1",
     "@xrengine/common": "^0.5.1",
     "@xrengine/projects": "^0.5.1",
-    "bitecs": "^0.3.33",
+    "bitecs": "^0.3.36",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
     "cross-fetch": "^3.0.6",
