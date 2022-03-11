@@ -80,8 +80,7 @@ export const readVector4 =
   }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.linear)
-export const readAngularVelocity = readVector3(VelocityComponent.angular)
+export const readLinearVelocity = readVector3(VelocityComponent.linearVelocity)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity, shouldWrite = true) => {

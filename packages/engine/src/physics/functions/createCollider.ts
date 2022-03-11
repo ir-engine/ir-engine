@@ -231,8 +231,8 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
       body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
-      const velocity = createVector3Proxy(VelocityComponent.velocity, entity)
-      addComponent(entity, VelocityComponent, { velocity })
+      const linearVelocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
+      addComponent(entity, VelocityComponent, { linearVelocity: linearVelocity })
     }
   }
 }
