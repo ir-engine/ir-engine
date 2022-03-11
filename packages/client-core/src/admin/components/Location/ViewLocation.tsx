@@ -82,12 +82,12 @@ const ViewLocation = (props: Props) => {
         name: locationAdmin.name,
         maxUsers: locationAdmin.maxUsersPerInstance,
         scene: locationAdmin.sceneId,
-        type: locationAdmin?.location_setting?.locationType,
-        videoEnabled: locationAdmin?.location_setting?.videoEnabled,
-        audioEnabled: locationAdmin?.location_setting?.audioEnabled,
-        screenSharingEnabled: locationAdmin?.location_setting?.screenSharingEnabled,
-        faceStreamingEnabled: locationAdmin?.location_setting?.faceStreamingEnabled,
-        globalMediaEnabled: locationAdmin?.location_setting?.instanceMediaChatEnabled,
+        type: locationAdmin?.locationSetting?.locationType,
+        videoEnabled: locationAdmin?.locationSetting?.videoEnabled,
+        audioEnabled: locationAdmin?.locationSetting?.audioEnabled,
+        screenSharingEnabled: locationAdmin?.locationSetting?.screenSharingEnabled,
+        faceStreamingEnabled: locationAdmin?.locationSetting?.faceStreamingEnabled,
+        globalMediaEnabled: locationAdmin?.locationSetting?.instanceMediaChatEnabled,
         isLobby: locationAdmin.isLobby,
         isFeatured: locationAdmin.isFeatured
       })
