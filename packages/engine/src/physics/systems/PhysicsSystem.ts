@@ -92,7 +92,7 @@ const processNetworkBodies = (world: World) => {
 
     teleportRigidbody(body, transform.position, transform.rotation)
 
-    const linearVelocity = getComponent(entity, VelocityComponent).velocity
+    const linearVelocity = getComponent(entity, VelocityComponent).linearVelocity
     body.setLinearVelocity(linearVelocity, true)
 
     console.log(
@@ -120,14 +120,14 @@ const processBodies = (world: World) => {
       const body = collider.body as PhysX.PxRigidDynamic
       const currentPose = body.getGlobalPose()
 
-      if (velocity) velocity.velocity.subVectors(currentPose.translation as Vector3, transform.position)
+      if (velocity) velocity.linearVelocity.subVectors(currentPose.translation as Vector3, transform.position)
 
       teleportRigidbody(body, transform.position, transform.rotation)
     } else if (isDynamicBody(collider.body)) {
       const body = collider.body as PhysX.PxRigidDynamic
 
       const linearVelocity = body.getLinearVelocity()
-      if (velocity) velocity.velocity.copy(linearVelocity as Vector3)
+      if (velocity) velocity.linearVelocity.copy(linearVelocity as Vector3)
 
       const currentPose = body.getGlobalPose()
 

@@ -77,7 +77,7 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeLinearVelocity = writeVector3(VelocityComponent.velocity)
+export const writeLinearVelocity = writeVector3(VelocityComponent.linearVelocity)
 export const writeRotation = writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {

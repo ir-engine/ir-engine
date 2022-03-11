@@ -40,7 +40,7 @@ export const createRigidbody = (world, type) => {
   }
 
   addComponent(entity, VelocityComponent, {
-    velocity: new Vector3()
+    linearVelocity: new Vector3()
   })
 
   addComponent(entity, Object3DComponent, {

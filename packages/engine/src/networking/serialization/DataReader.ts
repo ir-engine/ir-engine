@@ -76,7 +76,7 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.velocity)
+export const readLinearVelocity = readVector3(VelocityComponent.linearVelocity)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity) => {
