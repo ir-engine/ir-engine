@@ -4,7 +4,7 @@ import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRen
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
@@ -155,11 +155,9 @@ export const generatePhysicsObject = (
   let nameComponent = getComponent(entity, NameComponent)
   nameComponent.name = uuid
 
-  let objectScaler = new Object3D().add(mesh)
-  objectScaler.scale.copy(scale) // Scaling of visual mesh
-  let obj3d = getComponent(entity, Object3DComponent).value
-  obj3d.add(objectScaler)
-  obj3d.scale.copy(scale) // This sets the scale for physics mesh
+  let obj3d = mesh
+  obj3d.scale.copy(scale)
+  addComponent(entity, Object3DComponent, { value: obj3d })
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
   const world = useWorld()
