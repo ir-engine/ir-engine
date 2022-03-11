@@ -3,6 +3,7 @@
 .primary {
   background: $PurpleButtonColor;
 }
+
 .primaryForeground {
   color: $PrimaryGreenColor;
 }
@@ -91,10 +92,11 @@
     max-height: calc(100vh - 100px);
     overflow: auto;
 
-    & > .avatarContainer {
+    &>.avatarContainer {
       margin-top: 40px;
     }
-    & > .controlContainer {
+
+    &>.controlContainer {
       margin-bottom: 10px;
     }
 
@@ -152,7 +154,8 @@
 
     @media screen and (min-width: 768px) {
       width: 320px;
-      & > .avatarContainer {
+
+      &>.avatarContainer {
         margin-top: 25px;
       }
 
@@ -192,10 +195,12 @@
       display: flex;
       flex-direction: row;
       align-items: center;
+
       .iconBlock {
         display: inline-block;
         color: white;
       }
+
       h2 {
         font-size: 18px;
         color: white;
@@ -205,10 +210,12 @@
         margin-left: 10px;
       }
     }
+
     .controlContainer {
       display: flex;
       flex-direction: column;
       margin-bottom: 20px;
+
       button {
         height: 35px;
         background: $PurpleButtonColor;
@@ -218,56 +225,66 @@
         flex-grow: 1;
         border-radius: 3px;
         font-size: 14px;
-        & > svg {
+
+        &>svg {
           font-size: 18px;
           margin-left: 5px;
         }
       }
 
-      button + button {
+      button+button {
         margin-left: 5px;
       }
+
       button[disabled] {
         background: grey;
         opacity: 1 !important;
       }
+
       .browseBtn {
-        & > svg {
+        &>svg {
           transform: rotate(180deg);
         }
       }
+
       .uploadBtn {
         background: $SelectedGreenColor;
         cursor: pointer;
         font-size: 1rem;
         font-weight: bold;
       }
+
       button:hover,
       button:focus {
         outline: none;
         opacity: 0.7;
       }
+
       .selectBtns {
         display: flex;
         justify-content: flex-end;
         margin: 8px 0;
       }
     }
+
     .stage {
       border-radius: 5px;
       overflow: hidden;
       position: relative;
+
       .legendContainer {
         position: absolute;
         right: 5px;
         top: 5px;
 
-        & > svg {
+        &>svg {
           opacity: 0.5;
+
           &:hover {
             opacity: 0.75;
           }
         }
+
         .legend {
           position: absolute;
           padding: 10px;
@@ -283,6 +300,7 @@
           span {
             margin-left: 5px;
           }
+
           .shiftKey {
             background: #c8c8c8;
             color: rgb(0, 0, 0, 0.75);
@@ -291,12 +309,14 @@
             font-weight: bold;
             margin: 0 5px 0 0;
           }
+
           svg {
             font-size: 18px;
             margin-right: 5px;
             width: 40px;
           }
-          & > div + div {
+
+          &>div+div {
             margin-top: 10px;
           }
         }
@@ -346,18 +366,22 @@
         color: white;
         border-color: white;
         background: transparent;
+
         input {
           padding: 5px;
           font-size: 14px;
           color: white;
           border-color: white;
+
           &::selection {
             background-color: transparent;
           }
         }
+
         :global(.MuiFormLabel-root) {
           color: white;
         }
+
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
           border-color: white !important;
         }
@@ -371,9 +395,11 @@
     @media (max-width: 400px) {
       padding: 0 15px;
       width: 330px;
+
       .avatarHeaderBlock {
         margin-top: 15px;
       }
+
       .controlContainer {
         margin-bottom: 15px;
       }
@@ -401,11 +427,11 @@
     touch-action: auto;
   }
 
-  & > .profilePanel,
-  & > .accountPanel,
-  & > .settingPanel,
-  & > .sharePanel,
-  & > .locationPanel {
+  &>.profilePanel,
+  &>.accountPanel,
+  &>.settingPanel,
+  &>.sharePanel,
+  &>.locationPanel {
     margin: 30px 0;
   }
 
@@ -447,6 +473,7 @@
           border-radius: 10px;
           border-radius: 50%;
         }
+
         .avatarBtn {
           position: absolute;
           width: 30px;
@@ -460,6 +487,7 @@
           background: $PurpleButtonColor;
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
           &:hover,
           &:focus {
             width: 40px;
@@ -481,27 +509,33 @@
         flex-wrap: wrap;
         width: calc(100% - 110px);
         align-content: center;
+
         .panelHeader {
           font-size: 14px;
           font-weight: bold;
           margin: 0;
           color: white;
         }
+
         .inputBlock {
           display: flex;
           width: 100%;
           align-items: flex-end;
+
           .usernameInput {
             width: 100%;
             background: transparent;
+
             input {
               font-size: 18px;
               color: white;
               border-color: white;
             }
+
             :global(.MuiFormLabel-root) {
               color: white;
             }
+
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
             }
@@ -511,6 +545,7 @@
             @include material-icon-block-styling();
           }
         }
+
         h2 {
           font-family: 'Roboto';
           font-size: 14px;
@@ -518,6 +553,7 @@
           opacity: 0.8;
           color: white;
           margin: 5px 0 !important;
+
           span {
             text-transform: capitalize;
             font-weight: 700;
@@ -530,6 +566,7 @@
             }
           }
         }
+
         h4 {
           margin-top: 4px;
           text-align: left;
@@ -550,25 +587,30 @@
 
     .emailPhoneSection {
       margin-top: 20px;
+
       .panelHeader {
         font-size: 14px;
         font-weight: bold;
         margin: 0;
         color: white;
       }
+
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
         color: white;
         background: transparent;
+
         input {
           color: white;
           border-color: white;
         }
+
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
           border-color: white;
         }
+
         .materialIconBlock {
           @include material-icon-block-styling();
         }
@@ -613,10 +655,12 @@
           color: #000;
           outline: none !important;
         }
-        & > a:hover svg,
-        & > a:focus svg {
+
+        &>a:hover svg,
+        &>a:focus svg {
           opacity: 0.8;
         }
+
         svg {
           height: 30px;
           width: 30px;
@@ -651,18 +695,21 @@
     .settingSection {
       color: #ffffff;
       position: relative;
-      & + .settingSection {
+
+      &+.settingSection {
         margin-top: 25px;
       }
     }
+
     .row {
       display: flex;
       align-items: center;
 
-      & + .flexWrap {
+      &+.flexWrap {
         flex-wrap: wrap;
       }
-      & + .row {
+
+      &+.row {
         margin-top: 5px;
       }
 
@@ -677,10 +724,12 @@
           svg {
             font-size: 24px;
           }
+
           span {
             font-size: 14px;
           }
         }
+
         :global(.MuiIconButton-colorSecondary) {
           &:hover {
             background: none;
@@ -692,6 +741,7 @@
         width: 24px;
         height: 24px;
         flex-shrink: 0;
+
         svg {
           color: $PrimaryGreenColor;
         }
@@ -711,6 +761,7 @@
           color: $PrimaryGreenColor;
           margin: 0 10px;
         }
+
         :global(.MuiSlider-thumb) {
           background: $PrimaryGreenColor;
           border: $PrimaryGreenColor;
@@ -719,6 +770,7 @@
         }
       }
     }
+
     .automatic {
       position: absolute;
       top: -8px;
@@ -726,6 +778,7 @@
 
       .checkboxBlock {
         margin: 0 -2px 0 0;
+
         :global(.MuiCheckbox-root) {
           margin-left: 10px;
           margin-right: 0;
@@ -736,11 +789,13 @@
 
   .sharePanel {
     position: relative;
+
     .panelHeader {
       font-size: 18px;
       color: #ffffff;
       font-weight: bold;
     }
+
     .shareLink {
       font-size: 16px;
       color: #454d9a;
@@ -753,85 +808,106 @@
       height: 24px !important;
       border: none;
       background: transparent;
-      scrollbar-width: none; /* IE */
+      scrollbar-width: none;
+      /* IE */
       resize: none;
       outline: none !important;
-      -ms-overflow-style: none; /* Firefox */
+      -ms-overflow-style: none;
+
+      /* Firefox */
       &::-webkit-scrollbar {
-        display: none; /* Safari and Chrome */
+        display: none;
+        /* Safari and Chrome */
       }
     }
+
     .sendInviteContainer {
       display: flex;
       flex-direction: row;
       align-items: center;
       margin: 20px auto 10px;
       justify-content: center;
+
       .sendInvite {
         width: 125px;
         height: 35px;
         background: $PurpleButtonColor;
+
         &:hover {
           opacity: 0.8;
         }
       }
     }
+
     h5 {
       color: #ffffff;
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
     }
+
     .copyField {
       margin-top: 10px;
       width: 100%;
       color: #ffffff;
+
       input {
         color: #ffffff;
         border-color: #ffffff;
       }
+
       :global(.MuiOutlinedInput-root) {
         fieldset {
           border-color: #ffffff;
         }
       }
+
       :global(.MuiInputAdornment-root) {
         color: #ffffff;
         cursor: pointer;
+
         &:hover {
           opacity: 0.8;
         }
       }
     }
+
     .emailField {
       margin-top: 30px;
       width: 100%;
       color: #ffffff;
+
       input {
         color: #ffffff;
         border-color: #ffffff;
       }
+
       :global(.MuiOutlinedInput-root) {
         fieldset {
           border-color: #ffffff;
         }
       }
+
       :global(.MuiInputAdornment-root) {
         color: #ffffff;
         cursor: pointer;
+
         &:hover {
           opacity: 0.8;
         }
       }
     }
+
     .shareBtnContainer {
       margin-top: 15px;
       text-align: center;
+
       .shareBtn {
         width: 100px;
         height: 35px;
         background: $PurpleButtonColor;
         color: '#fff';
+
         &:hover {
           opacity: 0.8;
         }
@@ -844,6 +920,7 @@
       margin-top: 10px;
       display: flex;
     }
+
     .newLocation {
       width: 90px;
       background: $PurpleButtonColor;
@@ -851,6 +928,7 @@
       height: 40px;
       flex-shrink: 0;
     }
+
     .searchbox {
       margin: 0;
       margin-right: 10px;
@@ -858,35 +936,44 @@
       flex-shrink: 1;
       background: white;
       border-radius: 4px;
+
       input,
       svg {
         color: #444;
       }
+
       border-color: #444;
+
       &:focus-within {
         svg {
           color: $PurpleButtonColor;
         }
       }
     }
+
     .tableContainer {
       width: 100%;
       overflow: auto;
     }
+
     .locationTable {
       margin-top: 10px;
+
       .tableHead {
         background: $PurpleButtonColor;
         color: white;
       }
+
       .tablebody {
         .tableRow:hover {
           background: #d5d5f2;
           cursor: pointer;
         }
+
         .tableRow:focus {
           background: #9696fa;
         }
+
         .tableCell {
           color: #444;
           border: none;
@@ -894,19 +981,24 @@
         }
       }
     }
+
     .tablePagination {
       color: #444;
+
       button {
         background: transparent;
       }
+
       button:hover {
         background: $PurpleButtonColor;
         color: white;
       }
     }
+
     .formControl {
       width: 100%;
       margin-top: 15px;
+
       label {
         position: initial;
         display: block;
@@ -915,49 +1007,61 @@
         color: #666;
         font-size: 0.8rem;
       }
+
       .checkbox {
         padding: 0 9px;
+
         svg {
           color: #666;
         }
+
         &:global(.Mui-checked) svg {
           color: $PurpleButtonColor;
         }
+
         &:hover {
           background: transparent;
         }
-        input:focus + svg {
+
+        input:focus+svg {
           opacity: 0.7;
         }
       }
+
       &:hover {
         :global(.MuiOutlinedInput-notchedOutline) {
           border: solid 1px #444;
         }
       }
+
       &:hover {
         .checkbox {
           opacity: 0.7;
         }
       }
     }
+
     .textbox input,
     .selectbox :global(.MuiSelect-selectMenu) {
       color: #444;
       background: #f4f4f4;
     }
+
     .deleteBtnContainer {
       position: absolute;
       top: 20px;
       right: 22px;
+
       .deletebtn {
         width: 50px;
         height: 20px;
         color: rgb(241, 57, 57);
         background: transparent;
+
         &:disabled {
           color: grey;
         }
+
         &::before {
           content: '';
           position: absolute;
@@ -971,9 +1075,11 @@
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
           z-index: -1;
         }
+
         &:hover,
         &:focus {
           color: #fff;
+
           &::before {
             width: 50px;
             height: 50px;
@@ -981,6 +1087,7 @@
         }
       }
     }
+
     .backbtn {
       width: 25px;
       height: 25px;
@@ -990,6 +1097,7 @@
       margin: 0;
       min-width: 0;
       margin-right: 10px;
+
       &::before {
         content: '';
         position: absolute;
@@ -1003,25 +1111,30 @@
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         z-index: -1;
       }
+
       &:hover,
       &:focus {
         color: #fff;
+
         &::before {
           width: 35px;
           height: 35px;
         }
       }
     }
+
     .savebtn {
       color: white;
       background: $PurpleButtonColor;
       height: 35px;
       width: 150px;
       margin-top: 25px;
+
       &:hover {
         opacity: 0.8;
       }
     }
+
     .deleteDialogContainer {
       position: absolute;
       width: 100%;
@@ -1031,6 +1144,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+
       .dialog {
         background: white;
         width: 300px;
@@ -1047,6 +1161,7 @@
         .btnContainer {
           display: flex;
           flex-direction: row;
+
           button {
             padding: 0;
             width: 100px;
@@ -1054,10 +1169,12 @@
             margin: 20px 10px;
             background: $PurpleButtonColor;
             font-size: 0.8rem;
+
             &.yesbtn {
               background: rgb(241, 57, 57);
             }
           }
+
           button:hover,
           button:focus {
             opacity: 0.8;
@@ -1071,6 +1188,7 @@
     .profileBlock {
       justify-content: center !important;
     }
+
     .headerBlock {
       width: 100% !important;
       margin-top: 30px;
@@ -1086,10 +1204,11 @@
 .avatarPanel {
   @include panel-popup-container-styling();
 
-  & > .avatarContainer {
+  &>.avatarContainer {
     margin-top: 40px;
   }
-  & > .controlContainer {
+
+  &>.controlContainer {
     margin-bottom: 10px;
   }
 
@@ -1140,6 +1259,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
         &:not(:disabled):hover,
         &:not(:disabled):focus {
           width: 35px;
@@ -1147,14 +1267,17 @@
           bottom: -5px;
           right: -5px;
         }
+
         svg {
           font-size: 18px;
         }
+
         &:disabled {
           background: grey;
           cursor: default;
         }
       }
+
       .confirmationBlock {
         position: absolute;
         bottom: 8px;
@@ -1171,19 +1294,23 @@
           margin: 5px;
           font-size: 13px;
         }
+
         button {
           background: transparent;
           color: #e81515;
           border: none;
           padding: 5px;
           width: 50%;
+
           &:last-child {
             color: $PurpleButtonColor;
           }
+
           svg {
             font-size: 20px;
           }
         }
+
         @media (min-width: 769px) {
           width: 80%;
         }
@@ -1213,7 +1340,8 @@
 
   @media screen and (min-width: 768px) {
     width: 330px;
-    & > .avatarContainer {
+
+    &>.avatarContainer {
       margin-top: 25px;
       width: 280px;
     }
@@ -1239,11 +1367,13 @@
 
   .avatarHeaderBlock {
     margin: 30px 0 20px 0;
+
     .iconBlock {
       display: inline-block;
       color: $PurpleButtonColor;
       background: transparent;
     }
+
     h2 {
       font-size: 18px;
       font-weight: bold;
@@ -1252,10 +1382,12 @@
       margin-left: 10px;
     }
   }
+
   .controlContainer {
     display: flex;
     flex-direction: column;
     margin-bottom: 30px;
+
     button {
       height: 35px;
       background: $PurpleButtonColor;
@@ -1268,48 +1400,57 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      & > svg {
+
+      &>svg {
         font-size: 18px;
         margin-left: 5px;
       }
     }
 
-    button + button {
+    button+button {
       margin-left: 5px;
     }
+
     button[disabled] {
       background: grey;
       opacity: 1 !important;
     }
+
     .browseBtn {
-      & > svg {
+      &>svg {
         transform: rotate(180deg);
       }
     }
+
     .uploadBtn {
       background: $SelectedGreenColor;
     }
+
     button:hover,
     button:focus {
       outline: none;
       opacity: 0.8;
     }
   }
+
   .stage {
     border-radius: 5px;
     overflow: hidden;
     position: relative;
+
     .legendContainer {
       position: absolute;
       right: 5px;
       top: 5px;
 
-      & > svg {
+      &>svg {
         opacity: 0.5;
+
         &:hover {
           opacity: 0.75;
         }
       }
+
       .legend {
         position: absolute;
         padding: 10px;
@@ -1325,6 +1466,7 @@
         span {
           margin-left: 5px;
         }
+
         .shiftKey {
           background: #c8c8c8;
           color: rgb(0, 0, 0, 0.75);
@@ -1333,12 +1475,14 @@
           font-weight: bold;
           margin: 0 5px 0 0;
         }
+
         svg {
           font-size: 18px;
           margin-right: 5px;
           vertical-align: middle;
         }
-        & > div + div {
+
+        &>div+div {
           margin-top: 10px;
         }
       }
@@ -1392,9 +1536,11 @@
   @media (max-width: 400px) {
     padding: 0 15px;
     width: 330px;
+
     .avatarHeaderBlock {
       margin-top: 15px;
     }
+
     .controlContainer {
       margin-bottom: 15px;
     }
@@ -1406,6 +1552,7 @@
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
   padding: 0;
+
   .controlContainer {
     display: flex;
     justify-content: space-between;
@@ -1441,6 +1588,7 @@
     .profileBlock {
       justify-content: center !important;
     }
+
     .headerBlock {
       width: 100% !important;
       margin-top: 30px;
@@ -1455,6 +1603,7 @@
 
 .selectOptionContainer ul {
   background: white;
+
   li {
     color: #444;
   }
@@ -1544,6 +1693,7 @@
       &:hover {
         transform: scale(1.2);
       }
+
       img {
         display: block;
         width: 100%;
