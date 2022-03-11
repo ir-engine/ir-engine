@@ -2,7 +2,13 @@ import assert from 'assert'
 import _ from 'lodash'
 
 import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { cleanSceneDataCacheURLs, corsPath, parseSceneDataCacheURLs, sceneRelativePathIdentifier } from './scene-parser'
+import {
+  cleanSceneDataCacheURLs,
+  corsPath,
+  parseSceneDataCacheURLs,
+  sceneCorsPathIdentifier,
+  sceneRelativePathIdentifier
+} from './scene-parser'
 
 describe('Scene Helper Functions', () => {
   const storageProvider = useStorageProvider()
@@ -39,7 +45,7 @@ describe('Scene Helper Functions', () => {
     const mockDomain = `https://mydomain.com/something`
 
     const savedMockData = {
-      value: mockDomain
+      value: `${sceneCorsPathIdentifier}/${mockDomain}`
     }
 
     const parsedMockData = {

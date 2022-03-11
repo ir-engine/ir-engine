@@ -672,5 +672,8 @@
   "interactableModel": {
     "lbl-buy": "Buy",
     "lbl-learnMore": "Learn More"
+  },
+  "corsProxyButton": {
+    "tooltip": "Use Cors Proxy Server"
   }
 }
