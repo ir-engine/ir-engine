@@ -254,6 +254,22 @@ const ProfileMenu = (props: Props): JSX.Element => {
         '_blank'
       )
   }
+  const goToIcpNFT = () => {
+    let token = localStorage.getItem(
+      globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1'
+    )
+    let accessToken = JSON.parse(token as string).authData.authUser.accessToken
+    //console.log(JSON.parse(token as string).authData.authUser.accessToken, 'token')
+    if (selfUser.id.value && accessToken)
+      window.open(`http://127.0.0.1:4000?userId=${selfUser.id.value}&token=${accessToken}`, '_blank')
+    /*  
+    window.open(
+        `${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${selfUser.id.value}&token=${token}`,
+        '_blank'
+      )
+    */
+  }
+
   const enableSocial =
     authState?.discord ||
     authState?.facebook ||
@@ -370,7 +386,38 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     }
                   }
                 }}
-              ></Grid>
+              >
+                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
+                  <InventoryIcon />
+                  <Typography component="div" variant="button">
+                    My Inventory
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
+                  <StoreIcon />
+                  <Typography component="div" variant="button">
+                    My Trading
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
+                  <AccountBalanceWalletIcon />
+                  <Typography component="div" variant="button">
+                    My Wallet
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToEthNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToIcpNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ICP NFT Marketplace
+                  </Typography>
+                </Button>
+              </Grid>
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (

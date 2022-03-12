@@ -198,6 +198,33 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       throw err
     }
     // DRC
+    try {
+      if (result.user.userRole !== 'guest') {
+        try {
+          let response: any = await blockchainTokenGenerator()
+
+          const accessToken = response?.data?.accessToken
+
+          let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
+          return walleteResponse;
+        } catch (err) {
+          console.error(err, 'blockchain error')
+        }
+        let invenData: any = await this.app.service('inventory-item').find({ query: { isCoin: true } })
+
+        let invenDataId = invenData.data[0].dataValues.inventoryItemId
+
+        let resp = await this.app.service('user-inventory').create({
+          userId: result.user.id,
+          inventoryItemId: invenDataId,
+          quantity: 10
+        })
+        return resp;
+      }
+    } catch (err) {
+      console.error(err, 'error')
+    }
+    // DRC
 
     if (config.scopes.guest.length) {
       config.scopes.guest.forEach(async (el) => {
