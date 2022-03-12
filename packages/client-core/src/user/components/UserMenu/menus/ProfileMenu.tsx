@@ -388,7 +388,38 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     }
                   }
                 }}
-              ></Grid>
+              >
+                <Button size="small" onClick={() => changeActiveMenu(Views.Inventory)}>
+                  <InventoryIcon />
+                  <Typography component="div" variant="button">
+                    My Inventory
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Trading)}>
+                  <StoreIcon />
+                  <Typography component="div" variant="button">
+                    My Trading
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => changeActiveMenu(Views.Wallet)}>
+                  <AccountBalanceWalletIcon />
+                  <Typography component="div" variant="button">
+                    My Wallet
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToEthNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ETH NFT Marketplace
+                  </Typography>
+                </Button>
+                <Button size="small" onClick={() => goToIcpNFT()}>
+                  <StorefrontIcon />
+                  <Typography component="div" variant="button">
+                    Open ICP NFT Marketplace
+                  </Typography>
+                </Button>
+              </Grid>
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
