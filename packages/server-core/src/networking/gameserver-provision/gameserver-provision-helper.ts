@@ -10,9 +10,6 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
         }
       })
 
-      console.log(locationId)
-      console.log(location)
-
       if (!location.data.length) {
         const message = `Failed to patch gameserver. (Location for id '${locationId}' is not found.)`
         console.log(message)
@@ -20,8 +17,6 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
       }
 
       const freeInstance = await getFreeGameserver(app, 0, locationId, null!)
-
-      console.log(freeInstance)
 
       await app.service('gameserver-load').patch({
         id: freeInstance.id,
