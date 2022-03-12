@@ -19,17 +19,16 @@ interface LoadingUIState {
 export async function createLoaderDetailView() {
   let hasSceneColors = false
   const xrui = await new Promise<XRUI<State<LoadingUIState>>>((resolve) => {
-    const xrui = createXRUI(
-      () => (
+    const xrui = createXRUI(function Loading() {
+      return (
         <LoadingDetailView
           onStateChange={(state) => {
             hasSceneColors = state.hasSceneColors
           }}
           colorsLoadedCallback={() => resolve(xrui)}
         />
-      ),
-      createState({ imageWidth: 1, imageHeight: 1 })
-    )
+      )
+    }, createState({ imageWidth: 1, imageHeight: 1 }))
   })
   const container = await xrui.container
   await container.updateUntilReady()
@@ -100,7 +99,7 @@ const LoadingDetailView = (props: {
     })
   }, [colors, sceneState])
 
-  // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
+  console.log('LOADING STATE', engineState.loadingDetails.value, t(engineState.loadingDetails.value))
 
   return (
     <>
