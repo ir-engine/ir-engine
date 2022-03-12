@@ -1,11 +1,11 @@
-import hooks from './authentication.hooks'
 import { Application } from '../../../declarations'
 import { Authentication } from './authentication.class'
+import hooks from './authentication.hooks'
 import createModel from './authentication.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    Authentication: Authentication
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'authentication-setting': Authentication
   }
 }
 

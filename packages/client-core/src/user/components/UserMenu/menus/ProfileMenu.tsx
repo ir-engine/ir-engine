@@ -1,9 +1,14 @@
+import * as polyfill from 'credential-handler-polyfill'
+import React, { useEffect, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
+
+import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+
 import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import InventoryIcon from '@mui/icons-material/Inventory'
-import StoreIcon from '@mui/icons-material/Store'
-import StorefrontIcon from '@mui/icons-material/Storefront'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -11,13 +16,7 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-import * as polyfill from 'credential-handler-polyfill'
-import React, { useEffect, useState } from 'react'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+
 import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
@@ -29,10 +28,10 @@ import styles from '../UserMenu.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
-  changeActiveMenu?: any
-  setProfileMenuOpen?: any
-
-  hideLogin?: any
+  changeActiveMenu?: (type: string | null) => void
+  setProfileMenuOpen?: (open: boolean) => void
+  className?: string
+  hideLogin?: boolean
 }
 
 const initialState = {
@@ -48,10 +47,10 @@ const initialState = {
   emailMagicLink: false
 }
 
-const ProfileMenu = (props: Props): any => {
+const ProfileMenu = (props: Props): JSX.Element => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
-  const location: any = useLocation()
+  const location = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -162,7 +161,7 @@ const ProfileMenu = (props: Props): any => {
     // window.location.reload()
   }
 
-  const handleWalletLoginClick = async (e) => {
+  /*  const handleWalletLoginClick = async (e) => {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
@@ -187,7 +186,7 @@ const ProfileMenu = (props: Props): any => {
     console.log(result)
 
     AuthService.loginUserByXRWallet(result)
-  }
+  }*/
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
@@ -282,7 +281,7 @@ const ProfileMenu = (props: Props): any => {
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel}>
+    <div className={styles.menuPanel + (props.className ? ' ' + props.className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
@@ -438,7 +437,7 @@ const ProfileMenu = (props: Props): any => {
         {showUserId && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              User id
+              {t('user:usermenu.profile.userIcon.userId')}
             </Typography>
 
             <form>
@@ -474,7 +473,7 @@ const ProfileMenu = (props: Props): any => {
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
             <Typography variant="h1" className={styles.panelHeader}>
-              API key
+              {t('user:usermenu.profile.apiKey')}
             </Typography>
 
             <form>
@@ -579,7 +578,7 @@ const ProfileMenu = (props: Props): any => {
                     </a>
                   )}
                   {authState?.linkedin && (
-                    <a href="#" id="linkedin2" onClick={handleOAuthServiceClick}>
+                    <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}

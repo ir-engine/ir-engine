@@ -1,12 +1,13 @@
-import { Application } from '../../../declarations'
-import { Email } from './email.class'
-import hooks from './email.hooks'
-import smtpTransport from 'nodemailer-smtp-transport'
 import Mailer from 'feathers-mailer'
-import config from '../../appconfig'
-import emailDocs from './email.docs'
+import smtpTransport from 'nodemailer-smtp-transport'
 
-declare module '../../../declarations' {
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { Email } from './email.class'
+import emailDocs from './email.docs'
+import hooks from './email.hooks'
+
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     email: Email
   }

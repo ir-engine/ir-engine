@@ -1,10 +1,10 @@
 import { Application } from '../../../declarations'
 import { UserApiKey } from './user-api-key.class'
-import createModel from './user-api-key.model'
-import hooks from './user-api-key.hooks'
 import userDocs from './user-api-key.docs'
+import hooks from './user-api-key.hooks'
+import createModel from './user-api-key.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   /**
    * Interface for users input
    */

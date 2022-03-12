@@ -1,9 +1,10 @@
 import { Application } from '../../../declarations'
 import { IdentityProvider } from './identity-provider.class'
-import createModel from './identity-provider.model'
-import hooks from './identity-provider.hooks'
 import identyDocs from './identity-provider.docs'
-declare module '../../../declarations' {
+import hooks from './identity-provider.hooks'
+import createModel from './identity-provider.model'
+
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'identity-provider': IdentityProvider
   }

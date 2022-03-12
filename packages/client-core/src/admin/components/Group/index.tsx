@@ -1,17 +1,25 @@
-import React from 'react'
-import Grid from '@mui/material/Grid'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
-import { useGroupStyles } from './styles'
-import SearchGroup from './SearchGroup'
+import Grid from '@mui/material/Grid'
+
+import Search from '../../common/Search'
+import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
 
 const GroupConsole = () => {
-  const classes = useGroupStyles()
-  const [groupOpen, setGroupOpen] = React.useState(false)
+  const classes = useStyles()
+  const [groupOpen, setGroupOpen] = useState(false)
+  const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => {
     setGroupOpen(open)
+  }
+  const handleChange = (e: any) => {
+    setSearch(e.target.value)
   }
 
   return (
@@ -19,7 +27,7 @@ const GroupConsole = () => {
       <div>
         <Grid container spacing={3} className={classes.marginBottom}>
           <Grid item xs={12} sm={9}>
-            <SearchGroup />
+            <Search text="group" handleChange={handleChange} />
           </Grid>
           <Grid item xs={12} sm={3}>
             <Button
@@ -28,12 +36,12 @@ const GroupConsole = () => {
               variant="contained"
               onClick={() => openModalCreate(true)}
             >
-              Create group
+              {t('admin:components.group.createGroup')}
             </Button>
           </Grid>
         </Grid>
-        <div className={classes.rootTable}>
-          <GroupTable />
+        <div className={classes.rootTableWithSearch}>
+          <GroupTable search={search} />
         </div>
       </div>
       <CreateGroup open={groupOpen} handleClose={openModalCreate} />

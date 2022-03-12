@@ -1,6 +1,7 @@
 import i18n from 'i18next'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { client } from '@xrengine/client-core/src/feathers'
+import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 /**
@@ -98,7 +99,7 @@ export const saveScene = async (
   }
 }
 
-export const createNewScene = async (projectName: string) => {
+export const createNewScene = async (projectName: string): Promise<{ projectName: string; sceneName: string }> => {
   try {
     return client.service('scene').create({ projectName })
   } catch (error) {

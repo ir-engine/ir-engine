@@ -1,15 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react'
+
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-import { CommandManager } from '../../../managers/CommandManager'
-import EditorEvents from '../../../constants/EditorEvents'
-import SelectInput from '../../inputs/SelectInput'
-import * as styles from '../styles.module.scss'
+
 import { RenderModes, RenderModesType } from '../../../constants/RenderModes'
 import { SceneManager } from '../../../managers/SceneManager'
+import { useModeState } from '../../../services/ModeServices'
+import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
+import * as styles from '../styles.module.scss'
 
 const RenderModeTool = () => {
-  const [renderMode, setRenderMode] = useState<RenderModesType>(RenderModes.SHADOW)
+  const modeState = useModeState()
+  const initializeRef = React.useRef<boolean>(false)
+  const [renderMode, setRenderMode] = useState<RenderModesType>(SceneManager.instance.renderMode)
 
   const options = [] as { label: string; value: string }[]
 
@@ -21,19 +24,19 @@ const RenderModeTool = () => {
   }
 
   useEffect(() => {
-    CommandManager.instance.addListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
-
-    return () => {
-      CommandManager.instance.removeListener(EditorEvents.RENDER_MODE_CHANGED.toString(), changeRenderMode)
+    if (initializeRef.current) {
+      changeRenderMode()
+    } else {
+      initializeRef.current = true
     }
-  }, [])
+  }, [modeState.renderModeChanged.value])
 
   const onChangeRenderMode = useCallback((mode) => SceneManager.instance.changeRenderMode(mode), [])
   const changeRenderMode = useCallback(() => setRenderMode(SceneManager.instance.renderMode), [])
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-pivot">
-      <InfoTooltip info="Render Mode">
+      <InfoTooltip title="Render Mode">
         <div className={styles.toolIcon}>
           <WbSunnyOutlinedIcon fontSize="small" />
         </div>

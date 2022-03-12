@@ -1,12 +1,17 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
-import { Params } from '@feathersjs/feathers'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
-import { Op } from 'sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import _ from 'lodash'
-import logger from '../../logger'
+import { Op } from 'sequelize'
 
-export class Channel extends Service {
+import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
+
+import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+
+export type ChannelDataType = ChannelInterface
+
+export class Channel<T = ChannelDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -22,7 +27,8 @@ export class Channel extends Service {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
+    if (!params) params = {}
     const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10

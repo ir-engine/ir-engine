@@ -1,8 +1,9 @@
 import React from 'react'
-import styles from './Common.module.scss'
 import { useTranslation } from 'react-i18next'
 
-const PageLoader = (): any => {
+import styles from './Common.module.scss'
+
+const PageLoader = (): JSX.Element => {
   const { t } = useTranslation()
   return <div className={styles['page-loader']}>{t('common:pageLoader.loading')}</div>
 }

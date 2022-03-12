@@ -1,15 +1,17 @@
-import React from 'react'
+import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 import { State } from '@speigg/hookstate'
+import React from 'react'
+
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { XRUIComponent } from '../components/XRUIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Entity } from '../../ecs/classes/Entity'
-import { XRUIStateContext } from '../XRUIStateContext'
-import { Engine } from '../../ecs/classes/Engine'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
+import { XRUIComponent } from '../components/XRUIComponent'
+import { XRUIStateContext } from '../XRUIStateContext'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
@@ -44,6 +46,8 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
       manager: WebLayerManager.instance
     })
 
+    container.raycaster.layers.enableAll()
+
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
@@ -54,8 +58,9 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     }
 
     addComponent(entity, Object3DComponent, { value: container })
-    setObjectLayers(container, ObjectLayers.Render, ObjectLayers.UI)
+    setObjectLayers(container, ObjectLayers.UI)
     addComponent(entity, XRUIComponent, { container: container })
+    addComponent(entity, VisibleComponent, {})
 
     resolve(container)
   })

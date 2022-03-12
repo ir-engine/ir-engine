@@ -1,4 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { NetworkTransport } from '../interfaces/NetworkTransport'
 
@@ -19,7 +20,7 @@ export interface NetworkTransportHandler<W extends NetworkTransport, M extends N
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network
+  static instance: Network = new Network()
   /** Object holding transport details over network. */
   transportHandler: NetworkTransportHandler<NetworkTransport, NetworkTransport>
   /** Object holding transport details over network. */

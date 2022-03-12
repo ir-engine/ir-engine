@@ -1,24 +1,27 @@
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
-import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import { ContextMenuTrigger } from '../layout/ContextMenu'
-import { AssetTypes, isAsset, ItemTypes } from '../../constants/AssetTypes'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+
+import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
-import { CommandManager } from '../../managers/CommandManager'
+import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { addItem } from '../dnd'
+import { CommandManager } from '../../managers/CommandManager'
+import { addPrefabElement } from '../element/ElementList'
+import { ContextMenuTrigger } from '../layout/ContextMenu'
+import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
-import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { isAncestor } from '../../functions/getDetachedObjectsRoots'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 
 /**
  * getNodeElId function provides id for node.
@@ -127,7 +130,15 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         return
       }
 
-      if (addItem(item, parent, before)) return
+      if (item.url) {
+        CommandManager.instance.addMedia({ url: item.url }, parent, before)
+        return
+      }
+
+      if (item.type === ItemTypes.Prefab) {
+        addPrefabElement(item, parent, before)
+        return
+      }
 
       CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: parent,
@@ -140,8 +151,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     return (item, monitor): boolean => {
       //check if monitor is over or object is not parent element
       if (!monitor.isOver() || (!dropOn && !entityNode.parentNode)) return false
-
-      if (isAsset(item)) return true
 
       if (item.type === ItemTypes.Node) {
         return (
@@ -157,7 +166,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }
 
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node.entityNode.parentNode, node.entityNode),
     canDrop: canDropItem(node.entityNode),
     collect: (monitor) => ({
@@ -167,7 +176,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(
       node.entityNode.parentNode,
       !node.lastChild && node.entityNode.parentNode.children
@@ -182,7 +191,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
-    accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+    accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node.entityNode),
     canDrop: canDropItem(node.entityNode, true),
     collect: (monitor) => ({
@@ -227,7 +236,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
             {node.isLeaf ? (
               <div className={styles.spacer} />
             ) : (
-              <button type="button" className={styles.collapseButton} onClick={onClickToggle as any}>
+              <button
+                type="button"
+                className={styles.collapseButton}
+                onClick={onClickToggle as any}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
                 {node.isCollapsed ? <ArrowRightIcon fontSize="small" /> : <ArrowDropDownIcon fontSize="small" />}
               </button>
             )}
@@ -249,7 +263,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 ) : (
                   <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                    {nameComponent.name}
+                    {nameComponent?.name}
                   </div>
                 )}
               </div>

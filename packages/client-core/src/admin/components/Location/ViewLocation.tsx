@@ -1,38 +1,39 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Drawer from '@mui/material/Drawer'
-import { useStyles } from '../../styles/ui'
-import Paper from '@mui/material/Paper'
-import Container from '@mui/material/Container'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
+
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
+import { Save } from '@mui/icons-material'
+import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
-import Grid from '@mui/material/Grid'
-import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import InputBase from '@mui/material/InputBase'
-import { Edit, Save } from '@mui/icons-material'
+import Chip from '@mui/material/Chip'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
+import Drawer from '@mui/material/Drawer'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import FormGroup from '@mui/material/FormGroup'
+import Grid from '@mui/material/Grid'
+import InputBase from '@mui/material/InputBase'
+import MenuItem from '@mui/material/MenuItem'
+import Paper from '@mui/material/Paper'
+import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
-import { useSceneState } from '../../services/SceneService'
+import Typography from '@mui/material/Typography'
+
 import { useDispatch } from '../../../store'
-import { useLocationState } from '../../services/LocationService'
-import { validateUserForm } from '../Users/validation'
-import { LocationService } from '../../services/LocationService'
-import MuiAlert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
+import { validateForm } from '../../common/validation/formValidation'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useSceneState } from '../../services/SceneService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
-  openView: any
-  closeViewModel: any
-  locationAdmin: any
-  authState?: any
+  openView: boolean
+  closeViewModel: (open: boolean) => void
+  locationAdmin?: Location
 }
 
 const Alert = (props) => {
@@ -88,12 +89,12 @@ const ViewLocation = (props: Props) => {
         name: locationAdmin.name,
         maxUsers: locationAdmin.maxUsersPerInstance,
         scene: locationAdmin.sceneId,
-        type: locationAdmin.location_setting.locationType,
-        videoEnabled: locationAdmin.location_setting.videoEnabled,
-        audioEnabled: locationAdmin.location_setting.audioEnabled,
-        screenSharingEnabled: locationAdmin.location_setting.screenSharingEnabled,
-        faceStreamingEnabled: locationAdmin.location_setting.faceStreamingEnabled,
-        globalMediaEnabled: locationAdmin.location_setting.instanceMediaChatEnabled,
+        type: locationAdmin.locationSettings.locationType,
+        videoEnabled: locationAdmin.locationSettings.videoEnabled,
+        audioEnabled: locationAdmin.locationSettings.audioEnabled,
+        screenSharingEnabled: locationAdmin.locationSettings.screenSharingEnabled,
+        faceStreamingEnabled: locationAdmin.locationSettings.faceStreamingEnabled,
+        globalMediaEnabled: locationAdmin.locationSettings.instanceMediaChatEnabled,
         isLobby: locationAdmin.isLobby,
         isFeatured: locationAdmin.isFeatured
       })
@@ -105,16 +106,16 @@ const ViewLocation = (props: Props) => {
     let temp = state.formErrors
     switch (name) {
       case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
+        temp.name = value.length < 2 ? t('admin:components.locationModel.nameRequired') : ''
         break
       case 'maxUsers':
-        temp.maxUsers = value.length < 2 ? 'Max users is required!' : ''
+        temp.maxUsers = value.length < 2 ? t('admin:components.locationModel.maxUsersRequired') : ''
         break
       case 'scene':
-        temp.scene = value.length < 2 ? 'Scene is required!' : ''
+        temp.scene = value.length < 2 ? t('admin:components.locationModel.sceneRequired') : ''
         break
       case 'private':
-        temp.type = value.length < 2 ? 'Private role is required!' : ''
+        temp.type = value.length < 2 ? t('admin:components.locationModel.privateRoleRequired') : ''
         break
       default:
         break
@@ -141,19 +142,19 @@ const ViewLocation = (props: Props) => {
 
     let temp = state.formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.locationModel.nameCantEmpty')
     }
     if (!state.maxUsers) {
-      temp.maxUsers = "Maximum users can't be empty"
+      temp.maxUsers = t('admin:components.locationModel.maxUserCantEmpty')
     }
     if (!state.scene) {
-      temp.scene = "Scene can't be empty"
+      temp.scene = t('admin:components.locationModel.sceneCantEmpty')
     }
     if (!state.type) {
-      temp.scene = "Type can't be empty"
+      temp.scene = t('admin:components.locationModel.typeCantEmpty')
     }
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors)) {
       LocationService.patchLocation(location.id, locationData)
       setState({
         ...state,
@@ -165,7 +166,7 @@ const ViewLocation = (props: Props) => {
       setEditMode(false)
       closeViewModel(false)
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.locationModel.fillRequiredFields'))
       setOpenWarning(true)
     }
   }
@@ -223,9 +224,9 @@ const ViewLocation = (props: Props) => {
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
                 {' '}
-                Update location Information{' '}
+                {t('admin:components.locationModel.updateLocationInfo')}{' '}
               </Typography>
-              <label>Name</label>
+              <label>{t('admin:components.locationModel.lbl-name')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
@@ -233,14 +234,14 @@ const ViewLocation = (props: Props) => {
                 <InputBase
                   className={classes.input}
                   name="name"
-                  placeholder="Enter name"
+                  placeholder={t('admin:components.locationModel.enterName')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
                   onChange={handleInputChange}
                 />
               </Paper>
-              <label>Max Users</label>
+              <label>{t('admin:components.locationModel.lbl-maxuser')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.maxUsers.length > 0 ? classes.redBorder : classes.createInput}
@@ -248,7 +249,7 @@ const ViewLocation = (props: Props) => {
                 <InputBase
                   className={classes.input}
                   name="maxUsers"
-                  placeholder="Enter max users"
+                  placeholder={t('admin:components.locationModel.enterMaxUsers')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   type="number"
@@ -256,7 +257,7 @@ const ViewLocation = (props: Props) => {
                   onChange={handleInputChange}
                 />
               </Paper>
-              <label>Scene</label>
+              <label>{t('admin:components.locationModel.lbl-scene')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.scene.length > 0 ? classes.redBorder : classes.createInput}
@@ -274,7 +275,7 @@ const ViewLocation = (props: Props) => {
                     MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select scene</em>
+                      <em>{t('admin:components.locationModel.selectScene')}</em>
                     </MenuItem>
                     {adminScenes.value.map((el, index) => (
                       <MenuItem value={`${el.project}/${el.name}`} key={index}>{`${el.name} (${el.project})`}</MenuItem>
@@ -282,7 +283,7 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <label>Private</label>
+              <label>{t('admin:components.locationModel.private')}</label>
               <Paper component="div" className={classes.createInput}>
                 <FormControl fullWidth>
                   <Select
@@ -297,7 +298,7 @@ const ViewLocation = (props: Props) => {
                     MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select type</em>
+                      <em>{t('admin:components.locationModel.selectType')}</em>
                     </MenuItem>
                     {locationTypes.value.map((el, index) => (
                       <MenuItem value={el.type} key={index}>
@@ -429,24 +430,30 @@ const ViewLocation = (props: Props) => {
               <Grid container spacing={2} className={classes.pdl}>
                 <Grid item xs={5} className={classes.typo}>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    Max Users
+                    {t('admin:components.locationModel.lbl-maxuser')}
                   </Typography>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    Scene ID
+                    {t('admin:components.locationModel.lbl-sceneId')}
                   </Typography>
                   <Typography variant="h5" component="h5" className={classes.locationOtherInfo}>
-                    Slugy Name
+                    {t('admin:components.locationModel.slugyName')}
                   </Typography>
                 </Grid>
                 <Grid item xs={7} className={classes.typo}>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    {(location as any)?.maxUsersPerInstance || <span className={classes.spanNone}>None</span>}
+                    {(location as any)?.maxUsersPerInstance || (
+                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                    )}
                   </Typography>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    {location?.sceneId || <span className={classes.spanNone}>None</span>}
+                    {location?.sceneId || (
+                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                    )}
                   </Typography>
                   <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo}`}>
-                    {location?.slugifiedName || <span className={classes.spanNone}>None</span>}
+                    {location?.slugifiedName || (
+                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                    )}
                   </Typography>
                 </Grid>
               </Grid>
@@ -456,54 +463,70 @@ const ViewLocation = (props: Props) => {
               component="h4"
               className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont}`}
             >
-              Location Settings{' '}
+              {t('admin:components.locationModel.locationSettings')}{' '}
             </Typography>
             <Grid container spacing={2} className={classes.pdlarge}>
               <Grid item xs={6}>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Location Type:
+                  {t('admin:components.locationModel.locationType')}:
                 </Typography>
                 {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Video Enabled:
+                  {t('admin:components.locationModel.videoEnabled')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Audio Enabled:
+                  {t('admin:components.locationModel.audioEnabled')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Face Streaming Enabled:
+                  {t('admin:components.locationModel.faceStreamingEnabled')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Screen Sharing Enabled:
+                  {t('admin:components.locationModel.screenSharingEnabled')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  Media Chat Enabled:
+                  {t('admin:components.locationModel.mediaChatEnabled')}:
                 </Typography>
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {location?.location_setting?.locationType || <span className={classes.spanNone}>None</span>}
+                  {location?.location_setting?.locationType || (
+                    <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                  )}
                 </Typography>
                 {/* <Typography variant="h6" component="h6" className={classes.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={classes.spanNone}>None</span>}</Typography> */}
                 <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>{location?.location_setting?.videoEnabled ? 'Yes' : 'No'}</span>
-                </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>{location?.location_setting?.audioEnabled ? 'Yes' : 'No'}</span>
-                </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
                   <span className={classes.spanNone}>
-                    {location?.location_setting?.faceStreamingEnabled ? 'Yes' : 'No'}
+                    {location?.location_setting?.videoEnabled
+                      ? t('admin:components.index.yes')
+                      : t('admin:components.index.no')}
                   </span>
                 </Typography>
                 <Typography variant="h5" component="h5" className={classes.mb10}>
                   <span className={classes.spanNone}>
-                    {location?.location_setting?.screenSharingEnabled ? 'Yes' : 'No'}
+                    {location?.location_setting?.audioEnabled
+                      ? t('admin:components.index.yes')
+                      : t('admin:components.index.no')}
                   </span>
                 </Typography>
                 <Typography variant="h5" component="h5" className={classes.mb10}>
                   <span className={classes.spanNone}>
-                    {location?.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'}
+                    {location?.location_setting?.faceStreamingEnabled
+                      ? t('admin:components.index.yes')
+                      : t('admin:components.index.no')}
+                  </span>
+                </Typography>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
+                  <span className={classes.spanNone}>
+                    {location?.location_setting?.screenSharingEnabled
+                      ? t('admin:components.index.yes')
+                      : t('admin:components.index.no')}
+                  </span>
+                </Typography>
+                <Typography variant="h5" component="h5" className={classes.mb10}>
+                  <span className={classes.spanNone}>
+                    {location?.location_setting?.instanceMediaChatEnabled
+                      ? t('admin:components.index.yes')
+                      : t('admin:components.index.no')}
                   </span>
                 </Typography>
               </Grid>
@@ -517,7 +540,7 @@ const ViewLocation = (props: Props) => {
                 <span style={{ marginRight: '15px' }}>
                   <Save />
                 </span>{' '}
-                Submit
+                {t('admin:components.locationModel.submit')}
               </Button>
               <Button
                 className={classes.saveBtn}
@@ -525,7 +548,7 @@ const ViewLocation = (props: Props) => {
                   setEditMode(false)
                 }}
               >
-                CANCEL
+                {t('admin:components.locationModel.lbl-cancel')}
               </Button>
             </div>
           ) : (
@@ -537,10 +560,10 @@ const ViewLocation = (props: Props) => {
                   setEditMode(true)
                 }}
               >
-                EDIT
+                {t('admin:components.locationModel.lbl-edit')}
               </Button>
               <Button onClick={() => handleCloseDrawe()} className={classes.saveBtn}>
-                CANCEL
+                {t('admin:components.locationModel.lbl-cancel')}
               </Button>
             </div>
           )}

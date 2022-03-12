@@ -1,16 +1,20 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
-import { Application } from '../../../declarations'
 import { NullableId, Params } from '@feathersjs/feathers'
-import { resolveModelData } from '../../util/model-resolver'
-import { Transaction, Sequelize } from 'sequelize'
-import config from '../../appconfig'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Sequelize, Transaction } from 'sequelize'
 
+import { UserRelationshipInterface } from '@xrengine/common/src/dbmodels/UserRelationship'
+
+import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import { resolveModelData } from '../../util/model-resolver'
+
+export type UserRelationshipDataType = UserRelationshipInterface
 /**
  * A class for User Relationship service
  *
  * @author Vyacheslav Solovjov
  */
-export class UserRelationship extends Service {
+export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
   app: Application
   docs: any
 
@@ -19,7 +23,8 @@ export class UserRelationship extends Service {
     this.app = app
   }
 
-  async findAll(params: Params): Promise<any> {
+  async findAll(params?: Params): Promise<any> {
+    if (!params) params = {}
     const UserRelationshipModel = this.getModel(params)
     const UserRelationshipTypeService = this.app.service('user-relationship-type')
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
@@ -66,7 +71,8 @@ export class UserRelationship extends Service {
     return result
   }
 
-  async create(data: any, params: Params): Promise<any> {
+  async create(data: any, params?: Params): Promise<T> {
+    if (!params) params = {}
     const loggedInUserEntity: string = config.authentication.entity
 
     const userId = data.userId || params[loggedInUserEntity].userId
@@ -101,7 +107,8 @@ export class UserRelationship extends Service {
     return result
   }
 
-  async patch(id: NullableId, data: any, params: Params): Promise<any> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<T> {
+    if (!params) params = {}
     const { userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
@@ -123,7 +130,8 @@ export class UserRelationship extends Service {
     })
   }
 
-  async remove(id: NullableId, params: Params): Promise<any> {
+  async remove(id: NullableId, params?: Params): Promise<T> {
+    if (!params) params = {}
     const loggedInUserEntity: string = config.authentication.entity
 
     const authUser = params[loggedInUserEntity]

@@ -27,9 +27,8 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "./upload/**",
-    "./tests old/**",
     "../projects/projects/**",
+    "./upload/**",
     "**/node_modules/**"
   ],
   "include": [

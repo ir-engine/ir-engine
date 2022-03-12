@@ -1,10 +1,12 @@
+import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+
 import { Application } from '../../../declarations'
 import { Party } from './party.class'
-import createModel from './party.model'
-import hooks from './party.hooks'
 import partyDocs from './party.docs'
+import hooks from './party.hooks'
+import createModel from './party.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     party: Party
   }
@@ -37,7 +39,7 @@ export default (app: Application): void => {
    * @returns {@Object} created party
    * @author Vyacheslav Solovjov
    */
-  service.publish('created', async (data): Promise<any> => {
+  service.publish('created', async (data: PartyDataType): Promise<any> => {
     try {
       const partyUsers = (await app.service('party-user').find({
         query: {
@@ -84,7 +86,7 @@ export default (app: Application): void => {
    * @returns {@Object} of new updated party
    * @author Vyacheslav Solovjov
    */
-  service.publish('patched', async (data): Promise<any> => {
+  service.publish('patched', async (data: PartyDataType): Promise<any> => {
     const partyUsers = await app.service('party-user').find({
       query: {
         $limit: 1000,
@@ -112,7 +114,7 @@ export default (app: Application): void => {
    * @author Vyacheslav Solovjov
    */
 
-  service.publish('removed', async (data): Promise<any> => {
+  service.publish('removed', async (data: PartyDataType): Promise<any> => {
     const partyUsers = await app.service('party-user').find({
       query: {
         $limit: 1000,

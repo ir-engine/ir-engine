@@ -1,5 +1,8 @@
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
+
+import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+
 import './env-config'
 import './hookstate_devtools.es'
 import { initialize } from './util'
@@ -10,7 +13,7 @@ initialize()
   // then load the app
   .then((_) => {
     ReactDOM.render(
-      <Suspense fallback="Loading...">
+      <Suspense fallback={<LoadingCircle />}>
         <AppPage />
       </Suspense>,
       document.getElementById('root')

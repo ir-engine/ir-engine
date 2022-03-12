@@ -1,15 +1,17 @@
 import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import { Application } from '../../../declarations'
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-import appRootPath from 'app-root-path'
+
+import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
+
+import { Application } from '../../../declarations'
+import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
+import { useStorageProvider } from '../../media/storageprovider/storageprovider'
 import { cleanString } from '../../util/cleanString'
 import { uploadLocalProjectToProvider } from '../project/project.class'
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import defaultSceneSeed from '@xrengine/projects/default-project/empty.scene.json'
-import { useStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getCachedAsset } from '../../media/storageprovider/getCachedAsset'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const storageProvider = useStorageProvider()
@@ -119,12 +121,12 @@ export class Scene implements ServiceMethods<any> {
     }
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.thumbnail.jpeg`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.thumbnail.jpeg`),
       path.resolve(projectPath + newSceneName + '.thumbnail.jpeg')
     )
 
     fs.copyFileSync(
-      path.resolve(appRootPath.path, `packages/projects/default-project/empty.scene.json`),
+      path.resolve(appRootPath.path, `packages/projects/default-project/default.scene.json`),
       path.resolve(projectPath + newSceneName + '.scene.json')
     )
 

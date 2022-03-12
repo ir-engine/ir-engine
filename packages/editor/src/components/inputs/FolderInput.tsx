@@ -1,5 +1,7 @@
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import React from 'react'
+
+import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+
 import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 

@@ -1,19 +1,20 @@
 import React, { useState } from 'react'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
-import { AuthService } from '../../services/AuthService'
-import Grid from '@mui/material/Grid'
-import styles from './Auth.module.scss'
 import { useTranslation } from 'react-i18next'
 
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+
+import { AuthService } from '../../services/AuthService'
+import styles from './Auth.module.scss'
+
 interface Props {
-  classes: any
+  //classes: any
 }
 
 const ForgotPasswordComponent = (props: Props): any => {
-  const { classes } = props
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 
@@ -76,6 +77,6 @@ const ForgotPasswordComponent = (props: Props): any => {
   )
 }
 
-const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />
+const ForgotPasswordWrapper = (props: Props): JSX.Element => <ForgotPasswordComponent {...props} />
 
 export default ForgotPasswordWrapper

@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from '../../../store'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import IconButton from '@mui/material/IconButton'
+import { useHistory } from 'react-router-dom'
+
 import CloseIcon from '@mui/icons-material/Close'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+
+import { useDispatch } from '../../../store'
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
-import { useHistory } from 'react-router-dom'
 import styles from './Dialog.module.scss'
 
-interface Props {
-  dialog: any
-}
+interface Props {}
 
 const DialogComponent = (props: Props): any => {
   const dispatch = useDispatch()
@@ -46,5 +46,5 @@ const DialogComponent = (props: Props): any => {
   )
 }
 
-const DialogWrapper = (props: any): any => <DialogComponent {...props} />
+const DialogWrapper = (props: Props): JSX.Element => <DialogComponent {...props} />
 export const UIDialog = DialogWrapper

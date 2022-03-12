@@ -1,11 +1,11 @@
-import hooks from './chargebee-setting.hooks'
 import { Application } from '../../../declarations'
 import { ChargebeeSetting } from './chargebee-setting.class'
+import hooks from './chargebee-setting.hooks'
 import createModel from './chargebee-setting.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    Chargebee: ChargebeeSetting
+    'chargebee-setting': ChargebeeSetting
   }
 }
 

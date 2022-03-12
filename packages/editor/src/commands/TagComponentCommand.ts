@@ -1,14 +1,16 @@
-import Command, { CommandParams } from './Command'
-import { serializeProperties, serializeObject3DArray } from '../functions/debug'
-import EditorEvents from '../constants/EditorEvents'
-import { CommandManager } from '../managers/CommandManager'
+import { store } from '@xrengine/client-core/src/store'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   ComponentConstructor,
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
+import { serializeObject3DArray, serializeProperties } from '../functions/debug'
+import { SceneManager } from '../managers/SceneManager'
+import { SelectionAction } from '../services/SelectionServices'
+import Command, { CommandParams } from './Command'
 
 export enum TagComponentOperation {
   TOGGLE,
@@ -68,7 +70,8 @@ export default class TagComponentCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, this.affectedObjects)
+      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(SelectionAction.changedObject(this.affectedObjects, undefined))
     }
   }
 
@@ -94,6 +97,7 @@ export default class TagComponentCommand extends Command {
       }
     }
 
-    CommandManager.instance.emitEvent(EditorEvents.OBJECTS_CHANGED, objects)
+    SceneManager.instance.onEmitSceneModified()
+    store.dispatch(SelectionAction.changedObject(objects, undefined))
   }
 }

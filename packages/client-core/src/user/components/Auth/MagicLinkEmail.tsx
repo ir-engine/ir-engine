@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Container from '@mui/material/Container'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import Container from '@mui/material/Container'
-import Grid from '@mui/material/Grid'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
-import { Link } from 'react-router-dom'
-import styles from './Auth.module.scss'
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
-import { useTranslation } from 'react-i18next'
+
 import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthService } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
+import styles from './Auth.module.scss'
 
 const initialState = {
   jwt: true,
@@ -41,7 +43,7 @@ const defaultState = {
 
 const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props): any => {
+const MagicLinkEmail = (props: Props): JSX.Element => {
   const { type, isAddConnection } = props
 
   const auth = useAuthState()
@@ -67,15 +69,15 @@ const MagicLinkEmail = (props: Props): any => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
-  const handleInput = (e: any): any => {
+  const handleInput = (e: any): void => {
     setState({ ...state, [e.target.name]: e.target.value })
   }
 
-  const handleCheck = (e: any): any => {
+  const handleCheck = (e: any): void => {
     setState({ ...state, [e.target.name]: e.target.checked })
   }
 
-  const handleSubmit = (e: any): any => {
+  const handleSubmit = (e: any): void => {
     e.preventDefault()
     if (!isAddConnection) {
       AuthService.createMagicLink(state.emailPhone, authState)
@@ -188,6 +190,6 @@ const MagicLinkEmail = (props: Props): any => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: Props): any => <MagicLinkEmail {...props} />
+const MagicLinkEmailWrapper = (props: Props): JSX.Element => <MagicLinkEmail {...props} />
 
 export default MagicLinkEmailWrapper

@@ -1,11 +1,11 @@
-import hooks from './client-setting.hooks'
 import { Application } from '../../../declarations'
 import { ClientSetting } from './client-setting.class'
+import hooks from './client-setting.hooks'
 import createModel from './client-setting.model'
 
-declare module '../../../declarations' {
-  interface SerViceTypes {
-    client: ClientSetting
+declare module '@xrengine/common/declarations' {
+  interface ServiceTypes {
+    'client-setting': ClientSetting
   }
 }
 

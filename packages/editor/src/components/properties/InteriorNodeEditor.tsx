@@ -1,16 +1,19 @@
 import React from 'react'
-import NodeEditor from './NodeEditor'
-import InputGroup from '../inputs/InputGroup'
-import ImageInput from '../inputs/ImageInput'
-import Vector2Input from '../inputs/Vector2Input'
 import { useTranslation } from 'react-i18next'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import LocationCityIcon from '@mui/icons-material/LocationCity'
-import { EditorComponentType, updateProperty } from './Util'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+
+import LocationCityIcon from '@mui/icons-material/LocationCity'
+
+import ImageInput from '../inputs/ImageInput'
+import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import Vector2Input from '../inputs/Vector2Input'
+import NodeEditor from './NodeEditor'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * Interior Editor provides the editor to customize properties.

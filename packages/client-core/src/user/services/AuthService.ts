@@ -1,4 +1,10 @@
 import { createState, Downgraded, useState } from '@speigg/hookstate'
+// TODO: Decouple this
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import axios from 'axios'
+import querystring from 'querystring'
+import { v1 } from 'uuid'
+
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
@@ -13,11 +19,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
-// TODO: Decouple this
-// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-import axios from 'axios'
-import querystring from 'querystring'
-import { v1 } from 'uuid'
+
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
@@ -720,7 +722,7 @@ export const AuthService = {
         })
     }
   },
-  removeAvatar: async (keys: [string]) => {
+  removeAvatar: async (keys: string) => {
     const dispatch = useDispatch()
     {
       await client
@@ -812,6 +814,30 @@ export const AuthService = {
     const dispatch = useDispatch()
     const apiKey = await client.service('user-api-key').patch()
     dispatch(AuthAction.apiKeyUpdated(apiKey))
+  },
+  listenForUserPatch: () => {
+    console.log('listenForUserPatch')
+    client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
+    client.service('location-ban').on('created', async (params) => {
+      const selfUser = accessAuthState().user
+      const party = accessPartyState().party.value
+      const selfPartyUser =
+        party && party.partyUsers
+          ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
+          : ({} as any)
+      const currentLocation = accessLocationState().currentLocation.location
+      const locationBan = params.locationBan
+      if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        // TODO: Decouple and reenable me!
+        // endVideoChat({ leftParty: true });
+        // leave(true);
+        if (selfPartyUser != undefined && selfPartyUser?.id != null) {
+          await client.service('party-user').remove(selfPartyUser.id)
+        }
+        const user = resolveUser(await client.service('user').get(selfUser.id.value))
+        store.dispatch(AuthAction.userUpdated(user))
+      }
+    })
   }
 }
 
@@ -824,28 +850,6 @@ const parseUserWalletCredentials = (wallet) => {
       // session // this will contain the access token and helper methods
     }
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
-  client.service('location-ban').on('created', async (params) => {
-    const selfUser = accessAuthState().user
-    const party = accessPartyState().party.value
-    const selfPartyUser =
-      party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value) : ({} as any)
-    const currentLocation = accessLocationState().currentLocation.location
-    const locationBan = params.locationBan
-    if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
-      // TODO: Decouple and reenable me!
-      // endVideoChat({ leftParty: true });
-      // leave(true);
-      if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-        await client.service('party-user').remove(selfPartyUser.id)
-      }
-      const user = resolveUser(await client.service('user').get(selfUser.id.value))
-      store.dispatch(AuthAction.userUpdated(user))
-    }
-  })
 }
 
 // Action

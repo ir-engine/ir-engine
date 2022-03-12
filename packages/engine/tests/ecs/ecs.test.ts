@@ -1,6 +1,7 @@
 import assert from 'assert'
-import { Engine } from '../../src/ecs/classes/Engine'
+import * as bitecs from 'bitecs'
 
+import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld, World } from '../../src/ecs/classes/World'
 import {
   addComponent,
@@ -9,11 +10,10 @@ import {
   getComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
-import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import * as bitecs from 'bitecs'
 import { initSystems } from '../../src/ecs/functions/SystemFunctions'
+import { useWorld } from '../../src/ecs/functions/SystemHooks'
+import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
 
 const mockDelta = 1 / 60
 let mockElapsedTime = 0
@@ -112,10 +112,20 @@ describe('ECS', () => {
     assert.equal(query.enter().length, 0)
     assert.equal(query.exit()[0], entity)
 
-    addComponent(entity, MockComponent, { mockValue: 42 })
+    addComponent(entity, MockComponent, { mockValue: 43 })
     assert.ok(query().includes(entity))
     assert.equal(query.enter()[0], entity)
     assert.equal(query.exit().length, 0)
+
+    removeComponent(entity, MockComponent)
+    addComponent(entity, MockComponent, { mockValue: 44 })
+    assert.ok(query().includes(entity))
+    let enter = query.enter()
+    let exit = query.exit()
+    assert.equal(enter.length, 1)
+    assert.equal(enter[0], entity)
+    assert.equal(exit.length, 1)
+    assert.equal(exit[0], entity)
   })
 
   it('should add component', async () => {

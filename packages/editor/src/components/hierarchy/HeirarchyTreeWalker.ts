@@ -1,4 +1,5 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+
 import { CommandManager } from '../../managers/CommandManager'
 
 export type HeirarchyTreeNodeType = {

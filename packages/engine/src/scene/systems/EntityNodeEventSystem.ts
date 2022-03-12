@@ -1,4 +1,5 @@
 import { Color, DirectionalLight } from 'three'
+
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -81,6 +82,10 @@ export default async function EntityNodeEventSystem(_: World) {
       configureEffectComposer(true)
     }
 
+    for (const _ of postProcessingQuery.enter()) {
+      configureEffectComposer()
+    }
+
     for (const _ of scenePreviewCameraQuery.exit()) {
       const obj3d = Engine.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
       if (obj3d) Engine.scene.remove(obj3d)
@@ -94,12 +99,12 @@ export default async function EntityNodeEventSystem(_: World) {
     /* Misc */
     for (const entity of videoAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh.removeFromParent()
+      obj3d.userData.textureMesh?.removeFromParent()
     }
 
     for (const entity of volumetricAudioQuery.enter()) {
       const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh.removeFromParent()
+      obj3d.userData.textureMesh?.removeFromParent()
     }
   }
 }

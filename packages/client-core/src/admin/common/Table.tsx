@@ -1,3 +1,5 @@
+import React from 'react'
+
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -5,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import React from 'react'
+
 import { useStyles } from '../styles/ui'
 
 interface Props {
@@ -21,7 +23,6 @@ interface Props {
 const TableComponent = (props: Props) => {
   const classes = useStyles()
   const { rows, column, page, rowsPerPage, count, handlePageChange, handleRowsPerPageChange } = props
-
   return (
     <React.Fragment>
       <TableContainer className={classes.tableContainer}>
@@ -41,7 +42,7 @@ const TableComponent = (props: Props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, rIndex) => {
+            {rows.map((row, rIndex) => {
               return (
                 <TableRow hover role="checkbox" tabIndex={-1} key={rIndex}>
                   {column.map((column, index) => {

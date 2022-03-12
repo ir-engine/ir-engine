@@ -1,20 +1,23 @@
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
-import React from 'react'
+
 import Search from '../../common/Search'
 import { UserService } from '../../services/UserService'
+import { useStyles } from '../../styles/ui'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
-import { useUserStyles } from './styles'
 import UserTable from './UserTable'
 
 const Users = () => {
-  const classes = useUserStyles()
-  const [search, setSearch] = React.useState('')
-  const [userModalOpen, setUserModalOpen] = React.useState(false)
-
+  const classes = useStyles()
+  const [search, setSearch] = useState('')
+  const [userModalOpen, setUserModalOpen] = useState(false)
+  const { t } = useTranslation()
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
       event.type === 'keydown' &&
@@ -22,18 +25,14 @@ const Users = () => {
     ) {
       return
     }
-
     setUserModalOpen(open)
   }
-
   const closeViewModel = (open: boolean) => {
     setUserModalOpen(open)
   }
-
   const handleSkipGuests = (e: any) => {
     UserService.setSkipGuests(e.target.checked)
   }
-
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -55,12 +54,12 @@ const Users = () => {
                 color="primary"
               />
             }
-            label="Hide guests"
+            label={t('admin:components.user.hideGuests') as string}
           />
         </Grid>
         <Grid item md={3} xs={5}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New User
+          <Button className={classes.createBtn} type="submit" variant="contained" onClick={() => openModalCreate(true)}>
+            {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
       </Grid>

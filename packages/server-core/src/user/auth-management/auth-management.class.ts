@@ -1,6 +1,7 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
-import Paginated from '../../types/PageObject'
+
 import { Application } from '../../../declarations'
+import Paginated from '../../types/PageObject'
 
 interface Data {}
 
@@ -30,7 +31,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
 
-  async find(params: Params): Promise<Data[] | Paginated<Data>> {
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
   }
 
@@ -43,7 +44,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
 
-  async get(id: Id, params: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
       id,
       text: `A new message with ID: ${id}!`
@@ -57,7 +58,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @param params
    * @author Vyacheslav Solovjov
    */
-  async create(data: Data, params: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
       return await Promise.all(data.map((current) => this.create(current, params)))
     }
@@ -74,7 +75,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
 
-  async update(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -86,7 +87,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @returns {@Object} data which contains auth
    */
 
-  async patch(id: NullableId, data: Data, params: Params): Promise<Data> {
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
   }
 
@@ -97,7 +98,7 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @param params
    * @returns id
    */
-  async remove(id: NullableId, params: Params): Promise<Data> {
+  async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }
   }
 }

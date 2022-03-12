@@ -1,18 +1,21 @@
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { ImageFileTypes, ModelFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+
+import { ItemTypes } from '../../constants/AssetTypes'
+import { CommandManager } from '../../managers/CommandManager'
+import { EditorComponentType, updateProperty } from '../properties/Util'
+import ArrayInputGroup from './ArrayInputGroup'
 import InputGroup from './InputGroup'
-import SelectInput from './SelectInput'
-import StringInput from './StringInput'
 // import dompurify from 'dompurify'
 import NumericInputGroup from './NumericInputGroup'
-import { CommandManager } from '../../managers/CommandManager'
-import ArrayInputGroup from './ArrayInputGroup'
-import { ItemTypes } from '../../constants/AssetTypes'
-import { VideoFileTypes, ImageFileTypes, ModelFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { EditorComponentType, updateProperty } from '../properties/Util'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import SelectInput from './SelectInput'
+import StringInput from './StringInput'
+
 /**
  * Array containing options for InteractableOption.
  *
@@ -31,21 +34,6 @@ const InteractableOption = [
   {
     label: 'Equippable',
     value: 'equippable'
-  }
-]
-
-const InteractableTheme = [
-  {
-    label: 'Theme 01',
-    value: 0
-  },
-  {
-    label: 'Theme 02',
-    value: 1
-  },
-  {
-    label: 'Theme 03',
-    value: 2
   }
 ]
 
@@ -77,18 +65,12 @@ export const InteractableGroup: EditorComponentType = (props) => {
   //   })
   // }
 
-  const interactableComponent = getComponent(props.node.entity, InteractableComponent)
+  const interactableComponent = getComponent(props.node.entity, InteractableComponent)?.value
+  if (!interactableComponent) return null!
 
-  const renderInfoBoxOptions = () => {
+  const renderInteractableModalOptions = () => {
     return (
       <>
-        <InputGroup name="Interaction Theme" label={t('editor:properties.interaction.theme')}>
-          <SelectInput
-            options={InteractableTheme}
-            value={interactableComponent.interactionThemeIndex}
-            onChange={updateProperty(InteractableComponent, 'interactionThemeIndex')}
-          />
-        </InputGroup>
         <InputGroup name="Interaction Name" label={t('editor:properties.interaction.name')}>
           <StringInput
             value={interactableComponent.interactionName}
@@ -150,21 +132,21 @@ export const InteractableGroup: EditorComponentType = (props) => {
       <InputGroup name="Interaction Type" label={t('editor:properties.interaction.type')}>
         <SelectInput
           options={InteractableOption}
-          value={interactableComponent.interactionType}
+          value={interactableComponent.interactionType || ''}
           onChange={onChangeInteractionType}
         />
       </InputGroup>
       <NumericInputGroup
         name="Interaction Distance"
         label={t('editor:properties.interaction.distance')}
-        onChange={updateProperty(InteractableComponent, 'intensity')}
+        onChange={updateProperty(InteractableComponent, 'interactionDistance')}
         min={0}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={interactableComponent.intensity || 0}
+        value={interactableComponent.interactionDistance || 0}
       />
-      {interactableComponent.interactionType === 'infoBox' ? renderInfoBoxOptions() : null}
+      {interactableComponent.interactionType === 'ui-modal' ? renderInteractableModalOptions() : null}
     </Fragment>
   )
 }

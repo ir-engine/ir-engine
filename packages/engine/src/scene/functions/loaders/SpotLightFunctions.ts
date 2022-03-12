@@ -1,5 +1,7 @@
+import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, SpotLight, TorusGeometry, Vector2 } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Vector2, Color, SpotLight, MeshBasicMaterial, Mesh, TorusGeometry, ConeGeometry, DoubleSide } from 'three'
+
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -130,7 +132,7 @@ export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunctio
   }
 }
 
-const parseSpotLightProperties = (props): SpotLightComponentType => {
+export const parseSpotLightProperties = (props): SpotLightComponentType => {
   return {
     color: new Color(props.color ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.color),
     intensity: props.intensity ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.intensity,

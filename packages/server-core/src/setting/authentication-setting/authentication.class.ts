@@ -1,9 +1,15 @@
-import { Params } from '@feathersjs/feathers/lib'
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
-export class Authentication extends Service {
+export type AdminAuthSettingDataType = AdminAuthSettingInterface
+
+export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
   app: Application
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -11,27 +17,41 @@ export class Authentication extends Service {
     this.app = app
   }
 
-  async find(params: Params): Promise<any> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
     const loggedInUser = extractLoggedInUserFromParams(params)
     const data = auth.data.map((el) => {
+      let oauth = JSON.parse(el.oauth)
+      let authStrategies = JSON.parse(el.authStrategies)
+      let local = JSON.parse(el.local)
+      let jwtOptions = JSON.parse(el.jwtOptions)
+      let bearerToken = JSON.parse(el.bearerToken)
+      let callback = JSON.parse(el.callback)
+
+      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
+      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
+      if (typeof local === 'string') local = JSON.parse(local)
+      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
+      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
+      if (typeof callback === 'string') callback = JSON.parse(callback)
+
       if (loggedInUser.userRole !== 'admin')
         return {
           id: el.id,
           entity: el.entity,
           service: el.service,
-          authStrategies: JSON.parse(JSON.parse(el.authStrategies))
+          authStrategies: authStrategies
         }
-      const oauth = JSON.parse(JSON.parse(el.oauth))
+
       const returned = {
         ...el,
-        authStrategies: JSON.parse(JSON.parse(el.authStrategies)),
-        local: JSON.parse(JSON.parse(el.local)),
-        jwtOptions: JSON.parse(JSON.parse(el.jwtOptions)),
-        bearerToken: JSON.parse(JSON.parse(el.bearerToken)),
-        callback: JSON.parse(JSON.parse(el.callback)),
+        authStrategies: authStrategies,
+        local: local,
+        jwtOptions: jwtOptions,
+        bearerToken: bearerToken,
+        callback: callback,
         oauth: {
-          ...JSON.parse(JSON.parse(el.oauth))
+          ...oauth
         }
       }
       if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)
@@ -49,5 +69,30 @@ export class Authentication extends Service {
       skip: auth.skip,
       data
     }
+  }
+
+  async patch(id: string, data: any, params?: Params): Promise<T[] | T> {
+    const authSettings = await this.app.service('authentication-setting').get(id)
+    let existingOauth = JSON.parse(authSettings.oauth as any)
+    let existingCallback = JSON.parse(authSettings.callback as any)
+    if (typeof existingOauth === 'string') existingOauth = JSON.parse(existingOauth)
+    if (typeof existingCallback === 'string') existingCallback = JSON.parse(existingCallback)
+
+    let newOAuth = JSON.parse(data.oauth)
+    data.callback = existingCallback
+
+    for (let key of Object.keys(newOAuth)) {
+      newOAuth[key] = JSON.parse(newOAuth[key])
+      if (config.authentication.oauth[key].scope) newOAuth[key].scope = config.authentication.oauth[key].scope
+      if (config.authentication.oauth[key].custom_data)
+        newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
+      if (key !== 'default' && !data.callback[key]) data.callback[key] = config.authentication.callback[key]
+      newOAuth[key] = JSON.stringify(newOAuth[key])
+    }
+
+    data.oauth = JSON.stringify(newOAuth)
+    data.callback = JSON.stringify(data.callback)
+
+    return super.patch(id, data, params)
   }
 }

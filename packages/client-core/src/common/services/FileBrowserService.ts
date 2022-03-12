@@ -1,7 +1,9 @@
 import { createState, useState } from '@speigg/hookstate'
+
+import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 export const state = createState({
   files: [] as Array<FileContentType>
@@ -47,9 +49,9 @@ export const FileBrowserService = {
     FileBrowserService.fetchFiles()
   },
   moveContent: async (from, destination, isCopy = false, renameTo = null! as string) => {
-    console.log(from, destination, isCopy, renameTo)
-    console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
-    // const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
+    // console.log(from, destination, isCopy, renameTo)
+    // console.warn('[File Browser]: Temporarily disabled for instability. - TODO')
+    const result = await client.service('file-browser').update(from, { destination, isCopy, renameTo })
     // console.log('FileBrowserService.moveContent result', result)
   },
   deleteContent: async (contentPath, type) => {
@@ -59,6 +61,7 @@ export const FileBrowserService = {
   addNewFolder: async (folderName) => {
     const result = await client.service(`file-browser`).create(folderName)
     console.log('FileBrowserService.addNewFolder result', result)
+    FileBrowserService.fetchFiles()
   }
 }
 

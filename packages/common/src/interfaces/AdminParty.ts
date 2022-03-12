@@ -26,7 +26,13 @@ interface Instance {
   channelId?: string
   currentUsers: number
   ended: boolean
+  podName: string
   createdAt: string
   updatedAt: string
+  locationId: string
+}
+
+export interface PatchParty {
+  instanceId: string
   locationId: string
 }

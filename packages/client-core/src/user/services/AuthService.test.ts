@@ -1,12 +1,13 @@
 import { createState, Downgraded } from '@speigg/hookstate'
 import assert from 'assert'
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
-import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
-import { UserSeed } from '@xrengine/common/src/interfaces/User'
-import { AuthAction, avatarFetchedReceptor } from './AuthService'
 
-// make browser globals defined
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+
+import { AuthAction, avatarFetchedReceptor } from './AuthService' // make browser globals defined
+
 ;(globalThis as any).document = {}
 ;(globalThis as any).navigator = {}
 ;(globalThis as any).window = {}

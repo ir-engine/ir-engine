@@ -381,6 +381,30 @@ export const useStyles = makeStyles((theme: Theme) =>
         height: '80px'
       }
     },
+    center: {
+      margin: '3rem auto',
+      textAlign: 'center'
+    },
+    mb40px: {
+      marginBottom: '40px'
+    },
+    typoFontsm: {
+      width: '100%',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.05rem'
+      }
+    },
+    groupContainer: {
+      overflowY: 'scroll',
+      height: '300px'
+    },
+    viewEntityTable: {
+      minWidth: 650
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
     pad: {
       padding: '20px'
     },
@@ -420,9 +444,52 @@ export const useStyles = makeStyles((theme: Theme) =>
       }
     },
     typoFontTitle: {
+      color: '#f1f1f1 !important',
       [theme.breakpoints.down('md')]: {
         fontSize: '1.3rem'
       }
+    },
+    groupRootPaper: {
+      maxWidth: '80%',
+      minWidth: '60%',
+      backgroundColor: '#43484F ',
+      color: '#f1f1f1',
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      }
+    },
+    itemAlign: {
+      textAlign: 'center'
+    },
+    scopeFlex: {
+      display: 'grid',
+      gridTemplateColumns: '2fr 2fr',
+      gridGap: '10px',
+      marginTop: '4%',
+      [theme.breakpoints.down('sm')]: {
+        display: 'grid',
+        gridTemplateColumns: '4fr'
+      }
+    },
+    rootList: {
+      width: '100%',
+      backgroundColor: '#43484F'
+    },
+    paperGroupHeight: {
+      height: '20vh',
+      background: '#111',
+      color: '#f1f1f1',
+      backgroundColor: '#343b41',
+      [theme.breakpoints.down('md')]: {
+        height: '20vh'
+      }
+    },
+    positionRight: {
+      position: 'absolute',
+      right: '10px'
+    },
+    avatarWidth: {
+      width: '40px'
     }
   })
 )

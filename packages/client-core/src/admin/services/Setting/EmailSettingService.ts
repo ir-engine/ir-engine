@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
-import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
 import { createState, useState } from '@speigg/hookstate'
-import { EmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
+
+import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
+import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({
@@ -38,7 +40,7 @@ export const EmailSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  patchEmailSetting: async (data: any, id: string) => {
+  patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {

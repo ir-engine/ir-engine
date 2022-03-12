@@ -1,28 +1,29 @@
+import { ConfirmProvider } from 'material-ui-confirm'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { Theme } from '@mui/material/styles'
-import makeStyles from '@mui/styles/makeStyles'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { ConfirmProvider } from 'material-ui-confirm'
-import React, { useEffect } from 'react'
-import { InviteService } from '../../../social/services/InviteService'
-import { useInviteState } from '../../../social/services/InviteService'
+import makeStyles from '@mui/styles/makeStyles'
+
+import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { UserService } from '../../services/UserService'
-import { useUserState } from '../../services/UserService'
+import Search from '../../common/Search'
+import { UserService, useUserState } from '../../services/UserService'
 import InviteModel from './InviteModel'
 import ReceivedInvite from './ReceivedInvite'
-import Search from './searchInvites'
 import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
 
 interface TabPanelProps {
   children?: React.ReactNode
-  index: any
-  value: any
+  index: number
+  value: number
 }
 
 const TabPanel = (props: TabPanelProps) => {
@@ -40,7 +41,7 @@ const TabPanel = (props: TabPanelProps) => {
     </div>
   )
 }
-const a11yProps = (index: any) => {
+const a11yProps = (index: number) => {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`
@@ -57,13 +58,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }))
 
-interface Props {}
-
-const InvitesConsole = (props: Props) => {
+const InvitesConsole = () => {
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
+  const [search, setSearch] = React.useState('')
 
   const inviteState = useInviteState()
 
@@ -71,12 +71,16 @@ const InvitesConsole = (props: Props) => {
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users
   const user = useAuthState().user
+  const { t } = useTranslation()
+
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
+
   const openModelInvite = () => {
     setInviteModelOpen(true)
   }
+
   const closeModelInvite = () => {
     setInviteModelOpen(false)
   }
@@ -111,16 +115,20 @@ const InvitesConsole = (props: Props) => {
     }
   }, [inviteState.sentUpdateNeeded.value])
 
+  const handleSearchChange = (e: any) => {
+    setSearch(e.target.value)
+  }
+
   return (
     <div>
       <ConfirmProvider>
         <Grid container spacing={3} className={classes.marginBottom}>
           <Grid item xs={9}>
-            <Search />
+            <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
           <Grid item xs={3}>
             <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
-              Send Invite
+              {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
         </Grid>
@@ -132,8 +140,8 @@ const InvitesConsole = (props: Props) => {
               aria-label="simple tabs example"
               classes={{ indicator: classes.indicator }}
             >
-              <Tab label="Received Invite" {...a11yProps(0)} />
-              <Tab label="Sent Invite" {...a11yProps(1)} />
+              <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
+              <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <>

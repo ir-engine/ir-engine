@@ -1,4 +1,5 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
+
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -6,6 +7,7 @@ import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { ParityValue } from '../common/enums/ParityValue'
 import { throttle } from '../common/functions/FunctionHelpers'
 import { clamp } from '../common/functions/MathLerpFunctions'
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
@@ -23,6 +25,8 @@ import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputValue } from '../input/interfaces/InputValue'
 import { InputAlias } from '../input/types/InputAlias'
+import { EquippedComponent } from '../interaction/components/EquippedComponent'
+import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { InteractorComponent } from '../interaction/components/InteractorComponent'
@@ -33,16 +37,13 @@ import {
   getParity,
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
-import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
+import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
-import { EquippedComponent } from '../interaction/components/EquippedComponent'
-import { Engine } from '../ecs/classes/Engine'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -103,7 +104,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, 
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
-  const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent)
+  const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent).value
   // TODO: Define interaction types in some enum?
   if (interactiveComponent.interactionType === 'equippable') {
     if (
@@ -359,14 +360,15 @@ const moveByInputAxis: InputBehaviorType = (
     controller.localMovementDirection.x = inputValue.value[0]
   }
 }
-export const setWalking: InputBehaviorType = (
+
+export const toggleRunning: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue,
   delta: number
 ): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.Ended
+  if (inputValue.lifecycleState === LifecycleValue.Started) controller.isWalking = !controller.isWalking
 }
 
 const setLocalMovementDirection: InputBehaviorType = (
@@ -560,7 +562,7 @@ export const createAvatarInput = () => {
   map.set('KeyE', BaseInput.INTERACT)
   map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
-  map.set('ShiftLeft', BaseInput.WALK)
+  map.set('ShiftLeft', BaseInput.RUN)
   map.set('KeyP', BaseInput.POINTER_LOCK)
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
@@ -594,7 +596,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GRIP_RIGHT, grip)
 
   map.set(BaseInput.JUMP, setLocalMovementDirection)
-  map.set(BaseInput.WALK, setWalking)
+  map.set(BaseInput.RUN, toggleRunning)
   map.set(BaseInput.FORWARD, setLocalMovementDirection)
   map.set(BaseInput.BACKWARD, setLocalMovementDirection)
   map.set(BaseInput.LEFT, setLocalMovementDirection)

@@ -1,8 +1,10 @@
-import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
+
+import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+
+import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
 if (typeof globalThis.process === 'undefined') {
   ;(globalThis as any).process = { env: {} }

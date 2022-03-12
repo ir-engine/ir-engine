@@ -1,28 +1,26 @@
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+import { store } from '@xrengine/client-core/src/store'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
+import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
+
 import ErrorIcon from '../classes/ErrorIcon'
 import EditorCommands from '../constants/EditorCommands'
-import EditorEvents from '../constants/EditorEvents'
+import { EditorErrorAction } from '../services/EditorErrorServices'
+import { EditorAction } from '../services/EditorServices'
+import { SelectionAction } from '../services/SelectionServices'
 import { CacheManager } from './CacheManager'
 import { CommandManager } from './CommandManager'
-import { SceneManager } from './SceneManager'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { ControlManager } from './ControlManager'
-import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
+import { SceneManager } from './SceneManager'
 
 export class ProjectManager {
   static instance: ProjectManager = new ProjectManager()
 
-  project: any
-  projectLoaded: boolean
   initializing: boolean
   initialized: boolean
 
   constructor() {
-    this.project = null
-
-    this.projectLoaded = false
-
     this.initializing = false
     this.initialized = false
   }
@@ -39,7 +37,7 @@ export class ProjectManager {
 
     this.initializing = true
 
-    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getAnimations()]
+    const tasks = [ErrorIcon.load(), TransformGizmo.load(), AnimationManager.instance.getDefaultAnimations()]
 
     await Promise.all(tasks)
 
@@ -53,8 +51,8 @@ export class ProjectManager {
    * @param  {any}  projectFile [contains scene data]
    * @return {Promise}             [scene to render]
    */
-  async loadProject(projectFile: SceneJson) {
-    // this.dispose()
+  async loadProjectScene(projectFile: SceneJson) {
+    this.dispose()
 
     await ProjectManager.instance.init()
 
@@ -64,37 +62,21 @@ export class ProjectManager {
     CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
     CommandManager.instance.history.clear()
 
-    CommandManager.instance.emitEvent(EditorEvents.PROJECT_LOADED)
-    CommandManager.instance.emitEvent(EditorEvents.SCENE_GRAPH_CHANGED)
-
-    CommandManager.instance.addListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.addListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
+    store.dispatch(EditorAction.projectLoaded(true))
+    SceneManager.instance.onEmitSceneModified
+    store.dispatch(SelectionAction.changedSceneGraph())
 
     if (errors && errors.length > 0) {
       const error = new MultiError('Errors loading project', errors)
-      CommandManager.instance.emitEvent(EditorEvents.ERROR, error)
+      store.dispatch(EditorErrorAction.throwError(error))
       throw error
     }
   }
 
   dispose() {
-    CommandManager.instance.removeListener(
-      EditorEvents.OBJECTS_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-    CommandManager.instance.removeListener(
-      EditorEvents.SCENE_GRAPH_CHANGED.toString(),
-      SceneManager.instance.onEmitSceneModified
-    )
-
     CacheManager.clearCaches()
     SceneManager.instance.dispose()
     ControlManager.instance.dispose()
+    store.dispatch(EditorAction.projectLoaded(false))
   }
 }

@@ -1,5 +1,7 @@
-import { EntityJson, SceneJson, ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { MathUtils } from 'three'
+
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'

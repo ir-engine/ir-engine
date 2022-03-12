@@ -2,9 +2,9 @@
  * @author dforrer / https://github.com/dforrer
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
+import { Matrix4 } from 'three'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { Matrix4 } from 'three'
 
 export const IDENTITY_MAT_4 = new Matrix4().identity()
 

@@ -1,11 +1,11 @@
-import CustomOAuthStrategy from './custom-oauth'
 import { Params } from '@feathersjs/feathers'
-import config from '../../appconfig'
+
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
+import CustomOAuthStrategy from './custom-oauth'
 
 export class TwitterStrategy extends CustomOAuthStrategy {
-  app: Application
-  constructor(app) {
+  constructor(app: Application) {
     super()
     this.app = app
   }

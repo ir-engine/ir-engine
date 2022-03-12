@@ -2,8 +2,8 @@
   "auth": {
     "confirmEmail": {
       "header": "Confirmation Email",
-      "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click <1>here</1> to resend the verification email.",
-      "login": "Have an account? <1>Log in</1>"
+      "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click {{here}} to resend the verification email.",
+      "haveAnAccount": "Have an account?"
     },
     "forgotPassword": {
       "header": "Forgot Password",
@@ -66,7 +66,9 @@
       "lbl-submit": "Reset Password",
       "lbl-password": "Password",
       "lbl-confirmPassword": "Password Confirm",
-      "passwordNotMatch": "Passwords Don't Match"
+      "passwordNotMatch": "Passwords Don't Match",
+      "nowLoginYourAccount":"You can now log into the your account",
+      "yourPasswordResetSuccess":"Your password was successfully reset!"
     },
     "verifyEmail": {
       "header": "Verify Email",
@@ -135,6 +137,7 @@
       "hideUserId": "Hide User ID",
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
+      "apiKey":"API key",
       "logout": "Log out",
       "connectPhone": "Connect your phone number",
       "connectEmail": "Connect your email",
@@ -165,7 +168,7 @@
       "userIcon": {
         "lbl-name": "Your name",
         "lbl-update": "Update",
-        "userId": "User ID",
+        "userId": "User id",
         "ph-uploadImg": "Upload Product Image",
         "lbl-selectAcvatar": "Select Avatar",
         "lbl-submit": "Submit"
@@ -253,14 +256,40 @@
     "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
-    "remove": "Remove avatar"
+    "remove": "Remove avatar",
+    "uploadFiles":"Upload files",
+    "useUrlInstead":"Use url instead",
+    "avatar":"Avatar",
+    "cancel":"Cancel",
+    "createAvatar":"Create Avatar",
+    "delete":"Delete",
+    "view":"View",
+    "uploadAvatarInfo":"Update avatar Information",
+    "name":"Name",
+    "enterName":"Enter name",
+    "avatarInformation":"Avatar Information",
+    "description":"Description",
+    "key":"Key",
+    "none":"None",
+    "submit":"Submit",
+    "edit":"Edit",
+    "avatarUrl":"Avatar url"
   },
   "personMenu":{
     "inviteToParty":"Invite To Party",
     "addAsFriend":"Add As Friend",
-    "trade":"Trade",
-    "pay":"Pay",
     "mute":"Mute",
     "block":"Block"
+  },
+  "person":{
+    "you":"You",
+    "muteForEveryone":"Mute for everyone",
+    "unmuteForEveryone":"Unmute for everyone",
+    "muteMe":"Mute me",
+    "unmuteMe":"Unmute me",
+    "muteThisPerson":"Mute this person",
+    "unmuteThisPerson":"Unmute this person",
+    "openPictureInPicture":"Open Picture in Picture"
   }
+  
 }

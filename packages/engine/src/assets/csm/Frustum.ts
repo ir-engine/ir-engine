@@ -1,4 +1,4 @@
-import { Vector3, Matrix4 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 const inverseProjectionMatrix = new Matrix4()
 

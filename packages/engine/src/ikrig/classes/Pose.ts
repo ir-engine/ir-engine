@@ -1,9 +1,12 @@
 import { Bone, SkinnedMesh } from 'three'
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
+
+import { bonesData2 } from '@xrengine/engine/src/avatar/DefaultSkeletonBones'
+
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
-import { spinBoneForward, alignChain, alignBoneForward, worldToModel } from '../functions/IKFunctions'
 import { Entity } from '../../ecs/classes/Entity'
+import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'
+import { alignBoneForward, alignChain, spinBoneForward, worldToModel } from '../functions/IKFunctions'
 import { transformAdd } from '../functions/IKSolvers'
 
 export type BoneTransform = {
@@ -75,7 +78,7 @@ class Pose {
   constructor(rootObject: Object3D, clone = false) {
     this.bones = []
     const parent: Object3D = clone ? SkeletonUtils.clone(rootObject) : rootObject
-    const skeleton = this.getSkeleton(parent) // Recreation of Bone Hierarchy
+    const skeleton = this.getAllSkeleton(parent) // Recreation of Bone Hierarchy
 
     if (!skeleton) {
       console.warn('Could not find skeleton object', this, rootObject, clone)
@@ -83,10 +86,6 @@ class Pose {
     }
 
     this.skeleton = skeleton
-
-    if (!this.skeleton.bones[0]) {
-      debugger
-    }
 
     // this.bones = this.skeleton.bones
     this.rootOffset = new Object3D() // Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
@@ -101,10 +100,11 @@ class Pose {
       scale: new Vector3()
     }
 
-    const rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
+    let rootBone = this.skeleton.bones.find((b) => !(b.parent instanceof Bone))
 
     if (!rootBone) {
       console.warn('Could not find skeleton root bone', skeleton)
+      rootBone = this.skeleton.bones[0].parent?.parent as Bone
     }
 
     ;(skeleton as any).rootBone = rootBone
@@ -169,6 +169,44 @@ class Pose {
     }
 
     this.skeleton.update()
+  }
+
+  getAllSkeleton(rootObject: Object3D): Skeleton | null {
+    let bones: any[] = []
+
+    rootObject.traverse((object) => {
+      if (object instanceof SkinnedMesh && object.skeleton != null) {
+        object.skeleton.bones.forEach((bone) => {
+          if (bones.indexOf(bone) == -1) {
+            if (bone.parent && bone.parent.type !== 'Bone') {
+              bones.unshift(bone)
+            } else {
+              bones.push(bone)
+            }
+          }
+        })
+      }
+    })
+
+    let reOrderedBones: any[] = []
+
+    bonesData2.forEach((value) => {
+      const selected = bones.find((bone) => bone.name == value.name)
+      if (selected) {
+        reOrderedBones.push(selected)
+      }
+    })
+
+    bones.forEach((value) => {
+      const selected = reOrderedBones.find((bone) => bone.name == value.name)
+      if (!selected) {
+        reOrderedBones.push(value)
+      }
+    })
+
+    const skeleton = new Skeleton(reOrderedBones)
+
+    return skeleton
   }
 
   getSkeleton(rootObject: Object3D): Skeleton | null {
@@ -240,8 +278,6 @@ class Pose {
 
   // Make sure this is properly named
   setChildFromParent(parent: Object3D, child: Object3D): Pose {
-    console.log('parent, child', parent, child)
-
     // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
     // TODO: Make sure this matrix isn't flipped
     const v: Vector3 = new Vector3()
@@ -249,9 +285,6 @@ class Pose {
       .multiply(child.position) // parent.scale * child.position;
       .applyQuaternion(parent.quaternion) //Vec3.transformQuat( v, tp.quaternion, v );
     this.childPosition = new Vector3().copy(parent.position).add(v) // Vec3.add( tp.position, v, this.position );
-
-    console.log('v is', v)
-    console.log('this.childPosition', this.childPosition)
 
     // SCALE - parent.scale * child.scale
     // TODO: not flipped, right?

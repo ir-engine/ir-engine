@@ -13,27 +13,29 @@ import {
   SkeletonHelper,
   Vector3
 } from 'three'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { EngineActionType } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
+import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { IKObj } from '../../ikrig/components/IKObj'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { createGraphHelper } from '../../navigation/GraphHelper'
+import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
+import { isStaticBody } from '../../physics/classes/Physics'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
-import { DebugRenderer } from './DebugRenderer'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
-import { World } from '../../ecs/classes/World'
-import { isStaticBody } from '../../physics/classes/Physics'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { IKObj } from '../../ikrig/components/IKObj'
-import { EngineActionType } from '../../ecs/classes/EngineService'
+import { DebugRenderer } from './DebugRenderer'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
@@ -44,10 +46,10 @@ const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
 export default async function DebugHelpersSystem(world: World) {
-  const helpersByEntity: Record<ComponentHelpers, Map<Entity, any>> = {
+  const helpersByEntity = {
     viewVector: new Map(),
     ikExtents: new Map(),
-    box: new Map(),
+    box: new Map<Entity, Box3Helper>(),
     helperArrow: new Map(),
     velocityArrow: new Map(),
     navmesh: new Map(),
@@ -77,9 +79,9 @@ export default async function DebugHelpersSystem(world: World) {
     helpersByEntity.helperArrow.forEach((obj: Object3D) => {
       obj.visible = enabled
     })
-    helpersByEntity.box.forEach((entry: Object3D[]) => {
-      entry.forEach((obj) => (obj.visible = enabled))
-    })
+    for (const [entity, helper] of helpersByEntity.box) {
+      helper.visible = enabled
+    }
   }
   const receptor = (action: EngineActionType) => {
     switch (action.type) {
@@ -93,6 +95,7 @@ export default async function DebugHelpersSystem(world: World) {
   }
   Engine.currentWorld.receptors.push(receptor)
 
+  const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const ikDebugQuery = defineQuery([IKObj])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
@@ -257,32 +260,38 @@ export default async function DebugHelpersSystem(world: World) {
         velocityArrowHelper.setDirection(vel.normalize())
         velocityArrowHelper.position.copy(transform.position)
       }
+
+      if (Engine.isEditor) {
+        collider.body.setGlobalPose(
+          {
+            translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z },
+            rotation: {
+              x: transform.rotation.x,
+              y: transform.rotation.y,
+              z: transform.rotation.z,
+              w: transform.rotation.w
+            }
+          },
+          true
+        )
+      }
     }
 
     // ===== INTERACTABLES ===== //
 
     // bounding box
-    for (const entity of boundingBoxQuery.enter()) {
-      helpersByEntity.box.set(entity, [])
-      const boundingBox = getComponent(entity, BoundingBoxComponent)
-      const box3 = new Box3()
-      box3.copy(boundingBox.box)
-      if (boundingBox.dynamic) {
-        const object3D = getComponent(entity, Object3DComponent)
-        box3.applyMatrix4(object3D.value.matrixWorld)
-      }
-      const helper = new Box3Helper(box3)
-      helper.visible = physicsDebugEnabled
-      Engine.scene.add(helper)
-      ;(helpersByEntity.box.get(entity) as Object3D[]).push(helper)
+    for (const entity of boundingBoxQuery.exit()) {
+      const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
+      Engine.scene.remove(boxHelper)
+      helpersByEntity.box.delete(entity)
     }
 
-    for (const entity of boundingBoxQuery.exit()) {
-      const boxes = helpersByEntity.box.get(entity) as Object3D[]
-      boxes.forEach((box) => {
-        Engine.scene.remove(box)
-      })
-      helpersByEntity.box.delete(entity)
+    for (const entity of boundingBoxQuery.enter()) {
+      const boundingBox = getComponent(entity, BoundingBoxComponent)
+      const helper = new Box3Helper(boundingBox.box)
+      helper.visible = false
+      helpersByEntity.box.set(entity, helper)
+      Engine.scene.add(helper)
     }
 
     // ===== CUSTOM ===== //
@@ -338,6 +347,21 @@ export default async function DebugHelpersSystem(world: World) {
     }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
+
+    // TODO: move this to an editor action receptor after commands have been updated to FLUX pattern
+    if (Engine.isEditor) {
+      for (const entity of obstacleQuery()) {
+        const obstaclesComponent = getComponent(entity, ObstaclesComponent)
+        if (obstaclesComponent) {
+          for (const obstacle of obstaclesComponent.obstacles) {
+            const mesh = (obstacle as any)._mesh
+            mesh.updateMatrixWorld(true, true)
+            obstacle.setPosition(mesh.getWorldPosition(new Vector3()))
+            obstacle.setRotation(mesh.getWorldQuaternion(new Quaternion()))
+          }
+        }
+      }
+    }
 
     physicsDebugRenderer(world, physicsDebugEnabled)
   }

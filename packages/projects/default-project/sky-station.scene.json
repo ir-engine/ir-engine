@@ -62,7 +62,7 @@
             "envMapIntensity": 3.5,
             "envMapCubemapBake": {
               "bakeType": 1,
-              "resolution": 512,
+              "resolution": 1024,
               "refreshMode": 0,
               "envMapOrigin": "",
               "boxProjection": true,
@@ -98,9 +98,9 @@
               "z": 18.400897195875466
             },
             "rotation": {
-              "x": -0.9238421630987406,
-              "y": 1.1208489301818778,
-              "z": 0.8727784216484142
+              "x": -0.9238421630987409,
+              "y": 1.1208489301818776,
+              "z": 0.8727784216484146
             },
             "scale": {
               "x": 0.9999999999999999,
@@ -243,7 +243,7 @@
                 "edgeStrength": 1,
                 "pulseSpeed": 0,
                 "visibleEdgeColor": 16777215,
-                "hiddenEdgeColor": 2230538,
+                "hiddenEdgeColor": 16777215,
                 "resolutionScale": 0.5,
                 "width": -1,
                 "height": -1,
@@ -619,8 +619,8 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 0,
-              "y": 0,
+              "x": 41,
+              "y": 3.5,
               "z": 0
             },
             "rotation": {
@@ -629,9 +629,9 @@
               "z": 0
             },
             "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
+              "x": 0.10000000000000009,
+              "y": 0.10000000000000009,
+              "z": 0.10000000000000009
             }
           }
         },
@@ -675,6 +675,120 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 9,
       "name": "Equippable"
+    },
+    "2803BAE7-F4F7-42FC-A95E-BC0F028492F2": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 49.5,
+              "y": 2.5,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 1.5707963267948966,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.10000000000000009,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "portal",
+          "props": {
+            "location": "apartment",
+            "linkedPortalId": "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39",
+            "spawnPosition": {
+              "x": 48,
+              "y": 2.5,
+              "z": 0
+            },
+            "spawnRotation": {
+              "x": 0,
+              "y": -0.2007128639793479,
+              "z": 0
+            }
+          }
+        },
+        {
+          "name": "trigger-volume",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 10,
+      "name": "Portal"
+    },
+    "2971A548-08E8-41CD-9467-A42FE84DB516": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 49.5,
+              "y": 1,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 1.5707963267948966,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/portal_frame.glb",
+            "textureOverride": "",
+            "matrixAutoUpdate": true,
+            "isUsingGPUInstancing": false,
+            "isDynamicObject": false
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 11,
+      "name": "Model 2"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

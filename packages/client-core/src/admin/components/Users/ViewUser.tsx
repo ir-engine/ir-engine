@@ -1,5 +1,12 @@
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { Edit, Save } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
+
+import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+import { User } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser } from '@xrengine/common/src/interfaces/User'
+
+import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -14,43 +21,49 @@ import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
-import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
+
 import { useAuthState } from '../../../user/services/AuthService'
+import AlertMessage from '../../common/AlertMessage'
+import AutoComplete from '../../common/AutoComplete'
+import InputSelect from '../../common/InputSelect'
+import { validateForm } from '../../common/validation/formValidation'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import { useStyles } from '../../styles/ui'
-import { validateUserForm } from './validation'
-import AlertMessage from '../../common/AlertMessage'
-import AutoComplete from '../../common/AutoComplete'
-import UserRoleDialog from '../../common/UserRoleDialog'
-import _ from 'lodash'
 
 interface Props {
   openView: boolean
-  userAdmin: any
-  closeViewModel?: any
+  userAdmin: User
+  closeViewModel?: (open: boolean) => void
 }
 
 interface ScopeData {
   type: string
 }
 
+interface InputSelectProps {
+  value: string
+  label: string
+}
+
 const ViewUser = (props: Props) => {
   const classes = useStyles()
   const { openView, closeViewModel, userAdmin } = props
-  const [openDialog, setOpenDialog] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
-
+  const { t } = useTranslation()
   const [state, setState] = useState({
     name: '',
     avatar: '',
+    userRole: '',
     scopes: [] as Array<AdminScopeType>,
     formErrors: {
       name: '',
       avatar: '',
+      userRole: '',
       scopes: ''
     }
   })
@@ -63,17 +76,16 @@ const ViewUser = (props: Props) => {
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeTypeState = useScopeTypeState()
-
-  const handleClick = () => {
-    setOpenDialog(true)
-  }
-  const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
+  const userRole = useUserRoleState()
 
   useEffect(() => {
+    const fetchData = async () => {
+      await UserRoleService.fetchUserRole()
+    }
+    if (userRole.updateNeeded.value === true && user.id.value) fetchData()
+
     if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      SingleUserService.fetchSingleUserAdmin(userAdmin.id)
+      userAdmin.id && SingleUserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
       staticResourceService.fetchStaticResource()
@@ -86,7 +98,8 @@ const ViewUser = (props: Props) => {
     user.id.value,
     refetch,
     singleUser.updateNeeded.value,
-    adminScopeTypeState.updateNeeded.value
+    adminScopeTypeState.updateNeeded.value,
+    userRole.updateNeeded.value
   ])
 
   useEffect(() => {
@@ -95,48 +108,55 @@ const ViewUser = (props: Props) => {
     }
   }, [userAdmin.id, refetch])
 
+  const initiateData = () => {
+    const temp: ScopeData[] =
+      userAdmin?.scopes?.map((el) => {
+        return {
+          type: el.type
+        }
+      }) || []
+    setState({
+      ...state,
+      name: userAdmin.name || '',
+      avatar: userAdmin.avatarId || '',
+      userRole: userAdmin.userRole || '',
+      scopes: temp as any
+    })
+  }
+
   useEffect(() => {
     if (singleUserData?.value) {
-      const temp: ScopeData[] = []
-      userAdmin.scopes.forEach((el) => {
-        temp.push({
-          type: el.type
-        })
-      })
-      setState({
-        ...state,
-        name: userAdmin.name || '',
-        avatar: userAdmin.avatarId || '',
-        scopes: temp as any
-      })
+      initiateData()
     }
   }, [singleUserData?.id?.value])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.user.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
   const handleSubmit = () => {
-    const data = {
+    const data: CreateEditUser = {
       name: state.name,
       avatarId: state.avatar,
+      userRole: state.userRole,
       scopes: state.scopes
     }
     let temp = state.formErrors
-    temp.name = !state.name ? "Name can't be empty" : ''
-    temp.avatar = !state.avatar ? "Avatar can't be empty" : ''
-    temp.scopes = !state.scopes.length ? "Scope type can't be empty" : ''
+    temp.name = !state.name ? t('admin:components.user.nameCantEmpty') : ''
+    temp.avatar = !state.avatar ? t('admin:components.user.avatarCantEmpty') : ''
+    temp.userRole = !state.userRole ? t('admin:components.user.userRoleCantEmpty') : ''
+    temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
-    if (validateUserForm(state, state.formErrors)) {
+    if (validateForm(state, state.formErrors) && userAdmin.id) {
       UserService.patchUser(userAdmin.id, data)
-      setState({ ...state, name: '', avatar: '', scopes: [] })
+      setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
-      closeViewModel(false)
+      closeViewModel && closeViewModel(false)
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.user.fillRequiredField'))
       setOpenWarning(true)
     }
   }
@@ -151,13 +171,14 @@ const ViewUser = (props: Props) => {
   const handleCloseDrawer = () => {
     setError('')
     setOpenWarning(false)
-    closeViewModel(false)
+    closeViewModel && closeViewModel(false)
     setState({
       ...state,
       formErrors: {
         ...state.formErrors,
         name: '',
         avatar: '',
+        userRole: '',
         scopes: ''
       }
     })
@@ -167,11 +188,17 @@ const ViewUser = (props: Props) => {
     setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
-  const scopeData: ScopeData[] = []
-  adminScopeTypeState.scopeTypes.value.forEach((el) => {
-    scopeData.push({
+  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+    return {
       type: el.type
-    })
+    }
+  })
+
+  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+    return {
+      value: el.role,
+      label: el.role
+    }
   })
 
   return (
@@ -202,9 +229,9 @@ const ViewUser = (props: Props) => {
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={userAdmin.userRole} onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label={userAdmin.userRole} className={classes.spanWhite} />
                     ) : (
-                      <Chip label="None" onDelete={handleClick} deleteIcon={<Edit />} />
+                      <Chip label="None" />
                     )}
                   </div>
                 </Grid>
@@ -216,9 +243,9 @@ const ViewUser = (props: Props) => {
           {editMode ? (
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                Update personal Information
+                {t('admin:components.user.updatePersonalInfo')}
               </Typography>
-              <label>Name</label>
+              <label>{t('admin:components.user.name')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
@@ -226,14 +253,14 @@ const ViewUser = (props: Props) => {
                 <InputBase
                   className={classes.input}
                   name="name"
-                  placeholder="Enter name"
+                  placeholder={t('admin:components.user.enterName')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
                   onChange={handleInputChange}
                 />
               </Paper>
-              <label>Avatar</label>
+              <label>{t('admin:components.user.avatar')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}
@@ -251,7 +278,7 @@ const ViewUser = (props: Props) => {
                     MenuProps={{ classes: { paper: classes.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select avatar</em>
+                      <em>{t('admin:components.user.selectAvatar')}</em>
                     </MenuItem>
                     {staticResourceData.value.map((el) => (
                       <MenuItem value={el.name} key={el.id}>
@@ -261,10 +288,19 @@ const ViewUser = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-
+              <label>{t('admin:components.user.userRole')}</label>
+              {user.id.value !== userAdmin.id && (
+                <InputSelect
+                  handleInputChange={handleInputChange}
+                  value={state.userRole}
+                  name="userRole"
+                  menu={userRoleData}
+                  formErrors={state.formErrors.userRole}
+                />
+              )}
               <AutoComplete
                 data={scopeData}
-                label="Grant Scope"
+                label={t('admin:components.user.grantScope')}
                 handleChangeScopeType={handleChangeScopeType}
                 scopes={state.scopes as any}
               />
@@ -272,38 +308,44 @@ const ViewUser = (props: Props) => {
           ) : (
             <Grid container spacing={3} className={classes.mt5}>
               <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
-                Personal Information
+                {t('admin:components.user.personalInfo')}
               </Typography>
               <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Location:
+                  {t('admin:components.user.location')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Avatar:
+                  {t('admin:components.user.avatar')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Invite Code:
+                  {t('admin:components.user.inviteCode')}:
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  Instance:
+                  {t('admin:components.user.instance')}:
                 </Typography>
               </Grid>
               <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.location?.name || <span className={classes.spanNone}>None</span>}
+                  {userAdmin?.party?.location?.name || (
+                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  )}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.avatarId || <span className={classes.spanNone}>None</span>}
+                  {userAdmin?.avatarId || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.inviteCode || <span className={classes.spanNone}>None</span>}
+                  {userAdmin?.inviteCode || (
+                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  )}
                 </Typography>
                 <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.party?.instance?.ipAddress || <span className={classes.spanNone}>None</span>}
+                  {userAdmin?.party?.instance?.ipAddress || (
+                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  )}
                 </Typography>
               </Grid>
               <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
-                User scope
+                {t('admin:components.user.userScope')}
               </Typography>
               <div className={classes.scopeContainer}>
                 {singleUserData?.scopes?.value?.map((el, index) => {
@@ -336,15 +378,16 @@ const ViewUser = (props: Props) => {
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>{' '}
-                  Submit
+                  {t('admin:components.user.submit')}
                 </Button>
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {
+                    initiateData()
                     setEditMode(false)
                   }}
                 >
-                  CANCEL
+                  {t('admin:components.user.cancel')}
                 </Button>
               </div>
             ) : (
@@ -355,17 +398,16 @@ const ViewUser = (props: Props) => {
                     setEditMode(true)
                   }}
                 >
-                  EDIT
+                  {t('admin:components.user.edit')}
                 </Button>
                 <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
-                  CANCEL
+                  {t('admin:components.user.cancel')}
                 </Button>
               </div>
             )}
           </DialogActions>
         </Container>
       </Drawer>
-      <UserRoleDialog openDialog={openDialog} handleCloseDialog={handleCloseDialog} userAdmin={userAdmin} />
       <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )

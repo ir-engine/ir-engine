@@ -1,12 +1,12 @@
-import hooks from './scope-type.hooks'
 import { Application } from '../../../declarations'
 import { ScopeType } from './scope-type.class'
-import createModel from './scope-type.model'
 import scopeTypeDocs from './scope-type.docs'
+import hooks from './scope-type.hooks'
+import createModel from './scope-type.model'
 
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
-    'scop-type': ScopeType
+    'scope-type': ScopeType
   }
 }
 

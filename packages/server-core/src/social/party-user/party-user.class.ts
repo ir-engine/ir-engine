@@ -1,4 +1,7 @@
-import { Service, SequelizeServiceOptions } from 'feathers-sequelize'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+
+import { PartyUser as PartyUserDataType } from '@xrengine/common/src/interfaces/PartyUser'
+
 import { Application } from '../../../declarations'
 
 /**
@@ -6,7 +9,7 @@ import { Application } from '../../../declarations'
  *
  * @author Vyacheslav Solovjov
  */
-export class PartyUser extends Service {
+export class PartyUser<T = PartyUserDataType> extends Service<T> {
   app: Application
   docs: any
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {

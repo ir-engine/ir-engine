@@ -1,11 +1,33 @@
 import { HookContext } from '@feathersjs/feathers'
+import { iff, isProvider } from 'feathers-hooks-common'
+
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import { iff, isProvider } from 'feathers-hooks-common'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+
+const restrictUserPatch = (context: HookContext) => {
+  if (context.params.isInternal) return context
+
+  // allow admins for all patch actions
+  const loggedInUser = extractLoggedInUserFromParams(context.params)
+  if (loggedInUser.userRole === 'admin') return context
+
+  // only allow a user to patch it's own data
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
+
+  // filter to only allowed
+  const data = {} as any
+  // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
+  if (typeof context.data.avatarId !== 'undefined') data.avatarId = context.data.avatarId
+  if (typeof context.data.name !== 'undefined') data.name = context.data.name
+  context.data = data
+  return context
+}
 
 /**
  * This module used to declare and identify database relation
@@ -41,14 +63,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       })
@@ -76,14 +90,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       })
@@ -91,7 +97,7 @@ export default {
     create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     patch: [
-      iff(isProvider('external'), restrictUserRole('admin') as any),
+      iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({
         models: [
           {
@@ -114,14 +120,6 @@ export default {
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'inventory-item',
-            include: [
-              {
-                model: 'inventory-item-type'
-              }
-            ]
           }
         ]
       }),
@@ -148,22 +146,6 @@ export default {
   after: {
     all: [],
     find: [
-      (context: HookContext): HookContext => {
-        try {
-          if (context.result?.data) {
-            for (let x = 0; x < context.result.data.length; x++) {
-              for (let i = 0; i < context.result.data[x].inventory_items?.length; i++) {
-                context.result.data[x].inventory_items[i].metadata = JSON.parse(
-                  context.result.data[x].inventory_items[i].metadata
-                )
-              }
-            }
-          }
-        } catch (err) {
-          console.log('inventory item parsing error on user.FIND', err)
-        }
-        return context
-      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -198,18 +180,6 @@ export default {
       // }
     ],
     get: [
-      (context: HookContext): HookContext => {
-        try {
-          if (context.result) {
-            for (let i = 0; i < context.result.inventory_items?.length; i++) {
-              context.result.inventory_items[i].metadata = JSON.parse(context.result.inventory_items[i].metadata)
-            }
-          }
-        } catch (err) {
-          console.log('inventory item parsing error on user.GET', err)
-        }
-        return context
-      }
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
@@ -270,8 +240,8 @@ export default {
           }
           return context
         } catch (err) {
-          logger.error('USER AFTER CREATE ERROR')
-          logger.error(err)
+          console.error('USER AFTER CREATE ERROR')
+          console.error(err)
         }
         return null!
       }

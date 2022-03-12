@@ -1,25 +1,33 @@
+import classNames from 'classnames'
+import React, { Fragment, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AccountCircle, Settings } from '@mui/icons-material'
 import Fade from '@mui/material/Fade'
 import Modal from '@mui/material/Modal'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { AccountCircle, Settings } from '@mui/icons-material'
-import classNames from 'classnames'
-import React, { Fragment, useState } from 'react'
+
 import styles from './Profile.module.scss'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'
-import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean
-  handleClose: any
-  avatarUrl: string
-  auth: any
+  handleClose: () => void
+  avatarUrl?: string
+  //auth: any
 }
 
-const TabPanel = (props: any): any => <Fragment>{props.value === props.index && props.children}</Fragment>
+interface TabProps {
+  value: number
+  index: number
+  children: JSX.Element
+}
 
-const ProfileModal = (props: Props): any => {
+const TabPanel = (props: TabProps): JSX.Element => <Fragment>{props.value === props.index && props.children}</Fragment>
+
+const ProfileModal = (props: Props): JSX.Element => {
   const [tabIndex, setTabIndex] = useState(0)
   const { t } = useTranslation()
 
@@ -29,7 +37,7 @@ const ProfileModal = (props: Props): any => {
   }
   const avatar = (
     <TabPanel value={tabIndex} index={0}>
-      <UserProfile avatarUrl={props.avatarUrl} auth={props.auth} />
+      <UserProfile avatarUrl={props.avatarUrl} />
     </TabPanel>
   )
   const settings = (

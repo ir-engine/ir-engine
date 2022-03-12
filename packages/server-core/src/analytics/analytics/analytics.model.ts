@@ -1,9 +1,12 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { AnalyticsInterface } from '@xrengine/common/src/dbmodels/Analytics'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const analytics = sequelizeClient.define(
+  const analytics = sequelizeClient.define<Model<AnalyticsInterface>>(
     'analytics',
     {
       id: {

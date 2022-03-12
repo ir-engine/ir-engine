@@ -1,9 +1,11 @@
-import { client } from '../../../feathers'
-import { AlertService } from '../../../common/services/AlertService'
-import { useDispatch, store } from '../../../store'
-import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
 import { createState, useState } from '@speigg/hookstate'
-import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+
+import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
+
+import { AlertService } from '../../../common/services/AlertService'
+import { client } from '../../../feathers'
+import { store, useDispatch } from '../../../store'
 
 //State
 const state = createState({
@@ -38,7 +40,7 @@ export const ServerSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  patchServerSetting: async (data: any, id: string) => {
+  patchServerSetting: async (data: PatchServerSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {

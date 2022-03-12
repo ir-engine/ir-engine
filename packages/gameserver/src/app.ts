@@ -1,29 +1,31 @@
-import config from '@xrengine/server-core/src/appconfig'
-import fs from 'fs'
-import path from 'path'
-import compress from 'compression'
-import helmet from 'helmet'
-import cors from 'cors'
-import swagger from 'feathers-swagger'
+import express, { static as _static, errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
-import express, { json, urlencoded, static as _static, rest, errorHandler } from '@feathersjs/express'
 import socketio from '@feathersjs/socketio'
 import AgonesSDK from '@google-cloud/agones-sdk'
-import { Application } from '@xrengine/server-core/declarations'
-import logger from '@xrengine/server-core/src/logger'
-import channels from './channels'
-import authentication from '@xrengine/server-core/src/user/authentication'
-import sync from 'feathers-sync'
 import * as k8s from '@kubernetes/client-node'
-import winston from 'winston'
-import feathersLogger from 'feathers-logger'
+import compress from 'compression'
+import cors from 'cors'
 import { EventEmitter } from 'events'
-import services from '@xrengine/server-core/src/services'
-import sequelize from '@xrengine/server-core/src/sequelize'
+import feathersLogger from 'feathers-logger'
+import swagger from 'feathers-swagger'
+import sync from 'feathers-sync'
+import fs from 'fs'
+import helmet from 'helmet'
+import path from 'path'
 import { register } from 'trace-unhandled'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+import winston from 'winston'
+
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Application } from '@xrengine/server-core/declarations'
+import config from '@xrengine/server-core/src/appconfig'
+import logger from '@xrengine/server-core/src/logger'
+import sequelize from '@xrengine/server-core/src/sequelize'
+import services from '@xrengine/server-core/src/services'
+import authentication from '@xrengine/server-core/src/user/authentication'
+
+import channels from './channels'
+import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 
 register()
 
@@ -101,7 +103,6 @@ export const createApp = (): Application => {
           }
         },
         (io) => {
-          Network.instance = new Network()
           Network.instance.transportHandler = new ServerTransportHandler()
           app.transport = new SocketWebRTCServerTransport(app)
           app.transport.initialize()
@@ -149,6 +150,7 @@ export const createApp = (): Application => {
     if (config.kubernetes.enabled || process.env.APP_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect()
       agonesSDK.ready().catch((err) => {
+        console.log(err)
         throw new Error(
           '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
         )
@@ -187,32 +189,3 @@ export const createApp = (): Application => {
 
   return app
 }
-
-process.on('exit', async () => {
-  console.log('Server EXIT')
-})
-
-process.on('SIGTERM', async (err) => {
-  console.log('Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('RECEIVED SIGINT')
-  process.exit()
-})
-
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs

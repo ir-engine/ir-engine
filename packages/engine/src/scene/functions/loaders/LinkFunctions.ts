@@ -1,19 +1,22 @@
+import { createState } from '@speigg/hookstate'
+import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
+
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Engine } from '../../../ecs/classes/Engine'
+import { Entity } from '../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { InteractableComponent, InteractableComponentType } from '../../../interaction/components/InteractableComponent'
+import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { LinkComponent, LinkComponentType } from '../../components/LinkComponent'
-import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { InteractableComponent } from '../../../interaction/components/InteractableComponent'
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { setObjectLayers } from '../setObjectLayers'
 
@@ -24,7 +27,7 @@ export const SCENE_COMPONENT_LINK_DEFAULT_VALUES = {
 
 if (isClient) {
   // todo: make this not top level
-  AssetLoader.load({ url: '/static/editor/link-icon.png' })
+  AssetLoader.load('/static/editor/link-icon.png')
 }
 
 export const deserializeLink: ComponentDeserializeFunction = (
@@ -33,7 +36,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
 ) => {
   const obj3d = new Object3D()
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, InteractableComponent, { action: 'link' })
+  addComponent(entity, InteractableComponent, createState({ action: 'link' } as InteractableComponentType))
 
   if (Engine.isEditor) {
     const geometry = new PlaneBufferGeometry()

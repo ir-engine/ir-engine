@@ -1,11 +1,12 @@
 import { Object3D, SkinnedMesh } from 'three'
+
+import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { Chain } from '../classes/Chain'
-import { IKObj } from '../components/IKObj'
-import { IKRigComponent, IKRigTargetComponent, IKRigComponentType } from '../components/IKRigComponent'
-import { ArmatureType } from '../enums/ArmatureType'
-import { Entity } from '../../ecs/classes/Entity'
 import Pose from '../classes/Pose'
+import { IKObj } from '../components/IKObj'
+import { IKRigComponent, IKRigComponentType, IKRigTargetComponent } from '../components/IKRigComponent'
+import { ArmatureType } from '../enums/ArmatureType'
 import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
 import { IKSolverFunction, solveLimb } from './IKSolvers'
 
@@ -13,20 +14,18 @@ export function addRig(
   entity: Entity,
   rootObject: Object3D,
   tpose = null,
-  use_node_offset = false,
-  arm_type: ArmatureType = ArmatureType.MIXAMO
+  use_node_offset = false
 ): IKRigComponentType {
-  return _addRig(IKRigComponent, entity, rootObject, tpose, use_node_offset, arm_type)
+  return _addRig(IKRigComponent, entity, rootObject, tpose, use_node_offset)
 }
 
 export function addTargetRig(
   entity: Entity,
   rootObject: Object3D,
   tpose = null,
-  use_node_offset = false,
-  arm_type: ArmatureType = ArmatureType.MIXAMO
+  use_node_offset = false
 ): IKRigComponentType {
-  return _addRig(IKRigTargetComponent, entity, rootObject, tpose, use_node_offset, arm_type)
+  return _addRig(IKRigTargetComponent, entity, rootObject, tpose, use_node_offset)
 }
 
 function _addRig(
@@ -79,16 +78,7 @@ function _addRig(
   // //-----------------------------------------
   // // Auto Setup the Points and Chains based on
   // // Known Skeleton Structures.
-  switch (arm_type) {
-    case ArmatureType.MIXAMO:
-      setupMixamoIKRig(rig)
-      break
-    case ArmatureType.TREX:
-      setupTRexIKRig(rig)
-      break
-    default:
-      console.error('Unsupported rig type', arm_type)
-  }
+  setupMixamoIKRig(rig)
 
   rig.tpose.apply()
 

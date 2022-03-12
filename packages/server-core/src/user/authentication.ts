@@ -1,16 +1,17 @@
 import { AuthenticationService } from '@feathersjs/authentication'
 import { expressOauth } from '@feathersjs/authentication-oauth'
+
 import { Application } from '../../declarations'
 import DiscordStrategy from './strategies/discord'
+import FacebookStrategy from './strategies/facebook'
 import GithubStrategy from './strategies/github'
 import GoogleStrategy from './strategies/google'
-import FacebookStrategy from './strategies/facebook'
+import { MyJwtStrategy } from './strategies/jwt'
 import LinkedInStrategy from './strategies/linkedin'
 import { MyLocalStrategy } from './strategies/local'
-import { MyJwtStrategy } from './strategies/jwt'
 import TwitterStrategy from './strategies/twitter'
 
-declare module '../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     authentication: AuthenticationService
   }

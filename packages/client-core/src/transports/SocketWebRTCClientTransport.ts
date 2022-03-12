@@ -1,3 +1,10 @@
+import * as mediasoupClient from 'mediasoup-client'
+import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { io as ioclient, Socket } from 'socket.io-client'
+
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import {
   Network,
   NetworkTransportHandler,
@@ -6,14 +13,9 @@ import {
 } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
-import * as mediasoupClient from 'mediasoup-client'
-import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { io as ioclient, Socket } from 'socket.io-client'
-import { onConnectToInstance } from './SocketWebRTCClientFunctions'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { accessAuthState } from '../user/services/AuthService'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
 const gameserverAddress =
@@ -69,7 +71,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.type = type
   }
 
-  mediasoupDevice = new mediasoupClient.Device()
+  mediasoupDevice = new mediasoupClient.Device(Engine.isBot ? { handlerName: 'Chrome74' } : undefined)
   leaving = false
   left = false
   reconnecting = false
@@ -101,6 +103,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     this.recvTransport = null!
     this.sendTransport = null!
     clearInterval(this.heartbeat)
+    this.socket.removeAllListeners()
     this.socket.close()
     this.socket = null!
   }
@@ -146,12 +149,17 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
     this.request = promisedRequest(this.socket)
 
-    this.socket.on('connect', async () => {
-      console.log(`CONNECT to port ${port}`)
+    this.socket.on('connect', () => {
       if (this.reconnecting) {
         this.reconnecting = false
+        ;(this.socket as any)._connected = false
         return
       }
+
+      if ((this.socket as any)._connected) return
+      ;(this.socket as any)._connected = true
+
+      console.log('CONNECT to port', port, sceneId, locationId)
       onConnectToInstance(this)
 
       // Send heartbeat every second

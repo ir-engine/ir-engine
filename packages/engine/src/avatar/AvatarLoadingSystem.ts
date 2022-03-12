@@ -1,19 +1,17 @@
-import { Object3D, Box3 } from 'three'
 import { Easing, Tween } from '@tweenjs/tween.js'
-
-import { getComponent, addComponent, removeComponent, defineQuery } from '../ecs/functions/ComponentFunctions'
+import { Box3, Object3D } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
-
+import { World } from '../ecs/classes/World'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { AvatarPendingComponent } from './components/AvatarPendingComponent'
+import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
-import { TweenComponent } from '../transform/components/TweenComponent'
+import { AvatarPendingComponent } from './components/AvatarPendingComponent'
 import { DissolveEffect } from './DissolveEffect'
-import { World } from '../ecs/classes/World'
-import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -25,8 +23,7 @@ const lightOpacity = (y, r) => {
 
 export default async function AvatarLoadingSystem(world: World) {
   // precache dissolve effects
-  AssetLoader.loadAsync({ url: '/itemLight.png' })
-  AssetLoader.loadAsync({ url: '/itemPlate.png' })
+  await Promise.all([AssetLoader.loadAsync('/itemLight.png'), AssetLoader.loadAsync('/itemPlate.png')])
 
   const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
@@ -50,7 +47,7 @@ export default async function AvatarLoadingSystem(world: World) {
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
         const ray = light.clone()
-        ray.material = (<any>light.material).clone()
+        ray.material = (light.material as any).clone()
         ray.position.y -= 2 * ray.geometry.boundingSphere?.radius! * Math.random()
 
         var a = (2 * Math.PI * i) / n,
@@ -64,7 +61,7 @@ export default async function AvatarLoadingSystem(world: World) {
 
       const pt = plate.clone()
       pt.name = 'plate_obj'
-      pt.material = (<any>pt.material).clone()
+      pt.material = (pt.material as any).clone()
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
 
@@ -87,29 +84,33 @@ export default async function AvatarLoadingSystem(world: World) {
             // removeComponent(entity, AvatarPendingComponent)
             const object = getComponent(entity, Object3DComponent).value
             const bbox = new Box3().setFromObject(object.children[0])
+            let scale = 1
+            if (object.userData?.scale) {
+              scale = object.userData.scale
+            }
             addComponent(entity, AvatarDissolveComponent, {
-              effect: new DissolveEffect(object, bbox.min.y, bbox.max.y)
+              effect: new DissolveEffect(object, bbox.min.y / scale, bbox.max.y / scale)
             })
           })
       })
     }
 
-    for (const entity of growQuery.exit(world)) {
-      // const plateComponent = getComponent(entity, AvatarEffectComponent)
-      // addComponent(entity, TweenComponent, {
-      //   tween: new Tween<any>(plateComponent)
-      //     .to(
-      //       {
-      //         opacityMultiplier: 0
-      //       },
-      //       2000
-      //     )
-      //     .start()
-      //     .onComplete(async () => {
-      //       removeComponent(entity, TweenComponent)
-      //     })
-      // })
-    }
+    // for (const entity of growQuery.exit(world)) {
+    //   const plateComponent = getComponent(entity, AvatarEffectComponent)
+    //   addComponent(entity, TweenComponent, {
+    //     tween: new Tween<any>(plateComponent)
+    //       .to(
+    //         {
+    //           opacityMultiplier: 0
+    //         },
+    //         2000
+    //       )
+    //       .start()
+    //       .onComplete(async () => {
+    //         removeComponent(entity, TweenComponent)
+    //       })
+    //   })
+    // }
 
     for (const entity of commonQuery(world)) {
       const object = getComponent(entity, Object3DComponent).value

@@ -1,11 +1,14 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-import { Sequelize, DataTypes } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
+
+import { InviteInterface } from '@xrengine/common/src/dbmodels/Invite'
+
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const invite = sequelizeClient.define(
+  const invite = sequelizeClient.define<Model<InviteInterface>>(
     'invite',
     {
       id: {

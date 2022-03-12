@@ -1,6 +1,3 @@
-import { getLoader } from '@xrengine/engine/src/assets/functions/LoadGLTF'
-import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import React, { useEffect, useRef } from 'react'
 import { FileDrop } from 'react-file-drop'
 import {
@@ -13,6 +10,10 @@ import {
   Scene,
   WebGLRenderer
 } from 'three'
+
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 
 const canvasStyle = {
   zIndex: 0,
@@ -35,7 +36,7 @@ export default LocationPage
 let scene = new Scene()
 let animationMixers = [] as AnimationMixer[]
 let clips
-getLoader().load('/default_assets/Animations.glb', (gltf) => {
+AssetLoader.load('/default_assets/Animations.glb', (gltf) => {
   console.log(gltf)
   clips = gltf.animations
   clips.forEach((clip) => {
@@ -94,7 +95,7 @@ const DevPage = () => {
 
     scene.remove
 
-    getLoader().load(fileURL, (gltf) => {
+    AssetLoader.load(fileURL, (gltf) => {
       URL.revokeObjectURL(fileURL)
 
       scene.remove(model)

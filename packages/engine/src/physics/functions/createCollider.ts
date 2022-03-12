@@ -1,17 +1,19 @@
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Vector3, Quaternion, Mesh, Object3D } from 'three'
-import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
+
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { CollisionComponent } from '../components/CollisionComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getTransform } from './parseModelColliders'
-import { getGeometryType } from '../classes/Physics'
-import { vectorToArray } from './physxHelpers'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getGeometryType } from '../classes/Physics'
+import { ColliderComponent } from '../components/ColliderComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
+import { ObstaclesComponent } from '../components/ObstaclesComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
+import { getTransform } from './parseModelColliders'
+import { vectorToArray } from './physxHelpers'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -222,30 +224,34 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
   const object3d = getComponent(entity, Object3DComponent)
   if (object3d) {
     const shapes = getAllShapesFromObject3D(entity, object3d.value as any, data)
-    const body = createBody(entity, data, shapes)
-    body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
-    addComponent(entity, ColliderComponent, { body })
-    addComponent(entity, CollisionComponent, { collisions: [] })
+    // As we might call collider deserialize on every child of the object now,
+    // so this sanity check is needed now.
+    if (shapes.length > 0) {
+      const body = createBody(entity, data, shapes)
+      body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
+      addComponent(entity, ColliderComponent, { body })
+      addComponent(entity, CollisionComponent, { collisions: [] })
+    }
   }
 }
 
 export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
-  const transform = getComponent(entity, TransformComponent)
-  const [position, quaternion, scale] = getTransform(
-    mesh.getWorldPosition(new Vector3()),
-    mesh.getWorldQuaternion(new Quaternion()),
-    mesh.getWorldScale(new Vector3()),
-    transform.position,
-    transform.rotation,
-    transform.scale
-  )
+  const position = mesh.getWorldPosition(new Vector3())
+  const quaternion = mesh.getWorldQuaternion(new Quaternion())
+  const scale = mesh.getWorldScale(new Vector3())
   const config: ObstacleConfig = {
     isCapsule: mesh.userData.isCapsule,
     radius: scale.x,
     halfHeight: scale.y,
     halfExtents: scale
   }
-  useWorld().physics.createObstacle(position, quaternion, config)
+  const obstacle = useWorld().physics.createObstacle(position, quaternion, config)
+  ;(obstacle as any)._mesh = mesh
+  if (!hasComponent(entity, ObstaclesComponent)) {
+    addComponent(entity, ObstaclesComponent, { obstacles: [] })
+  }
+  const obstaclesComponent = getComponent(entity, ObstaclesComponent)
+  obstaclesComponent.obstacles.push(obstacle)
 }
 
 const EPSILON = 1e-6
@@ -268,14 +274,14 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
 
     if (mesh.userData.type === 'obstacle') {
       createObstacleFromMesh(entity, mesh)
-      mesh.removeFromParent()
+      mesh.visible = false
       return
     }
 
     const shape = createShape(entity, mesh, mesh.userData as any)
     if (!shape) return
     shapes.push(shape)
-    mesh.removeFromParent()
+    mesh.visible = false
   })
 
   return shapes.filter((val) => {

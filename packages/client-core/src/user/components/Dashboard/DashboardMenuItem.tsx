@@ -1,17 +1,19 @@
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, withRouter } from 'react-router-dom'
+
 import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link, withRouter } from 'react-router-dom'
+
 import { useAuthState } from '../../services/AuthService'
 import { SidebarItems } from './DashboardItems'
 import { useStylesForDashboard } from './styles'
 
 interface Props {
-  authState?: any
+  //authState?: any
   location: any
 }
 

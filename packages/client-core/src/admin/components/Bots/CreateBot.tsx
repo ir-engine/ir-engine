@@ -1,44 +1,46 @@
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { v4 as uuidv4 } from 'uuid'
+
+import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+
+import { Autorenew, Face, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
+import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
-import { Autorenew, Face, Save } from '@mui/icons-material'
-import { useStyles } from '../../styles/ui'
-import { InstanceService } from '../../services/InstanceService'
-import { useInstanceState } from '../../services/InstanceService'
-import { LocationService } from '../../services/LocationService'
+import Typography from '@mui/material/Typography'
+
 import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { BotService } from '../../services/BotsService'
-import { useLocationState } from '../../services/LocationService'
-import { validateForm } from './validation'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import AlertMessage from '../../common/AlertMessage'
 import AddCommand from '../../common/AddCommand'
-import InputText from '../../common/InputText'
-import InputSelect from '../../common/InputSelect'
-import _ from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
+import AlertMessage from '../../common/AlertMessage'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import InputSelect from '../../common/InputSelect'
+import InputText from '../../common/InputText'
+import { validateForm } from '../../common/validation/formValidation'
+import { BotService } from '../../services/BotsService'
+import { InstanceService, useInstanceState } from '../../services/InstanceService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 
-interface Props {}
 interface Menu {
   value: string
   label: string
 }
 
-const CreateBot = (props: Props) => {
-  const [command, setCommand] = useState({
+const CreateBot = () => {
+  const [command, setCommand] = useState<BotCommands>({
     id: '',
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = useState<{ id: string; name: string; description: string }[]>([])
+  const [commandData, setCommandData] = useState<BotCommands[]>([])
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
 
@@ -64,12 +66,13 @@ const CreateBot = (props: Props) => {
   const adminLocationState = useLocationState()
   const adminLocation = adminLocationState
   const locationData = adminLocation.locations
+  const { t } = useTranslation()
 
   //Call custom hooks
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
   useFetchAdminLocations(user, adminLocationState, LocationService)
-
-  const handleChangeCommand = (e) => {
+  AddCommand
+  const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
     setCommand({ ...command, id: uuidv4(), [name]: value })
   }
@@ -78,14 +81,14 @@ const CreateBot = (props: Props) => {
     if (command.name) {
       const found = commandData.find((el) => el.name === command.name)
       if (found) {
-        setError('Command should be unique')
+        setError(t('admin:components.bot.uniqueCommand'))
         setOpen(true)
       } else {
         setCommandData([...commandData, command])
         setCommand({ id: '', name: '', description: '' })
       }
     } else {
-      setError('Fill in command is required!')
+      setError(t('admin:components.bot.commandRequired'))
       setOpen(true)
     }
   }
@@ -97,9 +100,8 @@ const CreateBot = (props: Props) => {
     setOpen(false)
   }
 
-  const data: Instance[] = []
-  instanceData.value.forEach((element) => {
-    data.push(element)
+  const data: Instance[] = instanceData.value.map((element) => {
+    return element
   })
 
   useEffect(() => {
@@ -113,7 +115,7 @@ const CreateBot = (props: Props) => {
   }, [state.location, adminInstanceState.instances.value.length])
 
   const handleSubmit = () => {
-    const data = {
+    const data: CreateBotAsAdmin = {
       name: state.name,
       instanceId: state.instance || null,
       userId: user.id.value,
@@ -123,13 +125,13 @@ const CreateBot = (props: Props) => {
     }
     let temp = formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.bot.nameCantEmpty')
     }
     if (!state.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.bot.descriptionCantEmpty')
     }
     if (!state.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.bot.locationCantEmpty')
     }
 
     setFormErrors(temp)
@@ -139,7 +141,7 @@ const CreateBot = (props: Props) => {
       setCommandData([])
       setCurrentIntance([])
     } else {
-      setError('Please fill all required field')
+      setError(t('admin:components.bot.fillRequiredField'))
       setOpen(true)
     }
   }
@@ -152,7 +154,7 @@ const CreateBot = (props: Props) => {
     LocationService.fetchAdminLocations()
   }
 
-  const removeCommand = (id) => {
+  const removeCommand = (id: string) => {
     const data = commandData.filter((el) => el.id !== id)
     setCommandData(data)
   }
@@ -166,20 +168,18 @@ const CreateBot = (props: Props) => {
     setState({ ...state, [names]: value })
   }
 
-  const locationMenu: Menu[] = []
-  locationData.value.forEach((el) => {
-    locationMenu.push({
+  const locationMenu: Menu[] = locationData.value.map((el) => {
+    return {
       value: el.id,
       label: el.name
-    })
+    }
   })
 
-  const instanceMenu: Menu[] = []
-  currentInstance.forEach((el) => {
-    instanceMenu.push({
+  const instanceMenu: Menu[] = currentInstance.map((el) => {
+    return {
       value: el.id,
       label: el.ipAddress
-    })
+    }
   })
 
   return (
@@ -187,16 +187,16 @@ const CreateBot = (props: Props) => {
       <Paper className={classes.botHeader} style={{ display: 'flex' }}>
         <Typography className={classes.botTitle}>
           <Face />
-          <div className={classes.smFont}>Create new bot</div>
+          <div className={classes.smFont}>{t('admin:components.bot.createNewBot')}</div>
         </Typography>
 
         <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save className={classes.saveBtnIcon} /> save
+          <Save className={classes.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
         <Typography className={classes.secondaryHeading} component="h1">
-          Add more bots in the system.
+          {t('admin:components.bot.addMoreBots')}
         </Typography>
         <form style={{ marginTop: '40px' }}>
           <InputText
@@ -213,7 +213,7 @@ const CreateBot = (props: Props) => {
             formErrors={formErrors.description}
           />
 
-          <label>Location</label>
+          <label> {t('admin:components.bot.location')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <InputSelect
@@ -233,7 +233,7 @@ const CreateBot = (props: Props) => {
             </Grid>
           </Grid>
 
-          <label>Instance</label>
+          <label> {t('admin:components.bot.instance')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
               <InputSelect

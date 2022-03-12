@@ -5,35 +5,40 @@ import {
   Euler,
   Mesh,
   PerspectiveCamera,
+  AudioListener as PositionalAudioListener,
   Quaternion,
-  Scene,
-  AudioListener as PositionalAudioListener
+  Scene
 } from 'three'
-import { AudioListener } from './audio/StereoAudioListener'
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
+
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+
+import { getGLTFLoader } from './assets/classes/AssetLoader'
+import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
+import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
+import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
+import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
+import { createWorld, World } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
+import { useWorld } from './ecs/functions/SystemHooks'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { FontManager } from './xrui/classes/FontManager'
-import { createWorld, World } from './ecs/classes/World'
-import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { registerPrefabs } from './scene/functions/registerPrefabs'
-import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
 import { dispatchLocal } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
+import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
-import { useWorld } from './ecs/functions/SystemHooks'
-import { isClient } from './common/functions/isClient'
-import { incomingNetworkReceptor } from './networking/functions/incomingNetworkReceptor'
+import { FontManager } from './xrui/classes/FontManager'
+
 // threejs overrides
 
 // @ts-ignore
@@ -59,8 +64,10 @@ export const initializeBrowser = () => {
   Engine.publicPath = location.origin
   Engine.audioListener = new PositionalAudioListener()
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  Engine.camera.layers.set(ObjectLayers.Render)
-  Engine.camera.add(Engine.audioListener)
+  Engine.camera.layers.disableAll()
+  Engine.camera.layers.enable(ObjectLayers.Scene)
+  Engine.camera.layers.enable(ObjectLayers.Avatar)
+  Engine.camera.layers.enable(ObjectLayers.UI)
   Engine.camera.add(Engine.audioListener)
 
   const browser = detect()
@@ -119,6 +126,7 @@ export const createEngine = () => {
   const world = createWorld()
   Engine.currentWorld = world
   Engine.scene = new Scene()
+  Engine.scene.layers.set(ObjectLayers.Scene)
 
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
@@ -139,12 +147,17 @@ export const initializeMediaServerSystems = async () => {
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
   const world = useWorld()
+
   await initSystems(world, coreSystems)
 
   const executeWorlds = (delta, elapsedTime) => {
@@ -152,6 +165,8 @@ export const initializeMediaServerSystems = async () => {
       world.execute(delta, elapsedTime)
     }
   }
+
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -169,7 +184,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
       args: { tickRate: 60 }
     },
     {
-      type: SystemUpdateType.FIXED,
+      type: SystemUpdateType.FIXED_EARLY,
       systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
     },
     {
@@ -183,6 +198,10 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
     }
   )
 
@@ -193,16 +212,16 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
         systemModulePromise: import('./renderer/WebGLRendererSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./xrui/systems/XRUISystem')
-      },
-      {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xr/systems/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./input/systems/ClientInputSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./xrui/systems/XRUISystem')
       }
     )
   }
@@ -232,7 +251,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = useWorld()
-  world.receptors.push(incomingNetworkReceptor)
+  NetworkActionReceptors.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 
@@ -266,7 +285,15 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./ikrig/systems/SkeletonRigSystem')
+      },
+      {
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.FIXED,
@@ -283,10 +310,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -319,9 +342,15 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./renderer/HighlightSystem')
+      },
+      {
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
+        type: SystemUpdateType.PRE_RENDER
       }
     )
   }
+
+  if (isClient) initializeKTX2Loader(getGLTFLoader())
 
   await initSystems(world, systemsToLoad)
 }
@@ -365,5 +394,5 @@ export const shutdownEngine = async () => {
   Engine.engineTimer?.clear()
   Engine.engineTimer = null!
 
-  await reset()
+  reset()
 }

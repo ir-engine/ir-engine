@@ -1,24 +1,27 @@
 import React from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import { InviteService } from '../../../social/services/InviteService'
-import { Theme, useTheme } from '@mui/material/styles'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
-import { useDispatch } from '../../../store'
+import { useTranslation } from 'react-i18next'
+
 import { Delete } from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
 import FirstPageIcon from '@mui/icons-material/FirstPage'
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import LastPageIcon from '@mui/icons-material/LastPage'
+import IconButton from '@mui/material/IconButton'
+import { Theme, useTheme } from '@mui/material/styles'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
 import TableFooter from '@mui/material/TableFooter'
+import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
+import TableRow from '@mui/material/TableRow'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
+
+import { InviteService } from '../../../social/services/InviteService'
 import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/services/InviteService'
+import { useDispatch } from '../../../store'
 
 interface Props {
   invites: any
@@ -112,6 +115,7 @@ const ReceivedInvite = (props: Props) => {
   const inviteState = useInviteState()
   const receivedInviteCount = inviteState.receivedInvites.total.value
   const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))
+  const { t } = useTranslation()
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -130,16 +134,16 @@ const ReceivedInvite = (props: Props) => {
           <TableRow>
             <TableCell className={classes.TableCellColor}>Id </TableCell>
             <TableCell className={classes.TableCellColor} align="right">
-              Name
+              {t('admin:components.invite.name')}
             </TableCell>
             <TableCell className={classes.TableCellColor} align="right">
-              Passcode
+              {t('admin:components.invite.passcode')}
             </TableCell>
             <TableCell className={classes.TableCellColor} align="right">
-              Type
+              {t('admin:components.invite.type')}
             </TableCell>
             <TableCell className={classes.TableCellColor} align="right">
-              Action
+              {t('admin:components.invite.action')}
             </TableCell>
           </TableRow>
         </TableHead>

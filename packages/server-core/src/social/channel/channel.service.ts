@@ -1,12 +1,12 @@
 import { Application } from '../../../declarations'
-import { Channel } from './channel.class'
-import createModel from './channel.model'
-import hooks from './channel.hooks'
 import logger from '../../logger'
+import { Channel } from './channel.class'
 import channelDocs from './channel.docs'
+import hooks from './channel.hooks'
+import createModel from './channel.model'
 
 // Add this service to the service type index
-declare module '../../../declarations' {
+declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     channel: Channel
   }
@@ -25,9 +25,10 @@ export default (app: Application) => {
    */
   const event = new Channel(options, app)
   event.docs = channelDocs
+
   app.use('channel', event)
 
-  const service = app.service('channel')
+  const service: any = app.service('channel')
 
   service.hooks(hooks)
 

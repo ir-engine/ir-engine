@@ -2,13 +2,16 @@
 set -e
 set -x
 
-WHICH_UNZIP=$(which unzip)
-if [[ -z $WHICH_UNZIP ]]
+if [[ -z $(which unzip) ]]
 then
-  sudo apt install unzip
+  if [[ "$(id -u)" == "0" ]]
+  then
+    apt install unzip
+  else
+    sudo apt install unzip
+  fi
 fi
-WHICH_AWS=$(which aws)
-if [[ -z $WHICH_AWS ]]
+if [[ -z $(which aws) ]]
 then
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
   unzip -q awscliv2.zip

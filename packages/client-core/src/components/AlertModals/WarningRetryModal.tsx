@@ -1,9 +1,12 @@
+import classNames from 'classnames'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import CloseIcon from '@mui/icons-material/Close'
 import Fade from '@mui/material/Fade'
 import IconButton from '@mui/material/IconButton'
 import Modal from '@mui/material/Modal'
-import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+
 import styles from './AlertModals.module.scss'
 
 export interface WarningRetryModalProps {
@@ -30,7 +33,7 @@ const WarningRetryModal = ({
   closeEffect
 }: WarningRetryModalProps): any => {
   const [timeRemaining, setTimeRemaining] = useState(0)
-
+  const { t } = useTranslation()
   const handleCloseButtonClick = (e: any) => {
     if (typeof handleClose === 'function') {
       handleClose(e, 'closeButtonClicked')
@@ -103,8 +106,10 @@ const WarningRetryModal = ({
               {body}
               {!noCountdown && (
                 <>
-                  <div>{timeRemaining} seconds</div>
-                  <div className={styles.footer}>Closing this modal will cancel the countdown</div>
+                  <div>
+                    {timeRemaining} {t('common:alert.seconds')}
+                  </div>
+                  <div className={styles.footer}>{t('common:alert.cancelCountdown')}</div>
                 </>
               )}
             </div>
