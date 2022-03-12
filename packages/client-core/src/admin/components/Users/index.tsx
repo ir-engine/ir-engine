@@ -72,7 +72,14 @@ const Users = () => {
   }
 
   const handleChangeRole = (e) => {
+    UserService.setUserRole(e.target.value)
     setRole(e.target.value)
+  }
+
+  const resetFilter = () => {
+    setChecked(false)
+    setRole('')
+    UserService.resetFilter()
   }
 
   const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
@@ -147,6 +154,12 @@ const Users = () => {
             menu={userRoleData}
             formErrors={''}
           />
+        </MenuItem>
+
+        <MenuItem>
+          <IconButton onClick={() => resetFilter()}>
+            <span className={classes.spanWhite}>Reset</span>
+          </IconButton>
         </MenuItem>
       </Menu>
     </div>
