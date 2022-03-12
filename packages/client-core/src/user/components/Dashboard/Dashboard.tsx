@@ -6,10 +6,6 @@ import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import clsx from 'clsx'
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import styles from './styles.module.scss'
@@ -33,15 +29,6 @@ const Dashboard = ({ children }: Props) => {
   const user = authState.user
   const isLoggedIn = authState.isLoggedIn.value
   const { t } = useTranslation()
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const openMenu = Boolean(anchorEl)
-  const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
