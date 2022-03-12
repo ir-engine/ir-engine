@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { MoreVert } from '@mui/icons-material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
@@ -22,13 +22,13 @@ import styles from './styles.module.scss'
 export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
   const { t } = useTranslation()
   const panelRef = useRef(null)
-  const [scenes, setScenes] = useState<SceneDetailInterface[]>([])
+  const [scenes, setScenes] = useState<SceneData[]>([])
   const [isContextMenuOpen, setContextMenuOpen] = useState(false)
   const [isDeleteOpen, setDeleteOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
-  const [activeScene, setActiveScene] = useState<SceneDetailInterface | null>(null)
+  const [activeScene, setActiveScene] = useState<SceneData | null>(null)
   const dispatch = useDispatch()
   const history = useHistory()
   const editorState = useEditorState()

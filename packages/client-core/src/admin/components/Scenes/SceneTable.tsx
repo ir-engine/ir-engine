@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
-import { sceneColumns, SceneData, SceneProps } from '../../common/variables/scene'
+import { sceneColumns, SceneProps, SceneViewModel } from '../../common/variables/scene'
 import { SCENE_PAGE_LIMIT, SceneService, useSceneState } from '../../services/SceneService'
 import { useStyles } from '../../styles/ui'
 import ViewScene from './ViewScene'
@@ -19,7 +19,7 @@ const SceneTable = (props: SceneProps) => {
   const scene = useSceneState()
   const sceneData = scene?.scenes
   const sceneCount = scene?.total
-  const [singleScene, setSingleScene] = React.useState<SceneDetailInterface>(null!)
+  const [singleScene, setSingleScene] = React.useState<SceneMetadata>(null!)
   const [open, setOpen] = React.useState(false)
   const [sceneName, setSceneName] = React.useState<string | JSX.Element>('')
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
@@ -71,7 +71,7 @@ const SceneTable = (props: SceneProps) => {
     description: string | JSX.Element,
     entity: number | JSX.Element,
     version: string | JSX.Element
-  ): SceneData => {
+  ): SceneViewModel => {
     return {
       id,
       name,

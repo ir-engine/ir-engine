@@ -1,6 +1,6 @@
 import { createState, State, useHookstate } from '@speigg/hookstate'
 import getImagePalette from 'image-palette-core'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
@@ -8,7 +8,6 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
-import { useHookedEffect } from '../../hooks/useHookedEffect'
 import { useSceneState } from '../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
 
@@ -52,7 +51,6 @@ const LoadingDetailView = (props: {
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
-  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value
   const { t } = useTranslation()
   const colors = useHookstate({
     main: '',
@@ -60,11 +58,11 @@ const LoadingDetailView = (props: {
     alternate: ''
   })
 
-  useHookedEffect(() => {
-    const thumbnail = thumbnailUrl
+  useEffect(() => {
+    const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
     const img = new Image()
 
-    if (thumbnail) {
+    if (thumbnailUrl) {
       colors.main.set('')
       colors.background.set('')
       colors.alternate.set('')
@@ -83,7 +81,7 @@ const LoadingDetailView = (props: {
         }
         props.colorsLoadedCallback()
       }
-      img.src = thumbnail
+      img.src = thumbnailUrl
     } else {
       setDefaultPalette(colors)
     }
@@ -91,16 +89,16 @@ const LoadingDetailView = (props: {
     return () => {
       img.onload = null
     }
-  }, [sceneState?.currentScene?.thumbnailUrl])
+  }, [sceneState.currentScene.ornull?.thumbnailUrl])
 
-  useHookedEffect(() => {
+  useEffect(() => {
     const hasScene = !!sceneState.currentScene
-    const hasThumbnail = !!sceneState.currentScene?.thumbnailUrl?.value
+    const hasThumbnail = !!sceneState.currentScene.ornull?.thumbnailUrl.value
     const hasColors = !!colors.main.value
     props.onStateChange({
       hasSceneColors: (hasScene && hasThumbnail && hasColors) || (hasScene && !hasThumbnail && hasColors)
     })
-  }, [colors, sceneState?.currentScene?.thumbnailUrl])
+  }, [colors, sceneState])
 
   // console.log('LOADING STATE', engineState.loadingProgress.value, engineState.sceneLoaded.value)
 
@@ -176,7 +174,7 @@ const LoadingDetailView = (props: {
         </div> */}
         <div id="loading-ui" xr-layer="true">
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
-            {t('common:gameServer.loading')}
+            {t('common:loader.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="8">
             {engineState.loadingProgress.value}%
@@ -191,7 +189,7 @@ const LoadingDetailView = (props: {
             />
           </div>
           <div id="loading-details" xr-layer="true" xr-pixel-ratio="8">
-            {engineState.loadingDetails.value}
+            {t(engineState.loadingDetails.value)}
           </div>
         </div>
       </div>

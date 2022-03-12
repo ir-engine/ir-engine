@@ -1,4 +1,6 @@
 import { Downgraded } from '@speigg/hookstate'
+import { useHistory } from 'react-router-dom'
+import { AuthState } from 'src/user/services/AuthService'
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -10,7 +12,7 @@ import { useDispatch } from '@xrengine/client-core/src/store'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -32,13 +34,10 @@ import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/Med
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
-export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
-  if (
-    authState.isLoggedIn?.value === true &&
-    authState.user?.id?.value != null &&
-    authState.user?.id?.value.length > 0
-  ) {
+export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
+  if (authState.isLoggedIn.value === true && authState.user.id.value) {
     if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
+      const history = useHistory()
       LocationService.getLobby()
         .then((lobby) => {
           history.replace('/location/' + lobby.slugifiedName)
@@ -109,9 +108,8 @@ export const initEngine = async () => {
   await initializeCoreSystems(injectedSystems)
 }
 
-export const initClient = async (project) => {
-  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
-  const systems = getSystemsFromSceneData(project, sceneData, true)
+export const initClient = async (sceneData: SceneData) => {
+  const systems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
 
   await Promise.all([
@@ -135,29 +133,11 @@ export const initClient = async (project) => {
   Engine.isReady = true
 }
 
-export const loadLocation = () => {
-  dispatchLocal(EngineActions.loadingStateChanged(0, 'Loading Objects'))
-
+export const loadLocation = (sceneData: SceneJson) => {
   const dispatch = useDispatch()
   // 4. Start scene loading
   dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
-
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        const message = action.count === Engine.sceneLoadPromises.length ? 'Loading Objects' : 'Loading Complete'
-        dispatchLocal(
-          EngineActions.loadingStateChanged(Math.round((100 * action.count) / Engine.sceneLoadPromises.length), message)
-        )
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
-
-  const sceneData = accessSceneState().currentScene.scene.attach(Downgraded).value!
   loadSceneFromJSON(sceneData).then(() => {
-    dispatchLocal(EngineActions.loadingStateChanged(100, 'Joining World'))
-
     getPortalDetails()
     dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
   })
