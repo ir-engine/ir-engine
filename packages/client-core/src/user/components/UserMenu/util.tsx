@@ -11,7 +11,30 @@ export const Views = {
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
   Emote: 'Emote',
-  ReadyPlayer: 'ReadyPlayer'
+  NewLocation: 'NewLocation',
+  ReadyPlayer: 'ReadyPlayer',
+  Inventory: 'Inventory',
+  Wallet: 'Wallet',
+  Trading: 'Trading'
+}
+
+export interface UserMenuProps {
+  login?: boolean
+  authState?: any
+  instanceConnectionState?: any
+  locationState?: any
+  updateUserAvatarId?: Function
+  showDialog?: Function
+  alertSuccess?: Function
+  currentScene?: any
+  provisionInstanceServer?: any
+  uploadAvatarModel?: Function
+  fetchAvatarList?: Function
+  updateUserSettings?: Function
+  removeAvatar?: Function
+  getLocations?: Function
+  enableSharing?: boolean
+  hideLogin?: boolean
 }
 
 export interface SettingMenuProps {
