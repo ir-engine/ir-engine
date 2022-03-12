@@ -1,6 +1,5 @@
 import { Downgraded } from '@speigg/hookstate'
 import { useHistory } from 'react-router-dom'
-import { AuthState } from 'src/user/services/AuthService'
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -33,6 +32,8 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
+
+import { AuthState } from '../../../src/user/services/AuthService'
 
 export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
   if (authState.isLoggedIn.value === true && authState.user.id.value) {
