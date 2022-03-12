@@ -202,9 +202,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       if (result.user.userRole !== 'guest') {
         try {
           let response: any = await blockchainTokenGenerator()
-
           const accessToken = response?.data?.accessToken
-
           let walleteResponse = await blockchainUserWalletGenerator(result.user.id, accessToken)
           return walleteResponse;
         } catch (err) {
