@@ -99,7 +99,7 @@ const LoadingDetailView = (props: {
     })
   }, [colors, sceneState])
 
-  console.log('LOADING STATE', engineState.loadingDetails.value, t(engineState.loadingDetails.value))
+  // console.log('LOADING STATE', engineState.loadingDetails.value, t(engineState.loadingDetails.value))
 
   return (
     <>
