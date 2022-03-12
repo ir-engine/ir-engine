@@ -11,13 +11,10 @@ import AppBar from '@mui/material/AppBar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import MenuComponent from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
-import { styled, useTheme } from '@mui/material/styles'
-import Toolbar from '@mui/material/Toolbar'
+import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
 import styles from './styles.module.scss'
@@ -44,15 +41,6 @@ const Dashboard = ({ children }: Props) => {
   const user = authState.user
   const isLoggedIn = authState.isLoggedIn.value
   const { t } = useTranslation()
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const openMenu = Boolean(anchorEl)
-  const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (

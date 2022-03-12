@@ -135,9 +135,6 @@ const Users = () => {
             label={t('admin:components.user.hideGuests') as string}
           />
         </MenuItem>
-        <MenuItem className={classes.spanWhite}>
-          <Avatar /> A-Z
-        </MenuItem>
         <Divider />
         <label className={classes.spanWhite} style={{ marginLeft: '1rem' }}>
           Based on user role
