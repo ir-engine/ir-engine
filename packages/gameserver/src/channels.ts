@@ -625,9 +625,6 @@ export default (app: Application): void => {
       return
     }
 
-    console.log('gameserver-load patched')
-    console.log({ id, ipAddress, podName, locationId, sceneId })
-
     const gsResult = await app.agonesSDK.getGameServer()
     const gsName = gsResult.objectMeta.name
     const status = gsResult.status as GameserverStatus
@@ -637,7 +634,6 @@ export default (app: Application): void => {
       return
     }
 
-    console.log('Loading gameserver')
     loadGameserver(app, status, locationId, null!, sceneId, null!)
   })
 
