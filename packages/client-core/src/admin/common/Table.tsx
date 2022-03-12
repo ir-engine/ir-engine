@@ -119,8 +119,7 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
 const TableComponent = (props: Props) => {
   const { rows, column, page, rowsPerPage, count, handlePageChange, handleRowsPerPageChange } = props
   const [order, setOrder] = React.useState<Order>('asc')
-  const [orderBy, setOrderBy] = React.useState<keyof Data>('name')
-
+  const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
