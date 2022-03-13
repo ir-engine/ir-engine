@@ -7,7 +7,7 @@ import { LocationService } from '@xrengine/client-core/src/admin/services/Locati
 import { useLocationState } from '@xrengine/client-core/src/admin/services/LocationService'
 import { useSceneState } from '@xrengine/client-core/src/admin/services/SceneService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -40,7 +40,7 @@ const LocationModal = (props: Props): any => {
   const [maxUsers, setMaxUsers] = useState(10)
   const [videoEnabled, setVideoEnabled] = useState(false)
   const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false)
-  const [scene, setScene] = useState<SceneDetailInterface>(null!)
+  const [scene, setScene] = useState<SceneMetadata>(null!)
   const [locationType, setLocationType] = useState('private')
   const adminScenes = useSceneState().scenes
   const locationTypes = useLocationState().locationTypes
