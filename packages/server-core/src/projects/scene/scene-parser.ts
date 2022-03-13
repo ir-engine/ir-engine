@@ -1,5 +1,5 @@
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import config from '../../appconfig'
@@ -44,7 +44,7 @@ export const cleanSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
   return sceneData
 }
 
-export const parseScenePortals = (scene: SceneDetailInterface) => {
+export const parseScenePortals = (scene: SceneData) => {
   const portals: PortalDetail[] = []
   for (const [entityId, entity] of Object.entries(scene.scene?.entities!)) {
     for (const component of entity.components)

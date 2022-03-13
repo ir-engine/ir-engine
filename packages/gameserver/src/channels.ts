@@ -86,31 +86,9 @@ const loadScene = async (app: Application, scene: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
   }
 
-  let entitiesLeft = -1
-  let lastEntitiesLeft = -1
-  const loadingInterval = setInterval(() => {
-    if (entitiesLeft >= 0 && lastEntitiesLeft !== entitiesLeft) {
-      lastEntitiesLeft = entitiesLeft
-      console.log(entitiesLeft + ' entites left...')
-    }
-  }, 1000)
-
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        entitiesLeft = action.count
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
 
-  ///remove receptor
-  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
-  Engine.currentWorld.receptors.splice(receptorIndex, 1)
-
   console.log('Scene loaded!')
-  clearInterval(loadingInterval)
   dispatchLocal(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
@@ -242,7 +220,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 
-    Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded())
     dispatchLocal(EngineActions.joinedWorld())
   } else {

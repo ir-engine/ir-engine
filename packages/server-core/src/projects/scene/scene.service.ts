@@ -3,7 +3,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
 import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
@@ -27,7 +27,7 @@ declare module '@xrengine/common/declarations' {
 }
 
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface[] }> {
+  return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneData[] }> {
     try {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
@@ -41,9 +41,7 @@ export const getScenesForProject = (app: Application) => {
         .filter((name) => name.endsWith('.scene.json'))
         .map((name) => name.slice(0, -'.scene.json'.length))
 
-      const sceneData: SceneDetailInterface[] = files.map((sceneName) =>
-        getSceneData(projectName, sceneName, metadataOnly)
-      )
+      const sceneData: SceneData[] = files.map((sceneName) => getSceneData(projectName, sceneName, metadataOnly))
 
       return {
         data: sceneData
@@ -56,12 +54,12 @@ export const getScenesForProject = (app: Application) => {
 }
 
 export const getAllScenes = (app: Application) => {
-  return async function (params: Params): Promise<{ data: SceneDetailInterface[] }> {
+  return async function (params: Params): Promise<{ data: SceneData[] }> {
     const projects = await app.service('project').find(params)
     const scenes = await Promise.all(
       projects.data.map(
         (project) =>
-          new Promise<SceneDetailInterface[]>(async (resolve) => {
+          new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (
               await getScenesForProject(app)({ projectName: project.name, metadataOnly: params.metadataOnly }, params)
             ).data
