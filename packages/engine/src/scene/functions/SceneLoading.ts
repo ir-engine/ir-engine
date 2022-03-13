@@ -53,6 +53,8 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  dispatchLocal(EngineActions.sceneLoading())
+
   let promisesCompleted = 0
   const onProgress = () => {
     // TODO: get more granular progress data based on percentage of each asset
@@ -74,8 +76,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-
-  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)

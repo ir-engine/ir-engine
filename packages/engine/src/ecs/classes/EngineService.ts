@@ -13,7 +13,6 @@ const state = createState({
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: 0,
-  loadingDetails: 'common:loader.loadingObjects',
   connectedWorld: false,
   isTeleporting: false,
   isPhysicsDebug: false,
@@ -55,20 +54,14 @@ export function EngineEventReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.SCENE_UNLOADED:
         return s.merge({ sceneLoaded: false, sceneLoading: false })
       case EngineEvents.EVENTS.SCENE_LOADING:
-        return s.merge({
-          sceneLoaded: false,
-          sceneLoading: true,
-          loadingProgress: 0,
-          loadingDetails: 'common:loader.loadingObjects'
-        })
+        return s.merge({ sceneLoaded: false, sceneLoading: true, loadingProgress: 0 })
       case EngineEvents.EVENTS.SCENE_LOADED: {
-        const message = s.joinedWorld.value ? 'common:loader.loadingComplete' : 'common:loader.joiningWorld'
-        return s.merge({ sceneLoaded: true, sceneLoading: false, loadingProgress: 100, loadingDetails: message })
+        return s.merge({ sceneLoaded: true, sceneLoading: false, loadingProgress: 100 })
       }
       case EngineEvents.EVENTS.JOINED_WORLD: {
         s.merge({ joinedWorld: true })
         if (s.sceneLoaded.value) {
-          s.merge({ loadingProgress: 100, loadingDetails: 'common:loader.loadingComplete' })
+          s.merge({ loadingProgress: 100 })
         }
         return
       }

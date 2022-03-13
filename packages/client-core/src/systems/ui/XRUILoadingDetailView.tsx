@@ -99,7 +99,15 @@ const LoadingDetailView = (props: {
     })
   }, [colors, sceneState])
 
-  // console.log('LOADING STATE', engineState.loadingDetails.value, t(engineState.loadingDetails.value))
+  const sceneLoading = engineState.sceneLoading.value
+  const sceneLoaded = engineState.sceneLoaded.value
+  const joinedWorld = engineState.joinedWorld.value
+  const loadingDetails =
+    sceneLoading || !sceneLoaded
+      ? t('common:loader.loadingObjects')
+      : !joinedWorld
+      ? t('common:loader.joiningWorld')
+      : t('common:loader.loadingComplete')
 
   return (
     <>
@@ -188,7 +196,7 @@ const LoadingDetailView = (props: {
             />
           </div>
           <div id="loading-details" xr-layer="true" xr-pixel-ratio="8">
-            {t(engineState.loadingDetails.value)}
+            {loadingDetails}
           </div>
         </div>
       </div>

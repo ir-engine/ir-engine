@@ -54,12 +54,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
     } catch (e) {
       console.error(`System ${name} failed to initialize! `)
       console.error(e)
-      return {
-        name,
-        type: s.type,
-        sceneSystem: s.sceneSystem,
-        execute: () => {}
-      } as SystemInstanceType
+      return null
     }
   }
   const systemModule = await Promise.all(
@@ -74,8 +69,10 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   )
   const systems = await Promise.all(systemModule.map(loadSystemInjection))
   systems.forEach((s) => {
-    world.pipelines[s.type].push(s)
-    console.log(`${s.type} ${s.name}`)
+    if (s) {
+      world.pipelines[s.type].push(s)
+      console.log(`${s.type} ${s.name}`)
+    }
   })
 }
 
