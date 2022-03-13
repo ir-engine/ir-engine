@@ -9,6 +9,7 @@ import { MediaStreamService } from '@xrengine/client-core/src/media/services/Med
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { ClientTransportHandler } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
+import { AuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { accessSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import { SceneData, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -32,8 +33,6 @@ import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/Ne
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
-
-import { AuthState } from '../../../src/user/services/AuthService'
 
 export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
   if (authState.isLoggedIn.value === true && authState.user.id.value) {
