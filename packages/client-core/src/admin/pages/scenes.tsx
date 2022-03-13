@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 
 import { AuthService } from '../../user/services/AuthService'
-import ScenesConsole from '../components/Scenes'
+
+// import ScenesConsole from '../components/Scenes'
 
 interface Props {}
 
@@ -10,7 +11,7 @@ function scenes(props: Props) {
     AuthService.doLoginAuto(true)
   }, [])
 
-  return <ScenesConsole />
+  // return <ScenesConsole />
 }
 
 export default scenes

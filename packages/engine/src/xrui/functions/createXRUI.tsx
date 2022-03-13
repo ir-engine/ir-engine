@@ -25,6 +25,7 @@ async function createWebContainer<S extends State<any> | null>(
 
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
+  containerElement.id = 'xrui-' + UI.name
 
   ReactDOM.render(
     //@ts-ignore
