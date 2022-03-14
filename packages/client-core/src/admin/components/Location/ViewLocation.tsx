@@ -36,10 +36,6 @@ interface Props {
   locationAdmin?: Location
 }
 
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
-}
-
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, locationAdmin } = props
   const dispatch = useDispatch()
@@ -568,8 +564,8 @@ const ViewLocation = (props: Props) => {
             </div>
           )}
         </DialogActions>
-        <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
       </Drawer>
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }
