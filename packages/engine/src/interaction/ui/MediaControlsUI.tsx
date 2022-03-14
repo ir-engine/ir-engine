@@ -11,7 +11,8 @@ import { MediaComponent, MediaComponentType } from '../../scene/components/Media
 import { createXRUI } from '../../xrui/functions/createXRUI'
 
 export function createMediaControlsView(data: MediaComponentType, entity: Entity) {
-  return createXRUI(() => <MediaControlsView entity={entity} />, createMediaControlsState(data))
+  const MediaControls = () => <MediaControlsView entity={entity} />
+  return createXRUI(MediaControls, createMediaControlsState(data))
 }
 
 function createMediaControlsState(data: MediaComponentType) {

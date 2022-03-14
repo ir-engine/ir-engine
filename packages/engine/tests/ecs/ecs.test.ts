@@ -112,10 +112,20 @@ describe('ECS', () => {
     assert.equal(query.enter().length, 0)
     assert.equal(query.exit()[0], entity)
 
-    addComponent(entity, MockComponent, { mockValue: 42 })
+    addComponent(entity, MockComponent, { mockValue: 43 })
     assert.ok(query().includes(entity))
     assert.equal(query.enter()[0], entity)
     assert.equal(query.exit().length, 0)
+
+    removeComponent(entity, MockComponent)
+    addComponent(entity, MockComponent, { mockValue: 44 })
+    assert.ok(query().includes(entity))
+    let enter = query.enter()
+    let exit = query.exit()
+    assert.equal(enter.length, 1)
+    assert.equal(enter[0], entity)
+    assert.equal(exit.length, 1)
+    assert.equal(exit[0], entity)
   })
 
   it('should add component', async () => {

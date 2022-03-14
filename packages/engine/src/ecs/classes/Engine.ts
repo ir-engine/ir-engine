@@ -23,6 +23,7 @@ import { isBot } from '../../common/functions/isBot'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { World } from '../classes/World'
+import { accessEngineState } from './EngineService'
 import { Entity } from './Entity'
 
 /**
@@ -65,7 +66,9 @@ export class Engine {
    * Reference to the three.js scene object.
    */
   static scene: Scene = null!
-  static sceneLoaded = false
+  static get sceneLoaded() {
+    return accessEngineState().sceneLoaded.value
+  }
   static sceneLoadPromises: Promise<void>[] = []
 
   /**
