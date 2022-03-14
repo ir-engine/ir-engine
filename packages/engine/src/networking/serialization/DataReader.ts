@@ -153,8 +153,6 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
 
-  const nameComponent = getComponent(entity, NameComponent)
-  console.log('network state set for:', nameComponent.name, world.fixedTick)
   const network = getComponent(entity, NetworkObjectComponent)
   network.lastTick = world.fixedTick
 }
