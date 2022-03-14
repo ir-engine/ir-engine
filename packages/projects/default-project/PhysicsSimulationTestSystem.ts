@@ -71,8 +71,8 @@ export const boxDynamicConfig = {
   staticFriction: 1,
   dynamicFriction: 1,
   restitution: 0.1,
-  spawnPosition: new Vector3(0, 35, 5),
-  spawnScale: new Vector3(1, 1, 1)
+  spawnPosition: new Vector3(0, 15, 5),
+  spawnScale: new Vector3(0.5, 0.5, 0.5)
 }
 
 export const generateSimulationData = (numOfObjectsToGenerate) => {
@@ -110,6 +110,7 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
 
 const defaultSpawnPosition = new Vector3()
 const defaultScalePosition = new Vector3(1, 1, 1)
+const defaultTorqueForce = new Vector3(0, 0, -500)
 
 export const generatePhysicsObject = (
   config: ShapeOptions,
@@ -170,7 +171,7 @@ export const generatePhysicsObject = (
   teleportRigidbody(body, transform.position, transform.rotation)
 
   if (isNetworkObject && world.isHosting) {
-    teleportRigidbody(body, transform.position, transform.rotation)
+    body.addTorque(defaultTorqueForce)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.findNodeFromEid(entity)

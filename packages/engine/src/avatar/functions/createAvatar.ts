@@ -53,10 +53,12 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   spawnAction.parameters.position = position
   spawnAction.parameters.rotation = rotation
 
-  const velocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
+  const linearVelocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angularVelocity, entity)
 
   addComponent(entity, VelocityComponent, {
-    linearVelocity: velocity
+    linearVelocity: linearVelocity,
+    angularVelocity: angularVelocity
   })
 
   // The visuals group is centered for easy actor tilting
