@@ -47,7 +47,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
       manager: WebLayerManager.instance
     })
 
-    container.raycaster.layers.enableAll()
+    if (container.raycaster) container.raycaster.layers.enableAll()
 
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
