@@ -1,12 +1,18 @@
 import clsx from 'clsx'
 import moment from 'moment'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import DateAdapter from '@mui/lab/AdapterMoment'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import DateRangePicker from '@mui/lab/DateRangePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
-import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Box, TextField } from '@mui/material'
+import Paper from '@mui/material/Paper'
+import { Theme } from '@mui/material/styles'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import createStyles from '@mui/styles/createStyles'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
@@ -17,6 +23,59 @@ import styles from './styles.module.scss'
 import UserGraph from './UserGraph'
 
 interface Props {}
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      flexGrow: 1
+    },
+    paper: {
+      padding: theme.spacing(2),
+      textAlign: 'center',
+      color: theme.palette.text.secondary,
+      height: '35rem',
+      width: '99.9%',
+      backgroundColor: '#323845'
+    },
+    mtopp: {
+      marginTop: '20px'
+    },
+    btn: {
+      color: 'white',
+      borderColor: 'white',
+      fontSize: '0.875rem',
+      [theme.breakpoints.down('md')]: {
+        fontSize: '0.6rem'
+      }
+    },
+    btnSelected: {
+      color: 'white !important',
+      borderColor: 'white',
+      backgroundColor: '#0000004d !important'
+    },
+    dashboardCardsContainer: {
+      display: 'grid',
+      gridGap: '10px',
+      gridTemplateColumns: '1fr 1fr 1fr 1fr',
+      ['@media (max-width: 900px)']: {
+        gridTemplateColumns: '1fr 1fr 1fr'
+      },
+      ['@media (max-width: 700px)']: {
+        gridTemplateColumns: '1fr 1fr'
+      },
+      ['@media (max-width: 500px)']: {
+        gridTemplateColumns: '1fr'
+      }
+    },
+    datePickerContainer: {
+      display: 'flex',
+      margin: '10px 0px',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end'
+    }
+  })
+)
 
 /**
  * Function for analytics on admin dashboard
@@ -127,6 +186,16 @@ const Analytics = (props: Props) => {
     setRefetch(true)
   }
 
+  const onDateRangeAccept = (value) => {
+    setEndDate(value[1])
+    setStartDate(value[0])
+  }
+
+  const onDateRangeChange = (value) => {
+    return false
+  }
+
+  const classes = useStyles()
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
@@ -176,8 +245,8 @@ const Analytics = (props: Props) => {
           return <Card key={el.label} data={el} />
         })}
       </div>
-      <div className={styles.mtopp}>
-        <div className={styles.paper}>
+      <div className={classes.mtopp}>
+        <div className={classes.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
               className={clsx(styles.btn, {
@@ -198,28 +267,27 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          <div className={styles.datePickerContainer}>
-            <LocalizationProvider dateAdapter={DateAdapter}>
-              <MobileDateTimePicker
-                value={startDate}
-                onChange={(value) => onDateRangeStartChange(value)}
-                renderInput={(params) => <TextField {...params} />}
-              />
-              <Box sx={{ mx: 2 }}> to </Box>
-              <MobileDateTimePicker
-                value={endDate}
-                minDateTime={minEndDate}
-                onChange={(value) => onDateRangeEndChange(value)}
-                renderInput={(params) => <TextField {...params} />}
+          <div className={classes.datePickerContainer}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateRangePicker
+                startText="Start Date"
+                endText="End Date"
+                // shouldDisableDate={datePickerDisabledDates}
+                value={[moment(startDate), moment(endDate)]}
+                onChange={onDateRangeChange}
+                renderInput={(startProps, endProps) => (
+                  <React.Fragment>
+                    <TextField {...startProps} size="small" />
+                    <Box sx={{ mx: 2 }}> to </Box>
+                    <TextField {...endProps} size="small" />
+                  </React.Fragment>
+                )}
+                onAccept={onDateRangeAccept}
               />
             </LocalizationProvider>
           </div>
-          {graphSelector === 'activity' && (
-            <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
-          )}
-          {graphSelector === 'users' && (
-            <UserGraph data={userGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
-          )}
+          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
+          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
         </div>
       </div>
     </>
