@@ -6,11 +6,8 @@ import { useTranslation } from 'react-i18next'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import DateRangePicker from '@mui/lab/DateRangePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import { Box, TextField } from '@mui/material'
-import Paper from '@mui/material/Paper'
+import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { Theme } from '@mui/material/styles'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import createStyles from '@mui/styles/createStyles'
 import makeStyles from '@mui/styles/makeStyles'
 
@@ -203,13 +200,9 @@ const Analytics = (props: Props) => {
     }
   }, [])
 
-  const onDateRangeAccept = (value) => {
+  const onDateRangeChange = (value) => {
     setEndDate(value[1])
     setStartDate(value[0])
-  }
-
-  const onDateRangeChange = (value) => {
-    return false
   }
 
   const classes = useStyles()
@@ -286,9 +279,8 @@ const Analytics = (props: Props) => {
               <DateRangePicker
                 startText="Start Date"
                 endText="End Date"
-                // shouldDisableDate={datePickerDisabledDates}
                 value={[moment(startDate), moment(endDate)]}
-                onChange={onDateRangeChange}
+                onChange={(value) => onDateRangeChange(value)}
                 renderInput={(startProps, endProps) => (
                   <React.Fragment>
                     <TextField {...startProps} size="small" />
@@ -296,7 +288,6 @@ const Analytics = (props: Props) => {
                     <TextField {...endProps} size="small" />
                   </React.Fragment>
                 )}
-                onAccept={onDateRangeAccept}
               />
             </LocalizationProvider>
           </div>

@@ -4,7 +4,8 @@ import ReactApexChart from 'react-apexcharts'
 
 const ActivityGraph = ({ data /* see data tab */ }) => {
   let maxY = 0
-  let minX = new Date().setTime(new Date().getTime() - 60000)
+  let dayOffset = 24 * 60 * 60 * 1000
+  let minX = new Date().setTime(new Date().getTime() - dayOffset)
   let maxX = new Date().getTime()
 
   if (data) {
