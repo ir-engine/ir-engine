@@ -153,16 +153,27 @@ const Analytics = (props: Props) => {
     }
   ]
 
+  if (
+    activityGraphData[0].data.length ||
+    activityGraphData[1].data.length ||
+    activityGraphData[2].data.length ||
+    activityGraphData[3].data.length ||
+    activityGraphData[4].data.length ||
+    activityGraphData[5].data.length
+  ) {
+    isDataAvailable = true
+  }
+
   useEffect(() => {
-    if (refetch === true && startDate < endDate) {
-      AnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
-      AnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
+    if (refetch === true) {
+      AnalyticsService.fetchActiveParties(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchInstanceUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchChannelUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveLocations(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveScenes(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveInstances(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchDailyUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchDailyNewUsers(startDate.toDate(), endDate.toDate())
       setRefetch(false)
     }
   }, [refetch, startDate, endDate])
@@ -173,19 +184,10 @@ const Analytics = (props: Props) => {
     if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState.isLoggedIn.value])
 
-  const onDateRangeStartChange = (value) => {
-    setStartDate(value)
-    setRefetch(true)
-  }
-
-  const onDateRangeEndChange = (value) => {
-    setEndDate(value)
-    setRefetch(true)
-  }
-
   const onDateRangeChange = (value) => {
     setEndDate(value[1])
     setStartDate(value[0])
+    setRefetch(true)
   }
 
   const classes = useStyles()
@@ -277,8 +279,12 @@ const Analytics = (props: Props) => {
               />
             </LocalizationProvider>
           </div>
-          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
-          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
+          {graphSelector === 'activity' && isDataAvailable && (
+            <ActivityGraph data={activityGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+          )}
+          {graphSelector === 'users' && (
+            <UserGraph data={userGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+          )}
         </div>
       </div>
     </>

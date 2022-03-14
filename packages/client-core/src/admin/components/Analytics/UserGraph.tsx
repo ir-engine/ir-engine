@@ -5,8 +5,8 @@ import ReactApexChart from 'react-apexcharts'
 const UserGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
   let dayOffset = 24 * 60 * 60 * 1000
-  let minX = new Date().setTime(new Date().getTime() - dayOffset)
-  let maxX = new Date().getTime()
+  let minX = new Date(startDate).setTime(new Date(startDate).getTime() - dayOffset)
+  let maxX = new Date(endDate).getTime()
 
   if (data) {
     for (let analytic of data) {
@@ -14,14 +14,6 @@ const UserGraph = ({ data, startDate, endDate }) => {
         for (let item of analytic.data) {
           if (maxY < item[1]) {
             maxY = item[1]
-          }
-
-          if (minX > item[0]) {
-            minX = item[0]
-          }
-
-          if (maxX < item[0]) {
-            maxX = item[0]
           }
         }
       }
