@@ -11,8 +11,6 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
 import { useStyles } from './styles'
 
-const { t } = useTranslation()
-
 interface emailProps {}
 
 const Email = (props: emailProps) => {
@@ -20,6 +18,7 @@ const Email = (props: emailProps) => {
   const emailSettingState = useEmailSettingState()
   const [emailSetting] = emailSettingState?.email?.value || []
   const id = emailSetting?.id
+  const { t } = useTranslation()
   const [showPassword, setShowPassword] = useState(false)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)

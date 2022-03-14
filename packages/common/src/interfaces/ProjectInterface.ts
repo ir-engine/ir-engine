@@ -5,4 +5,5 @@ export interface ProjectInterface {
   storageProviderPath?: string // does not exist in local dev
   repositoryPath: string
   description?: string
+  settings?: string
 }
