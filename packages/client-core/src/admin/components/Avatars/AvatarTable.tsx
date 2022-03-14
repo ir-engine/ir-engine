@@ -45,7 +45,6 @@ const AvatarTable = (props: Props) => {
     AvatarService.fetchAdminAvatars(incDec, newPage, null)
     setPage(newPage)
   }
-  console.log(adminAvatarState.value)
 
   const handleCloseModel = () => {
     setPopConfirmOpen(false)
@@ -58,7 +57,6 @@ const AvatarTable = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value && adminAvatarState.updateNeeded.value) {
-      console.log('.....................')
       AvatarService.fetchAdminAvatars('increment', 0, search)
     }
 
