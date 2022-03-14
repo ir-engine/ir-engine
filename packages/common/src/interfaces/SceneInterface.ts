@@ -17,15 +17,12 @@ export interface SceneJson {
   version: number
 }
 
-export interface SceneDetailInterface {
+export interface SceneMetadata {
   name: string
   thumbnailUrl: string
-  scene?: SceneJson
-  project?: string
-  id?: string
-  type?: string
-  description?: string
-  entities?: any
-  version?: string
-  sid?: string
+  project: string
+}
+
+export interface SceneData extends SceneMetadata {
+  scene: SceneJson
 }
