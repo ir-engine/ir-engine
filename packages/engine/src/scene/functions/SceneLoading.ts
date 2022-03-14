@@ -53,25 +53,29 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
+  dispatchLocal(EngineActions.sceneLoading())
+
+  let promisesCompleted = 0
   const onProgress = () => {
     // TODO: get more granular progress data based on percentage of each asset
     // we probably need to query for metadata to get the size of each request if we can
   }
   const onComplete = () => {
-    dispatchLocal(EngineActions.sceneEntityLoaded(promisesCompleted++) as any)
+    promisesCompleted++
+    dispatchLocal(
+      EngineActions.sceneLoadingProgress(
+        promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+      )
+    )
   }
   const promises = preCacheAssets(sceneData, onProgress)
+
   Engine.sceneLoadPromises = promises
   promises.forEach((promise) => promise.then(onComplete))
-  let promisesCompleted = 0
   await Promise.all(promises)
-
-  Engine.sceneLoaded = false
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-
-  dispatchLocal(EngineActions.sceneLoading())
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
@@ -101,8 +105,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   await Promise.all(Engine.sceneLoadPromises)
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
-
-  Engine.sceneLoaded = true
 
   // Configure CSM
   updateRenderSetting(world.entityTree.rootNode.entity)
