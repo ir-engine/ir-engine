@@ -1,7 +1,12 @@
 import clsx from 'clsx'
+import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import DateRangePicker from '@mui/lab/DateRangePicker'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import { Box, TextField } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import { Theme } from '@mui/material/styles'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -60,6 +65,13 @@ const useStyles = makeStyles((theme: Theme) =>
       ['@media (max-width: 500px)']: {
         gridTemplateColumns: '1fr'
       }
+    },
+    datePickerContainer: {
+      display: 'flex',
+      margin: '10px 0px',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end'
     }
   })
 )
@@ -77,6 +89,9 @@ const Analytics = (props: Props) => {
   const [graphSelector, setGraphSelector] = useState('activity')
   let isDataAvailable = false
   const analyticsState = useAnalyticsState()
+
+  const [endDate, setEndDate] = useState(moment())
+  const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
 
   const activeLocations = analyticsState.activeLocations.value.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]
@@ -188,6 +203,15 @@ const Analytics = (props: Props) => {
     }
   }, [])
 
+  const onDateRangeAccept = (value) => {
+    setEndDate(value[1])
+    setStartDate(value[0])
+  }
+
+  const onDateRangeChange = (value) => {
+    return false
+  }
+
   const classes = useStyles()
   const data = [
     {
@@ -236,7 +260,7 @@ const Analytics = (props: Props) => {
         })}
       </div>
       <div className={classes.mtopp}>
-        <Paper className={classes.paper}>
+        <div className={classes.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
               className={clsx(classes.btn, {
@@ -257,9 +281,28 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
+          <div className={classes.datePickerContainer}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateRangePicker
+                startText="Start Date"
+                endText="End Date"
+                // shouldDisableDate={datePickerDisabledDates}
+                value={[moment(startDate), moment(endDate)]}
+                onChange={onDateRangeChange}
+                renderInput={(startProps, endProps) => (
+                  <React.Fragment>
+                    <TextField {...startProps} size="small" />
+                    <Box sx={{ mx: 2 }}> to </Box>
+                    <TextField {...endProps} size="small" />
+                  </React.Fragment>
+                )}
+                onAccept={onDateRangeAccept}
+              />
+            </LocalizationProvider>
+          </div>
           {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
           {graphSelector === 'users' && <UserGraph data={userGraphData} />}
-        </Paper>
+        </div>
       </div>
       {/*<div className={classes.mtopp}>*/}
       {/*  <ApiLinks />*/}

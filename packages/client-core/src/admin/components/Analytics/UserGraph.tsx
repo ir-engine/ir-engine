@@ -25,7 +25,7 @@ const UserGraph = ({ data /* see data tab */ }) => {
       chart: {
         id: 'area-datetime',
         type: 'area',
-        height: 350,
+        height: '100%',
         width: '100%',
         background: '#323845',
         zoom: {
@@ -114,7 +114,7 @@ const UserGraph = ({ data /* see data tab */ }) => {
   }
 
   return (
-    <div id="chart-timeline" style={{ height: '30rem' }}>
+    <div id="chart-timeline" style={{ height: '25rem' }}>
       <ReactApexChart options={graphData.options} series={graphData.series} type="line" height="100%" width="100%" />
     </div>
   )

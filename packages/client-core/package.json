@@ -33,6 +33,7 @@
     "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.10.1",
     "@mui/icons-material": "5.4.1",
+    "@mui/lab": "5.0.0-alpha.58",
     "@mui/material": "5.4.1",
     "@mui/styled-engine-sc": "5.4.1",
     "@mui/styles": "5.4.1",
