@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import moment from 'moment'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
+import DateAdapter from '@mui/lab/AdapterMoment'
 import DateRangePicker from '@mui/lab/DateRangePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
@@ -166,14 +166,14 @@ const Analytics = (props: Props) => {
 
   useEffect(() => {
     if (refetch === true) {
-      AnalyticsService.fetchActiveParties(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchInstanceUsers(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchChannelUsers(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchActiveLocations(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchActiveScenes(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchActiveInstances(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchDailyUsers(startDate.toDate(), endDate.toDate())
-      AnalyticsService.fetchDailyNewUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
       setRefetch(false)
     }
   }, [refetch, startDate, endDate])
@@ -263,7 +263,7 @@ const Analytics = (props: Props) => {
             </ToggleButton>
           </ToggleButtonGroup>
           <div className={classes.datePickerContainer}>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider dateAdapter={DateAdapter}>
               <DateRangePicker
                 startText="Start Date"
                 endText="End Date"
@@ -280,10 +280,10 @@ const Analytics = (props: Props) => {
             </LocalizationProvider>
           </div>
           {graphSelector === 'activity' && isDataAvailable && (
-            <ActivityGraph data={activityGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+            <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
           )}
           {graphSelector === 'users' && (
-            <UserGraph data={userGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+            <UserGraph data={userGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
           )}
         </div>
       </div>
