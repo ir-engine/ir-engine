@@ -109,11 +109,7 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
 }
 
 const defaultSpawnPosition = new Vector3()
-<<<<<<< HEAD
-const defaultScale = new Vector3(1, 1, 1)
-=======
 const defaultScalePosition = new Vector3(1, 1, 1)
->>>>>>> Add angular velocity to VelocityComponent. And sync it across the network.
 const defaultTorqueForce = new Vector3(0, 0, -500)
 
 export const generatePhysicsObject = (

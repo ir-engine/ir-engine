@@ -19,13 +19,9 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
     }
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
-        if (config.server.storageProvider === 'local' && config.kubernetes.enabled && internal)
-          cacheDomain = config.server.localStorageProviderPort
-            ? `host.minikube.internal:${config.server.localStorageProviderPort}`
-            : 'host.minikube.internal'
-        sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain, internal)
-      } else if (val.startsWith(sceneCorsPathIdentifier)) {
-        sceneData[key] = val.replace(sceneCorsPathIdentifier, corsPath)
+        sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
+      } else if (val.startsWith('https://')) {
+        sceneData[key] = val //isDev ? `${corsPath}/${val}` : `${corsPath}/${val.replace('https://', '')}`
       }
     }
   }

@@ -28,11 +28,13 @@ export class AnimationManager {
     if (this._animations) {
       return this._animations
     }
-    gltf.scene.traverse((child: SkinnedMesh) => {
-      if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
-        this._defaultSkeleton = child
-      }
-    })
+    if (gltf.scene) {
+      gltf.scene.traverse((child: SkinnedMesh) => {
+        if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
+          this._defaultSkeleton = child
+        }
+      })
+    }
 
     if (!this._defaultSkeleton) {
       // reconstruct skeleton from stored data
