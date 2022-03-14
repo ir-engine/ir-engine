@@ -145,6 +145,16 @@ body {
   left: 5px;
 }
 
+.rotate {
+  transform: rotateY(-180deg);
+  transition: all 0.6s linear;
+}
+
+.rotateBack {
+  transform: rotateY(0deg);
+  transition: all 0.6s linear;
+}
+
 .smBtn {
   display: flex;
   justify-content: center;
@@ -159,9 +169,7 @@ body {
   padding: 0;
   border-radius: 50%;
   opacity: 0.8;
-  transition: all 0.2s;
   &:hover {
-    transform: translateY(-0.2rem);
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
   }
@@ -190,10 +198,8 @@ body {
   border: none;
   padding: 0;
   border-radius: 50%;
-  opacity: 0.8;
-  transition: all 0.2s;
+  opacity: 0.99;
   &:hover {
-    transform: translateY(-0.2rem);
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
   }
@@ -214,15 +220,24 @@ body {
   bottom: 20px;
   left: 125px;
 }
+.fadeOut {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 2s;
+}
 
 .animateTop {
   animation: moveInTop 0.5s ease-out 0.4s;
+  -webkit-animation: moveInTop 0.5s ease-out 0.4s;
   animation-fill-mode: backwards;
+  -webkit-animation-fill-mode: backwards;
 }
 
 .animateBottom {
   animation: moveInBottom 0.5s ease-out 0.4s;
+  -webkit-animation: moveInBottom 0.5s ease-out 0.4s;
   animation-fill-mode: backwards;
+  -webkit-animation-fill-mode: backwards;
 }
 
 @keyframes moveInBottom {
@@ -236,7 +251,29 @@ body {
   }
 }
 
+@-webkit-keyframes moveInBottom {
+  0% {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
 @keyframes moveInTop {
+  0% {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@-webkit-keyframes moveInTop {
   0% {
     opacity: 0;
     transform: translateY(-1rem);

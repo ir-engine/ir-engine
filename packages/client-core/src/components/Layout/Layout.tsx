@@ -145,77 +145,59 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
-              {showMediaIcons && (
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.showIconMedia} ${styles.animateTop}`}
-                  onClick={handleShowMediaIcons}
-                >
-                  <KeyboardDoubleArrowUpIcon />
-                </button>
-              )}{' '}
-              {!showMediaIcons && (
-                <button
-                  type="button"
-                  className={`${styles.smBtn} ${styles.showIconMedia} ${styles.animateTop}`}
-                  onClick={handleShowMediaIcons}
-                >
-                  <KeyboardDoubleArrowDownIcon />
-                </button>
-              )}
+              <button
+                type="button"
+                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
+                  showMediaIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIconMedia} `}
+                onClick={handleShowMediaIcons}
+              >
+                {showMediaIcons ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
+              </button>
               {children}
-              {showMediaIcons && <MediaIconsBox animate={styles.animateTop} />}
-              {showMediaIcons && (
-                <header className={showMediaIcons ? styles.animateTop : styles.animateBottom}>
-                  {path === '/login' && <NavMenu login={login} />}
-                  {!props.hideVideo && (
-                    <>
-                      <section className={styles.locationUserMenu}>
-                        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                        <PartyVideoWindows />
-                      </section>
-                      <UserToast />
-                    </>
-                  )}
-                </header>
-              )}
-              {showBottomIcons && (
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.showIcon} ${styles.animateBottom}`}
-                  onClick={handleShowBottomIcons}
-                >
-                  <KeyboardDoubleArrowDownIcon />
-                </button>
-              )}{' '}
-              {!showBottomIcons && (
-                <button
-                  type="button"
-                  className={`${styles.smBtn} ${styles.showIcon} ${styles.animateBottom} ${styles.animateBottom}`}
-                  onClick={handleShowBottomIcons}
-                >
-                  <KeyboardDoubleArrowUpIcon />
-                </button>
-              )}
-              {showBottomIcons && <UserMenu animate={showBottomIcons ? styles.animateBottom : ''} />}
-              {showBottomIcons && (
-                <div style={{ opacity: layoutOpacity }}>
-                  <UIDialog />
-                  <Alerts />
-                  {isTouchAvailable && (
-                    <Suspense fallback={<></>}>
-                      <TouchGamepad layout="default" />
-                    </Suspense>
-                  )}
-                  <Debug />
-                </div>
-              )}
-              {showBottomIcons && !iOS() && (
+              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOut} />
+              <header className={showMediaIcons ? styles.animateTop : styles.fadeOut}>
+                {path === '/login' && <NavMenu login={login} />}
+                {!props.hideVideo && (
+                  <>
+                    <section className={styles.locationUserMenu}>
+                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                      <PartyVideoWindows />
+                    </section>
+                    <UserToast />
+                  </>
+                )}
+              </header>
+              <button
+                type="button"
+                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
+                  showBottomIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIcon} `}
+                onClick={handleShowBottomIcons}
+              >
+                {showBottomIcons ? <KeyboardDoubleArrowDownIcon /> : <KeyboardDoubleArrowUpIcon />}
+              </button>
+              {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOut} />}
+
+              <div style={{ opacity: layoutOpacity }}>
+                <UIDialog />
+                <Alerts />
+                {isTouchAvailable && (
+                  <Suspense fallback={<></>}>
+                    <TouchGamepad layout="default" />
+                  </Suspense>
+                )}
+                <Debug />
+              </div>
+
+              {!iOS() && (
                 <>
                   {props.hideFullscreen ? null : fullScreenActive ? (
                     <button
                       type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : ''} `}
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOut
+                      } `}
                       onClick={handle.exit}
                     >
                       <FullscreenExit />
@@ -223,7 +205,9 @@ const Layout = (props: Props): any => {
                   ) : (
                     <button
                       type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${showBottomIcons ? styles.animateBottom : ''} `}
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOut
+                      } `}
                       onClick={handle.enter}
                     >
                       <ZoomOutMap />
@@ -231,16 +215,18 @@ const Layout = (props: Props): any => {
                   )}
                 </>
               )}
-              {showBottomIcons && (
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.respawn} ${showBottomIcons ? styles.animateBottom : ''} `}
-                  id="respawn"
-                  onClick={respawnCallback}
-                >
-                  <Refresh />
-                </button>
-              )}
+
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.respawn} ${
+                  showBottomIcons ? styles.animateBottom : styles.fadeOut
+                } `}
+                id="respawn"
+                onClick={respawnCallback}
+              >
+                <Refresh />
+              </button>
+
               <InstanceChat animate={styles.animateBottom} />
             </section>
           </ThemeProvider>
