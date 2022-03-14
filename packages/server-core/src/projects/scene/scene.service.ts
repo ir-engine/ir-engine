@@ -27,7 +27,7 @@ declare module '@xrengine/common/declarations' {
 }
 
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneData[] }> {
+  return async function ({ projectName, metadataOnly, clientFetch }, params: Params): Promise<{ data: SceneData[] }> {
     try {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
@@ -41,7 +41,9 @@ export const getScenesForProject = (app: Application) => {
         .filter((name) => name.endsWith('.scene.json'))
         .map((name) => name.slice(0, -'.scene.json'.length))
 
-      const sceneData: SceneData[] = files.map((sceneName) => getSceneData(projectName, sceneName, metadataOnly))
+      const sceneData: SceneData[] = files.map((sceneName) =>
+        getSceneData(projectName, sceneName, metadataOnly, clientFetch)
+      )
 
       return {
         data: sceneData
@@ -61,7 +63,10 @@ export const getAllScenes = (app: Application) => {
         (project) =>
           new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (
-              await getScenesForProject(app)({ projectName: project.name, metadataOnly: params.metadataOnly }, params)
+              await getScenesForProject(app)(
+                { projectName: project.name, metadataOnly: params.metadataOnly, clientFetch: params.clientFetch },
+                params
+              )
             ).data
             projectScenes.forEach((scene) => (scene.project = project.name))
             resolve(projectScenes)
