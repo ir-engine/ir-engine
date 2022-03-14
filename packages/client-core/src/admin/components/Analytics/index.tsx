@@ -115,15 +115,6 @@ const Analytics = (props: Props) => {
     return [new Date(item.createdAt).getTime(), item.count]
   })
 
-  const isMounted = useRef(false)
-  const fetchTick = () => {
-    setTimeout(() => {
-      if (!isMounted.current) return
-      setRefetch(true)
-      fetchTick()
-    }, 5000)
-  }
-
   const activityGraphData = [
     {
       name: t('admin:components.analytics.activeParties'),
@@ -163,28 +154,29 @@ const Analytics = (props: Props) => {
   ]
 
   if (
-    activityGraphData[0].data.length &&
-    activityGraphData[1].data.length &&
-    activityGraphData[2].data.length &&
-    activityGraphData[3].data.length &&
-    activityGraphData[4].data.length &&
+    activityGraphData[0].data.length ||
+    activityGraphData[1].data.length ||
+    activityGraphData[2].data.length ||
+    activityGraphData[3].data.length ||
+    activityGraphData[4].data.length ||
     activityGraphData[5].data.length
-  )
+  ) {
     isDataAvailable = true
+  }
 
   useEffect(() => {
     if (refetch === true) {
-      AnalyticsService.fetchActiveParties()
-      AnalyticsService.fetchInstanceUsers()
-      AnalyticsService.fetchChannelUsers()
-      AnalyticsService.fetchActiveLocations()
-      AnalyticsService.fetchActiveScenes()
-      AnalyticsService.fetchActiveInstances()
-      AnalyticsService.fetchDailyUsers()
-      AnalyticsService.fetchDailyNewUsers()
+      AnalyticsService.fetchActiveParties(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchInstanceUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchChannelUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveLocations(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveScenes(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchActiveInstances(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchDailyUsers(startDate.toDate(), endDate.toDate())
+      AnalyticsService.fetchDailyNewUsers(startDate.toDate(), endDate.toDate())
+      setRefetch(false)
     }
-    setRefetch(false)
-  }, [refetch])
+  }, [refetch, startDate, endDate])
 
   const authState = useAuthState()
 
@@ -192,17 +184,10 @@ const Analytics = (props: Props) => {
     if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState.isLoggedIn.value])
 
-  useEffect(() => {
-    isMounted.current = true
-    fetchTick()
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
-
   const onDateRangeChange = (value) => {
     setEndDate(value[1])
     setStartDate(value[0])
+    setRefetch(true)
   }
 
   const classes = useStyles()
@@ -291,13 +276,14 @@ const Analytics = (props: Props) => {
               />
             </LocalizationProvider>
           </div>
-          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
-          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
+          {graphSelector === 'activity' && isDataAvailable && (
+            <ActivityGraph data={activityGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+          )}
+          {graphSelector === 'users' && (
+            <UserGraph data={userGraphData} startDate={startDate.toDate()} endDate={endDate.toDate()} />
+          )}
         </div>
       </div>
-      {/*<div className={classes.mtopp}>*/}
-      {/*  <ApiLinks />*/}
-      {/*</div>*/}
     </>
   )
 }
