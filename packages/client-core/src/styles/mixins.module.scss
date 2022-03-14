@@ -30,7 +30,8 @@
 
   &::before {
     content: ' ';
-    position: absolute;;
+    position: absolute;
+    ;
     width: 0px;
     height: 0px;
     border-radius: 20px;
@@ -38,9 +39,11 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+    transition: all 0.15s cubic-bezier(.18, .89, .32, 1.28);
   }
-  &:hover, &:focus {
+
+  &:hover,
+  &:focus {
     color: #fff;
 
     &::before {
@@ -53,7 +56,9 @@
     color: grey;
     cursor: initial;
 
-    &::before { content: none !important; }
+    &::before {
+      content: none !important;
+    }
   }
 }
 
@@ -64,10 +69,15 @@
   flex-shrink: 0;
   flex-grow: 0;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 
   &::before {
     content: ' ';
-    position: absolute;;
+    position: absolute;
+    ;
     width: 0px;
     height: 0px;
     border-radius: 20px;
@@ -75,11 +85,21 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+    transition: all 0.15s cubic-bezier(.18, .89, .32, 1.28);
   }
-  &:hover, &:focus {
-    svg { color: #fff; z-index: 1; position: relative; }
-    &::before { width: 35px; height: 35px; }
+
+  &:hover,
+  &:focus {
+    svg {
+      color: #fff;
+      z-index: 1;
+      position: relative;
+    }
+
+    &::before {
+      width: 35px;
+      height: 35px;
+    }
   }
 }
 
@@ -116,12 +136,12 @@
 }
 
 @mixin purple-pink-linear-gradient() {
-  background: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-  background: linear-gradient(92.22deg,#5236ff,#c20560);
+  background: -moz-linear-gradient(357.78deg, #5236ff 0, #c20560 100%);
+  background: linear-gradient(92.22deg, #5236ff, #c20560);
 }
 
 @mixin paper-modal() {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0,0,0,0.2), 0px 5px 8px 0px rgba(0,0,0,0.14), 0px 1px 14px 0px rgba(0,0,0,0.12);
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
   background-color: #fff;
 }
