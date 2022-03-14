@@ -200,14 +200,14 @@ export const setupAvatarHeight = (entity: Entity, boneStructure: BoneStructure) 
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  // const textureLight = AssetLoader.getFromCache('/itemLight.png')
-  // const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
+  const textureLight = AssetLoader.getFromCache('/itemLight.png')
+  const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
 
   const lightMesh = new Mesh(
     new PlaneGeometry(0.04, 3.2),
     new MeshBasicMaterial({
       transparent: true,
-      // map: textureLight,
+      map: textureLight,
       blending: AdditiveBlending,
       depthWrite: false,
       side: DoubleSide
@@ -218,7 +218,7 @@ export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<M
     new PlaneGeometry(1.6, 1.6),
     new MeshBasicMaterial({
       transparent: false,
-      // map: texturePlate,
+      map: texturePlate,
       blending: AdditiveBlending,
       depthWrite: false
     })
@@ -229,10 +229,10 @@ export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<M
   lightMesh.name = 'light_obj'
   plateMesh.name = 'plate_obj'
 
-  // textureLight.encoding = sRGBEncoding
-  // textureLight.needsUpdate = true
-  // texturePlate.encoding = sRGBEncoding
-  // texturePlate.needsUpdate = true
+  textureLight.encoding = sRGBEncoding
+  textureLight.needsUpdate = true
+  texturePlate.encoding = sRGBEncoding
+  texturePlate.needsUpdate = true
 
   if (hasComponent(entity, AvatarPendingComponent)) removeComponent(entity, AvatarPendingComponent)
   addComponent(entity, AvatarPendingComponent, {
@@ -299,7 +299,7 @@ export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
       `
       vSelectedBone = 0.0;
 
-      if((skinIndex.x == boneIndexToFade && skinWeight.x >= boneWeightThreshold) ||
+      if((skinIndex.x == boneIndexToFade && skinWeight.x >= boneWeightThreshold) || 
       (skinIndex.y == boneIndexToFade && skinWeight.y >= boneWeightThreshold) ||
       (skinIndex.z == boneIndexToFade && skinWeight.z >= boneWeightThreshold) ||
       (skinIndex.w == boneIndexToFade && skinWeight.w >= boneWeightThreshold)){

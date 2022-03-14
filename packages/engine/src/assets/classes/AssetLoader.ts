@@ -223,18 +223,10 @@ const load = async (
     onError(new Error('URL is empty'))
     return
   }
-  let url = getAbsolutePath(_url)
+  const url = getAbsolutePath(_url)
 
   if (AssetLoader.Cache.has(url)) {
     onLoad(AssetLoader.Cache.get(url))
-  }
-
-  if (url.search('172.18.140.250')) {
-    url = url.replace('172.18.140.250', '192.168.205.64')
-  }
-
-  if (url.search('localhost')) {
-    url = url.replace('localhost', '192.168.205.64')
   }
 
   const assetType = AssetLoader.getAssetType(url)

@@ -20,8 +20,8 @@ export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: strin
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
         sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
-      } else if (val.startsWith('https://')) {
-        sceneData[key] = val //isDev ? `${corsPath}/${val}` : `${corsPath}/${val.replace('https://', '')}`
+      } else if (val.startsWith(sceneCorsPathIdentifier)) {
+        sceneData[key] = val.replace(sceneCorsPathIdentifier, corsPath)
       }
     }
   }
