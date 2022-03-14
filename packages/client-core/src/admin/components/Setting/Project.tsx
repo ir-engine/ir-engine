@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 
 import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
-import { useHookedEffect } from '../../../hooks/useHookedEffect'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import { useStyles } from './styles'
