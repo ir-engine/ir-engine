@@ -18,7 +18,8 @@ const createMovingAvatar = (world) => {
   const entity = createEntity(world)
 
   addComponent(entity, VelocityComponent, {
-    linearVelocity: new Vector3()
+    linearVelocity: new Vector3(),
+    angularVelocity: new Vector3()
   })
 
   const tiltContainer = new Group()

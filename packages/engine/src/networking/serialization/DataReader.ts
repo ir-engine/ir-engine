@@ -81,6 +81,7 @@ export const readVector4 =
 
 export const readPosition = readVector3(TransformComponent.position)
 export const readLinearVelocity = readVector3(VelocityComponent.linearVelocity)
+export const readAngularVelocity = readVector3(VelocityComponent.angularVelocity)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity, shouldWrite = true) => {
@@ -93,8 +94,8 @@ export const readTransform = (v: ViewCursor, entity: Entity, shouldWrite = true)
 export const readVelocity = (v: ViewCursor, entity: Entity, shouldWrite = true) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity, shouldWrite)
-  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity, shouldWrite)
+  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)

@@ -232,7 +232,8 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
       const linearVelocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
-      addComponent(entity, VelocityComponent, { linearVelocity: linearVelocity })
+      const angularVelocity = createVector3Proxy(VelocityComponent.angularVelocity, entity)
+      addComponent(entity, VelocityComponent, { linearVelocity: linearVelocity, angularVelocity: angularVelocity })
     }
   }
 }

@@ -104,6 +104,7 @@ function avatarActionReceptor(action) {
         const avatar = getComponent(entity, AvatarComponent)
         controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
         velocity.linearVelocity.setScalar(0)
+        velocity.angularVelocity.setScalar(0)
       }
     })
 }
