@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import React from 'react'
 
+import CodeIcon from '@mui/icons-material/Code'
 import LockIcon from '@mui/icons-material/Lock'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
@@ -24,6 +25,7 @@ const settings = ({
   handleGameServer,
   handleServer,
   handleAnalytics,
+  handleProject,
   serverFocused,
   awsFocused,
   emailFocused,
@@ -32,7 +34,8 @@ const settings = ({
   authFocused,
   chargebeeFocused,
   redisFocused,
-  analyticsFocused
+  analyticsFocused,
+  projectFocused
 }) => {
   const classes = useStyles()
 
@@ -51,6 +54,19 @@ const settings = ({
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary="Analytics" />
+        </ListItem>
+        <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
+        <ListItem
+          button
+          onClick={handleProject}
+          className={projectFocused ? `${classes.focused}` : `${classes.notFocused}`}
+        >
+          <ListItemAvatar>
+            <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
+              <CodeIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="Project" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
