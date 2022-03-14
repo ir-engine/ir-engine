@@ -1,8 +1,10 @@
-import { useDispatch } from '../../store'
-import { client } from '../../feathers'
 import { createState, useState } from '@speigg/hookstate'
-import { store } from '../../store'
+
 import { GameServerPatch } from '@xrengine/common/src/interfaces/Instance'
+
+import { client } from '../../feathers'
+import { useDispatch } from '../../store'
+import { store } from '../../store'
 
 //State
 const state = createState({

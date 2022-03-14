@@ -1,8 +1,6 @@
-import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import { GameserverService } from '../../services/GameserverService'
-import { LocationService, useLocationState } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
@@ -12,8 +10,12 @@ import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
+
+import { useAuthState } from '../../../user/services/AuthService'
+import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import { GameserverService } from '../../services/GameserverService'
+import { LocationService, useLocationState } from '../../services/LocationService'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -69,7 +71,7 @@ const PatchGameserver = (props: Props) => {
       <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-            {t('admin:components.setting.patchGameserver')} 
+            {t('admin:components.setting.patchGameserver')}
           </DialogTitle>
           <label>{t('admin:components.bot.location')}</label>
           <Paper component="div" className={state.locationError.length > 0 ? classes.redBorder : classes.createInput}>
@@ -98,7 +100,7 @@ const PatchGameserver = (props: Props) => {
           </Paper>
           <DialogActions>
             <Button className={classes.saveBtn} onClick={handleSubmit}>
-              {t('admin:components.setting.save')} 
+              {t('admin:components.setting.save')}
             </Button>
             <Button onClick={handleClose(false)} className={classes.saveBtn}>
               {t('admin:components.setting.cancel')}
