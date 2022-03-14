@@ -12,6 +12,7 @@ export interface Location {
   isFeatured: boolean
   location_settings?: LocationSettings
   location_setting?: LocationSettings
+<<<<<<< HEAD
 }
 
 export interface LocationFetched {
@@ -25,6 +26,8 @@ export interface LocationFetched {
   isLobby: boolean
   isFeatured: boolean
   location_setting?: any
+=======
+>>>>>>> Fixed a bug with minikube client local file loading.
 }
 
 export const LocationSeed: Location = {

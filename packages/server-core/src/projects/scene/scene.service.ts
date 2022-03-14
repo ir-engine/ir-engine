@@ -27,7 +27,11 @@ declare module '@xrengine/common/declarations' {
 }
 
 export const getScenesForProject = (app: Application) => {
+<<<<<<< HEAD
   return async function ({ projectName, metadataOnly, internal }, params: Params): Promise<{ data: SceneData[] }> {
+=======
+  return async function ({ projectName, metadataOnly, clientFetch }, params: Params): Promise<{ data: SceneData[] }> {
+>>>>>>> Fixed a bug with minikube client local file loading.
     try {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
@@ -42,7 +46,11 @@ export const getScenesForProject = (app: Application) => {
         .map((name) => name.slice(0, -'.scene.json'.length))
 
       const sceneData: SceneData[] = files.map((sceneName) =>
+<<<<<<< HEAD
         getSceneData(projectName, sceneName, metadataOnly, internal)
+=======
+        getSceneData(projectName, sceneName, metadataOnly, clientFetch)
+>>>>>>> Fixed a bug with minikube client local file loading.
       )
 
       return {
@@ -64,7 +72,11 @@ export const getAllScenes = (app: Application) => {
           new Promise<SceneData[]>(async (resolve) => {
             const projectScenes = (
               await getScenesForProject(app)(
+<<<<<<< HEAD
                 { projectName: project.name, metadataOnly: params.metadataOnly, internal: params.provider == null },
+=======
+                { projectName: project.name, metadataOnly: params.metadataOnly, clientFetch: params.clientFetch },
+>>>>>>> Fixed a bug with minikube client local file loading.
                 params
               )
             ).data
