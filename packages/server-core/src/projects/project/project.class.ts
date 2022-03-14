@@ -112,6 +112,7 @@ export class Project extends Service {
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+
     return Promise.resolve()
   }
 
@@ -331,8 +332,20 @@ export class Project extends Service {
     }
   }
 
+  async updateSettings(id: Id, data: { settings: string }) {
+    return super.patch(id, data)
+  }
+
   //@ts-ignore
   async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+    params = {
+      ...params,
+      query: {
+        ...params?.query,
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
+      }
+    }
+
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data
