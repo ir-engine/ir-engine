@@ -299,7 +299,8 @@
             "googleAnalyticsTrackingId":"Google Analytics Tracking ID",
             "certPath":"CertPath",
             "keyPath":"KeyPath",
-            "githubPrivateKey":"Github Private Key"
+            "githubPrivateKey":"Github Private Key",
+            "patchGameserver": "Patch Gameserver"
        },
        "avatar":{
         "fillRequiredFields":"Please fill all required field",
