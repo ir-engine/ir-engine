@@ -78,7 +78,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginRight: '10px'
     },
     spanWhite: {
-      color: '#f1f1f1'
+      color: '#f1f1f1 !important'
     },
     paperDrawer: {
       width: '40%',
