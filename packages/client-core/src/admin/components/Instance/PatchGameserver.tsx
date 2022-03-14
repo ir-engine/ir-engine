@@ -69,9 +69,9 @@ const PatchGameserver = (props: Props) => {
       <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-            Patch Gameserver
+            {t('admin:components.setting.patchGameserver')} 
           </DialogTitle>
-          <label>Location</label>
+          <label>{t('admin:components.bot.location')}</label>
           <Paper component="div" className={state.locationError.length > 0 ? classes.redBorder : classes.createInput}>
             <FormControl fullWidth>
               <Select
@@ -86,7 +86,7 @@ const PatchGameserver = (props: Props) => {
                 MenuProps={{ classes: { paper: classes.selectPaper } }}
               >
                 <MenuItem value="" disabled>
-                  <em>Select location</em>
+                  <em>{t('admin:components.bot.selectLocation')}</em>
                 </MenuItem>
                 {adminLocations.value.map((el, i) => (
                   <MenuItem value={el.id} key={i}>
@@ -98,10 +98,10 @@ const PatchGameserver = (props: Props) => {
           </Paper>
           <DialogActions>
             <Button className={classes.saveBtn} onClick={handleSubmit}>
-              Submit
+              {t('admin:components.setting.save')} 
             </Button>
             <Button onClick={handleClose(false)} className={classes.saveBtn}>
-              Cancel
+              {t('admin:components.setting.cancel')}
             </Button>
           </DialogActions>
         </Container>
