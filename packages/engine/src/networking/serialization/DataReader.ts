@@ -1,16 +1,16 @@
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
@@ -76,7 +76,8 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.velocity)
+export const readLinearVelocity = readVector3(VelocityComponent.linear)
+export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity) => {
@@ -90,7 +91,7 @@ export const readVelocity = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
-  // if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
@@ -169,6 +170,9 @@ export const readEntity = (v: ViewCursor, world: World) => {
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
+
+  const network = getComponent(entity, NetworkObjectComponent)
+  network.lastTick = world.fixedTick
 }
 
 export const readEntities = (v: ViewCursor, world: World, byteLength: number) => {

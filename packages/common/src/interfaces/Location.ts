@@ -7,10 +7,23 @@ export interface Location {
   maxUsersPerInstance: number
   sceneId: string
   locationSettingsId: string
-  locationSettings: LocationSettings
+  locationSetting: LocationSettings
   isLobby: boolean
   isFeatured: boolean
   location_settings?: any
+}
+
+export interface LocationFetched {
+  id: string
+  name: string
+  slugifiedName: string
+  maxUsersPerInstance: number
+  sceneId: string
+  locationSettingsId: string
+  locationSetting: LocationSettings
+  isLobby: boolean
+  isFeatured: boolean
+  location_setting?: any
 }
 
 export const LocationSeed: Location = {
@@ -22,7 +35,7 @@ export const LocationSeed: Location = {
   locationSettingsId: '',
   isLobby: false,
   isFeatured: false,
-  locationSettings: {
+  locationSetting: {
     id: '',
     locationId: '',
     instanceMediaChatEnabled: false,

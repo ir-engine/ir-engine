@@ -30,26 +30,32 @@ export type SystemInstanceType = {
 
 export const initSystems = async (world: World, systemModulesToLoad: SystemModuleType<any>[]) => {
   const loadSystemInjection = async (s: SystemFactoryType<any>) => {
-    const system = await s.systemModule.default(world, s.args)
     const name = s.systemModule.default.name
-    return {
-      name,
-      type: s.type,
-      sceneSystem: s.sceneSystem,
-      execute: () => {
-        const start = nowMilliseconds()
-        try {
-          system()
-        } catch (e) {
-          console.error(e)
+    try {
+      const system = await s.systemModule.default(world, s.args)
+      return {
+        name,
+        type: s.type,
+        sceneSystem: s.sceneSystem,
+        execute: () => {
+          const start = nowMilliseconds()
+          try {
+            system()
+          } catch (e) {
+            console.error(e)
+          }
+          const end = nowMilliseconds()
+          const duration = end - start
+          if (duration > 10) {
+            console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+          }
         }
-        const end = nowMilliseconds()
-        const duration = end - start
-        if (duration > 10) {
-          console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
-        }
-      }
-    } as SystemInstanceType
+      } as SystemInstanceType
+    } catch (e) {
+      console.error(`System ${name} failed to initialize! `)
+      console.error(e)
+      return null
+    }
   }
   const systemModule = await Promise.all(
     systemModulesToLoad.map(async (s) => {
@@ -63,8 +69,10 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   )
   const systems = await Promise.all(systemModule.map(loadSystemInjection))
   systems.forEach((s) => {
-    world.pipelines[s.type].push(s)
-    console.log(`${s.type} ${s.name}`)
+    if (s) {
+      world.pipelines[s.type].push(s)
+      console.log(`${s.type} ${s.name}`)
+    }
   })
 }
 

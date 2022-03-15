@@ -77,7 +77,8 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeLinearVelocity = writeVector3(VelocityComponent.velocity)
+export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
+export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
 export const writeRotation = writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
@@ -104,7 +105,7 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let b = 0
 
   changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  // changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0 // TODO: angular velocity
+  changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }

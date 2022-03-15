@@ -44,7 +44,7 @@ store.receptors.push((action: LocationActionType): any => {
           currentLocation: {
             location: {
               ...action.location,
-              locationSettings: (action.location as any).location_setting
+              locationSetting: (action.location as any).location_setting
             },
             bannedUsers,
             selfUserBanned: false

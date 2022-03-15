@@ -75,10 +75,16 @@ export async function getFreeGameserver(
     return {
       id: null,
       ipAddress: null,
-      port: null
+      port: null,
+      podName: null
     }
   }
-  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId)
+  const split = instanceIpAddress.split(':')
+  const pod = readyServers.find(
+    (server) => server.status.address === split[0] && server.status.ports[0].port == split[1]
+  )
+
+  return checkForDuplicatedAssignments(app, instanceIpAddress, iteration, locationId, channelId, pod.metadata.name)
 }
 
 export async function checkForDuplicatedAssignments(
@@ -86,12 +92,14 @@ export async function checkForDuplicatedAssignments(
   ipAddress: string,
   iteration: number,
   locationId: string,
-  channelId: string
+  channelId: string,
+  podName = undefined as undefined | string
 ) {
   //Create an assigned instance at this IP
   const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,
     locationId: locationId,
+    podName: podName,
     channelId: channelId,
     assigned: true,
     assignedAt: new Date()
@@ -129,7 +137,8 @@ export async function checkForDuplicatedAssignments(
         return {
           id: null,
           ipAddress: null,
-          port: null
+          port: null,
+          podName: null
         }
       }
     }
@@ -139,7 +148,8 @@ export async function checkForDuplicatedAssignments(
   return {
     id: assignResult.id,
     ipAddress: split[0],
-    port: split[1]
+    port: split[1],
+    podName: assignResult.podName
   }
 }
 

@@ -1,17 +1,19 @@
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getGeometryType } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
+import { ObstaclesComponent } from '../components/ObstaclesComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
-import { getTransform } from './parseModelColliders'
 import { vectorToArray } from './physxHelpers'
 
 /**
@@ -230,6 +232,9 @@ export const createColliderForObject3D = (entity: Entity, data, disableGravity: 
       body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, disableGravity)
       addComponent(entity, ColliderComponent, { body })
       addComponent(entity, CollisionComponent, { collisions: [] })
+      const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+      const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+      addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
     }
   }
 }
@@ -244,7 +249,13 @@ export const createObstacleFromMesh = (entity: Entity, mesh: Mesh) => {
     halfHeight: scale.y,
     halfExtents: scale
   }
-  useWorld().physics.createObstacle(position, quaternion, config)
+  const obstacle = useWorld().physics.createObstacle(position, quaternion, config)
+  ;(obstacle as any)._mesh = mesh
+  if (!hasComponent(entity, ObstaclesComponent)) {
+    addComponent(entity, ObstaclesComponent, { obstacles: [] })
+  }
+  const obstaclesComponent = getComponent(entity, ObstaclesComponent)
+  obstaclesComponent.obstacles.push(obstacle)
 }
 
 const EPSILON = 1e-6
@@ -267,14 +278,14 @@ export const getAllShapesFromObject3D = (entity: Entity, asset: Object3D, data: 
 
     if (mesh.userData.type === 'obstacle') {
       createObstacleFromMesh(entity, mesh)
-      mesh.removeFromParent()
+      mesh.visible = false
       return
     }
 
     const shape = createShape(entity, mesh, mesh.userData as any)
     if (!shape) return
     shapes.push(shape)
-    mesh.removeFromParent()
+    mesh.visible = false
   })
 
   return shapes.filter((val) => {
