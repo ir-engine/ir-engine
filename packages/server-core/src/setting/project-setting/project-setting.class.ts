@@ -22,7 +22,7 @@ export class ProjectSetting implements ServiceMethods<Data> {
   }
 
   async patch(id: Id, params?: Params): Promise<any> {
-    const result = await this.app.service('project').updateSettings(id, params)
+    const result = await this.app.service('project').updateSettings(id, params as any)
 
     return result
   }
