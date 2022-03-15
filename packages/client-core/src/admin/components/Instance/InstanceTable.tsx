@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
@@ -26,7 +25,6 @@ interface Props {
  */
 const InstanceTable = (props: Props) => {
   const { search } = props
-  const dispatch = useDispatch()
   const classes = useStyles()
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INSTNCE_PAGE_LIMIT)

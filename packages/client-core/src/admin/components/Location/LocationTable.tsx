@@ -7,7 +7,6 @@ import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 
 import { useErrorState } from '../../../common/services/ErrorService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
@@ -34,7 +33,6 @@ const LocationTable = (props: LocationProps) => {
   const [locationName, setLocationName] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
   const [locationAdmin, setLocationAdmin] = React.useState<Location>()
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage

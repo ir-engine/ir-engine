@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchAdminParty } from '../../common/hooks/party.hooks'
@@ -16,7 +15,6 @@ import ViewParty from './ViewParty'
 const PartyTable = (props: PartyPropsTable) => {
   const { search } = props
   const classes = useStyles()
-  const dispatch = useDispatch()
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
