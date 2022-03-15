@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import { Save } from '@mui/icons-material'
-import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -22,7 +21,6 @@ import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
@@ -38,7 +36,6 @@ interface Props {
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, locationAdmin } = props
-  const dispatch = useDispatch()
   const classes = useStyles()
   const [editMode, setEditMode] = React.useState(false)
   const [state, setState] = React.useState({

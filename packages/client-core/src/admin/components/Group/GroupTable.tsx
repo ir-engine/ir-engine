@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
@@ -18,7 +17,6 @@ interface Props {
 
 const GroupTable = (props: Props) => {
   const { search } = props
-  const dispatch = useDispatch()
   const classes = useStyles()
   const user = useAuthState().user
   const [viewModel, setViewModel] = useState(false)

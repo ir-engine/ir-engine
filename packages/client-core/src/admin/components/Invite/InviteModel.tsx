@@ -22,7 +22,6 @@ import makeStyles from '@mui/styles/makeStyles'
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
-import { useDispatch } from '../../../store'
 import styles from '../Admin.module.scss'
 
 interface Props {
@@ -103,8 +102,7 @@ const InviteModel = (props: Props) => {
   // const [openInvite ,setOpenInvite] = React.useState(false);
   const [openWarning, setOpenWarning] = React.useState(false)
   const { t } = useTranslation()
-  const [error, setError] = React.useState('')
-  const dispatch = useDispatch()
+
   const handleCloseWarning = (event, reason) => {
     if (reason === 'clickaway') {
       return
