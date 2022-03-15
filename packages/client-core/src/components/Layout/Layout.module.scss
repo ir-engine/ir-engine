@@ -146,13 +146,13 @@ body {
 }
 
 .rotate {
-  transform: rotateY(-180deg);
-  transition: all 0.6s linear;
+  transform: rotateZ(-180deg);
+  transition: all 0.6s ease;
 }
 
 .rotateBack {
-  transform: rotateY(0deg);
-  transition: all 0.6s linear;
+  transform: rotateZ(0deg);
+  transition: all 0.6s ease;
 }
 
 .smBtn {
