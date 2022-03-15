@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import DateAdapter from '@mui/lab/AdapterMoment'
-import DateRangePicker from '@mui/lab/DateRangePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import MobileDateRangePicker from '@mui/lab/MobileDateRangePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { Theme } from '@mui/material/styles'
 import createStyles from '@mui/styles/createStyles'
@@ -261,7 +261,7 @@ const Analytics = (props: Props) => {
           </ToggleButtonGroup>
           <div className={classes.datePickerContainer}>
             <LocalizationProvider dateAdapter={DateAdapter}>
-              <DateRangePicker
+              <MobileDateRangePicker
                 startText="Start Date"
                 endText="End Date"
                 value={[moment(startDate), moment(endDate)]}
