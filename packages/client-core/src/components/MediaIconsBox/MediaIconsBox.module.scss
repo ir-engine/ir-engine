@@ -60,4 +60,9 @@
       }
     }
   }
+  @media (max-width: 395px) {
+    top: 60px;
+    right: -5px;
+    flex-direction: column;
+  }
 }

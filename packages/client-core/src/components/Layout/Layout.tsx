@@ -65,11 +65,21 @@ const Layout = (props: Props): any => {
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  let mediaIconTimer: any
-  let bottomIconTimer: any
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
+    const topButtonsState = localStorage.getItem('isTopButtonsShown')
+    const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
+    if (!topButtonsState) {
+      localStorage.setItem('isTopButtonsShown', 'true')
+    } else {
+      setShowMediaIcons(JSON.parse(topButtonsState))
+    }
+    if (!bottomButtonsState) {
+      localStorage.setItem('isBottomButtonsShown', 'true')
+    } else {
+      setShowBottomIcons(JSON.parse(bottomButtonsState))
+    }
   }, [])
 
   useEffect(() => {
@@ -102,33 +112,37 @@ const Layout = (props: Props): any => {
   }
 
   const handleShowMediaIcons = () => {
-    if (showMediaIcons) clearTimeout(mediaIconTimer)
     setShowMediaIcons(!showMediaIcons)
+    const topButtonsState = localStorage.getItem('isTopButtonsShown') || ''
+    localStorage.setItem('isTopButtonsShown', JSON.stringify(!JSON.parse(topButtonsState)))
   }
 
   const handleShowBottomIcons = () => {
-    if (showBottomIcons) clearTimeout(bottomIconTimer)
     setShowBottomIcons(!showBottomIcons)
+    const bottomButtonsState = localStorage.getItem('isBottomButtonsShown') || ''
+    localStorage.setItem('isBottomButtonsShown', JSON.stringify(!JSON.parse(bottomButtonsState)))
   }
 
   const setTimerForMediaIcons = () => {
-    mediaIconTimer = setTimeout(() => {
+    setTimeout(() => {
       setShowMediaIcons(false)
+      localStorage.setItem('isTopButtonsShown', 'false')
     }, 15000)
   }
 
   const setTimerForBottomIcons = () => {
-    bottomIconTimer = setTimeout(() => {
+    setTimeout(() => {
       setShowBottomIcons(false)
+      localStorage.setItem('isBottomButtonsShown', 'false')
     }, 15000)
   }
 
   if (showMediaIcons) setTimerForMediaIcons()
   if (showBottomIcons) setTimerForBottomIcons()
-
   const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
   const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
-
+  const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
+  const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -152,7 +166,7 @@ const Layout = (props: Props): any => {
                 } ${styles.showIconMedia} `}
                 onClick={handleShowMediaIcons}
               >
-                {showMediaIcons ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
+                <MediaIconHider />
               </button>
               {children}
               <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOut} />
@@ -175,7 +189,7 @@ const Layout = (props: Props): any => {
                 } ${styles.showIcon} `}
                 onClick={handleShowBottomIcons}
               >
-                {showBottomIcons ? <KeyboardDoubleArrowDownIcon /> : <KeyboardDoubleArrowUpIcon />}
+                <BottomIconHider />
               </button>
               {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOut} />}
 

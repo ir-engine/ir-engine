@@ -75,6 +75,12 @@
     .materialIconBlock.activeMenu {
       color: #a8a8ff;
     }
+    @media (max-width: 560px) {
+      height: 100%;
+      flex-direction: column;
+      margin-left: 10px;
+      justify-content: space-around;
+    }
   }
 
   .avatarPanel {
@@ -92,11 +98,11 @@
     max-height: calc(100vh - 100px);
     overflow: auto;
 
-    &>.avatarContainer {
+    & > .avatarContainer {
       margin-top: 40px;
     }
 
-    &>.controlContainer {
+    & > .controlContainer {
       margin-bottom: 10px;
     }
 
@@ -155,7 +161,7 @@
     @media screen and (min-width: 768px) {
       width: 320px;
 
-      &>.avatarContainer {
+      & > .avatarContainer {
         margin-top: 25px;
       }
 
@@ -226,13 +232,13 @@
         border-radius: 3px;
         font-size: 14px;
 
-        &>svg {
+        & > svg {
           font-size: 18px;
           margin-left: 5px;
         }
       }
 
-      button+button {
+      button + button {
         margin-left: 5px;
       }
 
@@ -242,7 +248,7 @@
       }
 
       .browseBtn {
-        &>svg {
+        & > svg {
           transform: rotate(180deg);
         }
       }
@@ -277,7 +283,7 @@
         right: 5px;
         top: 5px;
 
-        &>svg {
+        & > svg {
           opacity: 0.5;
 
           &:hover {
@@ -316,7 +322,7 @@
             width: 40px;
           }
 
-          &>div+div {
+          & > div + div {
             margin-top: 10px;
           }
         }
@@ -405,6 +411,11 @@
       }
     }
   }
+
+  @media (max-width: 560px) {
+    height: 200px;
+    bottom: 100px;
+  }
 }
 
 .menuPanel {
@@ -427,11 +438,11 @@
     touch-action: auto;
   }
 
-  &>.profilePanel,
-  &>.accountPanel,
-  &>.settingPanel,
-  &>.sharePanel,
-  &>.locationPanel {
+  & > .profilePanel,
+  & > .accountPanel,
+  & > .settingPanel,
+  & > .sharePanel,
+  & > .locationPanel {
     margin: 30px 0;
   }
 
@@ -656,8 +667,8 @@
           outline: none !important;
         }
 
-        &>a:hover svg,
-        &>a:focus svg {
+        & > a:hover svg,
+        & > a:focus svg {
           opacity: 0.8;
         }
 
@@ -696,7 +707,7 @@
       color: #ffffff;
       position: relative;
 
-      &+.settingSection {
+      & + .settingSection {
         margin-top: 25px;
       }
     }
@@ -705,11 +716,11 @@
       display: flex;
       align-items: center;
 
-      &+.flexWrap {
+      & + .flexWrap {
         flex-wrap: wrap;
       }
 
-      &+.row {
+      & + .row {
         margin-top: 5px;
       }
 
@@ -1023,7 +1034,7 @@
           background: transparent;
         }
 
-        input:focus+svg {
+        input:focus + svg {
           opacity: 0.7;
         }
       }
@@ -1204,11 +1215,11 @@
 .avatarPanel {
   @include panel-popup-container-styling();
 
-  &>.avatarContainer {
+  & > .avatarContainer {
     margin-top: 40px;
   }
 
-  &>.controlContainer {
+  & > .controlContainer {
     margin-bottom: 10px;
   }
 
@@ -1341,7 +1352,7 @@
   @media screen and (min-width: 768px) {
     width: 330px;
 
-    &>.avatarContainer {
+    & > .avatarContainer {
       margin-top: 25px;
       width: 280px;
     }
@@ -1401,13 +1412,13 @@
       justify-content: center;
       align-items: center;
 
-      &>svg {
+      & > svg {
         font-size: 18px;
         margin-left: 5px;
       }
     }
 
-    button+button {
+    button + button {
       margin-left: 5px;
     }
 
@@ -1417,7 +1428,7 @@
     }
 
     .browseBtn {
-      &>svg {
+      & > svg {
         transform: rotate(180deg);
       }
     }
@@ -1443,7 +1454,7 @@
       right: 5px;
       top: 5px;
 
-      &>svg {
+      & > svg {
         opacity: 0.5;
 
         &:hover {
@@ -1482,7 +1493,7 @@
           vertical-align: middle;
         }
 
-        &>div+div {
+        & > div + div {
           margin-top: 10px;
         }
       }
