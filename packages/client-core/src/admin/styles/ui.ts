@@ -179,7 +179,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       maxHeight: 'calc(100vh - 172px)'
     },
     rootPaper: {
-      marginTop: '65px',
+      marginTop: '50px',
       minHeight: '15vh',
       background: '#111',
       color: '#f1f1f1',
