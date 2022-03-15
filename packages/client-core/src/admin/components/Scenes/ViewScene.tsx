@@ -19,132 +19,132 @@ const ViewScene = (props: ViewSceneProps) => {
   const { t } = useTranslation()
   const classes = useStyles()
 
-  const createData = (id, name, index, components): EntityData => {
-    return {
-      id,
-      name,
-      index,
-      components
-    }
-  }
+  // const createData = (id, name, index, components): EntityData => {
+  //   return {
+  //     id,
+  //     name,
+  //     index,
+  //     components
+  //   }
+  // }
+  //
+  // const rows = adminScene?.entities?.map((el) => {
+  //   return createData(
+  //     el.id,
+  //     el.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+  //     el.index || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
+  //     el.components.length || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+  //   )
+  // })
 
-  const rows = adminScene?.entities?.map((el) => {
-    return createData(
-      el.id,
-      el.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
-      el.index || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
-      el.components.length || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
-    )
-  })
-
-  return (
-    <React.Fragment>
-      <Drawer
-        classes={{ paper: classes.paperDrawer }}
-        anchor="right"
-        open={viewModal}
-        onClose={() => closeViewModal(false)}
-      >
-        <Paper elevation={3} className={classes.rootPaper}>
-          <Container maxWidth="sm">
-            <div className={classes.locationTitle}>
-              <Typography variant="h4" component="span" className={classes.typo}>
-                {adminScene.name}
-              </Typography>
-            </div>
-          </Container>
-        </Paper>
-        <Container maxWidth="lg" className={classes.marginTop}>
-          <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
-            {t('admin:components.scene.sceneInfo')}
-          </Typography>
-          <Container className={classes.mb40px}>
-            <Grid container spacing={3}>
-              <Grid item xs={6} sm={6}>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {t('admin:components.scene.type')}:
-                </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {t('admin:components.scene.sid')}:
-                </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {t('admin:components.scene.entities')}:
-                </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {t('admin:components.scene.version')}:
-                </Typography>
-                <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {t('admin:components.scene.description')}:
-                </Typography>
-              </Grid>
-              <Grid item xs={6} sm={6}>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.type || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
-                </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.sid || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
-                </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.entities?.length || (
-                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
-                  )}
-                </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.version || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
-                </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
-                  {adminScene?.description || (
-                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
-                  )}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Container>
-          {adminScene?.entities && (
-            <>
-              <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
-                {t('admin:components.scene.entityInfo')}
-              </Typography>
-              <Container>
-                <TableContainer className={classes.groupContainer}>
-                  <Table className={classes.viewEntityTable} size="small" aria-label="a dense table">
-                    <TableHead>
-                      <TableRow>
-                        {entityColumns.map((col, index) => (
-                          <TableCell
-                            key={index}
-                            align={col.align}
-                            style={{ minWidth: col.minWidth }}
-                            className={classes.tableCellHeader}
-                          >
-                            {col.label}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row, index) => (
-                        <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                          {entityColumns.map((column) => {
-                            const value = row[column.id]
-                            return (
-                              <TableCell key={column.id} align={column.align} className={classes.tableCellBody}>
-                                {value}
-                              </TableCell>
-                            )
-                          })}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Container>
-            </>
-          )}
-        </Container>
-      </Drawer>
-    </React.Fragment>
-  )
+  // return (
+  //   <React.Fragment>
+  //     <Drawer
+  //       classes={{ paper: classes.paperDrawer }}
+  //       anchor="right"
+  //       open={viewModal}
+  //       onClose={() => closeViewModal(false)}
+  //     >
+  //       <Paper elevation={3} className={classes.rootPaper}>
+  //         <Container maxWidth="sm">
+  //           <div className={classes.locationTitle}>
+  //             <Typography variant="h4" component="span" className={classes.typo}>
+  //               {adminScene.name}
+  //             </Typography>
+  //           </div>
+  //         </Container>
+  //       </Paper>
+  //       <Container maxWidth="lg" className={classes.marginTop}>
+  //         <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
+  //           {t('admin:components.scene.sceneInfo')}
+  //         </Typography>
+  //         <Container className={classes.mb40px}>
+  //           <Grid container spacing={3}>
+  //             <Grid item xs={6} sm={6}>
+  //               <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {t('admin:components.scene.type')}:
+  //               </Typography>
+  //               <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+  //                 {t('admin:components.scene.sid')}:
+  //               </Typography>
+  //               <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+  //                 {t('admin:components.scene.entities')}:
+  //               </Typography>
+  //               <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+  //                 {t('admin:components.scene.version')}:
+  //               </Typography>
+  //               <Typography variant="h5" component="h5" className={`${classes.mb10} ${classes.typoFont}`}>
+  //                 {t('admin:components.scene.description')}:
+  //               </Typography>
+  //             </Grid>
+  //             <Grid item xs={6} sm={6}>
+  //               <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {adminScene?.type || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
+  //               </Typography>
+  //               <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {adminScene?.sid || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
+  //               </Typography>
+  //               <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {adminScene?.entities?.length || (
+  //                   <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+  //                 )}
+  //               </Typography>
+  //               <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {adminScene?.version || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
+  //               </Typography>
+  //               <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFontsm}`}>
+  //                 {adminScene?.description || (
+  //                   <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+  //                 )}
+  //               </Typography>
+  //             </Grid>
+  //           </Grid>
+  //         </Container>
+  //         {adminScene?.entities && (
+  //           <>
+  //             <Typography variant="h4" component="h4" className={`${classes.mb40px} ${classes.headingFont}`}>
+  //               {t('admin:components.scene.entityInfo')}
+  //             </Typography>
+  //             <Container>
+  //               <TableContainer className={classes.groupContainer}>
+  //                 <Table className={classes.viewEntityTable} size="small" aria-label="a dense table">
+  //                   <TableHead>
+  //                     <TableRow>
+  //                       {entityColumns.map((col, index) => (
+  //                         <TableCell
+  //                           key={index}
+  //                           align={col.align}
+  //                           style={{ minWidth: col.minWidth }}
+  //                           className={classes.tableCellHeader}
+  //                         >
+  //                           {col.label}
+  //                         </TableCell>
+  //                       ))}
+  //                     </TableRow>
+  //                   </TableHead>
+  //                   <TableBody>
+  //                     {rows.map((row, index) => (
+  //                       <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+  //                         {entityColumns.map((column) => {
+  //                           const value = row[column.id]
+  //                           return (
+  //                             <TableCell key={column.id} align={column.align} className={classes.tableCellBody}>
+  //                               {value}
+  //                             </TableCell>
+  //                           )
+  //                         })}
+  //                       </TableRow>
+  //                     ))}
+  //                   </TableBody>
+  //                 </Table>
+  //               </TableContainer>
+  //             </Container>
+  //           </>
+  //         )}
+  //       </Container>
+  //     </Drawer>
+  //   </React.Fragment>
+  // )
 }
 
 export default ViewScene

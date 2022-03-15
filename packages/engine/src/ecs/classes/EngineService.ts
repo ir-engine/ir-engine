@@ -13,7 +13,6 @@ const state = createState({
   sceneLoaded: false,
   joinedWorld: false,
   loadingProgress: 0,
-  loadingDetails: 'loading background assests...',
   connectedWorld: false,
   isTeleporting: false,
   isPhysicsDebug: false,
@@ -55,11 +54,19 @@ export function EngineEventReceptor(action: EngineActionType) {
       case EngineEvents.EVENTS.SCENE_UNLOADED:
         return s.merge({ sceneLoaded: false, sceneLoading: false })
       case EngineEvents.EVENTS.SCENE_LOADING:
-        return s.merge({ sceneLoaded: false, sceneLoading: true })
-      case EngineEvents.EVENTS.SCENE_LOADED:
-        return s.merge({ sceneLoaded: true, sceneLoading: false })
-      case EngineEvents.EVENTS.JOINED_WORLD:
-        return s.merge({ joinedWorld: true })
+        return s.merge({ sceneLoaded: false, sceneLoading: true, loadingProgress: 0 })
+      case EngineEvents.EVENTS.SCENE_LOADED: {
+        return s.merge({ sceneLoaded: true, sceneLoading: false, loadingProgress: 100 })
+      }
+      case EngineEvents.EVENTS.JOINED_WORLD: {
+        s.merge({ joinedWorld: true })
+        if (s.sceneLoaded.value) {
+          s.merge({ loadingProgress: 100 })
+        }
+        return
+      }
+      case EngineEvents.EVENTS.SCENE_LOADING_PROGRESS:
+        return s.merge({ loadingProgress: action.progress })
       case EngineEvents.EVENTS.LEAVE_WORLD:
         return s.merge({ joinedWorld: false })
       case EngineEvents.EVENTS.CONNECT_TO_WORLD:
@@ -79,10 +86,6 @@ export function EngineEventReceptor(action: EngineActionType) {
         return s.merge({
           isTeleporting: action.isTeleporting
         })
-      case EngineEvents.EVENTS.LOADING_STATE_CHANGED:
-        s.loadingProgress.set(action.loadingProgress)
-        s.loadingDetails.set(action.loadingDetails)
-        return
       case EngineEvents.EVENTS.SET_USER_HAS_INTERACTED:
         return s.merge({ userHasInteracted: true })
       case EngineEvents.EVENTS.ENTITY_ERROR_UPDATE:
@@ -159,10 +162,10 @@ export const EngineActions = {
       type: EngineEvents.EVENTS.SCENE_UNLOADED
     }
   },
-  sceneEntityLoaded: (count: number) => {
+  sceneLoadingProgress: (progress: number) => {
     return {
-      type: EngineEvents.EVENTS.SCENE_ENTITY_LOADED,
-      count
+      type: EngineEvents.EVENTS.SCENE_LOADING_PROGRESS,
+      progress
     }
   },
   ////////////////
@@ -228,13 +231,6 @@ export const EngineActions = {
     return {
       type: EngineEvents.EVENTS.AVATAR_DEBUG,
       isAvatarDebug
-    }
-  },
-  loadingStateChanged: (loadingProgress: number, loadingDetails: string) => {
-    return {
-      type: EngineEvents.EVENTS.LOADING_STATE_CHANGED,
-      loadingProgress,
-      loadingDetails
     }
   },
   setUserHasInteracted: () => {
