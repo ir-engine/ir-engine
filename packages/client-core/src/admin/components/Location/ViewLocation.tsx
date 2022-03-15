@@ -82,12 +82,12 @@ const ViewLocation = (props: Props) => {
         name: locationAdmin.name,
         maxUsers: locationAdmin.maxUsersPerInstance,
         scene: locationAdmin.sceneId,
-        type: locationAdmin?.locationSetting?.locationType,
-        videoEnabled: locationAdmin?.locationSetting?.videoEnabled,
-        audioEnabled: locationAdmin?.locationSetting?.audioEnabled,
-        screenSharingEnabled: locationAdmin?.locationSetting?.screenSharingEnabled,
-        faceStreamingEnabled: locationAdmin?.locationSetting?.faceStreamingEnabled,
-        globalMediaEnabled: locationAdmin?.locationSetting?.instanceMediaChatEnabled,
+        type: locationAdmin?.location_setting?.locationType,
+        videoEnabled: locationAdmin?.location_setting?.videoEnabled,
+        audioEnabled: locationAdmin?.location_setting?.audioEnabled,
+        screenSharingEnabled: locationAdmin?.location_setting?.screenSharingEnabled,
+        faceStreamingEnabled: locationAdmin?.location_setting?.faceStreamingEnabled,
+        globalMediaEnabled: locationAdmin?.location_setting?.instanceMediaChatEnabled,
         isLobby: locationAdmin.isLobby,
         isFeatured: locationAdmin.isFeatured
       })
@@ -116,7 +116,6 @@ const ViewLocation = (props: Props) => {
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
-  console.log(state)
   const handleSubmit = () => {
     const locationData = {
       name: state.name,
@@ -277,7 +276,7 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <label>{t('admin:components.locationModel.private')}</label>
+              <label>{t('admin:components.locationModel.type')}</label>
               <Paper
                 component="div"
                 className={state.formErrors.type.length > 0 ? classes.redBorder : classes.createInput}

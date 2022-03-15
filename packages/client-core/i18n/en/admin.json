@@ -22,6 +22,7 @@
       "createNewLocation": "Create New Location",
       "selectScene": "Select scene",
       "private": "Private",
+      "type": "Type",
       "selectType": "Select type",
       "submit": "Submit",
       "fillRequiredFields": "Please fill all required field",
