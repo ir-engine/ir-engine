@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import DateAdapter from '@mui/lab/AdapterMoment'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import MobileDateRangePicker from '@mui/lab/MobileDateRangePicker'
+import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { Theme } from '@mui/material/styles'
 import createStyles from '@mui/styles/createStyles'
@@ -165,7 +165,7 @@ const Analytics = (props: Props) => {
   }
 
   useEffect(() => {
-    if (refetch === true) {
+    if (refetch === true && startDate < endDate) {
       AnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
       AnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
       AnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
@@ -184,9 +184,13 @@ const Analytics = (props: Props) => {
     if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState.isLoggedIn.value])
 
-  const onDateRangeChange = (value) => {
-    setEndDate(value[1])
-    setStartDate(value[0])
+  const onDateRangeStartChange = (value) => {
+    setStartDate(value)
+    setRefetch(true)
+  }
+
+  const onDateRangeEndChange = (value) => {
+    setEndDate(value)
     setRefetch(true)
   }
 
@@ -230,6 +234,9 @@ const Analytics = (props: Props) => {
     }
   ]
 
+  const tempStartDate = moment(startDate)
+  const minEndDate = moment(tempStartDate.startOf('day').add(1, 'day'))
+
   return (
     <>
       <div className={classes.dashboardCardsContainer}>
@@ -261,22 +268,21 @@ const Analytics = (props: Props) => {
           </ToggleButtonGroup>
           <div className={classes.datePickerContainer}>
             <LocalizationProvider dateAdapter={DateAdapter}>
-              <MobileDateRangePicker
-                startText="Start Date"
-                endText="End Date"
-                value={[moment(startDate), moment(endDate)]}
-                onChange={(value) => onDateRangeChange(value)}
-                renderInput={(startProps, endProps) => (
-                  <React.Fragment>
-                    <TextField {...startProps} size="small" />
-                    <Box sx={{ mx: 2 }}> to </Box>
-                    <TextField {...endProps} size="small" />
-                  </React.Fragment>
-                )}
+              <MobileDateTimePicker
+                value={startDate}
+                onChange={(value) => onDateRangeStartChange(value)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <Box sx={{ mx: 2 }}> to </Box>
+              <MobileDateTimePicker
+                value={endDate}
+                minDateTime={minEndDate}
+                onChange={(value) => onDateRangeEndChange(value)}
+                renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
           </div>
-          {graphSelector === 'activity' && isDataAvailable && (
+          {graphSelector === 'activity' && (
             <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
           )}
           {graphSelector === 'users' && (
