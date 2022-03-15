@@ -9,6 +9,7 @@ import {
 } from 'three'
 
 import { CapsuleBufferGeometry } from '../../common/classes/CapsuleBufferGeometry'
+import { createVector3Proxy } from '../../common/proxies/three'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -39,9 +40,9 @@ export const createRigidbody = (world, type) => {
     bodyType: BodyType.DYNAMIC
   }
 
-  addComponent(entity, VelocityComponent, {
-    velocity: new Vector3()
-  })
+  const linearVelocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angularVelocity, entity)
+  addComponent(entity, VelocityComponent, { linearVelocity: linearVelocity, angularVelocity: angularVelocity })
 
   addComponent(entity, Object3DComponent, {
     value: mesh
