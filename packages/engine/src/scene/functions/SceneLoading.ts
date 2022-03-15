@@ -106,8 +106,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
-  // Configure CSM
-  updateRenderSetting(world.entityTree.rootNode.entity)
   dispatchLocal(EngineActions.sceneLoaded()).delay(2)
 }
 
