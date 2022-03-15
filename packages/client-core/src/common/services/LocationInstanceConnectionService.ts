@@ -1,5 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -89,12 +91,12 @@ export const LocationInstanceConnectionService = {
     dispatch(LocationInstanceConnectionAction.serverProvisioning())
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
-      const instance = await client.service('instance').find({
+      const instance = (await client.service('instance').find({
         query: {
           id: instanceId,
           ended: false
         }
-      })
+      })) as Paginated<Instance>
       if (instance.total === 0) {
         instanceId = null!
       }

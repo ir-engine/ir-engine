@@ -1,10 +1,11 @@
+import { NullableId, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { UserSettingsInterface } from '@xrengine/common/src/dbmodels/UserSettings'
+import { UserSetting } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 
-export type UserSettingsDataType = UserSettingsInterface
+export type UserSettingsDataType = UserSetting
 /**
  * A class for User Settings service
  *
@@ -15,5 +16,13 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
+  }
+
+  async create(data: any, params?: Params): Promise<T | T[]> {
+    return super.Model(data)
+  }
+
+  async patch(id: NullableId, data: Partial<T>, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

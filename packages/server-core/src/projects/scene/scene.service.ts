@@ -27,7 +27,7 @@ declare module '@xrengine/common/declarations' {
 }
 
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface[] }> {
+  return async function ({ projectName, metadataOnly }, params?: Params): Promise<{ data: SceneDetailInterface[] }> {
     try {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)

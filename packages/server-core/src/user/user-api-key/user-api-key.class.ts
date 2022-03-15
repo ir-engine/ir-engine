@@ -1,4 +1,4 @@
-import { Params } from '@feathersjs/feathers'
+import { NullableId, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
 
@@ -21,7 +21,7 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
     this.app = app
   }
 
-  async patch(id: string | null, data: any, params: Params = {}): Promise<T | T[]> {
+  async patch(id: NullableId, data: any, params: Params = {}): Promise<T | T[]> {
     const loggedInUser = await extractLoggedInUserFromParams(params)
     if (loggedInUser.userRole === 'admin' && id != null && params) return super.patch(id, { ...data })
     const userApiKey = await this.app.service('user-api-key').Model.findOne({

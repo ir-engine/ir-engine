@@ -37,7 +37,7 @@ export const useSceneState = () => useState(state) as any as typeof state
 
 export const SceneService = {
   getSceneData: async (projectName: string, sceneName: string) => {
-    const sceneData = await client.service('scene').get({ projectName, sceneName })
+    const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     const dispatch = useDispatch()
     dispatch(SceneAction.sceneLoaded(sceneData.data))
   }

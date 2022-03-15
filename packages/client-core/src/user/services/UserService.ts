@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, none, useState } from '@speigg/hookstate'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
@@ -112,12 +113,12 @@ export const UserService = {
   getLayerUsers: async (instance = true) => {
     const dispatch = useDispatch()
     {
-      const layerUsers = await client.service('user').find({
+      const layerUsers = (await client.service('user').find({
         query: {
           $limit: 1000,
           action: instance ? 'layer-users' : 'channel-users'
         }
-      })
+      })) as Paginated<User>
       dispatch(
         instance ? UserAction.loadedLayerUsers(layerUsers.data) : UserAction.loadedChannelLayerUsers(layerUsers.data)
       )

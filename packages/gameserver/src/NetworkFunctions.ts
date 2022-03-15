@@ -62,10 +62,7 @@ export const setupSubdomain = async (transport: SocketWebRTCServerTransport) => 
   } else {
     try {
       // is this needed?
-      await (app.service('instance') as any).Model.update(
-        { ended: true, assigned: false, assignedAt: null },
-        { where: {} }
-      )
+      await app.service('instance').Model.update({ ended: true, assigned: false, assignedAt: null }, { where: {} })
     } catch (error) {
       logger.warn(error)
     }
@@ -141,7 +138,7 @@ export async function getFreeSubdomain(
 }
 
 export async function cleanupOldGameservers(transport: SocketWebRTCServerTransport): Promise<void> {
-  const instances = await (transport.app.service('instance') as any).Model.findAndCountAll({
+  const instances = await transport.app.service('instance').Model.findAndCountAll({
     offset: 0,
     limit: 1000,
     where: {

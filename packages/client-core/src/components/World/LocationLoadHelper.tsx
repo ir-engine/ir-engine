@@ -41,7 +41,7 @@ export const retriveLocationByName = (authState: any, locationName: string, hist
     if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
       LocationService.getLobby()
         .then((lobby) => {
-          history.replace('/location/' + lobby.slugifiedName)
+          history.replace('/location/' + lobby?.slugifiedName)
         })
         .catch((err) => console.log('getLobby error', err))
     } else {

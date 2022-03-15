@@ -1,3 +1,5 @@
+import '@featherjs/transport-commons'
+
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { Channel } from './channel.class'

@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, Downgraded, useState } from '@speigg/hookstate'
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
@@ -236,7 +237,7 @@ export const AuthService = {
                 userId: userId
               }
             })
-            .then((settingsRes) => {
+            .then((settingsRes: Paginated<UserSetting>) => {
               if (settingsRes.total === 0) {
                 return client
                   .service('user-settings')
@@ -665,7 +666,7 @@ export const AuthService = {
   },
   updateUserSettings: async (id: any, data: any) => {
     const dispatch = useDispatch()
-    const res = await client.service('user-settings').patch(id, data)
+    const res = (await client.service('user-settings').patch(id, data)) as UserSetting
     dispatch(AuthAction.updatedUserSettingsAction(res))
   },
   uploadAvatar: async (data: any) => {
@@ -679,7 +680,8 @@ export const AuthService = {
           Authorization: 'Bearer ' + token
         }
       })
-      await client.service('user').patch(selfUser.id.value, {
+      const userId = selfUser.id.value ?? null
+      await client.service('user').patch(userId, {
         name: selfUser.name.value
       })
       const result = res.data
@@ -701,9 +703,10 @@ export const AuthService = {
       const dispatch = useDispatch()
       dispatch(AuthAction.userAvatarIdUpdated(response))
       const selfUser = accessAuthState().user
+      const userId = selfUser.id.value ?? null
       client
         .service('user')
-        .patch(selfUser.id.value, { avatarId: avatarName })
+        .patch(userId, { avatarId: avatarName })
         .then((_) => {
           AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
           dispatchFrom(Engine.userId, () =>
@@ -812,7 +815,7 @@ export const AuthService = {
 
   updateApiKey: async () => {
     const dispatch = useDispatch()
-    const apiKey = await client.service('user-api-key').patch()
+    const apiKey = (await client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatch(AuthAction.apiKeyUpdated(apiKey))
   },
   listenForUserPatch: () => {
@@ -834,7 +837,8 @@ export const AuthService = {
         if (selfPartyUser != undefined && selfPartyUser?.id != null) {
           await client.service('party-user').remove(selfPartyUser.id)
         }
-        const user = resolveUser(await client.service('user').get(selfUser.id.value))
+        const userId = selfUser.id.value ?? ''
+        const user = resolveUser(await client.service('user').get(userId))
         store.dispatch(AuthAction.userUpdated(user))
       }
     })

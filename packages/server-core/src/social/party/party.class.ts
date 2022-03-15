@@ -82,7 +82,7 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @author Vyacheslav Solovjov
    */
   async get(id: string, params?: Params): Promise<T> {
-    if (id == null) {
+    if (id == null || id === '') {
       const loggedInUser = extractLoggedInUserFromParams(params)
       const partyUserResult = await this.app.service('party-user').find({
         query: {
