@@ -1,5 +1,9 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
+import { isDev } from '@xrengine/common/src/utils/isDev'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
+
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -12,6 +16,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
+import { PhysicsDebugInput } from '../input/enums/DebugEnum'
 import {
   CameraInput,
   GamepadAxis,
@@ -38,18 +43,14 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
-import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
-import { PhysicsDebugInput } from '../input/enums/DebugEnum'
-import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -511,21 +512,24 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   }
 }
 
-export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+export const handlePhysicsDebugEvent = (
+  entity: Entity,
+  inputKey: InputAlias,
+  inputValue: InputValue,
+  delta: number
+): void => {
   switch (inputValue.lifecycleState) {
     case LifecycleValue.Ended: {
       if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
         dispatchFrom(Engine.userId, () =>
-        NetworkWorldAction.spawnDebugPhysicsObject({
-          config: boxDynamicConfig // Any custom config can be provided here
-        })
+          NetworkWorldAction.spawnDebugPhysicsObject({
+            config: boxDynamicConfig // Any custom config can be provided here
+          })
         )
-      }
-      else if (inputKey === PhysicsDebugInput.SHOW_PHYSICS_DEBUG) {
+      } else if (inputKey === PhysicsDebugInput.SHOW_PHYSICS_DEBUG) {
         dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
         dispatchLocal(EngineActions.setAvatarDebug(true) as any)
-      }
-      else if (inputKey === PhysicsDebugInput.HIDE_PHYSICS_DEBUG) {
+      } else if (inputKey === PhysicsDebugInput.HIDE_PHYSICS_DEBUG) {
         dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
         dispatchLocal(EngineActions.setAvatarDebug(false) as any)
       }
@@ -599,9 +603,9 @@ export const createAvatarInput = () => {
   if (isDev) {
     map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
     map.set('KeyP', PhysicsDebugInput.SHOW_PHYSICS_DEBUG)
-    map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)  
+    map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)
   }
-  
+
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
   map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
