@@ -49,6 +49,7 @@ import { PhysicsDebugInput } from '../input/enums/DebugEnum'
 import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { isDev } from '@xrengine/common/src/utils/isDev'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -594,9 +595,13 @@ export const createAvatarInput = () => {
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
   map.set('KeyF', BaseInput.LOCKING_CAMERA)
-  map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
-  map.set('KeyP', PhysicsDebugInput.SHOW_PHYSICS_DEBUG)
-  map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)
+
+  if (isDev) {
+    map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
+    map.set('KeyP', PhysicsDebugInput.SHOW_PHYSICS_DEBUG)
+    map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)  
+  }
+  
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
   map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
