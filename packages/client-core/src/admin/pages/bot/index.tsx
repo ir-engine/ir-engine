@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { AuthService } from '../../../user/services/AuthService'
 import BotsCore from '../../components/Bots'
@@ -6,7 +6,7 @@ import BotsCore from '../../components/Bots'
 interface Props {}
 
 const Bots = (props: Props) => {
-  React.useEffect(() => {
+  useEffect(() => {
     AuthService.doLoginAuto(false)
   }, [])
 

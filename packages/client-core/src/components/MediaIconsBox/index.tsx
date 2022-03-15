@@ -50,11 +50,11 @@ const MediaIconsBox = (props) => {
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediastream = useMediaStreamState()
-  const videoEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.videoEnabled?.value
+  const videoEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.videoEnabled?.value
     : false
-  const instanceMediaChatEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.instanceMediaChatEnabled?.value
+  const instanceMediaChatEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.instanceMediaChatEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
@@ -77,7 +77,7 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true
+      currentLocation?.locationSetting?.instanceMediaChatEnabled?.value === true
         ? 'instance'
         : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {

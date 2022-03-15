@@ -32,7 +32,6 @@ const EditGroup = (props: Props) => {
   const { groupAdmin, closeEditModal, closeViewModal } = props
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
-  const adminScopeTypes = adminScopeTypeState.scopeTypes
   const { t } = useTranslation()
 
   const [state, setState] = useState({
