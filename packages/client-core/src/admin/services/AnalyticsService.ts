@@ -64,18 +64,27 @@ export const useAnalyticsState = () => useState(state) as any as typeof state
 
 //Service
 export const AnalyticsService = {
-  fetchActiveParties: async () => {
+  fetchActiveParties: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const activeParties = await client.service('analytics').find({
-          query: {
-            type: 'activeParties',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
+        const query = {
+          type: 'activeParties',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const activeParties = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.activePartiesFetched(activeParties))
       } catch (err) {
@@ -83,18 +92,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchActiveInstances: async () => {
+  fetchActiveInstances: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
+      const query = {
+        type: 'activeInstances',
+        createdAt: undefined as any,
+        $sort: {
+          createdAt: -1
+        }
+      }
+
+      if (startDate && endDate) {
+        query.createdAt = {
+          $gt: startDate,
+          $lt: endDate
+        }
+      }
+
       try {
         const activeInstances = await client.service('analytics').find({
-          query: {
-            type: 'activeInstances',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
-          }
+          query: query
         })
         dispatch(AnalyticsAction.activeInstancesFetched(activeInstances))
       } catch (err) {
@@ -102,18 +120,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchActiveLocations: async () => {
+  fetchActiveLocations: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const activeLocations = await client.service('analytics').find({
-          query: {
-            type: 'activeLocations',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
+        const query = {
+          type: 'activeLocations',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const activeLocations = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.activeLocationsFetched(activeLocations))
       } catch (err) {
@@ -121,18 +148,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchActiveScenes: async () => {
+  fetchActiveScenes: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const activeScenes = await client.service('analytics').find({
-          query: {
-            type: 'activeScenes',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
+        const query = {
+          type: 'activeScenes',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const activeScenes = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.activeScenesFetched(activeScenes))
       } catch (err) {
@@ -140,18 +176,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchChannelUsers: async () => {
+  fetchChannelUsers: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const channelUsers = await client.service('analytics').find({
-          query: {
-            type: 'channelUsers',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
+        const query = {
+          type: 'channelUsers',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const channelUsers = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.channelUsersFetched(channelUsers))
       } catch (err) {
@@ -159,18 +204,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchInstanceUsers: async () => {
+  fetchInstanceUsers: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const instanceUsers = await client.service('analytics').find({
-          query: {
-            type: 'instanceUsers',
-            $limit: 30,
-            $sort: {
-              createdAt: -1
-            }
+        const query = {
+          type: 'instanceUsers',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const instanceUsers = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.instanceUsersFetched(instanceUsers))
       } catch (err) {
@@ -178,15 +232,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchDailyUsers: async () => {
+  fetchDailyUsers: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const dailyUsers = await client.service('analytics').find({
-          query: {
-            $limit: 30,
-            action: 'dailyUsers'
+        const query = {
+          action: 'dailyUsers',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const dailyUsers = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.dailyUsersFetched(dailyUsers))
       } catch (error) {
@@ -194,15 +260,27 @@ export const AnalyticsService = {
       }
     }
   },
-  fetchDailyNewUsers: async () => {
+  fetchDailyNewUsers: async (startDate?: Date, endDate?: Date) => {
     const dispatch = useDispatch()
     {
       try {
-        const dailyNewUsers = await client.service('analytics').find({
-          query: {
-            $limit: 30,
-            action: 'dailyNewUsers'
+        const query = {
+          action: 'dailyNewUsers',
+          createdAt: undefined as any,
+          $sort: {
+            createdAt: -1
           }
+        }
+
+        if (startDate && endDate) {
+          query.createdAt = {
+            $gt: startDate,
+            $lt: endDate
+          }
+        }
+
+        const dailyNewUsers = await client.service('analytics').find({
+          query: query
         })
         dispatch(AnalyticsAction.dailyNewUsersFetched(dailyNewUsers))
       } catch (err) {
