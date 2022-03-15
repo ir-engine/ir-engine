@@ -24,7 +24,7 @@ export const useSceneState = () => useState(state) as any as typeof state
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await client.service('scene').get({ projectName, sceneName })
+    const sceneData = await client.service('scene').get({ projectName, sceneName, clientFetch: true })
     const dispatch = useDispatch()
     dispatch(SceneAction.currentSceneChanged(sceneData.data))
   }
