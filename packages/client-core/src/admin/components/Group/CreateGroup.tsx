@@ -34,7 +34,6 @@ const CreateGroup = (props: Props) => {
   const classes = useStyles()
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
-  const adminScopeTypes = adminScopeTypeState.scopeTypes
   const { t } = useTranslation()
 
   const [state, setState] = useState({
