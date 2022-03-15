@@ -78,12 +78,12 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
       }
     },
     content: {
-      top: '64px',
+      top: '50px',
       overflow: 'auto',
       position: 'relative',
       padding: theme.spacing(3),
       backgroundColor: '#15171B',
-      height: 'calc(100vh - 64px)'
+      height: 'calc(100vh - 50px)'
     },
     contentWidthDrawerOpen: {
       left: `calc(${theme.spacing(7)} + 1px)`,

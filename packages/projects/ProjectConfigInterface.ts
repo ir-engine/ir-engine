@@ -54,6 +54,8 @@ export interface ProjectConfigInterface {
    * @returns {Array<ServicesSeedConfig>}
    */
   databaseSeed?: string
+
+  settings?: Array<ProjectSettingSchema>
 }
 
 type InstallFunctionType = (app: Application) => Promise<any>
@@ -65,6 +67,12 @@ export interface ProjectEventHooks {
   onInstall?: InstallFunctionType
   onUpdate?: InstallFunctionType
   onUninstall?: InstallFunctionType
+}
+
+export interface ProjectSettingSchema {
+  key: string
+  type: string
+  scopes: Array<string>
 }
 
 export type ProjectEventHookType = keyof ProjectEventHooks

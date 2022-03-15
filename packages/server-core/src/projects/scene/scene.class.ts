@@ -3,7 +3,7 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
-import { SceneDetailInterface, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneJson, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
@@ -30,11 +30,12 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
     storageProvider.cacheDomain
   )
 
-  const sceneData: SceneDetailInterface = {
+  const sceneData: SceneData = {
     name: sceneName,
+    project: projectName,
     thumbnailUrl: sceneThumbnailPath + `?${Date.now()}`,
     scene: metadataOnly
-      ? undefined
+      ? undefined!
       : parseSceneDataCacheURLs(
           JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')),
           storageProvider.cacheDomain
@@ -66,10 +67,10 @@ export class Scene implements ServiceMethods<any> {
 
   async setup() {}
 
-  async find(params?: Params): Promise<Paginated<SceneDetailInterface>> {
+  async find(params): Promise<{ data: SceneData[] }> {
     const projects = await this.app.service('project').find(params)
 
-    const scenes: SceneDetailInterface[] = []
+    const scenes: SceneData[] = []
     for (const project of projects.data) {
       const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
       scenes.push(
@@ -84,11 +85,11 @@ export class Scene implements ServiceMethods<any> {
       scenes[index].thumbnailUrl += `?${Date.now()}`
     }
 
-    return { data: scenes } as Paginated<SceneDetailInterface>
+    return { data: scenes }
   }
 
   // @ts-ignore
-  async get({ projectName, sceneName, metadataOnly }, params: Params): Promise<{ data: SceneDetailInterface }> {
+  async get({ projectName, sceneName, metadataOnly }, params: Params): Promise<{ data: SceneData }> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 

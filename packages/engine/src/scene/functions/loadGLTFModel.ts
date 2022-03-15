@@ -3,7 +3,9 @@ import { NavMesh, Polygon } from 'yuka'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
@@ -15,6 +17,7 @@ import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -89,16 +92,30 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
+    const localPosition = new Vector3().copy(mesh.position)
+    const localRotation = new Quaternion().copy(mesh.quaternion)
+
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
-    addComponent(e, TransformComponent, {
-      position: mesh.getWorldPosition(new Vector3()),
-      rotation: mesh.getWorldQuaternion(new Quaternion()),
-      scale: mesh.getWorldScale(new Vector3())
-    })
+
+    const position = createVector3Proxy(TransformComponent.position, e)
+    const rotation = createQuaternionProxy(TransformComponent.rotation, e)
+    const scale = createVector3Proxy(TransformComponent.scale, e)
+    const transform = addComponent(e, TransformComponent, { position, rotation, scale })
+    mesh.getWorldPosition(transform.position)
+    mesh.getWorldQuaternion(transform.rotation)
+    mesh.getWorldScale(transform.scale)
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
+
+    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
+    if (Engine.isEditor)
+      addComponent(e, TransformChildComponent, {
+        parent: entity,
+        offsetPosition: localPosition,
+        offsetQuaternion: localRotation
+      })
 
     createObjectEntityFromGLTF(e, mesh)
   }
@@ -165,6 +182,9 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 }
 
 export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
+  // always parse components first
+  parseObjectComponentsFromGLTF(entity, obj3d)
+
   setObjectLayers(obj3d, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
@@ -203,16 +223,19 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
         })
       ).cache()
     }
-  } else {
-    if (props.matrixAutoUpdate === false) {
-      obj3d.traverse((child) => {
-        child.updateMatrixWorld(true)
-        child.matrixAutoUpdate = false
-      })
-    }
   }
 
-  parseObjectComponentsFromGLTF(entity, obj3d)
+  // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
+  if (!Engine.isEditor && props.matrixAutoUpdate === false) {
+    const transform = getComponent(entity, TransformComponent)
+    obj3d.position.copy(transform.position)
+    obj3d.quaternion.copy(transform.rotation)
+    obj3d.scale.copy(transform.scale)
+    obj3d.updateMatrixWorld(true)
+    obj3d.traverse((child) => {
+      child.matrixAutoUpdate = false
+    })
+  }
 
   const modelComponent = getComponent(entity, ModelComponent)
   if (modelComponent) modelComponent.parsed = true
