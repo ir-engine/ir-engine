@@ -1,0 +1,5 @@
+export enum PhysicsDebugInput {
+    GENERATE_DYNAMIC_DEBUG_CUBE = 200,
+    TOGGLE_PHYSICS_DEBUG = 201,
+    TOGGLE_AVATAR_DEBUG = 202
+}

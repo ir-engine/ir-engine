@@ -44,6 +44,10 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
+import { PhysicsDebugInput } from '../input/enums/DebugEnum'
+import { dispatchFrom } from '../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -505,6 +509,21 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   }
 }
 
+export const generateDebugPhysicsObject = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+  switch (inputValue.lifecycleState) {
+    case LifecycleValue.Ended: {
+      if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
+        dispatchFrom(Engine.userId, () =>
+        NetworkWorldAction.spawnDebugPhysicsObject({
+          config: boxDynamicConfig // Any custom config can be provided here
+        })
+        )
+      }
+      break
+    }
+  }
+}
+
 export const createAvatarInput = () => {
   const map: Map<InputAlias, InputAlias> = new Map()
 
@@ -567,6 +586,7 @@ export const createAvatarInput = () => {
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
   map.set('KeyF', BaseInput.LOCKING_CAMERA)
+  map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
   map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
@@ -620,6 +640,8 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.CAMERA_SCROLL, throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false }))
 
   map.set(BaseInput.PRIMARY, handlePrimaryButton)
+
+  map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, generateDebugPhysicsObject)
 
   return map
 }
