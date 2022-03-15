@@ -79,6 +79,15 @@ export const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       color: '#f1f1f1'
     },
+    selectInput: {
+      width: '100%',
+      padding: '2px 4px',
+      marginTop: '10px',
+      marginBottom: '15px',
+      background: '#343b41',
+      border: '1px solid #23282c',
+      color: '#f1f1f1 !important'
+    },
     createInput: {
       width: '100%',
       padding: '2px 4px',

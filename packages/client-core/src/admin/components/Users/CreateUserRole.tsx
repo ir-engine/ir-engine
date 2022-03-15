@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import DialogContent from '@mui/material/DialogContent'
 
@@ -12,7 +12,7 @@ interface Props {
 
 const createUser = (props: Props) => {
   const { open, handleClose } = props
-  const [role, setRole] = React.useState('')
+  const [role, setRole] = useState('')
   const createUserRole = async () => {
     setRole('')
   }
