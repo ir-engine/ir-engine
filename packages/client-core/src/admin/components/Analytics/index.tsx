@@ -84,7 +84,6 @@ const Analytics = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
-  let isDataAvailable = false
   const analyticsState = useAnalyticsState()
 
   const [endDate, setEndDate] = useState(moment())
@@ -152,17 +151,6 @@ const Analytics = (props: Props) => {
       data: dailyNewUsers
     }
   ]
-
-  if (
-    activityGraphData[0].data.length ||
-    activityGraphData[1].data.length ||
-    activityGraphData[2].data.length ||
-    activityGraphData[3].data.length ||
-    activityGraphData[4].data.length ||
-    activityGraphData[5].data.length
-  ) {
-    isDataAvailable = true
-  }
 
   useEffect(() => {
     if (refetch === true && startDate < endDate) {
