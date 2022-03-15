@@ -85,7 +85,7 @@ const RouteTable = () => {
           id: el.project.value + route.value,
           project: el.project.value,
           route: route.value,
-          active: (
+          action: (
             <Checkbox
               className={classes.checkboxContainer}
               checked={isRouteActive(el.project.value, route.value)}

@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-import { AuthService, useAuthState } from '../../services/AuthService'
+import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import { useStylesForDashboard } from './styles'
 import styles from './styles.module.scss'

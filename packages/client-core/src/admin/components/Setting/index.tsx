@@ -45,9 +45,6 @@ const Setting = () => {
   const [menuVisible, setMenuVisible] = useState(false)
   const [analyticsFocused, setAnalyticsFocused] = useState(true)
   const { t } = useTranslation()
-  // const handleNotAutoFocused = ()=>{
-  //   setIsFocused(!isFocused)
-  // }
 
   const handleAuth = () => {
     setIsAuth(!isAuth)
