@@ -1,7 +1,7 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
@@ -518,23 +518,15 @@ export const handlePhysicsDebugEvent = (
   inputValue: InputValue,
   delta: number
 ): void => {
-  switch (inputValue.lifecycleState) {
-    case LifecycleValue.Ended: {
-      if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-        dispatchFrom(Engine.userId, () =>
-          NetworkWorldAction.spawnDebugPhysicsObject({
-            config: boxDynamicConfig // Any custom config can be provided here
-          })
-        )
-      } else if (inputKey === PhysicsDebugInput.SHOW_PHYSICS_DEBUG) {
-        dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
-        dispatchLocal(EngineActions.setAvatarDebug(true) as any)
-      } else if (inputKey === PhysicsDebugInput.HIDE_PHYSICS_DEBUG) {
-        dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
-        dispatchLocal(EngineActions.setAvatarDebug(false) as any)
-      }
-      break
-    }
+  if (inputValue.lifecycleState !== LifecycleValue.Ended) return
+  if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
+    dispatchFrom(Engine.userId, () =>
+      NetworkWorldAction.spawnDebugPhysicsObject({
+        config: boxDynamicConfig // Any custom config can be provided here
+      })
+    )
+  } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
+    dispatchLocal(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
   }
 }
 
@@ -602,8 +594,7 @@ export const createAvatarInput = () => {
 
   if (isDev) {
     map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
-    map.set('KeyP', PhysicsDebugInput.SHOW_PHYSICS_DEBUG)
-    map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)
+    map.set('KeyP', PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG)
   }
 
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
@@ -661,8 +652,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.PRIMARY, handlePrimaryButton)
 
   map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
-  map.set(PhysicsDebugInput.SHOW_PHYSICS_DEBUG, handlePhysicsDebugEvent)
-  map.set(PhysicsDebugInput.HIDE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
+  map.set(PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
 
   return map
 }
