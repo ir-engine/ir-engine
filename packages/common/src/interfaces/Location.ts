@@ -10,6 +10,19 @@ export interface Location {
   locationSetting: LocationSettings
   isLobby: boolean
   isFeatured: boolean
+  location_settings?: any
+}
+
+export interface LocationFetched {
+  id: string
+  name: string
+  slugifiedName: string
+  maxUsersPerInstance: number
+  sceneId: string
+  locationSettingsId: string
+  locationSetting: LocationSettings
+  isLobby: boolean
+  isFeatured: boolean
   location_setting?: any
 }
 

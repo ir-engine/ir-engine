@@ -11,7 +11,7 @@ export const locationSeed = {
       slugifiedName: 'default',
       maxUsersPerInstance: 30,
       sceneId: 'default-project/default',
-      location_setting: locationSettingsSeed.templates.find(
+      location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60'
       ),
       isLobby: false
@@ -22,7 +22,7 @@ export const locationSeed = {
       slugifiedName: 'test',
       maxUsersPerInstance: 30,
       sceneId: 'default-project/test',
-      location_setting: locationSettingsSeed.templates.find(
+      location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'
       ),
       isLobby: false
@@ -33,7 +33,7 @@ export const locationSeed = {
       slugifiedName: 'sky-station',
       maxUsersPerInstance: 30,
       sceneId: 'default-project/sky-station',
-      location_setting: locationSettingsSeed.templates.find(
+      location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62'
       ),
       isLobby: false
@@ -44,7 +44,7 @@ export const locationSeed = {
       slugifiedName: 'apartment',
       maxUsersPerInstance: 30,
       sceneId: 'default-project/apartment',
-      location_setting: locationSettingsSeed.templates.find(
+      location_settings: locationSettingsSeed.templates.find(
         (template) => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63'
       ),
       isLobby: false

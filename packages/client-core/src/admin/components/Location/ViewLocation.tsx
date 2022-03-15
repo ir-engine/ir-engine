@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationFetched } from '@xrengine/common/src/interfaces/Location'
 
 import { Save } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -31,7 +31,7 @@ import { useStyles } from '../../styles/ui'
 interface Props {
   openView: boolean
   closeViewModel: (open: boolean) => void
-  locationAdmin?: Location
+  locationAdmin?: LocationFetched
 }
 
 const ViewLocation = (props: Props) => {
@@ -121,7 +121,7 @@ const ViewLocation = (props: Props) => {
       name: state.name,
       maxUsersPerInstance: state.maxUsers,
       sceneId: state.scene,
-      location_setting: {
+      location_settings: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
         audioEnabled: state.audioEnabled,
