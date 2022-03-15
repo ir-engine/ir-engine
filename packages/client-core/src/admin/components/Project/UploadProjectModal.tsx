@@ -16,7 +16,6 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useDispatch } from '../../../store'
 import styles from './Projects.module.scss'
 
 interface Props {
