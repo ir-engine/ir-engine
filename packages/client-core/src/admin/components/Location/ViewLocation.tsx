@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
@@ -40,8 +40,8 @@ const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, locationAdmin } = props
   const dispatch = useDispatch()
   const classes = useStyles()
-  const [editMode, setEditMode] = React.useState(false)
-  const [state, setState] = React.useState({
+  const [editMode, setEditMode] = useState(false)
+  const [state, setState] = useState({
     name: '',
     maxUsers: 10,
     scene: '',
@@ -60,9 +60,9 @@ const ViewLocation = (props: Props) => {
       type: ''
     }
   })
-  const [location, setLocation] = React.useState<any>('')
-  const [error, setError] = React.useState('')
-  const [openWarning, setOpenWarning] = React.useState(false)
+  const [location, setLocation] = useState<any>('')
+  const [error, setError] = useState('')
+  const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
   const adminScenes = useSceneState().scenes
   const locationTypes = useLocationState().locationTypes
@@ -77,7 +77,7 @@ const ViewLocation = (props: Props) => {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (locationAdmin) {
       setLocation(locationAdmin)
       setState({
@@ -110,7 +110,7 @@ const ViewLocation = (props: Props) => {
       case 'scene':
         temp.scene = value.length < 2 ? t('admin:components.locationModel.sceneRequired') : ''
         break
-      case 'private':
+      case 'type':
         temp.type = value.length < 2 ? t('admin:components.locationModel.privateRoleRequired') : ''
         break
       default:
@@ -119,6 +119,7 @@ const ViewLocation = (props: Props) => {
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
+  console.log(state)
   const handleSubmit = () => {
     const locationData = {
       name: state.name,
@@ -147,7 +148,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = t('admin:components.locationModel.sceneCantEmpty')
     }
     if (!state.type) {
-      temp.scene = t('admin:components.locationModel.typeCantEmpty')
+      temp.type = t('admin:components.locationModel.typeCantEmpty')
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
@@ -280,7 +281,10 @@ const ViewLocation = (props: Props) => {
                 </FormControl>
               </Paper>
               <label>{t('admin:components.locationModel.private')}</label>
-              <Paper component="div" className={classes.createInput}>
+              <Paper
+                component="div"
+                className={state.formErrors.type.length > 0 ? classes.redBorder : classes.createInput}
+              >
                 <FormControl fullWidth>
                   <Select
                     labelId="demo-controlled-open-select-label"
