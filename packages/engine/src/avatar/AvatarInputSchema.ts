@@ -46,8 +46,9 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 import { switchCameraMode } from './functions/switchCameraMode'
 import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { PhysicsDebugInput } from '../input/enums/DebugEnum'
-import { dispatchFrom } from '../networking/functions/dispatchFrom'
+import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -509,7 +510,7 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   }
 }
 
-export const generateDebugPhysicsObject = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
+export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue, delta: number): void => {
   switch (inputValue.lifecycleState) {
     case LifecycleValue.Ended: {
       if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
@@ -518,6 +519,14 @@ export const generateDebugPhysicsObject = (entity: Entity, inputKey: InputAlias,
           config: boxDynamicConfig // Any custom config can be provided here
         })
         )
+      }
+      else if (inputKey === PhysicsDebugInput.SHOW_PHYSICS_DEBUG) {
+        dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
+        dispatchLocal(EngineActions.setAvatarDebug(true) as any)
+      }
+      else if (inputKey === PhysicsDebugInput.HIDE_PHYSICS_DEBUG) {
+        dispatchLocal(EngineActions.setPhysicsDebug(false) as any)
+        dispatchLocal(EngineActions.setAvatarDebug(false) as any)
       }
       break
     }
@@ -582,11 +591,12 @@ export const createAvatarInput = () => {
   map.set('KeyU', BaseInput.DROP_OBJECT)
   map.set('Space', BaseInput.JUMP)
   map.set('ShiftLeft', BaseInput.RUN)
-  map.set('KeyP', BaseInput.POINTER_LOCK)
   map.set('KepV', BaseInput.SWITCH_CAMERA)
   map.set('KeyC', BaseInput.SWITCH_SHOULDER_SIDE)
   map.set('KeyF', BaseInput.LOCKING_CAMERA)
   map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
+  map.set('KeyP', PhysicsDebugInput.SHOW_PHYSICS_DEBUG)
+  map.set('KeyO', PhysicsDebugInput.HIDE_PHYSICS_DEBUG)
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
   map.set('ArrowRight', BaseInput.CAMERA_ROTATE_RIGHT)
 
@@ -641,7 +651,9 @@ export const createBehaviorMap = () => {
 
   map.set(BaseInput.PRIMARY, handlePrimaryButton)
 
-  map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, generateDebugPhysicsObject)
+  map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
+  map.set(PhysicsDebugInput.SHOW_PHYSICS_DEBUG, handlePhysicsDebugEvent)
+  map.set(PhysicsDebugInput.HIDE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
 
   return map
 }
