@@ -91,8 +91,11 @@ export const DockContainer = (styled as any).div`
   }
   .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
   .dock-tab > div { padding: 2px 12px; }
+  .dock-tab-active {
+    color: ${(props) => props.theme.purpleColor};
+  }
   .dock-ink-bar {
-    background-color: 2px solid ${(props) => props.theme.purpleColor};
+    background-color: ${(props) => props.theme.purpleColor};
   }
 `
 /**
