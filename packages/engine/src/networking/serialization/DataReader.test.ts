@@ -453,7 +453,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 204)
+    strictEqual(view.cursor, 40)
   })
 
   it('should not readEntity if entity is undefined', () => {
@@ -499,7 +499,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 204)
+    strictEqual(view.cursor, 40)
   })
 
   it('should readEntities', () => {
