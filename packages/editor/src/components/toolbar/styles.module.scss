@@ -54,7 +54,7 @@
   input {
     border-width: 0;
     border-radius: 4px;
-    background: theme.$panel2;
+    background: theme.$inputBackground;
 
     &+* {
       background: transparent;
