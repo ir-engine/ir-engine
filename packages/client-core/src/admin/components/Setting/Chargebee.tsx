@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ChargebeeSettingService, useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
 import { useStyles } from './styles'
@@ -15,7 +14,6 @@ const ChargeBee = (props: Props) => {
   const classes = useStyles()
   const chargeBeeSettingState = useChargebeeSettingState()
   const [chargebee] = chargeBeeSettingState?.chargebee.value || []
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const { t } = useTranslation()

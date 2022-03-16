@@ -53,6 +53,8 @@ const state = createState({
   avatarList: [] as Array<UserAvatar>
 })
 
+export type AuthState = typeof state
+
 export const avatarFetchedReceptor = (s: typeof state, action: ReturnType<typeof AuthAction.updateAvatarList>) => {
   const resources = action.avatarList
   const avatarData = {}
