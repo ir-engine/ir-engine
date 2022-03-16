@@ -86,7 +86,7 @@ const CreateLocation = (props: Props) => {
       closeViewModel && closeViewModel(false)
       clearState()
     }
-  }, [location.created.value])
+  }, [location.created])
 
   React.useEffect(() => {
     if (errorType.value === 'error') {
@@ -96,7 +96,7 @@ const CreateLocation = (props: Props) => {
         setOpenWarning(false)
       }, 5000)
     }
-  }, [errorType.value, errorMessage.value])
+  }, [errorType, errorMessage])
 
   const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
@@ -151,7 +151,14 @@ const CreateLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={() => handleClose(false)}>
+      <Drawer
+        anchor="right"
+        classes={{ paper: classes.paperDrawer }}
+        open={open}
+        onClose={() => {
+          closeViewModel && closeViewModel(false)
+        }}
+      >
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
             {t('admin:components.locationModel.createNewLocation')}
@@ -364,9 +371,9 @@ const CreateLocation = (props: Props) => {
               {t('admin:components.locationModel.lbl-cancel')}
             </Button>
           </DialogActions>
-          <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
         </Container>
       </Drawer>
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }
