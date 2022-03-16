@@ -148,8 +148,7 @@ export const readEntity = (v: ViewCursor, world: World) => {
   const changeMask = readUint8(v)
 
   const entity = world.getNetworkObject(userId, netId)
-  const weHaveAuthority = hasComponent(entity, NetworkObjectAuthorityTag)
-  const shouldWrite = entity && !weHaveAuthority
+  const shouldWrite = entity && !hasComponent(entity, NetworkObjectAuthorityTag)
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, shouldWrite)
