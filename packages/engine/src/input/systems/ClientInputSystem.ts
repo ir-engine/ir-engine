@@ -1,10 +1,9 @@
-import { BinaryValue } from 'src/common/enums/BinaryValue'
-import { Entity } from 'src/ecs/classes/Entity'
-
+import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { ComponentConstructor, defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
 import { InputType } from '../enums/InputType'
@@ -52,10 +51,10 @@ export const processCombinationLifecycle = (
   inputComponent: InputComponentType,
   prevData: Map<InputAlias, InputValue>,
   mapping: InputAlias,
-  inputMapping: InputAlias[]
+  input: InputAlias[]
 ) => {
   const prev = prevData.get(mapping)
-  const isActive = inputMapping.map((c) => Engine.inputState.has(c)).filter((a) => !a).length === 0
+  const isActive = input.map((c) => Engine.inputState.has(c)).filter((a) => !a).length === 0
   const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Continued
 
   if (isActive) {
@@ -101,12 +100,13 @@ export const processInputComponentData = (entity: Entity) => {
   inputComponent.data.clear()
 
   // apply the input mappings
-  for (const [inputMapping, data] of inputComponent.schema.inputMap) {
-    const mapping = inputComponent.schema.inputMap.get(inputMapping)
-    if (!mapping) continue
-
-    if (typeof inputMapping === 'object') processCombinationLifecycle(inputComponent, prevData, mapping, inputMapping)
-    else inputComponent.data.set(mapping, JSON.parse(JSON.stringify(data)))
+  for (const [input, mapping] of inputComponent.schema.inputMap) {
+    if (typeof input === 'object') {
+      processCombinationLifecycle(inputComponent, prevData, mapping, input)
+    } else {
+      if (Engine.inputState.has(input))
+        inputComponent.data.set(mapping, JSON.parse(JSON.stringify(Engine.inputState.get(input))))
+    }
   }
 
   // now that we have the data mapped, run the behaviors
@@ -123,8 +123,6 @@ export default async function ClientInputSystem(world: World) {
   addClientInputListeners()
 
   return () => {
-    const { delta } = world
-
     if (!Engine.xrSession) {
       handleGamepads()
     }
