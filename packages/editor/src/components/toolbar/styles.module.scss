@@ -101,10 +101,10 @@
     }
 
     &.selected {
-      background-color: theme.$blue;
+      background-color: theme.$purpleColor;
 
       &:hover {
-        background-color: theme.$blueHover;
+        opacity: 0.8;
       }
     }
   }
@@ -161,7 +161,13 @@
     height: 31px;
 
     &:hover {
-      background: theme.$blueHover;
+      background-color: theme.$panel2;
+    }
+
+    .selected {
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }

@@ -79,6 +79,7 @@
     width: 100px;
     font-size: 14px;
     flex-shrink: 0;
+    background-color: theme.$purpleColor;
   }
 }
 
@@ -151,7 +152,7 @@
 
     &:hover,
     &:focus-visible {
-      background: theme.$blue;
+      background: theme.$purpleColor;
     }
   }
 }
