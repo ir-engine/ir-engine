@@ -16,7 +16,7 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params: Params): Promise<T[] | Paginated<T>> {
+  async find(): Promise<T[] | Paginated<T>> {
     const bots = await (this.app.service('bot') as any).Model.findAll({
       include: [
         {
@@ -38,7 +38,7 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
     return (await super.create(data)) as T
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+  async patch(id: NullableId, data: any): Promise<T | T[]> {
     return super.patch(id, data)
   }
 }

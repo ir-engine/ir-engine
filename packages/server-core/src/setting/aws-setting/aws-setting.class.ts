@@ -15,7 +15,7 @@ export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(): Promise<T[] | Paginated<T>> {
     const awsSetting = (await super.find()) as any
     const data = awsSetting.data.map((el) => {
       let keys = JSON.parse(el.keys)

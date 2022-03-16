@@ -23,7 +23,7 @@ export class Invite<T = InviteDataType> extends Service<T> {
     this.app = app
   }
 
-  async create(data: any, params?: Params): Promise<T | T[]> {
+  async create(data: any): Promise<T | T[]> {
     return super.create(data)
   }
 

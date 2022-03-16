@@ -15,7 +15,7 @@ export class EmailSetting<T = EmailSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(): Promise<T[] | Paginated<T>> {
     const emailSetting = (await super.find()) as any
     const data = emailSetting.data.map((el) => {
       let smtp = JSON.parse(el.smtp)
@@ -42,7 +42,7 @@ export class EmailSetting<T = EmailSettingDataType> extends Service<T> {
     }
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+  async patch(id: NullableId, data: any): Promise<T | T[]> {
     return super.patch(id, data)
   }
 }

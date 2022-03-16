@@ -19,10 +19,10 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
   }
 
   async create(data: any, params?: Params): Promise<T | T[]> {
-    return super.Model(data)
+    return super.create(data, params)
   }
 
-  async patch(id: NullableId, data: Partial<T>, params?: Params): Promise<T | T[]> {
+  async patch(id: NullableId, data: Partial<T>): Promise<T | T[]> {
     return super.patch(id, data)
   }
 }
