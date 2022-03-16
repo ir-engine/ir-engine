@@ -57,10 +57,10 @@ const AvatarTable = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value && adminAvatarState.updateNeeded.value) {
-      AvatarService.fetchAdminAvatars('increment', 0, search)
+      AvatarService.fetchAdminAvatars('increment', 0, null)
     }
 
-    // AvatarService.fetchAdminAvatars('increment', 0, search)
+    AvatarService.fetchAdminAvatars('increment', 0, search)
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
