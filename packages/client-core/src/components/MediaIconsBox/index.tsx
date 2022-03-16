@@ -77,18 +77,18 @@ const MediaIconsBox = (props: Props) => {
       .catch((err) => console.log('could not get media devices', err))
   }, [])
 
-  useEffect(() => {
-    if (mediastream.enableBydefault.value) {
-      if (channelConnectionState.connected.value) {
-        if (!isCamAudioEnabled.value) handleMicClick()
-        if (!isCamVideoEnabled.value) {
-          handleCamClick()
-          handleFaceClick()
-        }
-        MediaStreamService.updateEnableMediaByDefault()
-      }
-    }
-  }, [channelConnectionState.connected.value])
+  // useEffect(() => {
+  //   if (mediastream.enableBydefault.value) {
+  //     if (channelConnectionState.connected.value) {
+  //       if (!isCamAudioEnabled.value) handleMicClick()
+  //       if (!isCamVideoEnabled.value) {
+  //         handleCamClick()
+  //         handleFaceClick()
+  //       }
+  //       MediaStreamService.updateEnableMediaByDefault()
+  //     }
+  //   }
+  // }, [channelConnectionState.connected.value])
 
   const handleFaceClick = async () => {
     const partyId =

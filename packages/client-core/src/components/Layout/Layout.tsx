@@ -169,8 +169,8 @@ const Layout = (props: Props): any => {
                 <MediaIconHider />
               </button>
               {children}
-              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOut} />
-              <header className={showMediaIcons ? styles.animateTop : styles.fadeOut}>
+              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
+              <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
                 {path === '/login' && <NavMenu login={login} />}
                 {!props.hideVideo && (
                   <>
@@ -191,7 +191,7 @@ const Layout = (props: Props): any => {
               >
                 <BottomIconHider />
               </button>
-              {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOut} />}
+              {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom} />}
 
               <div style={{ opacity: layoutOpacity }}>
                 <UIDialog />
@@ -210,7 +210,7 @@ const Layout = (props: Props): any => {
                     <button
                       type="button"
                       className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOut
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={handle.exit}
                     >
@@ -220,7 +220,7 @@ const Layout = (props: Props): any => {
                     <button
                       type="button"
                       className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOut
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={handle.enter}
                     >
@@ -233,7 +233,7 @@ const Layout = (props: Props): any => {
               <button
                 type="button"
                 className={`${styles.btn} ${styles.respawn} ${
-                  showBottomIcons ? styles.animateBottom : styles.fadeOut
+                  showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                 } `}
                 id="respawn"
                 onClick={respawnCallback}
