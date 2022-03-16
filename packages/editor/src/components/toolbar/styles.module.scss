@@ -67,7 +67,7 @@
     margin: 0 4px;
 
     &:hover {
-      background: theme.$panel2;
+      background: theme.$purpleColor1;
     }
   }
 }
@@ -79,7 +79,7 @@
   align-items: center;
   border: none;
   border-radius: 4px;
-  background: theme.$panel;
+  background: theme.$purpleColor0;
   column-gap: 4px;
   padding: 4px;
 
@@ -97,11 +97,11 @@
     border-radius: 4px;
 
     &:hover {
-      background-color: theme.$panel2;
+      background-color: theme.$purpleColor1;
     }
 
     &.selected {
-      background-color: theme.$purpleColor;
+      background-color: theme.$purpleColor2;
 
       &:hover {
         opacity: 0.8;
@@ -161,7 +161,7 @@
     height: 31px;
 
     &:hover {
-      background-color: theme.$panel2;
+      background-color: theme.$purpleColor1;
     }
 
     .selected {
