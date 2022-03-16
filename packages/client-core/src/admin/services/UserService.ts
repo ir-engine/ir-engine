@@ -20,6 +20,7 @@ const state = createState({
   fetched: false,
   updateNeeded: true,
   skipGuests: false,
+  userRole: null,
   lastFetched: 0
 })
 
@@ -59,6 +60,17 @@ store.receptors.push((action: UserActionType): any => {
           skipGuests: action.skipGuests,
           updateNeeded: true
         })
+      case 'SET_USER_ROLE':
+        return s.merge({
+          userRole: action.userRole,
+          updateNeeded: true
+        })
+      case 'RESET_USER_FILTER':
+        return s.merge({
+          userRole: null,
+          skipGuests: false,
+          updateNeeded: true
+        })
     }
   }, action.type)
 })
@@ -80,6 +92,7 @@ export const UserService = {
       const user = accessAuthState().user
       const limit = userState.limit.value
       const skipGuests = userState.skipGuests.value
+      const userRole = userState.userRole.value
       try {
         if (user.userRole.value === 'admin') {
           const params = {
@@ -98,8 +111,12 @@ export const UserService = {
               $ne: 'guest'
             }
           }
+          if (userRole) {
+            ;(params.query as any).userRole = {
+              $eq: userRole
+            }
+          }
           const users = (await client.service('user').find(params)) as Paginated<User>
-
           dispatch(UserAction.loadedUsers(users))
         }
       } catch (err) {
@@ -165,6 +182,14 @@ export const UserService = {
   setSkipGuests: async (value: boolean) => {
     const dispatch = useDispatch()
     dispatch(UserAction.setSkipGuests(value))
+  },
+  setUserRole: async (value: string) => {
+    const dispatch = useDispatch()
+    dispatch(UserAction.setUserRole(value))
+  },
+  resetFilter: () => {
+    const dispatch = useDispatch()
+    dispatch(UserAction.resetFilter())
   }
 }
 
@@ -204,6 +229,17 @@ export const UserAction = {
     return {
       type: 'SET_SKIP_GUESTS' as const,
       skipGuests: skipGuests
+    }
+  },
+  setUserRole: (userRole: any) => {
+    return {
+      type: 'SET_USER_ROLE' as const,
+      userRole: userRole
+    }
+  },
+  resetFilter: () => {
+    return {
+      type: 'RESET_USER_FILTER' as const
     }
   }
 }

@@ -2,7 +2,7 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { AvatarInterface, CreateEditAdminAvatar } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
-import { AdminAssetUploadType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { AdminAssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'

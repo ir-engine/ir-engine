@@ -29,3 +29,8 @@ export interface GameServerSubdomainProvision {
   gs_number: string
   allocated: boolean
 }
+
+export interface GameServerPatch {
+  status: boolean
+  message: string
+}
