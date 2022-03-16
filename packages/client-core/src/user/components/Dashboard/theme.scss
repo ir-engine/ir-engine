@@ -1,11 +1,15 @@
 $a: '';
-$lato: 'Lato', sans-serif;
-$zilla: 'Zilla Slab', sans-serif;
-$background: rgba(0,0,0,0);
-$inputBackground: #070809;
+$lato: 'Lato',
+sans-serif;
+$zilla: 'Zilla Slab',
+sans-serif;
+$background: rgba(0, 0, 0, 0);
+$inputBackground: #3C3C6F;
 $border: #5D646C;
 $background2: #15171B;
 $panel: #282C31;
+$dock: rgba(31, 27, 72, 0.85);
+$purpleButton: #5f5ff1;
 $panel2: #3A4048;
 $panel2Opaque: #3A4048E0;
 $selected: #006EFF;
@@ -15,7 +19,7 @@ $hover2: #636F80;
 $text: #FFFFFF;
 $text2: #9FA4B5;
 $text3: #AAAAAA;
-$dropdown: #000000;
+$dropdown: #3C3C6F;
 $red: #F44336;
 $pink: #E91E63;
 $purple: #9C27B0;
@@ -42,7 +46,7 @@ $toolbar: rgba(0, 0, 0, 0.0);
 $toolbar2: rgba(0, 0, 0, 0.0);
 $header: #1b1b1b;
 $white: #fff;
-$shadow15: 0px 4px 4px  rgba(0, 0, 0, 0.15);
-$shadow30: 0px 4px 4px  rgba(0, 0, 0, 0.3);
+$shadow15: 0px 4px 4px rgba(0, 0, 0, 0.15);
+$shadow30: 0px 4px 4px rgba(0, 0, 0, 0.3);
 $borderStyle: 1px solid #5D646C;
 $borderStyleLight: 1px solid #B9B9B9;

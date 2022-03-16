@@ -1,4 +1,4 @@
-@use "../theme.scss" as theme;
+@use "../theme.scss"as theme;
 
 
 .toolbarContainer {
@@ -6,11 +6,11 @@
   flex-direction: row;
   align-items: center;
   height: 50px;
-  width:100%;
+  width: 100%;
   position: fixed;
-  z-index:1000;
+  z-index: 1000;
   user-select: none;
-  background: theme.$panel2;
+  background: theme.$dock;
   padding: 0 5px;
 }
 
@@ -36,7 +36,9 @@
       font: 12px;
       color: theme.$text3;
 
-      &+li { margin-top: 5px; }
+      &+li {
+        margin-top: 5px;
+      }
 
       ul {
         margin-left: 5px;
@@ -54,7 +56,9 @@
     border-radius: 4px;
     background: theme.$panel2;
 
-    &+* { background: transparent; }
+    &+* {
+      background: transparent;
+    }
   }
 
   button {
@@ -140,6 +144,7 @@
 
       div[class$="-option"] {
         background: transparent;
+
         &:hover {
           background: theme.$blue;
         }
@@ -150,6 +155,7 @@
 
 .playButtonContainer {
   padding: 0;
+
   .toolButton {
     width: 31px;
     height: 31px;
