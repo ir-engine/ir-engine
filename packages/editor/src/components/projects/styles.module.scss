@@ -1,11 +1,11 @@
-@use "../theme.scss" as theme;
+@use "../theme.scss"as theme;
 
 .navbar {
     width: 100%;
     display: flex;
     justify-content: center;
     pointer-events: auto;
-    background: theme.$panel;
+    background: theme.$dock;
     height: 50px;
 
     .navContainer {
@@ -27,8 +27,15 @@
             color: theme.$text;
             background: transparent;
 
-            span { margin-right: 5px; font-size: 14px; }
-            &:hover, &:focus-visible { color: theme.$green; }
+            span {
+                margin-right: 5px;
+                font-size: 14px;
+            }
+
+            &:hover,
+            &:focus-visible {
+                color: theme.$green;
+            }
         }
 
         .backdrop {
@@ -47,7 +54,6 @@
 
             .profileMenuContainer {
                 z-index: 100;
-                background: theme.$panel;
                 top: 70px;
                 bottom: unset;
                 right: 0;
@@ -55,7 +61,9 @@
                 transform: unset;
                 border-radius: 10px;
 
-                div[class^="_closeButton"] { display: none; }
+                div[class^="_closeButton"] {
+                    display: none;
+                }
             }
         }
     }
@@ -64,7 +72,7 @@
 .projectPage {
     width: 100%;
     display: flex;
-    background-color: theme.$background2;
+    background-color: theme.$purpleColor1;
     pointer-events: auto;
 }
 
@@ -74,7 +82,7 @@
     align-content: space-between;
     margin: 30px auto;
     width: 90vw;
-    background-color: theme.$panel;
+    background-color: theme.$dock;
     padding: 30px;
     border-radius: 10px;
     min-height: calc(100vh - 110px);
@@ -94,7 +102,10 @@
             margin-bottom: 15px;
             position: relative;
 
-            h2 { font-size: 24px; }
+            h2 {
+                font-size: 24px;
+            }
+
             .btn {
                 margin: 0;
                 height: 40px;
@@ -104,7 +115,7 @@
             }
 
             .searchInputRoot {
-                background: theme.$panel2;
+                background: theme.$inputBackground;
                 display: flex;
                 align-items: center;
                 width: 100%;
@@ -116,7 +127,10 @@
                     color: theme.$text2;
                     padding: 10px;
 
-                    &:hover, &:focus-visible { color: theme.$text; }
+                    &:hover,
+                    &:focus-visible {
+                        color: theme.$text;
+                    }
                 }
 
                 .inputRoot {
@@ -128,7 +142,10 @@
             @media (max-width: 600px) {
                 flex-wrap: wrap;
 
-                .searchInputRoot { margin: 20px 0 0 0; }
+                .searchInputRoot {
+                    margin: 20px 0 0 0;
+                }
+
                 .btn {
                     position: absolute;
                     top: -2px;
@@ -145,14 +162,20 @@
             flex: 1;
             flex-direction: column;
 
-            .errorMsg { color: theme.$red; text-align: center; }
+            .errorMsg {
+                color: theme.$red;
+                text-align: center;
+            }
+
             .expansionList {
                 background: transparent;
                 padding: 0;
                 box-shadow: none;
                 margin-top: 15px;
 
-                &::before { display: none; }
+                &::before {
+                    display: none;
+                }
 
                 .expansionSummary {
                     color: theme.$text2;
@@ -169,17 +192,29 @@
                         padding: 0;
                         color: theme.$text2;
                         margin-left: -16px;
-                        svg { width: 40px; height: auto; transition: all .2s ease-out;}
+
+                        svg {
+                            width: 40px;
+                            height: auto;
+                            transition: all .2s ease-out;
+                        }
                     }
 
-                    h3 { line-height: 30px; margin-left: -5px; }
+                    h3 {
+                        line-height: 30px;
+                        margin-left: -5px;
+                    }
                 }
 
                 .expansionSummaryExpanded {
-                    button>svg { transform: rotate(90deg); }
+                    button>svg {
+                        transform: rotate(90deg);
+                    }
                 }
 
-                .expansionDetail { padding: 8px 0; }
+                .expansionDetail {
+                    padding: 8px 0;
+                }
             }
 
             .listContainer {
@@ -191,13 +226,24 @@
                     width: 232px;
                     padding: 10px;
                     flex-shrink: 0;
-                    background: theme.$panel2;
+                    background: theme.$inputBackground;
                     border-radius: 3px;
                     position: relative;
                     overflow: hidden;
 
-                    a { text-decoration: none; &:hover { color: theme.$text; }}
-                    &:hover, &:focus-within { cursor: pointer;  outline: solid 1px theme.$blue; }
+                    a {
+                        text-decoration: none;
+
+                        &:hover {
+                            color: theme.$text;
+                        }
+                    }
+
+                    &:hover,
+                    &:focus-within {
+                        cursor: pointer;
+                        outline: solid 1px theme.$blue;
+                    }
 
                     .thumbnailContainer {
                         width: 100%;
@@ -222,9 +268,14 @@
                             color: theme.$text2;
                             padding: 0;
 
-                            svg { width: 22px; }
+                            svg {
+                                width: 22px;
+                            }
 
-                            &:hover, &:focus-within { color: theme.$blueHover; }
+                            &:hover,
+                            &:focus-within {
+                                color: theme.$blueHover;
+                            }
                         }
                     }
 
@@ -233,7 +284,10 @@
                         top: 2px;
                         right: 2px;
 
-                        svg { position: relative; z-index: 1; }
+                        svg {
+                            position: relative;
+                            z-index: 1;
+                        }
 
                         &::before {
                             content: "";
@@ -278,8 +332,20 @@
         justify-content: center;
 
 
-        h1 { width: 100%; font-size: 30px; text-align: center; }
-        h2 { width: 100%; font-size: 15px; text-align: center; margin-top: 10px; color: theme.$text2; }
+        h1 {
+            width: 100%;
+            font-size: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            width: 100%;
+            font-size: 15px;
+            text-align: center;
+            margin-top: 10px;
+            color: theme.$text2;
+        }
+
         button {
             margin-right: 0;
             margin-top: 30px;
@@ -298,11 +364,18 @@
         font-size: 14px;
         padding-left: 35px;
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             background: theme.$blueHover;
         }
 
-        &>svg, &>.progressbar { position: absolute; left: 10px; width: 15px; height: auto; }
+        &>svg,
+        &>.progressbar {
+            position: absolute;
+            left: 10px;
+            width: 15px;
+            height: auto;
+        }
     }
 }
 
@@ -316,12 +389,19 @@
         width: 100%;
         font-size: 14px;
     }
+
     .input {
         border-color: theme.$text;
     }
 
-    .input:hover + .outline { border-color: theme.$text; }
-    .input:focus + .outline, .outline { border-color: theme.$text2; }
+    .input:hover+.outline {
+        border-color: theme.$text;
+    }
+
+    .input:focus+.outline,
+    .outline {
+        border-color: theme.$text2;
+    }
 
     .btn {
         margin-top: 10px;
@@ -330,15 +410,24 @@
         font-size: 15px;
     }
 
-    .errorMessage { color: theme.$red; margin: 5px 2px; }
+    .errorMessage {
+        color: theme.$red;
+        margin: 5px 2px;
+    }
 
     .processing {
         display: flex;
         flex-direction: column;
         align-items: center;
 
-        svg { color: theme.$blue; }
-        .text { margin-top: 10px; color: theme.$text2; }
+        svg {
+            color: theme.$blue;
+        }
+
+        .text {
+            margin-top: 10px;
+            color: theme.$text2;
+        }
     }
 }
 
@@ -359,7 +448,8 @@
             background: transparent;
             color: theme.$blue;
 
-            &:hover, &:focus-visible {
+            &:hover,
+            &:focus-visible {
                 background: theme.$blue;
                 color: theme.$text;
             }
@@ -372,11 +462,17 @@
             font-size: 14px;
             background: theme.$red;
 
-            &:hover, &:focus-visible {
+            &:hover,
+            &:focus-visible {
                 opacity: 0.8;
             }
         }
 
-        .confirmBtn[disabled] { background: theme.$disabledText; color: theme.$text; cursor: initial; opacity: 1 !important; }
+        .confirmBtn[disabled] {
+            background: theme.$disabledText;
+            color: theme.$text;
+            cursor: initial;
+            opacity: 1 !important;
+        }
     }
 }
