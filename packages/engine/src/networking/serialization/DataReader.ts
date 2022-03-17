@@ -169,7 +169,9 @@ export const readEntities = (v: ViewCursor, world: World, byteLength: number) =>
 }
 
 export const readMetadata = (v: ViewCursor, world: World) => {
-  world.fixedTick = readUint32(v)
+  const fixedTick = readUint32(v)
+  const fromHost = readUint32(v) === world.userIdToUserIndex.get(world.hostId)!
+  if (fromHost && !world.isHosting) world.fixedTick = fixedTick
   // const time = readUint32(v)
 }
 

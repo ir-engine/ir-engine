@@ -1,5 +1,6 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -199,6 +200,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 }
 
 export const writeMetadata = (v: ViewCursor, world: World) => {
+  writeUint32(v, world.userIdToUserIndex.get(Engine.userId)!)
   writeUint32(v, world.fixedTick)
   // writeUint32(v, Date.now())
 }
