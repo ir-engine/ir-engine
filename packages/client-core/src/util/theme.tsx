@@ -21,6 +21,7 @@ const editorTheme = {
   purpleColor1: '#7171F0',
   purpleColor2: '#4D4DF2',
   purpleColor3: '#4141D6',
+  purpleColor4: 'rgba(31, 27, 72, 1)',
   selected: '#5f5ff1',
   selectedText: '#fff',
   hover: '#4B5562',
