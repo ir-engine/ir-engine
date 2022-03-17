@@ -72,7 +72,7 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: theme.$purpleColor1;
+  background-color: theme.$purpleDarkest;
   pointer-events: auto;
 }
 
@@ -82,7 +82,7 @@
   align-content: space-between;
   margin: 30px auto;
   width: 90vw;
-  background-color: theme.$dock;
+  background-color: theme.$purplePanel;
   padding: 30px;
   border-radius: 10px;
   min-height: calc(100vh - 110px);
@@ -112,6 +112,7 @@
         width: 90px;
         font-size: 16px;
         flex-shrink: 0;
+        background: theme.$purplePinkGradient;
       }
 
       .searchInputRoot {
@@ -226,7 +227,7 @@
           width: 232px;
           padding: 10px;
           flex-shrink: 0;
-          background: theme.$inputBackground;
+          background: theme.$purpleLighter;
           border-radius: 3px;
           position: relative;
           overflow: hidden;
@@ -242,7 +243,7 @@
           &:hover,
           &:focus-within {
             cursor: pointer;
-            outline: solid 1px theme.$blue;
+            outline: solid 1px theme.$purpleLight;
           }
 
           .thumbnailContainer {
@@ -265,7 +266,7 @@
             button {
               width: 24px;
               height: 24px;
-              color: theme.$purpleColor;
+              color: theme.$purpleLight;
               padding: 0;
 
               svg {
@@ -274,7 +275,7 @@
 
               &:hover,
               &:focus-within {
-                color: theme.$purpleColor1;
+                opacity: 0.8;
               }
             }
           }
@@ -292,7 +293,7 @@
             &::before {
               content: "";
               position: absolute;
-              background: theme.$blue;
+              background: theme.$purpleLight;
               width: 60px;
               height: 60px;
               border-radius: 50%;
