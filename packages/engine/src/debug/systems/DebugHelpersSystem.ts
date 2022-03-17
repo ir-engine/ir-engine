@@ -158,8 +158,8 @@ export default async function DebugHelpersSystem(world: World) {
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
       if (velocityArrowHelper != null) {
-        velocityArrowHelper.setDirection(vector3.copy(velocity.velocity).normalize())
-        velocityArrowHelper.setLength(velocity.velocity.length() * 20)
+        velocityArrowHelper.setDirection(vector3.copy(velocity.linear).normalize())
+        velocityArrowHelper.setLength(velocity.linear.length() * 20)
         velocityArrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
       }
     }
