@@ -92,11 +92,11 @@
     max-height: calc(100vh - 100px);
     overflow: auto;
 
-    &>.avatarContainer {
+    & > .avatarContainer {
       margin-top: 40px;
     }
 
-    &>.controlContainer {
+    & > .controlContainer {
       margin-bottom: 10px;
     }
 
@@ -155,7 +155,7 @@
     @media screen and (min-width: 768px) {
       width: 320px;
 
-      &>.avatarContainer {
+      & > .avatarContainer {
         margin-top: 25px;
       }
 
@@ -226,13 +226,13 @@
         border-radius: 3px;
         font-size: 14px;
 
-        &>svg {
+        & > svg {
           font-size: 18px;
           margin-left: 5px;
         }
       }
 
-      button+button {
+      button + button {
         margin-left: 5px;
       }
 
@@ -242,7 +242,7 @@
       }
 
       .browseBtn {
-        &>svg {
+        & > svg {
           transform: rotate(180deg);
         }
       }
@@ -277,7 +277,7 @@
         right: 5px;
         top: 5px;
 
-        &>svg {
+        & > svg {
           opacity: 0.5;
 
           &:hover {
@@ -316,7 +316,7 @@
             width: 40px;
           }
 
-          &>div+div {
+          & > div + div {
             margin-top: 10px;
           }
         }
@@ -427,11 +427,11 @@
     touch-action: auto;
   }
 
-  &>.profilePanel,
-  &>.accountPanel,
-  &>.settingPanel,
-  &>.sharePanel,
-  &>.locationPanel {
+  & > .profilePanel,
+  & > .accountPanel,
+  & > .settingPanel,
+  & > .sharePanel,
+  & > .locationPanel {
     margin: 30px 0;
   }
 
@@ -656,8 +656,8 @@
           outline: none !important;
         }
 
-        &>a:hover svg,
-        &>a:focus svg {
+        & > a:hover svg,
+        & > a:focus svg {
           opacity: 0.8;
         }
 
@@ -696,7 +696,7 @@
       color: #ffffff;
       position: relative;
 
-      &+.settingSection {
+      & + .settingSection {
         margin-top: 25px;
       }
     }
@@ -705,11 +705,11 @@
       display: flex;
       align-items: center;
 
-      &+.flexWrap {
+      & + .flexWrap {
         flex-wrap: wrap;
       }
 
-      &+.row {
+      & + .row {
         margin-top: 5px;
       }
 
@@ -1023,7 +1023,7 @@
           background: transparent;
         }
 
-        input:focus+svg {
+        input:focus + svg {
           opacity: 0.7;
         }
       }
@@ -1204,11 +1204,11 @@
 .avatarPanel {
   @include panel-popup-container-styling();
 
-  &>.avatarContainer {
+  & > .avatarContainer {
     margin-top: 40px;
   }
 
-  &>.controlContainer {
+  & > .controlContainer {
     margin-bottom: 10px;
   }
 
@@ -1341,7 +1341,7 @@
   @media screen and (min-width: 768px) {
     width: 330px;
 
-    &>.avatarContainer {
+    & > .avatarContainer {
       margin-top: 25px;
       width: 280px;
     }
@@ -1401,13 +1401,13 @@
       justify-content: center;
       align-items: center;
 
-      &>svg {
+      & > svg {
         font-size: 18px;
         margin-left: 5px;
       }
     }
 
-    button+button {
+    button + button {
       margin-left: 5px;
     }
 
@@ -1417,7 +1417,7 @@
     }
 
     .browseBtn {
-      &>svg {
+      & > svg {
         transform: rotate(180deg);
       }
     }
@@ -1443,7 +1443,7 @@
       right: 5px;
       top: 5px;
 
-      &>svg {
+      & > svg {
         opacity: 0.5;
 
         &:hover {
@@ -1482,7 +1482,7 @@
           vertical-align: middle;
         }
 
-        &>div+div {
+        & > div + div {
           margin-top: 10px;
         }
       }
@@ -1904,4 +1904,107 @@
       }
     }
   }
+}
+
+.avatarSelectContainer {
+  position: absolute;
+  bottom: 150px;
+  padding: 15px 20px 20px 17px;
+  border-radius: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: black;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  width: 400px;
+  z-index: 1400;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4.9px);
+  -webkit-backdrop-filter: blur(4.9px);
+}
+
+.paper {
+  height: 140px;
+  width: 170px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(168, 168, 254, 0.3);
+  }
+}
+
+.avatarContainer {
+  height: 80%;
+  margin-bottom: 25px;
+}
+
+.menuContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 8px;
+}
+
+.innerMenuContainer {
+  display: flex;
+}
+
+.btn {
+  border: none;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.btnBack {
+  border: none;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.btnPerson {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #808080;
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+  }
+}
+
+.btnCheck {
+  background-color: #a5f2b2;
+  color: #fff;
+  margin: 0 10px;
+  &:hover {
+    background: #1e9932;
+  }
+}
+.btnArrow {
+  background-color: #a8a8fe;
+  color: #fff;
+  &:hover {
+    background: #6e6ef7;
+  }
+}
+.btnCancel {
+  color: #fff;
+  background-color: #fca7a8;
+  &:hover {
+    background: #e76a6c;
+  }
+}
+
+.avatar {
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+}
+
+.size {
+  height: 15px;
 }
