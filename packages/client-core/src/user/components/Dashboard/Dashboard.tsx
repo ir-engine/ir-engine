@@ -36,10 +36,8 @@ const Dashboard = ({ children }: Props) => {
   const classes = useStylesForDashboard()
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
-  const admin = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const user = authState.user
-  const isLoggedIn = authState.isLoggedIn.value
   const { t } = useTranslation()
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
