@@ -93,22 +93,20 @@ export default (app: Application): void => {
                 if (templates)
                   for (let template of templates) {
                     let isSeeded
-                    if (template.id) {
-                      try {
-                        await service.get(template.id)
-                        isSeeded = true
-                      } catch (err) {
-                        await service.find()
-                        isSeeded = false
-                      }
-                    } else if (settingsServiceNames.indexOf(config.path) > 0) {
-                      console.log('settings template', template)
+                    if (settingsServiceNames.indexOf(config.path) > -1) {
                       const result = await service.find()
                       isSeeded = result.total > 0
                     } else {
                       const searchTemplate = {}
-                      for (let key of Object.keys(template))
-                        if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
+
+                      const sequelizeModel = service.Model
+                      const uniqueField = Object.values(sequelizeModel.rawAttributes).find(
+                        (value: any) => value.unique
+                      ) as any
+                      if (uniqueField) searchTemplate[uniqueField.fieldName] = template[uniqueField.fieldName]
+                      else
+                        for (let key of Object.keys(template))
+                          if (typeof template[key] !== 'object') searchTemplate[key] = template[key]
                       const result = await service.find({
                         query: searchTemplate
                       })

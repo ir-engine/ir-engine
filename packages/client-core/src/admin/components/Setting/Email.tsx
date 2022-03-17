@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button, Divider, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
@@ -7,8 +8,7 @@ import InputBase from '@mui/material/InputBase'
 import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useEmailSettingState } from '../../services/Setting/EmailSettingService'
-import { EmailSettingService } from '../../services/Setting/EmailSettingService'
+import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
 import { useStyles } from './styles'
 
 interface emailProps {}
@@ -18,6 +18,7 @@ const Email = (props: emailProps) => {
   const emailSettingState = useEmailSettingState()
   const [emailSetting] = emailSettingState?.email?.value || []
   const id = emailSetting?.id
+  const { t } = useTranslation()
   const [showPassword, setShowPassword] = useState(false)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
@@ -99,14 +100,14 @@ const Email = (props: emailProps) => {
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          EMAIL
+          {t('admin:components.setting.email')}
         </Typography>
         <Grid container spacing={3} key={emailSetting?.id}>
           <Grid item xs={12} sm={6}>
-            <Typography>SMTP</Typography>
+            <Typography>{t('admin:components.setting.smtp')}</Typography>
             <Paper variant="outlined" square className={classes.Paper}>
               <Paper component="div" className={classes.createInput}>
-                <label> Host:</label>
+                <label> {t('admin:components.setting.host')}:</label>
                 <InputBase
                   name="host"
                   className={classes.input}
@@ -116,7 +117,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> Port:</label>
+                <label> {t('admin:components.setting.port')}:</label>
                 <InputBase
                   name="port"
                   value={smtp?.port || ''}
@@ -126,7 +127,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label>Secure</label>
+                <label>{t('admin:components.setting.secure')}</label>
                 <Switch
                   checked={smtp?.secure || false}
                   onChange={handleSmtpSecure}
@@ -137,10 +138,10 @@ const Email = (props: emailProps) => {
               </Paper>
             </Paper>
             <Divider />
-            <Typography>Auth</Typography>
+            <Typography>{t('admin:components.setting.auth')}</Typography>
             <Paper variant="outlined" square className={classes.Paper}>
               <Paper component="div" className={classes.createInput}>
-                <label> User Name: </label>
+                <label> {t('admin:components.setting.userName')}: </label>
                 <InputBase
                   name="user"
                   className={classes.input}
@@ -150,7 +151,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> Password:</label>
+                <label> {t('admin:components.setting.password')}:</label>
                 <InputBase
                   name="pass"
                   className={classes.input}
@@ -166,10 +167,10 @@ const Email = (props: emailProps) => {
             </Paper>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography>From</Typography>
+            <Typography>{t('admin:components.setting.from')}</Typography>
             <Paper variant="outlined" square className={classes.Paper}>
               <Paper component="div" className={classes.createInput}>
-                <label> From:</label>
+                <label> {t('admin:components.setting.from')}:</label>
                 <InputBase
                   name="from"
                   className={classes.input}
@@ -180,10 +181,10 @@ const Email = (props: emailProps) => {
               </Paper>
             </Paper>
             <Divider />
-            <Typography>Subject</Typography>
+            <Typography>{t('admin:components.setting.subject')}</Typography>
             <Paper variant="outlined" square className={classes.Paper}>
               <Paper component="div" className={classes.createInput}>
-                <label>login: </label>
+                <label>{t('admin:components.setting.login')}: </label>
                 <InputBase
                   name="login"
                   value={subject?.login || ''}
@@ -193,7 +194,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> friend:</label>
+                <label> {t('admin:components.setting.friend')}:</label>
                 <InputBase
                   name="friend"
                   value={subject?.friend || ''}
@@ -203,7 +204,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> group:</label>
+                <label> {t('admin:components.setting.group')}:</label>
                 <InputBase
                   name=" group"
                   value={subject?.group || ''}
@@ -213,7 +214,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> Party:</label>
+                <label> {t('admin:components.setting.party')}:</label>
                 <InputBase
                   name=" party"
                   value={subject?.party || ''}
@@ -223,7 +224,7 @@ const Email = (props: emailProps) => {
                 />
               </Paper>
               <Paper component="div" className={classes.createInput}>
-                <label> SMS Name Character Limit:</label>
+                <label>{t('admin:components.setting.smsNameCharLimit')}:</label>
                 <InputBase
                   disabled
                   name=" smsNameCharacterLimit"
@@ -242,11 +243,11 @@ const Email = (props: emailProps) => {
           style={{ color: '#fff' }}
           onClick={handleCancel}
         >
-          Cancel
+          {t('admin:components.setting.cancel')}
         </Button>{' '}
         &nbsp;&nbsp;
         <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
-          save
+          {t('admin:components.setting.save')}
         </Button>
       </form>
     </div>

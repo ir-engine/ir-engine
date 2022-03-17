@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
-import { ChargebeeSettingService } from '../../services/Setting/ChargebeeSettingService'
-import { useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
+import { ChargebeeSettingService, useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
 import { useStyles } from './styles'
 
 interface Props {}
@@ -15,9 +14,9 @@ const ChargeBee = (props: Props) => {
   const classes = useStyles()
   const chargeBeeSettingState = useChargebeeSettingState()
   const [chargebee] = chargeBeeSettingState?.chargebee.value || []
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {
@@ -29,10 +28,10 @@ const ChargeBee = (props: Props) => {
     <div>
       <form>
         <Typography component="h1" className={classes.settingsHeading}>
-          CHARGEBEE
+          {t('admin:components.setting.chargebee')}
         </Typography>
         <Paper component="div" className={classes.createInput}>
-          <label>URL:</label>
+          <label>{t('admin:components.setting.url')}:</label>
           <InputBase
             value={chargebee?.url || ''}
             name="url"
@@ -42,7 +41,7 @@ const ChargeBee = (props: Props) => {
           />
         </Paper>
         <Paper component="div" className={classes.createInput}>
-          <label>ApiKey:</label>
+          <label>{t('admin:components.setting.apiKey')}:</label>
           <InputBase
             value={chargebee?.apiKey || ''}
             name="apiKey"

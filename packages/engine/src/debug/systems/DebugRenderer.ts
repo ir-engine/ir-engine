@@ -90,12 +90,13 @@ export const DebugRenderer = () => {
         geom = new BoxBufferGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
       }
       const mesh = new Mesh(geom, _materials[5])
-      mesh.position.copy(obstacle.getPosition() as Vector3)
-      mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
+    const mesh = _obstacles.get(id)
+    mesh.position.copy(obstacle.getPosition() as Vector3)
+    mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
   }
 
   function _updateController(body: PhysX.PxRigidActor) {

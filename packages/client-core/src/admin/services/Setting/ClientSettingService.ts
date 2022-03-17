@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
@@ -42,7 +42,7 @@ export const ClientSettingService = {
       AlertService.dispatchAlertError(error.message)
     }
   },
-  patchClientSetting: async (data: any, id: string) => {
+  patchClientSetting: async (data: PatchClientSetting, id: string) => {
     const dispatch = useDispatch()
     {
       try {

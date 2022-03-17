@@ -1,4 +1,3 @@
-import { pipe } from 'bitecs'
 import { AnimationClip, AnimationMixer, Group } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -6,7 +5,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
-import { boneMatchAvatarModel, rigAvatarModel, setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
+import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -18,10 +17,8 @@ import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { receiveActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
@@ -29,6 +26,13 @@ export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
   activeClipIndex: -1,
   hasAvatarAnimations: false
 }
+
+export const AnimatedObjectCallbacks = [
+  { label: 'None', value: 'none' },
+  { label: 'Play', value: 'play' },
+  { label: 'Pause', value: 'pause' },
+  { label: 'Stop', value: 'stop' }
+]
 
 export const deserializeLoopAnimation: ComponentDeserializeFunction = (
   entity: Entity,
@@ -94,6 +98,40 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
         )
         .play()
     }
+  }
+
+  const scene = getComponent(entity, Object3DComponent).value as any
+
+  scene.play = () => {
+    //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    const animationComponent = getComponent(entity, AnimationComponent)
+    if (
+      loopAnimationComponent.activeClipIndex >= 0 &&
+      animationComponent.animations[loopAnimationComponent.activeClipIndex]
+    ) {
+      loopAnimationComponent.action = animationComponent.mixer.clipAction(
+        AnimationClip.findByName(
+          animationComponent.animations,
+          animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+        )
+      )
+      loopAnimationComponent.action.paused = false
+      loopAnimationComponent.action.play()
+    }
+  }
+  scene.pause = () => {
+    //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.paused = true
+  }
+  scene.stop = () => {
+    //TODO: LoopAnimationComponent called later than ModelFunctions, so should recall
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
+  }
+  scene.callbacks = () => {
+    return AnimatedObjectCallbacks
   }
 }
 

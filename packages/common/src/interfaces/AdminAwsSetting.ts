@@ -44,3 +44,7 @@ interface Sms {
   senderId: string
   secretAccessKey: string
 }
+
+export interface PatchAwsSetting {
+  sms: string
+}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { AuthService } from '../../user/services/AuthService'
 import PartyCore from '../components/Party'
@@ -6,7 +6,7 @@ import PartyCore from '../components/Party'
 interface Props {}
 
 const Party = (props: Props) => {
-  React.useEffect(() => {
+  useEffect(() => {
     AuthService.doLoginAuto(false)
   }, [])
   return <PartyCore />

@@ -24,6 +24,8 @@ import {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
+  dispatchLocal(EngineActions.sceneUnloaded())
+
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
   Engine.workers.length = 0
@@ -60,7 +62,6 @@ export function reset() {
     disposeScene(Engine.scene)
     Engine.scene = null!
   }
-  Engine.sceneLoaded = false
 
   Engine.camera = null!
 
@@ -81,7 +82,6 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
-  Engine.sceneLoaded = false
   dispatchLocal(EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')

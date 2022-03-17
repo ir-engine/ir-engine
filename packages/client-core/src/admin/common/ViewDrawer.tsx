@@ -8,7 +8,7 @@ import { useStyles } from '../styles/ui'
 interface Props {
   openView: boolean
   handleCloseDrawe: () => void
-  children: any
+  children: JSX.Element | JSX.Element[]
 }
 
 export default function ViewDrawer(props: Props) {

@@ -30,8 +30,11 @@ export default async function XRUILoadingSystem(world: World) {
   )
 
   const sceneState = accessSceneState()
-  const thumbnailUrl = sceneState?.currentScene?.thumbnailUrl?.value.replace('thumbnail.jpeg', 'cubemap.png')
-  const [ui, texture] = await Promise.all([createLoaderDetailView(), textureLoader.loadAsync(thumbnailUrl)])
+  const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'cubemap.png')
+  const [ui, texture] = await Promise.all([
+    createLoaderDetailView(),
+    thumbnailUrl ? textureLoader.loadAsync(thumbnailUrl) : undefined
+  ])
 
   const mesh = new Mesh(
     new SphereGeometry(0.3),
@@ -52,32 +55,30 @@ export default async function XRUILoadingSystem(world: World) {
     //   // todo: figure out how to make this work properly for VR
     // }
 
-    if (Engine.activeCameraEntity) {
-      const xrui = getComponent(ui.entity, XRUIComponent)
+    const xrui = getComponent(ui.entity, XRUIComponent)
 
-      if (xrui) {
-        const dist = 0.1
-        const ppu = xrui.container.options.manager.pixelsPerUnit
-        const contentWidth = ui.state.imageWidth.value / ppu
-        const contentHeight = ui.state.imageHeight.value / ppu
+    if (xrui) {
+      const dist = 0.1
+      const ppu = xrui.container.options.manager.pixelsPerUnit
+      const contentWidth = ui.state.imageWidth.value / ppu
+      const contentHeight = ui.state.imageHeight.value / ppu
 
-        const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
-        xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
-        xrui.container.position.z = -dist
-        xrui.container.parent = Engine.camera
+      const scale = ObjectFitFunctions.computeContentFitScaleForCamera(dist, contentWidth, contentHeight, 'cover')
+      xrui.container.scale.x = xrui.container.scale.y = scale * 1.1
+      xrui.container.position.z = -dist
+      xrui.container.parent = Engine.camera
 
-        transition.update(world, (opacity) => {
-          if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
-          mesh.material.opacity = opacity
-          mesh.visible = opacity > 0
-          xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-            const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-            mat.opacity = opacity
-            mat.visible = opacity > 0
-            layer.visible = opacity > 0
-          })
+      transition.update(world, (opacity) => {
+        if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
+        mesh.material.opacity = opacity
+        mesh.visible = opacity > 0
+        xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+          const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+          mat.opacity = opacity
+          mat.visible = opacity > 0
+          layer.visible = opacity > 0
         })
-      }
+      })
     }
   }
 }

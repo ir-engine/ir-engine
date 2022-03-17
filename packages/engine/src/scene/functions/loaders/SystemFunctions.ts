@@ -53,7 +53,7 @@ export const serializeSystem: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseSystemProperties = (props): SystemComponentType => {
+export const parseSystemProperties = (props): SystemComponentType => {
   return {
     filePath: props.filePath ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.filePath,
     systemUpdateType: props.systemUpdateType ?? SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES.systemUpdateType,

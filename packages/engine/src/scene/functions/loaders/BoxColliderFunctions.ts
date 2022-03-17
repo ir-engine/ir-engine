@@ -49,6 +49,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
 
   if (Engine.isEditor) {
     if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
   } else {
     if (
       boxColliderProps.removeMesh === 'true' ||
@@ -61,7 +62,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
       }
     }
   }
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
@@ -100,7 +100,7 @@ export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseBoxColliderProperties = (props): BoxColliderProps => {
+export const parseBoxColliderProperties = (props): BoxColliderProps => {
   return {
     isTrigger: props.isTrigger ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.isTrigger,
     removeMesh: props.removeMesh ?? SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES.removeMesh,

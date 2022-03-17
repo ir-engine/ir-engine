@@ -1,5 +1,8 @@
 import classNames from 'classnames'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
@@ -13,27 +16,24 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useDispatch } from '../../../store'
 import styles from './Projects.module.scss'
 
 interface Props {
   open: boolean
-  repos: any
-  handleClose: any
-  scenes?: any
-  avatars?: any
-  projects?: any
+  repos: GithubAppInterface[]
+  handleClose: () => void
 }
 
 const UploadProjectModal = (props: Props): any => {
-  const { open, handleClose, scenes, repos } = props
+  const { open, handleClose, repos } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [projectURL, setProjectURL] = useState('')
   const [isPublicUrl, setIsPublicUrl] = useState(false)
-  const dispatch = useDispatch()
+  const { t } = useTranslation()
+
   const showError = (err: string) => {
     setError(err)
     setTimeout(() => {
@@ -95,7 +95,7 @@ const UploadProjectModal = (props: Props): any => {
                       name="projectURL"
                     >
                       <MenuItem value="" disabled>
-                        <em>Select Project</em>
+                        <em>{t('admin:components.project.selectProject')}</em>
                       </MenuItem>
                       {repos &&
                         repos.map((el: any, i) => (
@@ -106,7 +106,7 @@ const UploadProjectModal = (props: Props): any => {
                     </Select>
                   ) : (
                     <div>
-                      <label>Please insert github public url</label>
+                      <label>{t('admin:components.project.insertPublicUrl')}</label>
                       <TextField
                         className={styles['pack-select']}
                         id="urlSelect"
@@ -125,7 +125,7 @@ const UploadProjectModal = (props: Props): any => {
                     color="primary"
                     onClick={tryUploadProject}
                   >
-                    Upload Project
+                    {t('admin:components.project.uploadProject')}
                   </Button>
                   {repos && repos.length != 0 ? (
                     <Button
@@ -135,7 +135,9 @@ const UploadProjectModal = (props: Props): any => {
                       color="primary"
                       onClick={trySelectPublicUrl}
                     >
-                      {!isPublicUrl ? 'Custom Public Url' : 'Select From List'}
+                      {!isPublicUrl
+                        ? t('admin:components.project.customPublicUrl')
+                        : t('admin:components.project.selectFromList')}
                     </Button>
                   ) : (
                     <></>
@@ -146,7 +148,7 @@ const UploadProjectModal = (props: Props): any => {
             {processing === true && (
               <div className={styles.processing}>
                 <CircularProgress color="primary" />
-                <div className={styles.text}>Processing</div>
+                <div className={styles.text}>{t('admin:components.project.processing')}</div>
               </div>
             )}
             {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}

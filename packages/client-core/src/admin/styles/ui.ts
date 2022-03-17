@@ -78,7 +78,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginRight: '10px'
     },
     spanWhite: {
-      color: '#f1f1f1'
+      color: '#f1f1f1 !important'
     },
     paperDrawer: {
       width: '40%',
@@ -109,17 +109,18 @@ export const useStyles = makeStyles((theme: Theme) =>
       color: '#f1f1f1 !important'
     },
     createInput: {
-      padding: '2px 4px',
+      // padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
       marginTop: '10px',
       marginBottom: '15px',
       background: '#343b41',
-      border: '1px solid #23282c',
+      // border: '1px solid #23282c',
       color: '#f1f1f1 !important'
     },
     select: {
-      color: '#f1f1f1 !important'
+      color: '#f1f1f1 !important',
+      height: '2.4rem !important'
     },
     selectPaper: {
       background: '#343b41',
@@ -178,7 +179,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       maxHeight: 'calc(100vh - 172px)'
     },
     rootPaper: {
-      marginTop: '65px',
+      marginTop: '50px',
       minHeight: '15vh',
       background: '#111',
       color: '#f1f1f1',
@@ -487,6 +488,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     positionRight: {
       position: 'absolute',
       right: '10px'
+    },
+    avatarWidth: {
+      width: '40px'
     }
   })
 )
