@@ -14,11 +14,11 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import { IconButton, Tooltip } from '@mui/material'
 
+import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
-import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
@@ -58,7 +58,7 @@ export const addPrefabElement = (
 ): EntityTreeNode | undefined => {
   const node = createEntityNode(createEntity())
 
-  CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+  executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
     prefabTypes: item.prefabType,
     parents: parent,
     befores: before

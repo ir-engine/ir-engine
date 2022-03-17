@@ -5,8 +5,8 @@ import { Euler } from 'three'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
-import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
@@ -36,18 +36,18 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
+    executeCommandWithHistoryOnSelection(EditorCommands.POSITION, { positions: value })
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
     setState({ x: value.x, y: value.y, z: value.z })
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
+    executeCommandWithHistoryOnSelection(EditorCommands.ROTATION, { rotations: value })
   }
 
   //function to handle changes in scale properties
   const onChangeScale = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+    executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
       scales: value,
       overrideScale: true
     })

@@ -32,7 +32,6 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
 import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
@@ -41,6 +40,7 @@ import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoa
 
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
+import { executeCommand } from '../classes/History'
 import MeshCombinationGroup from '../classes/MeshCombinationGroup'
 import EditorCommands from '../constants/EditorCommands'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
@@ -52,7 +52,6 @@ import isEmptyObject from '../functions/isEmptyObject'
 import { getCanvasBlob } from '../functions/thumbnails'
 import { EditorAction } from '../services/EditorServices'
 import { ModeAction } from '../services/ModeServices'
-import { CommandManager } from './CommandManager'
 import { ControlManager } from './ControlManager'
 
 export type DefaultExportOptionsType = {
@@ -269,7 +268,7 @@ export class SceneManager {
    */
   onResize = () => {
     ControlManager.instance.inputManager.onResize()
-    CommandManager.instance.emit('resize')
+    document.dispatchEvent(new Event('resize'))
   }
 
   /**
@@ -293,7 +292,7 @@ export class SceneManager {
   reparentToSceneAtCursorPosition(objects, mousePos) {
     const newPosition = new Vector3()
     this.getCursorSpawnPosition(mousePos, newPosition)
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, objects, {
+    executeCommand(EditorCommands.REPARENT, objects, {
       parents: useWorld().entityTree.rootNode,
       positions: newPosition
     })
@@ -397,7 +396,7 @@ export class SceneManager {
   async exportScene(options = {} as DefaultExportOptionsType) {
     const { combineMeshes, removeUnusedObjects } = Object.assign({}, SceneManager.DefaultExportOptions, options)
 
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, [])
+    executeCommand(EditorCommands.REPLACE_SELECTION, [])
 
     if ((Engine.scene as any).entity == undefined) {
       ;(Engine.scene as any).entity = useWorld().entityTree.rootNode.entity

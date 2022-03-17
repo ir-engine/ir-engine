@@ -5,6 +5,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { EditorControlComponent } from '../classes/EditorControlComponent'
+import { executeCommandWithHistory, executeCommandWithHistoryOnSelection, revertHistory } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import InputManager from '../controls/InputManager'
@@ -12,7 +13,6 @@ import PlayModeControls from '../controls/PlayModeControls'
 import { addInputActionMapping } from '../functions/parseInputActionMapping'
 import { ModeAction } from '../services/ModeServices'
 import { setTransformMode } from '../systems/EditorControlSystem'
-import { CommandManager } from './CommandManager'
 import { SceneManager } from './SceneManager'
 
 export class ControlManager {
@@ -31,12 +31,11 @@ export class ControlManager {
   onBeforeSelectionChanged = () => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (editorControlComponent.transformMode === TransformMode.Grab) {
-      const checkpoint = editorControlComponent.grabHistoryCheckpoint
       setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-      CommandManager.instance.revert(checkpoint)
+      if (editorControlComponent.grabHistoryCheckpoint) revertHistory(editorControlComponent.grabHistoryCheckpoint)
     } else if (editorControlComponent.transformMode === TransformMode.Placement) {
       setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-      CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+      executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
         deselectObject: true
       })
     }
@@ -65,7 +64,7 @@ export class ControlManager {
    */
   enterPlayMode() {
     this.isInPlayMode = true
-    CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
+    executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
     Engine.camera.layers.set(ObjectLayers.Scene)
     this.playModeControls.enable()
     store.dispatch(ModeAction.changedPlayMode())

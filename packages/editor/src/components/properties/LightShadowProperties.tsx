@@ -5,7 +5,7 @@ import { Vector2 } from 'three'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
@@ -57,7 +57,7 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
   const { t } = useTranslation()
 
   const changeShadowMapResolution = (resolution) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: props.comp,
       properties: { shadowMapResolution: new Vector2(resolution, resolution) }
     })

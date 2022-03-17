@@ -40,11 +40,17 @@ import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/com
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent, EditorControlComponentType } from '../classes/EditorControlComponent'
 import { FlyControlComponent, FlyControlComponentType } from '../classes/FlyControlComponent'
+import {
+  executeCommandWithHistory,
+  executeCommandWithHistoryOnSelection,
+  redoCommand,
+  revertHistory,
+  undoCommand
+} from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { EditorActionSet, FlyActionSet } from '../controls/input-mappings'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import { getInput } from '../functions/parseInputActionMapping'
-import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ModeAction } from '../services/ModeServices'
 import { accessSelectionState } from '../services/SelectionServices'
@@ -281,7 +287,7 @@ export default async function EditorControlSystem(_: World) {
             )
           }
 
-          CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.POSITION, {
+          executeCommandWithHistoryOnSelection(EditorCommands.POSITION, {
             positions: translationVector,
             space: editorControlComponent.transformSpace,
             addToPosition: true
@@ -309,7 +315,7 @@ export default async function EditorControlSystem(_: World) {
           const relativeRotationAngle = rotationAngle - prevRotationAngle
           prevRotationAngle = rotationAngle
 
-          CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+          executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
             pivot: gizmoObj.position,
             axis: planeNormal,
             angle: relativeRotationAngle
@@ -386,7 +392,7 @@ export default async function EditorControlSystem(_: World) {
           scaleVector.copy(curScale).divide(prevScale)
           prevScale.copy(curScale)
 
-          CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
+          executeCommandWithHistoryOnSelection(EditorCommands.SCALE, {
             scales: scaleVector,
             space: editorControlComponent.transformSpace
           })
@@ -411,7 +417,7 @@ export default async function EditorControlSystem(_: World) {
           )
         } else if (editorControlComponent.transformMode === TransformMode.Placement) {
           if (shift || boost || editorControlComponent.multiplePlacement) {
-            CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS, {
+            executeCommandWithHistoryOnSelection(EditorCommands.DUPLICATE_OBJECTS, {
               isObjectSelected: false
             })
           } else {
@@ -423,13 +429,13 @@ export default async function EditorControlSystem(_: World) {
             const result = getIntersectingNodeOnScreen(raycaster, selectEndPosition)
             if (result) {
               if (result.node) {
-                CommandManager.instance.executeCommandWithHistory(
+                executeCommandWithHistory(
                   shift ? EditorCommands.TOGGLE_SELECTION : EditorCommands.REPLACE_SELECTION,
                   result.node
                 )
               }
             } else if (!shift) {
-              CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
+              executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
             }
           }
           SceneManager.instance.transformGizmo.deselectAxis()
@@ -437,13 +443,13 @@ export default async function EditorControlSystem(_: World) {
         }
       }
       if (getInput(EditorActionSet.rotateLeft)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
           pivot: SceneManager.instance.transformGizmo.position,
           axis: new Vector3(0, 1, 0),
           angle: editorControlComponent.rotationSnap * MathUtils.DEG2RAD
         })
       } else if (getInput(EditorActionSet.rotateRight)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
+        executeCommandWithHistoryOnSelection(EditorCommands.ROTATE_AROUND, {
           pivot: SceneManager.instance.transformGizmo.position,
           axis: new Vector3(0, 1, 0),
           angle: -editorControlComponent.rotationSnap * MathUtils.DEG2RAD
@@ -480,11 +486,11 @@ export default async function EditorControlSystem(_: World) {
       } else if (getInput(EditorActionSet.decrementGridHeight)) {
         SceneManager.instance.grid.decrementGridHeight()
       } else if (getInput(EditorActionSet.undo)) {
-        CommandManager.instance.undo()
+        undoCommand()
       } else if (getInput(EditorActionSet.redo)) {
-        CommandManager.instance.redo()
+        redoCommand()
       } else if (getInput(EditorActionSet.deleteSelected)) {
-        CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+        executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
           deselectObject: true
         })
       }
@@ -646,13 +652,13 @@ const cancel = (editorControlComponent?: EditorControlComponentType) => {
 
   if (editorControlComponent.transformMode === TransformMode.Grab) {
     setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-    CommandManager.instance.revert(editorControlComponent.grabHistoryCheckpoint)
+    if (editorControlComponent.grabHistoryCheckpoint) revertHistory(editorControlComponent.grabHistoryCheckpoint)
   } else if (editorControlComponent.transformMode === TransformMode.Placement) {
     setTransformMode(editorControlComponent.transformModeOnCancel, false, editorControlComponent)
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
+    executeCommandWithHistoryOnSelection(EditorCommands.REMOVE_OBJECTS, {
       deselectObject: true
     })
   }
 
-  CommandManager.instance.executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
+  executeCommandWithHistory(EditorCommands.REPLACE_SELECTION, [])
 }

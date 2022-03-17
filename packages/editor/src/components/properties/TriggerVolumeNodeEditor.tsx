@@ -10,7 +10,7 @@ import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/Tr
 
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
@@ -39,7 +39,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
 
   //function to handle the changes in target
   const onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: TriggerVolumeComponent,
       properties: {
         target,

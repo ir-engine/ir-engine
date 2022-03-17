@@ -10,10 +10,10 @@ import {
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
 import { filterParentEntities } from '../functions/filterParentEntities'
-import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
@@ -94,7 +94,7 @@ export default class RemoveObjectsCommand extends Command {
     }
 
     if (this.deselectObject) {
-      CommandManager.instance.executeCommand(EditorCommands.REMOVE_FROM_SELECTION, this.affectedObjects, {
+      executeCommand(EditorCommands.REMOVE_FROM_SELECTION, this.affectedObjects, {
         shouldEmitEvent: this.shouldEmitEvent
       })
     }
@@ -105,7 +105,7 @@ export default class RemoveObjectsCommand extends Command {
   undo() {
     if (!this.undoObjects) return
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
+    executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       isObjectSelected: this.isSelected,
@@ -113,7 +113,7 @@ export default class RemoveObjectsCommand extends Command {
       sceneData: this.oldComponents
     })
 
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects)
+    executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects)
   }
 
   toString() {

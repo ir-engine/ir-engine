@@ -11,10 +11,10 @@ import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleC
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -110,7 +110,7 @@ export const PropertiesPanelContainer = () => {
   selectionState.objectChangeCounter.value
 
   const onChangeVisible = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: VisibleComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
@@ -119,7 +119,7 @@ export const PropertiesPanelContainer = () => {
   }
 
   const onChangeBakeStatic = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PreventBakeTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
@@ -128,7 +128,7 @@ export const PropertiesPanelContainer = () => {
   }
 
   const onChangePersist = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PersistTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE

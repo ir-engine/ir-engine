@@ -6,7 +6,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities, isEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -14,11 +14,12 @@ import { NameComponent } from '@xrengine/engine/src/scene/components/NameCompone
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
+import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
+import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
@@ -153,7 +154,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         data.onUpload(entries).then((assets) => {
           if (!assets) return
           for (const asset of assets) {
-            CommandManager.instance.addMedia({ url: asset.url }, parentNode, beforeNode)
+            addMediaNode(asset.url, parentNode, beforeNode)
           }
         })
 
@@ -161,7 +162,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
       if (item.url) {
-        CommandManager.instance.addMedia({ url: item.url }, parentNode, beforeNode)
+        addMediaNode(item.url, parentNode, beforeNode)
         return
       }
 
@@ -170,7 +171,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         return
       }
 
-      CommandManager.instance.executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
+      executeCommandWithHistory(EditorCommands.REPARENT, item.value, {
         parents: parentNode,
         befores: beforeNode
       })

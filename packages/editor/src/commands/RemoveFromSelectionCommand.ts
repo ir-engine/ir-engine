@@ -4,10 +4,10 @@ import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFun
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
@@ -29,10 +29,7 @@ export default class RemoveFromSelectionCommand extends Command {
 
   undo() {
     if (!this.oldSelection) return
-    CommandManager.instance.executeCommand(
-      EditorCommands.REPLACE_SELECTION,
-      getEntityNodeArrayFromEntities(this.oldSelection)
-    )
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
   }
 
   toString() {

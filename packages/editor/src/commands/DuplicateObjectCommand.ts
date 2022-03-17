@@ -4,11 +4,11 @@ import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engin
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
-import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
@@ -43,7 +43,7 @@ export default class DuplicateObjectCommand extends Command {
 
   execute(isRedoCommand?: boolean) {
     if (isRedoCommand) {
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
         parents: this.parents,
         befores: this.befores,
         shouldEmitEvent: false,
@@ -67,7 +67,7 @@ export default class DuplicateObjectCommand extends Command {
         }
       }
 
-      CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
+      executeCommand(EditorCommands.ADD_OBJECTS, this.duplicatedObjects, {
         parents: this.parents,
         befores: this.befores,
         shouldEmitEvent: false,
@@ -76,7 +76,7 @@ export default class DuplicateObjectCommand extends Command {
       })
 
       if (this.isSelected) {
-        CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects)
+        executeCommand(EditorCommands.REPLACE_SELECTION, this.duplicatedObjects)
       }
     }
 
@@ -84,15 +84,12 @@ export default class DuplicateObjectCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.duplicatedObjects, {
       deselectObject: false,
       skipSerialization: true
     })
 
-    CommandManager.instance.executeCommand(
-      EditorCommands.REPLACE_SELECTION,
-      getEntityNodeArrayFromEntities(this.oldSelection)
-    )
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
   }
 
   toString() {

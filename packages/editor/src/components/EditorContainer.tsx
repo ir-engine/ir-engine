@@ -18,12 +18,10 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
-import { saveProject } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { CacheManager } from '../managers/CacheManager'
-import { ProjectManager } from '../managers/ProjectManager'
 import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -132,7 +130,7 @@ const EditorContainer = () => {
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {
-      await ProjectManager.instance.loadProjectScene(sceneFile)
+      await loadProjectScene(sceneFile)
       dispatch(EditorAction.sceneModified(true))
       setDialogComponent(null)
     } catch (error) {
@@ -174,7 +172,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await ProjectManager.instance.loadProjectScene(project.scene)
+      await loadProjectScene(project.scene)
 
       setDialogComponent(null)
     } catch (error) {
@@ -469,9 +467,7 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    CacheManager.init()
-
-    ProjectManager.instance.init().then(() => {
+    runPreprojectLoadTasks().then(() => {
       setEditorReady(true)
     })
   }, [])
@@ -485,7 +481,7 @@ const EditorContainer = () => {
   useEffect(() => {
     return () => {
       setEditorReady(false)
-      ProjectManager.instance.dispose()
+      disposeProject()
     }
   }, [])
 

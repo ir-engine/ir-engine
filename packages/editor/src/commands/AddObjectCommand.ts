@@ -12,12 +12,12 @@ import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerP
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
@@ -78,16 +78,13 @@ export default class AddObjectCommand extends Command {
   }
 
   undo(): void {
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.affectedObjects, {
       deselectObject: false,
       skipSerialization: true
     })
 
     if (this.oldSelection) {
-      CommandManager.instance.executeCommand(
-        EditorCommands.REPLACE_SELECTION,
-        getEntityNodeArrayFromEntities(this.oldSelection)
-      )
+      executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
     }
   }
 
@@ -154,7 +151,7 @@ export default class AddObjectCommand extends Command {
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
+      executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects, {
         shouldEmitEvent: false
       })
     }

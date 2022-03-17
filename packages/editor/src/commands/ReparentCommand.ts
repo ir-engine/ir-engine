@@ -12,10 +12,10 @@ import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformCo
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
@@ -83,7 +83,7 @@ export default class ReparentCommand extends Command {
     this.reparent(this.affectedObjects, this.parents, this.befores)
 
     if (this.positions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+      executeCommand(EditorCommands.POSITION, this.affectedObjects, {
         positions: this.positions,
         space: TransformSpace.Local
       })
@@ -100,17 +100,14 @@ export default class ReparentCommand extends Command {
     this.isSelected = true
 
     if (this.positions) {
-      CommandManager.instance.executeCommand(EditorCommands.POSITION, this.affectedObjects, {
+      executeCommand(EditorCommands.POSITION, this.affectedObjects, {
         positions: this.oldPositions,
         space: TransformSpace.Local,
         shouldEmitEvent: false
       })
     }
 
-    CommandManager.instance.executeCommand(
-      EditorCommands.REPLACE_SELECTION,
-      getEntityNodeArrayFromEntities(this.oldSelection)
-    )
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
 
     this.emitAfterExecuteEvent()
   }
@@ -153,7 +150,7 @@ export default class ReparentCommand extends Command {
     }
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, objects, {
+      executeCommand(EditorCommands.REPLACE_SELECTION, objects, {
         shouldEmitEvent: false
       })
     }

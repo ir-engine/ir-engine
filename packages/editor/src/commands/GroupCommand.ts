@@ -8,10 +8,10 @@ import {
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
@@ -68,7 +68,7 @@ export default class GroupCommand extends Command {
     this.emitBeforeExecuteEvent()
 
     this.groupNode = createEntityNode(createEntity())
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
+    executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
       parents: this.groupParents,
       befores: this.groupBefores,
       shouldEmitEvent: false,
@@ -76,14 +76,14 @@ export default class GroupCommand extends Command {
       prefabTypes: ScenePrefabs.group
     })
 
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
+    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
       parents: this.groupNode,
       shouldEmitEvent: false,
       isObjectSelected: false
     })
 
     if (this.isSelected) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
+      executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
         shouldEmitEvent: false
       })
     }
@@ -92,22 +92,19 @@ export default class GroupCommand extends Command {
   }
 
   undo() {
-    CommandManager.instance.executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
+    executeCommand(EditorCommands.REPARENT, this.affectedObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       shouldEmitEvent: false,
       isObjectSelected: false
     })
-    CommandManager.instance.executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
+    executeCommand(EditorCommands.REMOVE_OBJECTS, this.groupNode, {
       deselectObject: false,
       shouldEmitEvent: false,
       skipSerialization: true
     })
 
-    CommandManager.instance.executeCommand(
-      EditorCommands.REPLACE_SELECTION,
-      getEntityNodeArrayFromEntities(this.oldSelection)
-    )
+    executeCommand(EditorCommands.REPLACE_SELECTION, getEntityNodeArrayFromEntities(this.oldSelection))
     this.emitAfterExecuteEvent()
   }
 
