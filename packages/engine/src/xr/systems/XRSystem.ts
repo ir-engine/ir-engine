@@ -5,7 +5,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -76,7 +76,7 @@ export default async function XRSystem(world: World) {
   Engine.currentWorld.receptors.push((action: EngineActionType) => {
     switch (action.type) {
       case EngineEvents.EVENTS.XR_START:
-        startXRSession()
+        if (accessEngineState().joinedWorld.value) startXRSession()
         break
       case EngineEvents.EVENTS.XR_END:
         for (const entity of xrControllerQuery()) {

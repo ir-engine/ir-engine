@@ -109,13 +109,15 @@ export const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponen
  */
 
 export const startWebXR = async (): Promise<void> => {
+  const world = useWorld()
+  if (hasComponent(world.localClientEntity, XRInputSourceComponent)) return
+
   const container = new Group()
   const head = new Group()
   const controllerLeft = new Group()
   const controllerRight = new Group()
   const controllerGripLeft = new Group()
   const controllerGripRight = new Group()
-  const world = useWorld()
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
   container.add(Engine.camera)
