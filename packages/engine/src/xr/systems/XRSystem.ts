@@ -1,4 +1,4 @@
-import { sRGBEncoding } from 'three'
+import { ArrayCamera, sRGBEncoding } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
@@ -13,6 +13,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { cleanXRInputs } from '../functions/addControllerModels'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
@@ -30,7 +31,15 @@ const startXRSession = async () => {
     dispatchLocal(EngineActions.xrSession() as any)
 
     // Current WebXRManager.getCamera() typedef is incorrect
-    ;(Engine.xrManager as any).getCamera().layers.enableAll()
+    // @ts-ignore
+    const cameras = Engine.xrManager.getCamera() as ArrayCamera
+    cameras.layers.enableAll()
+    cameras.cameras.forEach((camera) => {
+      camera.layers.disableAll()
+      camera.layers.enable(ObjectLayers.Scene)
+      camera.layers.enable(ObjectLayers.Avatar)
+      camera.layers.enable(ObjectLayers.UI)
+    })
 
     Engine.xrManager.addEventListener('sessionend', async () => {
       dispatchLocal(EngineActions.xrEnd() as any)
