@@ -6,6 +6,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
@@ -133,7 +134,7 @@ export const generatePhysicsObject = (
 
   // Add empty model node
   const entity = createEntity()
-  let entityTreeNode = new EntityTreeNode(entity, getUUID())
+  let entityTreeNode = createEntityNode(createEntity(), getUUID())
   createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
 
   let nameComponent = getComponent(entity, NameComponent)
@@ -145,7 +146,7 @@ export const generatePhysicsObject = (
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
   const world = useWorld()
-  world.entityTree.addEntityNode(entityTreeNode, world.entityTree.rootNode)
+  addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   let transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
@@ -157,7 +158,7 @@ export const generatePhysicsObject = (
     teleportRigidbody(body, transform.position, transform.rotation)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
-    const node = world.entityTree.findNodeFromEid(entity)
+    const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.spawnObject({

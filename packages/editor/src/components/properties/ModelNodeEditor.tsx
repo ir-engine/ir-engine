@@ -7,6 +7,7 @@ import { AnimationComponent } from '@xrengine/engine/src/avatar/components/Anima
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
@@ -88,7 +89,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  useWorld().entityTree.traverse((node) => {
+  traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({

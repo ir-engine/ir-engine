@@ -15,9 +15,13 @@ import {
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getEntityNodeArrayFromEntities,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -43,6 +47,7 @@ import { getInput } from '../functions/parseInputActionMapping'
 import { CommandManager } from '../managers/CommandManager'
 import { SceneManager } from '../managers/SceneManager'
 import { ModeAction } from '../services/ModeServices'
+import { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
@@ -51,6 +56,7 @@ const SELECT_SENSITIVITY = 0.001
  */
 export default async function EditorControlSystem(_: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
+  const selectionState = accessSelectionState()
 
   const raycaster = new Raycaster()
   const raycasterResults: Intersection<Object3D>[] = []
@@ -82,7 +88,9 @@ export default async function EditorControlSystem(_: World) {
   let editorControlComponent: EditorControlComponentType
   let flyControlComponent: FlyControlComponentType
   let cameraComponent: EditorCameraComponentType
-  let selectedTransformRoots: EntityTreeNode[]
+  let selectedEntities: Entity[]
+  let selectedParentEntities: Entity[]
+  let selectionCounter: number = 0
   let gizmoObj: TransformGizmo
 
   const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], excludeLayers?: Layers): void => {
@@ -105,8 +113,8 @@ export default async function EditorControlSystem(_: World) {
     raycaster.setFromCamera(coords, Engine.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
-    const os = CommandManager.instance.selectedTransformRoots.map(
-      (o) => getComponent(o.entity, Object3DComponent).value
+    const os = selectionState.selectedParentEntities.value.map(
+      (entity) => getComponent(entity, Object3DComponent).value
     )
 
     findIntersectObjects(Engine.scene, os, raycastIgnoreLayers)
@@ -130,20 +138,20 @@ export default async function EditorControlSystem(_: World) {
       editorControlComponent = getComponent(entity, EditorControlComponent)
       if (!editorControlComponent.enable) continue
 
-      selectedTransformRoots = CommandManager.instance.selectedTransformRoots
+      selectedParentEntities = selectionState.selectedParentEntities.value
+      selectedEntities = selectionState.selectedEntities.value
       flyControlComponent = getComponent(entity, FlyControlComponent)
       gizmoObj = getComponent(SceneManager.instance.gizmoEntity, Object3DComponent)?.value as TransformGizmo
 
       if (!gizmoObj) continue
 
-      if (selectedTransformRoots.length === 0 || editorControlComponent.transformMode === TransformMode.Disabled) {
+      if (selectedParentEntities.length === 0 || editorControlComponent.transformMode === TransformMode.Disabled) {
         gizmoObj.visible = false
       } else {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        const lastSelectedObj3d = getComponent(lastSelectedObject.entity, Object3DComponent)?.value
+        const lastSelectedObj3d = getComponent(selectedEntities[selectedEntities.length - 1], Object3DComponent)?.value
         if (lastSelectedObj3d) {
           const isChanged =
-            editorControlComponent.selectionChanged ||
+            selectionCounter !== selectionState.selectionCounter.value ||
             editorControlComponent.transformModeChanged ||
             editorControlComponent.transformPropertyChanged
 
@@ -153,8 +161,8 @@ export default async function EditorControlSystem(_: World) {
             } else {
               box.makeEmpty()
 
-              for (let i = 0; i < selectedTransformRoots.length; i++) {
-                box.expandByObject(getComponent(selectedTransformRoots[i].entity, Object3DComponent).value)
+              for (let i = 0; i < selectedParentEntities.length; i++) {
+                box.expandByObject(getComponent(selectedParentEntities[i], Object3DComponent).value)
               }
 
               box.getCenter(gizmoObj.position)
@@ -280,9 +288,7 @@ export default async function EditorControlSystem(_: World) {
           })
 
           if (isGrabbing && editorControlComponent.transformMode === TransformMode.Grab) {
-            editorControlComponent.grabHistoryCheckpoint = CommandManager.instance.selected
-              ? CommandManager.instance.selected[0].entity
-              : (0 as Entity)
+            editorControlComponent.grabHistoryCheckpoint = selectedEntities ? selectedEntities[0] : (0 as Entity)
           }
         } else if (editorControlComponent.transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
@@ -387,7 +393,7 @@ export default async function EditorControlSystem(_: World) {
         }
       }
 
-      editorControlComponent.selectionChanged = false
+      selectionCounter = selectionState.selectionCounter.value
       editorControlComponent.transformModeChanged = false
       editorControlComponent.transformPivotChanged = false
       editorControlComponent.transformSpaceChanged = false
@@ -449,13 +455,13 @@ export default async function EditorControlSystem(_: World) {
         ) {
           cancel(editorControlComponent)
         }
-        if (CommandManager.instance.selected.length > 0) {
+        if (selectedEntities.length > 0) {
           setTransformMode(TransformMode.Grab, false, editorControlComponent)
         }
       } else if (getInput(EditorActionSet.cancel)) {
         cancel(editorControlComponent)
       } else if (getInput(EditorActionSet.focusSelection)) {
-        cameraComponent.focusedObjects = CommandManager.instance.selected
+        cameraComponent.focusedObjects = getEntityNodeArrayFromEntities(selectedEntities)
         cameraComponent.refocus = true
       } else if (getInput(EditorActionSet.setTranslateMode)) {
         setTransformMode(TransformMode.Translate, false, editorControlComponent)
@@ -517,19 +523,28 @@ export const setTransformMode = (
   multiplePlacement?: boolean,
   editorControlComponent?: EditorControlComponentType
 ): void => {
-  const dispatch = useDispatch()
-
   if (!editorControlComponent) {
     editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (!editorControlComponent.enable) return
   }
 
-  if (
-    (mode === TransformMode.Placement || mode === TransformMode.Grab) &&
-    CommandManager.instance.selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent)) // TODO: THIS doesn't prevent nesting and then grabbing
-  ) {
+  if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
+    let stop = false
+    const selectedEntities = accessSelectionState().selectedEntities.value
+    const tree = useWorld().entityTree
+
     // Dont allow grabbing / placing objects with transform disabled.
-    return
+    for (const entity of selectedEntities) {
+      const node = tree.entityNodeMap.get(entity)
+
+      if (node) {
+        traverseEntityNode(node, (node) => {
+          if (hasComponent(node.entity, DisableTransformTagComponent)) stop = true
+        })
+      }
+
+      if (stop) return
+    }
   }
 
   if (mode !== TransformMode.Placement && mode !== TransformMode.Grab) {
@@ -541,7 +556,7 @@ export const setTransformMode = (
   editorControlComponent.transformMode = mode
   editorControlComponent.transformModeChanged = true
   SceneManager.instance.transformGizmo.setTransformMode(mode)
-  dispatch(ModeAction.changedTransformMode(mode))
+  useDispatch()(ModeAction.changedTransformMode(mode))
 }
 
 export const setSnapMode = (snapMode: SnapModeType, editorControlComponent?: EditorControlComponentType): void => {

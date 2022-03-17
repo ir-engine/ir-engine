@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Quaternion } from 'three'
+import { Euler, Quaternion } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -9,10 +9,9 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeEuler, serializeObject3DArray } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams, IDENTITY_MAT_4 } from './Command'
 
 export interface RotationCommandParams extends CommandParams {
@@ -80,9 +79,11 @@ export default class RotationCommand extends Command {
     let spaceMatrix = IDENTITY_MAT_4
 
     if (space === TransformSpace.LocalSelection) {
-      if (CommandManager.instance.selected.length > 0) {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        const obj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+      const selectedEntities = accessSelectionState().selectedEntities.value
+
+      if (selectedEntities.length > 0) {
+        const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+        const obj3d = getComponent(lastSelectedEntity, Object3DComponent).value
         obj3d.updateMatrixWorld()
         spaceMatrix = obj3d.parent!.matrixWorld
       }

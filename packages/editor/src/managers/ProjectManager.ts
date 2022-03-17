@@ -63,7 +63,6 @@ export class ProjectManager {
     CommandManager.instance.history.clear()
 
     store.dispatch(EditorAction.projectLoaded(true))
-    SceneManager.instance.onEmitSceneModified
     store.dispatch(SelectionAction.changedSceneGraph())
 
     if (errors && errors.length > 0) {

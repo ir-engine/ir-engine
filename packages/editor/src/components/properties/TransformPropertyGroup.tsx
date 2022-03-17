@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler } from 'three'
 
@@ -23,20 +23,16 @@ const euler = new Euler()
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const selectionState = useSelectionState()
-  const [, updateState] = useState<any>()
   const { t } = useTranslation()
   const [rotEulerValue, setState] = useState({ x: 0, y: 0, z: 0 })
-
-  const forceUpdate = useCallback(() => updateState({}), [])
 
   useEffect(() => {
     euler.setFromQuaternion(transfromComponent.rotation)
     setState({ x: euler.x, y: euler.y, z: euler.z })
   }, [])
 
-  useEffect(() => {
-    forceUpdate()
-  }, [selectionState.objectChanged.value])
+  // access state to detect the change
+  selectionState.objectChangeCounter.value
 
   //function to handle the position properties
   const onChangePosition = (value) => {

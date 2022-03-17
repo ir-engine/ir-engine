@@ -4,83 +4,35 @@ import { store } from '@xrengine/client-core/src/store'
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { hasComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  createEntityNode,
+  getEntityNodeArrayFromEntities
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 
-import History from '../classes/History'
-import AddObjectCommand, { AddObjectCommandParams } from '../commands/AddObjectCommand'
-import AddToSelectionCommand from '../commands/AddToSelectionCommand'
-import Command from '../commands/Command'
-import DuplicateObjectCommand, { DuplicateObjectCommandParams } from '../commands/DuplicateObjectCommand'
-import GroupCommand, { GroupCommandParams } from '../commands/GroupCommand'
-import ModifyPropertyCommand, { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
-import PositionCommand, { PositionCommandParams } from '../commands/PositionCommand'
-import RemoveFromSelectionCommand from '../commands/RemoveFromSelectionCommand'
-import RemoveObjectsCommand, { RemoveObjectCommandParams } from '../commands/RemoveObjectsCommand'
-import ReparentCommand, { ReparentCommandParams } from '../commands/ReparentCommand'
-import ReplaceSelectionCommand from '../commands/ReplaceSelectionCommand'
-import RotateAroundCommand, { RotateAroundCommandParams } from '../commands/RotateAroundCommand'
-import RotationCommand, { RotationCommandParams } from '../commands/RotationCommand'
-import ScaleCommand, { ScaleCommandParams } from '../commands/ScaleCommand'
-import TagComponentCommand, { TagComponentCommandParams } from '../commands/TagComponentCommand'
-import ToggleSelectionCommand from '../commands/ToggleSelectionCommand'
-import EditorCommands, { EditorCommandsType } from '../constants/EditorCommands'
+import EditorHistory from '../classes/History'
+import { ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
+import EditorCommands, { CommandParamsType, Commands, EditorCommandsType } from '../constants/EditorCommands'
 import isInputSelected from '../functions/isInputSelected'
 import { EditorErrorAction } from '../services/EditorErrorServices'
-
-export type CommandParamsType =
-  | AddObjectCommandParams
-  | RemoveObjectCommandParams
-  | DuplicateObjectCommandParams
-  | ModifyPropertyCommandParams<any>
-  | ReparentCommandParams
-  | GroupCommandParams
-  | PositionCommandParams
-  | RotationCommandParams
-  | ScaleCommandParams
-  | RotateAroundCommandParams
-  | TagComponentCommandParams
+import { accessSelectionState } from '../services/SelectionServices'
 
 export class CommandManager extends EventEmitter {
   static instance: CommandManager = new CommandManager()
 
-  commands: {
-    [key: string]: typeof Command
-  }
-
-  selected: EntityTreeNode[] = []
-  selectedTransformRoots: EntityTreeNode[] = []
-  history: History
+  history: EditorHistory
 
   constructor() {
     super()
 
-    this.history = new History()
-
-    this.commands = {
-      [EditorCommands.ADD_OBJECTS]: AddObjectCommand,
-      [EditorCommands.DUPLICATE_OBJECTS]: DuplicateObjectCommand,
-      [EditorCommands.REMOVE_OBJECTS]: RemoveObjectsCommand,
-      [EditorCommands.ADD_TO_SELECTION]: AddToSelectionCommand,
-      [EditorCommands.REMOVE_FROM_SELECTION]: RemoveFromSelectionCommand,
-      [EditorCommands.TOGGLE_SELECTION]: ToggleSelectionCommand,
-      [EditorCommands.REPLACE_SELECTION]: ReplaceSelectionCommand,
-      [EditorCommands.REPARENT]: ReparentCommand,
-      [EditorCommands.GROUP]: GroupCommand,
-      [EditorCommands.POSITION]: PositionCommand,
-      [EditorCommands.ROTATION]: RotationCommand,
-      [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
-      [EditorCommands.SCALE]: ScaleCommand,
-      [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
-      [EditorCommands.TAG_COMPONENT]: TagComponentCommand
-    }
+    this.history = new EditorHistory()
 
     window.addEventListener('copy', this.onCopy)
     window.addEventListener('paste', this.onPaste)
@@ -92,7 +44,7 @@ export class CommandManager extends EventEmitter {
     params: CommandParamsType = {}
   ) => {
     if (!params) params = {}
-    new this.commands[command](!Array.isArray(object) ? [object] : object, params).execute()
+    new Commands[command](!Array.isArray(object) ? [object] : object, params).execute()
   }
 
   executeCommandWithHistory = (
@@ -101,16 +53,18 @@ export class CommandManager extends EventEmitter {
     params: CommandParamsType = {}
   ) => {
     params.keepHistory = true
-    this.history.execute(new this.commands[command](!Array.isArray(object) ? [object] : object, params))
+    this.history.execute(new Commands[command](!Array.isArray(object) ? [object] : object, params))
   }
 
   executeCommandOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
-    new this.commands[command](this.selected, params).execute()
+    const selection = getEntityNodeArrayFromEntities(accessSelectionState().selectedEntities.value)
+    new Commands[command](selection, params).execute()
   }
 
   executeCommandWithHistoryOnSelection = (command: EditorCommandsType, params: CommandParamsType = {}) => {
     params.keepHistory = true
-    this.history.execute(new this.commands[command](this.selected, params))
+    const selection = getEntityNodeArrayFromEntities(accessSelectionState().selectedEntities.value)
+    this.history.execute(new Commands[command](selection, params))
   }
 
   setProperty<C extends MappedComponent<any, any>>(
@@ -129,7 +83,8 @@ export class CommandManager extends EventEmitter {
     params: ModifyPropertyCommandParams<C>,
     withHistory = true
   ) {
-    this.setProperty(this.selected, params, withHistory)
+    const selection = getEntityNodeArrayFromEntities(accessSelectionState().selectedEntities.value)
+    this.setProperty(selection, params, withHistory)
   }
 
   setPropertyOnEntityNode<C extends MappedComponent<any, any>>(
@@ -138,64 +93,6 @@ export class CommandManager extends EventEmitter {
     withHistory = true
   ) {
     this.setProperty([node], params, withHistory)
-  }
-
-  /**
-   * Function getRootObjects used to find root objects.
-   *
-   * @author Robert Long
-   * @param  {any}  objects
-   * @param  {Array}   [target=[]]
-   * @param  {Boolean} [filterUnremovable=true]
-   * @param  {Boolean} [filterUntransformable=false]
-   * @return {any}
-   */
-  getRootObjects(objects, target: EntityTreeNode[] = [], filterUnremovable = true, filterUntransformable = false) {
-    target.length = 0
-
-    // Recursively find the nodes in the tree with the lowest depth
-    const traverse = (curObject: EntityTreeNode) => {
-      if (
-        objects.indexOf(curObject) !== -1 &&
-        !(filterUnremovable && !curObject.parentNode) &&
-        !(filterUntransformable && hasComponent(curObject.entity, DisableTransformTagComponent))
-      ) {
-        target.push(curObject)
-        return
-      }
-
-      if (curObject.children) {
-        for (let i = 0; i < curObject.children.length; i++) {
-          traverse(curObject.children[i])
-        }
-      }
-    }
-
-    const world = useWorld()
-    traverse(world.entityTree.rootNode)
-
-    return target
-  }
-
-  /**
-   * Function getTransformRoots provides root objects
-   *
-   * @author Robert Long
-   * @param objects
-   * @param target
-   * @returns
-   */
-  getTransformRoots(objects, target: EntityTreeNode[] = []) {
-    return this.getRootObjects(objects, target, true, true)
-  }
-
-  /**
-   * Function to update transform roots.
-   *
-   * @author Robert Long
-   */
-  updateTransformRoots() {
-    this.getTransformRoots(this.selected, this.selectedTransformRoots)
   }
 
   /**
@@ -231,10 +128,10 @@ export class CommandManager extends EventEmitter {
     event.preventDefault()
 
     // TODO: Prevent copying objects with a disabled transform
-    if (this.selected.length > 0) {
+    if (accessSelectionState().selectedEntities.length > 0) {
       event.clipboardData.setData(
         'application/vnd.editor.nodes',
-        JSON.stringify({ entities: this.selected.map((node) => node.entity) })
+        JSON.stringify({ entities: accessSelectionState().selectedEntities.value })
       )
     }
   }
@@ -250,7 +147,7 @@ export class CommandManager extends EventEmitter {
 
       if (!Array.isArray(entities)) return
       const nodes = entities
-        .map((entity) => useWorld().entityTree.findNodeFromEid(entity))
+        .map((entity) => useWorld().entityTree.entityNodeMap.get(entity))
         .filter((entity) => entity) as EntityTreeNode[]
 
       if (nodes) {
@@ -270,7 +167,7 @@ export class CommandManager extends EventEmitter {
     let contentType = (await getContentType(url)) || ''
     const { hostname } = new URL(url)
 
-    let node = new EntityTreeNode(createEntity())
+    let node = createEntityNode(createEntity())
     let prefabType = '' as ScenePrefabTypes
     let updateFunc = null! as Function
 

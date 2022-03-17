@@ -2,6 +2,11 @@ import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addEntityNodeInTree,
+  getEntityNodeArrayFromEntities,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
@@ -11,10 +16,11 @@ import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface AddObjectCommandParams extends CommandParams {
@@ -61,7 +67,7 @@ export default class AddObjectCommand extends Command {
       : undefined
 
     if (this.keepHistory) {
-      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
     }
   }
 
@@ -78,7 +84,10 @@ export default class AddObjectCommand extends Command {
     })
 
     if (this.oldSelection) {
-      CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection)
+      CommandManager.instance.executeCommand(
+        EditorCommands.REPLACE_SELECTION,
+        getEntityNodeArrayFromEntities(this.oldSelection)
+      )
     }
   }
 
@@ -98,12 +107,10 @@ export default class AddObjectCommand extends Command {
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        ControlManager.instance.onSelectionChanged()
-        SceneManager.instance.updateOutlinePassSelection()
-        store.dispatch(SelectionAction.changedSelection())
+        updateOutlinePassSelection()
       }
 
-      SceneManager.instance.onEmitSceneModified
+      SceneManager.instance.onEmitSceneModified()
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
@@ -126,22 +133,24 @@ export default class AddObjectCommand extends Command {
       } else if (sceneData) {
         const data = sceneData[i] ?? sceneData[0]
 
-        object.traverse((node) => {
+        traverseEntityNode(object, (node) => {
           node.entity = createEntity()
           loadSceneEntity(node, data.entities[node.uuid])
-          if (node.uuid !== data.root) reparentObject3D(node, node.parentNode)
+
+          if (node.parentEntity && node.uuid !== data.root)
+            reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
         })
       }
 
       let parent = parents ? parents[i] ?? parents[0] : world.entityTree.rootNode
       let before = befores ? befores[i] ?? befores[0] : undefined
 
-      const index = before ? parent.children?.indexOf(before) : undefined
-      world.entityTree.addEntityNode(object, parent, index)
+      const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
+      addEntityNodeInTree(object, parent, index, false, world.entityTree)
 
-      reparentObject3D(object, parent, before)
+      reparentObject3D(object, parent, before, world.entityTree)
 
-      if (this.useUniqueName) object.traverse((node) => makeUniqueName(node, world))
+      if (this.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node, world))
     }
 
     if (this.isSelected) {

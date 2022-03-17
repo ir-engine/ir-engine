@@ -144,7 +144,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = use
 
   if (state.sceneLoaded.value) {
     const modelComponent = getComponent(entity, ModelComponent)
-    const node = world.entityTree.findNodeFromUUID(modelComponent.textureOverride)
+    const node = world.entityTree.uuidNodeMap.get(modelComponent.textureOverride)
 
     if (node) {
       const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
@@ -196,7 +196,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   if (props.isDynamicObject) {
-    const node = world.entityTree.findNodeFromEid(entity)
+    const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchFrom(world.hostId, () =>
         NetworkWorldAction.spawnObject({

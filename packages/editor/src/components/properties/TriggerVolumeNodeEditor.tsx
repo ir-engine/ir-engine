@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -25,7 +26,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
     const options: any[] = []
     const entityTree = useWorld().entityTree
 
-    entityTree.traverse((o) => {
+    traverseEntityNode(entityTree.rootNode, (o) => {
       if (o === entityTree.rootNode) return
       if (hasComponent(o.entity, Object3DComponent)) {
         const obj3d = getComponent(o.entity, Object3DComponent).value as any

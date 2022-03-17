@@ -7,6 +7,7 @@ import { Vector2 } from 'three'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -55,7 +56,7 @@ export const addPrefabElement = (
   parent?: EntityTreeNode,
   before?: EntityTreeNode
 ): EntityTreeNode | undefined => {
-  const node = new EntityTreeNode(createEntity())
+  const node = createEntityNode(createEntity())
 
   CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
     prefabTypes: item.prefabType,
@@ -135,7 +136,7 @@ export function ElementList() {
 
   useEffect(() => {
     updatePrefabList()
-  }, [selectionState.sceneGraphChanged.value])
+  }, [selectionState.sceneGraphChangeCounter.value])
 
   const updatePrefabList = () => setPrefabs(getPrefabList())
 

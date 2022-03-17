@@ -42,10 +42,6 @@ export class ControlManager {
     }
   }
 
-  onSelectionChanged = () => {
-    getComponent(SceneManager.instance.editorEntity, EditorControlComponent).selectionChanged = true
-  }
-
   onObjectsChanged = (_objects, property) => {
     const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
     if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {

@@ -451,26 +451,6 @@ export class SceneManager {
     }
   }
 
-  updateOutlinePassSelection(): void {
-    if (!Engine.effectComposer || !Engine.effectComposer[Effects.OutlineEffect]) return
-
-    const meshes = [] as any[]
-    for (let i = 0; i < CommandManager.instance.selectedTransformRoots.length; i++) {
-      const obj3d = getComponent(CommandManager.instance.selectedTransformRoots[i].entity, Object3DComponent)?.value
-      obj3d?.traverse((child: any) => {
-        if (
-          !child.userData.disableOutline &&
-          !child.userData.isHelper &&
-          (child.isMesh || child.isLine || child.isSprite || child.isPoints)
-        ) {
-          meshes.push(child)
-        }
-      })
-    }
-
-    Engine.effectComposer[Effects.OutlineEffect].selection.set(meshes)
-  }
-
   dispose() {
     if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
     if (this.gizmoEntity) removeEntity(this.gizmoEntity, true)

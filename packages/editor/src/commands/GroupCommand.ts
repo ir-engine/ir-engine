@@ -1,14 +1,20 @@
 import { store } from '@xrengine/client-core/src/store'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  createEntityNode,
+  getEntityNodeArrayFromEntities
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
+import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 import { CommandManager } from '../managers/CommandManager'
 import { ControlManager } from '../managers/ControlManager'
 import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface GroupCommandParams extends CommandParams {
@@ -39,15 +45,21 @@ export default class GroupCommand extends Command {
     if (this.keepHistory) {
       this.oldParents = []
       this.oldBefores = []
-      this.oldSelection = CommandManager.instance.selected.slice(0)
+      this.oldSelection = accessSelectionState().selectedEntities.value.slice(0)
+
+      const tree = useWorld().entityTree
 
       for (let i = this.affectedObjects.length - 1; i >= 0; i--) {
         const object = this.affectedObjects[i]
 
-        if (object.parentNode) {
-          this.oldParents.push(object.parentNode)
-          this.oldBefores.push(object.parentNode.children![object.parentNode.children!.indexOf(object) + 1])
-        }
+        if (!object.parentEntity) throw new Error('Parent is not defined')
+        const parent = tree.entityNodeMap.get(object.parentEntity)
+        if (!parent) throw new Error('Parent is not defined')
+        this.oldParents.push(parent)
+
+        const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(object.entity) + 1])
+        if (!before) throw new Error('Before is not defined')
+        this.oldBefores.push(before!)
       }
     }
   }
@@ -55,7 +67,7 @@ export default class GroupCommand extends Command {
   execute() {
     this.emitBeforeExecuteEvent()
 
-    this.groupNode = new EntityTreeNode(createEntity())
+    this.groupNode = createEntityNode(createEntity())
     CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.groupNode, {
       parents: this.groupParents,
       befores: this.groupBefores,
@@ -72,12 +84,9 @@ export default class GroupCommand extends Command {
 
     if (this.isSelected) {
       CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.groupNode, {
-        shouldEmitEvent: false,
-        shouldGizmoUpdate: false
+        shouldEmitEvent: false
       })
     }
-
-    CommandManager.instance.updateTransformRoots()
 
     this.emitAfterExecuteEvent()
   }
@@ -94,10 +103,11 @@ export default class GroupCommand extends Command {
       shouldEmitEvent: false,
       skipSerialization: true
     })
-    CommandManager.instance.updateTransformRoots()
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.oldSelection, {
-      shouldGizmoUpdate: false
-    })
+
+    CommandManager.instance.executeCommand(
+      EditorCommands.REPLACE_SELECTION,
+      getEntityNodeArrayFromEntities(this.oldSelection)
+    )
     this.emitAfterExecuteEvent()
   }
 
@@ -117,12 +127,10 @@ export default class GroupCommand extends Command {
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
       if (this.isSelected) {
-        ControlManager.instance.onSelectionChanged()
-        SceneManager.instance.updateOutlinePassSelection()
-        store.dispatch(SelectionAction.changedSelection())
+        updateOutlinePassSelection()
       }
 
-      SceneManager.instance.onEmitSceneModified
+      SceneManager.instance.onEmitSceneModified()
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }

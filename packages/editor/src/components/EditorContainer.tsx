@@ -11,6 +11,7 @@ import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -375,7 +376,7 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await (Engine.scene as any).serialize(sceneName)
+    const projectFile = serializeWorld()
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')

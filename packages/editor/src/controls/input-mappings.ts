@@ -217,7 +217,7 @@ export const EditorMapping: InputActionMapping = {
       }
     },
     move: {
-      position: { key: EditorActionSet.cursorPosition, defaultValue: undefined },
+      position: { key: EditorActionSet.cursorPosition, defaultValue: undefined, preventReset: true },
       normalizedMovementX: { key: EditorActionSet.cursorDeltaX, defaultValue: 0 },
       normalizedMovementY: { key: EditorActionSet.cursorDeltaY, defaultValue: 0 }
     }

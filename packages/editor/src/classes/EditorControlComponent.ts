@@ -18,7 +18,6 @@ export type EditorControlComponentType = {
 
   selectStartPosition: Vector2
 
-  selectionChanged?: boolean
   transformModeChanged?: boolean
   transformPivotChanged?: boolean
   transformSpaceChanged?: boolean

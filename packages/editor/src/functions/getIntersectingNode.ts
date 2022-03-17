@@ -31,7 +31,7 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
 
     if (obj && (obj as Object3D) !== Engine.scene) {
       result.obj3d = obj
-      result.node = useWorld().entityTree.findNodeFromEid(obj.entity)
+      result.node = useWorld().entityTree.entityNodeMap.get(obj.entity)
       return result
     }
   }

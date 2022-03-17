@@ -5,7 +5,6 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { TransformMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import { FlyControlComponent } from '../../classes/FlyControlComponent'
-import { CommandManager } from '../../managers/CommandManager'
 import { SceneManager } from '../../managers/SceneManager'
 import { useEditorState } from '../../services/EditorServices'
 import { useModeState } from '../../services/ModeServices'
@@ -20,17 +19,13 @@ import styles from './styles.module.scss'
  */
 export function ControlText() {
   const editorState = useEditorState()
-  const selectionState = useSelectionState()
   const modeState = useModeState()
   const [editorInitialized, setEditorInitialized] = useState<boolean>(false)
   const [flyModeEnabled, setFlyModeEnabled] = useState<boolean>(false)
-  const [objectSelected, setObjectSelected] = useState(false)
   const [transformMode, setTransformMode] = useState(null)
   const { t } = useTranslation()
 
-  const onSelectionChanged = useCallback(() => {
-    setObjectSelected(CommandManager.instance.selected.length > 0)
-  }, [])
+  const objectSelected = useSelectionState().selectedEntities.length > 0
 
   const onFlyModeChanged = useCallback(() => {
     const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
@@ -56,12 +51,6 @@ export function ControlText() {
       onTransformModeChanged(modeState.transformMode.value)
     }
   }, [modeState.transformMode.value])
-
-  useEffect(() => {
-    if (editorInitialized && editorState.rendererInitialized.value) {
-      onSelectionChanged()
-    }
-  }, [selectionState.selectionChanged.value])
 
   const initRenderer = () => SceneManager.instance.initializeRenderer()
 

@@ -5,9 +5,14 @@ import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 
+import { useHookedEffect } from '@xrengine/client-core/src/hooks/useHookedEffect'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getEntityNodeArrayFromEntities,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
@@ -80,14 +85,25 @@ export default function HierarchyPanel() {
     })
   }
 
-  const updateNodeHierarchy = useCallback((collapsedNodes: HeirarchyTreeCollapsedNodeType, world = useWorld()) => {
-    if (!world.entityTree) return
-    setNodes(Array.from(heirarchyTreeWalker(world.entityTree.rootNode, collapsedNodes)))
-  }, [])
+  const updateNodeHierarchy = useCallback(
+    (world = useWorld()) => {
+      if (!world.entityTree) return
+      setNodes(
+        Array.from(
+          heirarchyTreeWalker(
+            world.entityTree.rootNode,
+            selectionState.selectedEntities.value,
+            collapsedNodes,
+            world.entityTree
+          )
+        )
+      )
+    },
+    [collapsedNodes]
+  )
 
-  const updateHierarchy = useCallback(() => updateNodeHierarchy(collapsedNodes), [collapsedNodes])
-
-  useEffect(updateHierarchy, [collapsedNodes])
+  useEffect(updateNodeHierarchy, [collapsedNodes])
+  useHookedEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
@@ -102,7 +118,7 @@ export default function HierarchyPanel() {
 
   const expandChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      node.entityNode.traverse((child) => (collapsedNodes[child.entity] = false))
+      traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = false))
       setCollapsedNodes({ ...collapsedNodes })
     },
     [collapsedNodes]
@@ -110,7 +126,7 @@ export default function HierarchyPanel() {
 
   const collapseChildren = useCallback(
     (node: HeirarchyTreeNodeType) => {
-      node.entityNode.traverse((child) => (collapsedNodes[child.entity] = true))
+      traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = true))
       setCollapsedNodes({ ...collapsedNodes })
     },
     [collapsedNodes]
@@ -125,16 +141,8 @@ export default function HierarchyPanel() {
   )
 
   useEffect(() => {
-    updateHierarchy()
-  }, [selectionState.sceneGraphChanged.value])
-
-  useEffect(() => {
-    updateHierarchy()
-  }, [selectionState.selectionChanged.value])
-
-  useEffect(() => {
     onObjectChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged.value])
+  }, [selectionState.objectChangeCounter.value])
 
   /* Event handlers */
   const onMouseDown = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
@@ -232,17 +240,17 @@ export default function HierarchyPanel() {
   )
 
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
-    let objs = node.selected ? CommandManager.instance.selected : node.entityNode
+    let objs = node.selected ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) : node.entityNode
     CommandManager.instance.executeCommandWithHistory(EditorCommands.REMOVE_OBJECTS, objs, { deselectObject: true })
   }, [])
 
   const onDuplicateNode = useCallback((_, node: HeirarchyTreeNodeType) => {
-    let objs = node.selected ? CommandManager.instance.selected : node.entityNode
+    let objs = node.selected ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) : node.entityNode
     CommandManager.instance.executeCommandWithHistory(EditorCommands.DUPLICATE_OBJECTS, objs)
   }, [])
 
   const onGroupNodes = useCallback((_, node: HeirarchyTreeNodeType) => {
-    const objs = node.selected ? CommandManager.instance.selected : node.entityNode
+    const objs = node.selected ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) : node.entityNode
     CommandManager.instance.executeCommandWithHistory(EditorCommands.GROUP, objs)
   }, [])
   /* Event handlers */
