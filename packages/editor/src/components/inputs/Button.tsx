@@ -12,7 +12,7 @@ export const Button = styled.button.attrs((props) => ({
   display: flex;
   border: none;
   border-radius: 4px;
-  background: ${(props) => props.theme.blue};
+  background: ${(props) => props.theme.purpleColor};
   color: ${(props) => props.theme.white};
   white-space: nowrap;
   min-height: 24px;
@@ -29,12 +29,11 @@ export const Button = styled.button.attrs((props) => ({
 
   &:hover {
     color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.bluePressed};
+    opacity: 0.8;
   }
 
   &:active {
     color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.bluePressed};
   }
 
   &:disabled {
