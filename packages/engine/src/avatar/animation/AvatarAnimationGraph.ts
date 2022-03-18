@@ -29,7 +29,7 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 
 /** Class to hold the animation graph for player entity. Every avatar entity will have their saperate graph. */
 export class AvatarAnimationGraph extends AnimationGraph {
-  initialize(mixer: AnimationMixer, velocity: Vector3, avatar: AvatarComponentType) {
+  initialize(mixer: AnimationMixer, velocity: Vector3, jumpValue: {} | null = null) {
     if (!mixer) return
 
     // Initialize all the states
@@ -131,17 +131,19 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     const movementTransitionRule = new VectorLengthTransitionRule(locomotionState.name, velocity)
 
-    this.transitionRules[AvatarStates.LOCOMOTION] = [
-      new BooleanTransitionRule(jumpState.name, avatar, 'isGrounded', true)
-    ]
-    this.transitionRules[AvatarStates.JUMP] = [
-      new CompositeTransitionRule(
-        locomotionState.name,
-        'and',
-        new BooleanTransitionRule(locomotionState.name, avatar, 'isGrounded'),
-        new AnimationTimeTransitionRule(locomotionState.name, jumpState.action, 0.9)
-      )
-    ]
+    if (jumpValue) {
+      this.transitionRules[AvatarStates.LOCOMOTION] = [
+        new BooleanTransitionRule(jumpState.name, jumpValue, 'isJumping')
+      ]
+      this.transitionRules[AvatarStates.JUMP] = [
+        new CompositeTransitionRule(
+          locomotionState.name,
+          'and',
+          new BooleanTransitionRule(locomotionState.name, jumpValue, 'isJumping', true),
+          new AnimationTimeTransitionRule(locomotionState.name, jumpState.action, 0.9)
+        )
+      ]
+    }
 
     this.transitionRules[AvatarStates.CLAP] = [
       new CompositeTransitionRule(

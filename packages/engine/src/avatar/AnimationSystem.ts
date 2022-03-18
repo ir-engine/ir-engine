@@ -1,10 +1,13 @@
 import { Euler } from 'three'
 import matches from 'ts-matches'
 
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { IKRigComponent } from '../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { dispatchFrom } from '../networking/functions/dispatchFrom'
+import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -29,6 +32,8 @@ export default async function AnimationSystem(world: World) {
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
       const avatarEntity = world.getUserAvatarEntity($from)
+      if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
+
       const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
       if (!networkObject) {
         return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)
@@ -37,6 +42,11 @@ export default async function AnimationSystem(world: World) {
       const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
       avatarAnimationComponent.animationGraph.changeState(action.newStateName)
     })
+  }
+
+  const localAnimationStateChanged = (newStateName) => {
+    const params = {}
+    dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
   }
 
   await AnimationManager.instance.getDefaultAnimations()
@@ -78,6 +88,20 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
+    }
+
+    for (const entity of avatarAnimationQuery.enter(world)) {
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      if (isEntityLocalClient(entity)) {
+        avatarAnimationComponent.animationGraph.addStateChangeListner(localAnimationStateChanged)
+      }
+    }
+
+    for (const entity of avatarAnimationQuery.exit(world)) {
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      if (isEntityLocalClient(entity)) {
+        avatarAnimationComponent.animationGraph.removeStateChangeListner(localAnimationStateChanged)
+      }
     }
 
     for (const entity of avatarAnimationQuery(world)) {

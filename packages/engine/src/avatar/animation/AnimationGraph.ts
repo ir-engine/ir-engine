@@ -16,6 +16,7 @@ export class AnimationGraph {
   constructor() {
     this.transitionRules = {}
     this.states = {}
+    this.stateChangeHandlers = []
   }
 
   update(delta: number): void {
@@ -41,5 +42,20 @@ export class AnimationGraph {
     this.currentState?.exit()
     this.currentState = newState
     this.currentState.enter(prevState)
+    this.stateChangeHandlers.forEach((callback) => {
+      callback(name)
+    })
+  }
+
+  addStateChangeListner(listner) {
+    if (typeof listner !== 'function' || this.stateChangeHandlers.includes(listner)) return
+    this.stateChangeHandlers.push(listner)
+  }
+
+  removeStateChangeListner(listner) {
+    const index = this.stateChangeHandlers.indexOf(listner)
+    if (index > -1) {
+      this.stateChangeHandlers.splice(index, 1)
+    }
   }
 }
