@@ -86,7 +86,7 @@
   color: theme.$text !important;
 
   &:hover {
-    background: theme.$purpleColor;
+    opacity: 0.8;
   }
 
   @media(max-width: 900px) {

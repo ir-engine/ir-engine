@@ -201,7 +201,6 @@ const CreateBot = () => {
             handleInputChange={handleInputChange}
             value={state.name}
             formErrors={formErrors.name}
-            className={styles.input}
           />
 
           <InputText
