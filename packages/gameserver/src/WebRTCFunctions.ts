@@ -114,7 +114,11 @@ export const sendCurrentProducers = async (
         )
       )
         Object.entries(client.media).map(([subName, subValue]) => {
-          if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
+          if (
+            (subValue as any).channelType === channelType &&
+            (subValue as any).channelId === channelId &&
+            !(subValue as any).paused
+          )
             selfClient.socket!.emit(
               MessageTypes.WebRTCCreateProducer.toString(),
               client.userId,
