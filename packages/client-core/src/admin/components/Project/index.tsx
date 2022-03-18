@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import Paper from '@mui/material/Paper'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
-import styles from './Projects.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
 
@@ -39,11 +38,11 @@ const Projects = () => {
   }, [adminProjectState.updateNeeded.value])
 
   return (
-    <div className={styles.adminRoot}>
-      <Grid container spacing={3} className={styles.marginBottom}>
+    <div>
+      <Grid container spacing={3} className={classes.marginb10}>
         <Grid item xs={6}>
           <Button
-            className={styles['open-modal']}
+            className={styles.openModalBtn}
             type="button"
             variant="contained"
             color="primary"
@@ -54,7 +53,7 @@ const Projects = () => {
         </Grid>
         <Grid item xs={6}>
           <Button
-            className={styles['open-modal']}
+            className={styles.openModalBtn}
             type="button"
             variant="contained"
             color="primary"

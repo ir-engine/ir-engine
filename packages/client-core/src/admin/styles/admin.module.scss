@@ -1,0 +1,17 @@
+@use "../../theme.scss"as theme;
+
+.openModalBtn {
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+  background: theme.$purpleLighter;
+  color: theme.$text !important;
+
+  &:hover {
+    background: theme.$purpleColor;
+  }
+
+  @media(max-width: 900px) {
+    font-size: 0.7rem;
+  }
+}

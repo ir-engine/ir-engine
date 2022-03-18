@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
@@ -32,7 +33,7 @@ const Party = () => {
           <Search text="party" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
             {t('admin:components.party.createNewParty')}
           </Button>
         </Grid>
