@@ -2,15 +2,15 @@ import { Bone, Group, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { IKObj } from '@xrengine/engine/src/ikrig/components/IKObj'
+import { IKObj } from '@xrengine/engine/src/ik/components/IKObj'
 import {
   defaultIKPoseComponentValues,
   IKPoseComponent,
   IKPoseComponentType
-} from '@xrengine/engine/src/ikrig/components/IKPoseComponent'
+} from '@xrengine/engine/src/ik/components/IKPoseComponent'
 
-import Pose, { PoseBoneLocalState } from '../../../src/ikrig/classes/Pose'
-import { addRig, addTargetRig } from '../../../src/ikrig/functions/RigFunctions'
+import Pose, { PoseBoneLocalState } from '../../../src/ik/classes/Pose'
+import { addRig, addTargetRig } from '../../../src/ik/functions/RigFunctions'
 import {
   fungiSerializedIKPose,
   fungiSerializedPoseBones,

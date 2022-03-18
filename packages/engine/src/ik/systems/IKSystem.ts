@@ -14,8 +14,10 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
+import { TwoBoneIKSolverComponent } from '../components/TwoBoneIKSolverComponent'
 import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
 import { applyCameraLook } from '../functions/IKSolvers'
+import { solveTwoBoneIK } from '../functions/TwoBoneIKSolver'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -67,9 +69,10 @@ const mockAvatars = () => {
   }
 }
 
-export default async function SkeletonRigSystem(world: World) {
+export default async function IKSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
-  const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
+  const ikPoseQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
+  const twoBoneIKQuery = defineQuery([TwoBoneIKSolverComponent])
   // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
@@ -81,7 +84,23 @@ export default async function SkeletonRigSystem(world: World) {
       applyCameraLook(rig, cameraSolver)
     }
 
-    for (const entity of ikposeQuery()) {
+    // Apply two bone IK to the source skeleton
+    for (const entity of twoBoneIKQuery()) {
+      const solver = getComponent(entity, TwoBoneIKSolverComponent)
+      solveTwoBoneIK(
+        solver.root,
+        solver.mid,
+        solver.tip,
+        solver.target,
+        solver.hint,
+        solver.targetOffset,
+        solver.targetPosWeight,
+        solver.targetRotWeight,
+        solver.hintWeight
+      )
+    }
+
+    for (const entity of ikPoseQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
       const rig = getComponent(entity, IKRigComponent)
       const targetRig = getComponent(entity, IKRigTargetComponent)

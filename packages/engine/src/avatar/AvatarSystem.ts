@@ -1,4 +1,4 @@
-import { Group } from 'three'
+import { Group, Object3D } from 'three'
 import matches from 'ts-matches'
 
 import { isClient } from '../common/functions/isClient'
@@ -12,11 +12,14 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
-import { CameraIKComponent } from '../ikrig/components/CameraIKComponent'
+import { CameraIKComponent } from '../ik/components/CameraIKComponent'
+import { IKRigComponent } from '../ik/components/IKRigComponent'
+import { TwoBoneIKSolverComponent } from '../ik/components/TwoBoneIKSolverComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
@@ -114,6 +117,7 @@ export default async function AvatarSystem(world: World) {
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
+  const xrIKQuery = defineQuery([AvatarComponent, XRInputSourceComponent, IKRigComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
@@ -148,6 +152,27 @@ export default async function AvatarSystem(world: World) {
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
       removeComponent(entity, CameraIKComponent)
+    }
+
+    for (const entity of xrIKQuery.enter(world)) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const ikRigComponent = getComponent(entity, IKRigComponent)
+
+      addComponent(entity, TwoBoneIKSolverComponent, {
+        root: ikRigComponent.boneStructure.LeftArm,
+        mid: ikRigComponent.boneStructure.LeftForeArm,
+        tip: ikRigComponent.boneStructure.LeftHand,
+        target: xrInputSourceComponent.controllerGripLeftParent,
+        targetOffset: new Object3D(),
+        targetPosWeight: 1,
+        targetRotWeight: 0,
+        hintWeight: 0,
+        hint: null
+      })
+    }
+
+    for (const entity of xrIKQuery.exit(world)) {
+      removeComponent(entity, TwoBoneIKSolverComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {

@@ -3,7 +3,6 @@
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
-import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from '../../ikrig/constants/Vector3Constants'
 import { Chain } from '../classes/Chain'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import {
@@ -14,6 +13,7 @@ import {
   IKPoseSpineData
 } from '../components/IKPoseComponent'
 import { IKRigComponentType, PointData } from '../components/IKRigComponent'
+import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from '../constants/Vector3Constants'
 import { solveThreeBone } from './IKSolvers'
 import { addChain, addPoint } from './RigFunctions'
 

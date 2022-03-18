@@ -3,7 +3,7 @@ import matches from 'ts-matches'
 
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
-import { IKRigComponent } from '../ikrig/components/IKRigComponent'
+import { IKRigComponent } from '../ik/components/IKRigComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'

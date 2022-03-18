@@ -1,0 +1,64 @@
+import { Object3D, Quaternion, Vector3 } from 'three'
+
+const _pos = new Vector3()
+const _scale = new Vector3()
+const _quat = new Quaternion()
+
+// A set of Object3D helper functions
+export class Object3DUtils {
+  /**
+   * Updates world matrix of an object and its parents
+   * limited by specified levels
+   * @param {Object3D} object
+   * @param {number} level
+   * @returns
+   */
+  static updateParentsMatrixWorld(object: Object3D | null | undefined, level: number): void {
+    if (level > 0) Object3DUtils.updateParentsMatrixWorld(object?.parent, level - 1)
+
+    if (!object) return
+
+    object.updateMatrix()
+    object.matrixWorldNeedsUpdate = false
+
+    if (!object.parent) {
+      object.matrixWorld.copy(object.matrix)
+    } else {
+      object.matrixWorld.multiplyMatrices(object.parent.matrixWorld, object.matrix)
+    }
+  }
+
+  /**
+   * Extracts the quaternion part of the object's matrixWorld
+   * Does not update the matrix chain
+   * @param {Object3D} object
+   * @param {Quaternion} outQuat
+   */
+  static getWorldQuaternion(object: Object3D, outQuat: Quaternion): Quaternion {
+    object.matrixWorld.decompose(_pos, outQuat, _scale)
+    return outQuat
+  }
+
+  /**
+   * Premultiplies a world-space quaternion with object's quaternion
+   * @param {Object3D} object
+   * @param {Quaternion} quaternion
+   */
+  static premultiplyWorldQuaternion(object: Object3D, quaternion: Quaternion) {
+    Object3DUtils.getWorldQuaternion(object, object.quaternion)
+    object.quaternion.premultiply(quaternion)
+    Object3DUtils.worldQuaternionToLocal(object.quaternion, object.parent)
+  }
+
+  /**
+   * Converts a world-space quaternion to local-space
+   * @param {Quaternion} quaternion
+   * @param {Object3D} parent
+   */
+  static worldQuaternionToLocal(quaternion: Quaternion, parent: Object3D | null): Quaternion {
+    if (!parent) return quaternion
+    const parentQuatInverse = Object3DUtils.getWorldQuaternion(parent, _quat).invert()
+    quaternion.premultiply(parentQuatInverse)
+    return quaternion
+  }
+}
