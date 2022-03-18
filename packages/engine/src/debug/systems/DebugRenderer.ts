@@ -1,5 +1,6 @@
 import { defineQuery } from 'bitecs'
 import {
+  ArrayCamera,
   BoxBufferGeometry,
   BufferGeometry,
   Float32BufferAttribute,
@@ -244,8 +245,15 @@ export const DebugRenderer = () => {
     if (enabled !== _enabled) {
       enabled = _enabled
       setEnabled(_enabled)
-      if (enabled) Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      else Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+      // @ts-ignore
+      const xrCameras = Engine.xrManager?.getCamera() as ArrayCamera
+      if (enabled) {
+        Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))
+      } else {
+        Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.disable(ObjectLayers.PhysicsHelper))
+      }
     }
 
     if (!enabled) return
