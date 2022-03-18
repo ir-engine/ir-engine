@@ -39,41 +39,39 @@ const Projects = () => {
   }, [adminProjectState.updateNeeded.value])
 
   return (
-    <div>
-      <Paper className={styles.adminRoot}>
-        <Grid container spacing={3} className={styles.marginBottom}>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={onOpenUploadModal}
-            >
-              {t('admin:components.project.addProject')}
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={ProjectService.triggerReload}
-            >
-              {t('admin:components.project.rebuild')}
-            </Button>
-          </Grid>
+    <div className={styles.adminRoot}>
+      <Grid container spacing={3} className={styles.marginBottom}>
+        <Grid item xs={6}>
+          <Button
+            className={styles['open-modal']}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={onOpenUploadModal}
+          >
+            {t('admin:components.project.addProject')}
+          </Button>
         </Grid>
-        <div className={classes.rootTable}>
-          <ProjectTable />
-        </div>
-        <UploadProjectModal
-          repos={githubAppRepos}
-          open={uploadProjectsModalOpen}
-          handleClose={() => setUploadProjectsModalOpen(false)}
-        />
-      </Paper>
+        <Grid item xs={6}>
+          <Button
+            className={styles['open-modal']}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={ProjectService.triggerReload}
+          >
+            {t('admin:components.project.rebuild')}
+          </Button>
+        </Grid>
+      </Grid>
+      <div className={classes.rootTable}>
+        <ProjectTable />
+      </div>
+      <UploadProjectModal
+        repos={githubAppRepos}
+        open={uploadProjectsModalOpen}
+        handleClose={() => setUploadProjectsModalOpen(false)}
+      />
     </div>
   )
 }
