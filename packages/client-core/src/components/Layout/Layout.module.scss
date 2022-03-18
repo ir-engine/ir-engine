@@ -162,7 +162,7 @@ body {
   justify-content: center;
   align-items: center;
   color: black;
-  background: rgba(255, 255, 255);
+  background: rgba(255, 255, 255, 0.5);
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -170,14 +170,14 @@ body {
   border: none;
   padding: 0;
   border-radius: 50%;
-  opacity: 0.8;
+  opacity: 1;
   &:hover {
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
   }
 
   svg {
-    color: #5d646c;
+    color: #313131;
   }
   @media (max-width: 450px) {
     width: 30px;
