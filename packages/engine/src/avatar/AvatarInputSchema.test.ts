@@ -34,16 +34,11 @@ describe('avatarInputSchema', () => {
 
     const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     const firstValue = follower.locked
-    fixedCameraBehindAvatar(
-      entity,
-      'Test',
-      {
-        type: InputType.ONEDIM,
-        value: [1] as NumericalType,
-        lifecycleState: LifecycleValue.Started
-      },
-      Engine.currentWorld.delta
-    )
+    fixedCameraBehindAvatar(entity, 'Test', {
+      type: InputType.ONEDIM,
+      value: [1] as NumericalType,
+      lifecycleState: LifecycleValue.Started
+    })
 
     assert(firstValue === !follower.locked)
   })
@@ -53,16 +48,11 @@ describe('avatarInputSchema', () => {
 
     const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     const firstValue = follower.shoulderSide
-    switchShoulderSide(
-      entity,
-      'Test',
-      {
-        type: InputType.ONEDIM,
-        value: [1] as NumericalType,
-        lifecycleState: LifecycleValue.Started
-      },
-      Engine.currentWorld.delta
-    )
+    switchShoulderSide(entity, 'Test', {
+      type: InputType.ONEDIM,
+      value: [1] as NumericalType,
+      lifecycleState: LifecycleValue.Started
+    })
 
     assert(firstValue === !follower.shoulderSide)
   })
@@ -141,16 +131,11 @@ describe('avatarInputSchema', () => {
 
     const firstValue = c.isWalking
 
-    toggleRunning(
-      entity,
-      'Test',
-      {
-        type: InputType.ONEDIM,
-        value: [1] as NumericalType,
-        lifecycleState: LifecycleValue.Started
-      },
-      Engine.currentWorld.delta
-    )
+    toggleRunning(entity, 'Test', {
+      type: InputType.ONEDIM,
+      value: [1] as NumericalType,
+      lifecycleState: LifecycleValue.Started
+    })
 
     assert(firstValue === !c.isWalking)
   })

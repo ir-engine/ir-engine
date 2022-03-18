@@ -149,7 +149,7 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   if (avatarAnimationComponent)
     (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
       animationComponent.mixer,
-      velocityComponent.velocity,
+      velocityComponent.linear,
       avatarComponent
     )
 
@@ -343,6 +343,7 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const rig = getComponent(entity, IKRigComponent)
+  if (!rig) return false
   const bone = rig.boneStructure[boneName]
   if (!bone) return false
   bone.updateWorldMatrix(true, false)
