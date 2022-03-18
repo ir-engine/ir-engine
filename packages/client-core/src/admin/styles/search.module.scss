@@ -1,0 +1,20 @@
+@use "../../theme.scss"as theme;
+
+.searchRoot {
+  padding: 2px 20px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: theme.$inputBackground;
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  color: theme.$text;
+}
+
+.iconButton {
+  padding: 10px;
+  color: theme.$text;
+}

@@ -9,7 +9,7 @@ import { Button, Grid, InputBase, MenuItem, Paper, TextField, Typography } from 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface Props {}
 
@@ -19,7 +19,6 @@ interface ProjectSetting {
 }
 
 const Project = (props: Props) => {
-  const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
   const { t } = useTranslation()
@@ -102,14 +101,19 @@ const Project = (props: Props) => {
   return (
     <div>
       <form>
-        <Typography component="h1" className={classes.settingsHeading}>
+        <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.project')}
         </Typography>
-        <div className={classes.root}>
+        <div className={styles.root}>
           <Grid container spacing={3}>
             <Grid item xs={6} sm={4}>
               <label>{t('admin:components.setting.selectProject')}</label>
-              <TextField select value={selectedProject} className={classes.selectInput}>
+              <TextField
+                select
+                value={selectedProject}
+                className={styles.selectInput}
+                SelectProps={{ MenuProps: { classes: { paper: styles.selectPaper } } }}
+              >
                 {projects.value &&
                   projects.value.map((proj, index) => (
                     <MenuItem key={index} value={proj.id} onClick={() => handleProjectChange(proj.id)}>
@@ -124,11 +128,11 @@ const Project = (props: Props) => {
                   <Grid item container key={index} spacing={1} xs={12}>
                     <Grid item xs={6}>
                       <label>Key Name</label>
-                      <Paper component="div" className={classes.createInput}>
+                      <Paper component="div" className={styles.createInput}>
                         <InputBase
                           name="key"
                           disabled
-                          className={classes.input}
+                          className={styles.input}
                           value={setting.key}
                           style={{ color: '#fff' }}
                         />
@@ -136,10 +140,10 @@ const Project = (props: Props) => {
                     </Grid>
                     <Grid item xs={6}>
                       <label>Value</label>
-                      <Paper component="div" className={classes.createInput}>
+                      <Paper component="div" className={styles.createInput}>
                         <InputBase
                           name="value"
-                          className={classes.input}
+                          className={styles.input}
                           value={setting.value}
                           style={{ color: '#fff' }}
                           onChange={(e) => handleValueChange(index, e)}
@@ -161,7 +165,7 @@ const Project = (props: Props) => {
                 {t('admin:components.setting.cancel')}
               </Button>
               &nbsp; &nbsp;
-              <Button sx={{ maxWidth: '100%' }} variant="contained" onClick={handleSubmit}>
+              <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
                 {t('admin:components.setting.save')}
               </Button>
             </Grid>

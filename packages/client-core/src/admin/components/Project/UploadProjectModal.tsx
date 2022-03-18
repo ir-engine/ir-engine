@@ -16,7 +16,7 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import styles from './Projects.module.scss'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -26,7 +26,7 @@ interface Props {
 
 const UploadProjectModal = (props: Props): any => {
   const { open, handleClose, repos } = props
-
+  const classes = useStyles()
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
@@ -69,7 +69,7 @@ const UploadProjectModal = (props: Props): any => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={styles.modal}
+        className={classes.modal}
         open={open}
         onClose={closeModal}
         closeAfterTransition
@@ -77,13 +77,13 @@ const UploadProjectModal = (props: Props): any => {
         <Fade in={props.open}>
           <div
             className={classNames({
-              [styles.paper]: true,
-              [styles['modal-content']]: true
+              [classes.paper]: true,
+              [classes.modalContent]: true
             })}
           >
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
-                <div className={styles.inputConatiner}>
+                <div className={classes.inputConatiner}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
@@ -108,7 +108,7 @@ const UploadProjectModal = (props: Props): any => {
                     <div>
                       <label>{t('admin:components.project.insertPublicUrl')}</label>
                       <TextField
-                        className={styles['pack-select']}
+                        className={classes.marginb10}
                         id="urlSelect"
                         value={projectURL}
                         placeholder={'URL'}
@@ -117,7 +117,7 @@ const UploadProjectModal = (props: Props): any => {
                     </div>
                   )}
                 </div>
-                <div className={styles.buttonConatiner}>
+                <div className={classes.buttonConatiner}>
                   <Button
                     type="submit"
                     startIcon={<GitHubIcon />}
@@ -146,12 +146,12 @@ const UploadProjectModal = (props: Props): any => {
               </FormControl>
             )}
             {processing === true && (
-              <div className={styles.processing}>
+              <div>
                 <CircularProgress color="primary" />
-                <div className={styles.text}>{t('admin:components.project.processing')}</div>
+                <div>{t('admin:components.project.processing')}</div>
               </div>
             )}
-            {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}
+            {error && error.length > 0 && <h2 className={classes.errorMessage}>{error}</h2>}
           </div>
         </Fade>
       </Modal>
