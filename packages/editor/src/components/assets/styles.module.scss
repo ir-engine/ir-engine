@@ -1,8 +1,9 @@
-@use '../theme.scss' as theme;
+@use '../theme.scss'as theme;
 
 .assetsPanel {
   height: 100%;
 }
+
 .panelContainer {
   height: 100%;
   position: relative;
@@ -28,6 +29,7 @@
     margin-right: 3px;
   }
 }
+
 .paperDialog {
   background: rgb(58, 65, 73) !important;
   color: #f1f1f1;
@@ -77,6 +79,7 @@
     width: 100px;
     font-size: 14px;
     flex-shrink: 0;
+    background-color: theme.$purpleColor;
   }
 }
 
@@ -91,7 +94,7 @@
   .sceneContainer {
     border-radius: 4px;
     overflow: hidden;
-    background: theme.$background2;
+    background: theme.$inputBackground;
     min-height: 125px;
     cursor: pointer;
 
@@ -115,7 +118,7 @@
       }
 
       .inputContainer {
-        background: theme.$panel;
+        background: theme.$inputBackground;
         color: theme.$text;
 
         .input {
@@ -131,7 +134,8 @@
 
     &:hover,
     &:focus-visible {
-      outline: solid 2px theme.$blue;
+      outline: solid 2px theme.$purpleLight;
+
       .detailBlock {
         color: theme.$text;
       }
@@ -140,14 +144,15 @@
 }
 
 .sceneContextMenu {
-  background: theme.$panel;
+  background: theme.$inputBackground;
   color: theme.$text;
 
   .menuItem {
     font-size: 14px;
+
     &:hover,
     &:focus-visible {
-      background: theme.$blue;
+      background: theme.$purpleColor;
     }
   }
 }
