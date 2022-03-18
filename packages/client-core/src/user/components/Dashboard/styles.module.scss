@@ -1,4 +1,4 @@
-@use "./theme.scss"as theme;
+@use "../../../theme.scss"as theme;
 
 .navbar {
   width: 100%;
@@ -54,7 +54,6 @@
 
       .profileMenuContainer {
         z-index: 100;
-        background: theme.$panel;
         top: 70px;
         bottom: unset;
         right: 0;
@@ -549,7 +548,7 @@
   overflow: auto;
   position: relative;
   padding: 24px;
-  background-color: theme.$purpleColor2;
+  background-color: theme.$purpleDarkest;
   height: calc(100vh - 50px);
 }
 
