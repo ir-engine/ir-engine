@@ -99,8 +99,8 @@ const UploadProjectModal = (props: Props): any => {
                       </MenuItem>
                       {repos &&
                         repos.map((el: any, i) => (
-                          <MenuItem value={`${el.repositoryPath.value}`} key={i}>
-                            {el.name.value} ({el.user.value})
+                          <MenuItem value={`${el.repositoryPath}`} key={i}>
+                            {el.name} ({el.user})
                           </MenuItem>
                         ))}
                     </Select>
