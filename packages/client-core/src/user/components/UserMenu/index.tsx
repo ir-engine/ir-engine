@@ -30,18 +30,16 @@ export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
-UserMenuPanels.set(Views.Avatar, AvatarMenu)
+UserMenuPanels.set(Views.AvatarSelect, selectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarSelectMenu)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
-UserMenuPanels.set(Views.AvatarSelect, selectAvatarMenu)
 
 // menus to be shown as icons at bottom of screen
 export const HotbarMenu = new Map<string, any>()
 HotbarMenu.set(Views.Profile, PersonIcon)
 HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
-HotbarMenu.set(Views.AvatarSelect, SettingsIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
 const UserMenu = (): JSX.Element => {
