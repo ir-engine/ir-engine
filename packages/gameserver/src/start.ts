@@ -37,9 +37,15 @@ const onSocketIO = (app: Application) => {
   app.transport.initialize()
 }
 
+export const instanceServerPipe = pipe(
+  configureOpenAPI(),
+  configureSocketIO(true, onSocketIO),
+  configureRedis(),
+  configureK8s()
+) as (app: Application) => Application
+
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp()
-  serverPipe(app)
+  const app = createFeathersExpressApp(instanceServerPipe)
 
   const agonesSDK = new AgonesSDK()
 

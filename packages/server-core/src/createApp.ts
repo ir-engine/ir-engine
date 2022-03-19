@@ -45,6 +45,7 @@ export const configureOpenAPI = () => (app: Application) => {
       }
     })
   )
+  return app
 }
 
 export const configureSocketIO =
@@ -78,6 +79,7 @@ export const configureSocketIO =
         }
       )
     )
+    return app
   }
 
 export const configureRedis = () => (app: Application) => {
@@ -94,6 +96,7 @@ export const configureRedis = () => (app: Application) => {
       logger.info('Feathers-sync started')
     })
   }
+  return app
 }
 
 export const configureK8s = () => (app: Application) => {
@@ -106,16 +109,21 @@ export const configureK8s = () => (app: Application) => {
     app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
     app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
   }
+  return app
 }
 
-export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configureRedis(), configureK8s())
+export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configureRedis(), configureK8s()) as (
+  app: Application
+) => Application
 
-export const createFeathersExpressApp = (): Application => {
+export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
 
   app.set('paginate', config.server.paginate)
   app.set('authentication', config.authentication)
+
+  configurationPipe(app)
 
   // Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
   // Doesn't appear anything else uses it.
@@ -151,4 +159,6 @@ export const createFeathersExpressApp = (): Application => {
   })
 
   app.use(errorHandler({ logger }))
+
+  return app
 }
