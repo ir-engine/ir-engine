@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid'
 import AlertMessage from '../../common/AlertMessage'
 import Search from '../../common/Search'
 import { useGameserverState } from '../../services/GameserverService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import InstanceTable from './InstanceTable'
 import PatchGameserver from './PatchGameserver'
@@ -56,7 +57,7 @@ const Instance = () => {
           <Search text="instance" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
             Patch Gameserver
           </Button>
         </Grid>

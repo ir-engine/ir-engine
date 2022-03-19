@@ -14,11 +14,12 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
-import styles from './Projects.module.scss'
+import { useStyles } from '../../styles/ui'
 import ViewProjectFiles from './ViewProjectFiles'
 
 export default function ProjectTable() {
   const { t } = useTranslation()
+  const classes = useStyles()
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
   const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
@@ -129,7 +130,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={classes.checkbox}
               disabled={el.repositoryPath === null && name !== 'default-project'}
               onClick={() => handleOpenReuploadConfirmation(el)}
               name="stereoscopic"
@@ -144,7 +145,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={classes.checkbox}
               onClick={() => handleOpenInvaliateConfirmation(el)}
               name="stereoscopic"
               color="primary"
@@ -158,7 +159,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={classes.checkbox}
               onClick={() => handleViewProject(name)}
               name="stereoscopic"
               color="primary"
@@ -172,7 +173,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={classes.checkbox}
               onClick={() => handleOpenRemoveConfirmation(el)}
               name="stereoscopic"
               color="primary"

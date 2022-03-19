@@ -19,6 +19,7 @@ import Search from '../../common/Search'
 import { userFilterMenu } from '../../common/variables/user'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
+import adminStyles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import styles from '../Admin.module.scss'
 import UserModel from './CreateUser'
@@ -96,7 +97,12 @@ const Users = () => {
           <Search text="user" handleChange={handleChange} />
         </Grid>
         <Grid item md={3} xs={5}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+          <Button
+            className={adminStyles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={openModalCreate(true)}
+          >
             {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>

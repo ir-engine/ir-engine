@@ -1,0 +1,192 @@
+@use "../../theme.scss"as theme;
+
+.openModalBtn {
+  height: 50px;
+  width: 100%;
+  background: theme.$purpleLighter;
+  color: theme.$text !important;
+
+  &:hover {
+    background: theme.$purpleColor;
+  }
+
+  @media(max-width: 900px) {
+    font-size: 0.7rem;
+  }
+}
+
+.botRoot {
+  width: 100%;
+  color: #fff;
+  background-color: theme.$purpleDarkest;
+}
+
+.botHeader {
+  height: 50px;
+  background: theme.$purpleColor4;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid #23282c;
+  border-radius: 0px;
+  padding-left: 20px;
+
+  @media(max-width: 900px) {
+    paddingLeft: 5px;
+  }
+}
+
+.botTitle {
+  font-size: 20;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  @media(max-width: 600px) {
+    fontSize: 14;
+  }
+}
+
+.pTop5 {
+  padding-top: 5px;
+}
+
+.mLeft10 {
+  margin-left: 10px;
+}
+
+.botRootRight {
+  width: 100%;
+  color: #fff;
+  margin-top: 15px;
+  background: theme.$purplePanel;
+}
+
+.botRootLeft {
+  width: 100%;
+  color: #fff;
+  background: theme.$purplePanel;
+}
+
+.smFont {
+  font-size: 20px;
+  margin-left: 10px;
+
+  @media(max-width: 900px) {
+    font-size: 14px;
+    margin-left: 5px;
+  }
+}
+
+.botSaveBtn {
+  margin: 5px 25px 5px auto;
+  width: 150px;
+  background: theme.$purplePinkGradient;
+  color: theme.$text !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  @media(max-width: 900px) {
+    font-size: 0.7rem;
+    width: 120px;
+  }
+
+  @media(max-width: 600px) {
+    font-size: 0.7rem;
+    width: 100px;
+  }
+}
+
+.saveBtnIcon {
+  margin-right: 10px;
+
+  @media(max-width: 900px) {
+    marginRight: 5px;
+  }
+}
+
+.secondaryHeading {
+  font-size: 1rem;
+  color: #C0C0C0;
+}
+
+.thirdHeading {
+  color: #C0C0C0;
+  margin-top: 15px;
+}
+
+.heading {
+  font-size: 1rem;
+  flex-basis: 33.33%;
+  flex-shrink: 0;
+}
+
+.summary {
+  background: theme.$purpleColor4;
+  border-bottom: 1px solid #23282c;
+  color: #f1f1f1;
+  border-radius: 0px;
+
+  svg {
+    color: white;
+  }
+}
+
+.botDetails {
+  background: theme.$purplePanel;
+  color: #fff;
+}
+
+.alterContainer {
+  background: theme.$inputBackground;
+  border: 1px solid #23282c;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.createAlterContainer {
+  background: theme.$inputBackground;
+  border-radius: 5px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.createInput {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: theme.$inputBackground;
+  color: theme.$text !important;
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  color: theme.$text;
+}
+
+.redBorder {
+  border: 1px solid red;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: theme.$inputBackground;
+  color: theme.$text !important;
+}
+
+.select {
+  color: theme.$text !important;
+  height: 2.4rem !important;
+}
+
+.selectPaper {
+  background: theme.$inputBackground;
+  color: theme.$text;
+}

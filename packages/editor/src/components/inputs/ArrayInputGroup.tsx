@@ -52,7 +52,7 @@ const onChangeText = (text, index, values, onChange) => {
 }
 
 const GroupContainer = (styled as any).label`
-  background-color: #282C31;
+  background-color: $transparent;
   color: #9FA4B5;
   white-space: pre-wrap;
   padding: 0 8px 8px;

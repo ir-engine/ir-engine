@@ -1,11 +1,11 @@
-import { sRGBEncoding } from 'three'
+import { ArrayCamera, sRGBEncoding } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
+import { accessEngineState, EngineActions, EngineActionType } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -13,13 +13,14 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { cleanXRInputs } from '../functions/addControllerModels'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
 import { endXR, startWebXR } from '../functions/WebXRFunctions'
 
 const startXRSession = async () => {
-  Engine.renderer.outputEncoding = sRGBEncoding
   const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
   try {
     const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
@@ -28,9 +29,6 @@ const startXRSession = async () => {
     Engine.xrManager.setSession(session)
     Engine.xrManager.setFoveation(1)
     dispatchLocal(EngineActions.xrSession() as any)
-
-    // Current WebXRManager.getCamera() typedef is incorrect
-    ;(Engine.xrManager as any).getCamera().layers.enableAll()
 
     Engine.xrManager.addEventListener('sessionend', async () => {
       dispatchLocal(EngineActions.xrEnd() as any)
@@ -66,8 +64,20 @@ export default async function XRSystem(world: World) {
 
   Engine.currentWorld.receptors.push((action: EngineActionType) => {
     switch (action.type) {
+      case NetworkWorldAction.setXRMode.type:
+        // Current WebXRManager.getCamera() typedef is incorrect
+        // @ts-ignore
+        const cameras = Engine.xrManager.getCamera() as ArrayCamera
+        cameras.layers.enableAll()
+        cameras.cameras.forEach((camera) => {
+          camera.layers.disableAll()
+          camera.layers.enable(ObjectLayers.Scene)
+          camera.layers.enable(ObjectLayers.Avatar)
+          camera.layers.enable(ObjectLayers.UI)
+        })
+        break
       case EngineEvents.EVENTS.XR_START:
-        startXRSession()
+        if (accessEngineState().joinedWorld.value && !Engine.xrSession) startXRSession()
         break
       case EngineEvents.EVENTS.XR_END:
         for (const entity of xrControllerQuery()) {

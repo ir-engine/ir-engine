@@ -6,6 +6,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import { Grid, IconButton, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
+import styles from '../../styles/settings.module.scss'
 import Analytics from './Analytics'
 import Authentication from './Authentication'
 import Aws from './Aws'
@@ -17,10 +18,8 @@ import Project from './Project'
 import Redis from './Redis'
 import Server from './Server'
 import Sidebar from './SideBar'
-import { useStyles } from './styles'
 
 const Setting = () => {
-  const classes = useStyles()
   const rootRef = useRef<any>()
   const [isAws, setIsAws] = useState(false)
   const [isProject, setIsProject] = useState(false)
@@ -300,21 +299,17 @@ const Setting = () => {
   }, [isAws, isChargebee, isRedis, isServer, isEmail, isGame, isClient, isAnalytics, isProject])
 
   return (
-    <div className={classes.root} ref={rootRef}>
-      <div className={classes.invisible}>
+    <div ref={rootRef}>
+      <div className={styles.invisible}>
         <div style={{ position: 'fixed', zIndex: 1 }}>
-          <Button
-            size="medium"
-            onClick={() => setMenuVisible(!menuVisible)}
-            style={{ color: '#fff', fontSize: '3rem', background: '#393d42', position: 'fixed' }}
-          >
+          <Button size="medium" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
             <MenuIcon />
           </Button>
         </div>
         {menuVisible && (
-          <div className={classes.hoverSettings}>
+          <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
-              <Typography variant="h6" className={classes.hoverSettingsHeading}>
+              <Typography variant="h6" className={styles.hoverSettingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
@@ -356,8 +351,8 @@ const Setting = () => {
         )}
       </div>
       <Grid container spacing={3}>
-        <Grid item sm={3} lg={3} className={classes.visible}>
-          <Typography variant="h6" className={classes.settingsHeading}>
+        <Grid item sm={3} lg={3} className={styles.visible}>
+          <Typography variant="h6" className={styles.settingsHeading}>
             {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
@@ -384,7 +379,7 @@ const Setting = () => {
           />
         </Grid>
         <Grid item xs={12} sm={12} md={12} lg={9}>
-          <div className={classes.contents}>{Contents}</div>
+          <div className={styles.contents}>{Contents}</div>
         </Grid>
       </Grid>
     </div>

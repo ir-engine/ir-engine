@@ -52,6 +52,7 @@ const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRe
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
+  world.namedEntities.delete(userId)
 }
 
 const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {

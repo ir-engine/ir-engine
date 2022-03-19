@@ -1,0 +1,81 @@
+@use "../../../theme.scss"as theme;
+
+.root {
+  flex-grow: 1
+}
+
+.paper {
+  padding: 16px;
+  text-align: center;
+  color: theme.$text;
+  height: 35rem;
+  width: 99.9%;
+  background-color: theme.$purplePanel;
+}
+
+.mtopp {
+  margin-top: 20px;
+}
+
+.btn {
+  color: white;
+  border-color: white;
+  font-size: 0.875rem;
+
+  @media (max-width: 900px) {
+    font-size: 0.6rem
+  }
+}
+
+.btnSelected {
+  color: white !important;
+  border-color: white;
+  background-color: theme.$purpleColor !important;
+}
+
+.dashboardCardsContainer {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  @media (max-width: 900px) {
+    gridTemplateColumns: 1fr 1fr 1fr
+  }
+
+  @media (max-width: 700px) {
+    gridTemplateColumns: 1fr 1fr
+  }
+
+  @media (max-width: 500px) {
+    gridTemplateColumns: 1fr
+  }
+}
+
+.datePickerContainer {
+  display: flex;
+  margin: 10px 0px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+
+  input {
+    color: theme.$text;
+  }
+
+  fieldset {
+    border-color: theme.$text;
+  }
+
+  fieldset:hover {
+    border-color: rgba(theme.$text, 0.8);
+  }
+}
+
+.rootCardNumber {
+  min-width: 100%;
+  background-color: theme.$purplePanel
+}
+
+.label {
+  color: theme.$text
+}

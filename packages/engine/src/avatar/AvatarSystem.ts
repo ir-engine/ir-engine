@@ -121,7 +121,7 @@ export default async function AvatarSystem(world: World) {
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      initializeXRInputs(entity)
+      if (isClient) initializeXRInputs(entity)
 
       xrInputSourceComponent.container.add(
         xrInputSourceComponent.controllerLeftParent,

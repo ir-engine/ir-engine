@@ -47,7 +47,7 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
 const BooleanCheck = (styled as any)(CheckIcon)`
   width: 100%;
   height: auto;
-  color: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.purpleColor};
 `
 
 interface BooleanInputProp {
