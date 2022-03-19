@@ -12,8 +12,7 @@ import helmet from 'helmet'
 import path from 'path'
 import winston from 'winston'
 
-import { isDev } from '@xrengine/common/src/utils/isDev'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import logger from '@xrengine/server-core/src/logger'
@@ -21,7 +20,7 @@ import sequelize from '@xrengine/server-core/src/sequelize'
 import services from '@xrengine/server-core/src/services'
 import authentication from '@xrengine/server-core/src/user/authentication'
 
-export const configureOpenAPI = (app: Application) => () => {
+export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
       docsPath: '/openapi',
@@ -49,8 +48,8 @@ export const configureOpenAPI = (app: Application) => () => {
 }
 
 export const configureSocketIO =
-  (app: Application) =>
-  (gameserver = false, onSocketIO = (app: Application) => {}) => {
+  (gameserver = false, onSocketIO = (app: Application) => {}) =>
+  (app: Application) => {
     const origin = [
       'https://' + config.server.clientHost,
       'capacitor://' + config.server.clientHost,
@@ -81,7 +80,7 @@ export const configureSocketIO =
     )
   }
 
-export const configureRedis = (app: Application) => () => {
+export const configureRedis = () => (app: Application) => {
   if (config.redis.enabled) {
     app.configure(
       sync({
@@ -97,7 +96,7 @@ export const configureRedis = (app: Application) => () => {
   }
 }
 
-export const configureK8s = (app: Application) => () => {
+export const configureK8s = () => (app: Application) => {
   if (config.kubernetes.enabled) {
     const kc = new k8s.KubeConfig()
     kc.loadFromDefault()
@@ -108,6 +107,8 @@ export const configureK8s = (app: Application) => () => {
     app.k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
   }
 }
+
+export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configureRedis(), configureK8s())
 
 export const createFeathersExpressApp = (): Application => {
   const app = express(feathers()) as Application
@@ -144,4 +145,10 @@ export const createFeathersExpressApp = (): Application => {
 
   // Set up our services (see `services/index.js`)
   app.configure(services)
+
+  app.use('/healthcheck', (req, res) => {
+    res.sendStatus(200)
+  })
+
+  app.use(errorHandler({ logger }))
 }
