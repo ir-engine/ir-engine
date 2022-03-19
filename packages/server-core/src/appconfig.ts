@@ -2,10 +2,11 @@ import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
-import { register } from 'trace-unhandled'
 import url from 'url'
 
 import '@xrengine/engine/src/patchEngineNode'
+
+const { register } = require('trace-unhandled')
 
 register()
 
