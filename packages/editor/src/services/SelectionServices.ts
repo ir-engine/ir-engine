@@ -6,6 +6,8 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 
 import { filterParentEntities } from '../functions/filterParentEntities'
 
+const transformProps = ['position', 'rotation', 'scale', 'matrix']
+
 type SelectionServiceStateType = {
   selectedEntities: Entity[]
   selectedParentEntities: Entity[]
@@ -15,6 +17,7 @@ type SelectionServiceStateType = {
   sceneGraphChangeCounter: number
   affectedObjects: EntityTreeNode[]
   propertyName: string
+  transformPropertyChanged: boolean
 }
 
 const state = createState<SelectionServiceStateType>({
@@ -25,7 +28,8 @@ const state = createState<SelectionServiceStateType>({
   objectChangeCounter: 1,
   sceneGraphChangeCounter: 1,
   affectedObjects: [],
-  propertyName: ''
+  propertyName: '',
+  transformPropertyChanged: false
 })
 
 store.receptors.push((action: SelectionActionType): any => {
@@ -43,7 +47,8 @@ store.receptors.push((action: SelectionActionType): any => {
         return s.merge({
           objectChangeCounter: s.objectChangeCounter.value + 1,
           affectedObjects: action.objects,
-          propertyName: action.propertyName
+          propertyName: action.propertyName,
+          transformPropertyChanged: transformProps.includes(action.propertyName)
         })
       case 'SCENE_GRAPH_CHANGED':
         return s.merge({ sceneGraphChangeCounter: s.sceneGraphChangeCounter.value + 1 })

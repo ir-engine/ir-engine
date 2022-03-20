@@ -15,8 +15,8 @@ import Paper from '@mui/material/Paper'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { unique } from '../../functions/utils'
-import { SceneManager } from '../../managers/SceneManager'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
@@ -99,7 +99,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
   const placeObjectAtOrigin = useCallback(async (_, trigger) => {
     const node = await addMediaNode(trigger.item.url)
     const transformComponent = getComponent(node.entity, TransformComponent)
-    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }, [])
 
   const copyURL = useCallback((_, trigger) => {

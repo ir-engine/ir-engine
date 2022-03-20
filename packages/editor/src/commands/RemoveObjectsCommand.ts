@@ -14,7 +14,7 @@ import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
 import { filterParentEntities } from '../functions/filterParentEntities'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -122,7 +122,7 @@ export default class RemoveObjectsCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }

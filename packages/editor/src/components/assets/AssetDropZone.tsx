@@ -11,7 +11,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
-import { SceneManager } from '../../managers/SceneManager'
+import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
 import useUpload from './useUpload'
 
 /**
@@ -68,14 +68,14 @@ export function AssetDropZone() {
           assets.map(async (asset) => {
             const node = await addMediaNode(asset.url)
             const transformComponent = getComponent(node.entity, TransformComponent)
-            if (transformComponent) SceneManager.instance.getCursorSpawnPosition(mousePos, transformComponent.position)
+            if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
           })
         })
       } else {
         // When user drags files from files panel
         const node = await addMediaNode(item.url)
         const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) SceneManager.instance.getCursorSpawnPosition(mousePos, transformComponent.position)
+        if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
       }
     },
     collect: (monitor) => ({

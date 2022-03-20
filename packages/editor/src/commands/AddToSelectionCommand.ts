@@ -6,9 +6,9 @@ import { SelectTagComponent } from '@xrengine/engine/src/scene/components/Select
 
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { ControlManager } from '../managers/ControlManager'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -54,7 +54,7 @@ export default class AddToSelectionCommand extends Command {
 
   emitBeforeExecuteEvent() {
     if (this.shouldEmitEvent) {
-      ControlManager.instance.onBeforeSelectionChanged()
+      cancelGrabOrPlacement()
       store.dispatch(SelectionAction.changedBeforeSelection())
     }
   }

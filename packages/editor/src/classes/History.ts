@@ -21,6 +21,7 @@ export type EditorHistoryType = {
   idCounter: number
   commandUpdatesEnabled: boolean
   debug: boolean
+  grabCheckPoint?: Entity
 }
 
 export const EditorHistory: EditorHistoryType = {

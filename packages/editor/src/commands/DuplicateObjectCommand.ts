@@ -9,7 +9,7 @@ import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import { shouldNodeDeserialize } from '../functions/shouldDeserialiez'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -100,7 +100,7 @@ export default class DuplicateObjectCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }

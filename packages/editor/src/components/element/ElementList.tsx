@@ -18,8 +18,8 @@ import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { prefabIcons } from '../../functions/PrefabEditors'
+import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
-import { SceneManager } from '../../managers/SceneManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -149,7 +149,7 @@ export function ElementList() {
 
       const transformComponent = getComponent(node.entity, TransformComponent)
       if (transformComponent) {
-        SceneManager.instance.getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
       }
     }
   })
@@ -159,7 +159,7 @@ export function ElementList() {
     if (!node) return
 
     const transformComponent = getComponent(node.entity, TransformComponent)
-    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }, [])
 
   const placeObjectAtOrigin = useCallback((_, trigger) => addPrefabElement(trigger.item), [])

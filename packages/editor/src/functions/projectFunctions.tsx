@@ -9,12 +9,13 @@ import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import ErrorIcon from '../classes/ErrorIcon'
 import { clearHistory, executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
+import { removeInputEvents } from '../controls/InputEvents'
+import { disposePlayModeControls } from '../controls/PlayModeControls'
 import { copy, paste } from '../functions/copyPaste'
-import { ControlManager } from '../managers/ControlManager'
-import { SceneManager } from '../managers/SceneManager'
 import { EditorErrorAction } from '../services/EditorErrorServices'
 import { accessEditorState, EditorAction, TaskStatus } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
+import { disposeScene, initializeScene } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
@@ -65,8 +66,9 @@ export async function loadProjectScene(projectFile: SceneJson) {
 
   await runPreprojectLoadTasks()
 
-  ControlManager.instance.dispose()
-  const errors = await SceneManager.instance.initializeScene(projectFile)
+  removeInputEvents()
+  disposePlayModeControls()
+  const errors = await initializeScene(projectFile)
 
   executeCommand(EditorCommands.REPLACE_SELECTION, [])
   clearHistory()
@@ -88,8 +90,9 @@ export async function loadProjectScene(projectFile: SceneJson) {
  * Disposes project data
  */
 export function disposeProject() {
-  SceneManager.instance.dispose()
-  ControlManager.instance.dispose()
+  disposeScene()
+  removeInputEvents()
+  disposePlayModeControls()
   store.dispatch(EditorAction.projectLoaded(false))
 
   window.addEventListener('copy', copy)

@@ -10,10 +10,10 @@ import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefa
 
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D, serializeObject3DArray } from '../functions/debug'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { ControlManager } from '../managers/ControlManager'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -116,7 +116,7 @@ export default class GroupCommand extends Command {
 
   emitBeforeExecuteEvent() {
     if (this.shouldEmitEvent && this.isSelected) {
-      ControlManager.instance.onBeforeSelectionChanged()
+      cancelGrabOrPlacement()
       store.dispatch(SelectionAction.changedBeforeSelection())
     }
   }
@@ -127,7 +127,7 @@ export default class GroupCommand extends Command {
         updateOutlinePassSelection()
       }
 
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }

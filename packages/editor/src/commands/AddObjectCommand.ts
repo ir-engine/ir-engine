@@ -14,12 +14,12 @@ import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene
 
 import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
+import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { serializeObject3D } from '../functions/debug'
 import { getDetachedObjectsRoots } from '../functions/getDetachedObjectsRoots'
 import makeUniqueName from '../functions/makeUniqueName'
 import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
-import { ControlManager } from '../managers/ControlManager'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -96,7 +96,7 @@ export default class AddObjectCommand extends Command {
 
   emitBeforeExecuteEvent() {
     if (this.shouldEmitEvent && this.isSelected) {
-      ControlManager.instance.onBeforeSelectionChanged()
+      cancelGrabOrPlacement()
       store.dispatch(SelectionAction.changedBeforeSelection())
     }
   }
@@ -107,7 +107,7 @@ export default class AddObjectCommand extends Command {
         updateOutlinePassSelection()
       }
 
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }

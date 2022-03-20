@@ -20,9 +20,15 @@ import Dialog from '@mui/material/Dialog'
 
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
+import {
+  DefaultExportOptions,
+  DefaultExportOptionsType,
+  exportScene,
+  initializeRenderer
+} from '../functions/sceneRenderFunctions'
+import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
@@ -237,10 +243,6 @@ const EditorContainer = () => {
     )
   }
 
-  const onProjectLoaded = () => {
-    SceneManager.instance.initializeRenderer()
-  }
-
   const onCloseProject = () => {
     history.push('/editor')
   }
@@ -256,7 +258,7 @@ const EditorContainer = () => {
     try {
       let saveProjectFlag = true
       if (sceneName.value || modified.value) {
-        const blob = await SceneManager.instance.takeScreenshot(512, 320)
+        const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
@@ -293,7 +295,7 @@ const EditorContainer = () => {
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
       setDialogComponent(
         <ExportProjectDialog
-          defaultOptions={Object.assign({}, SceneManager.DefaultExportOptions)}
+          defaultOptions={Object.assign({}, DefaultExportOptions)}
           onConfirm={resolve}
           onCancel={resolve}
         />
@@ -317,7 +319,7 @@ const EditorContainer = () => {
     )
 
     try {
-      const { glbBlob } = await SceneManager.instance.exportScene(options)
+      const { glbBlob } = await exportScene(options)
 
       setDialogComponent(null)
 
@@ -419,7 +421,7 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await SceneManager.instance.takeScreenshot(512, 320)
+    const blob = await takeScreenshot(512, 320)
 
     try {
       if (projectName.value) {
@@ -487,6 +489,12 @@ const EditorContainer = () => {
       disposeProject()
     }
   }, [])
+
+  useEffect(() => {
+    if (editorState.projectLoaded.value === true) {
+      initializeRenderer()
+    }
+  }, [editorState.projectLoaded.value])
 
   const generateToolbarMenu = () => {
     return [
