@@ -214,12 +214,11 @@ const Layout = (props: Props): any => {
                     )}
                   </>
                 )}
-
                 <button
                   type="button"
                   className={`${styles.btn} ${styles.respawn} ${
                     showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                  } `}
+                  } ${!iOS() ? '' : styles.refreshBtn}`}
                   id="respawn"
                   onClick={respawnCallback}
                 >
