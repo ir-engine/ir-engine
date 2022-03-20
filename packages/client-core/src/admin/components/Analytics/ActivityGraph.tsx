@@ -4,8 +4,7 @@ import ReactApexChart from 'react-apexcharts'
 
 const ActivityGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
-  let dayOffset = 24 * 60 * 60 * 1000
-  let minX = new Date(startDate).setTime(new Date(startDate).getTime() - dayOffset)
+  let minX = new Date(startDate).getTime()
   let maxX = new Date(endDate).getTime()
 
   if (data) {
@@ -33,7 +32,7 @@ const ActivityGraph = ({ data, startDate, endDate }) => {
         zoom: {
           autoScaleYaxis: true
         },
-        background: '#323845',
+        background: 'transparent',
         toolbar: {
           tools: {
             zoomin: false,

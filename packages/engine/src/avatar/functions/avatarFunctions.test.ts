@@ -173,7 +173,7 @@ describe('avatarFunctions Unit', async () => {
       }
 
       addComponent(entity, AnimationComponent, animationComponentData)
-      addComponent(entity, VelocityComponent, { linearVelocity: new Vector3(), angularVelocity: new Vector3() })
+      addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
       addComponent(entity, AvatarAnimationComponent, {
         animationGraph: new AvatarAnimationGraph(),

@@ -30,7 +30,6 @@ interface Props {
   SendButton?: any
   newMessageLabel?: string
   setBottomDrawerOpen?: any
-  animate?: any
 }
 
 const InstanceChat = (props: Props): any => {
@@ -264,20 +263,18 @@ const InstanceChat = (props: Props): any => {
           </Card>
         </div>
       </div>
-      {unreadMessages && (
-        <div className={`${styles.iconCallChat} ${props.animate}`}>
-          <Badge
-            color="primary"
-            variant="dot"
-            invisible={!unreadMessages}
-            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-          >
-            <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
-              {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
-            </Fab>
-          </Badge>
-        </div>
-      )}
+      <div className={styles.iconCallChat}>
+        <Badge
+          color="primary"
+          variant="dot"
+          invisible={!unreadMessages}
+          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+            {!chatWindowOpen ? <MessageButton /> : <CloseButton onClick={() => toggleChatWindow()} />}
+          </Fab>
+        </Badge>
+      </div>
     </>
   )
 }

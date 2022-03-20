@@ -109,16 +109,16 @@ export const generateSimulationData = (numOfObjectsToGenerate) => {
 }
 
 const defaultSpawnPosition = new Vector3()
-const defaultScalePosition = new Vector3(1, 1, 1)
+const defaultScale = new Vector3(1, 1, 1)
 const defaultTorqueForce = new Vector3(0, 0, -500)
 
 export const generatePhysicsObject = (
   config: ShapeOptions,
   spawnPosition = defaultSpawnPosition,
   isNetworkObject = false,
-  scale = defaultScalePosition
+  scale = defaultScale
 ) => {
-  let type = config.type
+  const type = config.type
 
   let geometry
   switch (type) {
@@ -150,13 +150,13 @@ export const generatePhysicsObject = (
   // Add empty model node
   const entity = createEntity()
   const uuid = getUUID()
-  let entityTreeNode = new EntityTreeNode(entity, uuid)
+  const entityTreeNode = new EntityTreeNode(entity, uuid)
   createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
 
-  let nameComponent = getComponent(entity, NameComponent)
+  const nameComponent = getComponent(entity, NameComponent)
   nameComponent.name = uuid
 
-  let obj3d = mesh
+  const obj3d = mesh
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
@@ -164,7 +164,7 @@ export const generatePhysicsObject = (
   const world = useWorld()
   world.entityTree.addEntityNode(entityTreeNode, world.entityTree.rootNode)
 
-  let transform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
   const collider = getComponent(entity, ColliderComponent)
   const body = collider.body as PhysX.PxRigidDynamic

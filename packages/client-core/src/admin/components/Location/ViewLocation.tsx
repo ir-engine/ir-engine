@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import { LocationFetched } from '@xrengine/common/src/interfaces/Location'
 
 import { Save } from '@mui/icons-material'
-import MuiAlert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
@@ -22,7 +21,6 @@ import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
@@ -33,19 +31,14 @@ import { useStyles } from '../../styles/ui'
 interface Props {
   openView: boolean
   closeViewModel: (open: boolean) => void
-  locationAdmin?: Location
-}
-
-const Alert = (props) => {
-  return <MuiAlert elevation={6} variant="filled" {...props} />
+  locationAdmin?: LocationFetched
 }
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, locationAdmin } = props
-  const dispatch = useDispatch()
   const classes = useStyles()
-  const [editMode, setEditMode] = React.useState(false)
-  const [state, setState] = React.useState({
+  const [editMode, setEditMode] = useState(false)
+  const [state, setState] = useState({
     name: '',
     maxUsers: 10,
     scene: '',
@@ -64,9 +57,9 @@ const ViewLocation = (props: Props) => {
       type: ''
     }
   })
-  const [location, setLocation] = React.useState<any>('')
-  const [error, setError] = React.useState('')
-  const [openWarning, setOpenWarning] = React.useState(false)
+  const [location, setLocation] = useState<any>('')
+  const [error, setError] = useState('')
+  const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
   const adminScenes = useSceneState().scenes
   const locationTypes = useLocationState().locationTypes
@@ -81,7 +74,7 @@ const ViewLocation = (props: Props) => {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (locationAdmin) {
       setLocation(locationAdmin)
       setState({
@@ -89,12 +82,12 @@ const ViewLocation = (props: Props) => {
         name: locationAdmin.name,
         maxUsers: locationAdmin.maxUsersPerInstance,
         scene: locationAdmin.sceneId,
-        type: locationAdmin?.locationSetting?.locationType,
-        videoEnabled: locationAdmin?.locationSetting?.videoEnabled,
-        audioEnabled: locationAdmin?.locationSetting?.audioEnabled,
-        screenSharingEnabled: locationAdmin?.locationSetting?.screenSharingEnabled,
-        faceStreamingEnabled: locationAdmin?.locationSetting?.faceStreamingEnabled,
-        globalMediaEnabled: locationAdmin?.locationSetting?.instanceMediaChatEnabled,
+        type: locationAdmin?.location_setting?.locationType,
+        videoEnabled: locationAdmin?.location_setting?.videoEnabled,
+        audioEnabled: locationAdmin?.location_setting?.audioEnabled,
+        screenSharingEnabled: locationAdmin?.location_setting?.screenSharingEnabled,
+        faceStreamingEnabled: locationAdmin?.location_setting?.faceStreamingEnabled,
+        globalMediaEnabled: locationAdmin?.location_setting?.instanceMediaChatEnabled,
         isLobby: locationAdmin.isLobby,
         isFeatured: locationAdmin.isFeatured
       })
@@ -114,7 +107,7 @@ const ViewLocation = (props: Props) => {
       case 'scene':
         temp.scene = value.length < 2 ? t('admin:components.locationModel.sceneRequired') : ''
         break
-      case 'private':
+      case 'type':
         temp.type = value.length < 2 ? t('admin:components.locationModel.privateRoleRequired') : ''
         break
       default:
@@ -128,7 +121,7 @@ const ViewLocation = (props: Props) => {
       name: state.name,
       maxUsersPerInstance: state.maxUsers,
       sceneId: state.scene,
-      location_setting: {
+      location_settings: {
         locationType: state.type,
         instanceMediaChatEnabled: state.globalMediaEnabled,
         audioEnabled: state.audioEnabled,
@@ -151,7 +144,7 @@ const ViewLocation = (props: Props) => {
       temp.scene = t('admin:components.locationModel.sceneCantEmpty')
     }
     if (!state.type) {
-      temp.scene = t('admin:components.locationModel.typeCantEmpty')
+      temp.type = t('admin:components.locationModel.typeCantEmpty')
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
@@ -283,8 +276,11 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <label>{t('admin:components.locationModel.private')}</label>
-              <Paper component="div" className={classes.createInput}>
+              <label>{t('admin:components.locationModel.type')}</label>
+              <Paper
+                component="div"
+                className={state.formErrors.type.length > 0 ? classes.redBorder : classes.createInput}
+              >
                 <FormControl fullWidth>
                   <Select
                     labelId="demo-controlled-open-select-label"
@@ -568,8 +564,8 @@ const ViewLocation = (props: Props) => {
             </div>
           )}
         </DialogActions>
-        <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
       </Drawer>
+      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

@@ -106,51 +106,20 @@
       flex-wrap: wrap;
       height: auto;
 
-            button + button { margin-left: 5px; }
-            button[disabled] { background: grey; opacity: 1 !important; }
-            .browseBtn { &>svg { transform: rotate(180deg); } }
-            .uploadBtn { background: $SelectedGreenColor; }
-            button:hover, button:focus { outline: none; opacity: 0.8; }
-            .selectBtns {
-                display: flex;
-                margin-bottom: 8px;
-            }
-        }
-        .stage {
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-            .legendContainer {
-                position: absolute;
-                right: 5px;
-                top: 5px;
+      .avatarPreviewWrapper {
+        width: 90px;
+        height: 90px;
+        cursor: pointer;
+        margin: 5px;
+        flex-grow: 0;
+        background: white;
+        box-shadow: 0px 2px 18px 0px #11111159;
+        position: relative;
 
-                &>svg {
-                    opacity: 0.5;
-                    &:hover {
-                        opacity: 0.75;
-                    }
-                }
-                .legend {
-                    position: absolute;
-                    padding: 10px;
-                    background: rgb(0, 0, 0, 0.75);
-                    border-radius: 5px;
-                    top: 30px;
-                    right: 5px;
-                    width: 130px;
-                    color: #c8c8c8;
-                    font-size: 12px;
-                    display: none;
-
-                    span { margin-left: 5px; }
-                    .shiftKey { background: #c8c8c8; color: rgb(0, 0, 0, 0.75); padding: 2px 4px; border-radius: 4px; font-weight: bold; margin: 0 5px 0 0; }
-                    svg { font-size: 18px; margin-right: 5px; }
-                    &>div + div { margin-top: 10px; }
-                }
-
-                &:hover { .legend { display: block; } }
-            }
+        .avatarPreview {
+          width: 100%;
+          height: 100%;
+          border-radius: 10px;
         }
 
         &.activeAvatar {

@@ -21,7 +21,6 @@ import makeStyles from '@mui/styles/makeStyles'
 
 import { InviteService } from '../../../social/services/InviteService'
 import { INVITE_PAGE_LIMIT, useInviteState } from '../../../social/services/InviteService'
-import { useDispatch } from '../../../store'
 
 interface Props {
   invites: any
@@ -111,7 +110,6 @@ const ReceivedInvite = (props: Props) => {
   const { invites } = props
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(INVITE_PAGE_LIMIT)
-  const dispatch = useDispatch()
   const inviteState = useInviteState()
   const receivedInviteCount = inviteState.receivedInvites.total.value
   const rows = invites.map((el, index) => createData(el.id, el.user.name, el.passcode, el.inviteType))

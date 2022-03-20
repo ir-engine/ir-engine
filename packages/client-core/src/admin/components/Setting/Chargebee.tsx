@@ -4,18 +4,15 @@ import { useTranslation } from 'react-i18next'
 import { Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import { ChargebeeSettingService, useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface Props {}
 
 const ChargeBee = (props: Props) => {
-  const classes = useStyles()
   const chargeBeeSettingState = useChargebeeSettingState()
   const [chargebee] = chargeBeeSettingState?.chargebee.value || []
-  const dispatch = useDispatch()
   const authState = useAuthState()
   const user = authState.user
   const { t } = useTranslation()
@@ -29,25 +26,25 @@ const ChargeBee = (props: Props) => {
   return (
     <div>
       <form>
-        <Typography component="h1" className={classes.settingsHeading}>
+        <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.chargebee')}
         </Typography>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.url')}:</label>
           <InputBase
             value={chargebee?.url || ''}
             name="url"
-            className={classes.input}
+            className={styles.input}
             disabled
             style={{ color: '#fff' }}
           />
         </Paper>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <label>{t('admin:components.setting.apiKey')}:</label>
           <InputBase
             value={chargebee?.apiKey || ''}
             name="apiKey"
-            className={classes.input}
+            className={styles.input}
             disabled
             style={{ color: '#fff' }}
           />

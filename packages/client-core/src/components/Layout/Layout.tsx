@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
@@ -11,17 +11,15 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
@@ -61,12 +59,7 @@ const Layout = (props: Props): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
-  const [showMediaIcons, setShowMediaIcons] = useState(true)
-  const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
-  const channelConnectionState = useMediaInstanceConnectionState()
-  let mediaIconTimer: any
-  let bottomIconTimer: any
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
@@ -101,31 +94,6 @@ const Layout = (props: Props): any => {
     respawnAvatar(useWorld().localClientEntity)
   }
 
-  const handleShowMediaIcons = () => {
-    if (showMediaIcons) clearTimeout(mediaIconTimer)
-    setShowMediaIcons(!showMediaIcons)
-  }
-
-  const handleShowBottomIcons = () => {
-    if (showBottomIcons) clearTimeout(bottomIconTimer)
-    setShowBottomIcons(!showBottomIcons)
-  }
-
-  const setTimerForMediaIcons = () => {
-    mediaIconTimer = setTimeout(() => {
-      setShowMediaIcons(false)
-    }, 15000)
-  }
-
-  const setTimerForBottomIcons = () => {
-    bottomIconTimer = setTimeout(() => {
-      setShowBottomIcons(false)
-    }, 15000)
-  }
-
-  if (showMediaIcons) setTimerForMediaIcons()
-  if (showBottomIcons) setTimerForBottomIcons()
-
   const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
   const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
 
@@ -145,41 +113,41 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
-              <button
-                type="button"
-                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
-                  showMediaIcons ? styles.rotate : styles.rotateBack
-                } ${styles.showIconMedia} `}
-                onClick={handleShowMediaIcons}
-              >
-                {showMediaIcons ? <KeyboardDoubleArrowUpIcon /> : <KeyboardDoubleArrowDownIcon />}
-              </button>
               {children}
-              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOut} />
-              <header className={showMediaIcons ? styles.animateTop : styles.fadeOut}>
-                {path === '/login' && <NavMenu login={login} />}
-                {!props.hideVideo && (
+              <MediaIconsBox />
+              <UserMenu />
+              <div style={{ opacity: layoutOpacity }}>
+                <header>
+                  {path === '/login' && <NavMenu login={login} />}
+                  {!props.hideVideo && (
+                    <>
+                      <section className={styles.locationUserMenu}>
+                        {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
+                        <PartyVideoWindows />
+                      </section>
+                      <UserToast />
+                    </>
+                  )}
+                </header>
+
+                {!iOS() && (
                   <>
-                    <section className={styles.locationUserMenu}>
-                      {authUser?.accessToken?.value != null && authUser.accessToken.value.length > 0 && <Me />}
-                      <PartyVideoWindows />
-                    </section>
-                    <UserToast />
+                    {props.hideFullscreen ? null : fullScreenActive ? (
+                      <button type="button" className={styles.fullScreen} onClick={handle.exit}>
+                        <FullscreenExit />
+                      </button>
+                    ) : (
+                      <button type="button" className={styles.fullScreen} onClick={handle.enter}>
+                        <ZoomOutMap />
+                      </button>
+                    )}
                   </>
                 )}
-              </header>
-              <button
-                type="button"
-                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
-                  showBottomIcons ? styles.rotate : styles.rotateBack
-                } ${styles.showIcon} `}
-                onClick={handleShowBottomIcons}
-              >
-                {showBottomIcons ? <KeyboardDoubleArrowDownIcon /> : <KeyboardDoubleArrowUpIcon />}
-              </button>
-              {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOut} />}
 
-              <div style={{ opacity: layoutOpacity }}>
+                <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
+                  <Refresh />
+                </button>
+
                 <UIDialog />
                 <Alerts />
                 {isTouchAvailable && (
@@ -188,46 +156,9 @@ const Layout = (props: Props): any => {
                   </Suspense>
                 )}
                 <Debug />
+                {/* <RecordingApp /> */}
+                <InstanceChat />
               </div>
-
-              {!iOS() && (
-                <>
-                  {props.hideFullscreen ? null : fullScreenActive ? (
-                    <button
-                      type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOut
-                      } `}
-                      onClick={handle.exit}
-                    >
-                      <FullscreenExit />
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={`${styles.btn} ${styles.fullScreen} ${
-                        showBottomIcons ? styles.animateBottom : styles.fadeOut
-                      } `}
-                      onClick={handle.enter}
-                    >
-                      <ZoomOutMap />
-                    </button>
-                  )}
-                </>
-              )}
-
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.respawn} ${
-                  showBottomIcons ? styles.animateBottom : styles.fadeOut
-                } `}
-                id="respawn"
-                onClick={respawnCallback}
-              >
-                <Refresh />
-              </button>
-
-              <InstanceChat animate={styles.animateBottom} />
             </section>
           </ThemeProvider>
         </StyledEngineProvider>

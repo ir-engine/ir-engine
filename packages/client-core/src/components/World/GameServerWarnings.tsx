@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -39,6 +39,7 @@ enum WarningModalTypes {
 const GameServerWarnings = (props: GameServerWarningsProps) => {
   const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
+  const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
   const chatState = useChatState()
@@ -46,34 +47,50 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
   const { t } = useTranslation()
 
+  const currentErrorRef = useRef(currentError)
+
+  const setCurrentError = (value) => {
+    currentErrorRef.current = value
+    _setCurrentError(value)
+  }
+
   useEffect(() => {
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE,
       ({ instanceId }) => {
         setErroredInstanceId(instanceId)
         updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+        setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
       }
     )
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
-    )
+      setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
-    )
+      setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
       updateWarningModal(WarningModalTypes.USER_KICKED, message)
-    )
+      setCurrentError(WarningModalTypes.USER_KICKED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
+      setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
+    })
+
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () =>
+      reset(WarningModalTypes.INSTANCE_DISCONNECTED)
     )
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, reset)
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, reset)
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, () =>
+      reset(WarningModalTypes.CHANNEL_DISCONNECTED)
+    )
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
     var db = indexedDB.open('test')
@@ -114,7 +131,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
         if (!Engine.userId) return
-        if (transport.left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
           open: true,
@@ -128,7 +145,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED:
         if (!Engine.userId) return
-        if (transport.left) return
+        if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
@@ -180,15 +197,17 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
     }
   }
 
-  const reset = () => {
+  const reset = (modalType?: number) => {
+    if (modalType && modalType !== currentErrorRef.current) return
     setModalValues(initialModalValues)
+    setCurrentError(-1)
   }
 
   return (
     <WarningRefreshModal
       {...modalValues}
       open={modalValues.open && !engineState.isTeleporting.value}
-      handleClose={reset}
+      handleClose={() => reset()}
     />
   )
 }

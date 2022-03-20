@@ -11,7 +11,7 @@ import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import { visuallyHidden } from '@mui/utils'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/table.module.scss'
 
 interface Props {
   rows: any
@@ -70,6 +70,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
   })
   return stabilizedThis.map((el) => el[0])
 }
+
 interface EnhancedTableProps {
   onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
   order: Order
@@ -80,7 +81,6 @@ interface EnhancedTableProps {
 
 const EnhancedTableHead = (props: EnhancedTableProps) => {
   const { order, orderBy, onRequestSort, columns } = props
-  const classes = useStyles()
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property)
   }
@@ -94,21 +94,26 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
             align={headCell.align}
             padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
-            className={classes.tableCellHeader}
+            className={styles.tableCellHeader}
             style={{ minWidth: headCell.minWidth }}
           >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : 'asc'}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null}
-            </TableSortLabel>
+            {(headCell.id as any) === 'action' ? (
+              <span>{headCell.label} </span>
+            ) : (
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : 'asc'}
+                onClick={createSortHandler(headCell.id)}
+                classes={{ icon: styles.spanWhite, active: styles.spanWhite }}
+              >
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -117,7 +122,6 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
 }
 
 const TableComponent = (props: Props) => {
-  const classes = useStyles()
   const { rows, column, page, rowsPerPage, count, handlePageChange, handleRowsPerPageChange } = props
   const [order, setOrder] = React.useState<Order>('asc')
   const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
@@ -129,7 +133,7 @@ const TableComponent = (props: Props) => {
 
   return (
     <React.Fragment>
-      <TableContainer className={classes.tableContainer}>
+      <TableContainer className={styles.tableContainer}>
         <Table stickyHeader aria-label="sticky table">
           <EnhancedTableHead
             order={order}
@@ -147,7 +151,7 @@ const TableComponent = (props: Props) => {
                     {column.map((column, index) => {
                       const value = row[column.id]
                       return (
-                        <TableCell key={index} align={column.align} className={classes.tableCellBody}>
+                        <TableCell key={index} align={column.align} className={styles.tableCellBody}>
                           {value}
                         </TableCell>
                       )
@@ -155,20 +159,6 @@ const TableComponent = (props: Props) => {
                   </TableRow>
                 )
               })}
-            {/* {rows.map((row, rIndex) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={rIndex}>
-                  {column.map((column, index) => {
-                    const value = row[column.id]
-                    return (
-                      <TableCell key={index} align={column.align} className={classes.tableCellBody}>
-                        {value}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              )
-            })} */}
           </TableBody>
         </Table>
       </TableContainer>
@@ -180,7 +170,7 @@ const TableComponent = (props: Props) => {
         page={page}
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
-        className={classes.tableFooter}
+        className={styles.tableFooter}
       />
     </React.Fragment>
   )

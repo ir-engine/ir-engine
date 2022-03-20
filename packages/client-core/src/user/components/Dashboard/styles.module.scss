@@ -1,15 +1,15 @@
-@use "./theme.scss"as theme;
+@use "../../../theme.scss"as theme;
 
 .navbar {
   width: 100%;
   display: flex;
   justify-content: center;
   pointer-events: auto;
-  background: theme.$panel;
+  background: theme.$dock;
   height: 50px;
 
   .navContainer {
-    width: 90vw;
+    width: 98vw;
     display: flex;
     justify-content: space-between;
     position: relative;
@@ -54,7 +54,6 @@
 
       .profileMenuContainer {
         z-index: 100;
-        background: theme.$panel;
         top: 70px;
         bottom: unset;
         right: 0;
@@ -476,4 +475,89 @@
       opacity: 1 !important;
     }
   }
+}
+
+.textLink {
+  text-decoration: none;
+}
+
+.selected {
+  background: theme.$purpleColor !important;
+}
+
+.menuButton {
+  margin-right: 36;
+  color: white;
+}
+
+.hide {
+  display: none;
+}
+
+.appBarHeadingContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.appBar {
+  z-index: 10;
+}
+
+.drawer {
+  z-index: 9;
+  width: 250px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.drawerOpen {
+  z-index: 9;
+  position: absolute;
+  width: 250px !important;
+  height: 100%;
+  z-index: 15;
+  transition: width 225ms cubic-bezier(0.4, 0, 0.6, 1);
+  background-color: theme.$purpleColor4;
+}
+
+.drawerClose {
+  z-index: 9;
+  overflow-x: hidden;
+  width: 57px !important;
+  transition: width 195ms cubic-bezier(0.4, 0, 0.6, 1);
+  background-color: theme.$purpleColor4;
+
+  @media (max-width: 600px) {
+    width: 72px !important;
+  }
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0px 8px,
+}
+
+.content {
+  top: 50px;
+  overflow: auto;
+  position: relative;
+  padding: 24px;
+  background-color: theme.$purpleDarkest;
+  height: calc(100vh - 50px);
+}
+
+.contentWidthDrawerOpen {
+  left: 57px;
+  width: calc(100vw - 57px);
+}
+
+.contentWidthDrawerClosed {
+  left: 57px;
+  width: calc(100vw - 57px);
 }

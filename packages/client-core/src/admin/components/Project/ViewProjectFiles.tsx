@@ -11,7 +11,7 @@ import { DockContainer } from '@xrengine/editor/src/components/EditorContainer'
 
 import Drawer from '@mui/material/Drawer'
 
-import styles from './Projects.module.scss'
+import { useStyles } from '../../styles/ui'
 
 interface Props {
   name: string
@@ -21,6 +21,7 @@ interface Props {
 
 const ViewProjectFiles = (props: Props) => {
   const assetsPreviewPanelRef = React.useRef()
+  const classes = useStyles()
 
   const onLayoutChangedCallback = () => {
     ;(assetsPreviewPanelRef as any).current?.onLayoutChanged?.()
@@ -60,7 +61,7 @@ const ViewProjectFiles = (props: Props) => {
   return (
     <div id="project-container">
       <Drawer
-        classes={{ paper: styles.paper }}
+        classes={{ paper: classes.paperDrawer }}
         anchor="right"
         open={props.open}
         onClose={() => props.setShowProjectFiles(false)}

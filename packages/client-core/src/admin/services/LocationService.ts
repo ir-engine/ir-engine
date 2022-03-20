@@ -149,7 +149,7 @@ export const LocationService = {
 export const LocationAction = {
   locationsRetrieved: (locations: LocationResult) => {
     locations.data.forEach((locationData) => {
-      if (locationData.location_setting) locationData.locationSettings = locationData.location_setting
+      if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
     })
     return {
       type: 'ADMIN_LOCATIONS_RETRIEVED' as const,

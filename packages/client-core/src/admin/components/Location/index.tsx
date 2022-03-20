@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
@@ -39,7 +40,7 @@ const Location = () => {
           <Search text="location" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             {t('admin:components.locationModel.createNewLocation')}
           </Button>
         </Grid>

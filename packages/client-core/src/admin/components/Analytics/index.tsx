@@ -4,74 +4,19 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import DateAdapter from '@mui/lab/AdapterMoment'
-import DateRangePicker from '@mui/lab/DateRangePicker'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { Theme } from '@mui/material/styles'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
+import styles from './styles.module.scss'
 import UserGraph from './UserGraph'
 
 interface Props {}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-      height: '35rem',
-      width: '99.9%',
-      backgroundColor: '#323845'
-    },
-    mtopp: {
-      marginTop: '20px'
-    },
-    btn: {
-      color: 'white',
-      borderColor: 'white',
-      fontSize: '0.875rem',
-      [theme.breakpoints.down('md')]: {
-        fontSize: '0.6rem'
-      }
-    },
-    btnSelected: {
-      color: 'white !important',
-      borderColor: 'white',
-      backgroundColor: '#0000004d !important'
-    },
-    dashboardCardsContainer: {
-      display: 'grid',
-      gridGap: '10px',
-      gridTemplateColumns: '1fr 1fr 1fr 1fr',
-      ['@media (max-width: 900px)']: {
-        gridTemplateColumns: '1fr 1fr 1fr'
-      },
-      ['@media (max-width: 700px)']: {
-        gridTemplateColumns: '1fr 1fr'
-      },
-      ['@media (max-width: 500px)']: {
-        gridTemplateColumns: '1fr'
-      }
-    },
-    datePickerContainer: {
-      display: 'flex',
-      margin: '10px 0px',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-end'
-    }
-  })
-)
 
 /**
  * Function for analytics on admin dashboard
@@ -84,7 +29,6 @@ const Analytics = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
-  let isDataAvailable = false
   const analyticsState = useAnalyticsState()
 
   const [endDate, setEndDate] = useState(moment())
@@ -153,19 +97,8 @@ const Analytics = (props: Props) => {
     }
   ]
 
-  if (
-    activityGraphData[0].data.length ||
-    activityGraphData[1].data.length ||
-    activityGraphData[2].data.length ||
-    activityGraphData[3].data.length ||
-    activityGraphData[4].data.length ||
-    activityGraphData[5].data.length
-  ) {
-    isDataAvailable = true
-  }
-
   useEffect(() => {
-    if (refetch === true) {
+    if (refetch === true && startDate < endDate) {
       AnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
       AnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
       AnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
@@ -184,13 +117,16 @@ const Analytics = (props: Props) => {
     if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState.isLoggedIn.value])
 
-  const onDateRangeChange = (value) => {
-    setEndDate(value[1])
-    setStartDate(value[0])
+  const onDateRangeStartChange = (value) => {
+    setStartDate(value)
     setRefetch(true)
   }
 
-  const classes = useStyles()
+  const onDateRangeEndChange = (value) => {
+    setEndDate(value)
+    setRefetch(true)
+  }
+
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
@@ -230,19 +166,22 @@ const Analytics = (props: Props) => {
     }
   ]
 
+  const tempStartDate = moment(startDate)
+  const minEndDate = moment(tempStartDate.startOf('day').add(1, 'day'))
+
   return (
     <>
-      <div className={classes.dashboardCardsContainer}>
+      <div className={styles.dashboardCardsContainer}>
         {data.map((el) => {
           return <Card key={el.label} data={el} />
         })}
       </div>
-      <div className={classes.mtopp}>
-        <div className={classes.paper}>
+      <div className={styles.mtopp}>
+        <div className={styles.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'activity'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'activity'
               })}
               value="activity"
               onClick={() => setGraphSelector('activity')}
@@ -250,8 +189,8 @@ const Analytics = (props: Props) => {
               Activity
             </ToggleButton>
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'users'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'users'
               })}
               value="users"
               onClick={() => setGraphSelector('users')}
@@ -259,24 +198,23 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          <div className={classes.datePickerContainer}>
+          <div className={styles.datePickerContainer}>
             <LocalizationProvider dateAdapter={DateAdapter}>
-              <DateRangePicker
-                startText="Start Date"
-                endText="End Date"
-                value={[moment(startDate), moment(endDate)]}
-                onChange={(value) => onDateRangeChange(value)}
-                renderInput={(startProps, endProps) => (
-                  <React.Fragment>
-                    <TextField {...startProps} size="small" />
-                    <Box sx={{ mx: 2 }}> to </Box>
-                    <TextField {...endProps} size="small" />
-                  </React.Fragment>
-                )}
+              <MobileDateTimePicker
+                value={startDate}
+                onChange={(value) => onDateRangeStartChange(value)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <Box sx={{ mx: 2 }}> to </Box>
+              <MobileDateTimePicker
+                value={endDate}
+                minDateTime={minEndDate}
+                onChange={(value) => onDateRangeEndChange(value)}
+                renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
           </div>
-          {graphSelector === 'activity' && isDataAvailable && (
+          {graphSelector === 'activity' && (
             <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
           )}
           {graphSelector === 'users' && (

@@ -4,8 +4,7 @@ import ReactApexChart from 'react-apexcharts'
 
 const UserGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
-  let dayOffset = 24 * 60 * 60 * 1000
-  let minX = new Date(startDate).setTime(new Date(startDate).getTime() - dayOffset)
+  let minX = new Date(startDate).getTime()
   let maxX = new Date(endDate).getTime()
 
   if (data) {
@@ -31,7 +30,7 @@ const UserGraph = ({ data, startDate, endDate }) => {
         type: 'area',
         height: '100%',
         width: '100%',
-        background: '#323845',
+        background: 'transparent',
         zoom: {
           autoScaleYaxis: true
         },
