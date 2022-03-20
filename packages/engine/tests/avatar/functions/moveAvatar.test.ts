@@ -18,8 +18,8 @@ const createMovingAvatar = (world) => {
   const entity = createEntity(world)
 
   addComponent(entity, VelocityComponent, {
-    linearVelocity: new Vector3(),
-    angularVelocity: new Vector3()
+    linear: new Vector3(),
+    angular: new Vector3()
   })
 
   const tiltContainer = new Group()
@@ -116,8 +116,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, VelocityComponent)
 
     // velocity starts at 0
-    strictEqual(velocity.linearVelocity.x, 0)
-    strictEqual(velocity.linearVelocity.z, 0)
+    strictEqual(velocity.linear.x, 0)
+    strictEqual(velocity.linear.z, 0)
 
     /* run */
     moveAvatar(world, entity, camera)
@@ -125,8 +125,8 @@ describe('moveAvatar function tests', () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.linearVelocity.x, 1)
-    strictEqual(velocity.linearVelocity.z, 1)
+    strictEqual(velocity.linear.x, 1)
+    strictEqual(velocity.linear.z, 1)
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
@@ -141,8 +141,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, VelocityComponent)
 
     // velocity starts at 0
-    strictEqual(velocity.linearVelocity.x, 0)
-    strictEqual(velocity.linearVelocity.z, 0)
+    strictEqual(velocity.linear.x, 0)
+    strictEqual(velocity.linear.z, 0)
 
     /* run */
     moveAvatar(world, entity, camera)
@@ -150,8 +150,8 @@ describe('moveAvatar function tests', () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.linearVelocity.x, 1)
-    strictEqual(velocity.linearVelocity.z, 1)
+    strictEqual(velocity.linear.x, 1)
+    strictEqual(velocity.linear.z, 1)
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
@@ -166,8 +166,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, VelocityComponent)
 
     // velocity starts at 0
-    strictEqual(velocity.linearVelocity.x, 0)
-    strictEqual(velocity.linearVelocity.z, 0)
+    strictEqual(velocity.linear.x, 0)
+    strictEqual(velocity.linear.z, 0)
 
     /* run */
     moveAvatar(world, entity, camera)
@@ -175,8 +175,8 @@ describe('moveAvatar function tests', () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    strictEqual(velocity.linearVelocity.x, 1)
-    strictEqual(velocity.linearVelocity.z, 1)
+    strictEqual(velocity.linear.x, 1)
+    strictEqual(velocity.linear.z, 1)
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
@@ -191,8 +191,8 @@ describe('moveAvatar function tests', () => {
     const velocity = getComponent(entity, VelocityComponent)
 
     // velocity starts at 0
-    strictEqual(velocity.linearVelocity.x, 0)
-    strictEqual(velocity.linearVelocity.z, 0)
+    strictEqual(velocity.linear.x, 0)
+    strictEqual(velocity.linear.z, 0)
 
     /* run */
     moveAvatar(world, entity, camera)
@@ -205,7 +205,7 @@ describe('moveAvatar function tests', () => {
     /* assert */
 
     // velocity should increase on horizontal plane
-    assert(velocity.linearVelocity.x <= 1)
-    assert(velocity.linearVelocity.z <= 1)
+    assert(velocity.linear.x <= 1)
+    assert(velocity.linear.z <= 1)
   })
 })

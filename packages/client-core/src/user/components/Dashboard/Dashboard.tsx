@@ -1,4 +1,11 @@
-import { ChevronLeft, ChevronRight, Menu, Person } from '@mui/icons-material'
+import clsx from 'clsx'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+
+import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
+import { Person } from '@mui/icons-material'
 import { ClickAwayListener } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -6,9 +13,11 @@ import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
 import styles from './styles.module.scss'
+
 interface Props {
   children?: JSX.Element
 }
@@ -27,7 +36,6 @@ const Dashboard = ({ children }: Props) => {
   const [open, setOpen] = React.useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const user = authState.user
-  const isLoggedIn = authState.isLoggedIn.value
   const { t } = useTranslation()
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {

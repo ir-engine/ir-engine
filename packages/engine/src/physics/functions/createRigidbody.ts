@@ -40,9 +40,9 @@ export const createRigidbody = (world, type) => {
     bodyType: BodyType.DYNAMIC
   }
 
-  const linearVelocity = createVector3Proxy(VelocityComponent.linearVelocity, entity)
-  const angularVelocity = createVector3Proxy(VelocityComponent.angularVelocity, entity)
-  addComponent(entity, VelocityComponent, { linearVelocity: linearVelocity, angularVelocity: angularVelocity })
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   addComponent(entity, Object3DComponent, {
     value: mesh

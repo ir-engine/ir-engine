@@ -15,7 +15,7 @@
   "loader": {
     "connecting": "Connecting to world...",
     "entering": "Entering world...",
-    "loading": "loading",
+    "loading": "Loading...",
     "objectRemaining": "{{count}} object remaining",
     "objectRemainingPlural": "{{count}} objects remaining",
     "loadingObjects": "Loading Objects",
@@ -63,6 +63,12 @@
     "youKickedFromWorldMessage": "You were kicked from this world for the following reason",
     "invalidLocation": "Invalid location",
     "cantFindLocation": "We can't find the location",
-    "misspelledOrNotExist": "It may be misspelled, or it may not exist."
+    "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
+    "loading": "loading"
+  },
+  "error": {
+    "loading-error": "Failed to load user data",
+    "validation-error": "Please input valid {{type}}",
+    "login-error": "Failed to login"
   }
 }

@@ -41,11 +41,7 @@ HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
-interface Props {
-  animate?: any
-}
-
-const UserMenu = (props: Props): any => {
+const UserMenu = (): JSX.Element => {
   const [engineLoaded, setEngineLoaded] = useState(false)
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 
@@ -60,7 +56,7 @@ const UserMenu = (props: Props): any => {
   return (
     <>
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <section className={`${styles.settingContainer} ${props.animate}`}>
+        <section className={styles.settingContainer}>
           <div className={styles.iconContainer}>
             {Array.from(HotbarMenu.keys()).map((id, index) => {
               const IconNode = HotbarMenu.get(id)

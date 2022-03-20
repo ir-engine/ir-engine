@@ -1,6 +1,7 @@
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -80,8 +81,8 @@ export const readVector4 =
   }
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readLinearVelocity = readVector3(VelocityComponent.linearVelocity)
-export const readAngularVelocity = readVector3(VelocityComponent.angularVelocity)
+export const readLinearVelocity = readVector3(VelocityComponent.linear)
+export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity, shouldWrite = true) => {
@@ -94,8 +95,8 @@ export const readTransform = (v: ViewCursor, entity: Entity, shouldWrite = true)
 export const readVelocity = (v: ViewCursor, entity: Entity, shouldWrite = true) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity, shouldWrite)
+  if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity, shouldWrite)
 }
 
 export const readXRContainerPosition = readVector3(XRInputSourceComponent.container.position)
@@ -149,9 +150,9 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const shouldWrite = entity && !hasComponent(entity, NetworkObjectAuthorityTag)
 
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity, shouldWrite)
+  if (checkBitflag(changeMask, 1 << b++)) readVelocity(v, entity, shouldWrite)
+  if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity, shouldWrite)
 
   const network = getComponent(entity, NetworkObjectComponent)
   network.lastTick = world.fixedTick

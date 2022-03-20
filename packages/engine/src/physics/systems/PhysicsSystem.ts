@@ -92,8 +92,8 @@ const processNetworkBodies = (world: World) => {
 
     teleportRigidbody(body, transform.position, transform.rotation)
 
-    const linearVelocity = getComponent(entity, VelocityComponent).linearVelocity
-    const angularVelocity = getComponent(entity, VelocityComponent).angularVelocity
+    const linearVelocity = getComponent(entity, VelocityComponent).linear
+    const angularVelocity = getComponent(entity, VelocityComponent).angular
     body.setLinearVelocity(linearVelocity, true)
     body.setAngularVelocity(angularVelocity, true)
 
@@ -123,8 +123,8 @@ const processBodies = (world: World) => {
       const currentPose = body.getGlobalPose()
 
       if (velocity) {
-        velocity.linearVelocity.subVectors(currentPose.translation as Vector3, transform.position)
-        velocity.angularVelocity.setScalar(0) // TODO: Assuming zero velocity for static objects for now.
+        velocity.linear.subVectors(currentPose.translation as Vector3, transform.position)
+        velocity.angular.setScalar(0) // TODO: Assuming zero velocity for static objects for now.
       } else {
         // console.warn("Physics entity found with no velocity component!")
       }
@@ -136,8 +136,8 @@ const processBodies = (world: World) => {
       const linearVelocity = body.getLinearVelocity()
       const angularVelocity = body.getAngularVelocity()
       if (velocity) {
-        velocity.linearVelocity.copy(linearVelocity as Vector3)
-        velocity.angularVelocity.copy(angularVelocity as Vector3)
+        velocity.linear.copy(linearVelocity as Vector3)
+        velocity.angular.copy(angularVelocity as Vector3)
 
         // const nameComponent = getComponent(entity, NameComponent)
         // console.log("setting velocity component:", nameComponent.name, angularVelocity.x, angularVelocity.y, angularVelocity.z)
