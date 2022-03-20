@@ -94,7 +94,6 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    ownerIndex: action.ownerIndex,
     networkId: action.networkId,
     prefab: action.prefab,
     parameters: action.parameters,
