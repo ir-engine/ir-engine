@@ -1,44 +1,71 @@
 import { createState, useState } from '@speigg/hookstate'
 
 import { store } from '@xrengine/client-core/src/store'
+import {
+  SnapMode,
+  SnapModeType,
+  TransformMode,
+  TransformModeType,
+  TransformPivot,
+  TransformPivotType,
+  TransformSpace
+} from '@xrengine/engine/src/scene/constants/transformConstants'
+
+import { RenderModes, RenderModesType } from '../constants/RenderModes'
 
 type ModeServiceStateType = {
-  renderModeChanged: boolean
-  playModeChanged: boolean
-  flyModeChanged: boolean
-  transformMode: string
-  transformSpaceModeChanged: boolean
-  transformPivotModeChanged: boolean
-  snapSettingsChanged: boolean
+  renderMode: RenderModesType
+  isPlayModeEnabled: boolean
+  isFlyModeEnabled: boolean
+  transformMode: TransformModeType
+  transformModeOnCancel: TransformModeType
+  transformPivot: TransformPivotType
+  transformSpace: TransformSpace
+  snapMode: SnapModeType
+  translationSnap: number
+  rotationSnap: number
+  scaleSnap: number
 }
 
 const state = createState<ModeServiceStateType>({
-  renderModeChanged: false,
-  playModeChanged: false,
-  flyModeChanged: false,
-  transformMode: '',
-  transformSpaceModeChanged: false,
-  transformPivotModeChanged: false,
-  snapSettingsChanged: false
+  renderMode: RenderModes.SHADOW,
+  isPlayModeEnabled: false,
+  isFlyModeEnabled: false,
+  transformMode: TransformMode.Translate,
+  transformModeOnCancel: TransformMode.Translate,
+  transformSpace: TransformSpace.World,
+  transformPivot: TransformPivot.Selection,
+  snapMode: SnapMode.Grid,
+  translationSnap: 0.5,
+  rotationSnap: 10,
+  scaleSnap: 0.1
 })
 
 store.receptors.push((action: ModeActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'RENDER_MODE_CHANGED':
-        return s.merge({ renderModeChanged: action.renderModeChanged })
+        return s.merge({ renderMode: action.renderMode })
       case 'PLAY_MODE_CHANGED':
-        return s.merge({ playModeChanged: action.playModeChanged })
+        return s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
       case 'FLY_MODE_CHANGED':
-        return s.merge({ flyModeChanged: action.flyModeChanged })
+        return s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
       case 'TRANSFORM_MODE_CHANGED':
         return s.merge({ transformMode: action.mode })
+      case 'TRANSFORM_MODE_ON_CANCEL_CHANGED':
+        return s.merge({ transformModeOnCancel: action.mode })
       case 'TRANSFORM_SPACE_CHANGED':
-        return s.merge({ transformSpaceModeChanged: action.transformSpaceModeChanged })
+        return s.merge({ transformSpace: action.transformSpace })
       case 'TRANSFORM_PIVOT_CHANGED':
-        return s.merge({ transformPivotModeChanged: action.transformPivotModeChanged })
-      case 'SNAP_SETTINGS_CHANGED':
-        return s.merge({ snapSettingsChanged: action.snapSettingsChanged })
+        return s.merge({ transformPivot: action.transformPivot })
+      case 'SNAP_MODE_CHANGED':
+        return s.merge({ snapMode: action.snapMode })
+      case 'TRANSLATION_SNAP_CHANGED':
+        return s.merge({ translationSnap: action.translationSnap })
+      case 'ROTATION_SNAP_CHANGED':
+        return s.merge({ rotationSnap: action.rotationSnap })
+      case 'SCALE_SNAP_CHANGED':
+        return s.merge({ scaleSnap: action.scaleSnap })
     }
   }, action.type)
 })
@@ -52,46 +79,70 @@ export const ModeService = {}
 
 //Action
 export const ModeAction = {
-  changedRenderMode: () => {
+  changedRenderMode: (renderMode: RenderModesType) => {
     return {
       type: 'RENDER_MODE_CHANGED' as const,
-      renderModeChanged: !accessModeState().renderModeChanged.value
+      renderMode
     }
   },
-  changedPlayMode: () => {
+  changedPlayMode: (isEnabled: boolean) => {
     return {
       type: 'PLAY_MODE_CHANGED' as const,
-      playModeChanged: !accessModeState().playModeChanged.value
+      isPlayModeEnabled: isEnabled
     }
   },
-  changedFlyMode: () => {
+  changedFlyMode: (isEnabled: boolean) => {
     return {
       type: 'FLY_MODE_CHANGED' as const,
-      flyModeChanged: !accessModeState().flyModeChanged.value
+      isFlyModeEnabled: isEnabled
     }
   },
-  changedTransformMode: (mode: string) => {
+  changedTransformMode: (mode: TransformModeType) => {
     return {
       type: 'TRANSFORM_MODE_CHANGED' as const,
       mode
     }
   },
-  changedTransformSpaceMode: () => {
+  changeTransformModeOnCancel: (mode: TransformModeType) => {
+    return {
+      type: 'TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
+      mode
+    }
+  },
+  changedTransformSpaceMode: (transformSpace: TransformSpace) => {
     return {
       type: 'TRANSFORM_SPACE_CHANGED' as const,
-      transformSpaceModeChanged: !accessModeState().transformSpaceModeChanged.value
+      transformSpace
     }
   },
-  changedTransformPivotMode: () => {
+  changedTransformPivotMode: (transformPivot: TransformPivotType) => {
     return {
       type: 'TRANSFORM_PIVOT_CHANGED' as const,
-      transformPivotModeChanged: !accessModeState().transformPivotModeChanged.value
+      transformPivot
     }
   },
-  changedSnapSettings: () => {
+  changedSnapMode: (snapMode: SnapModeType) => {
     return {
-      type: 'SNAP_SETTINGS_CHANGED' as const,
-      snapSettingsChanged: !accessModeState().snapSettingsChanged.value
+      type: 'SNAP_MODE_CHANGED' as const,
+      snapMode
+    }
+  },
+  changeTranslationSnap: (translationSnap: number) => {
+    return {
+      type: 'TRANSLATION_SNAP_CHANGED' as const,
+      translationSnap
+    }
+  },
+  changeRotationSnap: (rotationSnap: number) => {
+    return {
+      type: 'ROTATION_SNAP_CHANGED' as const,
+      rotationSnap
+    }
+  },
+  changeScaleSnap: (scaleSnap: number) => {
+    return {
+      type: 'SCALE_SNAP_CHANGED' as const,
+      scaleSnap
     }
   }
 }

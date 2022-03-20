@@ -7,18 +7,19 @@ import { Vector2 } from 'three'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { IconButton, Tooltip } from '@mui/material'
 
+import { executeCommandWithHistory } from '../../classes/History'
 import { ItemTypes } from '../../constants/AssetTypes'
 import EditorCommands from '../../constants/EditorCommands'
 import { prefabIcons } from '../../functions/PrefabEditors'
+import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { shouldPrefabDeserialize } from '../../functions/shouldDeserialiez'
-import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
@@ -55,9 +56,9 @@ export const addPrefabElement = (
   parent?: EntityTreeNode,
   before?: EntityTreeNode
 ): EntityTreeNode | undefined => {
-  const node = new EntityTreeNode(createEntity())
+  const node = createEntityNode(createEntity())
 
-  CommandManager.instance.executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
+  executeCommandWithHistory(EditorCommands.ADD_OBJECTS, node, {
     prefabTypes: item.prefabType,
     parents: parent,
     befores: before
@@ -135,7 +136,7 @@ export function ElementList() {
 
   useEffect(() => {
     updatePrefabList()
-  }, [selectionState.sceneGraphChanged.value])
+  }, [selectionState.sceneGraphChangeCounter.value])
 
   const updatePrefabList = () => setPrefabs(getPrefabList())
 
@@ -148,7 +149,7 @@ export function ElementList() {
 
       const transformComponent = getComponent(node.entity, TransformComponent)
       if (transformComponent) {
-        SceneManager.instance.getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
       }
     }
   })
@@ -158,7 +159,7 @@ export function ElementList() {
     if (!node) return
 
     const transformComponent = getComponent(node.entity, TransformComponent)
-    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }, [])
 
   const placeObjectAtOrigin = useCallback((_, trigger) => addPrefabElement(trigger.item), [])

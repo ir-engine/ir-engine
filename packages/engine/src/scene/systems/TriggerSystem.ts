@@ -43,7 +43,7 @@ export default async function TriggerSystem(world: World) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
+        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: triggerComponent.target,
@@ -79,7 +79,7 @@ export default async function TriggerSystem(world: World) {
         const filtedData: any = filtered[0]
         targetObj = filtedData.object
       } else {
-        targetObj = world.entityTree.findNodeFromUUID(triggerComponent.target)
+        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
         if (targetObj) {
           sceneEntityCaches.push({
             target: triggerComponent.target,

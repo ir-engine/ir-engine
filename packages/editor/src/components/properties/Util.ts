@@ -1,7 +1,7 @@
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { ComponentConstructor, ComponentType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 
 export type EditorPropType = {
   node: EntityTreeNode
@@ -18,7 +18,7 @@ export const updateProperty = <C extends ComponentConstructor<any, any>, K exten
   ...args: any
 ) => {
   return (value: ComponentType<C>[K]) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component,
       properties: { [propName]: value, ...args } as ComponentType<C>
     })

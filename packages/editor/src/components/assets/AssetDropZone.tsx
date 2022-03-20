@@ -10,8 +10,8 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
 import useUpload from './useUpload'
 
 /**
@@ -66,16 +66,16 @@ export function AssetDropZone() {
           if (!assets) return
 
           assets.map(async (asset) => {
-            const node = await CommandManager.instance.addMedia(asset)
+            const node = await addMediaNode(asset.url)
             const transformComponent = getComponent(node.entity, TransformComponent)
-            if (transformComponent) SceneManager.instance.getCursorSpawnPosition(mousePos, transformComponent.position)
+            if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
           })
         })
       } else {
         // When user drags files from files panel
-        const node = await CommandManager.instance.addMedia({ url: item.url })
+        const node = await addMediaNode(item.url)
         const transformComponent = getComponent(node.entity, TransformComponent)
-        if (transformComponent) SceneManager.instance.getCursorSpawnPosition(mousePos, transformComponent.position)
+        if (transformComponent) getCursorSpawnPosition(mousePos, transformComponent.position)
       }
     },
     collect: (monitor) => ({

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
@@ -10,10 +11,10 @@ import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleC
 import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
+import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
-import { CommandManager } from '../../managers/CommandManager'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -94,8 +95,6 @@ const NoNodeSelectedMessage = (styled as any).div`
   color: white;
 `
 
-const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
-
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  *
@@ -103,36 +102,15 @@ const PropsToWatch = ['position', 'rotation', 'scale', 'matrix']
  * @extends Component
  */
 export const PropertiesPanelContainer = () => {
-  //setting the props and state
   const selectionState = useSelectionState()
-  const [selected, setSelected] = useState(CommandManager.instance.selected)
+  const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
-  const onSelectionChanged = () => setSelected([...CommandManager.instance.selected])
-
-  const onObjectsChanged = (objects, property) => {
-    const selected = CommandManager.instance.selected
-
-    if (PropsToWatch.includes(property)) return
-
-    for (let i = 0; i < objects.length; i++) {
-      if (selected.indexOf(objects[i]) !== -1) {
-        setSelected([...CommandManager.instance.selected])
-        return
-      }
-    }
-  }
-
-  useEffect(() => {
-    onSelectionChanged()
-  }, [selectionState.selectionChanged.value])
-
-  useEffect(() => {
-    onObjectsChanged(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged.value])
+  // access state to detect the change
+  selectionState.objectChangeCounter.value
 
   const onChangeVisible = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: VisibleComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
@@ -141,7 +119,7 @@ export const PropertiesPanelContainer = () => {
   }
 
   const onChangeBakeStatic = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PreventBakeTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
@@ -150,7 +128,7 @@ export const PropertiesPanelContainer = () => {
   }
 
   const onChangePersist = (value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: PersistTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
@@ -160,32 +138,32 @@ export const PropertiesPanelContainer = () => {
 
   //rendering editor views for customization of element properties
   let content
-  const multiEdit = selected.length > 1
-  const node = selected[selected.length - 1]
+  const multiEdit = selectedEntities.length > 1
+  const nodeEntity = selectedEntities[selectedEntities.length - 1]
+  const node = useWorld().entityTree.entityNodeMap.get(nodeEntity)
 
-  if (!node) {
+  if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
     // get all editors that this entity has a component for
-    const editors = getNodeEditorsForEntity(node.entity)
-
+    const editors = getNodeEditorsForEntity(nodeEntity)
     const transform =
-      hasComponent(node.entity, TransformComponent) &&
-      !selected.some((node) => hasComponent(node.entity, DisableTransformTagComponent))
+      hasComponent(nodeEntity, TransformComponent) &&
+      !selectedEntities.some((entity) => hasComponent(entity, DisableTransformTagComponent))
 
     content = (
       <StyledNodeEditor>
         <PropertiesHeader>
           <NameInputGroupContainer>
-            <NameInputGroup node={node} key={node.entity} />
-            {!hasComponent(node.entity, SceneTagComponent) && (
+            <NameInputGroup node={node} key={nodeEntity} />
+            {!hasComponent(nodeEntity, SceneTagComponent) && (
               <>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                  <BooleanInput value={hasComponent(node.entity, VisibleComponent)} onChange={onChangeVisible} />
+                  <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
                 </VisibleInputGroup>
                 <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
                   <BooleanInput
-                    value={hasComponent(node.entity, PreventBakeTagComponent)}
+                    value={hasComponent(nodeEntity, PreventBakeTagComponent)}
                     onChange={onChangeBakeStatic}
                   />
                 </VisibleInputGroup>
@@ -193,7 +171,7 @@ export const PropertiesPanelContainer = () => {
             )}
           </NameInputGroupContainer>
           <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-            <BooleanInput value={hasComponent(node.entity, PersistTagComponent)} onChange={onChangePersist} />
+            <BooleanInput value={hasComponent(nodeEntity, PersistTagComponent)} onChange={onChangePersist} />
           </PersistInputGroup>
           {transform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
