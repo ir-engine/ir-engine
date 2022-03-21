@@ -23,10 +23,12 @@
     opacity: 0.75;
   }
 }
+
 .avatar {
   margin: 7px;
   background-color: #3f51b5;
 }
+
 .form {
   width: 100%;
   margin-top: 14px;
@@ -35,18 +37,22 @@
 .submit {
   margin: 14px 0 !important;
 }
+
 .delete {
   color: white !important;
   background-color: red !important;
 }
+
 .MuiButton-contained.facebook {
   background-color: $FacebookBlue;
   color: white;
 }
+
 .MuiButton-contained.google {
   background-color: red;
   color: white;
 }
+
 .MuiButton-contained.github {
   background-color: grey;
   color: white;
@@ -60,36 +66,42 @@
 
   .close {
     left: 95%;
+
     &:hover {
       color: red;
     }
   }
 }
 
-.grid {
-  //max-height: 1000px;
-}
+// .grid {
+//   max-height: 1000px;
+// }
 
 .thead {
   .trow {
     .tcell {
       color: lighten(white, 0.8);
       background-color: black;
+
       .iconsContainer {
         display: flex;
+
         h3 {
           margin-right: 5px;
         }
       }
+
       &.actionCell {
         display: flex;
         flex-direction: row;
         flex-flow: wrap;
+
         :global(.MuiButtonBase-root) {
           width: fit-content;
           margin-right: 5px;
         }
       }
+
       :global(.MuiButtonBase-root) {
         color: lighten(white, 0.8);
       }
@@ -101,6 +113,7 @@
         background-color: $FacebookBlue;
         padding-top: 5px;
         padding-bottom: 5px;
+
         &:hover {
           background-color: #145cee;
           cursor: pointer;
@@ -122,6 +135,7 @@
 .tableContainer {
   overflow-y: auto;
 }
+
 .tablePagination {
   min-height: 55px;
 }
@@ -165,18 +179,22 @@
   display: flex;
   justify-content: space-between;
 }
+
 .createLocation {
   height: 50px;
   margin: auto 5px;
   width: 100%;
 }
+
 .locationModalButtons {
   justify-content: space-between;
 }
+
 .previewImage {
   height: 100px;
   max-width: 250px;
 }
+
 .checkbox {
   color: white;
 }

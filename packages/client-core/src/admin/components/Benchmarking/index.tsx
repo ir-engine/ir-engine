@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from './styles'
 
 const Benchmarking = () => {
@@ -32,7 +33,7 @@ const Benchmarking = () => {
           <Button
             type="button"
             variant="contained"
-            color="primary"
+            className={styles.openModalBtn}
             disabled={spawning}
             onClick={() => {
               TestBotService.spawnTestBot()

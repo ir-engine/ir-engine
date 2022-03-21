@@ -413,6 +413,11 @@
     height: 35px;
     width: 85px;
     font-size: 15px;
+    background: theme.$purplePinkGradient;
+
+    &:disabled {
+      background: theme.$purpleDarkest;
+    }
   }
 
   .errorMessage {

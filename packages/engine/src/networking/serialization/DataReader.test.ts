@@ -352,7 +352,7 @@ describe('DataReader', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      ownerIndex: userIndex,
+      lastTick: 0,
       prefab: '',
       parameters: {}
     })
@@ -426,7 +426,7 @@ describe('DataReader', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      ownerIndex: userIndex,
+      lastTick: 0,
       prefab: '',
       parameters: {}
     })
@@ -528,7 +528,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -597,7 +597,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -696,7 +696,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -741,7 +741,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -780,7 +780,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
