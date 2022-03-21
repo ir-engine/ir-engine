@@ -4,7 +4,7 @@ export default async function TempSystem(world: World) {
   let count = 0
   return () => {
     if (count++ % 300 === 0) {
-      console.log('Test System')
+      //console.log('Test System')
     }
   }
 }
