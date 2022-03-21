@@ -2,13 +2,21 @@ import { Vector3 } from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
 
@@ -18,6 +26,7 @@ export class AvatarSettings {
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925
   jumpHeight = 4
+  movementScheme = AvatarMovementScheme.Teleport
 }
 
 export default async function AvatarControllerSystem(world: World) {
@@ -43,7 +52,19 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of localXRInputQuery(world)) {
       setAvatarHeadOpacity(entity, 0)
-      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+
+      const avatarMovementScheme = AvatarSettings.instance.movementScheme
+      if (avatarMovementScheme === AvatarMovementScheme.WASD) {
+        moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
+      } else if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        if (controller.localMovementDirection.z < -0.5 && !hasComponent(entity, AvatarTeleportTagComponent)) {
+          addComponent(entity, AvatarTeleportTagComponent, {})
+        } else if (controller.localMovementDirection.z === 0.0) {
+          removeComponent(entity, AvatarTeleportTagComponent)
+        }
+      }
+
       rotateXRAvatar(world, entity, Engine.camera)
     }
 
