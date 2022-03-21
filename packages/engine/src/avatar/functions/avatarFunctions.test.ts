@@ -58,7 +58,7 @@ describe('avatarFunctions Integration', async () => {
           const networkObject = addComponent(entity, NetworkObjectComponent, {
             // remote owner
             ownerId: Engine.userId,
-            ownerIndex: 0,
+            lastTick: 0,
             networkId: i as NetworkId,
             prefab: '',
             parameters: {}
