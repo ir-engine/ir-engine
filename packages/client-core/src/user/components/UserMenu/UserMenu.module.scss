@@ -1930,6 +1930,7 @@
   border: none;
   position: relative;
   cursor: pointer;
+  transition: all 0.2s;
   &:hover {
     background: rgb(81 81 255 / 45%);
   }

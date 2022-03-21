@@ -70,7 +70,7 @@ const selectAvatarMenu = (props: Props) => {
   }
 
   const selectAvatar = (avatarResources: UserAvatar) => {
-    if (avatarId != selectedAvatar?.avatar?.name) setSelectedAvatar(avatarResources)
+    setSelectedAvatar(avatarResources)
   }
 
   const openAvatarSelectMenu = (e) => {
@@ -91,7 +91,8 @@ const selectAvatarMenu = (props: Props) => {
         <Grid key={avatar.id} item>
           <Paper
             onClick={() => selectAvatar(characterAvatar)}
-            className={`${styles.paper} ${avatar.name === selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''}
+            style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
+            className={`${styles.paper} ${avatar.name == selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''}
               ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
             sx={{
               height: 140,
@@ -100,12 +101,7 @@ const selectAvatarMenu = (props: Props) => {
               backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
             }}
           >
-            <img
-              style={{ cursor: avatar.name == avatarId ? 'not-allowed' : 'pointer' }}
-              className={styles.avatar}
-              src={characterAvatar['user-thumbnail']?.url || ''}
-              alt={avatar.name}
-            />
+            <img className={styles.avatar} src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
           </Paper>
         </Grid>
       )
