@@ -1927,6 +1927,7 @@
 .paper {
   height: 140px;
   width: 170px;
+  border: none;
   position: relative;
   cursor: pointer;
   &:hover {
@@ -2024,14 +2025,19 @@
 }
 
 .selectedAvatar {
-  background: rgb(81 81 255 / 45%);
+  border: 1px solid rgb(81 81 255 / 45%) !important;
 }
 
 .activeAvatar {
   background: rgb(81 81 255 / 60%);
+  cursor: not-allowed;
 }
 
 .disabled {
   background-color: #a8a8fe !important;
   cursor: not-allowed;
+}
+
+.disabledBtn {
+  cursor: not-allowed !important;
 }

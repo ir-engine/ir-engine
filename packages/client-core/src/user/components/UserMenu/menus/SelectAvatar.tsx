@@ -59,7 +59,7 @@ const selectAvatarMenu = (props: Props) => {
   }
 
   const confirmAvatar = () => {
-    if (avatarId !== selectedAvatar?.avatar?.name) {
+    if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
       setAvatar(
         selectedAvatar?.avatar?.name || '',
         selectedAvatar?.avatar?.url || '',
@@ -70,7 +70,7 @@ const selectAvatarMenu = (props: Props) => {
   }
 
   const selectAvatar = (avatarResources: UserAvatar) => {
-    setSelectedAvatar(avatarResources)
+    if (avatarId != selectedAvatar?.avatar?.name) setSelectedAvatar(avatarResources)
   }
 
   const openAvatarSelectMenu = (e) => {
@@ -92,14 +92,20 @@ const selectAvatarMenu = (props: Props) => {
           <Paper
             onClick={() => selectAvatar(characterAvatar)}
             className={`${styles.paper} ${avatar.name === selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''}
-              ${avatar.name === avatarId ? styles.activeAvatar : ''}`}
+              ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
             sx={{
               height: 140,
               width: 170,
+              boxShadow: 'none',
               backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
             }}
           >
-            <img className={styles.avatar} src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
+            <img
+              style={{ cursor: avatar.name == avatarId ? 'not-allowed' : 'pointer' }}
+              className={styles.avatar}
+              src={characterAvatar['user-thumbnail']?.url || ''}
+              alt={avatar.name}
+            />
           </Paper>
         </Grid>
       )
@@ -123,7 +129,13 @@ const selectAvatarMenu = (props: Props) => {
           <button
             type="button"
             color="secondary"
-            className={`${styles.btn} ${styles.btnCancel} ${selectedAvatar ? styles.btnDeepColorCancel : ''}`}
+            className={`${styles.btn} ${styles.btnCancel} ${
+              selectedAvatar
+                ? selectedAvatar?.avatar?.name != avatarId
+                  ? styles.btnDeepColorCancel
+                  : ''
+                : styles.disabledBtn
+            }`}
             onClick={() => {
               setSelectedAvatar('')
             }}
@@ -132,7 +144,14 @@ const selectAvatarMenu = (props: Props) => {
           </button>
           <button
             type="button"
-            className={`${styles.btn} ${styles.btnCheck} ${selectedAvatar ? styles.btnDeepColor : ''}`}
+            className={`${styles.btn} ${styles.btnCheck} ${
+              selectedAvatar
+                ? selectedAvatar?.avatar?.name != avatarId
+                  ? styles.btnDeepColor
+                  : ''
+                : styles.disabledBtn
+            }`}
+            disabled={selectedAvatar?.avatar?.name == avatarId}
             onClick={confirmAvatar}
           >
             <Check />
