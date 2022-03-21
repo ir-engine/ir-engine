@@ -31,7 +31,7 @@ describe('equippableFunctions', () => {
 
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'server' as UserId,
-      ownerIndex: 0,
+      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
@@ -47,7 +47,7 @@ describe('equippableFunctions', () => {
     const entity2: Entity = createEntity()
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'server' as UserId,
-      ownerIndex: 0,
+      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}

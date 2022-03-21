@@ -12,14 +12,18 @@ export const corsPath =
     ? `https://${config.server.hostname}:${config.server.corsServerPort}`
     : `https://${config.server.hostname}/cors-proxy`
 
-export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string) => {
+export const parseSceneDataCacheURLs = (sceneData: SceneJson, cacheDomain: string, internal = false) => {
   for (const [key, val] of Object.entries(sceneData)) {
     if (val && typeof val === 'object') {
-      sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain)
+      sceneData[key] = parseSceneDataCacheURLs(val, cacheDomain, internal)
     }
     if (typeof val === 'string') {
       if (val.includes(sceneRelativePathIdentifier)) {
-        sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain)
+        if (config.server.storageProvider === 'local' && config.kubernetes.enabled && internal)
+          cacheDomain = config.server.localStorageProviderPort
+            ? `host.minikube.internal:${config.server.localStorageProviderPort}`
+            : 'host.minikube.internal'
+        sceneData[key] = getCachedAsset(val.replace(sceneRelativePathIdentifier, '/projects'), cacheDomain, internal)
       } else if (val.startsWith(sceneCorsPathIdentifier)) {
         sceneData[key] = val.replace(sceneCorsPathIdentifier, corsPath)
       }

@@ -15,7 +15,6 @@ import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
@@ -27,7 +26,7 @@ import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Menu {
   value: string
@@ -57,8 +56,6 @@ const CreateBot = () => {
     location: ''
   })
   const adminInstanceState = useInstanceState()
-  const dispatch = useDispatch()
-  const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
   const adminInstances = adminInstanceState
@@ -183,19 +180,19 @@ const CreateBot = () => {
   })
 
   return (
-    <Card className={classes.botRootLeft}>
-      <Paper className={classes.botHeader} style={{ display: 'flex' }}>
-        <Typography className={classes.botTitle}>
+    <Card className={styles.botRootLeft}>
+      <Paper className={styles.botHeader} style={{ display: 'flex' }}>
+        <Typography className={styles.botTitle}>
           <Face />
-          <div className={classes.smFont}>{t('admin:components.bot.createNewBot')}</div>
+          <div className={styles.smFont}>{t('admin:components.bot.createNewBot')}</div>
         </Typography>
 
-        <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleSubmit}>
-          <Save className={classes.saveBtnIcon} /> {t('social:save')}
+        <Button variant="contained" disableElevation type="submit" className={styles.botSaveBtn} onClick={handleSubmit}>
+          <Save className={styles.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
-        <Typography className={classes.secondaryHeading} component="h1">
+        <Typography className={styles.secondaryHeading} component="h1">
           {t('admin:components.bot.addMoreBots')}
         </Typography>
         <form style={{ marginTop: '40px' }}>

@@ -3,16 +3,14 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, Paper, Typography } from '@mui/material'
 import InputBase from '@mui/material/InputBase'
-import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface clientProps {}
 
 const Client = (props: clientProps) => {
-  const classes = useStyles()
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const id = clientSetting?.id
@@ -78,96 +76,96 @@ const Client = (props: clientProps) => {
   }
 
   return (
-    <div className={classes.clientSettingsContainer}>
+    <div className={styles.clientSettingsContainer}>
       <form onSubmit={handleSave}>
-        <Typography component="h1" className={classes.settingsHeading}>
+        <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.client')}
         </Typography>
         <label>{t('admin:components.setting.title')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="title"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={title || ''}
             onChange={(e) => setTitle(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.description')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="title"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={siteDescription || ''}
             onChange={(e) => setSiteDescription(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.logo')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="logo"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={logo || ''}
             onChange={(e) => setLogo(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.icon192px')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="logo"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={icon192px || ''}
             onChange={(e) => setIcon192px(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.icon512px')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="logo"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={icon512px || ''}
             onChange={(e) => setIcon512px(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.favIcon16px')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="logo"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={favicon16px || ''}
             onChange={(e) => setFavicon16px(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.favIcon32px')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="logo"
-            className={classes.input}
+            className={styles.input}
             style={{ color: '#fff' }}
             value={favicon32px || ''}
             onChange={(e) => setFavicon32px(e.target.value)}
           />
         </Paper>
         <label>{t('admin:components.setting.url')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="url"
-            className={classes.input}
+            className={styles.input}
             disabled
             style={{ color: '#fff' }}
             value={clientSetting?.url || ''}
           />
         </Paper>
         <label>{t('admin:components.setting.releaseName')}</label>
-        <Paper component="div" className={classes.createInput}>
+        <Paper component="div" className={styles.createInput}>
           <InputBase
             name="releaseName"
-            className={classes.input}
+            className={styles.input}
             disabled
             style={{ color: '#fff' }}
             value={clientSetting?.releaseName || ''}
@@ -177,7 +175,13 @@ const Client = (props: clientProps) => {
           {t('admin:components.setting.cancel')}
         </Button>
         &nbsp;&nbsp;
-        <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit" onClick={handleSubmit}>
+        <Button
+          sx={{ maxWidth: '100%' }}
+          variant="contained"
+          className={styles.saveBtn}
+          type="submit"
+          onClick={handleSubmit}
+        >
           {t('admin:components.setting.save')}
         </Button>
       </form>

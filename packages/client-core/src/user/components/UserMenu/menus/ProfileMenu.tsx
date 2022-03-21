@@ -10,6 +10,7 @@ import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
 import Snackbar from '@mui/material/Snackbar'
@@ -65,6 +66,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
+  const loading = useAuthState().isProcessing.value
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
@@ -491,6 +493,11 @@ const ProfileMenu = (props: Props): JSX.Element => {
                       )
                     }}
                   />
+                  {loading && (
+                    <div className={styles.container}>
+                      <CircularProgress size={30} />
+                    </div>
+                  )}
                 </form>
               </section>
             )}

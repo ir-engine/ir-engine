@@ -4,7 +4,7 @@ set -x
 
 if [ -z "$MYSQL_HOST" ]
 then
-  MYSQL_HOST=10.0.2.2
+  MYSQL_HOST=host.minikube.internal
 else
   MYSQL_HOST=$MYSQL_HOST
 fi
