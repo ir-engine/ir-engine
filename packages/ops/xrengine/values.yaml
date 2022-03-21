@@ -317,7 +317,7 @@ sql:
   database: xrengine
   user: server
   password: password
-  host: 10.0.2.2
+  host: host.minikube.internal
   port: 3304
 
 agones:

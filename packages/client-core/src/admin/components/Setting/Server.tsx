@@ -15,12 +15,11 @@ import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 interface serverProps {}
 
 const Server = (props: serverProps) => {
-  const classes = useStyles()
   const [open, setOpen] = useState(false)
   const [openPaginate, setOpenPginate] = useState(false)
   const serverSettingState = useServerSettingState()
@@ -81,94 +80,94 @@ const Server = (props: serverProps) => {
 
   return (
     <form onSubmit={handleSave}>
-      <Typography component="h1" className={classes.settingsHeading}>
+      <Typography component="h1" className={styles.settingsHeading}>
         {t('admin:components.setting.server')}
       </Typography>
       <Grid container spacing={3} key={serverSetting?.id || ''}>
         <Grid item xs={12} sm={6}>
           <br />
           <label>{t('admin:components.setting.mode')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="mode"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.mode || 'test'}
             />
           </Paper>
           <label> {t('admin:components.setting.hostName')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="hostname"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.hostname || 'test'}
             />
           </Paper>
           <label>{t('admin:components.setting.port')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="port"
-              className={classes.input}
+              className={styles.input}
               value={serverSetting?.port || ''}
               disabled
               style={{ color: '#fff' }}
             />
           </Paper>
           <label> {t('admin:components.setting.clientHost')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="clienthost"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.clientHost || ''}
             />
           </Paper>
           <label>{t('admin:components.setting.rootDirectory')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="rootDir"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.rootDir || ''}
             />
           </Paper>
           <label>{t('admin:components.setting.publicDirectory')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="publicDir"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.publicDir || ''}
             />
           </Paper>
           <label>{t('admin:components.setting.nodeModulesDirectory')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="nodeModule"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.nodeModulesDir || ''}
             />
           </Paper>{' '}
           <label>{t('admin:components.setting.localStorageProvider')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="localStorageProvider"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.localStorageProvider || ''}
             />
           </Paper>
           <label> {t('admin:components.setting.performDryRun')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <Switch
               disabled
               checked={dryRun.checkedB}
@@ -181,23 +180,23 @@ const Server = (props: serverProps) => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <label>{t('admin:components.setting.storageProvider')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="StorageProvider"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.storageProvider || ''}
             />
           </Paper>
           <label>{t('admin:components.setting.googleAnalyticsTrackingId')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <IconButton size="large">
               <Icon icon="emojione:key" />
             </IconButton>
             <InputBase
               name="googleTrackingid"
-              className={classes.input}
+              className={styles.input}
               style={{ color: '#fff' }}
               value={gaTrackingId || ''}
               onChange={(e) => setGaTrackingId(e.target.value)}
@@ -209,11 +208,11 @@ const Server = (props: serverProps) => {
           </ListItem>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
-                <Paper component="div" className={classes.createInput}>
+              <ListItem button className={styles.nested}>
+                <Paper component="div" className={styles.createInput}>
                   <InputBase
                     name="hub"
-                    className={classes.input}
+                    className={styles.input}
                     style={{ color: '#fff' }}
                     disabled
                     value={serverSetting?.hub?.endpoint || ''}
@@ -228,54 +227,54 @@ const Server = (props: serverProps) => {
           </ListItem>
           <Collapse in={openPaginate} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={styles.nested}>
                 <ListItemText primary="Default:10" />
                 <ListItemText primary={`Max: ${serverSetting?.paginate || ''}`} />
               </ListItem>
             </List>
           </Collapse>
           <label>{t('admin:components.setting.url')}</label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="url"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.url || ''}
             />
           </Paper>
           <label> {t('admin:components.setting.certPath')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="certPath"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.certPath || ''}
             />
           </Paper>
           <label> {t('admin:components.setting.keyPath')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="keyPath"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.keyPath || ''}
             />
           </Paper>
           <label> {t('admin:components.setting.githubPrivateKey')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="GithubPrivateKey"
-              className={classes.input}
+              className={styles.input}
               style={{ color: '#fff' }}
               value={gitPem || ''}
               onChange={(e) => setGitPem(e.target.value)}
             />
           </Paper>
           <label> {t('admin:components.setting.local')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <Switch
               disabled
               checked={local.checkedB}
@@ -286,10 +285,10 @@ const Server = (props: serverProps) => {
             />
           </Paper>
           <label> {t('admin:components.setting.releaseName')} </label>
-          <Paper component="div" className={classes.createInput}>
+          <Paper component="div" className={styles.createInput}>
             <InputBase
               name="releaseName"
-              className={classes.input}
+              className={styles.input}
               disabled
               style={{ color: '#fff' }}
               value={serverSetting?.releaseName || ''}
@@ -301,7 +300,7 @@ const Server = (props: serverProps) => {
         {t('admin:components.setting.cancel')}
       </Button>
       &nbsp; &nbsp;
-      <Button sx={{ maxWidth: '100%' }} variant="contained" type="submit">
+      <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} type="submit">
         {t('admin:components.setting.save')}
       </Button>
     </form>

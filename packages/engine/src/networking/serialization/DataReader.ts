@@ -1,6 +1,7 @@
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -141,13 +142,11 @@ export const readXRInputs = (v: ViewCursor, entity: Entity, shouldWrite = true) 
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity, shouldWrite)
 }
 
-export const readEntity = (v: ViewCursor, world: World) => {
-  const userIndex = readUint32(v)
-  const userId = world.userIndexToUserId.get(userIndex)!
+export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const netId = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  const entity = world.getNetworkObject(userId, netId)
+  const entity = world.getNetworkObject(fromUserId, netId)
   const shouldWrite = entity && !hasComponent(entity, NetworkObjectAuthorityTag)
 
   let b = 0
@@ -159,24 +158,27 @@ export const readEntity = (v: ViewCursor, world: World) => {
   network.lastTick = world.fixedTick
 }
 
-export const readEntities = (v: ViewCursor, world: World, byteLength: number) => {
+export const readEntities = (v: ViewCursor, world: World, byteLength: number, fromUserId: UserId) => {
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, world)
+      readEntity(v, world, fromUserId)
     }
   }
 }
 
 export const readMetadata = (v: ViewCursor, world: World) => {
-  world.fixedTick = readUint32(v)
-  // const time = readUint32(v)
+  const userIndex = readUint32(v)
+  const fixedTick = readUint32(v)
+  if (userIndex === world.userIdToUserIndex.get(world.hostId)! && !world.isHosting) world.fixedTick = fixedTick
+  return userIndex
 }
 
 export const createDataReader = () => {
   return (world: World, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
-    readMetadata(view, world)
-    readEntities(view, world, packet.byteLength)
+    const userIndex = readMetadata(view, world)
+    const fromUserId = world.userIndexToUserId.get(userIndex)
+    if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
   }
 }
