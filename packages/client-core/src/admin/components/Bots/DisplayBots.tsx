@@ -19,6 +19,7 @@ import AlertMessage from '../../common/AlertMessage'
 import ConfirmModel from '../../common/ConfirmModel'
 import { BotCommandService, useBotCommandState } from '../../services/BotsCommand'
 import { BotService, useBotState } from '../../services/BotsService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
 
@@ -115,7 +116,7 @@ const DisplayBots = () => {
   }
 
   return (
-    <div className={classes.botRootRight}>
+    <div className={styles.botRootRight}>
       {botAdminData.value.map((bot, index) => {
         return (
           <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
@@ -123,29 +124,29 @@ const DisplayBots = () => {
               expandIcon={<ExpandMoreIcon />}
               aria-controls={`panel${index}bh-content`}
               id={`panel${index}bh-header`}
-              className={classes.summary}
+              className={styles.summary}
             >
-              <Typography className={classes.heading}>{bot.name}</Typography>
-              <Typography className={classes.secondaryHeading}>{bot?.description}</Typography>
+              <Typography className={styles.heading}>{bot.name}</Typography>
+              <Typography className={styles.secondaryHeading}>{bot?.description}</Typography>
             </AccordionSummary>
-            <AccordionDetails className={classes.botDetails}>
+            <AccordionDetails className={styles.botDetails}>
               <div style={{ width: '100%' }}>
                 <Grid container spacing={5}>
                   <Grid item xs={8}>
                     <Grid container spacing={5}>
                       <Grid item xs={4}>
-                        <Typography className={classes.thirdHeading} component="h1">
+                        <Typography className={styles.thirdHeading} component="h1">
                           {t('admin:components.bot.location')}:
                         </Typography>
-                        <Typography className={classes.thirdHeading} component="h1">
+                        <Typography className={styles.thirdHeading} component="h1">
                           {t('admin:components.bot.instance')}:
                         </Typography>
                       </Grid>
                       <Grid item xs={8}>
-                        <Typography className={classes.secondaryHeading} style={{ marginTop: '15px' }} component="h1">
+                        <Typography className={styles.secondaryHeading} style={{ marginTop: '15px' }} component="h1">
                           {bot?.location?.name}
                         </Typography>
-                        <Typography className={classes.secondaryHeading} style={{ marginTop: '15px' }} component="h1">
+                        <Typography className={styles.secondaryHeading} style={{ marginTop: '15px' }} component="h1">
                           {bot?.instance?.ipAddress}
                         </Typography>
                       </Grid>
@@ -171,7 +172,7 @@ const DisplayBots = () => {
                 </Grid>
 
                 <Typography
-                  className={classes.secondaryHeading}
+                  className={styles.secondaryHeading}
                   style={{ marginTop: '25px', marginBottom: '10px' }}
                   component="h1"
                 >

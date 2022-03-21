@@ -17,7 +17,7 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 const storageProvider = useStorageProvider()
 const NEW_SCENE_NAME = 'New-Scene'
 
-export const getSceneData = (projectName, sceneName, metadataOnly) => {
+export const getSceneData = (projectName, sceneName, metadataOnly, internal) => {
   const newSceneJsonPath = path.resolve(
     appRootPath.path,
     `packages/projects/projects/${projectName}/${sceneName}.scene.json`
@@ -27,7 +27,8 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
 
   const sceneThumbnailPath = getCachedAsset(
     `projects/${projectName}/${sceneName}.thumbnail.jpeg`,
-    storageProvider.cacheDomain
+    storageProvider.cacheDomain,
+    internal
   )
 
   const sceneData: SceneData = {
@@ -38,7 +39,8 @@ export const getSceneData = (projectName, sceneName, metadataOnly) => {
       ? undefined!
       : parseSceneDataCacheURLs(
           JSON.parse(fs.readFileSync(path.resolve(newSceneJsonPath), 'utf8')),
-          storageProvider.cacheDomain
+          storageProvider.cacheDomain,
+          internal
         )
   }
 
@@ -93,7 +95,7 @@ export class Scene implements ServiceMethods<any> {
     const project = await this.app.service('project').get(projectName, params)
     if (!project?.data) throw new Error(`No project named ${projectName} exists`)
 
-    const sceneData = getSceneData(projectName, sceneName, metadataOnly)
+    const sceneData = getSceneData(projectName, sceneName, metadataOnly, params.provider == null)
 
     return {
       data: sceneData

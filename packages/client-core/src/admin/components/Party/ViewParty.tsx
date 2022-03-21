@@ -111,7 +111,7 @@ export default function ViewParty(props: Props) {
   }
 
   return (
-    <ViewDrawer openView={openView} handleCloseDrawe={() => closeViewModel()}>
+    <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModel()}>
       <Paper elevation={0} className={classes.rootPaper}>
         {partyAdmin && (
           <Container maxWidth="sm">

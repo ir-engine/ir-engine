@@ -13,7 +13,7 @@ import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityT
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkActionReceptors } from './NetworkActionReceptors'
 
-describe('IncomingNetworkReceptors', () => {
+describe('NetworkActionReceptors', () => {
   beforeEach(() => {
     Engine.userId = undefined!
     Engine.currentWorld = undefined!
@@ -84,7 +84,6 @@ describe('IncomingNetworkReceptors', () => {
       const entity = createEntity()
       addComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
-        ownerIndex: userIndex,
         networkId,
         prefab: 'prefab',
         parameters: {}
@@ -147,7 +146,6 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, hostIndex)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
@@ -191,7 +189,6 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, userIndex)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), true)
@@ -246,7 +243,6 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId2)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, userIndex2)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
       assert.deepStrictEqual(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
@@ -285,10 +281,76 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).ownerId, userId)
-      assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).ownerIndex, userIndex)
       assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).parameters, objParams)
       assert.deepStrictEqual(getComponent(world.localClientEntity, NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(world.localClientEntity, NetworkObjectAuthorityTag), true)
+    })
+
+    it('should update userIndex of component when a user rejoins', () => {
+      const world = createWorld()
+      Engine.currentWorld = world
+      const hostUserId = 'server' as HostUserId
+      world.hostId = hostUserId
+      const hostIndex = 0
+      world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
+
+      const userId = 'user id' as UserId
+      Engine.userId = userId
+      const userName = 'user name'
+      const userIndex = 1
+      NetworkActionReceptors.addClientNetworkActionReceptor(world, userId, userName, userIndex)
+
+      const userId2 = 'second user id' as UserId
+      const userName2 = 'second user name'
+      const userIndex2 = 2
+      NetworkActionReceptors.addClientNetworkActionReceptor(world, userId2, userName2, userIndex2)
+
+      const objParams = {
+        position: new Vector3(),
+        rotation: new Quaternion()
+      }
+      const objNetId = 3 as NetworkId
+      const objPrefab = 'avatar'
+
+      NetworkActionReceptors.spawnObjectNetworkActionReceptor(world, {
+        $from: userId2, // from host
+        prefab: objPrefab, // generic prefab
+        ownerIndex: userIndex2, // owned by server
+        parameters: objParams, // arbitrary
+        type: 'network.SPAWN_OBJECT', // plain object
+        networkId: objNetId,
+        $to: 'all',
+        $tick: 0,
+        $cache: true
+      })
+
+      const networkObjectQuery = defineQuery([NetworkObjectComponent])
+      const networkObjectOwnedQuery = defineQuery([NetworkObjectAuthorityTag])
+
+      const networkObjectEntities = networkObjectQuery(world)
+      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId2)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
+      assert.deepStrictEqual(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
+      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
+
+      const newUserIndex2 = 3
+      NetworkActionReceptors.addClientNetworkActionReceptor(world, userId2, userName2, newUserIndex2)
+
+      assert.equal(networkObjectEntities.length, 1)
+      assert.equal(networkObjectOwnedEntities.length, 0)
+
+      const component = getComponent(networkObjectEntities[0], NetworkObjectComponent)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId2)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
+      assert.deepStrictEqual(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
+      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
   })
 
@@ -359,7 +421,6 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, hostIndex)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
 
@@ -426,7 +487,6 @@ describe('IncomingNetworkReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerIndex, hostIndex)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
   })

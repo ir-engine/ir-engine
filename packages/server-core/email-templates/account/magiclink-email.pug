@@ -1,11 +1,16 @@
 doctype html
 body(style='margin: 0;')
-  header
-    img(src=logo, style='display: block; margin: 0.5em; max-width: 6em;')
-    hr(style=' display: block; height: 1px; border: 0; border-top: 1px solid #e6e6e6; padding: 0; ')
-  div(style='margin-right: auto; margin-left: auto; color: #2c3e50;')
-    div(style='display: block; margin: 30% 0;')
-      h3(style=' font-family: Roboto, Arial; text-align: center; color: #3f3d56; ')  Log in to #{title}!
-      p(style=' font-family: Roboto, Arial; color: #848484; text-align: center; margin: 1.2em 2em; ')  If you do not have an account already, one will be created when you follow the link below.
-      a(href=hashLink)
-        button(type='submit', style=' font-family: Roboto, Arial; display: block; margin: 0 auto; background: #0ed400; box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16); border-radius: 4px; border: 1px solid #0ecc00; width: 9em; height: 3em; color: #fff; cursor: pointer; ')  Log in
+  div(style='margin: 0 auto; width:75%;background: #fff;')
+    div(style='margin-top:40px;height: auto;background: #383650;box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;padding: 4rem; border-radius: 10px;')
+      .hd(style='padding-bottom:30px')
+        img(src=logo, style='display: block; margin: 0 auto; max-width: 6em;')
+      .main
+        div(style='background: #5045AB;padding: 3rem 4rem 1.5rem 4rem;')
+          h1(style='font-family: Roboto, Arial; color: #fff;font-size: 1.8rem;') You've Got The Magic Link!
+        div(style='background: #fff;padding: 2rem;')
+          h2(style='font-family: Roboto, Arial;color: #918EAD;') Hi 👋!
+          p(style='font-family: Roboto, Arial;color: #8f9299;font-weight: bold;') You asked us to send you a magic link for quickly signing into your account.
+          a(href=hashLink, style='font-family: Roboto, Arial;width: 96%;display: inline-block;background: #5045AB;text-align: center;padding: 0.6rem;border-radius: 5px;text-decoration: none;color: #fff;font-weight: bold;font-size: 1.2rem;font-family: Roboto, Arial;')  Sign In to #{title} Now! 
+          div
+            p(style='color: #8f9299;font-weight: bold;font-family: Roboto, Arial;') Or copy and paste this link into your browser:
+            a(style='word-wrap: break-word;', href=hashLink) #{hashLink}

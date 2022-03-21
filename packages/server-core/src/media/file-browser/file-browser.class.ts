@@ -76,7 +76,7 @@ export class FileBrowserService implements ServiceMethods<any> {
       Body: data.body,
       ContentType: data.contentType
     })
-    return getCachedAsset(path, storageProvider.cacheDomain)
+    return getCachedAsset(path, storageProvider.cacheDomain, params && params.provider == null)
   }
 
   /**

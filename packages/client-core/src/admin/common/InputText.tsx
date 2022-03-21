@@ -4,7 +4,7 @@ import React from 'react'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   value: string
@@ -14,14 +14,13 @@ interface Props {
 }
 
 const InputText = ({ value, handleInputChange, formErrors, name }: Props) => {
-  const classes = useStyles()
   return (
     <React.Fragment>
       <label>{_.upperFirst(name)}</label>
-      <Paper component="div" className={formErrors.length > 0 ? classes.redBorder : classes.createInput}>
+      <Paper component="div" className={formErrors.length > 0 ? styles.redBorder : styles.createInput}>
         <InputBase
           name={name}
-          className={classes.input}
+          className={styles.input}
           placeholder={`Enter ${name}`}
           style={{ color: '#fff' }}
           value={value}

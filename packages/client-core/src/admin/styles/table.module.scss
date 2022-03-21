@@ -1,0 +1,31 @@
+@use "../../theme.scss"as theme;
+
+.tableContainer {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0px;
+}
+
+.tableCellHeader {
+  background: theme.$purplePanel !important;
+  color: #f1f1f1 !important;
+  border-bottom: 2px solid #23282c !important;
+}
+
+.tableCellBody {
+  border-bottom: 1px solid #23282c !important;
+  color: #f1f1f1 !important;
+  background: theme.$purpleLighter !important;
+}
+
+.tableFooter {
+  background: theme.$purplePanel !important;
+  color: #f1f1f1 !important;
+  overflow: unset;
+}
+
+.spanWhite {
+  color: #f1f1f1 !important;
+}

@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import Paper from '@mui/material/Paper'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
-import styles from './Projects.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
 
@@ -40,40 +39,38 @@ const Projects = () => {
 
   return (
     <div>
-      <Paper className={styles.adminRoot}>
-        <Grid container spacing={3} className={styles.marginBottom}>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={onOpenUploadModal}
-            >
-              {t('admin:components.project.addProject')}
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              className={styles['open-modal']}
-              type="button"
-              variant="contained"
-              color="primary"
-              onClick={ProjectService.triggerReload}
-            >
-              {t('admin:components.project.rebuild')}
-            </Button>
-          </Grid>
+      <Grid container spacing={3} className={classes.marginb10}>
+        <Grid item xs={6}>
+          <Button
+            className={styles.openModalBtn}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={onOpenUploadModal}
+          >
+            {t('admin:components.project.addProject')}
+          </Button>
         </Grid>
-        <div className={classes.rootTable}>
-          <ProjectTable />
-        </div>
-        <UploadProjectModal
-          repos={githubAppRepos}
-          open={uploadProjectsModalOpen}
-          handleClose={() => setUploadProjectsModalOpen(false)}
-        />
-      </Paper>
+        <Grid item xs={6}>
+          <Button
+            className={styles.openModalBtn}
+            type="button"
+            variant="contained"
+            color="primary"
+            onClick={ProjectService.triggerReload}
+          >
+            {t('admin:components.project.rebuild')}
+          </Button>
+        </Grid>
+      </Grid>
+      <div className={classes.rootTable}>
+        <ProjectTable />
+      </div>
+      <UploadProjectModal
+        repos={githubAppRepos}
+        open={uploadProjectsModalOpen}
+        handleClose={() => setUploadProjectsModalOpen(false)}
+      />
     </div>
   )
 }

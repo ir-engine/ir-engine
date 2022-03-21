@@ -48,7 +48,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.userId,
-      ownerIndex: 0,
+      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}
