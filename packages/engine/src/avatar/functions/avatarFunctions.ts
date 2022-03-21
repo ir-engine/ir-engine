@@ -149,6 +149,7 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   if (avatarAnimationComponent)
     (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
+      entity,
       animationComponent.mixer,
       velocityComponent.linear,
       controllerComponent
