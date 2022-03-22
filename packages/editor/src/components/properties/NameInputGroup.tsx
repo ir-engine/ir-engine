@@ -6,7 +6,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -40,7 +40,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   useEffect(() => {
     onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged.value])
+  }, [selectionState.objectChangeCounter.value])
 
   const onObjectChange = (_: any, propertyName: string) => {
     if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
@@ -60,7 +60,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
     if (nodeName !== name && props?.node === focusedNode) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: NameComponent,
         properties: { name }
       })
@@ -73,7 +73,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: NameComponent,
         properties: { name }
       })

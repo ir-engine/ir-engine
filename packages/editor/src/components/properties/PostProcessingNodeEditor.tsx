@@ -4,12 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { updatePostProcessing } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
 
 import LooksIcon from '@mui/icons-material/Looks'
 import Checkbox from '@mui/material/Checkbox'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -143,14 +142,14 @@ export const PostProcessingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onChangeCheckBox = (e: ChangeEvent<HTMLInputElement>, effect: Effects) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: PostprocessingComponent,
       properties: { ['options.' + effect + '.isActive']: e.target.checked }
     })
   }
 
   const onChangeNodeSetting = (propertyPath: string, value: any) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: PostprocessingComponent,
       properties: { ['options.' + propertyPath]: value }
     })
