@@ -200,7 +200,7 @@ const CreateUser = (props: Props) => {
             menu={userRoleData}
             formErrors={state.formErrors.userRole}
           />
-          <DialogContentText className={classes.marginBottm}>
+          <DialogContentText className={styles.mb15}>
             <span className={classes.select}>{t('admin:components.user.dontSeeUserRole')} </span>{' '}
             <a href="#h" className={classes.textLink} onClick={createUserRole}>
               {t('admin:components.user.createOne')}

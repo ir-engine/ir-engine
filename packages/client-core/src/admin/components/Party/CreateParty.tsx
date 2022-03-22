@@ -21,6 +21,7 @@ import { useInstanceState } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { useLocationState } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
+import styles from '../../styles.admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 const CreateParty = (props: PartyProps) => {
@@ -152,7 +153,7 @@ const CreateParty = (props: PartyProps) => {
         </FormControl>
       </Paper>
 
-      <DialogContentText className={classes.marginBottm}>
+      <DialogContentText className={styles.mb15}>
         <span className={classes.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
         <a href="/admin/locations" className={classes.textLink}>
           {t('admin:components.party.createOne')}

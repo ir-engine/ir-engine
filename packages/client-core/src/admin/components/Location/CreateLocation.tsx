@@ -242,7 +242,7 @@ const CreateLocation = (props: Props) => {
               </Select>
             </FormControl>
           </Paper>
-          <Grid container spacing={5} className={classes.marginBottm}>
+          <Grid container spacing={5} className={styles.mb15}>
             <Grid item xs={6}>
               <FormGroup>
                 <FormControl>

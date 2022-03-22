@@ -182,27 +182,23 @@ const ViewLocation = (props: Props) => {
   return (
     <React.Fragment>
       <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: styles.paperDrawer }}>
-        <Paper elevation={0} className={classes.rootPaper}>
+        <Paper elevation={0} className={styles.rootPaper}>
           {location && (
             <Container maxWidth="sm">
-              <div className={classes.locationTitle}>
+              <div className={styles.locationTitle}>
                 <Typography variant="h4" component="span">
                   {location?.name}
                 </Typography>
               </div>
-              <div className={classes.locationSubTitle}>
+              <div className={styles.locationSubTitle}>
                 {location.isFeatured && (
                   <Chip
                     style={{ marginLeft: '5px' }}
                     avatar={<Avatar>F</Avatar>}
                     label={t('admin:components.index.featured')}
-                    //  onClick={handleClick}
                   />
                 )}
                 {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
-                {/* <Paper className={classes.smpd} elevation={0}>
-                        <Typography variant="h6" component="span" >{location.createdAt ? `Created At: ${location.createdAt.slice(0, 10)}`:""}</Typography>
-                        </Paper> */}
               </div>
             </Container>
           )}
@@ -210,17 +206,17 @@ const ViewLocation = (props: Props) => {
 
         {editMode ? (
           <Container maxWidth="sm">
-            <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
+            <div className={styles.mt10}>
+              <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('admin:components.locationModel.updateLocationInfo')}{' '}
               </Typography>
               <label>{t('admin:components.locationModel.lbl-name')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="name"
                   placeholder={t('admin:components.locationModel.enterName')}
                   style={{ color: '#fff' }}
@@ -232,10 +228,10 @@ const ViewLocation = (props: Props) => {
               <label>{t('admin:components.locationModel.lbl-maxuser')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.maxUsers.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.maxUsers.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="maxUsers"
                   placeholder={t('admin:components.locationModel.enterMaxUsers')}
                   style={{ color: '#fff' }}
@@ -248,7 +244,7 @@ const ViewLocation = (props: Props) => {
               <label>{t('admin:components.locationModel.lbl-scene')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.scene.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <FormControl fullWidth>
                   <Select
@@ -258,9 +254,9 @@ const ViewLocation = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="scene"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.locationModel.selectScene')}</em>
@@ -274,7 +270,7 @@ const ViewLocation = (props: Props) => {
               <label>{t('admin:components.locationModel.type')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.type.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.type.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <FormControl fullWidth>
                   <Select
@@ -284,9 +280,9 @@ const ViewLocation = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="type"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.locationModel.selectType')}</em>
@@ -299,7 +295,7 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <Grid container spacing={5} className={classes.marginBottm}>
+              <Grid container spacing={5} className={styles.mb15}>
                 <Grid item xs={6}>
                   <FormGroup>
                     <FormControl>
@@ -416,105 +412,100 @@ const ViewLocation = (props: Props) => {
           </Container>
         ) : (
           <React.Fragment>
-            {' '}
-            <Paper elevation={3} className={classes.middlePaper}>
-              <Grid container spacing={2} className={classes.pdl}>
-                <Grid item xs={5} className={classes.typo}>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+            <Paper elevation={3} className={styles.middlePaper}>
+              <Grid container spacing={2} className={styles.pdl}>
+                <Grid item xs={5} className={styles.typo}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {t('admin:components.locationModel.lbl-maxuser')}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {t('admin:components.locationModel.lbl-sceneId')}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={classes.locationOtherInfo}>
+                  <Typography variant="h5" component="h5" className={styles.locationOtherInfo}>
                     {t('admin:components.locationModel.slugyName')}
                   </Typography>
                 </Grid>
-                <Grid item xs={7} className={classes.typo}>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                <Grid item xs={7} className={styles.typo}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {(location as any)?.maxUsersPerInstance || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModel.none')}</span>
                     )}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {location?.sceneId || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModel.none')}</span>
                     )}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo}`}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo}`}>
                     {location?.slugifiedName || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModel.none')}</span>
                     )}
                   </Typography>
                 </Grid>
               </Grid>
             </Paper>
-            <Typography
-              variant="h4"
-              component="h4"
-              className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont}`}
-            >
-              {t('admin:components.locationModel.locationSettings')}{' '}
+            <Typography variant="h4" component="h4" className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont}`}>
+              {t('admin:components.locationModel.locationSettings')}
             </Typography>
-            <Grid container spacing={2} className={classes.pdlarge}>
+            <Grid container spacing={2} className={styles.pdlarge}>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.locationType')}:
                 </Typography>
-                {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.videoEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.audioEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.faceStreamingEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.screenSharingEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {t('admin:components.locationModel.mediaChatEnabled')}:
                 </Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {location?.location_setting?.locationType || (
-                    <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                    <span className={styles.spanNone}>{t('admin:components.locationModel.none')}</span>
                   )}
                 </Typography>
-                {/* <Typography variant="h6" component="h6" className={classes.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={classes.spanNone}>None</span>}</Typography> */}
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                {/* <Typography variant="h6" component="h6" className={styles.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={styles.spanNone}>None</span>}</Typography> */}
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.videoEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.audioEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.faceStreamingEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.screenSharingEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.instanceMediaChatEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
@@ -524,7 +515,7 @@ const ViewLocation = (props: Props) => {
             </Grid>
           </React.Fragment>
         )}
-        <DialogActions className={classes.mb10}>
+        <DialogActions className={styles.mb10}>
           {editMode ? (
             <DialogActions>
               <Button onClick={handleSubmit} className={styles.submitButton}>
