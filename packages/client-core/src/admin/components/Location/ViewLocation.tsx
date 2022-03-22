@@ -26,6 +26,7 @@ import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -180,12 +181,7 @@ const ViewLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer
-        anchor="right"
-        open={openView}
-        onClose={() => handleCloseDrawe()}
-        classes={{ paper: classes.paperDrawer }}
-      >
+      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: styles.paperDrawer }}>
         <Paper elevation={0} className={classes.rootPaper}>
           {location && (
             <Container maxWidth="sm">

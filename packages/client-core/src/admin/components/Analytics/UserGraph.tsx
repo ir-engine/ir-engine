@@ -2,6 +2,8 @@ import ApexCharts from 'apexcharts'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
+import './styles.module.scss'
+
 const UserGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
   let minX = new Date(startDate).getTime()
@@ -30,7 +32,7 @@ const UserGraph = ({ data, startDate, endDate }) => {
         type: 'area',
         height: '100%',
         width: '100%',
-        background: 'transparent',
+        background: '#1f1b48',
         zoom: {
           autoScaleYaxis: true
         },

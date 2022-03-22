@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
 
@@ -37,7 +38,7 @@ const ViewGroup = (props: Props) => {
       anchor="right"
       open={openView}
       onClose={() => closeViewModal(false)}
-      classes={{ paper: classes.paperDrawer }}
+      classes={{ paper: styles.paperDrawer }}
     >
       {editMode ? (
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />

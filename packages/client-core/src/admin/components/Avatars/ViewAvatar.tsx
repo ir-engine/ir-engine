@@ -33,6 +33,7 @@ import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import AvatarDetail from './AvatarDetail'
 
@@ -280,7 +281,7 @@ const ViewAvatar = (props: Props) => {
         anchor="right"
         open={openView}
         onClose={() => handleCloseDrawer()}
-        classes={{ paper: classes.paperDrawer }}
+        classes={{ paper: styles.paperDrawer }}
       >
         {avatarData && (
           <Paper elevation={3} className={classes.rootPaper}>

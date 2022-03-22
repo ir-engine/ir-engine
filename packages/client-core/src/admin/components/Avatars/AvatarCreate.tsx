@@ -29,6 +29,7 @@ import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 const Input = styled('input')({
@@ -255,7 +256,7 @@ const AvatarCreate = ({ handleClose, open }) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <div ref={panelRef}>
             <DialogTitle>

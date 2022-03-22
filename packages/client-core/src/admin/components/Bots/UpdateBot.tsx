@@ -25,6 +25,7 @@ import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -155,16 +156,16 @@ const UpdateBot = (props: Props) => {
       <Dialog
         open={open}
         aria-labelledby="form-dialog-title"
-        classes={{ paper: classes.paperDialog }}
+        classes={{ paper: styles.paperDialog }}
         onClose={handleClose}
       >
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <label>{t('admin:components.bot.name')}</label>
-          <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+          <Paper component="div" className={formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
             <InputBase
               name="name"
-              className={classes.input}
+              className={styles.input}
               placeholder="Enter name"
               style={{ color: '#fff' }}
               value={state.name}
@@ -172,12 +173,9 @@ const UpdateBot = (props: Props) => {
             />
           </Paper>
           <label>{t('admin:components.bot.description')}</label>
-          <Paper
-            component="div"
-            className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
-          >
+          <Paper component="div" className={formErrors.description.length > 0 ? styles.redBorder : styles.createInput}>
             <InputBase
-              className={classes.input}
+              className={styles.input}
               name="description"
               placeholder={t('admin:components.bot.enterDescription')}
               style={{ color: '#fff' }}
@@ -189,11 +187,8 @@ const UpdateBot = (props: Props) => {
           <label>{t('admin:components.bot.location')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper
-                component="div"
-                className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <FormControl className={classes.createInput} fullWidth>
+              <Paper component="div" className={formErrors.location.length > 0 ? styles.redBorder : styles.createInput}>
+                <FormControl className={styles.createInput} fullWidth>
                   <Select
                     labelId="demo-controlled-open-select-label"
                     id="demo-controlled-open-select"
@@ -202,8 +197,8 @@ const UpdateBot = (props: Props) => {
                     onChange={handleInputChange}
                     name="location"
                     displayEmpty
-                    className={classes.select}
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    className={styles.select}
+                    MenuProps={{ styles: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.bot.selectLocation')}</em>
@@ -229,9 +224,9 @@ const UpdateBot = (props: Props) => {
           <label>{t('admin:components.bot.instance')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper component="div" className={classes.createInput}>
+              <Paper component="div" className={styles.createInput}>
                 <FormControl
-                  className={classes.createInput}
+                  className={styles.createInput}
                   fullWidth
                   disabled={currentInstance.length > 0 ? false : true}
                 >
@@ -242,9 +237,9 @@ const UpdateBot = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="instance"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ styles: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.bot.selectInstance')}</em>
@@ -269,10 +264,10 @@ const UpdateBot = (props: Props) => {
         </DialogContent>
         <DialogActions style={{ marginRight: '15px' }}>
           <Button
-            variant="contained"
+            variant="outlined"
+            style={{ color: '#fff' }}
             disableElevation
             type="submit"
-            className={classes.saveBtn}
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
               setFormErrors({ name: '', description: '', location: '' })
@@ -281,7 +276,13 @@ const UpdateBot = (props: Props) => {
           >
             {t('admin:components.bot.cancel')}
           </Button>
-          <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleUpdate}>
+          <Button
+            variant="contained"
+            disableElevation
+            type="submit"
+            className={styles.openModalBtn}
+            onClick={handleUpdate}
+          >
             <Save style={{ marginRight: '10px' }} /> {t('admin:components.bot.save')}
           </Button>
         </DialogActions>

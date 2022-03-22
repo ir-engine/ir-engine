@@ -32,6 +32,7 @@ import { SingleUserService, useSingleUserState } from '../../services/SingleUser
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -207,7 +208,7 @@ const ViewUser = (props: Props) => {
         anchor="right"
         open={openView}
         onClose={() => handleCloseDrawer()}
-        classes={{ paper: classes.paperDrawer }}
+        classes={{ paper: styles.paperDrawer }}
       >
         {userAdmin && (
           <Paper elevation={3} className={classes.rootPaper}>

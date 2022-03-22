@@ -3,6 +3,7 @@
 .openModalBtn {
   height: 50px;
   width: 100%;
+  margin: 0px;
   background: theme.$purpleLighter;
   color: theme.$text !important;
 
@@ -12,6 +13,48 @@
 
   @media(max-width: 900px) {
     font-size: 0.7rem;
+  }
+}
+
+.gradientButton {
+  height: 50px;
+  width: 100%;
+  margin: 0px;
+  background: theme.$purplePinkGradient;
+  color: theme.$text !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    background: theme.$purpleLighter;
+  }
+
+  @media(max-width: 900px) {
+    font-size: 0.7rem;
+  }
+}
+
+.submitButton {
+  background: theme.$purplePinkGradient;
+  color: theme.$text !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    background: theme.$purpleLighter;
+  }
+}
+
+.cancelButton {
+  background: theme.$purpleLighter;
+  color: theme.$text !important;
+
+  &:hover {
+    background: theme.$purpleColor;
   }
 }
 
@@ -189,4 +232,80 @@
 .selectPaper {
   background: theme.$inputBackground;
   color: theme.$text;
+}
+
+.paperDialog {
+  background: theme.$purplePanel !important;
+  color: theme.$text;
+  width: 100%;
+  padding: 40px 10px 40px 10px;
+}
+
+.spanDange {
+  color: #FF8C00;
+}
+
+.spanNone {
+  color: #808080;
+}
+
+.paperDrawer {
+  width: 40%;
+  background-color: theme.$purplePanel;
+  color: theme.$text;
+  overflow: auto;
+
+  @media(max-width: 900px) {
+    overflowY: scroll;
+  }
+}
+
+.paper {
+  padding: 24px 32px;
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  background-color: #fff;
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  background-color: theme.$purplePanel;
+
+  @media (max-width: 768px) {
+    width: 90%
+  }
+}
+
+.inputConatiner {
+  width: 100%;
+  margin-bottom: 15px;
+
+  :global(.MuiFormControl-root) {
+    width: 100%
+  }
+
+  input {
+    color: theme.$text;
+    background-color: theme.$inputBackground;
+  }
+}
+
+.errorMessage {
+  color: red;
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
+.buttonConatiner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
 }

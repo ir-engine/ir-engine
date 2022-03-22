@@ -17,6 +17,7 @@ import AutoComplete from '../../common/AutoComplete'
 import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -91,7 +92,7 @@ const CreateGroup = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
             <DialogTitle id="form-dialog-title" className={classes.texAlign}>

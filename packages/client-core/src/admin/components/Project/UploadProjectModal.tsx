@@ -6,6 +6,7 @@ import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInt
 
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
+import { Grid } from '@mui/material'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
@@ -16,7 +17,7 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
@@ -26,7 +27,6 @@ interface Props {
 
 const UploadProjectModal = (props: Props): any => {
   const { open, handleClose, repos } = props
-  const classes = useStyles()
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
@@ -69,7 +69,7 @@ const UploadProjectModal = (props: Props): any => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={classes.modal}
+        className={styles.modal}
         open={open}
         onClose={closeModal}
         closeAfterTransition
@@ -77,13 +77,13 @@ const UploadProjectModal = (props: Props): any => {
         <Fade in={props.open}>
           <div
             className={classNames({
-              [classes.paper]: true,
-              [classes.modalContent]: true
+              [styles.paper]: true,
+              [styles.modalContent]: true
             })}
           >
             {processing === false && createOrPatch === 'patch' && (
               <FormControl>
-                <div className={classes.inputConatiner}>
+                <div className={styles.inputConatiner}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
@@ -105,42 +105,47 @@ const UploadProjectModal = (props: Props): any => {
                         ))}
                     </Select>
                   ) : (
-                    <div>
-                      <label>{t('admin:components.project.insertPublicUrl')}</label>
-                      <TextField
-                        className={classes.marginb10}
-                        id="urlSelect"
-                        value={projectURL}
-                        placeholder={'URL'}
-                        onChange={(e) => setProjectURL(e.target.value)}
-                      />
-                    </div>
+                    <Grid container spacing={1} direction="column">
+                      <Grid item>
+                        <label>{t('admin:components.project.insertPublicUrl')}</label>
+                      </Grid>
+                      <Grid item>
+                        <TextField
+                          id="urlSelect"
+                          fullWidth
+                          marginBottom="10px"
+                          value={projectURL}
+                          placeholder={'URL'}
+                          onChange={(e) => setProjectURL(e.target.value)}
+                        />
+                      </Grid>
+                    </Grid>
                   )}
                 </div>
-                <div className={classes.buttonConatiner}>
+                <div className={styles.buttonConatiner}>
                   <Button
                     type="submit"
                     startIcon={<GitHubIcon />}
                     variant="contained"
                     color="primary"
+                    className={styles.gradientButton}
                     onClick={tryUploadProject}
                   >
                     {t('admin:components.project.uploadProject')}
                   </Button>
-                  {repos && repos.length != 0 ? (
+                  {repos && repos.length != 0 && (
                     <Button
                       type="submit"
                       startIcon={<GroupIcon />}
                       variant="contained"
                       color="primary"
+                      className={styles.gradientButton}
                       onClick={trySelectPublicUrl}
                     >
                       {!isPublicUrl
                         ? t('admin:components.project.customPublicUrl')
                         : t('admin:components.project.selectFromList')}
                     </Button>
-                  ) : (
-                    <></>
                   )}
                 </div>
               </FormControl>
@@ -151,7 +156,7 @@ const UploadProjectModal = (props: Props): any => {
                 <div>{t('admin:components.project.processing')}</div>
               </div>
             )}
-            {error && error.length > 0 && <h2 className={classes.errorMessage}>{error}</h2>}
+            {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
           </div>
         </Fade>
       </Modal>

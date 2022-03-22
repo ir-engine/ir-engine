@@ -24,6 +24,7 @@ import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeSer
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
 
@@ -174,7 +175,7 @@ const CreateUser = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
             {t('admin:components.user.createNewUser')}

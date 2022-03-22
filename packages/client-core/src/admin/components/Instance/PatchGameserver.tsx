@@ -15,6 +15,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import { GameserverService } from '../../services/GameserverService'
 import { LocationService, useLocationState } from '../../services/LocationService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -68,7 +69,7 @@ const PatchGameserver = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
+      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={handleClose(false)}>
         <Container maxWidth="sm" className={classes.marginTp}>
           <DialogTitle id="form-dialog-title" className={classes.texAlign}>
             {t('admin:components.setting.patchGameserver')}

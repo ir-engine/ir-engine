@@ -2,6 +2,8 @@ import ApexCharts from 'apexcharts'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
+import './styles.module.scss'
+
 const ActivityGraph = ({ data, startDate, endDate }) => {
   let maxY = 0
   let minX = new Date(startDate).getTime()
@@ -32,7 +34,7 @@ const ActivityGraph = ({ data, startDate, endDate }) => {
         zoom: {
           autoScaleYaxis: true
         },
-        background: 'transparent',
+        background: '#1f1b48',
         toolbar: {
           tools: {
             zoomin: false,

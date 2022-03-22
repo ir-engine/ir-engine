@@ -12,6 +12,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 
 import { entityColumns, EntityData, ViewSceneProps } from '../../common/variables/scene'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 const ViewScene = (props: ViewSceneProps) => {
@@ -40,7 +41,7 @@ const ViewScene = (props: ViewSceneProps) => {
   // return (
   //   <React.Fragment>
   //     <Drawer
-  //       classes={{ paper: classes.paperDrawer }}
+  //       classes={{ paper: styles.paperDrawer }}
   //       anchor="right"
   //       open={viewModal}
   //       onClose={() => closeViewModal(false)}
