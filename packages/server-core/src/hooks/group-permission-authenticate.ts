@@ -5,7 +5,7 @@ import { extractLoggedInUserFromParams } from '../user/auth-management/auth-mana
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<any> => {
+  return async (context: HookContext): Promise<HookContext> => {
     let fetchedGroupId
     const { id, method, params, app, path } = context
     const loggedInUser = extractLoggedInUserFromParams(params)
