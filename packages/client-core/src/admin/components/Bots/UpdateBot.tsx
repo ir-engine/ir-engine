@@ -198,7 +198,7 @@ const UpdateBot = (props: Props) => {
                     name="location"
                     displayEmpty
                     className={styles.select}
-                    MenuProps={{ styles: { paper: styles.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.bot.selectLocation')}</em>
@@ -239,7 +239,7 @@ const UpdateBot = (props: Props) => {
                     onChange={handleInputChange}
                     className={styles.select}
                     name="instance"
-                    MenuProps={{ styles: { paper: styles.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.bot.selectInstance')}</em>

@@ -212,7 +212,6 @@ const ViewLocation = (props: Props) => {
           <Container maxWidth="sm">
             <div className={classes.mt10}>
               <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                {' '}
                 {t('admin:components.locationModel.updateLocationInfo')}{' '}
               </Typography>
               <label>{t('admin:components.locationModel.lbl-name')}</label>
@@ -527,37 +526,37 @@ const ViewLocation = (props: Props) => {
         )}
         <DialogActions className={classes.mb10}>
           {editMode ? (
-            <div className={classes.marginTpM}>
-              <Button onClick={handleSubmit} className={classes.saveBtn}>
+            <DialogActions>
+              <Button onClick={handleSubmit} className={styles.submitButton}>
                 <span style={{ marginRight: '15px' }}>
                   <Save />
                 </span>{' '}
                 {t('admin:components.locationModel.submit')}
               </Button>
               <Button
-                className={classes.saveBtn}
+                className={styles.cancelButton}
                 onClick={() => {
                   setEditMode(false)
                 }}
               >
                 {t('admin:components.locationModel.lbl-cancel')}
               </Button>
-            </div>
+            </DialogActions>
           ) : (
-            <div className={classes.marginTpM}>
+            <DialogActions>
               <Button
                 disabled={!isLocationWrite}
-                className={classes.saveBtn}
+                className={styles.submitButton}
                 onClick={() => {
                   setEditMode(true)
                 }}
               >
                 {t('admin:components.locationModel.lbl-edit')}
               </Button>
-              <Button onClick={() => handleCloseDrawe()} className={classes.saveBtn}>
+              <Button onClick={() => handleCloseDrawe()} className={styles.cancelButton}>
                 {t('admin:components.locationModel.lbl-cancel')}
               </Button>
-            </div>
+            </DialogActions>
           )}
         </DialogActions>
       </Drawer>
