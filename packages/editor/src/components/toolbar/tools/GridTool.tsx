@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import GridOnIcon from '@mui/icons-material/GridOn'
 
-import { SceneManager } from '../../../managers/SceneManager'
+import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { useGridToolState } from '../../../services/GridToolServices'
 import NumericStepperInput from '../../inputs/NumericStepperInput'
 import { InfoTooltip } from '../../layout/Tooltip'
@@ -30,11 +30,11 @@ const GridTool = () => {
   }
 
   const onToggleGridVisible = () => {
-    SceneManager.instance.grid.toggleGridVisible()
+    SceneState.grid.toggleGridVisible()
   }
 
   const onChangeGridHeight = (value) => {
-    SceneManager.instance.grid.setGridHeight(value)
+    SceneState.grid.setGridHeight(value)
   }
 
   return (

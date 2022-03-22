@@ -8,7 +8,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { serializeObject3DArray, serializeProperties } from '../functions/debug'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -70,7 +70,7 @@ export default class TagComponentCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedObject(this.affectedObjects, undefined))
     }
   }
@@ -97,7 +97,7 @@ export default class TagComponentCommand extends Command {
       }
     }
 
-    SceneManager.instance.onEmitSceneModified()
+    store.dispatch(EditorAction.sceneModified(true))
     store.dispatch(SelectionAction.changedObject(objects, undefined))
   }
 }

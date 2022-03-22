@@ -1,16 +1,28 @@
+import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
+import {
+  configureK8s,
+  configureOpenAPI,
+  configureRedis,
+  configureSocketIO,
+  createFeathersExpressApp
+} from '@xrengine/server-core/src/createApp'
 import logger from '@xrengine/server-core/src/logger'
 
-import { createApp } from './app'
 import collectAnalytics from './collect-analytics'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 
+const analyticsServerPipe = pipe(configureSocketIO())
+
 export const start = async (): Promise<Application> => {
-  const app = createApp()
+  const app = createFeathersExpressApp(analyticsServerPipe)
+
+  app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
+  app.set('port', config.server.port)
 
   collectAnalytics(app)
   console.log('Analytics server running')

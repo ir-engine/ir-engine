@@ -1,8 +1,12 @@
-import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
-import { AvatarComponentType } from '../components/AvatarComponent'
 import { AnimationGraph } from './AnimationGraph'
 import { LocomotionState, SingleAnimationState } from './AnimationState'
 import {
@@ -29,9 +33,12 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 
 /** Class to hold the animation graph for player entity. Every avatar entity will have their saperate graph. */
 export class AvatarAnimationGraph extends AnimationGraph {
-  initialize(mixer: AnimationMixer, velocity: Vector3, avatar: AvatarComponentType) {
+  entity: Entity
+
+  initialize(entity: Entity, mixer: AnimationMixer, velocity: Vector3, jumpValue: {} | null) {
     if (!mixer) return
 
+    this.entity = entity
     // Initialize all the states
     // Locomotion
 
@@ -131,17 +138,19 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     const movementTransitionRule = new VectorLengthTransitionRule(locomotionState.name, velocity)
 
-    this.transitionRules[AvatarStates.LOCOMOTION] = [
-      new BooleanTransitionRule(jumpState.name, avatar, 'isGrounded', true)
-    ]
-    this.transitionRules[AvatarStates.JUMP] = [
-      new CompositeTransitionRule(
-        locomotionState.name,
-        'and',
-        new BooleanTransitionRule(locomotionState.name, avatar, 'isGrounded'),
-        new AnimationTimeTransitionRule(locomotionState.name, jumpState.action, 0.9)
-      )
-    ]
+    if (jumpValue) {
+      this.transitionRules[AvatarStates.LOCOMOTION] = [
+        new BooleanTransitionRule(jumpState.name, jumpValue, 'isJumping')
+      ]
+      this.transitionRules[AvatarStates.JUMP] = [
+        new CompositeTransitionRule(
+          locomotionState.name,
+          'and',
+          new BooleanTransitionRule(locomotionState.name, jumpValue, 'isJumping', true),
+          new AnimationTimeTransitionRule(locomotionState.name, jumpState.action, 0.9)
+        )
+      ]
+    }
 
     this.transitionRules[AvatarStates.CLAP] = [
       new CompositeTransitionRule(
@@ -199,5 +208,13 @@ export class AvatarAnimationGraph extends AnimationGraph {
 
     this.currentState = locomotionState
     this.currentState.enter()
+  }
+
+  changeState(newStateName: string): void {
+    super.changeState(newStateName)
+    if (isEntityLocalClient(this.entity)) {
+      const params = {}
+      dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
+    }
   }
 }

@@ -9,10 +9,8 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3D, serializeVector3 } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import { ControlManager } from '../managers/ControlManager'
-import { SceneManager } from '../managers/SceneManager'
-import { SelectionAction } from '../services/SelectionServices'
+import { EditorAction } from '../services/EditorServices'
+import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
 export interface PositionCommandParams extends CommandParams {
@@ -73,8 +71,7 @@ export default class PositionCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      ControlManager.instance.onObjectsChanged(this.affectedObjects, 'position')
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'position'))
     }
   }
@@ -87,10 +84,12 @@ export default class PositionCommand extends Command {
     let transformComponent
     let spaceMatrix
 
+    const selectedEntities = accessSelectionState().selectedEntities.value
+
     if (space === TransformSpace.LocalSelection) {
-      if (CommandManager.instance.selected.length > 0) {
-        const lastSelectedObject = CommandManager.instance.selected[CommandManager.instance.selected.length - 1]
-        obj3d = getComponent(lastSelectedObject.entity, Object3DComponent).value
+      if (selectedEntities.length > 0) {
+        const lastSelectedEntity = selectedEntities[selectedEntities.length - 1]
+        obj3d = getComponent(lastSelectedEntity, Object3DComponent).value
         obj3d.updateMatrixWorld()
         spaceMatrix = obj3d.parent!.matrixWorld
       } else {

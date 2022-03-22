@@ -90,9 +90,9 @@ export default async function SceneObjectSystem(world: World) {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      const node = world.entityTree.findNodeFromEid(entity)
+      const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
-        reparentObject3D(node, node.parentNode)
+        if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
       } else {
         let found = false
         Engine.scene.traverse((obj) => {
