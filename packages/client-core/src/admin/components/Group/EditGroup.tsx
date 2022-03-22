@@ -16,6 +16,7 @@ import AutoComplete from '../../common/AutoComplete'
 import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -90,9 +91,9 @@ const EditGroup = (props: Props) => {
   })
 
   return (
-    <Container maxWidth="sm" className={classes.marginTp}>
+    <Container maxWidth="sm" className={styles.mt20}>
       <form onSubmit={(e) => onSubmitHandler(e)}>
-        <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
           {t('admin:components.group.editGroup')}
         </DialogTitle>
         <label>{t('admin:components.group.name')}</label>
@@ -130,7 +131,7 @@ const EditGroup = (props: Props) => {
           scopes={state.scopeTypes as any}
         />
 
-        <DialogActions className={classes.marginTp}>
+        <DialogActions className={styles.mt20}>
           <Button type="submit" className={classes.saveBtn}>
             {t('admin:components.group.submit')}
           </Button>

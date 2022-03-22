@@ -249,6 +249,12 @@
   color: #808080;
 }
 
+.actionStyle {
+  text-decoration: none;
+  color: #000;
+  margin-right: 10px;
+}
+
 .paperDrawer {
   width: 40%;
   background-color: theme.$purplePanel;
@@ -412,4 +418,40 @@
   @media (max-width: 900px) {
     margin-bottom: 0px
   }
+}
+
+.mt20 {
+  margin-top: 20%;
+}
+
+.mt30px {
+  margin-top: 30px;
+}
+
+.textAlign {
+  text-align: center;
+}
+
+.mb10px {
+  margin-bottom: 10px;
+}
+
+.rootTable {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  // background-color: #43484F;
+  color: theme.$text;
+  max-height: calc(100vh - 112px);
+}
+
+rootTableWithSearch {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  // background-color: #43484F;
+  color: theme.$text;
+  max-height: calc(100vh - 172px);
 }

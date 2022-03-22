@@ -257,7 +257,7 @@ const AvatarCreate = ({ handleClose, open }) => {
   return (
     <React.Fragment>
       <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
-        <Container maxWidth="sm" className={classes.marginTp}>
+        <Container maxWidth="sm" className={styles.mt20}>
           <div ref={panelRef}>
             <DialogTitle>
               <IconButton onClick={handleClose}>

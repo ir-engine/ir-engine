@@ -33,7 +33,7 @@ const CreateModel = (props: Props) => {
         maxWidth="sm"
       >
         <div style={{ padding: '20px' }}>
-          <Typography variant="h5" gutterBottom={true} className={styles.marginTop}>
+          <Typography variant="h5" gutterBottom={true} className={styles.mt30px}>
             {action} {t('admin:components.common.new')} {text}
           </Typography>
           {children}

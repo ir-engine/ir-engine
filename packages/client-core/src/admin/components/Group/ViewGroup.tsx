@@ -53,7 +53,7 @@ const ViewGroup = (props: Props) => {
               </div>
             </Container>
           </Paper>
-          <Container maxWidth="lg" className={classes.marginTop}>
+          <Container maxWidth="lg" className={styles.mt30px}>
             <Typography variant="h4" component="h4" className={classes.mb20px}>
               {t('admin:components.group.groupInformation')}
             </Typography>
@@ -122,7 +122,7 @@ const ViewGroup = (props: Props) => {
             </div>
           </Container>
           <DialogActions className={classes.mb10}>
-            <div className={classes.marginTop}>
+            <div className={styles.mt30px}>
               <Button
                 className={classes.saveBtn}
                 onClick={() => {

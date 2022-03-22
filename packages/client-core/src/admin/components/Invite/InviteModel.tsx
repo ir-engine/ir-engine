@@ -371,9 +371,9 @@ const InviteModel = (props: Props) => {
       </Snackbar>
     </div>
 
-    // <Drawer classes={{paper:classes.paper}} anchor="right" open={open} onClose={handleClose()}>
-    //   <Container maxWidth="sm" className={classes.marginTp}>
-    //     <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+    // <Drawer classes={{paper:styles.paper}} anchor="right" open={open} onClose={handleClose()}>
+    //   <Container maxWidth="sm" className={classtylesses.marginTp}>
+    //     <DialogTitle id="form-dialog-title" className={styles.textAlign}>
     //      Send Invite
     //     </DialogTitle>
     //     <Paper component="div" className={classes.createInput}>

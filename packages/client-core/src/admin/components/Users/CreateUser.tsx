@@ -176,8 +176,8 @@ const CreateUser = (props: Props) => {
   return (
     <React.Fragment>
       <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
-        <Container maxWidth="sm" className={classes.marginTp}>
-          <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+        <Container maxWidth="sm" className={styles.mt20}>
+          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.user.createNewUser')}
           </DialogTitle>
           <InputText

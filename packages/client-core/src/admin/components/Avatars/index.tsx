@@ -30,7 +30,7 @@ const Avatar = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={1} className={classes.marginBottom}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item md={8} xs={6}>
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
@@ -40,7 +40,7 @@ const Avatar = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTable}>
         <AvatarTable search={search} />
       </div>
       {open && <AvatarCreate handleClose={handleClose} open={open} />}

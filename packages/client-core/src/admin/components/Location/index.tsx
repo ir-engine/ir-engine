@@ -35,7 +35,7 @@ const Location = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="location" handleChange={handleChange} />
         </Grid>
@@ -45,7 +45,7 @@ const Location = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
       <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />

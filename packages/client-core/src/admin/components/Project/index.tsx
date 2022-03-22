@@ -63,7 +63,7 @@ const Projects = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTable}>
         <ProjectTable />
       </div>
       <UploadProjectModal

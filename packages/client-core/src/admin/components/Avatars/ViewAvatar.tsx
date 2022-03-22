@@ -407,7 +407,7 @@ const ViewAvatar = (props: Props) => {
           )}
           <DialogActions className={classes.mb10}>
             {editMode ? (
-              <div className={classes.marginTop}>
+              <div className={styles.mt30px}>
                 <Button onClick={updateAvatar} className={classes.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
@@ -430,7 +430,7 @@ const ViewAvatar = (props: Props) => {
                 </Button>
               </div>
             ) : (
-              <div className={classes.marginTop}>
+              <div className={styles.mt30px}>
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {

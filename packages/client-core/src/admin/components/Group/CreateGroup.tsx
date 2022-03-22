@@ -93,9 +93,9 @@ const CreateGroup = (props: Props) => {
   return (
     <React.Fragment>
       <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
-        <Container maxWidth="sm" className={classes.marginTp}>
+        <Container maxWidth="sm" className={styles.mt20}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
-            <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+            <DialogTitle id="form-dialog-title" className={styles.textAlign}>
               {t('admin:components.group.createNewGroup')}
             </DialogTitle>
             <label>{t('admin:components.group.name')}</label>
@@ -129,7 +129,7 @@ const CreateGroup = (props: Props) => {
               />
             </Paper>
             <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
-            <DialogActions className={classes.marginTp}>
+            <DialogActions className={styles.mt20}>
               <Button type="submit" className={classes.saveBtn}>
                 {t('admin:components.group.submit')}
               </Button>

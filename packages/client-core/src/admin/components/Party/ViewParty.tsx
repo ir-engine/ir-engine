@@ -25,6 +25,7 @@ import { InstanceService } from '../../services/InstanceService'
 import { useLocationState } from '../../services/LocationService'
 import { LocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 
 interface Props {
@@ -194,7 +195,7 @@ export default function ViewParty(props: Props) {
           <Typography
             variant="h4"
             component="h4"
-            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
+            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${styles.mt20}`}
           >
             {t('admin:components.party.instance')}
           </Typography>
@@ -233,7 +234,7 @@ export default function ViewParty(props: Props) {
           <Typography
             variant="h4"
             component="h4"
-            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${classes.marginTp}`}
+            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${styles.mt20}`}
           >
             {t('admin:components.party.location')}
           </Typography>

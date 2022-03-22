@@ -28,7 +28,7 @@ const Party = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="party" handleChange={handleChange} />
         </Grid>
@@ -38,7 +38,7 @@ const Party = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
       <CreateParty open={partyModelOpen} handleClose={handleCreatePartyClose} />

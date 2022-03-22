@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import FilterListIcon from '@mui/icons-material/FilterList'
-import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Divider from '@mui/material/Divider'
@@ -92,7 +91,7 @@ const Users = () => {
 
   return (
     <div>
-      <Grid container spacing={1} className={classes.marginBottom}>
+      <Grid container spacing={1} className={adminStyles.mb10px}>
         <Grid item md={8} xs={6}>
           <Search text="user" handleChange={handleChange} />
         </Grid>
@@ -119,7 +118,7 @@ const Users = () => {
           </IconButton>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTable}>
         <UserTable search={search} />
       </div>
       <UserModel open={userModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />

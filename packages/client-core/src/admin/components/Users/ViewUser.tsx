@@ -374,7 +374,7 @@ const ViewUser = (props: Props) => {
           )}
           <DialogActions className={classes.mb10}>
             {editMode ? (
-              <div className={classes.marginTop}>
+              <div className={styles.mt30px}>
                 <Button onClick={handleSubmit} className={classes.saveBtn}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
@@ -392,7 +392,7 @@ const ViewUser = (props: Props) => {
                 </Button>
               </div>
             ) : (
-              <div className={classes.marginTop}>
+              <div className={styles.mt30px}>
                 <Button
                   className={classes.saveBtn}
                   onClick={() => {

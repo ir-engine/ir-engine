@@ -160,8 +160,8 @@ const CreateLocation = (props: Props) => {
           closeViewModel && closeViewModel(false)
         }}
       >
-        <Container maxWidth="sm" className={classes.marginTp}>
-          <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+        <Container maxWidth="sm" className={styles.mt20}>
+          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.locationModel.createNewLocation')}
           </DialogTitle>
           <label>{t('admin:components.locationModel.lbl-name')}</label>
