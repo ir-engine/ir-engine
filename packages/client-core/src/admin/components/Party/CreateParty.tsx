@@ -9,7 +9,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import CreateModel from '../../common/CreateModel'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
@@ -21,11 +20,9 @@ import { useInstanceState } from '../../services/InstanceService'
 import { LocationService } from '../../services/LocationService'
 import { useLocationState } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
-import styles from '../../styles.admin.module.scss'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 const CreateParty = (props: PartyProps) => {
-  const classes = useStyles()
   CreateParty
   const { open, handleClose } = props
   const { t } = useTranslation()
@@ -98,7 +95,7 @@ const CreateParty = (props: PartyProps) => {
       <label>{t('admin:components.party.instance')}</label>
       <Paper
         component="div"
-        className={newParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
+        className={newParty.formErrors.instance.length > 0 ? styles.redBorder : styles.createInput}
       >
         <FormControl fullWidth>
           <Select
@@ -108,9 +105,9 @@ const CreateParty = (props: PartyProps) => {
             fullWidth
             displayEmpty
             onChange={handleChange}
-            className={classes.select}
+            className={styles.select}
             name="instance"
-            MenuProps={{ classes: { paper: classes.selectPaper } }}
+            MenuProps={{ classes: { paper: styles.selectPaper } }}
           >
             <MenuItem value="" disabled>
               <em>{t('admin:components.party.selectInstance')}</em>
@@ -127,7 +124,7 @@ const CreateParty = (props: PartyProps) => {
       <label>{t('admin:components.party.location')}</label>
       <Paper
         component="div"
-        className={newParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+        className={newParty.formErrors.location.length > 0 ? styles.redBorder : styles.createInput}
       >
         <FormControl fullWidth>
           <Select
@@ -137,9 +134,9 @@ const CreateParty = (props: PartyProps) => {
             fullWidth
             displayEmpty
             onChange={handleChange}
-            className={classes.select}
+            className={styles.select}
             name="location"
-            MenuProps={{ classes: { paper: classes.selectPaper } }}
+            MenuProps={{ classes: { paper: styles.selectPaper } }}
           >
             <MenuItem value="" disabled>
               <em>{t('admin:components.party.selectLocation')}</em>
@@ -154,8 +151,8 @@ const CreateParty = (props: PartyProps) => {
       </Paper>
 
       <DialogContentText className={styles.mb15}>
-        <span className={classes.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
-        <a href="/admin/locations" className={classes.textLink}>
+        <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
+        <a href="/admin/locations" className={styles.textLink}>
           {t('admin:components.party.createOne')}
         </a>
       </DialogContentText>

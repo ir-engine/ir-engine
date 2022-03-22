@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const classes = useStyles()
   const [partyModelOpen, setPartyModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()

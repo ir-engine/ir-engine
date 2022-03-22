@@ -26,7 +26,6 @@ import { useLocationState } from '../../services/LocationService'
 import { LocationService } from '../../services/LocationService'
 import { PartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: boolean
@@ -38,7 +37,6 @@ interface Props {
 
 export default function ViewParty(props: Props) {
   const { openView, closeViewModel, partyAdmin, editMode, handleEditMode } = props
-  const classes = useStyles()
   const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',
@@ -113,10 +111,10 @@ export default function ViewParty(props: Props) {
 
   return (
     <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModel()}>
-      <Paper elevation={0} className={classes.rootPaper}>
+      <Paper elevation={0} className={styles.rootPaper}>
         {partyAdmin && (
           <Container maxWidth="sm">
-            <div className={classes.locationTitle}>
+            <div className={styles.locationTitle}>
               <Typography variant="h5" component="span">
                 {partyAdmin?.location?.name}/{partyAdmin?.instance?.ipAddress}
               </Typography>
@@ -126,15 +124,15 @@ export default function ViewParty(props: Props) {
       </Paper>
       {editMode ? (
         <Container maxWidth="sm">
-          <div className={classes.mt10}>
-            <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
+          <div className={styles.mt10}>
+            <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
               {t('admin:components.party.updateParty')}
             </Typography>
 
             <label>{t('admin:components.party.instance')}</label>
             <Paper
               component="div"
-              className={updateParty.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}
+              className={updateParty.formErrors.instance.length > 0 ? styles.redBorder : styles.createInput}
             >
               <FormControl fullWidth>
                 <Select
@@ -144,9 +142,9 @@ export default function ViewParty(props: Props) {
                   fullWidth
                   displayEmpty
                   onChange={handleChange}
-                  className={classes.select}
+                  className={styles.select}
                   name="instance"
-                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                  MenuProps={{ classes: { paper: styles.selectPaper } }}
                 >
                   <MenuItem value="" disabled>
                     <em>{t('admin:components.party.selectInstance')}</em>
@@ -163,7 +161,7 @@ export default function ViewParty(props: Props) {
             <label>{t('admin:components.party.location')}</label>
             <Paper
               component="div"
-              className={updateParty.formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
+              className={updateParty.formErrors.location.length > 0 ? styles.redBorder : styles.createInput}
             >
               <FormControl fullWidth>
                 <Select
@@ -173,9 +171,9 @@ export default function ViewParty(props: Props) {
                   fullWidth
                   displayEmpty
                   onChange={handleChange}
-                  className={classes.select}
+                  className={styles.select}
                   name="location"
-                  MenuProps={{ classes: { paper: classes.selectPaper } }}
+                  MenuProps={{ classes: { paper: styles.selectPaper } }}
                 >
                   <MenuItem value="" disabled>
                     <em>{t('admin:components.party.selectLocation')}</em>
@@ -195,34 +193,34 @@ export default function ViewParty(props: Props) {
           <Typography
             variant="h4"
             component="h4"
-            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${styles.mt20}`}
+            className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont} ${styles.mt20}`}
           >
             {t('admin:components.party.instance')}
           </Typography>
-          <Grid container spacing={2} className={classes.pdlarge}>
+          <Grid container spacing={2} className={styles.pdlarge}>
             <Grid item xs={6}>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.party.ipAddress')}:
               </Typography>
-              {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.party.user')}:
               </Typography>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.party.active')}:
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {partyAdmin?.instance?.ipAddress || (
-                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
                 )}
               </Typography>
-              <Typography variant="h5" component="h5" className={classes.mb10}>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
                 {partyAdmin?.instance?.currentUsers}
               </Typography>
-              <Typography variant="h5" component="h5" className={classes.mb10}>
-                <span className={classes.spanNone}>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
                   {partyAdmin?.instance?.ended === true
                     ? t('admin:components.index.no')
                     : t('admin:components.index.yes')}
@@ -234,63 +232,63 @@ export default function ViewParty(props: Props) {
           <Typography
             variant="h4"
             component="h4"
-            className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont} ${styles.mt20}`}
+            className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont} ${styles.mt20}`}
           >
             {t('admin:components.party.location')}
           </Typography>
-          <Grid container spacing={2} className={classes.pdlarge}>
+          <Grid container spacing={2} className={styles.pdlarge}>
             <Grid item xs={6}>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.locationModel.lbl-name')}:
               </Typography>
-              {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.locationModel.lbl-maxuser')}:
               </Typography>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {t('admin:components.locationModel.lbl-scene')}:
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h6" component="h6" className={classes.mb10}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
                 {partyAdmin?.location?.name || (
-                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
                 )}
               </Typography>
-              <Typography variant="h5" component="h5" className={classes.mb10}>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
                 {partyAdmin?.location?.maxUsersPerInstance}
               </Typography>
-              <Typography variant="h5" component="h5" className={classes.mb10}>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
                 {partyAdmin?.location?.sceneId || (
-                  <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                  <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
                 )}
               </Typography>
             </Grid>
           </Grid>
         </div>
       )}
-      <DialogActions className={classes.mb10}>
+      <DialogActions className={styles.mb10}>
         {editMode ? (
-          <div className={classes.marginTpM}>
-            <Button onClick={handleSubmit} className={classes.saveBtn}>
+          <>
+            <Button onClick={handleSubmit} className={styles.submitButton}>
               <span style={{ marginRight: '15px' }}>
                 <Save />
               </span>{' '}
               {t('admin:components.party.submit')}
             </Button>
-            <Button className={classes.saveBtn} onClick={() => handleEditMode(false)}>
+            <Button className={styles.cancelButton} onClick={() => handleEditMode(false)}>
               {t('admin:components.party.cancel')}
             </Button>
-          </div>
+          </>
         ) : (
-          <div className={classes.marginTpM}>
-            <Button className={classes.saveBtn} onClick={() => handleEditMode(true)}>
+          <>
+            <Button className={styles.submitButton} onClick={() => handleEditMode(true)}>
               {t('admin:components.party.edit')}
             </Button>
-            <Button onClick={() => closeViewModel()} className={classes.saveBtn}>
+            <Button onClick={() => closeViewModel()} className={styles.cancelButton}>
               {t('admin:components.party.cancel')}
             </Button>
-          </div>
+          </>
         )}
       </DialogActions>
     </ViewDrawer>

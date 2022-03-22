@@ -249,10 +249,20 @@
   color: #808080;
 }
 
+.spanWhite {
+  color: theme.$text !important;
+}
+
 .actionStyle {
   text-decoration: none;
   color: #000;
   margin-right: 10px;
+}
+
+.textLink {
+  margin-left: 5px;
+  text-decoration: none;
+  color: #ff9966;
 }
 
 .paperDrawer {

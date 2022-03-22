@@ -9,12 +9,11 @@ import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
 import { PARTY_PAGE_LIMIT, PartyService, usePartyState } from '../../services/PartyService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
 const PartyTable = (props: PartyPropsTable) => {
   const { search } = props
-  const classes = useStyles()
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
@@ -73,19 +72,19 @@ const PartyTable = (props: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={() => openViewModel(true, el)}>
-            <span className={classes.spanWhite}>{t('admin:components.index.view')}</span>
+          <a href="#h" className={styles.actionStyle} onClick={() => openViewModel(true, el)}>
+            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setPartyName(instance)
               setPartyId(id)
             }}
           >
-            <span className={classes.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )
@@ -101,8 +100,8 @@ const PartyTable = (props: PartyPropsTable) => {
     return createData(
       el,
       el.id,
-      el?.instance?.ipAddress || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>,
-      el.location?.name || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+      el?.instance?.ipAddress || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
+      el.location?.name || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
     )
   })
 
