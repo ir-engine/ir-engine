@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import AlertMessage from '../../common/AlertMessage'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import { BotCommandService, useBotCommandState } from '../../services/BotsCommand'
 import { BotService, useBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
@@ -29,7 +29,7 @@ const DisplayBots = () => {
     description: ''
   })
   const [open, setOpen] = useState(false)
-  const [openModel, setOpenModel] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
   const [bot, setBot] = useState<AdminBot>()
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [botName, setBotName] = useState('')
@@ -43,8 +43,7 @@ const DisplayBots = () => {
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false)
   }
-  const botsAdminState = useBotState()
-  const botAdmin = botsAdminState
+  const botAdmin = useBotState()
   const botCommand = useBotCommandState()
   const user = useAuthState().user
   const botAdminData = botAdmin.bots
@@ -56,16 +55,16 @@ const DisplayBots = () => {
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
-  const handleOpenModel = (bot) => {
+  const handleOpenModal = (bot) => {
     setBot(bot)
-    setOpenModel(true)
+    setOpenModal(true)
   }
 
-  const handleCloseModel = () => {
-    setOpenModel(false)
+  const handleCloseModal = () => {
+    setOpenModal(false)
   }
 
-  const handleCloseConfirmModel = () => {
+  const handleCloseConfirmModal = () => {
     setPopConfirmOpen(false)
   }
 
@@ -152,7 +151,7 @@ const DisplayBots = () => {
                   </Grid>
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
-                      <IconButton onClick={() => handleOpenModel(bot)} size="large">
+                      <IconButton onClick={() => handleOpenModal(bot)} size="large">
                         <Edit style={{ color: '#fff' }} />
                       </IconButton>
                       <IconButton
@@ -197,11 +196,11 @@ const DisplayBots = () => {
         message={t('admin:components.bot.commandRequired')}
       />
 
-      <UpdateBot open={openModel} handleClose={handleCloseModel} bot={bot} />
+      <UpdateBot open={openModal} handleClose={handleCloseModal} bot={bot} />
 
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popConfirmOpen}
-        handleCloseModel={handleCloseConfirmModel}
+        handleCloseModal={handleCloseConfirmModal}
         submit={submitRemoveBot}
         name={botName}
         label={'bot'}

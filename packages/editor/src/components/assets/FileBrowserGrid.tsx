@@ -70,7 +70,7 @@ type FileBrowserItemType = {
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   setFileProperties: any
-  setOpenPropertiesModel: any
+  setOpenPropertiesModal: any
   addNewFolder: any
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
 }
@@ -83,7 +83,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     deleteContent,
     onClick,
     moveContent,
-    setOpenPropertiesModel,
+    setOpenPropertiesModal,
     setFileProperties,
     addNewFolder
   } = props
@@ -129,7 +129,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     } else {
       setFileProperties(trigger.item)
     }
-    setOpenPropertiesModel(true)
+    setOpenPropertiesModal(true)
   }, [])
 
   const deleteContentCallback = (_, trigger) => {
@@ -242,7 +242,7 @@ type FileBrowserGridTypes = {
   deleteContent: (contentPath: string, type: string) => void
   currentContent: any
   setFileProperties: any
-  setOpenPropertiesModel: any
+  setOpenPropertiesModal: any
   addNewFolder: any
 }
 
@@ -254,7 +254,7 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
     deleteContent,
     currentContent,
     setFileProperties,
-    setOpenPropertiesModel,
+    setOpenPropertiesModal,
     addNewFolder
   } = props
 
@@ -267,7 +267,7 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
       moveContent={moveContent}
       deleteContent={deleteContent}
       currentContent={currentContent}
-      setOpenPropertiesModel={setOpenPropertiesModel}
+      setOpenPropertiesModal={setOpenPropertiesModal}
       setFileProperties={setFileProperties}
       addNewFolder={addNewFolder}
     />

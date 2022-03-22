@@ -252,7 +252,7 @@
             background-size: cover;
           }
 
-          .headerConatiner {
+          .headerContainer {
             display: flex;
             margin-top: 12px;
 
@@ -382,7 +382,7 @@
 
 .createProjectDialog {
   background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
-  box-shadow: 16px 16px 32px 0px #11111159;
+  box-shadow: 16px 16px 32px 0 #11111159;
   backdrop-filter: blur(50px);
   color: theme.$text;
   width: 300px;

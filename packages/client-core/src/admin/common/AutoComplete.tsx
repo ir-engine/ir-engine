@@ -69,6 +69,7 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
     defaultValue: scopes,
     multiple: true,
     options: data,
+    disableCloseOnSelect: true,
     getOptionLabel: (option) => option.type,
     onChange: (event: React.ChangeEvent<{}>, value: any) => {
       handleChangeScopeType(value)
