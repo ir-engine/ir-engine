@@ -2,10 +2,11 @@ import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
+import { Application } from './../../declarations.d'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
-    const foundItem = await (context.app.service('scope') as any).Model.findAll({
+    const foundItem = await (context.app as Application).service('scope').Model.findAll({
       where: {
         userId: context.arguments[0]
       }
@@ -39,7 +40,7 @@ export default () => {
       }
     } else {
       if (context.arguments[1].userRole && context.arguments[1].userRole !== 'admin') {
-        const user = await (context.app.service('user') as any).Model.findOne({
+        const user = await (context.app as Application).service('user').Model.findOne({
           where: { id: context.arguments[0] }
         })
 
