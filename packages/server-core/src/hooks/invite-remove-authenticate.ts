@@ -1,6 +1,9 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+
+import Paginated from '../types/PageObject'
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 
 // This will attach the owner ID in the contact while creating/updating list item
@@ -15,14 +18,14 @@ export default () => {
       throw new BadRequest('Invalid invite ID')
     }
     if (invite.identityProviderType != null) {
-      const inviteeIdentityProviderResult = await app.service('identity-provider').find({
+      const inviteeIdentityProviderResult = (await app.service('identity-provider').find({
         query: {
           type: invite.identityProviderType,
           token: invite.token
         }
-      })
-      if ((inviteeIdentityProviderResult as any).total > 0) {
-        inviteIdentityProviderUser = (inviteeIdentityProviderResult as any).data[0].userId
+      })) as Paginated<IdentityProviderInterface>
+      if (inviteeIdentityProviderResult.total > 0) {
+        inviteIdentityProviderUser = inviteeIdentityProviderResult.data[0].userId
       }
     }
     if (
