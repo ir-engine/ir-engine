@@ -254,7 +254,7 @@ export const ChatService = {
   createMessage: async (values: ChatMessageProps) => {
     try {
       const { text } = values
-      const video = document.getElementsByTagName('video')[1]
+      const [, video] = document.getElementsByTagName('video')
 
       if (text.startsWith('/')) {
         const [controlType, videoUrl] = text.split(' ')
