@@ -34,7 +34,7 @@ jobs:
           repository: XRFoundation/XREngine-Project-Demo
           path: './packages/projects/projects/XREngine-Project-Demo'
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - name: restore lerna
