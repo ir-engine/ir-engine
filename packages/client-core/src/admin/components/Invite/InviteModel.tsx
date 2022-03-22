@@ -22,7 +22,7 @@ import makeStyles from '@mui/styles/makeStyles'
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
-import styles from '../styles/admin.module.scss'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
