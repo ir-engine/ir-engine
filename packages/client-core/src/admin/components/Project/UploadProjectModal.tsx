@@ -113,7 +113,6 @@ const UploadProjectModal = (props: Props): any => {
                         <TextField
                           id="urlSelect"
                           fullWidth
-                          marginBottom="10px"
                           value={projectURL}
                           placeholder={'URL'}
                           onChange={(e) => setProjectURL(e.target.value)}
