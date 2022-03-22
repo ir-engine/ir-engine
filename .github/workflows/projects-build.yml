@@ -22,14 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout XREngine
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Checkout XREngine-Project-eCommerce Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: XRFoundation/XREngine-Project-eCommerce
           path: './packages/projects/projects/XREngine-Project-eCommerce'
       - name: Checkout XREngine-Project-Demo Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: XRFoundation/XREngine-Project-Demo
           path: './packages/projects/projects/XREngine-Project-Demo'
