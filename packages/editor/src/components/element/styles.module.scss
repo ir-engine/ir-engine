@@ -1,4 +1,4 @@
-@use "../theme.scss" as theme;
+@use "../theme.scss"as theme;
 
 .elementListContainer {
     width: 105px;
@@ -10,15 +10,18 @@
     position: fixed;
     top: 55px;
     right: 5px;
-    z-index: 1000;
+    z-index: 10;
     align-content: start;
     overflow-y: auto;
     pointer-events: auto;
-    background: rgba($color: theme.$panel, $alpha: 0.875);
+    background: rgba($color: theme.$dock, $alpha: 0.875);
     padding: 5px;
     border-radius: 5px;
 
-    &>div { width: 45px; height: 45px; }
+    &>div {
+        width: 45px;
+        height: 45px;
+    }
 
     .element {
         width: 45px;
@@ -27,11 +30,15 @@
         color: theme.$text2;
         border-radius: 4px;
 
-        svg { width: 25px; height: auto; }
+        svg {
+            width: 25px;
+            height: auto;
+        }
 
-        &:hover, &:focus-visible {
+        &:hover,
+        &:focus-visible {
             color: theme.$text;
-            background: theme.$blue;
+            background: theme.$purpleColor;
         }
     }
 }

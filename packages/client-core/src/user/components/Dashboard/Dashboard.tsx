@@ -16,7 +16,6 @@ import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../services/AuthService'
 import DashboardMenuItem from './DashboardMenuItem'
-import { useStylesForDashboard } from './styles'
 import styles from './styles.module.scss'
 
 interface Props {
@@ -33,13 +32,10 @@ interface Props {
 
 const Dashboard = ({ children }: Props) => {
   const authState = useAuthState()
-  const classes = useStylesForDashboard()
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
-  const admin = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const user = authState.user
-  const isLoggedIn = authState.isLoggedIn.value
   const { t } = useTranslation()
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -53,9 +49,9 @@ const Dashboard = ({ children }: Props) => {
   }
 
   return (
-    <div className={classes.root}>
+    <div>
       <CssBaseline />
-      <AppBar position="fixed" className={classes.appBar}>
+      <AppBar position="fixed" className={styles.appBar}>
         <nav className={styles.navbar}>
           <div className={styles.navContainer}>
             <IconButton
@@ -64,14 +60,14 @@ const Dashboard = ({ children }: Props) => {
               aria-label="open drawer"
               onClick={handleDrawerOpen(true)}
               edge="start"
-              className={clsx(classes.menuButton, {
-                [classes.hide]: open
+              className={clsx(styles.menuButton, {
+                [styles.hide]: open
               })}
               size="large"
             >
               <Menu />
             </IconButton>
-            <div className={classes.appBarHeadingContainer}>
+            <div className={styles.appBarHeadingContainer}>
               <Typography variant="h6">Dashboard</Typography>
 
               <IconButton onClick={() => setProfileMenuOpen(true)} className={styles.profileButton} disableRipple>
@@ -94,20 +90,20 @@ const Dashboard = ({ children }: Props) => {
       </AppBar>
       <Drawer
         variant={open ? 'temporary' : 'permanent'}
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open
+        className={clsx(styles.drawer, {
+          [styles.drawerOpen]: open,
+          [styles.drawerClose]: !open
         })}
         classes={{
           paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open
+            [styles.drawerOpen]: open,
+            [styles.drawerClose]: !open
           })
         }}
         open={open}
         onClose={handleDrawerOpen(false)}
       >
-        <div className={classes.toolbar}>
+        <div className={styles.toolbar}>
           <IconButton onClick={handleDrawerOpen(false)} style={{ color: '#fff' }} size="large">
             {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
           </IconButton>
@@ -115,9 +111,9 @@ const Dashboard = ({ children }: Props) => {
         <DashboardMenuItem />
       </Drawer>
       <main
-        className={clsx(classes.content, {
-          [classes.contentWidthDrawerOpen]: open,
-          [classes.contentWidthDrawerClosed]: !open
+        className={clsx(styles.content, {
+          [styles.contentWidthDrawerOpen]: open,
+          [styles.contentWidthDrawerClosed]: !open
         })}
       >
         <div>{children}</div>

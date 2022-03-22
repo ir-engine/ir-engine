@@ -13,7 +13,7 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 
-import { useStyles } from './styles'
+import styles from '../../styles/settings.module.scss'
 
 const settings = ({
   handleAuth,
@@ -37,8 +37,6 @@ const settings = ({
   analyticsFocused,
   projectFocused
 }) => {
-  const classes = useStyles()
-
   return (
     <div>
       <List>
@@ -46,7 +44,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleAnalytics}
-          className={analyticsFocused ? `${classes.autoFocused}` : `${classes.notFocused}`}
+          className={analyticsFocused ? `${styles.autoFocused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -59,7 +57,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleProject}
-          className={projectFocused ? `${classes.focused}` : `${classes.notFocused}`}
+          className={projectFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -72,7 +70,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleServer}
-          className={serverFocused ? `${classes.focused}` : `${classes.notFocused}`}
+          className={serverFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -85,7 +83,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleClient}
-          className={clientFocused ? `${classes.focused}` : `${classes.notFocused}`}
+          className={clientFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -98,7 +96,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleGameServer}
-          className={gameFocused ? `${classes.focused}` : `${classes.notFocused}`}
+          className={gameFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
@@ -108,11 +106,7 @@ const settings = ({
           <ListItemText primary="Game Server" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-        <ListItem
-          button
-          onClick={handleEmail}
-          className={emailFocused ? `${classes.focused}` : `${classes.notFocused}`}
-        >
+        <ListItem button onClick={handleEmail} className={emailFocused ? `${styles.focused}` : `${styles.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <MailOutlineIcon />
@@ -121,7 +115,7 @@ const settings = ({
           <ListItemText primary="Email" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-        <ListItem button onClick={handleAuth} className={authFocused ? `${classes.focused}` : `${classes.notFocused}`}>
+        <ListItem button onClick={handleAuth} className={authFocused ? `${styles.focused}` : `${styles.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
               <LockIcon />
@@ -130,7 +124,7 @@ const settings = ({
           <ListItemText primary="Authentication" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-        <ListItem button onClick={handleAws} className={awsFocused ? `${classes.focused}` : `${classes.notFocused}`}>
+        <ListItem button onClick={handleAws} className={awsFocused ? `${styles.focused}` : `${styles.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d' }}>
               <Icon icon="logos:aws" />
@@ -142,7 +136,7 @@ const settings = ({
         <ListItem
           button
           onClick={handleChargebee}
-          className={chargebeeFocused ? `${classes.focused}` : `${classes.notFocused}`}
+          className={chargebeeFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d' }}>
@@ -152,11 +146,7 @@ const settings = ({
           <ListItemText primary="Chargebee" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
-        <ListItem
-          button
-          onClick={handleRedis}
-          className={redisFocused ? `${classes.focused}` : `${classes.notFocused}`}
-        >
+        <ListItem button onClick={handleRedis} className={redisFocused ? `${styles.focused}` : `${styles.notFocused}`}>
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d' }}>
               <Icon icon="logos:redis" />

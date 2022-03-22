@@ -28,6 +28,7 @@ import {
   getComponentCountOfType,
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { CubemapBakeComponent, CubemapBakeComponentType } from '../../components/CubemapBakeComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -65,15 +66,6 @@ export const deserializeCubemapBake: ComponentDeserializeFunction = (
   if (!Engine.isEditor) return
 
   const props = parseCubemapBakeProperties(json.props)
-
-  if (json.props.options.bakeScale) {
-    json.props.options.bakeScale = new Vector3().copy(json.props.options.bakeScale)
-  }
-
-  if (json.props.options.bakePositionOffset) {
-    json.props.options.bakePositionOffset = new Vector3().copy(json.props.options.bakePositionOffset)
-  }
-
   const bakeComponent = addComponent(entity, CubemapBakeComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CUBEMAP_BAKE)
@@ -130,7 +122,7 @@ export const prepareSceneForBake = (world = useWorld()): Scene => {
     [world.entityTree.rootNode.entity]: scene
   } as { [key: Entity]: Object3D }
 
-  world.entityTree.traverse((node) => {
+  traverseEntityNode(world.entityTree.rootNode, (node) => {
     if (node === world.entityTree.rootNode || hasComponent(node.entity, PreventBakeTagComponent)) return
 
     const obj3d = getComponent(node.entity, Object3DComponent)?.value as Mesh<any, MeshStandardMaterial>
@@ -141,7 +133,7 @@ export const prepareSceneForBake = (world = useWorld()): Scene => {
         newObj.material = obj3d.material.clone()
         newObj.material.roughness = 1
       }
-      parents[node.parentNode.entity].add(newObj)
+      if (node.parentEntity) parents[node.parentEntity].add(newObj)
       parents[node.entity] = newObj
     }
   })

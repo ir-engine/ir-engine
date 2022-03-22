@@ -11,8 +11,6 @@ export class AnimationGraph {
   /** Current state */
   currentState: AnimationState
 
-  stateChangeHandlers: any[]
-
   constructor() {
     this.transitionRules = {}
     this.states = {}

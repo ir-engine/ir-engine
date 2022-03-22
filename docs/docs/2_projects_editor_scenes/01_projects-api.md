@@ -18,7 +18,7 @@ Projects have a few conventions.
 
 - `sceneName.scene.json` is a scene file
 
-- `sceneName.thumbnail.png` is an auto-generated scene thumbmail file
+- `sceneName.thumbnail.png` is an auto-generated scene thumbnail file
 
 - `xrengine.config.ts` the project configuration, where client routes, database models, feathers services and the project thumbnail can be defined
 
@@ -26,7 +26,7 @@ A project can also have a package.json to provide custom dependencies. @xrengine
 
 ## Local Install Flow
 
-To install a project locally, clone the respository you wish to install to the `/packages/projects/projects/` folder. You can do this with the follow commands:
+To install a project locally, clone the repository you wish to install to the `/packages/projects/projects/` folder. You can do this with the follow commands:
 
 ```
 cd packages/projects/projects/

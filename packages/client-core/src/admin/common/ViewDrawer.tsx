@@ -7,19 +7,19 @@ import { useStyles } from '../styles/ui'
 
 interface Props {
   openView: boolean
-  handleCloseDrawe: () => void
+  handleCloseDrawer: () => void
   children: JSX.Element | JSX.Element[]
 }
 
 export default function ViewDrawer(props: Props) {
-  const { openView, handleCloseDrawe, children } = props
+  const { openView, handleCloseDrawer, children } = props
   const classes = useStyles()
   return (
     <React.Fragment>
       <Drawer
         anchor="right"
         open={openView}
-        onClose={() => handleCloseDrawe()}
+        onClose={() => handleCloseDrawer()}
         classes={{ paper: classes.paperDrawer }}
       >
         {children}

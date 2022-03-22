@@ -31,6 +31,11 @@ export const useStyles = makeStyles((theme: Theme) =>
     checkboxContainer: {
       padding: '0px'
     },
+    checkbox: {
+      margin: '0px',
+      padding: '0px',
+      color: 'white'
+    },
     progress: {
       textAlign: 'center',
       position: 'absolute',
@@ -491,6 +496,55 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     avatarWidth: {
       width: '40px'
+    },
+    openModal: {
+      height: '50px',
+      margin: 'auto 5px',
+      width: '100%',
+      background: 'rgb(58, 65, 73)',
+      color: '#f1f1f1 !important'
+    },
+    marginb10: {
+      marginBottom: '10px'
+    },
+    errorMessage: {
+      color: 'red',
+      fontSize: '1.5em',
+      marginTop: '10px'
+    },
+    paper: {
+      padding: '24px 32px',
+      boxShadow:
+        '0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12)',
+      backgroundColor: '#fff'
+    },
+    modal: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    modalContent: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '50%',
+
+      ['@media (max-width: 768px)']: {
+        width: '90%'
+      }
+    },
+    inputConatiner: {
+      width: '100%',
+      marginBottom: '15px',
+
+      [':global(.MuiFormControl-root)']: {
+        width: '100%'
+      }
+    },
+    buttonConatiner: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end'
     }
   })
 )

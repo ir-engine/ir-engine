@@ -84,7 +84,7 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
       entity = networkObject
     } else if (params?.sceneEntityId) {
       // spawn object from scene data
-      const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
+      const node = world.entityTree.uuidNodeMap.get(params.sceneEntityId)
       if (node) entity = node.entity
     } else {
       entity = createEntity()
@@ -94,7 +94,6 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    ownerIndex: action.ownerIndex,
     networkId: action.networkId,
     prefab: action.prefab,
     parameters: action.parameters,

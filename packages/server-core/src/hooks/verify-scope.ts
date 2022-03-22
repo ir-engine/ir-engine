@@ -2,6 +2,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
+import { Application } from './../../declarations.d'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext) => {
@@ -10,7 +11,7 @@ export default (currentType: string, scopeToVerify: string) => {
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
     const user = await context.app.service('user').get(loggedInUser.id)
     if (user.userRole === 'admin') return context
-    const scopes = await (context.app.service('scope') as any).Model.findAll({
+    const scopes = await (context.app as Application).service('scope').Model.findAll({
       where: {
         userId: loggedInUser.id
       },

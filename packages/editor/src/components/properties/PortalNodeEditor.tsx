@@ -9,7 +9,6 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
-import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'

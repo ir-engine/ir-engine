@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
@@ -31,7 +32,7 @@ const GroupConsole = () => {
           </Grid>
           <Grid item xs={12} sm={3}>
             <Button
-              className={classes.createBtn}
+              className={styles.openModalBtn}
               type="submit"
               variant="contained"
               onClick={() => openModalCreate(true)}

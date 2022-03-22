@@ -8,7 +8,7 @@ import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemCom
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import ScriptInput from '../inputs/ScriptInput'
@@ -68,7 +68,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
 
   const onChangePath = (path) => {
     if (validatePath(path)) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SystemComponent,
         properties: { filePath: path }
       })
