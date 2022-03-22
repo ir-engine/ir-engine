@@ -7,71 +7,16 @@ import DateAdapter from '@mui/lab/AdapterMoment'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
-import { Theme } from '@mui/material/styles'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
+import styles from './styles.module.scss'
 import UserGraph from './UserGraph'
 
 interface Props {}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-      height: '35rem',
-      width: '99.9%',
-      backgroundColor: '#323845'
-    },
-    mtopp: {
-      marginTop: '20px'
-    },
-    btn: {
-      color: 'white',
-      borderColor: 'white',
-      fontSize: '0.875rem',
-      [theme.breakpoints.down('md')]: {
-        fontSize: '0.6rem'
-      }
-    },
-    btnSelected: {
-      color: 'white !important',
-      borderColor: 'white',
-      backgroundColor: '#0000004d !important'
-    },
-    dashboardCardsContainer: {
-      display: 'grid',
-      gridGap: '10px',
-      gridTemplateColumns: '1fr 1fr 1fr 1fr',
-      ['@media (max-width: 900px)']: {
-        gridTemplateColumns: '1fr 1fr 1fr'
-      },
-      ['@media (max-width: 700px)']: {
-        gridTemplateColumns: '1fr 1fr'
-      },
-      ['@media (max-width: 500px)']: {
-        gridTemplateColumns: '1fr'
-      }
-    },
-    datePickerContainer: {
-      display: 'flex',
-      margin: '10px 0px',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-end'
-    }
-  })
-)
 
 /**
  * Function for analytics on admin dashboard
@@ -182,7 +127,6 @@ const Analytics = (props: Props) => {
     setRefetch(true)
   }
 
-  const classes = useStyles()
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
@@ -227,17 +171,17 @@ const Analytics = (props: Props) => {
 
   return (
     <>
-      <div className={classes.dashboardCardsContainer}>
+      <div className={styles.dashboardCardsContainer}>
         {data.map((el) => {
           return <Card key={el.label} data={el} />
         })}
       </div>
-      <div className={classes.mtopp}>
-        <div className={classes.paper}>
+      <div className={styles.mtopp}>
+        <div className={styles.paper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'activity'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'activity'
               })}
               value="activity"
               onClick={() => setGraphSelector('activity')}
@@ -245,8 +189,8 @@ const Analytics = (props: Props) => {
               Activity
             </ToggleButton>
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'users'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'users'
               })}
               value="users"
               onClick={() => setGraphSelector('users')}
@@ -254,7 +198,7 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          <div className={classes.datePickerContainer}>
+          <div className={styles.datePickerContainer}>
             <LocalizationProvider dateAdapter={DateAdapter}>
               <MobileDateTimePicker
                 value={startDate}
