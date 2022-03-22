@@ -17,7 +17,6 @@ import Modal from '@mui/material/Modal'
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
