@@ -59,7 +59,7 @@
     "helmet": "5.0.2",
     "mediasoup": "3.9.6",
     "msgpackr": "1.5.5",
-    "ps-list": "7.2.0",
+    "ps-list": "8.1.0",
     "serve-favicon": "2.5.0",
     "socket.io": "4.4.1",
     "trace-unhandled": "2.0.1",
