@@ -1,7 +1,5 @@
-import { ParityValue } from 'src/common/enums/ParityValue'
-import { defineQuery, getComponent } from 'src/ecs/functions/ComponentFunctions'
-import { XRInputSourceComponent } from 'src/xr/components/XRInputSourceComponent'
-import { getHandPosition } from 'src/xr/functions/WebXRFunctions'
+// import { ParityValue } from 'src/common/enums/ParityValue'
+// import { getHandPosition } from 'src/xr/functions/WebXRFunctions'
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -14,6 +12,8 @@ import {
 } from 'three'
 
 import { World } from '../ecs/classes/World'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 
 // Guideline parabola function
@@ -24,7 +24,7 @@ function positionAtT(inVec, t, p, v, g) {
   return inVec
 }
 
-export default async function AvatarSpawnSystem(world: World) {
+export default async function AvatarTeleportSystem(world: World) {
   // Utility Vectors
   const g = new Vector3(0, -9.8, 0)
   const tempVec = new Vector3()
@@ -86,6 +86,11 @@ export default async function AvatarSpawnSystem(world: World) {
         positionAtT(guideLight.position, t * 0.98, p, v, g)
         // positionAtT(guideSprite.position,t*0.98,p,v,g);
       }
+    }
+
+    for (const entity of avatarTeleportQuery.exit(world)) {
+      guideLight.intensity = 0
+      guidingController.remove(guideline)
     }
   }
 }

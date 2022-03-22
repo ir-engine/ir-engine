@@ -304,6 +304,10 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./avatar/AvatarControllerSystem')
       },
       {
+        type: SystemUpdateType.FIXED,
+        systemModulePromise: import('./avatar/AvatarTeleportSystem')
+      },
+      {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/InteractiveSystem')
       },
