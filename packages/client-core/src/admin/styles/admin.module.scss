@@ -512,6 +512,23 @@
   color: theme.$text;
 
   @media (max-width: 900px) {
-    height: 10vh
+    height: 10vh;
   }
+}
+
+.scopeFlex {
+  display: grid;
+  grid-template-columns: 2fr 2fr;
+  grid-gap: 10px;
+  margin-top: 4%;
+
+  @media(max-width: 600px) {
+    display: grid;
+    gridTemplateColumns: 4fr;
+  }
+}
+
+.rootList {
+  width: 100%;
+  background-color: theme.$purpleLighter;
 }

@@ -97,9 +97,9 @@ const EditGroup = (props: Props) => {
           {t('admin:components.group.editGroup')}
         </DialogTitle>
         <label>{t('admin:components.group.name')}</label>
-        <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+        <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
           <InputBase
-            className={classes.input}
+            className={styles.input}
             name="name"
             placeholder={t('admin:components.group.enterGroupName')}
             style={{ color: '#fff' }}
@@ -111,10 +111,10 @@ const EditGroup = (props: Props) => {
         <label>{t('admin:components.group.description')}</label>
         <Paper
           component="div"
-          className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+          className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
         >
           <InputBase
-            className={classes.input}
+            className={styles.input}
             name="description"
             placeholder={t('admin:components.group.enterGroupDescription')}
             style={{ color: '#fff' }}
@@ -132,7 +132,7 @@ const EditGroup = (props: Props) => {
         />
 
         <DialogActions className={styles.mt20}>
-          <Button type="submit" className={classes.saveBtn}>
+          <Button type="submit" className={styles.submitButton}>
             {t('admin:components.group.submit')}
           </Button>
           <Button
@@ -145,7 +145,7 @@ const EditGroup = (props: Props) => {
               })
               closeEditModal(false)
             }}
-            className={classes.saveBtn}
+            className={styles.cancelButton}
           >
             {t('admin:components.group.cancel')}
           </Button>

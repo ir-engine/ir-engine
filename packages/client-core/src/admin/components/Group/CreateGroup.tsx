@@ -18,7 +18,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -32,7 +31,6 @@ interface ScopeData {
 
 const CreateGroup = (props: Props) => {
   const { open, handleClose } = props
-  const classes = useStyles()
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()
@@ -99,12 +97,9 @@ const CreateGroup = (props: Props) => {
               {t('admin:components.group.createNewGroup')}
             </DialogTitle>
             <label>{t('admin:components.group.name')}</label>
-            <Paper
-              component="div"
-              className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
-            >
+            <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
               <InputBase
-                className={classes.input}
+                className={styles.input}
                 name="name"
                 placeholder={t('admin:components.group.enterGroupName')}
                 style={{ color: '#fff' }}
@@ -116,10 +111,10 @@ const CreateGroup = (props: Props) => {
             <label>{t('admin:components.group.description')}</label>
             <Paper
               component="div"
-              className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+              className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
             >
               <InputBase
-                className={classes.input}
+                className={styles.input}
                 name="description"
                 placeholder={t('admin:components.group.enterGroupDescription')}
                 style={{ color: '#fff' }}
@@ -130,7 +125,7 @@ const CreateGroup = (props: Props) => {
             </Paper>
             <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
             <DialogActions className={styles.mt20}>
-              <Button type="submit" className={classes.saveBtn}>
+              <Button type="submit" className={styles.submitButton}>
                 {t('admin:components.group.submit')}
               </Button>
               <Button
@@ -143,7 +138,7 @@ const CreateGroup = (props: Props) => {
                   })
                   handleClose(false)
                 }}
-                className={classes.saveBtn}
+                className={styles.cancelButton}
               >
                 {t('admin:components.group.cancel')}
               </Button>
