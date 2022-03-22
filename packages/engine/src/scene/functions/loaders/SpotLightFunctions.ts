@@ -82,7 +82,7 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
   if (typeof properties.angle !== 'undefined') light.angle = component.angle
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  // if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
+  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)

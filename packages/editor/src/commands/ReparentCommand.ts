@@ -68,8 +68,7 @@ export default class ReparentCommand extends Command {
           this.oldParents.push(parent)
 
           const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(obj.entity) + 1])
-          if (!before) throw new Error('Before is not defined')
-          this.oldBefores.push(before)
+          this.oldBefores.push(before!)
         }
 
         this.oldPositions.push(getComponent(obj.entity, TransformComponent)?.position.clone())
