@@ -4,6 +4,7 @@ import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/inter
 
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -13,16 +14,17 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
   const sceneJson = { version: 4, entities: {} } as SceneJson
 
   const traverseNode = entityTreeNode ?? world.entityTree.rootNode
-  traverseNode.traverse((node, index) => {
+
+  traverseEntityNode(traverseNode, (node, index) => {
     if (generateNewUUID) node.uuid = MathUtils.generateUUID()
     const entityJson = (sceneJson.entities[node.uuid] = { components: [] as ComponentJson[] } as EntityJson)
 
-    if (node.parentNode) {
-      entityJson.parent = node.parentNode.entity as any
+    if (node.parentEntity) {
+      entityJson.parent = node.parentEntity as any
       entityJson.index = index
     }
 
-    if (node === entityTreeNode || !node.parentNode) {
+    if (node === entityTreeNode || !node.parentEntity) {
       sceneJson.root = node.uuid
     }
 

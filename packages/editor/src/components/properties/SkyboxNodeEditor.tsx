@@ -15,7 +15,7 @@ import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
@@ -69,7 +69,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
 
   const onChangeEquirectangularPathOption = (equirectangularPath) => {
     if (equirectangularPath !== skyComponent.equirectangularPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SkyboxComponent,
         properties: { equirectangularPath }
       })
@@ -80,7 +80,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     const directory = getDirectoryFromUrl(path)
 
     if (directory !== skyComponent.cubemapPath) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: SkyboxComponent,
         properties: { cubemapPath: directory }
       })

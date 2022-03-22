@@ -6,8 +6,8 @@ import { accessEngineState, EngineActions } from '../../ecs/classes/EngineServic
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
@@ -26,7 +26,7 @@ export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes
   const components = world.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
-  loadSceneEntity(new EntityTreeNode(entity), { name: prefabType, components })
+  loadSceneEntity(createEntityNode(entity), { name: prefabType, components })
 }
 
 export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
@@ -81,7 +81,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   resetEngineRenderer(true)
 
   Object.keys(sceneData.entities).forEach((key) => {
-    entityMap[key] = new EntityTreeNode(createEntity(), key)
+    entityMap[key] = createEntityNode(createEntity(), key)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
@@ -90,13 +90,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   Object.keys(sceneData.entities).forEach((key) => {
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
-    tree.addEntityNode(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+    addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
 
-  addComponent(world.entityTree.rootNode.entity, Object3DComponent, { value: Engine.scene })
-  addComponent(world.entityTree.rootNode.entity, SceneTagComponent, {})
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
+  addComponent(tree.rootNode.entity, SceneTagComponent, {})
   if (Engine.isEditor) {
-    getComponent(world.entityTree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
+    getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
