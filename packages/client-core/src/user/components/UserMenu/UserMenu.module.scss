@@ -199,6 +199,7 @@
       .iconBlock {
         display: inline-block;
         color: white;
+        cursor: pointer;
       }
 
       h2 {
@@ -2026,7 +2027,7 @@
 }
 
 .selectedAvatar {
-  border: 1px solid rgb(81 81 255 / 45%) !important;
+  border: 3px solid rgb(81 81 255 / 45%) !important;
 }
 
 .activeAvatar {
