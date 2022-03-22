@@ -12,9 +12,11 @@ import matches from 'ts-matches'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { matchesVector3 } from '../../ecs/functions/Action'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 /** State of the avatar animation */
 
@@ -238,7 +240,7 @@ export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undef
 
 export const changeAvatarAnimationState = (entity: Entity, newStateName: string) => {
   if (isEntityLocalClient(entity)) {
-    const params = {}
-    dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+    avatarAnimationComponent.animationGraph.changeState(newStateName)
   }
 }
