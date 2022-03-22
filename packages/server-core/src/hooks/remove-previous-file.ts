@@ -2,12 +2,13 @@ import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
 import { useStorageProvider } from '../media/storageprovider/storageprovider'
+import { Application } from './../../declarations.d'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.params.previousFileId) {
       // Fetch Key of the thumbnail file and use the key to remove from local-store or AWS S3
-      const resource = await (context.app.service('static-resource') as any).Model.findOne({
+      const resource = await (context.app as Application).service('static-resource').Model.findOne({
         where: {
           id: context.params.previousFileId
         },
