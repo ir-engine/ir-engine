@@ -8,9 +8,12 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
+import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -323,7 +326,7 @@ const EditorContainer = () => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = Engine.scene.name + '.glb'
+      el.download = Engine.scene.name + '.gltf'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -378,15 +381,22 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await (Engine.scene as any).serialize(sceneName)
-    const projectJson = JSON.stringify(projectFile)
+    /*
+    const projectFile = sceneToGLTF(Engine.scene as any)//.toJSON())
+    const exporter = new GLTFExporter()
+
+    const chunks = await exporter.exportChunks(projectFile)
+    */
+    const gltf = await SceneManager.instance.exportScene()
+    const projectJson = JSON.stringify(gltf)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
     const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.world'
+    el.download = fileName + '.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()
+    document.body.removeChild(el)
     document.body.removeChild(el)
   }
 

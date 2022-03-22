@@ -16,7 +16,7 @@ import {
 import { store } from '@xrengine/client-core/src/store'
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
+import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -35,7 +35,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
 import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
-import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
+import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
@@ -403,12 +403,41 @@ export class SceneManager {
       ;(Engine.scene as any).entity = useWorld().entityTree.rootNode.entity
     }
 
-    const clonedScene = serializeForGLTFExport(Engine.scene)
+    const clonedScene = sceneToGLTF(Engine.scene as any)
 
+    /*
     if (combineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
     if (removeUnusedObjects) this.removeUnusedObjects(clonedScene)
+*/
+    const exporter = new GLTFExporter()
+    const doParse = () =>
+      new Promise((resolve, reject) => {
+        exporter.parse(
+          clonedScene,
+          (gltf) => {
+            resolve(gltf)
+          },
+          (error) => {
+            reject(error)
+          },
+          {
+            embedImages: false,
+            trs: true,
+            onlyVisible: false,
+            includeCustomExtensions: true,
+            animations: getAnimationClips()
+          }
+        )
+      })
+    let gltf
+    try {
+      gltf = await doParse()
+    } catch (error) {
+      throw new RethrownError('error exporting scene', error)
+    }
+    return gltf
 
-    const exporter = new GLTFExporter({
+    /*({
       mode: 'glb',
       onlyVisible: false,
       includeCustomExtensions: true,
@@ -448,7 +477,7 @@ export class SceneManager {
       return { glbBlob, chunks }
     } catch (error) {
       throw new RethrownError('Error creating glb blob', error)
-    }
+    }*/
   }
 
   updateOutlinePassSelection(): void {

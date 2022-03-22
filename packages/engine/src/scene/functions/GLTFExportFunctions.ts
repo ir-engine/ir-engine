@@ -8,53 +8,34 @@ import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import cloneObject3D from './cloneObject3D'
 
-export const serializeForGLTFExport = (object3d: Object3D) => {
-  const clonnedObject = cloneObject3D(object3d, true)
+/*
+export const serializeForGLTFExport = (object3d: Object3DWithEntity) => {
+  const stagedRoot = object3d//prepareForClone(object3d)
+  const clonnedObject = stagedRoot//cloneObject3D(stagedRoot, true)
 
-  prepareObjectForGLTFExport(clonnedObject)
+  //prepareObjectForGLTFExport(clonnedObject)
   clonnedObject.traverse((node: Object3DWithEntity) => {
     if (node.entity) {
       prepareObjectForGLTFExport(node)
     }
   })
-
   return clonnedObject
 }
 
-const addComponentDataToGLTFExtenstion = (obj3d: Object3D, data: ComponentJson) => {
-  if (!obj3d.userData.gltfExtensions) obj3d.userData.gltfExtensions = {}
-  if (!obj3d.userData.gltfExtensions.componentData) obj3d.userData.gltfExtensions.componentData = {}
-  if (data.props && typeof data.props !== 'object')
-    throw new Error('glTF component props must be an object or undefined')
 
-  const componentProps = {}
+export const exportGLTF = (scene: Object3DWithEntity) => {
+}
 
-  for (const key in data.props) {
-    const value = data.props[key]
-    if (value instanceof Color) {
-      componentProps[key] = `Color { r: ${value.r}, g: ${value.g}, b: ${value.b}, hex: #${value.getHexString()}}`
-    } else {
-      componentProps[key] = value
+const prepareForClone = (root: Object3D) => {
+  const toRemove = new Array<Object3D>()
+  root.traverse((obj) => {
+    //remove skeletonhelpers as they should not be serialized
+    if (obj.type == "SkeletonHelper") {
+      toRemove.push(obj)
     }
-  }
-
-  obj3d.userData.gltfExtensions.componentData[data.name] = componentProps
+  })
+  toRemove.forEach((obj) => obj.parent?.remove(obj))
+  return root
 }
 
-const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld()) => {
-  const entityNode = getComponent(obj3d.entity, EntityNodeComponent)
-
-  if (entityNode?.components) {
-    entityNode.components.forEach((comp) => {
-      const loadingRegister = world.sceneLoadingRegistry.get(comp)
-
-      if (loadingRegister) {
-        obj3d.userData.editor_uuid = world.entityTree.findNodeFromEid(obj3d.entity)?.uuid
-        if (loadingRegister.prepareForGLTFExport) loadingRegister.prepareForGLTFExport(obj3d)
-
-        let data = loadingRegister.serialize(obj3d.entity)
-        if (data) addComponentDataToGLTFExtenstion(obj3d, data)
-      }
-    })
-  }
-}
+*/

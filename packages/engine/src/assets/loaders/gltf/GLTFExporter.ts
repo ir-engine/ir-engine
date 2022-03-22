@@ -40,6 +40,8 @@ import { LightmapExporterExtension } from './extensions/exporter/LightmapExporte
 //------------------------------------------------------------------------------
 // Constants
 //------------------------------------------------------------------------------
+const KTX2_PIXELFORMAT = 36492
+
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
   LINES: 0x0001,
@@ -493,7 +495,7 @@ class GLTFExporter {
   }
   async transformImage(image, mimeType, flipY) {
     const shouldResize = this.options.forcePowerOfTwoTextures && !GLTFExporter.Utils.isPowerOfTwo(image)
-    if (!shouldResize && !flipY) {
+    if (image.src !== undefined && !shouldResize && !flipY) {
       const response = await fetch(image.src)
       const blob = await response.blob()
       return { blob, src: image.src, width: image.width, height: image.height }
@@ -527,7 +529,8 @@ class GLTFExporter {
       this.cachedData.images.set(image, {})
     }
     const cachedImages = this.cachedData.images.get(image)
-    const mimeType = format === RGBAFormat || dataTexture ? 'image/png' : 'image/jpeg'
+    const mimeType =
+      format === RGBAFormat || dataTexture ? 'image/png' : format === KTX2_PIXELFORMAT ? 'image/ktx2' : 'image/jpeg'
     const key = mimeType + ':flipY/' + flipY.toString()
     if (cachedImages[key] !== undefined) {
       return cachedImages[key]
@@ -548,8 +551,20 @@ class GLTFExporter {
         })
       )
     } else {
-      const fileName = GLTFExporter.Utils.getFileNameFromUri(image.src)
-      const extension = mimeType === 'image/png' ? '.png' : '.jpg'
+      const fileName = image.src
+        ? GLTFExporter.Utils.getFileNameFromUri(image.src)
+        : ((img) => {
+            let i = 0
+            for (const cachedImg of this.cachedData.images.keys()) {
+              if (cachedImg == image) {
+                break
+              }
+              i += 1
+            }
+            return `Unnamed Image ${i}`
+          })(image)
+
+      const extension = mimeType.replace('image/', '.')
       gltfImage.uri = fileName + index + extension
       this.pending.push(
         this.transformImage(image, mimeType, flipY).then((result) => (this.outputImages[index] = result))
