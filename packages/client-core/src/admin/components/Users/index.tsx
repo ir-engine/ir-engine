@@ -15,12 +15,9 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchUserRole } from '../../common/hooks/User.hooks'
 import InputSelect from '../../common/InputSelect'
 import Search from '../../common/Search'
-import { userFilterMenu } from '../../common/variables/user'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
-import adminStyles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
-import styles from '../Admin.module.scss'
+import styles from '../../styles/admin.module.scss'
 import UserModel from './CreateUser'
 import UserTable from './UserTable'
 
@@ -30,7 +27,6 @@ interface InputSelectProps {
 }
 
 const Users = () => {
-  const classes = useStyles()
   const [search, setSearch] = useState('')
   const [userModalOpen, setUserModalOpen] = useState(false)
   const [role, setRole] = useState('')
@@ -91,17 +87,12 @@ const Users = () => {
 
   return (
     <div>
-      <Grid container spacing={1} className={adminStyles.mb10px}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item md={8} xs={6}>
           <Search text="user" handleChange={handleChange} />
         </Grid>
         <Grid item md={3} xs={5}>
-          <Button
-            className={adminStyles.openModalBtn}
-            type="submit"
-            variant="contained"
-            onClick={openModalCreate(true)}
-          >
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
@@ -110,6 +101,7 @@ const Users = () => {
             onClick={handleClick}
             size="small"
             sx={{ ml: 2 }}
+            className={styles.filterButton}
             aria-controls={openMenu ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={openMenu ? 'true' : undefined}
@@ -127,8 +119,7 @@ const Users = () => {
         id="account-menu"
         open={openMenu}
         onClose={handleClose}
-        // onClick={handleClose}
-        PaperProps={userFilterMenu}
+        classes={{ paper: styles.menuPaper }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
@@ -148,7 +139,7 @@ const Users = () => {
           />
         </MenuItem>
         <Divider />
-        <label className={classes.spanWhite} style={{ marginLeft: '1rem' }}>
+        <label className={styles.spanWhite} style={{ marginLeft: '1rem' }}>
           Based on user role
         </label>
         <MenuItem>
@@ -160,11 +151,10 @@ const Users = () => {
             formErrors={''}
           />
         </MenuItem>
-
         <MenuItem>
-          <IconButton onClick={() => resetFilter()}>
-            <span className={classes.spanWhite}>Reset</span>
-          </IconButton>
+          <Button className={styles.gradientButton} onClick={() => resetFilter()}>
+            <span className={styles.spanWhite}>Reset</span>
+          </Button>
         </MenuItem>
       </Menu>
     </div>

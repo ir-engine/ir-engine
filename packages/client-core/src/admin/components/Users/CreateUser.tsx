@@ -25,7 +25,6 @@ import { staticResourceService, useStaticResourceState } from '../../services/St
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateUserRole from './CreateUserRole'
 
 interface Props {
@@ -42,7 +41,6 @@ interface InputSelectProps {
 const CreateUser = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
   const { t } = useTranslation()
-  const classes = useStyles()
   const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
   const [state, setState] = React.useState({
     name: '',
@@ -201,17 +199,17 @@ const CreateUser = (props: Props) => {
             formErrors={state.formErrors.userRole}
           />
           <DialogContentText className={styles.mb15}>
-            <span className={classes.select}>{t('admin:components.user.dontSeeUserRole')} </span>{' '}
-            <a href="#h" className={classes.textLink} onClick={createUserRole}>
+            <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
+            <a href="#h" className={styles.textLink} onClick={createUserRole}>
               {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>
           <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
           <DialogActions>
-            <Button className={classes.saveBtn} onClick={handleSubmit}>
+            <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.user.submit')}
             </Button>
-            <Button onClick={handleCancel} className={classes.saveBtn}>
+            <Button onClick={handleCancel} className={styles.cancelButton}>
               {t('admin:components.user.cancel')}
             </Button>
           </DialogActions>

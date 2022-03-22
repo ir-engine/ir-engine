@@ -335,7 +335,6 @@
 }
 
 .rootPaper {
-  margin-top: 50px;
   min-height: 15vh;
   background: theme.$purpleLighter;
   color: theme.$text;
@@ -451,17 +450,68 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  // background-color: #43484F;
   color: theme.$text;
   max-height: calc(100vh - 112px);
 }
 
-rootTableWithSearch {
+.rootTableWithSearch {
   flex-grow: 1;
   width: 100%;
   display: flex;
   flex-direction: column;
-  // background-color: #43484F;
   color: theme.$text;
   max-height: calc(100vh - 172px);
+}
+
+.scopeContainer {
+  max-height: 200px;
+  width: 460px;
+  overflow-y: scroll;
+
+  @media (max-width: 1200px) {
+    width: 100%
+  }
+}
+
+.mt5 {
+  margin-top: 5%;
+  margin-left: 0px;
+}
+
+.pad {
+  padding: 20px;
+}
+
+.centering {
+  justify-content: center
+}
+
+.large {
+  width: 80px;
+  height: 80px;
+}
+
+.chip {
+  color: theme.$text;
+  background-color: theme.$purpleLighter;
+}
+
+.filterButton {
+  svg {
+    color: theme.$purpleLighter;
+  }
+}
+
+.checkbox {
+  color: theme.$text;
+}
+
+.menuPaper {
+  min-height: 15vh;
+  background: theme.$purplePanel;
+  color: theme.$text;
+
+  @media (max-width: 900px) {
+    height: 10vh
+  }
 }
