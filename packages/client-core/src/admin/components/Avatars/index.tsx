@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import AvatarCreate from './AvatarCreate'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
-  const classes = useStyles()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()

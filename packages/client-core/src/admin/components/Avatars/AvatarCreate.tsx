@@ -30,7 +30,6 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 const Input = styled('input')({
   display: 'none'
@@ -41,7 +40,6 @@ let scene: Scene
 let renderer: WebGLRenderer = null!
 const AvatarCreate = ({ handleClose, open }) => {
   const { t } = useTranslation()
-  const classes = useStyles()
   const [newAvatar, setNewAvatar] = useState({
     avatarName: '',
     avatarUrl: '',
@@ -260,16 +258,12 @@ const AvatarCreate = ({ handleClose, open }) => {
         <Container maxWidth="sm" className={styles.mt20}>
           <div ref={panelRef}>
             <DialogTitle>
-              <IconButton onClick={handleClose}>
+              <IconButton className={styles.spanWhite} onClick={handleClose}>
                 <ArrowBack />
               </IconButton>
               {t('user:avatar.title')}
             </DialogTitle>
             <DialogContent>
-              <IconButton className={classes.positionRight}>
-                <Help className={classes.spanWhite} />
-              </IconButton>
-
               <div style={{ marginTop: '2rem' }}>
                 <InputText
                   value={newAvatar.avatarName}
@@ -284,7 +278,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                   formErrors={formErrors.description}
                 />
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.openModalBtn}
                   onClick={() => {
                     setSelectUse(!selectUse)
                     if (!selectUse) {
@@ -293,7 +287,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                       setFileSelected(false)
                     }
                   }}
-                  style={{ width: '97%' }}
+                  style={{ width: '97%', marginBottom: '10px' }}
                 >
                   {!selectUse ? 'Upload files' : 'Use url instead'}
                 </Button>
@@ -321,7 +315,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                       <Button
                         variant="contained"
                         component="span"
-                        // classes={{ root: classes.rootBtn }}
+                        className={styles.openModalBtn}
                         endIcon={<SystemUpdateAlt />}
                         disabled={avatarModel ? true : false}
                       >
@@ -333,7 +327,7 @@ const AvatarCreate = ({ handleClose, open }) => {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button className={classes.saveBtn} onClick={uploadByUrls}>
+              <Button className={styles.submitButton} onClick={uploadByUrls}>
                 Upload
               </Button>
               <Button
@@ -341,7 +335,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                   handleClose()
                   clearState()
                 }}
-                className={classes.saveBtn}
+                className={styles.cancelButton}
               >
                 Cancel
               </Button>

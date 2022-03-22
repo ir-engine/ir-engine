@@ -33,7 +33,6 @@ import { staticResourceService, useStaticResourceState } from '../../services/St
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: boolean
@@ -51,7 +50,6 @@ interface InputSelectProps {
 }
 
 const ViewUser = (props: Props) => {
-  const classes = useStyles()
   const { openView, closeViewModel, userAdmin } = props
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
@@ -212,10 +210,10 @@ const ViewUser = (props: Props) => {
       >
         {userAdmin && (
           <Paper elevation={3} className={styles.rootPaper}>
-            <Container maxWidth="sm" className={classes.pad}>
-              <Grid container spacing={2} className={classes.centering}>
+            <Container maxWidth="sm" className={styles.pad}>
+              <Grid container spacing={2} className={styles.centering}>
                 <Grid item xs={4}>
-                  <Avatar className={classes.large}>
+                  <Avatar className={styles.large}>
                     {!userAdmin.avatarId ? (
                       <Skeleton animation="wave" variant="circular" width={40} height={40} />
                     ) : (

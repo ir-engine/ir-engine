@@ -1,4 +1,5 @@
 @use "../../theme.scss"as theme;
+@import '../../styles/imports.module.scss';
 
 .openModalBtn {
   height: 50px;
@@ -433,6 +434,10 @@
   margin-top: 20%;
 }
 
+.mt20px {
+  margin-top: 20px;
+}
+
 .mt30px {
   margin-top: 30px;
 }
@@ -531,4 +536,135 @@
 .rootList {
   width: 100%;
   background-color: theme.$purpleLighter;
+}
+
+.thead {
+  .trow {
+    .tcell {
+      color: lighten(white, 0.8);
+      background-color: black;
+
+      .iconsContainer {
+        display: flex;
+
+        h3 {
+          margin-right: 5px;
+        }
+      }
+
+      &.actionCell {
+        display: flex;
+        flex-direction: row;
+        flex-flow: wrap;
+
+        :global(.MuiButtonBase-root) {
+          width: fit-content;
+          margin-right: 5px;
+        }
+      }
+
+      :global(.MuiButtonBase-root) {
+        color: lighten(white, 0.8);
+      }
+    }
+
+    .tcellSelectable {
+      .currentUser {
+        color: lighten(white, 0.8);
+        background-color: $FacebookBlue;
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        &:hover {
+          background-color: #145cee;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .trowHover {
+    cursor: pointer;
+
+    .tcell {
+      color: lighten(white, 0.8);
+      background-color: black;
+    }
+  }
+}
+
+.root {
+  flex-grow: 1
+}
+
+.analyticsPaper {
+  padding: 16px;
+  text-align: center;
+  color: theme.$text;
+  height: 35rem;
+  width: 99.9%;
+  background-color: theme.$purplePanel;
+}
+
+.btn {
+  color: white;
+  border-color: white;
+  font-size: 0.875rem;
+
+  @media (max-width: 900px) {
+    font-size: 0.6rem
+  }
+}
+
+.btnSelected {
+  color: white !important;
+  border-color: white;
+  background-color: theme.$purpleColor !important;
+}
+
+.dashboardCardsContainer {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+
+  @media (max-width: 900px) {
+    gridTemplateColumns: 1fr 1fr 1fr
+  }
+
+  @media (max-width: 700px) {
+    gridTemplateColumns: 1fr 1fr
+  }
+
+  @media (max-width: 500px) {
+    gridTemplateColumns: 1fr
+  }
+}
+
+.datePickerContainer {
+  display: flex;
+  margin: 10px 0px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+
+  input {
+    color: theme.$text;
+  }
+
+  fieldset {
+    border-color: theme.$text;
+  }
+
+  fieldset:hover {
+    border-color: rgba(theme.$text, 0.8);
+  }
+}
+
+.rootCardNumber {
+  min-width: 100%;
+  background-color: theme.$purplePanel
+}
+
+.label {
+  color: theme.$text
 }

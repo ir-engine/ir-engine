@@ -10,7 +10,7 @@ import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewAvatar from './ViewAvatar'
 
 if (!global.setImmediate) {
@@ -29,7 +29,6 @@ const AvatarTable = (props: Props) => {
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
-  const classes = useStyles()
   const { t } = useTranslation()
 
   const [page, setPage] = useState(0)
@@ -78,24 +77,24 @@ const AvatarTable = (props: Props) => {
         <>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setAvatarAdmin(el)
               setViewModel(true)
             }}
           >
-            <span className={classes.spanWhite}>{t('user:avatar.view')}</span>
+            <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setAvatarId(el.id)
               setAvatarName(name as any)
             }}
           >
-            <span className={classes.spanDange}>{t('user:avatar.delete')}</span>
+            <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
           </a>
         </>
       )
