@@ -41,6 +41,7 @@ import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { bonesData2 } from '../DefaultSkeletonBones'
@@ -141,16 +142,17 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const velocityComponent = getComponent(entity, VelocityComponent)
-  const avatarComponent = getComponent(entity, AvatarComponent)
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   if (avatarAnimationComponent)
     (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
+      entity,
       animationComponent.mixer,
       velocityComponent.linear,
-      avatarComponent
+      controllerComponent
     )
 
   // advance animation for a frame to eliminate potential t-pose
