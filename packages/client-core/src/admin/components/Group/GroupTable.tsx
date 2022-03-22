@@ -8,7 +8,7 @@ import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
-import styles from '../../styles/admin.modules.scss'
+import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
