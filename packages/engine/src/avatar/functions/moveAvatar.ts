@@ -1,3 +1,6 @@
+import checkValidPositionOnGround from 'src/common/functions/checkValidPositionOnGround'
+import { ColliderComponent } from 'src/physics/components/ColliderComponent'
+import { teleportRigidbody } from 'src/physics/functions/teleportRigidbody'
 import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -318,4 +321,24 @@ export const moveXRAvatar = (
   velocity.linear.setZ(displacement.z)
 
   moveAvatarController(world, entity, displacement)
+}
+
+/**
+ * Teleports the avatar to new position
+ * @param entity
+ * @param newPosition
+ */
+export const teleportAvatar = (entity : Entity, newPosition : Vector3): void => {
+  if (!hasComponent(entity, AvatarComponent)) {
+    console.warn("Teleport avatar called on non-avatar entity")
+    return
+  }
+
+  if (checkValidPositionOnGround(newPosition)) {
+    const transform = getComponent(entity, TransformComponent)
+    transform.position.copy(newPosition)
+    
+    const body = getComponent(entity, ColliderComponent).body
+    teleportRigidbody(body, newPosition)
+  }
 }

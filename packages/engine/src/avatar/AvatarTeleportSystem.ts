@@ -15,6 +15,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
 function positionAtT(inVec, t, p, v, g) {
@@ -56,7 +57,7 @@ export default async function AvatarTeleportSystem(world: World) {
       const controller = xrInputSourceComponent.controllerRightParent
       guidingController = controller
       guideLight.intensity = 1
-      controller.add(guideline)
+      guidingController.add(guideline)
     }
 
     for (const entity of avatarTeleportQuery(world)) {
@@ -89,6 +90,14 @@ export default async function AvatarTeleportSystem(world: World) {
     }
 
     for (const entity of avatarTeleportQuery.exit(world)) {
+      // Get cursor position and teleport avatar to it
+      const p = guidingController.getWorldPosition(tempVecP);
+      const v = guidingController.getWorldDirection(tempVecV);
+      v.multiplyScalar(6);
+      const t = (-v.y  + Math.sqrt(v.y**2 - 2*p.y*g.y))/g.y;
+      const newPosition = positionAtT(tempVec1,t,p,v,g);
+      teleportAvatar(entity, newPosition)
+
       guideLight.intensity = 0
       guidingController.remove(guideline)
     }
