@@ -1,4 +1,4 @@
-import { createState, none, useState } from '@speigg/hookstate'
+﻿import { createState, none, useState } from '@speigg/hookstate'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
@@ -253,6 +253,25 @@ export const ChatService = {
   },
   createMessage: async (values: ChatMessageProps) => {
     try {
+      const { text } = values
+      const [, video] = document.getElementsByTagName('video')
+
+      if (text.startsWith('/')) {
+        const [controlType, videoUrl] = text.split(' ')
+        switch (controlType) {
+          case '/play':
+            video.src = videoUrl
+            video?.play()
+            break
+          case '/pause':
+            video?.pause()
+            break
+          case '/seek':
+            ;(video as any).currentTime = parseFloat(videoUrl)
+            break
+        }
+      }
+
       const chatState = accessChatState().value
       const data = {
         targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
