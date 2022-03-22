@@ -8,7 +8,6 @@ import { ProjectService, useProjectState } from '../../../common/services/Projec
 import { useAuthState } from '../../../user/services/AuthService'
 import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
 
@@ -17,7 +16,6 @@ if (!global.setImmediate) {
 }
 
 const Projects = () => {
-  const classes = useStyles()
   const authState = useAuthState()
   const user = authState.user
   const adminProjectState = useProjectState()
@@ -39,7 +37,7 @@ const Projects = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginb10}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={6}>
           <Button
             className={styles.openModalBtn}

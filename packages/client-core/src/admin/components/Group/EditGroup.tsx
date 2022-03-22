@@ -17,7 +17,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   groupAdmin: Group
@@ -29,7 +28,6 @@ interface ScopeData {
 }
 
 const EditGroup = (props: Props) => {
-  const classes = useStyles()
   const { groupAdmin, closeEditModal, closeViewModal } = props
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()

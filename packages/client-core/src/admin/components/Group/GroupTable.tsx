@@ -8,7 +8,7 @@ import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.modules.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
@@ -17,7 +17,6 @@ interface Props {
 
 const GroupTable = (props: Props) => {
   const { search } = props
-  const classes = useStyles()
   const user = useAuthState().user
   const [viewModel, setViewModel] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
@@ -82,18 +81,18 @@ const GroupTable = (props: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
-            <span className={classes.spanWhite}>{t('admin:components.group.view')}</span>
+          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+            <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
               setGroupName(name)
             }}
           >
-            <span className={classes.spanDange}>{t('admin:components.group.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.group.delete')}</span>
           </a>
         </>
       )

@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
 
 const GroupConsole = () => {
-  const classes = useStyles()
   const [groupOpen, setGroupOpen] = useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()

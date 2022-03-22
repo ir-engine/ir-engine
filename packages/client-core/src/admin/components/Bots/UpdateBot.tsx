@@ -26,7 +26,6 @@ import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -37,7 +36,6 @@ interface Props {
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
-  const classes = useStyles()
   const [state, setState] = useState({
     name: '',
     description: '',

@@ -668,3 +668,34 @@
 .label {
   color: theme.$text
 }
+
+.checkboxContainer {
+  padding: 0px;
+}
+
+.progress {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.progressBackground {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: theme.$purpleLighter;
+  top: 0px;
+}
+
+.checkboxButton {
+  margin: 0px;
+  padding: 0px;
+  color: theme.$text;
+}
+
+.mb10px {
+  margin-bottom: 10px;
+}

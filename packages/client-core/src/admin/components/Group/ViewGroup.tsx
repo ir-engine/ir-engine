@@ -18,7 +18,6 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import EditGroup from './EditGroup'
 
 interface Props {
@@ -28,7 +27,6 @@ interface Props {
 }
 
 const ViewGroup = (props: Props) => {
-  const classes = useStyles()
   const { openView, groupAdmin, closeViewModal } = props
   const [editMode, setEditMode] = useState(false)
   const { t } = useTranslation()

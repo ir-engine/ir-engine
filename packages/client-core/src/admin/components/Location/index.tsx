@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()

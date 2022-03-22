@@ -23,7 +23,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   open: boolean
@@ -33,7 +32,6 @@ interface Props {
 
 const CreateLocation = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
-  const classes = useStyles()
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({

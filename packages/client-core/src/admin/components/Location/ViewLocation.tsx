@@ -27,7 +27,6 @@ import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 
 interface Props {
   openView: boolean
@@ -37,7 +36,6 @@ interface Props {
 
 const ViewLocation = (props: Props) => {
   const { openView, closeViewModel, locationAdmin } = props
-  const classes = useStyles()
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({
     name: '',
