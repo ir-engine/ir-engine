@@ -4,7 +4,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 
-import styles from './styles.module.scss'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   data: {

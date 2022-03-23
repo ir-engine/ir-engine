@@ -18,12 +18,11 @@ import { InstanceService, useInstanceState } from '../../services/InstanceServic
 import { LOCATION_PAGE_LIMIT, LocationService, useLocationState } from '../../services/LocationService'
 import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
-  const classes = useStyles()
   const adminInstanceState = useInstanceState()
 
   const [page, setPage] = React.useState(0)
@@ -109,19 +108,19 @@ const LocationTable = (props: LocationProps) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
-            <span className={classes.spanWhite}>{t('admin:components.index.view')}</span>
+          <a href="#h" className={styles.actionStyle} onClick={openViewModel(true, el)}>
+            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setLocationId(id)
               setLocationName(name)
             }}
           >
-            <span className={classes.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )

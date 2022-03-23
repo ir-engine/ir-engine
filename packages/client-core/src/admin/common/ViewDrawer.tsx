@@ -1,9 +1,8 @@
 import React from 'react'
 
 import Drawer from '@mui/material/Drawer'
-import Paper from '@mui/material/Paper'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   openView: boolean
@@ -13,14 +12,14 @@ interface Props {
 
 export default function ViewDrawer(props: Props) {
   const { openView, handleCloseDrawer, children } = props
-  const classes = useStyles()
+
   return (
     <React.Fragment>
       <Drawer
         anchor="right"
         open={openView}
         onClose={() => handleCloseDrawer()}
-        classes={{ paper: classes.paperDrawer }}
+        classes={{ paper: styles.paperDrawer }}
       >
         {children}
       </Drawer>

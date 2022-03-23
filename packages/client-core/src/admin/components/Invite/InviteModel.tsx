@@ -17,12 +17,11 @@ import Modal from '@mui/material/Modal'
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { InviteService } from '../../../social/services/InviteService'
 import { InviteTypeService } from '../../../social/services/InviteTypeService'
 import { useInviteTypeState } from '../../../social/services/InviteTypeService'
-import styles from '../Admin.module.scss'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
@@ -43,52 +42,8 @@ const phoneRegex = /^[0-9]{10}$/
  * @param props
  */
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    '& .MuiFilledInput-root': {
-      background: 'rgb(232, 241, 250)'
-    }
-  },
-  paper: {
-    width: '40%',
-    backgroundColor: '#43484F',
-    color: '#f1f1f1'
-  },
-  createInput: {
-    padding: '2px 4px',
-    display: 'flex',
-    alignItems: 'center',
-    //width: "45vw",
-    marginTop: '10px',
-    marginBottom: '15px',
-    background: '#343b41',
-    border: '1px solid #23282c',
-    color: '#f1f1f1 !important'
-  },
-  marginTp: {
-    marginTop: '20%'
-  },
-  texAlign: {
-    textAlign: 'center'
-  },
-  input: {
-    marginLeft: 1,
-    flex: 1,
-    color: '#f1f1f1'
-  },
-  select: {
-    color: '#f1f1f1 !important'
-  },
-  selectPaper: {
-    background: '#343b41',
-    color: '#f1f1f1'
-  }
-}))
-
 const InviteModel = (props: Props) => {
-  const classes = useStyles()
   const { open, handleClose, users } = props
-  console.log(open)
   const router = useHistory()
   const [currency, setCurrency] = React.useState('friend')
   const inviteTypeData = useInviteTypeState()
@@ -251,7 +206,7 @@ const InviteModel = (props: Props) => {
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modaContent]: true
             })}
           >
             <Typography variant="h5" align="center" className="mt-4 mb-4" component="h4" style={{ color: '#fff' }}>
@@ -286,7 +241,6 @@ const InviteModel = (props: Props) => {
                 </Grid>
                 <Grid item xs={4}>
                   <TextField
-                    className={classes.root}
                     id="outlined-select-currency-native"
                     select
                     label={t('admin:components.invite.targetType')}
@@ -348,10 +302,10 @@ const InviteModel = (props: Props) => {
               />
               <FormGroup row className={styles.locationModalButtons}>
                 {' '}
-                <Button type="submit" variant="contained" style={{ background: 'rgb(58, 65, 73)', color: '#fff' }}>
+                <Button type="submit" variant="contained" className={styles.submitButton}>
                   {t('admin:components.invite.sendInvitation')}
                 </Button>
-                <Button type="submit" variant="contained" onClick={handleClose}>
+                <Button type="submit" variant="contained" className={styles.cancelButton} onClick={handleClose}>
                   {t('admin:components.invite.cancel')}
                 </Button>
               </FormGroup>
@@ -371,12 +325,12 @@ const InviteModel = (props: Props) => {
       </Snackbar>
     </div>
 
-    // <Drawer classes={{paper:classes.paper}} anchor="right" open={open} onClose={handleClose()}>
-    //   <Container maxWidth="sm" className={classes.marginTp}>
-    //     <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+    // <Drawer classes={{paper:styles.paper}} anchor="right" open={open} onClose={handleClose()}>
+    //   <Container maxWidth="sm" className={classtylesses.mt20}>
+    //     <DialogTitle id="form-dialog-title" className={styles.textAlign}>
     //      Send Invite
     //     </DialogTitle>
-    //     <Paper component="div" className={classes.createInput}>
+    //     <Paper component="div" className={styles.createInput}>
     //     <Dropdown
     //         placeholder="Users"
     //         fluid
@@ -391,9 +345,9 @@ const InviteModel = (props: Props) => {
     //     <Grid container spacing={3}>
     //     <Grid item xs={5}>
     //       <label>Enter valid Passcode or None</label>
-    //      <Paper component="div" className={classes.createInput}>
+    //      <Paper component="div" className={styles.createInput}>
     //      <InputBase
-    //       className={classes.input}
+    //       className={styles.input}
     //       name="passcode"
     //       placeholder="Enter valid Passcode or None"
     //       style={{ color: '#fff' }}
@@ -405,7 +359,7 @@ const InviteModel = (props: Props) => {
     //     </Grid>
     //     <Grid item xs={4}>
     //       <label>Target type</label>
-    //       <Paper component="div" className={classes.createInput}>
+    //       <Paper component="div" className={styles.createInput}>
     //       <FormControl fullWidth>
     //       <Select
     //         labelId="demo-controlled-open-select-label"
@@ -415,8 +369,8 @@ const InviteModel = (props: Props) => {
     //         displayEmpty
     //         // name="avatar"
     //         onChange={handleChange}
-    //         className={classes.select}
-    //         MenuProps={{ classes: { paper: classes.selectPaper } }}
+    //         className={styles.select}
+    //         MenuProps={{ classes: { paper: styles.selectPaper } }}
     //       >
     //        <MenuItem value="" disabled>
     //        <em>friend</em>
@@ -432,7 +386,7 @@ const InviteModel = (props: Props) => {
     //     </Grid>
     //     <Grid item xs={3}>
     //     <label>Identity provider  type</label>
-    //       <Paper component="div" className={classes.createInput}>
+    //       <Paper component="div" className={styles.createInput}>
     //       <FormControl fullWidth>
     //       <Select
     //         labelId="demo-controlled-open-select-label"
@@ -442,8 +396,8 @@ const InviteModel = (props: Props) => {
     //         displayEmpty
     //         // name="avatar"
     //         onChange={handleChangeType}
-    //         className={classes.select}
-    //         MenuProps={{ classes: { paper: classes.selectPaper } }}
+    //         className={styles.select}
+    //         MenuProps={{ classes: { paper: styles.selectPaper } }}
     //       >
     //        <MenuItem value="" disabled>
     //        <em>E-mail</em>
@@ -460,9 +414,9 @@ const InviteModel = (props: Props) => {
     //     </Grid>
     //     </Grid>
     //     <label>Please enter US phone number or E-mail</label>
-    //      <Paper component="div" className={classes.createInput}>
+    //      <Paper component="div" className={styles.createInput}>
     //      <InputBase
-    //       className={classes.input}
+    //       className={styles.input}
     //       name="token"
     //       placeholder="Please enter US phone number or E-mail"
     //       style={{ color: '#fff' }}
@@ -473,11 +427,10 @@ const InviteModel = (props: Props) => {
     //      </Paper>
 
     //      <FormGroup row className={styles.locationModalButtons}>
-    //           {' '}
-    //           <Button type="submit" variant="contained" style={{ background: 'rgb(58, 65, 73)', color: '#fff' }}>
+    //           <Button type="submit" variant="contained" className={styles.submitButton}>
     //             Send Invitation
     //           </Button>
-    //           <Button type="submit" variant="contained" onClick={handleClose}>
+    //           <Button type="submit" variant="contained" className={styles.cancelButton} onClick={handleClose}>
     //             Cancel
     //           </Button>
     //         </FormGroup>
