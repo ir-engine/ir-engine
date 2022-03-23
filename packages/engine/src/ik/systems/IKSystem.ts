@@ -14,10 +14,8 @@ import { NetworkWorldAction } from '../../networking/functions/NetworkWorldActio
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
-import { TwoBoneIKSolverComponent } from '../components/TwoBoneIKSolverComponent'
 import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
 import { applyCameraLook } from '../functions/IKSolvers'
-import { solveTwoBoneIK } from '../functions/TwoBoneIKSolver'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -72,7 +70,6 @@ const mockAvatars = () => {
 export default async function IKSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikPoseQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  const twoBoneIKQuery = defineQuery([TwoBoneIKSolverComponent])
   // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
@@ -82,22 +79,6 @@ export default async function IKSystem(world: World) {
       const rig = getComponent(entity, IKRigComponent)
       const cameraSolver = getComponent(entity, CameraIKComponent)
       applyCameraLook(rig, cameraSolver)
-    }
-
-    // Apply two bone IK to the source skeleton
-    for (const entity of twoBoneIKQuery()) {
-      const solver = getComponent(entity, TwoBoneIKSolverComponent)
-      solveTwoBoneIK(
-        solver.root,
-        solver.mid,
-        solver.tip,
-        solver.target,
-        solver.hint,
-        solver.targetOffset,
-        solver.targetPosWeight,
-        solver.targetRotWeight,
-        solver.hintWeight
-      )
     }
 
     for (const entity of ikPoseQuery()) {

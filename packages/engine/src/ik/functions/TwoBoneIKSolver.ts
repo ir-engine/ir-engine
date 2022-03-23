@@ -18,12 +18,12 @@ function triangleAngle(aLen: number, bLen: number, cLen: number): number {
 
 /**
  * Solves Two-Bone IK.
- * target, hint and targetOffset params position/rotation properties are assumed to be in world space (e.g no parents)
+ * targetOffset param position/rotation properties are assumed to be in world space (e.g no parents)
  * @param {Bone} root root joint
  * @param {Bone} mid mid joint
  * @param {Bone} tip tip joint
  * @param {Object3D} target goal transform
- * @param {Vector3} hint Position of the hint
+ * @param {Object3D} hint Position of the hint
  * @param {Object3D} targetOffset Offset transform applied to the target
  * @param {number} targetPosWeight
  * @param {number} targetRotWeight
@@ -34,7 +34,7 @@ export function solveTwoBoneIK(
   mid: Bone,
   tip: Bone,
   target: Object3D,
-  hint: Vector3 | null,
+  hint: Object3D | null,
   targetOffset: Object3D,
   targetPosWeight: number = 1,
   targetRotWeight: number = 0,
@@ -43,8 +43,8 @@ export function solveTwoBoneIK(
   // The bone transform chain should already be updated outside this function
   // tip.updateWorldMatrix(true, false)
 
-  targetPos.copy(target.position).add(targetOffset.position)
-  targetRot.copy(target.quaternion).multiply(targetOffset.quaternion)
+  targetPos.setFromMatrixPosition(target.matrixWorld).add(targetOffset.position)
+  Object3DUtils.getWorldQuaternion(target, targetRot).multiply(targetOffset.quaternion)
 
   aPosition.setFromMatrixPosition(root.matrixWorld)
   bPosition.setFromMatrixPosition(mid.matrixWorld)
@@ -58,8 +58,7 @@ export function solveTwoBoneIK(
   at.subVectors(targetPos, aPosition)
 
   const hasHint = hint && hintWeight > 0
-
-  if (hasHint) ah.subVectors(hint, aPosition)
+  if (hasHint) ah.setFromMatrixPosition(hint.matrixWorld).sub(aPosition)
 
   let abLength = ab.length()
   let bcLength = bc.length()

@@ -31,7 +31,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 const avatarRadius = 0.25
-const defaultAvatarHeight = 1.8
+export const defaultAvatarHeight = 1.8
 const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 

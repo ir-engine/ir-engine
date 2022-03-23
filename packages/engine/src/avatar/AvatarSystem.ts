@@ -12,14 +12,13 @@ import {
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
+import { AvatarHandsIKComponent } from '../ik/components/AvatarHandsIKComponent'
 import { CameraIKComponent } from '../ik/components/CameraIKComponent'
 import { IKRigComponent } from '../ik/components/IKRigComponent'
-import { TwoBoneIKSolverComponent } from '../ik/components/TwoBoneIKSolverComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
@@ -156,23 +155,35 @@ export default async function AvatarSystem(world: World) {
 
     for (const entity of xrIKQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const ikRigComponent = getComponent(entity, IKRigComponent)
+      const leftHint = new Object3D()
+      const rightHint = new Object3D()
+      leftHint.position.set(-0.5, 0.5, 0.5)
+      rightHint.position.set(0.5, 0.5, 0.5)
+      xrInputSourceComponent.controllerGripLeftParent.add(leftHint)
+      xrInputSourceComponent.controllerGripRightParent.add(rightHint)
 
-      addComponent(entity, TwoBoneIKSolverComponent, {
-        root: ikRigComponent.boneStructure.LeftArm,
-        mid: ikRigComponent.boneStructure.LeftForeArm,
-        tip: ikRigComponent.boneStructure.LeftHand,
-        target: xrInputSourceComponent.controllerGripLeftParent,
-        targetOffset: new Object3D(),
-        targetPosWeight: 1,
-        targetRotWeight: 0,
-        hintWeight: 0,
-        hint: null
+      addComponent(entity, AvatarHandsIKComponent, {
+        leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+        leftHint: leftHint,
+        leftTargetOffset: new Object3D(),
+        leftTargetPosWeight: 1,
+        leftTargetRotWeight: 0,
+        leftHintWeight: 1,
+
+        rightTarget: xrInputSourceComponent.controllerGripRightParent,
+        rightHint: rightHint,
+        rightTargetOffset: new Object3D(),
+        rightTargetPosWeight: 1,
+        rightTargetRotWeight: 0,
+        rightHintWeight: 1
       })
     }
 
     for (const entity of xrIKQuery.exit(world)) {
-      removeComponent(entity, TwoBoneIKSolverComponent)
+      const ik = getComponent(entity, AvatarHandsIKComponent)
+      ik.leftHint?.removeFromParent()
+      ik.rightHint?.removeFromParent()
+      removeComponent(entity, AvatarHandsIKComponent)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {

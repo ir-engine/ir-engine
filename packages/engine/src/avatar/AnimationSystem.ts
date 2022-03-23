@@ -3,7 +3,9 @@ import matches from 'ts-matches'
 
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { AvatarHandsIKComponent } from '../ik/components/AvatarHandsIKComponent'
 import { IKRigComponent } from '../ik/components/IKRigComponent'
+import { solveTwoBoneIK } from '../ik/functions/TwoBoneIKSolver'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
@@ -18,6 +20,7 @@ euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
+const vrIKQuery = defineQuery([AvatarHandsIKComponent, IKRigComponent])
 const desiredTransformQuery = defineQuery([DesiredTransformComponent])
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent])
@@ -72,6 +75,35 @@ export default async function AnimationSystem(world: World) {
     for (const entity of tweenQuery(world)) {
       const tween = getComponent(entity, TweenComponent)
       tween.tween.update()
+    }
+
+    // Move it to IK system?
+    for (const entity of vrIKQuery()) {
+      const ik = getComponent(entity, AvatarHandsIKComponent)
+      const bones = getComponent(entity, IKRigComponent).boneStructure
+
+      solveTwoBoneIK(
+        bones.LeftArm,
+        bones.LeftForeArm,
+        bones.LeftHand,
+        ik.leftTarget,
+        ik.leftHint,
+        ik.leftTargetOffset,
+        ik.leftTargetPosWeight,
+        ik.leftTargetRotWeight,
+        ik.leftHintWeight
+      )
+      solveTwoBoneIK(
+        bones.RightArm,
+        bones.RightForeArm,
+        bones.RightHand,
+        ik.rightTarget,
+        ik.rightHint,
+        ik.rightTargetOffset,
+        ik.rightTargetPosWeight,
+        ik.rightTargetRotWeight,
+        ik.rightHintWeight
+      )
     }
 
     for (const entity of animationQuery(world)) {
