@@ -26,7 +26,7 @@ export default (): Hook => {
         })
 
         await Promise.all(
-          existingThumbnails.data.map(async (item: any) => {
+          existingThumbnails.data.map(async (item) => {
             return app.service('static-resource').remove(item.id)
           })
         )
@@ -37,7 +37,7 @@ export default (): Hook => {
         params.storageProvider = useStorageProvider()
         const contextClone = _.cloneDeep(context)
         const result = await (uploadThumbnailLinkHook() as any)(contextClone)
-        data.metadata.thumbnailUrl = (result as any).params.thumbnailUrl.replace(
+        data.metadata.thumbnailUrl = result.params.thumbnailUrl.replace(
           's3.amazonaws.com/' + bucketName,
           config.aws.cloudfront.domain
         )

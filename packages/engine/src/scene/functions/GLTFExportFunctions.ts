@@ -49,7 +49,7 @@ const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld(
       const loadingRegister = world.sceneLoadingRegistry.get(comp)
 
       if (loadingRegister) {
-        obj3d.userData.editor_uuid = world.entityTree.findNodeFromEid(obj3d.entity)?.uuid
+        obj3d.userData.editor_uuid = world.entityTree.entityNodeMap.get(obj3d.entity)?.uuid
         if (loadingRegister.prepareForGLTFExport) loadingRegister.prepareForGLTFExport(obj3d)
 
         let data = loadingRegister.serialize(obj3d.entity)

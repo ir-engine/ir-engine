@@ -11,7 +11,6 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
-import { WorldStateInterface } from '../../networking/schema/networkSchema'
 import { Physics } from '../../physics/classes/Physics'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
@@ -24,7 +23,8 @@ import {
   hasComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
-import { SystemFactoryType, SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
+import { initializeEntityTree } from '../functions/EntityTreeFunctions'
+import { SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { Entity } from './Entity'
@@ -46,6 +46,8 @@ export class World {
     if (!Engine.currentWorld) Engine.currentWorld = this
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
+
+    initializeEntityTree(this)
   }
 
   static [CreateWorld] = () => new World()
@@ -141,7 +143,7 @@ export class World {
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
   /** Tree of entity holding parent child relation between entities. */
-  entityTree = new EntityTree()
+  entityTree: EntityTree
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
@@ -224,6 +226,5 @@ export class World {
 }
 
 export function createWorld() {
-  console.log('Creating world')
   return World[CreateWorld]()
 }

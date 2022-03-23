@@ -3,9 +3,9 @@ import nock from 'nock'
 
 import { FRONTEND_SERVICE_URL } from '@xrengine/matchmaking/src/functions'
 import type { OpenMatchTicket } from '@xrengine/matchmaking/src/interfaces'
-import { createApp } from '@xrengine/server/src/app'
 
 import { Application } from '../../../declarations'
+import { createFeathersExpressApp, serverPipe } from '../../../src/createApp'
 
 interface User {
   id: string
@@ -45,7 +45,8 @@ describe.skip('matchmaking match-instance service', () => {
 
   let app: Application
   before(async () => {
-    app = createApp()
+    app = createFeathersExpressApp()
+    serverPipe(app)
     await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)

@@ -3,6 +3,9 @@ import * as path from 'path'
 import * as pug from 'pug'
 import requireMainFilename from 'require-main-filename'
 
+import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import config from '../appconfig'
 import logger from '../logger'
 import {
@@ -11,10 +14,13 @@ import {
   sendEmail,
   sendSms
 } from '../user/auth-management/auth-management.utils'
+import { Application } from './../../declarations.d'
+
+export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
 async function generateEmail(
-  app: any,
-  result: any,
+  app: Application,
+  result: InviteDataType,
   toEmail: string,
   inviteType: string,
   inviterUsername: string,
@@ -51,8 +57,8 @@ async function generateEmail(
 }
 
 async function generateSMS(
-  app: any,
-  result: any,
+  app: Application,
+  result: InviteDataType,
   mobile: string,
   inviteType: string,
   inviterUsername: string,

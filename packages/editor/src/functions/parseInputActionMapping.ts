@@ -4,7 +4,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 
 import { InputComponent } from '../classes/InputComponent'
 import { ActionKey, ActionSets, ActionState, InputActionMapping, InputMapping } from '../controls/input-mappings'
-import { SceneManager } from '../managers/SceneManager'
+import { SceneState } from './sceneRenderFunctions'
 
 const _globalCallbacks = {}
 const _originalStopCallback = Mousetrap.prototype.stopCallback
@@ -175,7 +175,7 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
 }
 
 export const updateInputActionMapping = () => {
-  const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
   const mappings = mergeMappings(inputComponent.mappings)
 
   const parsedMapping = parseInputActionMapping(mappings)
@@ -187,13 +187,13 @@ export const updateInputActionMapping = () => {
 }
 
 export const addInputActionMapping = (inputSet: ActionSets, mapping: InputActionMapping): void => {
-  const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
   inputComponent.mappings.set(inputSet, mapping)
   updateInputActionMapping()
 }
 
 export const removeInputActionMapping = (inputSet: ActionSets): void => {
-  const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
 
   const mapping = inputComponent.mappings.get(inputSet)
   if (!mapping) return
@@ -245,6 +245,6 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
 }
 
 export const getInput = (key: ActionKey) => {
-  const inputComponent = getComponent(SceneManager.instance.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
   return inputComponent.actionState[key] ?? 0
 }
