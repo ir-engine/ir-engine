@@ -17,7 +17,7 @@ function processInclude(includeCollection: any, context: HookContext): any {
 }
 
 export default (options: any = {}): Hook => {
-  return (context: HookContext): HookContext => {
+  return (context: HookContext<Application>): HookContext => {
     if (!context.params) context.params = {}
     try {
       const sequelize = context.params.sequelize || {}
@@ -25,7 +25,7 @@ export default (options: any = {}): Hook => {
       sequelize.include = include.concat(
         options.models.map((model: any) => {
           const newModel = { ...model, ...processInclude(model.include, context) }
-          newModel.model = (context.app as Application).services[model.model].Model
+          newModel.model = context.app.services[model.model].Model
           return newModel
         })
       )

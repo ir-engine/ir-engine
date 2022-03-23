@@ -6,6 +6,7 @@ import psList from 'ps-list'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import '@xrengine/engine/src/patchEngineNode'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import {
