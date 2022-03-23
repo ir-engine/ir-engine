@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "XRE_hemisphereLight glTF extension",
+    "$id": "XRE_hemisphereLight.schema.json",
+    "type": "object",
+    "description": "serialization extension for XREngine hemisphere light components",
+    "allOf": [{"$ref": "glTFProperty.schema.json"}],
+    "properties": {
+        "skyColor": {
+            "$ref": "color.schema.json",
+            "default": "#ffffff"
+        },
+        "groundColor": {
+            "$ref": "color.schema.json",
+            "default": "#ffffff"
+        },
+        "intensity": {
+            "type": "number",
+            "default": 1.0
+        }
+    },
+    "extensions": {},
+    "extras": {}
+}
