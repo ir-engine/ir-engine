@@ -1,19 +1,22 @@
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 import * as path from 'path'
 import * as pug from 'pug'
 import requireMainFilename from 'require-main-filename'
 
+import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import config from '../appconfig'
 import logger from '../logger'
+import Page from '../types/PageObject'
 import {
   extractLoggedInUserFromParams,
   getInviteLink,
   sendEmail,
   sendSms
 } from '../user/auth-management/auth-management.utils'
+import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 import { Application } from './../../declarations.d'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
@@ -34,7 +37,7 @@ async function generateEmail(
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId)
+    const group = await app.service('group').get(targetObjectId!)
     groupName = group.name
   }
 
@@ -69,7 +72,7 @@ async function generateSMS(
   const appPath = path.dirname(requireMainFilename())
   const emailAccountTemplatesPath = path.join(appPath, '..', '..', 'server-core', 'email-templates', 'invite')
   if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId)
+    const group = await app.service('group').get(targetObjectId!)
     groupName = group.name
   }
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)
@@ -91,7 +94,7 @@ async function generateSMS(
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>): Promise<HookContext> => {
     try {
       // Getting logged in user and attaching owner of user
       const { app, result, params } = context
@@ -113,7 +116,7 @@ export default () => {
         await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
       } else if (result.inviteeId != null) {
         if (inviteType === 'friend') {
-          const existingRelationshipStatus = await app.service('user-relationship').find({
+          const existingRelationshipStatus = (await app.service('user-relationship').find({
             query: {
               $or: [
                 {
@@ -126,7 +129,7 @@ export default () => {
               userId: result.userId,
               relatedUserId: result.inviteeId
             }
-          })
+          })) as Paginated<UserRelationshipDataType>
           if (existingRelationshipStatus.total === 0) {
             await app.service('user-relationship').create(
               {
@@ -139,12 +142,12 @@ export default () => {
           }
         }
 
-        const emailIdentityProviderResult = await app.service('identity-provider').find({
+        const emailIdentityProviderResult = (await app.service('identity-provider').find({
           query: {
             userId: result.inviteeId,
             type: 'email'
           }
-        })
+        })) as Page<IdentityProviderInterface>
 
         if (emailIdentityProviderResult.total > 0) {
           await generateEmail(
@@ -156,12 +159,12 @@ export default () => {
             targetObjectId
           )
         } else {
-          const SMSIdentityProviderResult = await app.service('identity-provider').find({
+          const SMSIdentityProviderResult = (await app.service('identity-provider').find({
             query: {
               userId: result.inviteeId,
               type: 'sms'
             }
-          })
+          })) as Page<IdentityProviderInterface>
 
           if (SMSIdentityProviderResult.total > 0) {
             await generateSMS(

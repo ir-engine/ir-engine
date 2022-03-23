@@ -38,7 +38,8 @@ describe('scene.test', () => {
     const { data } = await app.service('scenes').get(
       {
         projectName: defaultProjectName,
-        metadataOnly: false
+        metadataOnly: false,
+        internal: true
       },
       params
     )
