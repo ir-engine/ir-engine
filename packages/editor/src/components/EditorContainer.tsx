@@ -11,19 +11,24 @@ import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
-import { saveProject } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
+import {
+  DefaultExportOptions,
+  DefaultExportOptionsType,
+  exportScene,
+  initializeRenderer
+} from '../functions/sceneRenderFunctions'
+import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { CacheManager } from '../managers/CacheManager'
-import { ProjectManager } from '../managers/ProjectManager'
-import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
@@ -134,7 +139,7 @@ const EditorContainer = () => {
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {
-      await ProjectManager.instance.loadProjectScene(sceneFile)
+      await loadProjectScene(sceneFile)
       dispatch(EditorAction.sceneModified(true))
       setDialogComponent(null)
     } catch (error) {
@@ -176,7 +181,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await ProjectManager.instance.loadProjectScene(project.scene)
+      await loadProjectScene(project.scene)
 
       setDialogComponent(null)
     } catch (error) {
@@ -238,10 +243,6 @@ const EditorContainer = () => {
     )
   }
 
-  const onProjectLoaded = () => {
-    SceneManager.instance.initializeRenderer()
-  }
-
   const onCloseProject = () => {
     history.push('/editor')
   }
@@ -257,7 +258,7 @@ const EditorContainer = () => {
     try {
       let saveProjectFlag = true
       if (sceneName.value || modified.value) {
-        const blob = await SceneManager.instance.takeScreenshot(512, 320)
+        const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
@@ -294,7 +295,7 @@ const EditorContainer = () => {
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
       setDialogComponent(
         <ExportProjectDialog
-          defaultOptions={Object.assign({}, SceneManager.DefaultExportOptions)}
+          defaultOptions={Object.assign({}, DefaultExportOptions)}
           onConfirm={resolve}
           onCancel={resolve}
         />
@@ -318,7 +319,7 @@ const EditorContainer = () => {
     )
 
     try {
-      const { glbBlob } = await SceneManager.instance.exportScene(options)
+      const { glbBlob } = await exportScene(options)
 
       setDialogComponent(null)
 
@@ -378,7 +379,7 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await (Engine.scene as any).serialize(sceneName)
+    const projectFile = serializeWorld()
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
@@ -420,7 +421,7 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await SceneManager.instance.takeScreenshot(512, 320)
+    const blob = await takeScreenshot(512, 320)
 
     try {
       if (projectName.value) {
@@ -471,9 +472,7 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    CacheManager.init()
-
-    ProjectManager.instance.init().then(() => {
+    runPreprojectLoadTasks().then(() => {
       setEditorReady(true)
     })
   }, [])
@@ -487,9 +486,15 @@ const EditorContainer = () => {
   useEffect(() => {
     return () => {
       setEditorReady(false)
-      ProjectManager.instance.dispose()
+      disposeProject()
     }
   }, [])
+
+  useEffect(() => {
+    if (editorState.projectLoaded.value === true) {
+      initializeRenderer()
+    }
+  }, [editorState.projectLoaded.value])
 
   const generateToolbarMenu = () => {
     return [

@@ -26,7 +26,7 @@ export default () => {
         const location = await context.app.service('location').get(instance.locationId)
         if (params.oldInstanceId !== instance.id && instance.currentUsers + 1 > location.maxUsersPerInstance) {
           logger.info('Putting party onto a new server')
-          const availableLocationInstances = await (context.app.service('instance') as any).Model.findAll({
+          const availableLocationInstances = await (context.app as Application).service('instance').Model.findAll({
             where: {
               locationId: location.id,
               '$location.maxUsersPerInstance$': {
@@ -36,7 +36,7 @@ export default () => {
             },
             include: [
               {
-                model: (context.app.service('location') as any).Model,
+                model: (context.app as Application).service('location').Model,
                 where: {}
               }
             ]
@@ -54,10 +54,7 @@ export default () => {
                 'default',
                 'gameservers'
               )
-              const readyServers = _.filter(
-                (serverResult?.body! as any).items,
-                (server: any) => server.status.state === 'Ready'
-              )
+              const readyServers = _.filter(serverResult?.body!.items, (server) => server.status.state === 'Ready')
               const server = readyServers[Math.floor(Math.random() * readyServers.length)]
               status = server.status
               selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
@@ -85,7 +82,7 @@ export default () => {
             })
           } else {
             logger.info('Putting party on existing server with space')
-            const instanceModel = (context.app.service('instance') as any).Model
+            const instanceModel = (context.app as Application).service('instance').Model
             const instanceUserSort = _.sortBy(
               availableLocationInstances,
               (instance: typeof instanceModel) => instance.currentUsers

@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
-import { EditorControlComponent } from '../../../classes/EditorControlComponent'
-import { SceneManager } from '../../../managers/SceneManager'
+import { setTransformSpace, toggleTransformSpace } from '../../../functions/transformFunctions'
 import { useModeState } from '../../../services/ModeServices'
-import { setTransformSpace, toggleTransformSpace } from '../../../systems/EditorControlSystem'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -24,42 +21,20 @@ const transformSpaceOptions = [
 
 const TransformSpaceTool = () => {
   const modeState = useModeState()
-  const initializeRef = React.useRef<boolean>(false)
-  const [transformSpace, changeTransformSpace] = useState(TransformSpace.World)
-
-  useEffect(() => {
-    if (initializeRef.current) {
-      updateTransformSpace()
-    } else {
-      initializeRef.current = true
-    }
-  }, [modeState.transformSpaceModeChanged.value])
-
-  const updateTransformSpace = () => {
-    const editorControlComponent = getComponent(SceneManager.instance.editorEntity, EditorControlComponent)
-    changeTransformSpace(editorControlComponent.transformSpace)
-  }
-
-  const onChangeTransformSpace = (transformSpace) => {
-    setTransformSpace(transformSpace)
-  }
-
-  const onToggleTransformSpace = () => {
-    toggleTransformSpace()
-  }
 
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
       <InfoTooltip title="[Z] Toggle Transform Space">
-        <button onClick={onToggleTransformSpace} className={styles.toolButton}>
+        <button onClick={toggleTransformSpace as any} className={styles.toolButton}>
           <LanguageIcon fontSize="small" />
         </button>
       </InfoTooltip>
       <SelectInput
+        key={modeState.transformSpace.value}
         className={styles.selectInput}
-        onChange={onChangeTransformSpace}
+        onChange={setTransformSpace}
         options={transformSpaceOptions}
-        value={transformSpace}
+        value={modeState.transformSpace.value}
         creatable={false}
         isSearchable={false}
       />
