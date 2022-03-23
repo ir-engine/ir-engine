@@ -74,7 +74,9 @@ export class Scene implements ServiceMethods<any> {
 
     const scenes: SceneData[] = []
     for (const project of projects.data) {
-      const { data } = await this.app.service('scenes').get({ projectName: project.name, metadataOnly: true }, params)
+      const { data } = await this.app
+        .service('scenes')
+        .get({ projectName: project.name, metadataOnly: true, internal: true }, params)
       scenes.push(
         ...data.map((d) => {
           d.project = project.name

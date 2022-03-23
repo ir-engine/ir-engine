@@ -4,8 +4,6 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import '@xrengine/engine/src/patchEngineNode'
-
 const { register } = require('trace-unhandled')
 
 register()
