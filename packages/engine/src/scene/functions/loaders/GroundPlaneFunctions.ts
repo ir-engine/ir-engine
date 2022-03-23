@@ -109,13 +109,13 @@ export const shouldDeserializeGroundPlane: ComponentShouldDeserializeFunction = 
 
 export const prepareGroundPlaneForGLTFExport: ComponentPrepareForGLTFExportFunction = (groundPlane) => {
   if (!groundPlane.userData.mesh) return
-
+  /*
   const collider = new Object3D()
   collider.scale.set(groundPlane.userData.mesh.scale.x, 0.1, groundPlane.userData.mesh.scale.z)
 
   groundPlane.add(collider)
   groundPlane.userData.mesh.removeFromParent()
-  delete groundPlane.userData.mesh
+  delete groundPlane.userData.mesh*/
 }
 
 const parseGroundPlaneProperties = (props): GroundPlaneComponentType => {

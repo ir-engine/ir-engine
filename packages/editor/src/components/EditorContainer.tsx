@@ -24,8 +24,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject }
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import {
   DefaultExportOptions,
-  DefaultExportOptionsType,
-  exportScene,
+  DefaultExportOptionsType, //exportScene,
   initializeRenderer
 } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -291,7 +290,7 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-
+  /*
   const onExportProject = async () => {
     if (!sceneName) return
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
@@ -347,7 +346,7 @@ const EditorContainer = () => {
         />
       )
     }
-  }
+  }*/
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -383,7 +382,8 @@ const EditorContainer = () => {
   const onExportScene = async () => {
     /*
     const projectFile = serializeWorld()*/
-    const projectFile = sceneToGLTF(Engine.scene as any)
+    const projectFile = await sceneToGLTF(Engine.scene as any)
+
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')

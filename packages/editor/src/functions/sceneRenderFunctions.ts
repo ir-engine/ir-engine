@@ -16,7 +16,7 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
-import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
+//import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
@@ -179,6 +179,7 @@ function removeUnusedObjects(object3d: Object3D) {
  * @param  {Object}  [options={}]
  * @return {Promise}              [scene data as object]
  */
+/*
 export async function exportScene(options = {} as DefaultExportOptionsType) {
   const { shouldCombineMeshes, shouldRemoveUnusedObjects } = Object.assign({}, DefaultExportOptions, options)
 
@@ -234,7 +235,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   } catch (error) {
     throw new RethrownError('Error creating glb blob', error)
   }
-}
+}*/
 
 export function disposeScene() {
   if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
