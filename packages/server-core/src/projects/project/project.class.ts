@@ -269,7 +269,7 @@ export class Project extends Service {
    * @param data The names of the files in the project
    * @returns
    */
-  async patch(projectName: string, data: { files: string[] }) {
+  async patch(projectName: string, data: { files: string[] }, params?: Params) {
     const projectConfig = await getProjectConfig(projectName)
     if (!projectConfig) return
 
