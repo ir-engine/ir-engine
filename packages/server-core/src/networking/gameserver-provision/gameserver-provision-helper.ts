@@ -1,8 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
-
 import { Application } from '../../../declarations'
+import { LocationDataType } from '../../social/location/location.class'
 import { getFreeGameserver } from '../instance-provision/instance-provision.class'
 
 export const patchGameserverLocation = async (app: Application, locationId) => {
@@ -11,7 +10,7 @@ export const patchGameserverLocation = async (app: Application, locationId) => {
       query: {
         id: locationId
       }
-    })) as Paginated<LocationType>
+    })) as Paginated<LocationDataType>
 
     if (!location.data.length) {
       const message = `Failed to patch gameserver. (Location for id '${locationId}' is not found.)`

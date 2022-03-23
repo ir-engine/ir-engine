@@ -7,7 +7,7 @@ import { Application } from './../../declarations.d'
 const { authenticate } = authentication.hooks
 
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params } = context
 
     if (!context.params) context.params = {}
@@ -17,13 +17,13 @@ export default () => {
     let token, user
     if (authSplit) token = authSplit[1]
     if (token) {
-      const key = await (context.app as Application).service('user-api-key').Model.findOne({
+      const key = await context.app.service('user-api-key').Model.findOne({
         where: {
           token: token
         }
       })
       if (key != null)
-        user = await (context.app as Application).service('user').Model.findOne({
+        user = await context.app.service('user').Model.findOne({
           where: {
             id: key.userId
           }
@@ -33,9 +33,9 @@ export default () => {
       context.params.user = user
       return context
     }
-    context = await authenticate('jwt')(context)
+    context = await authenticate('jwt')(context as any)
     context.params.user = context.params[config.authentication.entity]
-      ? await (context.app as Application).service('user').Model.findOne({
+      ? await context.app.service('user').Model.findOne({
           where: {
             id: context.params[config.authentication.entity].userId
           }
