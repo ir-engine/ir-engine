@@ -46,7 +46,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
 
   const systems = [
     {
-      systemModulePromise: import('../managers/SceneManager'),
+      systemModulePromise: import('../systems/RenderSystem'),
       type: SystemUpdateType.POST_RENDER,
       args: { enabled: true }
     },

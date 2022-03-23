@@ -5,6 +5,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
+import styles from '../../styles/admin.module.scss'
 import { useStyles } from '../../styles/ui'
 import AvatarCreate from './AvatarCreate'
 import AvatarTable from './AvatarTable'
@@ -34,7 +35,7 @@ const Avatar = () => {
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
         <Grid item md={4} xs={6}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={handleClickOpen}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={handleClickOpen}>
             {t('user:avatar.createAvatar')}
           </Button>
         </Grid>
