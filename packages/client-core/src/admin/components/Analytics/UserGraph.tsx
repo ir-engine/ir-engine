@@ -30,7 +30,7 @@ const UserGraph = ({ data, startDate, endDate }) => {
         type: 'area',
         height: '100%',
         width: '100%',
-        background: 'transparent',
+        background: '#1f1b48',
         zoom: {
           autoScaleYaxis: true
         },
