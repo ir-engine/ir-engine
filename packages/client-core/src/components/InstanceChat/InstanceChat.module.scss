@@ -58,8 +58,6 @@
   transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
   border-radius: 5px;
   background-color: theme.$purpleLighter;
-  // background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
-  backdrop-filter: blur(10px);
 
   &.messageContainerClosed {
     width: 0;

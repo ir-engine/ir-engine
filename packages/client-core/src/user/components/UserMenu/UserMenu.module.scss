@@ -83,7 +83,6 @@
     padding: 0 20px;
     background-color: theme.$purpleLighter;
     border-radius: 20px;
-    // background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
     width: 140px;
     right: 100px;
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -181,7 +180,6 @@
     padding: 0 30px;
     border-radius: 20px;
     background-color: theme.$purpleLighter;
-    // background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -424,7 +422,6 @@
   padding: 0 30px;
   border-radius: 20px;
   background-color: theme.$purpleLighter;
-  // background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -433,7 +430,6 @@
   max-height: calc(100vh - 100px);
   overflow: auto;
   touch-action: auto;
-  backdrop-filter: blur(50px);
 
   * {
     touch-action: auto;
@@ -1571,7 +1567,6 @@
   @include panel-popup-container-styling();
   border-radius: 20px;
   background-color: theme.$purpleLighter;
-  // background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
   padding: 0;
 
   .controlContainer {
