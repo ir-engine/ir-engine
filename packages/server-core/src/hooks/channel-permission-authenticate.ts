@@ -6,7 +6,7 @@ import { Application } from './../../declarations.d'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params, app } = context
     console.log(params.query)
     const loggedInUser = extractLoggedInUserFromParams(params)
@@ -23,7 +23,7 @@ export default () => {
         throw new Forbidden('You are not a member of that channel')
       }
     } else if (channel.channelType === 'group') {
-      const groupUser = await (app as Application).service('group-user').Model.findOne({
+      const groupUser = await app.service('group-user').Model.findOne({
         where: {
           groupId: channel.groupId,
           userId: userId
@@ -33,7 +33,7 @@ export default () => {
         throw new Forbidden('You are not a member of that channel')
       }
     } else if (channel.channelType === 'party') {
-      const partyUser = await (app as Application).service('party-user').Model.findOne({
+      const partyUser = await app.service('party-user').Model.findOne({
         where: {
           partyId: channel.partyId,
           userId: userId
