@@ -167,7 +167,7 @@ export class EngineRenderer {
     this.onResize()
 
     Engine.renderer.autoClear = true
-    Engine.effectComposer = new EffectComposer(Engine.renderer)
+    Engine.effectComposer = new EffectComposer(Engine.renderer) as any
 
     configureEffectComposer()
 
