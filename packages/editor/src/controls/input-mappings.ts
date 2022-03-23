@@ -1,3 +1,5 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+
 import { getInput } from '../functions/parseInputActionMapping'
 
 /** Mouse Button key codes */
@@ -100,7 +102,7 @@ export enum MouseInput {
 }
 
 export type Action = {
-  callback?: (event: any, input: any) => any
+  callback?: (event: Event) => any
   key: ActionKey
   defaultValue?: any
   preventReset?: boolean
@@ -198,7 +200,7 @@ export const EditorMapping: InputActionMapping = {
       left: { key: EditorActionSet.selectStart, defaultValue: 0 },
       position: { key: EditorActionSet.selectStartPosition, defaultValue: 0 },
       right: {
-        callback: (event, input) => input.canvas.requestPointerLock(),
+        callback: (_event) => Engine.renderer.domElement.requestPointerLock(),
         key: EditorActionSet.enableFlyMode,
         defaultValue: 0
       }
@@ -207,8 +209,8 @@ export const EditorMapping: InputActionMapping = {
       left: { key: EditorActionSet.selectEnd, defaultValue: 0 },
       position: { key: EditorActionSet.selectEndPosition, defaultValue: 0 },
       right: {
-        callback: (event, input) => {
-          if (document.pointerLockElement === input.canvas) {
+        callback: (_event) => {
+          if (document.pointerLockElement === Engine.renderer.domElement) {
             document.exitPointerLock()
           }
         },
@@ -217,7 +219,7 @@ export const EditorMapping: InputActionMapping = {
       }
     },
     move: {
-      position: { key: EditorActionSet.cursorPosition, defaultValue: undefined },
+      position: { key: EditorActionSet.cursorPosition, defaultValue: undefined, preventReset: true },
       normalizedMovementX: { key: EditorActionSet.cursorDeltaX, defaultValue: 0 },
       normalizedMovementY: { key: EditorActionSet.cursorDeltaY, defaultValue: 0 }
     }

@@ -2,12 +2,19 @@ import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  getEntityNodeArrayFromEntities,
+  removeEntityNodeFromParent,
+  traverseEntityNode
+} from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
+import { executeCommand } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
 import { serializeObject3DArray } from '../functions/debug'
-import { CommandManager } from '../managers/CommandManager'
-import { SceneManager } from '../managers/SceneManager'
+import { filterParentEntities } from '../functions/filterParentEntities'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -45,13 +52,20 @@ export default class RemoveObjectsCommand extends Command {
       this.oldParents = []
       this.oldBefores = []
       this.oldComponents = []
+      const tree = useWorld().entityTree
+
       for (let i = objects.length - 1; i >= 0; i--) {
         const obj = objects[i]
         this.undoObjects.push(obj)
 
-        if (obj.parentNode) {
-          this.oldParents.push(obj.parentNode)
-          this.oldBefores.push(obj.parentNode.children![obj.parentNode.children!.indexOf(obj) + 1])
+        if (obj.parentEntity) {
+          const parent = tree.entityNodeMap.get(obj.parentEntity)
+          if (!parent) throw new Error('Parent is not defined')
+          this.oldParents.push(parent)
+
+          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(obj.entity) + 1])
+          if (!before) throw new Error('Before is not defined')
+          this.oldBefores.push(before)
         }
 
         if (!this.skipSerialization) this.oldComponents.push(serializeWorld(obj))
@@ -62,18 +76,25 @@ export default class RemoveObjectsCommand extends Command {
   execute() {
     this.emitBeforeExecuteEvent()
 
-    const removedObjectsRoots = CommandManager.instance.getRootObjects(this.affectedObjects)
+    const removedObjectsRoots = getEntityNodeArrayFromEntities(
+      filterParentEntities(
+        this.affectedObjects.map((o) => o.entity),
+        undefined,
+        true,
+        false
+      )
+    )
 
     for (let i = 0; i < removedObjectsRoots.length; i++) {
       const object = removedObjectsRoots[i]
-      if (!object.parentNode) continue
+      if (!object.parentEntity) continue
 
-      object.traverse((node) => removeEntity(node.entity))
-      object.removeFromParent()
+      traverseEntityNode(object, (node) => removeEntity(node.entity))
+      removeEntityNodeFromParent(object)
     }
 
     if (this.deselectObject) {
-      CommandManager.instance.executeCommand(EditorCommands.REMOVE_FROM_SELECTION, this.affectedObjects, {
+      executeCommand(EditorCommands.REMOVE_FROM_SELECTION, this.affectedObjects, {
         shouldEmitEvent: this.shouldEmitEvent
       })
     }
@@ -84,7 +105,7 @@ export default class RemoveObjectsCommand extends Command {
   undo() {
     if (!this.undoObjects) return
 
-    CommandManager.instance.executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
+    executeCommand(EditorCommands.ADD_OBJECTS, this.undoObjects, {
       parents: this.oldParents,
       befores: this.oldBefores,
       isObjectSelected: this.isSelected,
@@ -92,7 +113,7 @@ export default class RemoveObjectsCommand extends Command {
       sceneData: this.oldComponents
     })
 
-    CommandManager.instance.executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects)
+    executeCommand(EditorCommands.REPLACE_SELECTION, this.affectedObjects)
   }
 
   toString() {
@@ -101,7 +122,7 @@ export default class RemoveObjectsCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      SceneManager.instance.onEmitSceneModified
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedSceneGraph())
     }
   }
