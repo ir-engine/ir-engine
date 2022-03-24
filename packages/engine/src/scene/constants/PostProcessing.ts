@@ -7,7 +7,7 @@ import {
   HueSaturationEffect,
   KernelSize,
   OutlineEffect,
-  Resizer,
+  Resolution,
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
@@ -145,8 +145,8 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     visibleEdgeColor: 0xffffff,
     hiddenEdgeColor: 0xffffff,
     resolutionScale: 0.5,
-    width: Resizer.AUTO_SIZE,
-    height: Resizer.AUTO_SIZE,
+    width: Resolution.AUTO_SIZE,
+    height: Resolution.AUTO_SIZE,
     kernelSize: KernelSize.VERY_SMALL,
     blur: false,
     xRay: true
