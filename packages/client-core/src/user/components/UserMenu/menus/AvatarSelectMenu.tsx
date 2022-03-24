@@ -90,8 +90,6 @@ export const AvatarSelectMenu = (props: Props) => {
   const [entity, setEntity] = useState<any>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
-  console.log(avatarModel)
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -137,7 +135,6 @@ export const AvatarSelectMenu = (props: Props) => {
         .then((data) => setSelectedAvatarUrl(data))
         .catch((err) => {
           setError(err.message)
-          console.log(err.message)
         })
     } else {
       setValidAvatarUrl(false)
@@ -279,7 +276,7 @@ export const AvatarSelectMenu = (props: Props) => {
     removeEntity(entity)
     setEntity(null)
     e.preventDefault()
-    changeActiveMenu(Views.Avatar)
+    changeActiveMenu(Views.AvatarSelect)
   }
 
   const uploadAvatar = () => {
