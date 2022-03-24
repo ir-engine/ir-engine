@@ -10,7 +10,7 @@ import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const [locationModelOpen, setLocationModelOpen] = React.useState(false)
+  const [locationModalOpen, setLocationModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
@@ -21,10 +21,10 @@ const Location = () => {
     ) {
       return
     }
-    setLocationModelOpen(open)
+    setLocationModalOpen(open)
   }
-  const closeViewModel = (open: boolean) => {
-    setLocationModelOpen(open)
+  const closeViewModal = (open: boolean) => {
+    setLocationModalOpen(open)
   }
 
   const handleChange = (e: any) => {
@@ -39,14 +39,14 @@ const Location = () => {
         </Grid>
         <Grid item xs={3}>
           <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            {t('admin:components.locationModel.createNewLocation')}
+            {t('admin:components.locationModal.createNewLocation')}
           </Button>
         </Grid>
       </Grid>
       <div className={styles.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
-      <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
+      <CreateLocation open={locationModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 {
   "components": {
-    "locationModel": {
+    "locationModal": {
       "lbl-name": "Name",
       "lbl-maxuser": "Max Users",
       "lbl-scene": "Scene",
