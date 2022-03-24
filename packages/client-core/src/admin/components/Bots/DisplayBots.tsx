@@ -20,11 +20,9 @@ import ConfirmModel from '../../common/ConfirmModel'
 import { BotCommandService, useBotCommandState } from '../../services/BotsCommand'
 import { BotService, useBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import UpdateBot from './UpdateBot'
 
 const DisplayBots = () => {
-  const classes = useStyles()
   const [expanded, setExpanded] = useState<string | false>('panel0')
   const [command, setCommand] = useState<BotCommands>({
     name: '',

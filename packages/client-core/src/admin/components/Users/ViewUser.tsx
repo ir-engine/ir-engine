@@ -32,7 +32,7 @@ import { SingleUserService, useSingleUserState } from '../../services/SingleUser
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService, useUserState } from '../../services/UserService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   openView: boolean
@@ -50,7 +50,6 @@ interface InputSelectProps {
 }
 
 const ViewUser = (props: Props) => {
-  const classes = useStyles()
   const { openView, closeViewModel, userAdmin } = props
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
@@ -207,14 +206,14 @@ const ViewUser = (props: Props) => {
         anchor="right"
         open={openView}
         onClose={() => handleCloseDrawer()}
-        classes={{ paper: classes.paperDrawer }}
+        classes={{ paper: styles.paperDrawer }}
       >
         {userAdmin && (
-          <Paper elevation={3} className={classes.rootPaper}>
-            <Container maxWidth="sm" className={classes.pad}>
-              <Grid container spacing={2} className={classes.centering}>
+          <Paper elevation={3} className={styles.rootPaper}>
+            <Container maxWidth="sm" className={styles.pad}>
+              <Grid container spacing={2} className={styles.centering}>
                 <Grid item xs={4}>
-                  <Avatar className={classes.large}>
+                  <Avatar className={styles.large}>
                     {!userAdmin.avatarId ? (
                       <Skeleton animation="wave" variant="circular" width={40} height={40} />
                     ) : (
@@ -224,12 +223,12 @@ const ViewUser = (props: Props) => {
                 </Grid>
                 <Grid item xs={8}>
                   <div>
-                    <Typography variant="h4" component="span" className={classes.typoFontTitle}>
+                    <Typography variant="h4" component="span" className={styles.typoFontTitle}>
                       {userAdmin.name}
                     </Typography>
                     <br />
                     {userAdmin.userRole ? (
-                      <Chip label={userAdmin.userRole} className={classes.spanWhite} />
+                      <Chip label={userAdmin.userRole} className={styles.spanWhite} />
                     ) : (
                       <Chip label="None" />
                     )}
@@ -241,17 +240,17 @@ const ViewUser = (props: Props) => {
         )}
         <Container maxWidth="sm">
           {editMode ? (
-            <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
+            <div className={styles.mt10}>
+              <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('admin:components.user.updatePersonalInfo')}
               </Typography>
               <label>{t('admin:components.user.name')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="name"
                   placeholder={t('admin:components.user.enterName')}
                   style={{ color: '#fff' }}
@@ -263,7 +262,7 @@ const ViewUser = (props: Props) => {
               <label>{t('admin:components.user.avatar')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.avatar.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <FormControl fullWidth>
                   <Select
@@ -273,9 +272,9 @@ const ViewUser = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="avatar"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
                       <em>{t('admin:components.user.selectAvatar')}</em>
@@ -306,48 +305,46 @@ const ViewUser = (props: Props) => {
               />
             </div>
           ) : (
-            <Grid container spacing={3} className={classes.mt5}>
-              <Typography variant="h4" component="h4" className={`${classes.mb20px} ${classes.headingFont}`}>
+            <Grid container spacing={3} className={styles.mt5}>
+              <Typography variant="h4" component="h4" className={`${styles.mb20px} ${styles.headingFont}`}>
                 {t('admin:components.user.personalInfo')}
               </Typography>
               <Grid item xs={6} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {t('admin:components.user.location')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {t('admin:components.user.avatar')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {t('admin:components.user.inviteCode')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {t('admin:components.user.instance')}:
                 </Typography>
               </Grid>
               <Grid item xs={4} sm={6} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {userAdmin?.party?.location?.name || (
-                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                    <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
                   )}
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.avatarId || <span className={classes.spanNone}>{t('admin:components.index.none')}</span>}
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
+                  {userAdmin?.avatarId || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
-                  {userAdmin?.inviteCode || (
-                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
-                  )}
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
+                  {userAdmin?.inviteCode || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>}
                 </Typography>
-                <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                   {userAdmin?.party?.instance?.ipAddress || (
-                    <span className={classes.spanNone}>{t('admin:components.index.none')}</span>
+                    <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
                   )}
                 </Typography>
               </Grid>
-              <Typography variant="h5" component="h5" className={`${classes.mb20px} ${classes.headingFont}`}>
+              <Typography variant="h5" component="h5" className={`${styles.mb20px} ${styles.headingFont}`}>
                 {t('admin:components.user.userScope')}
               </Typography>
-              <div className={classes.scopeContainer}>
+              <div className={styles.scopeContainer}>
                 {singleUserData?.scopes?.value?.map((el, index) => {
                   const [label, type] = el.type.split(':')
                   return (
@@ -358,12 +355,12 @@ const ViewUser = (props: Props) => {
                       key={index}
                     >
                       <Grid item xs={8}>
-                        <Typography variant="h6" component="h6" className={`${classes.mb10} ${classes.typoFont}`}>
+                        <Typography variant="h6" component="h6" className={`${styles.mb10} ${styles.typoFont}`}>
                           {label}:
                         </Typography>
                       </Grid>
                       <Grid item xs={4}>
-                        <Chip label={type} />
+                        <Chip label={type} className={styles.chip} />
                       </Grid>
                     </Grid>
                   )
@@ -371,17 +368,17 @@ const ViewUser = (props: Props) => {
               </div>
             </Grid>
           )}
-          <DialogActions className={classes.mb10}>
+          <DialogActions className={styles.mb10}>
             {editMode ? (
-              <div className={classes.marginTop}>
-                <Button onClick={handleSubmit} className={classes.saveBtn}>
+              <DialogActions>
+                <Button onClick={handleSubmit} className={styles.submitButton}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>{' '}
                   {t('admin:components.user.submit')}
                 </Button>
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.cancelButton}
                   onClick={() => {
                     initiateData()
                     setEditMode(false)
@@ -389,21 +386,21 @@ const ViewUser = (props: Props) => {
                 >
                   {t('admin:components.user.cancel')}
                 </Button>
-              </div>
+              </DialogActions>
             ) : (
-              <div className={classes.marginTop}>
+              <DialogActions>
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.submitButton}
                   onClick={() => {
                     setEditMode(true)
                   }}
                 >
                   {t('admin:components.user.edit')}
                 </Button>
-                <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={styles.cancelButton}>
                   {t('admin:components.user.cancel')}
                 </Button>
-              </div>
+              </DialogActions>
             )}
           </DialogActions>
         </Container>

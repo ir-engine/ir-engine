@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from 'react'
 
-import FormDialog from '@xrengine/client-core/src/admin/components/UI/SubmitDialog'
+import FormDialog from '@xrengine/client-core/src/admin/common/SubmitDialog'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 import { userHasAccessHook } from '@xrengine/client-core/src/user/userHasAccess'
 import ProjectEditor from '@xrengine/editor/src/pages/editor'

@@ -31,7 +31,6 @@ import { AuthService } from '../../../services/AuthService'
 import styles from '../UserMenu.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
-import { useStyle } from './style'
 
 interface Props {
   changeActiveMenu: Function
@@ -82,7 +81,6 @@ export const AvatarSelectMenu = (props: Props) => {
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
   const [avatarModel, setAvatarModel] = useState<any>(null)
-  const classes = useStyle()
   const [value, setValue] = useState(0)
   const [avatarUrl, setAvatarUrl] = useState('')
   const [thumbNailUrl, setThumbNailUrl] = useState('')
@@ -91,8 +89,6 @@ export const AvatarSelectMenu = (props: Props) => {
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
   const [entity, setEntity] = useState<any>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
-
-  console.log(avatarModel)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -139,7 +135,6 @@ export const AvatarSelectMenu = (props: Props) => {
         .then((data) => setSelectedAvatarUrl(data))
         .catch((err) => {
           setError(err.message)
-          console.log(err.message)
         })
     } else {
       setValidAvatarUrl(false)
@@ -281,7 +276,7 @@ export const AvatarSelectMenu = (props: Props) => {
     removeEntity(entity)
     setEntity(null)
     e.preventDefault()
-    changeActiveMenu(Views.Avatar)
+    changeActiveMenu(Views.AvatarSelect)
   }
 
   const uploadAvatar = () => {
@@ -348,11 +343,11 @@ export const AvatarSelectMenu = (props: Props) => {
           <img src={thumbNailUrl} alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <Paper className={classes.paper2}>
+      <Paper className={styles.paper2}>
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
-          classes={{ input: classes.input }}
+          classes={{ input: styles.input }}
           value={avatarName}
           id="avatarName"
           size="small"
@@ -366,24 +361,16 @@ export const AvatarSelectMenu = (props: Props) => {
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
-          classes={{ root: classes.tabRoot, indicator: classes.selected }}
+          classes={{ root: styles.tabRoot, indicator: styles.selected }}
         >
           <Tab
-            style={
-              value == 0
-                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
-                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
-            }
+            className={value == 0 ? styles.selectedTab : styles.unselectedTab}
             label="Use URL"
             {...a11yProps(0)}
-            classes={{ root: classes.tabRoot }}
+            classes={{ root: styles.tabRoot }}
           />
           <Tab
-            style={
-              value == 1
-                ? { color: '#ffffff', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
-                : { color: '#3c2e2e', fontWeight: 'bold', fontSize: '17px', textTransform: 'capitalize' }
-            }
+            className={value == 1 ? styles.selectedTab : styles.unselectedTab}
             label="Upload Files"
             {...a11yProps(1)}
           />
@@ -392,22 +379,22 @@ export const AvatarSelectMenu = (props: Props) => {
       <TabPanel value={value} index={0}>
         <div className={styles.controlContainer}>
           <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
-            <Paper className={classes.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+            <Paper className={styles.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
+                sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Avatar Url..."
                 inputProps={{ 'aria-label': 'avatar url' }}
-                classes={{ input: classes.input }}
+                classes={{ input: styles.input }}
                 value={avatarUrl}
                 onChange={handleAvatarUrlChange}
               />
             </Paper>
-            <Paper className={classes.paper} style={{ padding: '4px 0' }}>
+            <Paper className={styles.paper} style={{ padding: '4px 0' }}>
               <InputBase
-                sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
+                sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                 placeholder="Paste Thumbnail Url..."
                 inputProps={{ 'aria-label': 'thumbnail url' }}
-                classes={{ input: classes.input }}
+                classes={{ input: styles.input }}
                 value={thumbNailUrl}
                 onChange={handleThumbnailUrlChange}
               />
@@ -443,7 +430,7 @@ export const AvatarSelectMenu = (props: Props) => {
               <Button
                 variant="contained"
                 component="span"
-                classes={{ root: classes.rootBtn }}
+                classes={{ root: styles.rootBtn }}
                 endIcon={<SystemUpdateAlt />}
               >
                 {t('user:avatar.avatar')}
@@ -459,7 +446,7 @@ export const AvatarSelectMenu = (props: Props) => {
               <Button
                 variant="contained"
                 component="span"
-                classes={{ root: classes.rootBtn }}
+                classes={{ root: styles.rootBtn }}
                 endIcon={<AccountCircle />}
               >
                 {t('user:avatar.lbl-thumbnail')}

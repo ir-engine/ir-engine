@@ -7,11 +7,9 @@ import Typography from '@mui/material/Typography'
 
 import { TestBotService, useTestBotState } from '../../services/TestBotService'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from './styles'
 
 const Benchmarking = () => {
   const testbotState = useTestBotState()
-  const classes = useStyles()
   const { bots, spawn, spawning } = testbotState.value
   const { t } = useTranslation()
   const REFRESH_MS = 10000
@@ -44,10 +42,10 @@ const Benchmarking = () => {
         </Grid>
       </Grid>
 
-      {spawn && <Typography className={classes.heading}>Spawn bot status: {spawn.message}</Typography>}
+      {spawn && <Typography className={styles.heading}>Spawn bot status: {spawn.message}</Typography>}
 
       {bots && bots.length > 0 && (
-        <Typography className={classes.secondaryHeading}>
+        <Typography className={styles.secondaryHeading}>
           {t('admin:components.bot.lastRunStatus')}: {bots[0].status} ({t('admin:components.bot.autoRefreshing')})
         </Typography>
       )}
