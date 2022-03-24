@@ -1,68 +1,22 @@
 import clsx from 'clsx'
-import React, { useEffect, useRef, useState } from 'react'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Paper from '@mui/material/Paper'
-import { Theme } from '@mui/material/styles'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import createStyles from '@mui/styles/createStyles'
-import makeStyles from '@mui/styles/makeStyles'
+import DateAdapter from '@mui/lab/AdapterMoment'
+import LocalizationProvider from '@mui/lab/LocalizationProvider'
+import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
+import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
+import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
 import UserGraph from './UserGraph'
 
 interface Props {}
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-      height: '35rem',
-      width: '99.9%',
-      backgroundColor: '#323845'
-    },
-    mtopp: {
-      marginTop: '20px'
-    },
-    btn: {
-      color: 'white',
-      borderColor: 'white',
-      fontSize: '0.875rem',
-      [theme.breakpoints.down('md')]: {
-        fontSize: '0.6rem'
-      }
-    },
-    btnSelected: {
-      color: 'white !important',
-      borderColor: 'white',
-      backgroundColor: '#0000004d !important'
-    },
-    dashboardCardsContainer: {
-      display: 'grid',
-      gridGap: '10px',
-      gridTemplateColumns: '1fr 1fr 1fr 1fr',
-      ['@media (max-width: 900px)']: {
-        gridTemplateColumns: '1fr 1fr 1fr'
-      },
-      ['@media (max-width: 700px)']: {
-        gridTemplateColumns: '1fr 1fr'
-      },
-      ['@media (max-width: 500px)']: {
-        gridTemplateColumns: '1fr'
-      }
-    }
-  })
-)
 
 /**
  * Function for analytics on admin dashboard
@@ -75,8 +29,10 @@ const Analytics = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
-  let isDataAvailable = false
   const analyticsState = useAnalyticsState()
+
+  const [endDate, setEndDate] = useState(moment())
+  const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
 
   const activeLocations = analyticsState.activeLocations.value.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]
@@ -102,15 +58,6 @@ const Analytics = (props: Props) => {
   const dailyNewUsers = analyticsState.dailyNewUsers.value.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]
   })
-
-  const isMounted = useRef(false)
-  const fetchTick = () => {
-    setTimeout(() => {
-      if (!isMounted.current) return
-      setRefetch(true)
-      fetchTick()
-    }, 5000)
-  }
 
   const activityGraphData = [
     {
@@ -150,29 +97,19 @@ const Analytics = (props: Props) => {
     }
   ]
 
-  if (
-    activityGraphData[0].data.length &&
-    activityGraphData[1].data.length &&
-    activityGraphData[2].data.length &&
-    activityGraphData[3].data.length &&
-    activityGraphData[4].data.length &&
-    activityGraphData[5].data.length
-  )
-    isDataAvailable = true
-
   useEffect(() => {
-    if (refetch === true) {
-      AnalyticsService.fetchActiveParties()
-      AnalyticsService.fetchInstanceUsers()
-      AnalyticsService.fetchChannelUsers()
-      AnalyticsService.fetchActiveLocations()
-      AnalyticsService.fetchActiveScenes()
-      AnalyticsService.fetchActiveInstances()
-      AnalyticsService.fetchDailyUsers()
-      AnalyticsService.fetchDailyNewUsers()
+    if (refetch === true && startDate < endDate) {
+      AnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
+      AnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
+      setRefetch(false)
     }
-    setRefetch(false)
-  }, [refetch])
+  }, [refetch, startDate, endDate])
 
   const authState = useAuthState()
 
@@ -180,15 +117,16 @@ const Analytics = (props: Props) => {
     if (authState.isLoggedIn.value) setRefetch(true)
   }, [authState.isLoggedIn.value])
 
-  useEffect(() => {
-    isMounted.current = true
-    fetchTick()
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
+  const onDateRangeStartChange = (value) => {
+    setStartDate(value)
+    setRefetch(true)
+  }
 
-  const classes = useStyles()
+  const onDateRangeEndChange = (value) => {
+    setEndDate(value)
+    setRefetch(true)
+  }
+
   const data = [
     {
       number: activeParties[activeParties.length - 1] ? activeParties[activeParties.length - 1][1] : 0,
@@ -228,19 +166,22 @@ const Analytics = (props: Props) => {
     }
   ]
 
+  const tempStartDate = moment(startDate)
+  const minEndDate = moment(tempStartDate.startOf('day').add(1, 'day'))
+
   return (
     <>
-      <div className={classes.dashboardCardsContainer}>
+      <div className={styles.dashboardCardsContainer}>
         {data.map((el) => {
           return <Card key={el.label} data={el} />
         })}
       </div>
-      <div className={classes.mtopp}>
-        <Paper className={classes.paper}>
+      <div className={styles.mt20px}>
+        <div className={styles.analyticsPaper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'activity'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'activity'
               })}
               value="activity"
               onClick={() => setGraphSelector('activity')}
@@ -248,8 +189,8 @@ const Analytics = (props: Props) => {
               Activity
             </ToggleButton>
             <ToggleButton
-              className={clsx(classes.btn, {
-                [classes.btnSelected]: graphSelector === 'users'
+              className={clsx(styles.btn, {
+                [styles.btnSelected]: graphSelector === 'users'
               })}
               value="users"
               onClick={() => setGraphSelector('users')}
@@ -257,13 +198,30 @@ const Analytics = (props: Props) => {
               Users
             </ToggleButton>
           </ToggleButtonGroup>
-          {graphSelector === 'activity' && isDataAvailable && <ActivityGraph data={activityGraphData} />}
-          {graphSelector === 'users' && <UserGraph data={userGraphData} />}
-        </Paper>
+          <div className={styles.datePickerContainer}>
+            <LocalizationProvider dateAdapter={DateAdapter}>
+              <MobileDateTimePicker
+                value={startDate}
+                onChange={(value) => onDateRangeStartChange(value)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <Box sx={{ mx: 2 }}> to </Box>
+              <MobileDateTimePicker
+                value={endDate}
+                minDateTime={minEndDate}
+                onChange={(value) => onDateRangeEndChange(value)}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </div>
+          {graphSelector === 'activity' && (
+            <ActivityGraph data={activityGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
+          )}
+          {graphSelector === 'users' && (
+            <UserGraph data={userGraphData} startDate={startDate?.toDate()} endDate={endDate?.toDate()} />
+          )}
+        </div>
       </div>
-      {/*<div className={classes.mtopp}>*/}
-      {/*  <ApiLinks />*/}
-      {/*</div>*/}
     </>
   )
 }

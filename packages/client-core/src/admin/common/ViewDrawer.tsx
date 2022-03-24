@@ -1,26 +1,25 @@
 import React from 'react'
 
 import Drawer from '@mui/material/Drawer'
-import Paper from '@mui/material/Paper'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   openView: boolean
-  handleCloseDrawe: () => void
+  handleCloseDrawer: () => void
   children: JSX.Element | JSX.Element[]
 }
 
 export default function ViewDrawer(props: Props) {
-  const { openView, handleCloseDrawe, children } = props
-  const classes = useStyles()
+  const { openView, handleCloseDrawer, children } = props
+
   return (
     <React.Fragment>
       <Drawer
         anchor="right"
         open={openView}
-        onClose={() => handleCloseDrawe()}
-        classes={{ paper: classes.paperDrawer }}
+        onClose={() => handleCloseDrawer()}
+        classes={{ paper: styles.paperDrawer }}
       >
         {children}
       </Drawer>

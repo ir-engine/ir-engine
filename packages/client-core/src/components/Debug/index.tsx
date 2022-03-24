@@ -17,15 +17,6 @@ export const Debug = () => {
   const { t } = useTranslation()
   function setupListener() {
     window.addEventListener('keydown', downHandler)
-    console.log('setup keypress')
-    window.addEventListener('keypress', (ev) => {
-      if (ev.key === 'p') {
-        if (document.activeElement?.querySelector('canvas')) {
-          togglePhysicsDebug()
-          toggleAvatarDebug()
-        }
-      }
-    })
   }
 
   // If pressed key is our target key then set to true

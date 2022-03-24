@@ -122,7 +122,7 @@ https://mediasoup.org/documentation/v3/mediasoup/installation/
 4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-5. install all dependences using npm.
+5. install all dependencies using npm.
 
 6. If error persists then check for typos in environment variables.
 

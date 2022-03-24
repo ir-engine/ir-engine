@@ -93,7 +93,7 @@ export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.purpleColor};
   cursor: pointer;
   align-self: center;
 `

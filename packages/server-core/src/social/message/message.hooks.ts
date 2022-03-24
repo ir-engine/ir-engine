@@ -5,7 +5,6 @@ import removeMessageStatuses from '@xrengine/server-core/src/hooks/remove-messag
 
 import authenticate from '../../hooks/authenticate'
 
-// import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {

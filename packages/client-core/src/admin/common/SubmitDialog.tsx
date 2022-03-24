@@ -9,11 +9,9 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 
-import { useStyle, useStyles } from './styles'
+import styles from '../styles/admin.module.scss'
 
 const FormDialog = () => {
-  const classes = useStyles()
-  const classex = useStyle()
   const [open, setOpen] = React.useState(true)
   const handleClose = () => {
     setOpen(false)
@@ -26,20 +24,20 @@ const FormDialog = () => {
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
-        classes={{ paper: classes.paperDialog }}
+        classes={{ paper: styles.paperDialog }}
       >
         <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.notAccess')}</DialogTitle>
         <DialogContent>
-          <DialogContentText className={classex.spanNone}>
+          <DialogContentText className={styles.spanNone}>
             {t('admin:components.dialog.askAccessResourceMessage')}
           </DialogContentText>
           <TextField autoFocus id="name" label="Username" type="text" fullWidth />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} className={classex.spanNone}>
+          <Button onClick={handleClose} className={styles.spanNone}>
             {t('admin:components.dialog.cancel')}
           </Button>
-          <Button onClick={handleClose} className={classex.spanDange}>
+          <Button onClick={handleClose} className={styles.spanDange}>
             {t('admin:components.dialog.submit')}
           </Button>
         </DialogActions>
