@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 16.x
       - name: restore lerna
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             node_modules
