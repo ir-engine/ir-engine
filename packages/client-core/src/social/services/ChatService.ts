@@ -1,4 +1,5 @@
 ﻿import { createState, none, useState } from '@speigg/hookstate'
+import Hls from 'hls.js'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { ChannelResult } from '@xrengine/common/src/interfaces/ChannelResult'
@@ -10,7 +11,9 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 
 import { AlertService } from '../../common/services/AlertService'
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
@@ -254,14 +257,77 @@ export const ChatService = {
   createMessage: async (values: ChatMessageProps) => {
     try {
       const { text } = values
-      const [, video] = document.getElementsByTagName('video')
-
       if (text.startsWith('/')) {
+        const [, video] = document.getElementsByTagName('video')
+
+        //const d = getAllComponentsOfType(VideoComponent)
+        //console.log('Video Components:', d)
+
+        console.log('video:', video)
         const [controlType, videoUrl] = text.split(' ')
+        console.log('got command, controlType:', controlType, 'videoUrl:', videoUrl)
         switch (controlType) {
-          case '/play':
-            video.src = videoUrl
-            video?.play()
+          case '/playVideo':
+            //d[0].videoSource = videoUrl
+            if (Hls.isSupported()) {
+              console.log('hls is supported')
+
+              const config = {
+                autoStartLoad: true,
+                startPosition: -1
+              }
+              let hls = new Hls(config)
+              hls.loadSource(videoUrl)
+              hls.attachMedia(video)
+              hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+                video.muted = true
+                video.play()
+              })
+              /*  hls.attachMedia(video)
+              hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+                console.log('media attached')
+                hls.loadSource(videoUrl)
+                hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+                  console.log('event:', event, 'manifest loaded, found ' + data.levels.length + ' quality level')
+                  video.play()
+                  hls.startLoad(-1)
+                })
+              })
+              hls.on(Hls.Events.ERROR, function (event, data) {
+                var errorType = data.type
+                var errorDetails = data.details
+                var errorFatal = data.fatal
+
+                console.log('Error Type:', errorType, 'Error Details:', errorDetails, 'Error Fatal:', errorFatal)
+
+                if (data.fatal) {
+                  switch (data.type) {
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                      // try to recover network error
+                      console.log('fatal network error encountered, try to recover')
+                      hls.startLoad()
+                      break
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                      console.log('fatal media error encountered, try to recover')
+                      hls.recoverMediaError()
+                      break
+                    default:
+                      // cannot recover
+                      hls.destroy()
+                      break
+                  }
+                }
+              })*/
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+              video.src = videoUrl
+              video.addEventListener('canplay', function () {
+                video.play()
+              })
+            }
+
+            /* video.src = 'https://localhost:3029/' + videoUrl
+            video.crossOrigin = 'anonymous';
+            video.play() */
             break
           case '/pause':
             video?.pause()
