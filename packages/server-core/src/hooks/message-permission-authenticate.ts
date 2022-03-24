@@ -1,14 +1,14 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import { UserDataType } from '../user/user/user.class'
 
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { Application } from './../../declarations.d'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { id, method, data, params, app } = context
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params.user as UserDataType
     if (method === 'remove' || method === 'patch') {
       const match = await app.service('message').Model.findOne({
         where: {

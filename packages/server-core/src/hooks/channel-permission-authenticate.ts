@@ -1,15 +1,14 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+import { UserDataType } from '../user/user/user.class'
 
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
 import { Application } from './../../declarations.d'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params, app } = context
-    console.log(params.query)
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params.user as UserDataType
     const userId = loggedInUser.id
     if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')

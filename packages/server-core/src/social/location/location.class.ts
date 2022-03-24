@@ -6,7 +6,7 @@ import slugify from 'slugify'
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
 
@@ -169,7 +169,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         data: locationResult.rows
       }
     } else if (adminnedLocations) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       const include = [
         {
           model: (this.app.service('location-settings') as any).Model,
@@ -236,7 +236,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     try {
       // @ts-ignore
       let { location_settings, ...locationData } = data
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
       if (locationData.isLobby) await this.makeLobby(t, params)
@@ -346,7 +346,7 @@ export class Location<T = LocationDataType> extends Service<T> {
 
   async remove(id: string, params?: Params): Promise<T> {
     if (id != null) {
-      const selfUser = extractLoggedInUserFromParams(params)
+      const selfUser = params!.user as UserDataType
       const location = await this.app.service('location').get(id)
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
@@ -365,7 +365,7 @@ export class Location<T = LocationDataType> extends Service<T> {
   }
 
   async makeLobby(t, params?: Params): Promise<void> {
-    const selfUser = extractLoggedInUserFromParams(params)
+    const selfUser = params!.user as UserDataType
 
     if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
 

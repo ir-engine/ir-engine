@@ -1,15 +1,13 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
-import { Params } from '@feathersjs/feathers'
 import _ from 'lodash'
-
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params.user as UserDataType
     const groupId = params.query!.groupId
     const userId = params.query!.userId || loggedInUser.id
     const paramsClone = _.cloneDeep(context.params)
