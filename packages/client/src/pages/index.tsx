@@ -54,11 +54,7 @@ export const HomePage = (): any => {
         <div className="main-section">
           <div className="desc">
             <Trans t={t} i18nKey="index.description">
-              <span>Realtime social apps for everyone,</span>
-              <br />
-              <span className="second-line">
-                at <span className="metaverse">Metaverse</span> scale.
-              </span>
+              <span>Realtime 3D social application for everyone to enjoy.</span>
             </Trans>
           </div>
           <div className="form-container">
