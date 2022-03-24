@@ -76,7 +76,7 @@ export const Draggable = (props: PropsType) => {
       return {
         touchAction: 'none',
         position: 'fixed',
-        left: 130,
+        right: 120,
         top: 20,
         transition: 'all 0.1s linear',
         zIndex: 1500
