@@ -30,7 +30,7 @@ const DiscordCallbackComponent = (props): JSX.Element => {
         AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
       }
     } else {
-      if (error === 'access_denied') window.location.href = '/login'
+      if (error === 'access_denied') window.location.href = '/'
     }
 
     setState({ ...state, error, token })

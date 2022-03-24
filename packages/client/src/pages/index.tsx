@@ -1,22 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Helmet } from 'react-helmet'
-// import { Capacitor } from '@capacitor/core'
 import { Trans, useTranslation } from 'react-i18next'
-import { Redirect, useHistory } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 
-import ContactForm from '@xrengine/client-core/src/common/components/ContactForm'
+import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
+import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
 export const HomePage = (): any => {
-  console.log('homepage')
-  const router = useHistory()
   const { t } = useTranslation()
-  // useEffect(() => {
-  //   if (Capacitor.isNative) {
-  //     router.push('/plugintest')
-  //   }
-  // }, [])
+
+  useEffect(() => {
+    AuthService.doLoginAuto(true)
+  }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
@@ -65,10 +62,23 @@ export const HomePage = (): any => {
             </Trans>
           </div>
           <div className="form-container">
-            <ContactForm />
+            <style>
+              {`
+                [class*=menuPanel] {
+                    position: unset;
+                    bottom: 0px;
+                    top: 0px;
+                    left: 0px;
+                    width: 100%;
+                    transform: none;
+                    margin: 40px 0px;
+                    pointer-events: auto;
+                }
+              `}
+            </style>
+            <ProfileMenu />
           </div>
         </div>
-
         <div className="link-container">
           <div className="link-block">
             <a target="_blank" className="icon" href="https://discord.gg/xrf">
