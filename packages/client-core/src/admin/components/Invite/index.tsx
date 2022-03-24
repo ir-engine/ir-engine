@@ -15,6 +15,7 @@ import { InviteService, useInviteState } from '../../../social/services/InviteSe
 import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
 import { UserService, useUserState } from '../../services/UserService'
+import styles from '../../styles/admin.module.scss'
 import InviteModel from './InviteModel'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
@@ -122,7 +123,7 @@ const InvitesConsole = () => {
   return (
     <div>
       <ConfirmProvider>
-        <Grid container spacing={3} className={classes.marginBottom}>
+        <Grid container spacing={3} className={styles.mb10px}>
           <Grid item xs={9}>
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>

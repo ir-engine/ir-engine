@@ -7,7 +7,7 @@ import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Cha
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 
@@ -32,7 +32,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params!.user as UserDataType
     const userId = loggedInUser.id
     const Model = (this.app.service('channel') as any).Model
     try {

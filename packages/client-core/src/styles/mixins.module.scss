@@ -1,3 +1,4 @@
+@use '../theme.scss';
 @import "./variables.module.scss";
 
 @mixin panel-popup-container-styling() {
@@ -35,7 +36,7 @@
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: $PurpleButtonColor;
+    background: theme.$purpleColor;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -77,11 +78,10 @@
   &::before {
     content: ' ';
     position: absolute;
-    ;
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: $PrimaryGreenColor;
+    background: theme.$purpleColor;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -107,7 +107,7 @@
   &::before {
     content: "✓";
     position: absolute;
-    background: $SelectedGreenColor;
+    background: theme.$purpleColor0;
     height: 20px;
     width: 20px;
     top: 5px;
@@ -123,7 +123,7 @@
   &::after {
     content: "✓";
     position: absolute;
-    background: $PurpleButtonColor;
+    background: theme.$purpleColor;
     height: 20px;
     width: 20px;
     top: 5px;

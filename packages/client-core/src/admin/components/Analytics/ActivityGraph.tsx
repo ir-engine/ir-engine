@@ -32,7 +32,7 @@ const ActivityGraph = ({ data, startDate, endDate }) => {
         zoom: {
           autoScaleYaxis: true
         },
-        background: 'transparent',
+        background: '#1f1b48',
         toolbar: {
           tools: {
             zoomin: false,

@@ -11,9 +11,9 @@ import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAnalyticsState } from '../../services/AnalyticsService'
 import { AnalyticsService } from '../../services/AnalyticsService'
+import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
-import styles from './styles.module.scss'
 import UserGraph from './UserGraph'
 
 interface Props {}
@@ -176,8 +176,8 @@ const Analytics = (props: Props) => {
           return <Card key={el.label} data={el} />
         })}
       </div>
-      <div className={styles.mtopp}>
-        <div className={styles.paper}>
+      <div className={styles.mt20px}>
+        <div className={styles.analyticsPaper}>
           <ToggleButtonGroup value={graphSelector} exclusive color="primary" aria-label="outlined primary button group">
             <ToggleButton
               className={clsx(styles.btn, {
