@@ -1,3 +1,4 @@
+@use '../../theme.scss' as theme;
 @import '@xrengine/client-core/src/styles/imports.module.scss';
 
 .party-chat-user {
@@ -26,22 +27,20 @@
       width: 100%;
       height: 100%;
     }
+
     &:hover {
       cursor: pointer;
-    }
-    @media (max-width: 450px) {
-      height: 60px;
-      width: 60px;
     }
   }
 
   &.video-paused,
   &.no-video {
     .video-wrapper {
-      background-color: #a8a8ff;
+      background-color: theme.$purpleColor0;
       background-size: contain;
       background-position: center;
       background-repeat: no-repeat;
+
       video {
         display: none;
       }
@@ -75,14 +74,16 @@
   &.self-user {
     video {
       transform: rotateY(180deg);
-      -webkit-transform: rotateY(180deg); /* Safari and Chrome */
-      -moz-transform: rotateY(180deg); /* Firefox */
+      -webkit-transform: rotateY(180deg);
+      /* Safari and Chrome */
+      -moz-transform: rotateY(180deg);
+      /* Firefox */
     }
   }
 
   .user-controls {
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: theme.$purpleLighter;
     border-radius: 8px;
     justify-content: space-evenly;
     transition: all 0.2s ease-out;
@@ -141,14 +142,17 @@
       display: flex;
       align-items: center;
       margin-top: 5px;
+
       & > span {
         margin: 0 10px;
       }
+
       :global(.MuiSlider-root) {
         &.slider {
           color: $PurpleButtonColor;
           margin-left: 10px;
         }
+
         :global(.MuiSlider-thumb) {
           background: $PurpleButtonColor;
           border: $PurpleButtonColor;
@@ -164,6 +168,114 @@
       position: relative;
 
       .controls {
+        display: flex;
+      }
+    }
+
+    &:hover,
+    &:focus {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .username {
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+
+    .audio-slider {
+      svg {
+        width: 20px;
+      }
+    }
+
+    &:hover,
+    &:focus {
+      .user-controls {
+        padding: 10px 10px 10px 25px;
+        z-index: 10;
+        min-width: 150px;
+        width: auto;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin: 0 10px;
+    flex-direction: column;
+
+    .user-controls {
+      width: 100%;
+      margin: -10px auto 0 auto;
+      z-index: 10;
+      height: 0;
+    }
+
+    &:focus,
+    &:focus-within {
+      .video-wrapper {
+        width: 150px;
+        height: 150px;
+      }
+
+      .user-controls {
+        padding: 20px 10px 10px 10px;
+        height: auto;
+      }
+    }
+  }
+
+  &.pip {
+    width: 250px;
+    height: 400px;
+
+    .video-wrapper {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+
+    .user-controls {
+      display: flex;
+      position: absolute;
+      width: 100%;
+      padding: 10px;
+      bottom: 0;
+      left: 0;
+      margin: 0;
+      z-index: 12;
+      border-radius: 0;
+
+      .controls {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-left: 5px;
+
+        .audio-slider {
+          margin-top: 0;
+        }
+
+        .pipBtn {
+          transform: rotate(180deg);
+        }
+      }
+
+      button {
+        margin: 0;
+      }
+
+      .username {
+        max-width: 230px;
+      }
+    }
+
+    &:hover {
+      .user-controls {
         display: flex;
       }
     }

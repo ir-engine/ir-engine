@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import AvatarCreate from './AvatarCreate'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
-  const classes = useStyles()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
@@ -30,7 +28,7 @@ const Avatar = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={1} className={classes.marginBottom}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item md={8} xs={6}>
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
@@ -40,7 +38,7 @@ const Avatar = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTable}>
         <AvatarTable search={search} />
       </div>
       {open && <AvatarCreate handleClose={handleClose} open={open} />}

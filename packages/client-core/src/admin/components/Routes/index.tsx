@@ -1,13 +1,11 @@
 import React from 'react'
 
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import RouteTable from './RouteTable'
 
 const Routes = () => {
-  const classes = useStyles()
-
   return (
-    <div className={classes.rootTable}>
+    <div className={styles.rootTable}>
       <RouteTable />
     </div>
   )

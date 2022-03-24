@@ -6,12 +6,10 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
@@ -35,7 +33,7 @@ const Location = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="location" handleChange={handleChange} />
         </Grid>
@@ -45,7 +43,7 @@ const Location = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
       <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />

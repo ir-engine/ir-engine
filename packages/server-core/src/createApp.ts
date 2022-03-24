@@ -120,6 +120,11 @@ export const createFeathersExpressApp = (configurationPipe = serverPipe): Applic
   const app = express(feathers()) as Application
   app.set('nextReadyEmitter', new EventEmitter())
 
+  // Feathers authentication-oauth will only append the port in production, but then it will also
+  // hard-code http as the protocol, so manually mashing host + port together if in local.
+  app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
+  app.set('port', config.server.port)
+
   app.set('paginate', config.server.paginate)
   app.set('authentication', config.authentication)
 
