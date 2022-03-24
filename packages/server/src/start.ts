@@ -1,38 +1,19 @@
 import fs from 'fs'
 import https from 'https'
-import path from 'path'
 import psList from 'ps-list'
-import favicon from 'serve-favicon'
 
 import config from '@xrengine/server-core/src/appconfig'
-import { createFeathersExpressApp, serverPipe } from '@xrengine/server-core/src/createApp'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
 import logger from '@xrengine/server-core/src/logger'
 
-import channels from './channels'
+import { createApp } from './app'
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
 
 export const start = async (): Promise<void> => {
-  const app = createFeathersExpressApp()
-  serverPipe(app)
-
-  // Feathers authentication-oauth will only append the port in production, but then it will also
-  // hard-code http as the protocol, so manually mashing host + port together if in local.
-  app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
-  app.set('port', config.server.port)
-
-  app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
-  app.configure(channels)
-
-  if (process.env.APP_ENV === 'development' && !config.db.forceRefresh) {
-    app.isSetup.then(() => {
-      app.service('project')._fetchDevLocalProjects()
-    })
-  }
-
+  const app = createApp()
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
     const processList = await (

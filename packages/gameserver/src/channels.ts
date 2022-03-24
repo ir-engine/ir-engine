@@ -173,7 +173,7 @@ const handleInstance = async (
 
   const localIp = await getLocalServerIp(app.isChannelInstance)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
-  const ipAddress = config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:${localIp.port}`
+  const ipAddress = config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
   const existingInstanceQuery = {
     ipAddress: ipAddress,
     ended: false
@@ -588,7 +588,10 @@ export default (app: Application): void => {
     return
   }
 
-  const shouldLoadGameserver = config.kubernetes.enabled || process.env.APP_ENV === 'development'
+  const shouldLoadGameserver =
+    (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
+    process.env.APP_ENV === 'development' ||
+    config.gameserver.mode === 'local'
 
   if (!shouldLoadGameserver) return
 
