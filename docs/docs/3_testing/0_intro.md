@@ -1,6 +1,18 @@
+## SMTP Testing
+
+https://mailtrap.io/inboxes
+
+add credentials in ```packages/server/.env```
+```dotenv
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=<mailtrap-user>
+SMTP_PASS=<mailtrap-password>
+```
+
 # Automated Testing
 
-Automated testing is a cornerstone to successful software development. Tests are not just to ensure that your appliction is working as intended, they are also to ensure that **existing features aren't broken by any newly introduced features or code**, aka **regression bugs**. The latter tends to hold more value, as it makes the software sturdy and less prone to these types of bugs during active development of a project. Regression bugs will quickly stall the development of a project at a certain level of complexity, effectively preventing progress.
+Automated testing is a cornerstone to successful software development. Tests are not just to ensure that your application is working as intended, they are also to ensure that **existing features aren't broken by any newly introduced features or code**, aka **regression bugs**. The latter tends to hold more value, as it makes the software sturdy and less prone to these types of bugs during active development of a project. Regression bugs will quickly stall the development of a project at a certain level of complexity, effectively preventing progress.
 
 ## Unit tests
 
@@ -40,7 +52,7 @@ it('should apply the entire algorithm correctly', () => {
 | Unit Testing	| Integration Testing |
 |-|-|
 | In unit testing each module of the software is tested separately. |	In integration testing all modules of the the software are tested combined. |
-| In unit testing the tester knows the internal design of the software.	| In integration testing the tester doesn’t know the internal design of the software. |
+| In unit testing the tester knows the internal design of the software.	| In integration testing the tester doesn't know the internal design of the software. |
 | Unit testing is performed first of all testing processes. |	Integration testing is performed after unit testing, and before system/end-to-end tests. |
 | Unit testing is a white box testing. |	Integration testing is a black box testing. |
 | Unit testing is performed by the developer. |	Integration testing is performed by the tester. |

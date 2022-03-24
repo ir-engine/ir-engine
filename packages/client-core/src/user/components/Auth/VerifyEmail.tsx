@@ -10,12 +10,12 @@ import { AuthService } from '../../services/AuthService'
 import styles from './Auth.module.scss'
 
 interface Props {
-  auth: any
-  type: string
+  //auth: any
+  //type: string
   token: string
 }
 
-export const VerifyEmail = (props: Props): any => {
+export const VerifyEmail = (props: Props): JSX.Element => {
   const { token } = props
   const { t } = useTranslation()
 

@@ -1,12 +1,20 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import app from '../../../../server/src/app'
+import { User } from '@xrengine/common/src/interfaces/User'
+
+import { Application } from '../../../declarations'
+import { createFeathersExpressApp, serverPipe } from '../../createApp'
 
 let users: any = []
 
 describe('user service', () => {
-  before(async () => {})
+  let app: Application
+  before(async () => {
+    app = createFeathersExpressApp()
+    serverPipe(app)
+    await app.setup()
+  })
 
   it('registered the service', async () => {
     const service = await app.service('user')
@@ -18,11 +26,11 @@ describe('user service', () => {
     const avatarId = 'CyberbotGreen'
     const userRole = 'guest'
 
-    const item = await app.service('user').create({
+    const item = (await app.service('user').create({
       name,
       avatarId,
       userRole
-    })
+    })) as User
     users.push(item)
 
     assert.equal(item.name, name)
@@ -36,11 +44,11 @@ describe('user service', () => {
     const avatarId = 'CyberbotGreen'
     const userRole = 'user'
 
-    const item = await app.service('user').create({
+    const item = (await app.service('user').create({
       name,
       avatarId,
       userRole
-    })
+    })) as User
     users.push(item)
 
     assert.equal(item.name, name)
@@ -50,15 +58,16 @@ describe('user service', () => {
   })
 
   it('should find users', async () => {
-    users.forEach(async (user) => {
+    for (const user of users) {
       const item = await app.service('user').find({
         query: {
           id: user.id
-        }
+        },
+        isInternal: true
       })
 
       assert.ok(item, 'user item is found')
-    })
+    }
   })
 
   it('should find users by action layer-users', async () => {
@@ -96,29 +105,34 @@ describe('user service', () => {
     const item = await app.service('user').find({
       query: {
         action: 'invite-code-lookup'
-      }
+      },
+      isInternal: true
     })
 
     assert.ok(item, 'user items is found')
   })
 
   it('should patch users', async () => {
-    const partyId = v1()
-    users.forEach(async (user) => {
-      await app.service('user').patch(user.id, {
-        instanceId: partyId
-      })
-    })
+    for (const user of users) {
+      const newName = v1()
+      await app.service('user').patch(
+        user.id,
+        {
+          name: newName
+        },
+        {
+          isInternal: true
+        }
+      )
+      const { name } = await app.service('user').get(user.id)
+      assert.equal(newName, name)
+    }
   })
 
   it('should remove users', async () => {
-    users.forEach(async (user) => {
-      const item = await app.service('user').remove(null, {
-        query: {
-          id: user.id
-        }
-      })
+    for (const user of users) {
+      const item = await app.service('user').remove(user.id)
       assert.ok(item, 'user item is removed')
-    })
+    }
   })
 })

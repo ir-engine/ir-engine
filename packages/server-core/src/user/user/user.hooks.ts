@@ -8,13 +8,13 @@ import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
 import logger from '../../logger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { UserDataType } from './user.class'
 
 const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = extractLoggedInUserFromParams(context.params)
+  const loggedInUser = context.params.user as UserDataType
   if (loggedInUser.userRole === 'admin') return context
 
   // only allow a user to patch it's own data
@@ -240,8 +240,8 @@ export default {
           }
           return context
         } catch (err) {
-          logger.error('USER AFTER CREATE ERROR')
-          logger.error(err)
+          console.error('USER AFTER CREATE ERROR')
+          console.error(err)
         }
         return null!
       }

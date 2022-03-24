@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
@@ -17,8 +17,6 @@ interface Props {
 
 const GroupTable = (props: Props) => {
   const { search } = props
-  const dispatch = useDispatch()
-  const classes = useStyles()
   const user = useAuthState().user
   const [viewModel, setViewModel] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
@@ -30,6 +28,7 @@ const GroupTable = (props: Props) => {
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
+  const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
@@ -82,18 +81,18 @@ const GroupTable = (props: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={() => handleViewGroup(id)}>
-            <span className={classes.spanWhite}>View</span>
+          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+            <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
               setGroupName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={styles.spanDange}>{t('admin:components.group.delete')}</span>
           </a>
         </>
       )

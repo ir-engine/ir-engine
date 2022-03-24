@@ -1,6 +1,7 @@
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
@@ -51,6 +52,7 @@ const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRe
   world.userIdToUserIndex.delete(userId)
   world.userIndexToUserId.delete(userIndex)
   world.clients.delete(userId)
+  world.namedEntities.delete(userId)
 }
 
 const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeof NetworkWorldAction.spawnObject>) => {
@@ -82,7 +84,7 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
       entity = networkObject
     } else if (params?.sceneEntityId) {
       // spawn object from scene data
-      const node = world.entityTree.findNodeFromUUID(params.sceneEntityId)
+      const node = world.entityTree.uuidNodeMap.get(params.sceneEntityId)
       if (node) entity = node.entity
     } else {
       entity = createEntity()
@@ -92,11 +94,18 @@ const spawnObjectNetworkActionReceptor = (world: World, action: ReturnType<typeo
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    ownerIndex: action.ownerIndex,
     networkId: action.networkId,
     prefab: action.prefab,
-    parameters: action.parameters
+    parameters: action.parameters,
+    lastTick: 0
   })
+}
+
+const spawnDebugPhysicsObjectNetworkActionReceptor = (
+  world: World,
+  action: ReturnType<typeof NetworkWorldAction.spawnDebugPhysicsObject>
+) => {
+  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
 const destroyObjectNetworkActionReceptor = (
@@ -194,6 +203,9 @@ const createNetworkActionReceptor = (world: World) =>
       )
       .when(NetworkWorldAction.destroyClient.matches, ({ $from }) => removeClientNetworkActionReceptor(world, $from))
       .when(NetworkWorldAction.spawnObject.matches, (a) => spawnObjectNetworkActionReceptor(world, a))
+      .when(NetworkWorldAction.spawnDebugPhysicsObject.matches, (a) =>
+        spawnDebugPhysicsObjectNetworkActionReceptor(world, a)
+      )
       .when(NetworkWorldAction.destroyObject.matches, (a) => destroyObjectNetworkActionReceptor(world, a))
       .when(NetworkWorldAction.requestAuthorityOverObject.matches, (a) =>
         requestAuthorityOverObjectNetworkActionReceptor(world, a)
@@ -210,6 +222,7 @@ export const NetworkActionReceptors = {
   addClientNetworkActionReceptor,
   removeClientNetworkActionReceptor,
   spawnObjectNetworkActionReceptor,
+  spawnPhysicsObjectNetworkActionReceptor: spawnDebugPhysicsObjectNetworkActionReceptor,
   destroyObjectNetworkActionReceptor,
   requestAuthorityOverObjectNetworkActionReceptor,
   transferAuthorityOfObjectNetworkActionReceptor,

@@ -14,10 +14,18 @@ import { EntityTreeNode } from '../classes/EntityTree'
 import { World } from '../classes/World'
 import { hasComponent } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
+import {
+  emptyEntityTree,
+  removeEntityNodeFromParent,
+  traverseEntityNode,
+  traverseEntityNodeParent
+} from './EntityTreeFunctions'
 
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
+  dispatchLocal(EngineActions.sceneUnloaded())
+
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
   Engine.workers.length = 0
@@ -54,7 +62,6 @@ export function reset() {
     disposeScene(Engine.scene)
     Engine.scene = null!
   }
-  Engine.sceneLoaded = false
 
   Engine.camera = null!
 
@@ -75,7 +82,6 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
-  Engine.sceneLoaded = false
   dispatchLocal(EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')
@@ -98,11 +104,11 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
   })
 
   if (removePersisted) {
-    world.entityTree.empty()
+    emptyEntityTree(world.entityTree)
   } else {
-    world.entityTree.traverse((node) => {
+    traverseEntityNode(world.entityTree.rootNode, (node) => {
       if (hasComponent(node.entity, PersistTagComponent)) {
-        node.traverseParent((parent) => {
+        traverseEntityNodeParent(node, (parent) => {
           let index = entitiesToRemove.indexOf(parent.entity)
           if (index > -1) entitiesToRemove.splice(index, 1)
 
@@ -114,7 +120,7 @@ export const unloadAllEntities = (world: World, removePersisted = false) => {
       }
     })
 
-    entityNodesToRemove.forEach((node) => node.removeFromParent())
+    entityNodesToRemove.forEach((node) => removeEntityNodeFromParent(node, world.entityTree))
   }
 
   Engine.scene.traverse((o: any) => {

@@ -1,5 +1,6 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { useRouteMatch } from 'react-router-dom'
 
 import Layout from '@xrengine/client-core/src/components/Layout/Layout'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
@@ -8,22 +9,19 @@ import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLo
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 
-interface Props {
-  match?: any
-}
-
-const LocationPage = (props: Props) => {
+const LocationPage = () => {
   const { t } = useTranslation()
-  const params = props?.match?.params!
+  const match = useRouteMatch()
+  const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
   const engineState = useEngineState()
 
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
-      {engineState.isEngineInitialized.value || <LoadingCircle />}
+      {engineState.isEngineInitialized.value ? <></> : <LoadingCircle />}
       <LoadEngineWithScene />
       <NetworkInstanceProvisioning locationName={locationName} />
-      <LoadLocationScene locationName={props.match.params.locationName} />
+      <LoadLocationScene locationName={params.locationName} />
     </Layout>
   )
 }

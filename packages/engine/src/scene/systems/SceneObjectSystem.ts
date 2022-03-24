@@ -6,18 +6,15 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { ModelComponent } from '../components/ModelComponent'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { ReplaceObject3DComponent } from '../components/ReplaceObject3DComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
 
@@ -67,7 +64,6 @@ export const processObject3d = (entity: Entity) => {
 }
 
 const sceneObjectQuery = defineQuery([Object3DComponent])
-const objectReplaceQuery = defineQuery([ReplaceObject3DComponent])
 const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
 const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
@@ -81,13 +77,22 @@ export default async function SceneObjectSystem(world: World) {
   }
 
   return () => {
+    for (const entity of sceneObjectQuery.exit()) {
+      const obj3d = getComponent(entity, Object3DComponent, true).value
+
+      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
+
+      obj3d.removeFromParent()
+    }
+
     for (const entity of sceneObjectQuery.enter()) {
+      if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      const node = world.entityTree.findNodeFromEid(entity)
+      const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
-        reparentObject3D(node, node.parentNode)
+        if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
       } else {
         let found = false
         Engine.scene.traverse((obj) => {
@@ -103,42 +108,6 @@ export default async function SceneObjectSystem(world: World) {
 
       /** @todo this breaks a bunch of stuff */
       // obj3d.visible = hasComponent(entity, VisibleComponent)
-    }
-
-    for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value
-
-      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
-
-      obj3d.removeFromParent()
-    }
-
-    for (const entity of objectReplaceQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent)
-      const modelComponent = getComponent(entity, ModelComponent)
-      const replacementObj = getComponent(entity, ReplaceObject3DComponent)?.replacement.scene
-
-      if (!obj3d || !replacementObj) continue
-      ;(replacementObj as any).entity = entity
-      replacementObj.parent = obj3d.value.parent
-
-      const parent = obj3d.value.parent
-      if (parent) {
-        const index = parent.children.indexOf(obj3d.value)
-        parent.children.splice(index, 1, replacementObj)
-      }
-
-      obj3d.value.parent = null
-      obj3d.value = replacementObj
-
-      const node = world.entityTree.findNodeFromEid(entity)
-      if (node) {
-        node.children?.forEach((child) => reparentObject3D(child, node))
-      }
-
-      processObject3d(entity)
-      if (modelComponent) parseGLTFModel(entity, modelComponent, obj3d.value)
-      removeComponent(entity, ReplaceObject3DComponent)
     }
 
     // Enable second camera layer for persistant entities for fun portal effects

@@ -1,17 +1,18 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import AvatarCreate from './AvatarCreate'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
-  const classes = useStyles()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
+  const { t } = useTranslation()
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -27,20 +28,20 @@ const Avatar = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={1} className={classes.marginBottom}>
+      <Grid container spacing={1} className={styles.mb10px}>
         <Grid item md={8} xs={6}>
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
         <Grid item md={4} xs={6}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={handleClickOpen}>
-            Create Avatar
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={handleClickOpen}>
+            {t('user:avatar.createAvatar')}
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTable}>
+      <div className={styles.rootTable}>
         <AvatarTable search={search} />
       </div>
-      <AvatarCreate handleClose={handleClose} open={open} />
+      {open && <AvatarCreate handleClose={handleClose} open={open} />}
     </React.Fragment>
   )
 }

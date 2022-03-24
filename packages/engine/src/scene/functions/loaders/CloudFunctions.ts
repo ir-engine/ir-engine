@@ -95,7 +95,7 @@ export const serializeCloud: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseCloudProperties = (props: any): CloudComponentType => {
+export const parseCloudProperties = (props: any): CloudComponentType => {
   const result = {
     texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
     fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)

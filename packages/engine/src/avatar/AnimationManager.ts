@@ -20,7 +20,7 @@ export class AnimationManager {
   }
 
   async getDefaultAnimations() {
-    const gltf = await AssetLoader.loadAsync({ url: Engine.publicPath + '/default_assets/Animations.glb' })
+    const gltf = await AssetLoader.loadAsync('/default_assets/Animations.glb')
     this.getAnimations(gltf)
   }
 

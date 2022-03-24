@@ -27,7 +27,8 @@ describe('storageprovider', () => {
     process.env.STORAGE_AWS_ACCESS_KEY_ID &&
     process.env.STORAGE_AWS_ACCESS_KEY_SECRET
   ) {
-    storageProviders.push(new S3Provider())
+    const s3Provider = new S3Provider()
+    storageProviders.push(s3Provider)
   }
 
   storageProviders.forEach((provider) => {

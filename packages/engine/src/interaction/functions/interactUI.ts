@@ -1,5 +1,15 @@
 import Hls from 'hls.js'
-import { AxesHelper, MathUtils, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
+import {
+  AxesHelper,
+  BufferGeometry,
+  Group,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  Quaternion,
+  Vector3
+} from 'three'
 
 import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
@@ -10,20 +20,19 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { computeContentScaleForCamera } from '../../xrui/functions/computeContentScaleForCamera'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractedComponent } from '../components/InteractedComponent'
-import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
-import { InteractiveUI } from '../systems/InteractiveSystem'
+import { InteractorComponent } from '../components/InteractorComponent'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'
-import { hideInteractText, showInteractText } from './interactText'
 
 const MODEL_SCALE_INACTIVE = new Vector3(1, 1, 1)
 const MODEL_SCALE_ACTIVE = new Vector3(1.2, 1.2, 1.2)
@@ -32,48 +41,48 @@ const MODEL_ELEVATION_ACTIVE = 0.3
 const TITLE_POS_INACTIVE = new Vector3(0, 0.5, 0)
 const TITLE_POS_ACTIVE = new Vector3(0, 0.4, 0)
 
-const INTERACTING_CAMERA_POSITION = new Vector3(0, 0, -2)
+const INTERACTING_UI_POSITION = new Vector3(0, 0, -0.3)
 const INTERACTING_CAMERA_ROTATION = new Quaternion()
 
 const ANCHORED_POSITION = new Map<Entity, Vector3>()
 const ANCHORED_ROTATION = new Map<Entity, Quaternion>()
 
-const scratchVector = new Vector3()
-const invCameraRotation = new Quaternion()
+const TRANSITION_DURATION = 3
+
+const _vect = new Vector3()
+const _quat = new Quaternion()
 
 export function createInteractUI(modelEntity: Entity) {
   const ui = createInteractiveModalView(modelEntity)
   const nameComponent = getComponent(modelEntity, NameComponent)
   addComponent(ui.entity, NameComponent, { name: 'interact-ui-' + nameComponent.name })
 
-  const transform = getComponent(modelEntity, TransformComponent)
-
-  // addComponent(ui.entity, TransformComponent, {
-  //   position: transform.position.clone(),
-  //   rotation: transform.rotation.clone(),
-  //   scale: new Vector3(1, 1, 1)
-  // })
-
   if (!Engine.isEditor) {
-    addComponent(modelEntity, DesiredTransformComponent, {
-      position: transform.position.clone(),
-      rotation: transform.rotation.clone(),
-      positionRate: 2,
-      rotationRate: 1,
-      lockRotationAxis: [false, false, false]
-    })
+    // for some reason, using the transform component creates extremely jittery transitions
+    removeComponent(modelEntity, TransformComponent)
   }
 
   ui.container.then((c) => {
-    const modelObj = getComponent(modelEntity, Object3DComponent).value
+    const modelComp = getComponent(modelEntity, Object3DComponent)
+
+    const modelObj = modelComp.value
     setObjectLayers(modelObj, ObjectLayers.UI)
+
     const boundingBoxComponent = getComponent(modelEntity, BoundingBoxComponent)
-    const pos = boundingBoxComponent.box.getCenter(new Vector3())
-    ANCHORED_POSITION.set(modelEntity, pos)
-    ANCHORED_ROTATION.set(modelEntity, modelObj.quaternion)
-    c.position.copy(pos)
+    const centeringGroup = new Group()
+    boundingBoxComponent.box.getCenter(centeringGroup.position)
+
+    Engine.scene.add(centeringGroup)
+    centeringGroup.attach(modelObj)
+    c.position.copy(centeringGroup.position)
+
+    ANCHORED_POSITION.set(modelEntity, centeringGroup.position.clone())
+    ANCHORED_ROTATION.set(modelEntity, centeringGroup.quaternion.clone())
+
+    modelComp.value = centeringGroup
 
     c.rootLayer.traverseLayersPreOrder((layer) => {
+      layer.shouldApplyDOMLayout = false
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = 0
     })
@@ -93,8 +102,8 @@ export function createInteractUI(modelEntity: Entity) {
 //       xrui.container.refresh()
 //       const mediaIndex = data.mediaIndex
 //       const mediaData = data.mediaData
-//       const videoLayer = xrui.container.rootLayer.querySelector(`#interactive-ui-video-${entityIndex}`)
-//       const modelLayer = xrui.container.rootLayer.querySelector(`#interactive-ui-model-${entityIndex}`)
+//       const videoLayer = xrui.container.rootLayer.querySelector(`#ui-video-${entityIndex}`)
+//       const modelLayer = xrui.container.rootLayer.querySelector(`#ui-model-${entityIndex}`)
 //       const videoElement = videoLayer?.element as HTMLMediaElement
 //       if (mediaData[mediaIndex]) {
 //         // refresh video element
@@ -133,7 +142,7 @@ export function createInteractUI(modelEntity: Entity) {
 //             }
 
 //             //load glb file
-//             AssetLoader.loadAsync({ url: mediaData[mediaIndex].path }).then((model) => {
+//             AssetLoader.loadAsync(mediaData[mediaIndex].path).then((model) => {
 //               const object3d = new Object3D()
 //               model.scene.traverse((mesh) => {
 //                 //@ts-ignore
@@ -181,236 +190,262 @@ export function createInteractUI(modelEntity: Entity) {
 //   }
 // }
 
+const transitionStartTime = new Map<Entity, number>()
+
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   if (Engine.isEditor) return
 
-  const container = getComponent(xrui.entity, XRUIComponent)?.container
+  const world = useWorld()
+  const uiContainer = getComponent(xrui.entity, XRUIComponent)?.container
   const anchoredPosition = ANCHORED_POSITION.get(modelEntity)!
   const anchoredRotation = ANCHORED_ROTATION.get(modelEntity)!
+  const localInteractor = getComponent(world.localClientEntity, InteractorComponent)
 
-  if (!container || !anchoredPosition) return
+  if (!uiContainer || !anchoredPosition || !localInteractor) return
 
-  const modelMesh = getComponent(modelEntity, Object3DComponent).value
-  const modelDesiredTranform = getComponent(modelEntity, DesiredTransformComponent)
-  const modelTransform = getComponent(modelEntity, TransformComponent)
+  const modelGroup = getComponent(modelEntity, Object3DComponent).value
 
-  const world = useWorld()
-  const hasFocus = hasComponent(modelEntity, InteractiveFocusedComponent)
+  const hasFocus = localInteractor.focusedInteractive === modelEntity
   const interacted = hasComponent(modelEntity, InteractedComponent)
 
   const currentMode = xrui.state.mode.value
   let nextMode = currentMode
 
-  if (currentMode === 'interacting' || interacted) {
+  if (hasFocus) {
+    if (nextMode === 'inactive') nextMode = 'active'
     if (interacted) {
       nextMode = currentMode === 'interacting' ? 'active' : 'interacting'
-    } else {
-      const localPosition = getComponent(world.localClientEntity, TransformComponent)?.position
-      const interactable = getComponent(modelEntity, InteractableComponent)
-      const dismissDistance = (interactable.interactionDistance.value || 2) * 2
-      if (localPosition) {
-        if (anchoredPosition.distanceTo(localPosition) > dismissDistance) {
-          nextMode = 'active'
-        }
-      }
     }
-  } else if (hasFocus) {
-    nextMode = 'active'
   } else {
     nextMode = 'inactive'
   }
 
   if (nextMode !== currentMode) {
+    transitionStartTime.set(modelEntity, world.elapsedTime)
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
-      Engine.camera.attach(container)
+      Engine.camera.attach(uiContainer)
     } else {
-      Engine.scene.attach(container)
+      Engine.scene.attach(uiContainer)
     }
+    modelGroup.traverse((obj) => {
+      const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
+      if (mesh.material) {
+        mesh.material.transparent = nextMode === 'interacting'
+        mesh.renderOrder = nextMode === 'interacting' ? 1 : 0
+      }
+    })
   }
 
-  const root = container.rootLayer
-  const rootMat = root.contentMesh.material as MeshBasicMaterial
-  const alpha = world.delta
+  const transitionStart = transitionStartTime.get(modelEntity)
+  const transitionElapsed = transitionStart ? world.elapsedTime - transitionStart : 0
+  const alpha = Math.min(transitionElapsed / TRANSITION_DURATION, 1)
 
-  const title = container.rootLayer.querySelector('.interactive-title')!
-  title.shouldApplyDOMLayout = false
+  const root = uiContainer.rootLayer
+  const rootMat = root.contentMesh.material as MeshBasicMaterial
+
+  const title = uiContainer.rootLayer.querySelector('.title')!
   const titleMat = title.contentMesh.material as MeshBasicMaterial
 
-  const eKey = container.rootLayer.querySelector('.interactive-e-key')!
-  eKey.shouldApplyDOMLayout = false
+  const eKey = uiContainer.rootLayer.querySelector('.hint')!
   const eKeyMat = eKey.contentMesh.material as MeshBasicMaterial
 
-  const description = container.rootLayer.querySelector('.interactive-description')!
-  description.shouldApplyDOMLayout = false
+  const description = uiContainer.rootLayer.querySelector('.description')!
   const descriptionMat = description.contentMesh.material as MeshBasicMaterial
 
-  const model = container.rootLayer.querySelector('.interactive-model')!
+  const stars = [
+    uiContainer.rootLayer.querySelector('.star-1')!,
+    uiContainer.rootLayer.querySelector('.star-2')!,
+    uiContainer.rootLayer.querySelector('.star-3')!,
+    uiContainer.rootLayer.querySelector('.star-4')!,
+    uiContainer.rootLayer.querySelector('.star-5')!
+  ]
+
+  const modelContainer = uiContainer.rootLayer.querySelector('.model')!
+  modelContainer.position.lerp(modelContainer.domLayout.position, alpha)
+  modelContainer.quaternion.slerp(modelContainer.domLayout.quaternion, alpha)
+  modelContainer.scale.lerp(modelContainer.domLayout.scale, alpha)
+
+  const link = uiContainer.rootLayer.querySelector('.link')!
+  const linkMat = link.contentMesh.material as MeshBasicMaterial
 
   if (nextMode === 'inactive') {
-    if (modelMesh.parent !== Engine.scene) {
-      Engine.scene.attach(modelMesh)
-      modelTransform.position.copy(modelMesh.position)
-      modelTransform.rotation.copy(modelMesh.quaternion)
+    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    uiContainer.position.lerp(anchoredPosition, alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.camera.matrix), alpha)
+    uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
+
+    if (modelGroup.parent !== Engine.scene) {
+      Engine.scene.attach(modelGroup)
     }
 
-    modelDesiredTranform.position.copy(anchoredPosition)
-    modelDesiredTranform.position.y = anchoredPosition.y
-    modelDesiredTranform.rotation.copy(anchoredRotation)
-    modelTransform.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
+    modelGroup.position.lerp(anchoredPosition, alpha)
+    modelGroup.quaternion.slerp(anchoredRotation, alpha)
+    modelGroup.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
 
-    container.position.lerp(anchoredPosition, alpha)
-    container.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    const targetScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
-    container.scale.lerp(scratchVector.setScalar(targetScale), alpha)
-
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha)
 
     title.position.lerp(TITLE_POS_INACTIVE, alpha)
-    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha * 3)
+    title.scale.lerp(title.domLayout.scale, alpha)
+    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha * 3)
+    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
+
+    link.position.lerp(link.domLayout.position, alpha)
+    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
 
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
-    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha * 3)
+    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
+    }
   } else if (nextMode === 'active') {
-    if (modelMesh.parent !== Engine.scene) {
-      Engine.scene.attach(modelMesh)
-      modelTransform.position.copy(modelMesh.position)
-      modelTransform.rotation.copy(modelMesh.quaternion)
+    const uiContainerScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
+    uiContainer.position.lerp(anchoredPosition, alpha)
+    uiContainer.quaternion.slerp(_quat.setFromRotationMatrix(Engine.camera.matrix), alpha)
+    uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
+
+    if (modelGroup.parent !== Engine.scene) {
+      Engine.scene.attach(modelGroup)
     }
 
-    modelDesiredTranform.position.copy(anchoredPosition)
-    modelDesiredTranform.position.y = anchoredPosition.y + MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
-    modelDesiredTranform.rotation.copy(anchoredRotation)
-    modelTransform.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
+    const modelTargetPosition = _vect.copy(anchoredPosition)
+    modelTargetPosition.y += MODEL_ELEVATION_ACTIVE + Math.sin(world.elapsedTime) * 0.05
+    modelGroup.position.lerp(modelTargetPosition, alpha)
+    modelGroup.quaternion.slerp(anchoredRotation, alpha)
+    modelGroup.scale.lerp(MODEL_SCALE_ACTIVE, alpha)
 
-    container.position.lerp(anchoredPosition, alpha)
-    container.rotation.setFromRotationMatrix(Engine.camera.matrix)
-    const targetScale = Math.max(1, Engine.camera.position.distanceTo(anchoredPosition)) * 0.8
-    container.scale.lerp(scratchVector.setScalar(targetScale), alpha)
-
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha * 3)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 0, alpha)
 
     title.position.lerp(TITLE_POS_ACTIVE, alpha)
-    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha * 3)
+    title.scale.lerp(title.domLayout.scale, alpha)
+    titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha * 3)
+    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
+
+    link.position.lerp(link.domLayout.position, alpha)
+    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
 
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
-    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 1, alpha * 3)
+    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 1, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
+    }
   } else if (nextMode === 'interacting') {
-    const dist = INTERACTING_CAMERA_POSITION.z
-    const size = container.rootLayer.domSize
-    const containerScale = computeContentScaleForCamera(dist, size.x, size.y, 'contain') * 0.92
+    const uiSize = uiContainer.rootLayer.domSize
+    const uiContainerScale =
+      ObjectFitFunctions.computeContentFitScaleForCamera(INTERACTING_UI_POSITION.z, uiSize.x, uiSize.y, 'contain') *
+      0.85
+    uiContainer.position.lerp(INTERACTING_UI_POSITION, alpha)
+    uiContainer.quaternion.slerp(INTERACTING_CAMERA_ROTATION, alpha)
+    uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    const modelTransform = getComponent(modelEntity, TransformComponent)
     const modelBounds = getComponent(modelEntity, BoundingBoxComponent)
-    const modelSize = modelBounds.box.getSize(scratchVector)
-    const modelScale = computeContentScaleForCamera(dist / 2, modelSize.x, modelSize.y, 'contain') * 0.1
+    const modelSize = modelBounds.box.getSize(_vect)
+    const modelScale =
+      ObjectFitFunctions.computeContentFitScale(
+        modelSize.x,
+        modelSize.y,
+        modelContainer.domSize.x,
+        modelContainer.domSize.y,
+        'contain'
+      ) * 0.5
 
-    container.position.lerp(INTERACTING_CAMERA_POSITION, alpha)
-    container.quaternion.copy(INTERACTING_CAMERA_ROTATION)
-    container.scale.lerp(scratchVector.setScalar(containerScale), alpha * 1.2)
-
-    if (modelMesh.parent !== model) {
-      model.attach(modelMesh)
-      modelTransform.position.copy(modelMesh.position)
-      modelTransform.rotation.copy(modelMesh.quaternion)
+    if (modelGroup.parent !== modelContainer) {
+      modelContainer.attach(modelGroup)
     }
 
-    invCameraRotation.copy(Engine.camera.quaternion).invert()
+    modelGroup.position.lerp(_vect.setScalar(0), alpha)
+    modelGroup.quaternion.slerp(_quat.copy(Engine.camera.quaternion).invert(), alpha)
+    modelGroup.scale.lerp(_vect.setScalar(modelScale), alpha)
 
-    modelDesiredTranform.position.copy(model.domLayout.position)
-    modelDesiredTranform.position.x = -0.2
-    modelDesiredTranform.position.multiplyScalar(modelScale)
-    modelDesiredTranform.position.z = Math.abs(dist * 0.1)
-    modelDesiredTranform.rotation.copy(invCameraRotation)
-    modelTransform.scale.lerp(scratchVector.setScalar(modelScale), alpha * 1.2)
-
-    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha * 3)
+    rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha)
 
     title.position.lerp(title.domLayout.position, alpha)
+    title.scale.lerp(title.domLayout.scale, alpha)
+
     eKey.position.lerp(eKey.domLayout.position, alpha)
-    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha * 3)
+    eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 1, alpha * 3)
+    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 1, alpha)
 
-    modelMesh.scale.lerp(MODEL_SCALE_INACTIVE, alpha)
+    link.position.lerp(link.domLayout.position, alpha)
+    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 1, alpha)
+
+    for (const [i, s] of stars.entries()) {
+      const alpha = Math.min((transitionElapsed - i * 0.1) / (TRANSITION_DURATION * 3), 1)
+      s.position.lerp(s.domLayout.position, alpha)
+      s.scale.lerp(s.domLayout.scale, alpha)
+      const mat = s.contentMesh.material as MeshBasicMaterial
+      mat.opacity = MathUtils.lerp(mat.opacity, 1, alpha)
+    }
   }
-
-  // const modelElement = xrui.layer.querySelector(`#interactive-ui-model-${entityIndex}`)
-  // if (modelElement && modelElement.contentMesh && modelElement.contentMesh.children[0]) {
-  //   modelElement.contentMesh.children[0].rotateY(0.01)
-  // }
-  // if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
-  //   interactUIObject.children[0].setRotationFromAxisAngle(
-  //     upVec,
-  //     MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
-  //   )
-  // } else {
-  //   const world = useWorld()
-  //   const { x, z } = getComponent(world.localClientEntity, TransformComponent).position
-  //   interactUIObject.lookAt(x, interactUIObject.position.y, z)
-  // }
 }
 
 //TODO: Show interactive UI
-export const showInteractUI = (entity: Entity) => {
-  const ui = InteractiveUI.get(entity)
-  if (!ui) return
-  const xrui = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrui) return
-  const object3D = getComponent(ui.entity, Object3DComponent) as any
-  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+// export const showInteractUI = (entity: Entity) => {
+//   const ui = InteractiveUI.get(entity)
+//   if (!ui) return
+//   const xrui = getComponent(ui.entity, XRUIComponent) as any
+//   if (!xrui) return
+//   const object3D = getComponent(ui.entity, Object3DComponent) as any
+//   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
 
-  const userData = object3D.value.userData
+//   const userData = object3D.value.userData
 
-  //refresh video
-  const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
-  if (videoElement && videoElement.element) {
-    //TODO: sometimes the video rendering does not work, set resize for refreshing
-    videoElement.element.style.height = 0
-    if (videoElement.element.style.display == 'block') {
-      videoElement.element.load()
-      videoElement.element.addEventListener(
-        'loadeddata',
-        function () {
-          videoElement.element.style.height = 'auto'
-          videoElement.element.play()
-        },
-        false
-      )
-    } else {
-      videoElement.element.pause()
-    }
-  }
+//   //refresh video
+//   const videoElement = xrui.layer.querySelector(`#ui-video-${userData.parentEntity}`)
+//   if (videoElement && videoElement.element) {
+//     //TODO: sometimes the video rendering does not work, set resize for refreshing
+//     videoElement.element.style.height = 0
+//     if (videoElement.element.style.display == 'block') {
+//       videoElement.element.load()
+//       videoElement.element.addEventListener(
+//         'loadeddata',
+//         function () {
+//           videoElement.element.style.height = 'auto'
+//           videoElement.element.play()
+//         },
+//         false
+//       )
+//     } else {
+//       videoElement.element.pause()
+//     }
+//   }
 
-  object3D.value.visible = true
-  hideInteractText(userData.interactTextEntity)
-}
+//   object3D.value.visible = true
+//   hideInteractText(userData.interactTextEntity)
+// }
 
-//TODO: Hide interactive UI
-export const hideInteractUI = (entity: Entity) => {
-  const ui = InteractiveUI.get(entity)
-  if (!ui) return
-  const xrui = getComponent(ui.entity, XRUIComponent) as any
-  if (!xrui) return
+// //TODO: Hide interactive UI
+// export const hideInteractUI = (entity: Entity) => {
+//   const ui = InteractiveUI.get(entity)
+//   if (!ui) return
+//   const xrui = getComponent(ui.entity, XRUIComponent) as any
+//   if (!xrui) return
 
-  const object3D = getComponent(ui.entity, Object3DComponent) as any
-  if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
-  const userData = object3D.value.userData
-  const videoElement = xrui.layer.querySelector(`#interactive-ui-video-${userData.parentEntity}`)
-  if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
+//   const object3D = getComponent(ui.entity, Object3DComponent) as any
+//   if (!object3D.value || !object3D.value.userData || !object3D.value.userData.interactTextEntity) return
+//   const userData = object3D.value.userData
+//   const videoElement = xrui.layer.querySelector(`#ui-video-${userData.parentEntity}`)
+//   if (videoElement && videoElement.element && videoElement.element.pause) videoElement.element.pause()
 
-  object3D.value.visible = false
-  showInteractText(userData.interactTextEntity, entity)
-}
+//   object3D.value.visible = false
+//   showInteractText(userData.interactTextEntity, entity)
+// }
 
 //TODO: Get interactive UI
 

@@ -1,11 +1,12 @@
 import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Location } from '@xrengine/common/src/interfaces/Location'
+
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 
 import { useErrorState } from '../../../common/services/ErrorService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
@@ -17,12 +18,11 @@ import { InstanceService, useInstanceState } from '../../services/InstanceServic
 import { LOCATION_PAGE_LIMIT, LocationService, useLocationState } from '../../services/LocationService'
 import { SceneService } from '../../services/SceneService'
 import { UserService, useUserState } from '../../services/UserService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
 const LocationTable = (props: LocationProps) => {
   const { search } = props
-  const classes = useStyles()
   const adminInstanceState = useInstanceState()
 
   const [page, setPage] = React.useState(0)
@@ -31,8 +31,7 @@ const LocationTable = (props: LocationProps) => {
   const [locationId, setLocationId] = React.useState('')
   const [locationName, setLocationName] = React.useState('')
   const [viewModel, setViewModel] = React.useState(false)
-  const [locationAdmin, setLocationAdmin] = React.useState('')
-  const dispatch = useDispatch()
+  const [locationAdmin, setLocationAdmin] = React.useState<Location>()
   const authState = useAuthState()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
@@ -69,7 +68,7 @@ const LocationTable = (props: LocationProps) => {
     setPage(0)
   }
 
-  const openViewModel = (open: boolean, location: any) => (event: React.KeyboardEvent | React.MouseEvent) => {
+  const openViewModel = (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
@@ -85,7 +84,7 @@ const LocationTable = (props: LocationProps) => {
   }
 
   const createData = (
-    el: any,
+    el: Location,
     id: string,
     name: string,
     sceneId: string,
@@ -109,19 +108,19 @@ const LocationTable = (props: LocationProps) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, el)}>
-            <span className={classes.spanWhite}>View</span>
+          <a href="#h" className={styles.actionStyle} onClick={openViewModel(true, el)}>
+            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setLocationId(id)
               setLocationName(name)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
           </a>
         </>
       )
@@ -158,11 +157,13 @@ const LocationTable = (props: LocationProps) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.instanceMediaChatEnabled ? 'Yes' : 'No'}{' '}
+        {el.location_setting?.instanceMediaChatEnabled
+          ? t('admin:components.index.yes')
+          : t('admin:components.index.no')}{' '}
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? 'Yes' : 'No'}
+        {el.location_setting?.videoEnabled ? t('admin:components.index.yes') : t('admin:components.index.no')}
       </div>
     )
   })

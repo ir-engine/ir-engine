@@ -1,17 +1,18 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const classes = useStyles()
   const [locationModelOpen, setLocationModelOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
+  const { t } = useTranslation()
 
   const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -32,17 +33,17 @@ const Location = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="location" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            Create New Location
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+            {t('admin:components.locationModel.createNewLocation')}
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <LocationTable search={search} />
       </div>
       <CreateLocation open={locationModelOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />

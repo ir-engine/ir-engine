@@ -4,4 +4,5 @@ export interface ProjectInterface {
   thumbnail: string
   storageProviderPath: string
   repositoryPath: string
+  settings: string
 }

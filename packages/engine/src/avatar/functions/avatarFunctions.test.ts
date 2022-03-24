@@ -58,7 +58,7 @@ describe('avatarFunctions Integration', async () => {
           const networkObject = addComponent(entity, NetworkObjectComponent, {
             // remote owner
             ownerId: Engine.userId,
-            ownerIndex: 0,
+            lastTick: 0,
             networkId: i as NetworkId,
             prefab: '',
             parameters: {}
@@ -173,7 +173,7 @@ describe('avatarFunctions Unit', async () => {
       }
 
       addComponent(entity, AnimationComponent, animationComponentData)
-      addComponent(entity, VelocityComponent, { velocity: new Vector3() })
+      addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
 
       addComponent(entity, AvatarAnimationComponent, {
         animationGraph: new AvatarAnimationGraph(),

@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import CloseIcon from '@mui/icons-material/Close'
 import MenuIcon from '@mui/icons-material/Menu'
 import { Grid, IconButton, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
+import styles from '../../styles/settings.module.scss'
 import Analytics from './Analytics'
 import Authentication from './Authentication'
 import Aws from './Aws'
@@ -12,15 +14,15 @@ import ChargeBee from './Chargebee'
 import Client from './Client'
 import Email from './Email'
 import GameServer from './GameServer'
+import Project from './Project'
 import Redis from './Redis'
 import Server from './Server'
 import Sidebar from './SideBar'
-import { useStyles } from './styles'
 
 const Setting = () => {
-  const classes = useStyles()
   const rootRef = useRef<any>()
   const [isAws, setIsAws] = useState(false)
+  const [isProject, setIsProject] = useState(false)
   const [isServer, setIsSever] = useState(false)
   const [isEmail, setIsEmail] = useState(false)
   const [isGame, setIsGame] = useState(false)
@@ -31,6 +33,7 @@ const Setting = () => {
   const [isAnalytics, setIsAnalytics] = useState(true)
   const [Contents, setContents] = useState(<Analytics />)
   const [awsFocused, setAwsFocused] = useState(false)
+  const [projectFocused, setProjectFocused] = useState(false)
   const [serverFocused, setServerFocused] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [gameFocused, setGameFocused] = useState(false)
@@ -40,14 +43,13 @@ const Setting = () => {
   const [redisFocused, setRedisFocused] = useState(false)
   const [menuVisible, setMenuVisible] = useState(false)
   const [analyticsFocused, setAnalyticsFocused] = useState(true)
-
-  // const handleNotAutoFocused = ()=>{
-  //   setIsFocused(!isFocused)
-  // }
+  const { t } = useTranslation()
 
   const handleAuth = () => {
     setIsAuth(!isAuth)
     setAuthFocused(!authFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsAws(false)
     setIsRedis(false)
     setIsChargebee(false)
@@ -70,6 +72,8 @@ const Setting = () => {
   const handleAws = () => {
     setIsAws(!isAws)
     setAwsFocused(!awsFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
     setIsAuth(false)
@@ -91,6 +95,8 @@ const Setting = () => {
   const handleChargebee = () => {
     setIsChargebee(!isChargebee)
     setChargebeeFocused(!chargebeeFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsAws(false)
     setIsRedis(false)
     setIsAuth(false)
@@ -112,6 +118,8 @@ const Setting = () => {
   const handleRedis = () => {
     setIsRedis(!isRedis)
     setRedisFocused(!redisFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsChargebee(false)
     setIsAws(false)
     setIsAuth(false)
@@ -134,6 +142,8 @@ const Setting = () => {
   const handleEmail = () => {
     setIsEmail(!isEmail)
     setEmailFocused(!emailFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
     setIsAws(false)
@@ -155,6 +165,8 @@ const Setting = () => {
   const handleClient = () => {
     setIsClient(!isClient)
     setClientFocused(!clientFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsRedis(false)
     setIsChargebee(false)
     setIsAws(false)
@@ -177,6 +189,8 @@ const Setting = () => {
   const handleGameServer = () => {
     setIsGame(!isGame)
     setGameFocused(!gameFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsAws(false)
     setIsRedis(false)
     setIsAuth(false)
@@ -198,6 +212,8 @@ const Setting = () => {
   const handleServer = () => {
     setIsSever(!isServer)
     setServerFocused(!serverFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsChargebee(false)
     setIsAws(false)
     setIsAuth(false)
@@ -220,6 +236,8 @@ const Setting = () => {
   const handleAnalytics = () => {
     setIsAnalytics(!isAnalytics)
     setAnalyticsFocused(!analyticsFocused)
+    setIsProject(false)
+    setProjectFocused(false)
     setIsSever(false)
     setIsChargebee(false)
     setIsAws(false)
@@ -239,6 +257,30 @@ const Setting = () => {
     setServerFocused(false)
   }
 
+  const handleProject = () => {
+    setIsProject(!isProject)
+    setProjectFocused(!projectFocused)
+    setIsAnalytics(false)
+    setAnalyticsFocused(false)
+    setIsSever(false)
+    setIsChargebee(false)
+    setIsAws(false)
+    setIsAuth(false)
+    setIsClient(false)
+    setIsGame(false)
+    setIsRedis(false)
+    setIsEmail(false)
+    setClientFocused(false)
+    setAwsFocused(false)
+    setRedisFocused(false)
+    setAuthFocused(false)
+    setChargebeeFocused(false)
+    setEmailFocused(false)
+    setGameFocused(false)
+    !isProject && setMenuVisible(false)
+    setServerFocused(false)
+  }
+
   useEffect(() => {
     rootRef?.current?.scrollIntoView()
   }, [menuVisible])
@@ -253,25 +295,22 @@ const Setting = () => {
     if (isGame) setContents(<GameServer />)
     if (isClient) setContents(<Client />)
     if (isAnalytics) setContents(<Analytics />)
-  }, [isAws, isChargebee, isRedis, isServer, isEmail, isGame, isClient, isAnalytics])
+    if (isProject) setContents(<Project />)
+  }, [isAws, isChargebee, isRedis, isServer, isEmail, isGame, isClient, isAnalytics, isProject])
 
   return (
-    <div className={classes.root} ref={rootRef}>
-      <div className={classes.invisible}>
+    <div ref={rootRef}>
+      <div className={styles.invisible}>
         <div style={{ position: 'fixed', zIndex: 1 }}>
-          <Button
-            size="medium"
-            onClick={() => setMenuVisible(!menuVisible)}
-            style={{ color: '#fff', fontSize: '3rem', background: '#393d42', position: 'fixed' }}
-          >
+          <Button size="medium" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
             <MenuIcon />
           </Button>
         </div>
         {menuVisible && (
-          <div className={classes.hoverSettings}>
+          <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
-              <Typography variant="h6" className={classes.hoverSettingsHeading}>
-                Settings
+              <Typography variant="h6" className={styles.hoverSettingsHeading}>
+                {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
                 onClick={() => setMenuVisible(!menuVisible)}
@@ -296,6 +335,7 @@ const Setting = () => {
               handleGameServer={handleGameServer}
               handleServer={handleServer}
               handleAnalytics={handleAnalytics}
+              handleProject={handleProject}
               serverFocused={serverFocused}
               awsFocused={awsFocused}
               emailFocused={emailFocused}
@@ -305,14 +345,15 @@ const Setting = () => {
               chargebeeFocused={chargebeeFocused}
               redisFocused={redisFocused}
               analyticsFocused={analyticsFocused}
+              projectFocused={projectFocused}
             />
           </div>
         )}
       </div>
       <Grid container spacing={3}>
-        <Grid item sm={3} lg={3} className={classes.visible}>
-          <Typography variant="h6" className={classes.settingsHeading}>
-            Settings
+        <Grid item sm={3} lg={3} className={styles.visible}>
+          <Typography variant="h6" className={styles.settingsHeading}>
+            {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
             handleAuth={handleAuth}
@@ -324,6 +365,7 @@ const Setting = () => {
             handleGameServer={handleGameServer}
             handleServer={handleServer}
             handleAnalytics={handleAnalytics}
+            handleProject={handleProject}
             serverFocused={serverFocused}
             awsFocused={awsFocused}
             emailFocused={emailFocused}
@@ -333,10 +375,11 @@ const Setting = () => {
             chargebeeFocused={chargebeeFocused}
             redisFocused={redisFocused}
             analyticsFocused={analyticsFocused}
+            projectFocused={projectFocused}
           />
         </Grid>
         <Grid item xs={12} sm={12} md={12} lg={9}>
-          <div className={classes.contents}>{Contents}</div>
+          <div className={styles.contents}>{Contents}</div>
         </Grid>
       </Grid>
     </div>

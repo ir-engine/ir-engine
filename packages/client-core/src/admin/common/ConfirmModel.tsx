@@ -1,23 +1,24 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   popConfirmOpen: boolean
   handleCloseModel: () => void
   submit: () => void
-  name: string
+  name: string | JSX.Element
   label: string
   type?: string
 }
 
 const ConfirmModel = (props: Props) => {
-  const classes = useStyles()
+  const { t } = useTranslation()
   const { popConfirmOpen, handleCloseModel, submit, name, label, type } = props
   return (
     <Dialog
@@ -25,17 +26,17 @@ const ConfirmModel = (props: Props) => {
       onClose={handleCloseModel}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      classes={{ paper: classes.paperDialog }}
+      classes={{ paper: styles.paperDialog }}
     >
       <DialogTitle id="alert-dialog-title">
-        Do you want to {type || 'delete'} {label} <b>{name}</b> ?
+        {t('admin:components.common.doYouWantTo')} {type || 'delete'} {label} <b>{name}</b> ?
       </DialogTitle>
       <DialogActions>
-        <Button onClick={handleCloseModel} className={classes.spanNone}>
-          Cancel
+        <Button onClick={handleCloseModel} className={styles.spanNone}>
+          {t('admin:components.common.cancel')}
         </Button>
-        <Button className={classes.spanDange} onClick={submit} autoFocus>
-          Confirm
+        <Button className={styles.spanDange} onClick={submit} autoFocus>
+          {t('admin:components.common.confirm')}
         </Button>
       </DialogActions>
     </Dialog>

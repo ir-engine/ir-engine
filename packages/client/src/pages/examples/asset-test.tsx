@@ -36,7 +36,7 @@ export default LocationPage
 let scene = new Scene()
 let animationMixers = [] as AnimationMixer[]
 let clips
-AssetLoader.load({ url: '/default_assets/Animations.glb' }, (gltf) => {
+AssetLoader.load('/default_assets/Animations.glb', (gltf) => {
   console.log(gltf)
   clips = gltf.animations
   clips.forEach((clip) => {
@@ -95,7 +95,7 @@ const DevPage = () => {
 
     scene.remove
 
-    AssetLoader.load({ url: fileURL }, (gltf) => {
+    AssetLoader.load(fileURL, (gltf) => {
       URL.revokeObjectURL(fileURL)
 
       scene.remove(model)

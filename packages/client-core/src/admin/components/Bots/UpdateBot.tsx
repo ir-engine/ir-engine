@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
 import { Autorenew, Save } from '@mui/icons-material'
@@ -23,18 +25,17 @@ import { validateForm } from '../../common/validation/formValidation'
 import { BotService } from '../../services/BotsService'
 import { InstanceService, useInstanceState } from '../../services/InstanceService'
 import { LocationService, useLocationState } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
   handleClose: () => void
-  bot: any
+  bot?: AdminBot
 }
 
 const UpdateBot = (props: Props) => {
   const { open, handleClose, bot } = props
   const adminInstanceState = useInstanceState()
-  const classes = useStyles()
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -54,6 +55,7 @@ const UpdateBot = (props: Props) => {
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
   const user = useAuthState().user
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (bot) {
@@ -61,7 +63,7 @@ const UpdateBot = (props: Props) => {
         name: bot?.name,
         description: bot?.description,
         instance: bot?.instance?.id || '',
-        location: bot?.location?.id
+        location: bot?.location?.id || ''
       })
     }
   }, [bot])
@@ -72,13 +74,13 @@ const UpdateBot = (props: Props) => {
     let temp = formErrors
     switch (names) {
       case 'name':
-        temp.name = value.length < 2 ? 'Name is required!' : ''
+        temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
         break
       case 'description':
-        temp.description = value.length < 2 ? 'Description is required!' : ''
+        temp.description = value.length < 2 ? t('admin:components.bot.descriptionCantEmpty') : ''
         break
       case 'location':
-        temp.location = value.length < 2 ? 'Location is required!' : ''
+        temp.location = value.length < 2 ? t('admin:components.bot.locationCantEmpty') : ''
         break
       default:
         break
@@ -112,22 +114,22 @@ const UpdateBot = (props: Props) => {
     }
     let temp = formErrors
     if (!state.name) {
-      temp.name = "Name can't be empty"
+      temp.name = t('admin:components.bot.nameCantEmpty')
     }
     if (!state.description) {
-      temp.description = "Description can't be empty"
+      temp.description = t('admin:components.bot.descriptionCantEmpty')
     }
     if (!state.location) {
-      temp.location = "Location can't be empty"
+      temp.location = t('admin:components.bot.locationCantEmpty')
     }
     setFormErrors(temp)
-    if (validateForm(state, formErrors)) {
+    if (validateForm(state, formErrors) && bot) {
       BotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
     } else {
-      setError('Please fill all required field!')
+      setError(t('admin:components.bot.fillRequiredField'))
       setOpenAlter(true)
     }
   }
@@ -152,45 +154,39 @@ const UpdateBot = (props: Props) => {
       <Dialog
         open={open}
         aria-labelledby="form-dialog-title"
-        classes={{ paper: classes.paperDialog }}
+        classes={{ paper: styles.paperDialog }}
         onClose={handleClose}
       >
-        <DialogTitle id="form-dialog-title">UPDATE BOT</DialogTitle>
+        <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
-          <label>Name</label>
-          <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+          <label>{t('admin:components.bot.name')}</label>
+          <Paper component="div" className={formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
             <InputBase
               name="name"
-              className={classes.input}
+              className={styles.input}
               placeholder="Enter name"
               style={{ color: '#fff' }}
               value={state.name}
               onChange={handleInputChange}
             />
           </Paper>
-          <label>Description</label>
-          <Paper
-            component="div"
-            className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
-          >
+          <label>{t('admin:components.bot.description')}</label>
+          <Paper component="div" className={formErrors.description.length > 0 ? styles.redBorder : styles.createInput}>
             <InputBase
-              className={classes.input}
+              className={styles.input}
               name="description"
-              placeholder="Enter description"
+              placeholder={t('admin:components.bot.enterDescription')}
               style={{ color: '#fff' }}
               value={state.description}
               onChange={handleInputChange}
             />
           </Paper>
 
-          <label>Location</label>
+          <label>{t('admin:components.bot.location')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper
-                component="div"
-                className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <FormControl className={classes.createInput} fullWidth>
+              <Paper component="div" className={formErrors.location.length > 0 ? styles.redBorder : styles.createInput}>
+                <FormControl className={styles.createInput} fullWidth>
                   <Select
                     labelId="demo-controlled-open-select-label"
                     id="demo-controlled-open-select"
@@ -199,11 +195,11 @@ const UpdateBot = (props: Props) => {
                     onChange={handleInputChange}
                     name="location"
                     displayEmpty
-                    className={classes.select}
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    className={styles.select}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select location</em>
+                      <em>{t('admin:components.bot.selectLocation')}</em>
                     </MenuItem>
                     {locationData.value.map((el) => (
                       <MenuItem value={el.id} key={el.id}>
@@ -223,12 +219,12 @@ const UpdateBot = (props: Props) => {
             </Grid>
           </Grid>
 
-          <label>Instance</label>
+          <label>{t('admin:components.bot.instance')}</label>
           <Grid container spacing={1}>
             <Grid item xs={10}>
-              <Paper component="div" className={classes.createInput}>
+              <Paper component="div" className={styles.createInput}>
                 <FormControl
-                  className={classes.createInput}
+                  className={styles.createInput}
                   fullWidth
                   disabled={currentInstance.length > 0 ? false : true}
                 >
@@ -239,12 +235,12 @@ const UpdateBot = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="instance"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>Select instance</em>
+                      <em>{t('admin:components.bot.selectInstance')}</em>
                     </MenuItem>
                     {currentInstance.map((el) => (
                       <MenuItem value={el.id} key={el.id}>
@@ -266,20 +262,26 @@ const UpdateBot = (props: Props) => {
         </DialogContent>
         <DialogActions style={{ marginRight: '15px' }}>
           <Button
-            variant="contained"
+            variant="outlined"
+            style={{ color: '#fff' }}
             disableElevation
             type="submit"
-            className={classes.saveBtn}
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
               setFormErrors({ name: '', description: '', location: '' })
               handleClose()
             }}
           >
-            CANCEL
+            {t('admin:components.bot.cancel')}
           </Button>
-          <Button variant="contained" disableElevation type="submit" className={classes.saveBtn} onClick={handleUpdate}>
-            <Save style={{ marginRight: '10px' }} /> save
+          <Button
+            variant="contained"
+            disableElevation
+            type="submit"
+            className={styles.openModalBtn}
+            onClick={handleUpdate}
+          >
+            <Save style={{ marginRight: '10px' }} /> {t('admin:components.bot.save')}
           </Button>
         </DialogActions>
       </Dialog>

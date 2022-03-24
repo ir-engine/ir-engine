@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
 import { useLocation } from 'react-router-dom'
@@ -11,15 +11,17 @@ import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import UserToast from '@xrengine/client-core/src/common/components/Toast/UserToast'
+import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { theme as defaultTheme } from '@xrengine/client-core/src/theme'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
@@ -41,7 +43,7 @@ interface Props {
   useLoadingScreenOpacity?: boolean
   login?: boolean
   pageTitle: string
-  children?: any
+  children?: JSX.Element | JSX.Element[]
   hideVideo?: boolean
   hideFullscreen?: boolean
   theme?: any
@@ -59,10 +61,25 @@ const Layout = (props: Props): any => {
   const [favicon16, setFavicon16] = useState(clientSetting?.favicon16px)
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
+  const [showMediaIcons, setShowMediaIcons] = useState(true)
+  const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
+  const channelConnectionState = useMediaInstanceConnectionState()
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
+    const topButtonsState = localStorage.getItem('isTopButtonsShown')
+    const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
+    if (!topButtonsState) {
+      localStorage.setItem('isTopButtonsShown', 'true')
+    } else {
+      setShowMediaIcons(JSON.parse(topButtonsState))
+    }
+    if (!bottomButtonsState) {
+      localStorage.setItem('isBottomButtonsShown', 'true')
+    } else {
+      setShowBottomIcons(JSON.parse(bottomButtonsState))
+    }
   }, [])
 
   useEffect(() => {
@@ -94,9 +111,22 @@ const Layout = (props: Props): any => {
     respawnAvatar(useWorld().localClientEntity)
   }
 
+  const handleShowMediaIcons = () => {
+    setShowMediaIcons(!showMediaIcons)
+    const topButtonsState = localStorage.getItem('isTopButtonsShown') || ''
+    localStorage.setItem('isTopButtonsShown', JSON.stringify(!JSON.parse(topButtonsState)))
+  }
+
+  const handleShowBottomIcons = () => {
+    setShowBottomIcons(!showBottomIcons)
+    const bottomButtonsState = localStorage.getItem('isBottomButtonsShown') || ''
+    localStorage.setItem('isBottomButtonsShown', JSON.stringify(!JSON.parse(bottomButtonsState)))
+  }
+
   const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
   const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
-
+  const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
+  const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   //info about current mode to conditional render menus
   // TODO: Uncomment alerts when we can fix issues
   return (
@@ -113,11 +143,24 @@ const Layout = (props: Props): any => {
                 {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
                 {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
               </Helmet>
+
               {children}
-              <MediaIconsBox />
-              <UserMenu />
+              {<UserMenu animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom} />}
+              <Debug />
+
+              {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
               <div style={{ opacity: layoutOpacity }}>
-                <header>
+                <button
+                  type="button"
+                  className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
+                    showMediaIcons ? styles.rotate : styles.rotateBack
+                  } ${styles.showIconMedia} `}
+                  onClick={handleShowMediaIcons}
+                >
+                  <MediaIconHider />
+                </button>
+                <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
+                <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
                   {path === '/login' && <NavMenu login={login} />}
                   {!props.hideVideo && (
                     <>
@@ -129,25 +172,15 @@ const Layout = (props: Props): any => {
                     </>
                   )}
                 </header>
-
-                {!iOS() && (
-                  <>
-                    {props.hideFullscreen ? null : fullScreenActive ? (
-                      <button type="button" className={styles.fullScreen} onClick={handle.exit}>
-                        <FullscreenExit />
-                      </button>
-                    ) : (
-                      <button type="button" className={styles.fullScreen} onClick={handle.enter}>
-                        <ZoomOutMap />
-                      </button>
-                    )}
-                  </>
-                )}
-
-                <button type="button" className={styles.respawn} id="respawn" onClick={respawnCallback}>
-                  <Refresh />
+                <button
+                  type="button"
+                  className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
+                    showBottomIcons ? styles.rotate : styles.rotateBack
+                  } ${styles.showIcon} `}
+                  onClick={handleShowBottomIcons}
+                >
+                  <BottomIconHider />
                 </button>
-
                 <UIDialog />
                 <Alerts />
                 {isTouchAvailable && (
@@ -155,9 +188,43 @@ const Layout = (props: Props): any => {
                     <TouchGamepad layout="default" />
                   </Suspense>
                 )}
-                <Debug />
-                {/* <RecordingApp /> */}
-                <InstanceChat />
+
+                {!iOS() && (
+                  <>
+                    {props.hideFullscreen ? null : fullScreenActive ? (
+                      <button
+                        type="button"
+                        className={`${styles.btn} ${styles.fullScreen} ${
+                          showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                        } `}
+                        onClick={handle.exit}
+                      >
+                        <FullscreenExit />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className={`${styles.btn} ${styles.fullScreen} ${
+                          showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                        } `}
+                        onClick={handle.enter}
+                      >
+                        <ZoomOutMap />
+                      </button>
+                    )}
+                  </>
+                )}
+                <button
+                  type="button"
+                  className={`${styles.btn} ${styles.respawn} ${
+                    showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                  } ${!iOS() ? '' : styles.refreshBtn}`}
+                  id="respawn"
+                  onClick={respawnCallback}
+                >
+                  <Refresh />
+                </button>
+                <InstanceChat animate={styles.animateBottom} />
               </div>
             </section>
           </ThemeProvider>

@@ -100,7 +100,7 @@ export const UserService = {
             userId
           }
         })
-        .then((res: any) => {
+        .then((res: Relationship) => {
           dispatch(UserAction.loadedUserRelationship(res as Relationship))
         })
         .catch((err: any) => {

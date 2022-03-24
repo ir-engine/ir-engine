@@ -7,7 +7,7 @@ import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 // import { Forbidden } from '@feathersjs/errors'
 
@@ -83,7 +83,7 @@ export class Party<T = PartyDataType> extends Service<T> {
    */
   async get(id: string, params?: Params): Promise<T> {
     if (id == null) {
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       const partyUserResult = await this.app.service('party-user').find({
         query: {
           userId: loggedInUser.id

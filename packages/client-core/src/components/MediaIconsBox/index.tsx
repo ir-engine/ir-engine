@@ -20,7 +20,6 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import {
   startFaceTracking,
@@ -36,7 +35,10 @@ import FaceIcon from '@mui/icons-material/Face'
 
 import styles from './MediaIconsBox.module.scss'
 
-const MediaIconsBox = (props) => {
+interface Props {
+  animate?: any
+}
+const MediaIconsBox = (props: Props) => {
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -50,11 +52,11 @@ const MediaIconsBox = (props) => {
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediastream = useMediaStreamState()
-  const videoEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.videoEnabled?.value
+  const videoEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.videoEnabled?.value
     : false
-  const instanceMediaChatEnabled = currentLocation?.locationSettings?.value
-    ? currentLocation?.locationSettings?.instanceMediaChatEnabled?.value
+  const instanceMediaChatEnabled = currentLocation?.locationSetting?.value
+    ? currentLocation?.locationSetting?.instanceMediaChatEnabled?.value
     : false
 
   const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
@@ -77,17 +79,21 @@ const MediaIconsBox = (props) => {
 
   const handleFaceClick = async () => {
     const partyId =
-      currentLocation?.locationSettings?.instanceMediaChatEnabled?.value === true
+      currentLocation?.locationSetting?.instanceMediaChatEnabled?.value === true
         ? 'instance'
         : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {
+      MediaStreams.instance.setFaceTracking(false)
       stopFaceTracking()
       stopLipsyncTracking()
+      MediaStreamService.updateFaceTrackingState()
     } else {
       const mediaTransport = getMediaTransport()
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
+        MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
         startLipsyncTracking()
+        MediaStreamService.updateFaceTrackingState()
       }
     }
   }
@@ -112,7 +118,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(mediaTransport)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+        if (audioPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
         checkEndVideoChat()
       }
@@ -126,7 +132,7 @@ const MediaIconsBox = (props) => {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(mediaTransport)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
+        if (videoPaused) await pauseProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaTransport, MediaStreams.instance.camVideoProducer)
         checkEndVideoChat()
       }
@@ -141,7 +147,7 @@ const MediaIconsBox = (props) => {
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
   return (
-    <section className={styles.drawerBox}>
+    <section className={`${styles.drawerBox} ${props.animate}`}>
       {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.connected.value === true ? (
         <button
           type="button"

@@ -14,7 +14,7 @@ import styles from './Auth.module.scss'
 
 interface Props {}
 
-const SignUp = (props: Props): any => {
+const SignUp = (props: Props): JSX.Element => {
   const initialState = {
     email: '',
     password: '',
@@ -99,6 +99,6 @@ const SignUp = (props: Props): any => {
   )
 }
 
-const SignUpWrapper = (props: any): any => <SignUp {...props} />
+const SignUpWrapper = (props: Props): JSX.Element => <SignUp {...props} />
 
 export default SignUpWrapper

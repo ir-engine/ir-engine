@@ -135,10 +135,11 @@ export class EngineRenderer {
     this.renderContext = context!
     const options: WebGLRendererParameters = {
       precision: 'highp',
-      powerPreference: isIOS() ? 'default' : 'high-performance',
+      powerPreference: 'high-performance',
+      stencil: false,
+      antialias: !Engine.isHMD,
       canvas,
       context,
-      antialias: !Engine.isHMD,
       preserveDrawingBuffer: !Engine.isHMD
     }
 
@@ -166,7 +167,7 @@ export class EngineRenderer {
     this.onResize()
 
     Engine.renderer.autoClear = true
-    Engine.effectComposer = new EffectComposer(Engine.renderer)
+    Engine.effectComposer = new EffectComposer(Engine.renderer) as any
 
     configureEffectComposer()
 

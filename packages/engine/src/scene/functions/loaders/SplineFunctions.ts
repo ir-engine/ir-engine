@@ -57,7 +57,7 @@ export const serializeSpline: ComponentSerializeFunction = (entity) => {
   }
 }
 
-const parseSplineProperties = (props: any): SplineComponentType => {
+export const parseSplineProperties = (props: any): SplineComponentType => {
   const result = { splinePositions: [] as Vector3[] }
 
   if (!props.splinePositions) return result
