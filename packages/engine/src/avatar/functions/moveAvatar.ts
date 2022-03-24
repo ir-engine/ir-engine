@@ -1,15 +1,15 @@
-import checkValidPositionOnGround from 'src/common/functions/checkValidPositionOnGround'
-import { ColliderComponent } from 'src/physics/components/ColliderComponent'
-import { teleportRigidbody } from 'src/physics/functions/teleportRigidbody'
-import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import checkValidPositionOnGround from '../../common/functions/checkValidPositionOnGround'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -328,16 +328,16 @@ export const moveXRAvatar = (
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity : Entity, newPosition : Vector3): void => {
+export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
   if (!hasComponent(entity, AvatarComponent)) {
-    console.warn("Teleport avatar called on non-avatar entity")
+    console.warn('Teleport avatar called on non-avatar entity')
     return
   }
 
   if (checkValidPositionOnGround(newPosition)) {
     const transform = getComponent(entity, TransformComponent)
     transform.position.copy(newPosition)
-    
+
     const body = getComponent(entity, ColliderComponent).body
     teleportRigidbody(body, newPosition)
   }
