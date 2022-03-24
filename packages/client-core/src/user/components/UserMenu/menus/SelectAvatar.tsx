@@ -92,7 +92,9 @@ const selectAvatarMenu = (props: Props) => {
           <Paper
             onClick={() => selectAvatar(characterAvatar)}
             style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
-            className={`${styles.paper} ${avatar.name == selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''}
+            className={`${styles.paperAvatar} ${
+              avatar.name == selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''
+            }
               ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
             sx={{
               height: 140,
