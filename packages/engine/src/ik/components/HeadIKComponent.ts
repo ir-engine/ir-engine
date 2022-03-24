@@ -5,8 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 /**
  * Rotate the target bone with given camera
  */
-export type CameraIKComponentType = {
-  boneIndex: number
+export type HeadIKComponentType = {
   camera: Camera | Object3D
   /**
    * Clamp the angle between bone forward vector and camera forward in radians
@@ -15,4 +14,4 @@ export type CameraIKComponentType = {
   rotationClamp: number
 }
 
-export const CameraIKComponent = createMappedComponent<CameraIKComponentType>('CameraIKComponent')
+export const HeadIKComponent = createMappedComponent<HeadIKComponentType>('HeadIKComponent')

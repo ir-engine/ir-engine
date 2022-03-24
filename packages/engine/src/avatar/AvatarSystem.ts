@@ -13,7 +13,7 @@ import {
 } from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { AvatarHandsIKComponent } from '../ik/components/AvatarHandsIKComponent'
-import { CameraIKComponent } from '../ik/components/CameraIKComponent'
+import { HeadIKComponent } from '../ik/components/HeadIKComponent'
 import { IKRigComponent } from '../ik/components/IKRigComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
@@ -138,8 +138,8 @@ export default async function AvatarSystem(world: World) {
       // Add head IK Solver
       if (!isEntityLocalClient(entity)) {
         proxifyXRInputs(entity, xrInputSourceComponent)
-        addComponent(entity, CameraIKComponent, {
-          boneIndex: 5, // Head bone
+        addComponent(entity, HeadIKComponent, {
+          boneName: 'Head',
           camera: xrInputSourceComponent.head,
           rotationClamp: 0.785398
         })
@@ -150,7 +150,7 @@ export default async function AvatarSystem(world: World) {
       const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
       xrInputComponent.container.removeFromParent()
       xrInputComponent.head.removeFromParent()
-      removeComponent(entity, CameraIKComponent)
+      removeComponent(entity, HeadIKComponent)
     }
 
     for (const entity of xrIKQuery.enter(world)) {

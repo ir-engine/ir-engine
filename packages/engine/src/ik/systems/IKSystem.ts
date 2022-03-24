@@ -11,11 +11,9 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { dispatchLocal } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'
 import { IKRigComponent, IKRigTargetComponent } from '../components/IKRigComponent'
 import { applyIKPoseToIKRig, computeIKPose } from '../functions/IKFunctions'
-import { applyCameraLook } from '../functions/IKSolvers'
 
 const logCustomTargetRigBones = (targetRig) => {
   if (targetRig.name !== 'custom') {
@@ -68,19 +66,11 @@ const mockAvatars = () => {
 }
 
 export default async function IKSystem(world: World) {
-  const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikPoseQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
   // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
   return () => {
-    // Apply camera IK to the source skeleton
-    for (const entity of cameraIKQuery()) {
-      const rig = getComponent(entity, IKRigComponent)
-      const cameraSolver = getComponent(entity, CameraIKComponent)
-      applyCameraLook(rig, cameraSolver)
-    }
-
     for (const entity of ikPoseQuery()) {
       const ikPose = getComponent(entity, IKPoseComponent)
       const rig = getComponent(entity, IKRigComponent)

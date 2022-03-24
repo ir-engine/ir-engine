@@ -1,10 +1,12 @@
-import { Euler } from 'three'
+import { Euler, Vector3 } from 'three'
 import matches from 'ts-matches'
 
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { AvatarHandsIKComponent } from '../ik/components/AvatarHandsIKComponent'
+import { HeadIKComponent } from '../ik/components/HeadIKComponent'
 import { IKRigComponent } from '../ik/components/IKRigComponent'
+import { getForwardVector, solveLookIK } from '../ik/functions/LookAtIKSolver'
 import { solveTwoBoneIK } from '../ik/functions/TwoBoneIKSolver'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
@@ -22,10 +24,12 @@ const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
 const vrIKQuery = defineQuery([AvatarHandsIKComponent, IKRigComponent])
+const headIKQuery = defineQuery([IKRigComponent, HeadIKComponent])
 const desiredTransformQuery = defineQuery([DesiredTransformComponent])
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, IKRigComponent])
+const forward = new Vector3()
 
 export default async function AnimationSystem(world: World) {
   world.receptors.push(animationActionReceptor)
@@ -107,6 +111,14 @@ export default async function AnimationSystem(world: World) {
         ik.rightTargetRotWeight,
         ik.rightHintWeight
       )
+    }
+
+    // Move it to IK system?
+    for (const entity of headIKQuery(world)) {
+      const rig = getComponent(entity, IKRigComponent)
+      const ik = getComponent(entity, HeadIKComponent)
+      getForwardVector(ik.camera.matrixWorld, forward).multiplyScalar(-1)
+      solveLookIK(rig.boneStructure.Head, forward, ik.rotationClamp)
     }
 
     for (const entity of animationQuery(world)) {
