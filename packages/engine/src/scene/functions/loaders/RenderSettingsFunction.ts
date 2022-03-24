@@ -89,6 +89,14 @@ export const initializeCSM = () => {
   })
 }
 
+export const disposeCSM = () => {
+  if (!Engine.csm) return
+
+  Engine.csm.remove()
+  Engine.csm.dispose()
+  Engine.csm = undefined!
+}
+
 export const resetEngineRenderer = (resetLODs = false) => {
   if (!isClient) return
 
@@ -101,11 +109,7 @@ export const resetEngineRenderer = (resetLODs = false) => {
 
   if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 
-  if (!Engine.csm) return
-
-  Engine.csm.remove()
-  Engine.csm.dispose()
-  Engine.csm = undefined!
+  disposeCSM()
 }
 
 export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {

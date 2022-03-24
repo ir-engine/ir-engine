@@ -23,11 +23,11 @@ export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
   intensity: 10,
   range: 0,
   decay: 2,
-  angle: Math.PI / 2,
+  angle: Math.PI / 3,
   penumbra: 1,
   castShadow: true,
   shadowMapResolution: [256, 256],
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1
 }
 
