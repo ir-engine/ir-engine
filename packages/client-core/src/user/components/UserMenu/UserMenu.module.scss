@@ -75,6 +75,12 @@
     .materialIconBlock.activeMenu {
       color: #a8a8ff;
     }
+    @media (max-width: 560px) {
+      height: 100%;
+      flex-direction: column;
+      margin-left: 10px;
+      justify-content: space-around;
+    }
   }
 
   .avatarPanel {
@@ -415,6 +421,12 @@
       }
     }
   }
+
+  @media (max-width: 560px) {
+    height: 200px;
+    bottom: 100px;
+    width: auto;
+  }
 }
 
 .menuPanel {
@@ -549,10 +561,19 @@
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
             }
+            @media (max-width: 560px) {
+              width: 200px;
+            }
           }
 
           .materialIconBlock {
             @include material-icon-block-styling();
+          }
+        }
+
+        .justify {
+          @media (max-width: 560px) {
+            justify-content: space-between !important;
           }
         }
 
@@ -757,6 +778,12 @@
         }
       }
 
+      .settingHeader {
+        @media (max-width: 560px) {
+          font-size: 1.125rem;
+        }
+      }
+
       .settingLabel {
         margin-left: 10px;
         font-size: 14px;
@@ -880,6 +907,9 @@
         &:hover {
           opacity: 0.8;
         }
+      }
+      @media (max-width: 560px) {
+        width: 200px;
       }
     }
 
@@ -1193,6 +1223,13 @@
         }
       }
     }
+  }
+
+  @media (max-width: 560px) {
+    left: 100%;
+    width: auto;
+    bottom: 125px;
+    transform: none;
   }
 
   @media screen and (max-width: 500px) {
