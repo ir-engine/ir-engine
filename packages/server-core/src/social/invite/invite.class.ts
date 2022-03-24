@@ -5,7 +5,7 @@ import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
@@ -100,7 +100,7 @@ export class Invite<T = InviteDataType> extends Service<T> {
   async remove(id: string, params?: Params): Promise<T> {
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
-      const selfUser = extractLoggedInUserFromParams(params)
+      const selfUser = params!.user as UserDataType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service('user-relationship').remove(relatedUserId, params)
     }
