@@ -1,5 +1,6 @@
 import { BadRequest } from '@feathersjs/errors'
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import { UserDataType } from '../user/user/user.class'
 
 /**

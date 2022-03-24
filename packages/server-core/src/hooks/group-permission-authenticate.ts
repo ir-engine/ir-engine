@@ -1,5 +1,6 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
+
 import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item

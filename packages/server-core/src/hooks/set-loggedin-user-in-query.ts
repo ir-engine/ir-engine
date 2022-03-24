@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+
 import { UserDataType } from '../user/user/user.class'
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"

@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
-import { UserDataType } from '../user/user/user.class'
 
+import { UserDataType } from '../user/user/user.class'
 import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 import { Application } from './../../declarations.d'
 

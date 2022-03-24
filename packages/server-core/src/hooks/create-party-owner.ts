@@ -6,7 +6,7 @@ export default () => {
     // Getting logged in user and attaching owner of user
     const { result, params } = context
 
-    const user = params.user// TODO: add location_admins type // as User
+    const user = params.user // TODO: add location_admins type // as User
     let ownerUser = false
     if (user.location_admins) {
       ownerUser =

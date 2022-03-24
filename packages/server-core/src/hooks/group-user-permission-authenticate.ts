@@ -1,6 +1,7 @@
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
+
 import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item

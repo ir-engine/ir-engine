@@ -1,4 +1,5 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
+
 import { UserDataType } from '../user/user/user.class'
 
 export default (): Hook => {
