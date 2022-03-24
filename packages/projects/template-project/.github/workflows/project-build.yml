@@ -19,11 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout XREngine
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: xrfoundation/xrengine
       - name: Checkout Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: './packages/projects/projects/${{ github.event.repository.name }}'
       - name: Use Node.js
