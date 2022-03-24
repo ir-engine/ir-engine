@@ -11,7 +11,7 @@ import { DockContainer } from '@xrengine/editor/src/components/EditorContainer'
 
 import Drawer from '@mui/material/Drawer'
 
-import styles from './Projects.module.scss'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   name: string
@@ -60,7 +60,7 @@ const ViewProjectFiles = (props: Props) => {
   return (
     <div id="project-container">
       <Drawer
-        classes={{ paper: styles.paper }}
+        classes={{ paper: styles.paperDrawer }}
         anchor="right"
         open={props.open}
         onClose={() => props.setShowProjectFiles(false)}

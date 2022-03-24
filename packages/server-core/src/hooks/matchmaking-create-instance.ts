@@ -1,10 +1,13 @@
-import { Hook, HookContext } from '@feathersjs/feathers'
+import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
+
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
 
 import { Application } from '../../declarations'
 import { getFreeGameserver } from '../networking/instance-provision/instance-provision.class'
 
 export default (): Hook => {
-  return async (context: HookContext): Promise<HookContext> => {
+  return async (context: HookContext<Application>): Promise<HookContext> => {
     const { app, result } = context
     const matchInstanceId = result?.id
     const connection = result?.connection
@@ -20,25 +23,25 @@ export default (): Hook => {
     }
 
     const locationName = 'game-' + gameMode
-    const location = await app.service('location').find({
+    const location = (await app.service('location').find({
       query: {
         name: locationName
       }
-    })
+    })) as Paginated<LocationType>
     if (!location.data.length) {
       // throw error?!
       throw new Error(`Location for match type '${gameMode}'(${locationName}) is not found.`)
     }
 
-    const freeInstance = await getFreeGameserver(app as Application, 0, location.data[0].id, null!)
+    const freeInstance = await getFreeGameserver(app, 0, location.data[0].id, null!)
     try {
-      const existingInstance = await app.service('instance').find({
+      const existingInstance = (await app.service('instance').find({
         query: {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
           locationId: location.data[0].id,
           ended: false
         }
-      })
+      })) as Paginated<Instance>
 
       let instanceId
       if (existingInstance.total === 0) {
@@ -49,7 +52,7 @@ export default (): Hook => {
           assigned: true,
           assignedAt: new Date()
         }
-        const newInstanceResult = await app.service('instance').create(newInstance)
+        const newInstanceResult = (await app.service('instance').create(newInstance)) as Instance
         instanceId = newInstanceResult.id
       } else {
         instanceId = existingInstance.data[0].id

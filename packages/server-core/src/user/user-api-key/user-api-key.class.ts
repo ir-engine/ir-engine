@@ -5,7 +5,7 @@ import { v1 } from 'uuid'
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { UserDataType } from '../user/user.class'
 
 export type UserApiKeyDataType = UserApiKeyInterface & { userId: string }
 /**
@@ -22,7 +22,7 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
   }
 
   async patch(id: string | null, data: any, params: Params = {}): Promise<T | T[]> {
-    const loggedInUser = await extractLoggedInUserFromParams(params)
+    const loggedInUser = params.user as UserDataType
     if (loggedInUser.userRole === 'admin' && id != null && params) return super.patch(id, { ...data })
     const userApiKey = await this.app.service('user-api-key').Model.findOne({
       where: {

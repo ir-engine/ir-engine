@@ -14,7 +14,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModel from '../../common/ConfirmModel'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
-import styles from './Projects.module.scss'
+import styles from '../../styles/admin.module.scss'
 import ViewProjectFiles from './ViewProjectFiles'
 
 export default function ProjectTable() {
@@ -129,7 +129,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={styles.checkboxButton}
               disabled={el.repositoryPath === null && name !== 'default-project'}
               onClick={() => handleOpenReuploadConfirmation(el)}
               name="stereoscopic"
@@ -144,7 +144,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={styles.checkboxButton}
               onClick={() => handleOpenInvaliateConfirmation(el)}
               name="stereoscopic"
               color="primary"
@@ -158,7 +158,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={styles.checkboxButton}
               onClick={() => handleViewProject(name)}
               name="stereoscopic"
               color="primary"
@@ -172,7 +172,7 @@ export default function ProjectTable() {
         <>
           {user.userRole.value === 'admin' && (
             <Button
-              className={styles.checkbox}
+              className={styles.checkboxButton}
               onClick={() => handleOpenRemoveConfirmation(el)}
               name="stereoscopic"
               color="primary"

@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText'
 
 import { useAuthState } from '../../services/AuthService'
 import { SidebarItems } from './DashboardItems'
-import { useStylesForDashboard } from './styles'
+import styles from './styles.module.scss'
 
 interface Props {
   //authState?: any
@@ -48,8 +48,6 @@ const DashboardMenuItem = (props: Props) => {
     }
   })
 
-  const classes = useStylesForDashboard()
-
   return (
     <>
       <Divider />
@@ -58,9 +56,9 @@ const DashboardMenuItem = (props: Props) => {
           .filter(Boolean)
           .map((sidebarItem, index) => {
             return (
-              <Link key={index} to={sidebarItem.path} className={classes.textLink}>
+              <Link key={index} to={sidebarItem.path} className={styles.textLink}>
                 <ListItem
-                  classes={{ selected: classes.selected }}
+                  classes={{ selected: styles.selected }}
                   style={{ color: 'white' }}
                   selected={sidebarItem.path === pathname}
                   button
@@ -71,23 +69,6 @@ const DashboardMenuItem = (props: Props) => {
               </Link>
             )
           })}
-        {/* {Add the below to SidebarItems.tsx file when you need to enable them} */}
-        {/* <Link to="/admin/sessions" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
-            <ListItemIcon>
-              <DragIndicator style={{ color: 'white' }} />
-            </ListItemIcon>
-            <ListItemText primary={t('user:dashboard.sessions')} />
-          </ListItem>
-        </Link> */}
-        {/* <Link to="/admin/chats" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
-            <ListItemIcon>
-              <Forum style={{ color: 'white' }} />
-            </ListItemIcon>
-            <ListItemText primary={t('user:dashboard.chats')} />
-          </ListItem>
-        </Link> */}
       </List>
     </>
   )

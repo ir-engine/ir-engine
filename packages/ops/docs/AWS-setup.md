@@ -34,6 +34,23 @@ Make sure to increase the maximum node limit, as by default target, minimum, and
 set to 2, and XREngine's setup will definitely need more than two nodes if you've configured
 them to use relatively small instance types such as t3a.medium.
 
+
+#### Install Cluster Autoscaler (optional)
+
+While not necessary, it can be useful to have an autoscaler installed in the cluster to increase
+the number of nodes available for pods when the cluster has high traffic and to decrease that
+number when it has low traffic.
+
+Follow [these instructions](https://docs.aws.amazon.com/eks/latest/userguide/autoscaling.html#cluster-autoscaler)
+to set up the autoscaler. Any managed nodegroups created in the following steps should by default be
+tagged such that the autoscaler can control them, so no further action should be required.
+
+Note that there is some lag time on scaling up and down. It generally takes about 5 minutes from 
+the time that the autoscaler sees the need to add more nodes before those nodes have been spun up,
+the appropriate Docker image has been installed onto them, and they are ready to be used. It takes about
+15 minutes for the autoscaler to actually remove nodes that are deemed superfluous, as a hedge against
+the recent high traffic picking up again.
+
 #### Create launch template
 Go to EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-gameserver'.
 Most settings can be left as-is, except for the following:
@@ -130,7 +147,7 @@ each individual service. To create a role, do the following:
 ### Creating an IAM role
 Go to IAM->Users, and click on the Add User button. For User Name, enter <service>-admin, e.g. `S3-admin`.
 Check the box for Programmatic Access, the click on the Next:Permissions button.
-Click on 'Attach exsiting policies directly'. In the Filter Policies text box, you'll want to
+Click on 'Attach existing policies directly'. In the Filter Policies text box, you'll want to
 enter the name of the service to narrow down the policy list significantly. Then, look for the FullAccess
 policy for that service and select that, and click the Next:Tags button. You don't need to tag it with
 anything, just click the Next:Review button, then the Create User button.
@@ -395,7 +412,7 @@ Once you have been approved, email login should work for any email address.
 
 #### Verifying test emails
 Before you have production use for your SES domain, in order to log in you'll have to verify specific email
-addresses with SES. Go to SES->Identity Management->Email Adresses. Click on the button 'Verify a New Email
+addresses with SES. Go to SES->Identity Management->Email Addresses. Click on the button 'Verify a New Email
 Address'. Enter the address you want to test with, then click 'Verify This Email Address'. You should soon
 receive an email with a link to verify it (it may go to your Spam folder). Once you've followed the link,
 you can log in with that address.

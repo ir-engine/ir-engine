@@ -28,9 +28,9 @@ import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
+import { executeCommandWithHistoryOnSelection, setPropertyOnSelectionEntities } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
-import { CommandManager } from '../../managers/CommandManager'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -170,7 +170,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = getDirectoryFromUrl(value)
     if (directory !== envmapComponent.envMapSourceURL) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
+      setPropertyOnSelectionEntities({
         component: EnvmapComponent,
         properties: { envMapSourceURL: directory }
       })
@@ -178,7 +178,7 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const onChangeUseSimpleMaterials = useCallback((value) => {
-    CommandManager.instance.executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
+    executeCommandWithHistoryOnSelection(EditorCommands.TAG_COMPONENT, {
       operation: {
         component: SimpleMaterialTagComponent,
         type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE

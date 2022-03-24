@@ -6,12 +6,11 @@ import Grid from '@mui/material/Grid'
 import AlertMessage from '../../common/AlertMessage'
 import Search from '../../common/Search'
 import { useGameserverState } from '../../services/GameserverService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
 import PatchGameserver from './PatchGameserver'
 
 const Instance = () => {
-  const classes = useStyles()
   const [search, setSearch] = React.useState('')
   const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
   const [openAlert, setOpenAlert] = React.useState(false)
@@ -51,17 +50,17 @@ const Instance = () => {
 
   return (
     <React.Fragment>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="instance" handleChange={handleChange} />
         </Grid>
         <Grid item xs={3}>
-          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
+          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
             Patch Gameserver
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <InstanceTable search={search} />
       </div>
       {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModel={closePatchModal} />}
