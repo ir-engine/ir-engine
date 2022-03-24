@@ -16,7 +16,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
 import { UserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import InviteModel from './InviteModel'
+import InviteModal from './InviteModal'
 import ReceivedInvite from './ReceivedInvite'
 import SentInvite from './SentInvite'
 import { inviteStyles } from './styles'
@@ -49,21 +49,11 @@ const a11yProps = (index: number) => {
   }
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: '#43484F !important'
-  },
-  marginBottom: {
-    marginBottom: '10px'
-  }
-}))
-
 const InvitesConsole = () => {
   const classes = inviteStyles()
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
-  const [inviteModelOpen, setInviteModelOpen] = React.useState(false)
+  const [inviteModalOpen, setInviteModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
 
   const inviteState = useInviteState()
@@ -78,12 +68,12 @@ const InvitesConsole = () => {
     setValue(newValue)
   }
 
-  const openModelInvite = () => {
-    setInviteModelOpen(true)
+  const openModalInvite = () => {
+    setInviteModalOpen(true)
   }
 
-  const closeModelInvite = () => {
-    setInviteModelOpen(false)
+  const closeModalInvite = () => {
+    setInviteModalOpen(false)
   }
 
   const fetchTick = () => {
@@ -98,7 +88,7 @@ const InvitesConsole = () => {
   }, [])
 
   useEffect(() => {
-    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch === true)) {
+    if (user?.id.value != null && (adminUserState.updateNeeded.value === true || refetch)) {
       UserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
@@ -128,7 +118,7 @@ const InvitesConsole = () => {
             <Search text="invite" handleChange={handleSearchChange} />
           </Grid>
           <Grid item xs={3}>
-            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModelInvite}>
+            <Button variant="contained" className={classes.createBtn} type="submit" onClick={openModalInvite}>
               {t('admin:components.invite.sendInvite')}
             </Button>
           </Grid>
@@ -155,7 +145,7 @@ const InvitesConsole = () => {
           </>
         </div>
       </ConfirmProvider>
-      <InviteModel open={inviteModelOpen} handleClose={closeModelInvite} users={adminUsers.value} />
+      <InviteModal open={inviteModalOpen} handleClose={closeModalInvite} users={adminUsers.value} />
     </div>
   )
 }
