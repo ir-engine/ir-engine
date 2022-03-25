@@ -35,7 +35,7 @@
     "**/node_modules/**"
   ],
   "include": [
-    "../server-core/src/**/*.service.ts",
+    "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx",
     "../../PhysX.d.ts",
