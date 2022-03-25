@@ -1,4 +1,4 @@
-import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
+import { LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -83,6 +83,18 @@ export const initializeCSM = () => {
       parent: Engine.scene,
       lights: Engine.directionalLights
     })
+
+  Engine.scene.traverse((obj: Mesh) => {
+    if (typeof obj.material !== 'undefined' && obj.receiveShadow) Engine.csm.setupMaterial(obj)
+  })
+}
+
+export const disposeCSM = () => {
+  if (!Engine.csm) return
+
+  Engine.csm.remove()
+  Engine.csm.dispose()
+  Engine.csm = undefined!
 }
 
 export const resetEngineRenderer = (resetLODs = false) => {
@@ -97,11 +109,7 @@ export const resetEngineRenderer = (resetLODs = false) => {
 
   if (resetLODs) AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
 
-  if (!Engine.csm) return
-
-  Engine.csm.remove()
-  Engine.csm.dispose()
-  Engine.csm = undefined!
+  disposeCSM()
 }
 
 export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
