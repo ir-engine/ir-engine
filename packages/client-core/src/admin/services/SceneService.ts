@@ -42,7 +42,7 @@ export const useSceneState = () => useState(state) as any as typeof state
 export const SceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
     const dispatch = useDispatch()
-    const scenes = (await client.service('scene').find()) as Paginated<SceneDetailInterface>
+    const scenes = await client.service('scene').find()
     dispatch(SceneAction.scenesFetched(scenes.data))
   },
 

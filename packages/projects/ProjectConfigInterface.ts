@@ -1,5 +1,6 @@
 import type { World } from '@xrengine/engine/src/ecs/classes/World'
-import type { Application } from '@xrengine/server-core/declarations'
+
+// import type { Application } from '@xrengine/server-core/declarations'
 
 export interface ProjectConfigInterface {
   /**
@@ -58,15 +59,15 @@ export interface ProjectConfigInterface {
   settings?: Array<ProjectSettingSchema>
 }
 
-type InstallFunctionType = (app: Application) => Promise<any>
+// type InstallFunctionType = (app: Application) => Promise<any>
 
 /**
  *
  */
 export interface ProjectEventHooks {
-  onInstall?: InstallFunctionType
-  onUpdate?: InstallFunctionType
-  onUninstall?: InstallFunctionType
+  onInstall?: any //InstallFunctionType
+  onUpdate?: any //InstallFunctionType
+  onUninstall?: any //InstallFunctionType
 }
 
 export interface ProjectSettingSchema {

@@ -7,6 +7,9 @@ import type { ServiceTypes } from '@xrengine/common/declarations'
 
 const feathersClient = feathers() as FeathersApplication<ServiceTypes> & {
   io: SocketIO.Server
+  authentication?: {
+    authenticated: boolean
+  }
 }
 const serverHost =
   process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'

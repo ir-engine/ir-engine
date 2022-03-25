@@ -17,13 +17,12 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeBrowser,
   initializeCoreSystems,
-  initializeProjectSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
@@ -32,6 +31,7 @@ import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatc
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 export const retrieveLocationByName = (authState: AuthState, locationName: string) => {
@@ -111,11 +111,13 @@ export const initEngine = async () => {
 export const initClient = async (sceneData: SceneData) => {
   const systems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   const projects = accessProjectState().projects.value.map((project) => project.name)
+  const world = useWorld()
 
   await Promise.all([
     initializeRealtimeSystems(),
     initializeSceneSystems(),
-    initializeProjectSystems(projects, systems)
+    initSystems(world, systems),
+    loadEngineInjection(world, projects)
   ])
 
   // add extraneous receptors
