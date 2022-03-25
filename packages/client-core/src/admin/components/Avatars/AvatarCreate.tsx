@@ -53,7 +53,7 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [selectUse, setSelectUse] = useState(false)
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
-  const [avatarModel, setAvatarModel] = useState<any>(null)
+  const [avatarModal, setAvatarModal] = useState<any>(null)
   const [fileSelected, setFileSelected] = React.useState(false)
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [validAvatarUrl, setValidAvatarUrl] = useState(false)
@@ -174,17 +174,17 @@ const AvatarCreate = ({ handleClose, open }) => {
             })
             .then((obj) => {
               if (!obj) {
-                setAvatarModel(null!)
+                setAvatarModal(null!)
                 setError('Failed to load')
                 return
               }
               obj.name = 'avatar'
               scene.add(obj)
               renderScene({ scene, renderer, camera })
-              setAvatarModel(obj)
+              setAvatarModal(obj)
               // const error = validate(obj)
               setError(error)
-              if (error === '') setAvatarModel(obj)
+              if (error === '') setAvatarModal(obj)
             })
         }
       } catch (error) {
@@ -225,17 +225,17 @@ const AvatarCreate = ({ handleClose, open }) => {
         })
         .then((obj) => {
           if (!obj) {
-            setAvatarModel(null!)
+            setAvatarModal(null!)
             setError('Failed to load')
             return
           }
           obj.name = 'avatar'
           scene.add(obj)
           renderScene({ scene, renderer, camera })
-          setAvatarModel(obj)
+          setAvatarModal(obj)
           // const error = validate(obj)
           setError(error)
-          if (error === '') setAvatarModel(obj)
+          if (error === '') setAvatarModal(obj)
         })
 
       fetch(event.target.value)
@@ -282,7 +282,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                   onClick={() => {
                     setSelectUse(!selectUse)
                     if (!selectUse) {
-                      setAvatarModel(null)
+                      setAvatarModal(null)
                       setSelectedFile(null)
                       setFileSelected(false)
                     }
@@ -299,25 +299,25 @@ const AvatarCreate = ({ handleClose, open }) => {
                       formErrors={formErrors.avatarUrl}
                       name="avatarUrl"
                     />
-                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                    <div id="stage" style={{ width: '500px', height: '250px' }} />
                   </>
                 ) : (
                   <>
-                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                    <div id="stage" style={{ width: '500px', height: '250px' }} />
                     <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                       <Input
                         accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                         id="contained-button-file"
                         type="file"
                         onChange={handleAvatarChange}
-                        disabled={avatarModel ? true : false}
+                        disabled={!!avatarModal}
                       />
                       <Button
                         variant="contained"
                         component="span"
                         className={styles.openModalBtn}
                         endIcon={<SystemUpdateAlt />}
-                        disabled={avatarModel ? true : false}
+                        disabled={!!avatarModal}
                       >
                         Avatar
                       </Button>

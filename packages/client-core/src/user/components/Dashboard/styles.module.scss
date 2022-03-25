@@ -251,7 +251,7 @@
             background-size: cover;
           }
 
-          .headerConatiner {
+          .headerContainer {
             display: flex;
             margin-top: 12px;
 
@@ -486,7 +486,7 @@
 }
 
 .menuButton {
-  margin-right: 36;
+  margin-right: 36px;
   color: white;
 }
 
@@ -514,7 +514,6 @@
 }
 
 .drawerOpen {
-  z-index: 9;
   position: absolute;
   width: 250px !important;
   height: 100%;
@@ -540,7 +539,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding: 0px 8px,
+  padding: 0 8px;
 }
 
 .content {
