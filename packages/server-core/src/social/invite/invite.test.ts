@@ -2,7 +2,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp, serverPipe } from '../../createApp'
+import { createFeathersExpressApp } from '../../createApp'
 import { InviteDataType } from './invite.class'
 
 let invites: any = []
@@ -13,7 +13,6 @@ describe('invite service', () => {
 
   before(async () => {
     app = createFeathersExpressApp()
-    serverPipe(app)
     await app.setup()
 
     await app.service('invite').hooks({

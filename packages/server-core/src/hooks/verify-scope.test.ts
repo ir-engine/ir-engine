@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
 import { Application } from '../../declarations'
-import { createFeathersExpressApp, serverPipe } from '../createApp'
+import { createFeathersExpressApp } from '../createApp'
 import { UserDataType } from '../user/user/user.class'
 import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
@@ -20,7 +20,6 @@ describe('verify-scope', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
-    serverPipe(app)
     await app.setup()
   })
 

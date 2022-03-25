@@ -5,7 +5,7 @@ import psList from 'ps-list'
 import favicon from 'serve-favicon'
 
 import config from '@xrengine/server-core/src/appconfig'
-import { createFeathersExpressApp, serverPipe } from '@xrengine/server-core/src/createApp'
+import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
 import logger from '@xrengine/server-core/src/logger'
 
@@ -17,7 +17,6 @@ process.on('unhandledRejection', (error, promise) => {
 
 export const start = async (): Promise<void> => {
   const app = createFeathersExpressApp()
-  serverPipe(app)
 
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
