@@ -212,7 +212,10 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {envmapComponent.type === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label="EnvMap Color">
-          <ColorInput value={envmapComponent.envMapSourceColor} onChange={updateProperty(EnvmapComponent, 'type')} />
+          <ColorInput
+            value={envmapComponent.envMapSourceColor}
+            onChange={updateProperty(EnvmapComponent, 'envMapSourceColor')}
+          />
         </InputGroup>
       )}
       {envmapComponent.type === EnvMapSourceType.Texture && (

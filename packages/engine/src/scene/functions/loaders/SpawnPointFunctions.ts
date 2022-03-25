@@ -39,6 +39,7 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     if (!spawnPointHelperModel) {
       const { scene } = await AssetLoader.loadAsync(GLTF_PATH)
       spawnPointHelperModel = scene
+      spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
     }
 
     obj3d.userData.helperModel = spawnPointHelperModel.clone()
