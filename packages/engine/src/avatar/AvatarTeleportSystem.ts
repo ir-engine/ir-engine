@@ -11,6 +11,8 @@ import {
   Vector3
 } from 'three'
 
+import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
+
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -26,7 +28,9 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 }
 
 // Utility Vectors
-const initialVelocity = 6 // In m/s
+// Unit: m/s
+const initialVelocity = 6
+const dynamicVelocity = 10
 const gravity = new Vector3(0, -9.8, 0)
 const tempVec = new Vector3()
 const tempVec1 = new Vector3()
@@ -45,7 +49,8 @@ const getParabolaInputParams = (
   const v = controller.getWorldDirection(tempVecV)
 
   // Scale the initial velocity
-  v.multiplyScalar(initialVelocity)
+  let normalizedYDirection = 1 - normalizeRange(v.y, -1, 1)
+  v.multiplyScalar(initialVelocity + dynamicVelocity * normalizedYDirection)
 
   // Time for tele ball to hit ground
   const t = (-v.y + Math.sqrt(v.y ** 2 - 2 * p.y * gravity.y)) / gravity.y
