@@ -81,9 +81,9 @@ const UploadProjectModal = (props: Props): any => {
               [styles.modalContent]: true
             })}
           >
-            {processing === false && createOrPatch === 'patch' && (
+            {!processing && createOrPatch === 'patch' && (
               <FormControl>
-                <div className={styles.inputConatiner}>
+                <div className={styles.inputContainer}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
@@ -121,7 +121,7 @@ const UploadProjectModal = (props: Props): any => {
                     </Grid>
                   )}
                 </div>
-                <div className={styles.buttonConatiner}>
+                <div className={styles.buttonContainer}>
                   <Button
                     type="submit"
                     startIcon={<GitHubIcon />}
@@ -149,10 +149,10 @@ const UploadProjectModal = (props: Props): any => {
                 </div>
               </FormControl>
             )}
-            {processing === true && (
+            {processing && (
               <div>
                 <CircularProgress color="primary" />
-                <div>{t('admin:components.project.processing')}</div>
+                <div className={styles.accentText}>{t('admin:components.project.processing')}</div>
               </div>
             )}
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}

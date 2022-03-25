@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import CreateModel from '../../common/CreateModel'
+import CreateModal from '../../common/CreateModal'
 import InputText from '../../common/InputText'
 
 interface Props {
@@ -22,11 +22,11 @@ const createUser = (props: Props) => {
   }
 
   return (
-    <CreateModel open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
+    <CreateModal open={open} handleClose={handleClose} text="user role" action="Create" submit={createUserRole}>
       <DialogContent>
         <InputText value={role} formErrors={''} handleInputChange={handleChange} name="role" />
       </DialogContent>
-    </CreateModel>
+    </CreateModal>
   )
 }
 

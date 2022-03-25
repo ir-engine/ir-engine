@@ -15,6 +15,7 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
@@ -273,6 +274,9 @@ export default function HierarchyPanel() {
         component: NameComponent,
         properties: { name }
       })
+
+      const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
+      if (obj3d) obj3d.name = name
     }
 
     setRenamingNode(null)

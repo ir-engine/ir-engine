@@ -27,11 +27,11 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
-  closeViewModel?: (open: boolean) => void
+  closeViewModal?: (open: boolean) => void
 }
 
 const CreateLocation = (props: Props) => {
-  const { open, handleClose, closeViewModel } = props
+  const { open, closeViewModal } = props
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({
@@ -82,7 +82,7 @@ const CreateLocation = (props: Props) => {
 
   React.useEffect(() => {
     if (location.created.value) {
-      closeViewModel && closeViewModel(false)
+      closeViewModal && closeViewModal(false)
       clearState()
     }
   }, [location.created])
@@ -107,7 +107,7 @@ const CreateLocation = (props: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
-    temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.locationModel.isRequired')}` : ''
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.locationModal.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
 
@@ -129,21 +129,21 @@ const CreateLocation = (props: Props) => {
     }
     const temp = state.formErrors
     if (!state.name) {
-      temp.name = t('admin:components.locationModel.nameCantEmpty')
+      temp.name = t('admin:components.locationModal.nameCantEmpty')
     }
     if (!state.maxUsers) {
-      temp.maxUsers = t('admin:components.locationModel.maxUserCantEmpty')
+      temp.maxUsers = t('admin:components.locationModal.maxUserCantEmpty')
     }
     if (!state.scene) {
-      temp.scene = t('admin:components.locationModel.sceneCantEmpty')
+      temp.scene = t('admin:components.locationModal.sceneCantEmpty')
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       LocationService.createLocation(data)
       clearState()
-      closeViewModel && closeViewModel(false)
+      closeViewModal && closeViewModal(false)
     } else {
-      setError(t('admin:components.locationModel.fillRequiredFields'))
+      setError(t('admin:components.locationModal.fillRequiredFields'))
       setOpenWarning(true)
     }
   }
@@ -155,26 +155,26 @@ const CreateLocation = (props: Props) => {
         classes={{ paper: styles.paperDrawer }}
         open={open}
         onClose={() => {
-          closeViewModel && closeViewModel(false)
+          closeViewModal && closeViewModal(false)
         }}
       >
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-            {t('admin:components.locationModel.createNewLocation')}
+            {t('admin:components.locationModal.createNewLocation')}
           </DialogTitle>
-          <label>{t('admin:components.locationModel.lbl-name')}</label>
+          <label>{t('admin:components.locationModal.lbl-name')}</label>
           <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
             <InputBase
               className={styles.input}
               name="name"
-              placeholder={t('admin:components.locationModel.enterName')}
+              placeholder={t('admin:components.locationModal.enterName')}
               style={{ color: '#fff' }}
               autoComplete="off"
               value={state.name}
               onChange={handleChange}
             />
           </Paper>
-          <label>{t('admin:components.locationModel.lbl-maxuser')}</label>
+          <label>{t('admin:components.locationModal.lbl-maxuser')}</label>
           <Paper
             component="div"
             className={state.formErrors.maxUsers.length > 0 ? styles.redBorder : styles.createInput}
@@ -190,7 +190,7 @@ const CreateLocation = (props: Props) => {
               onChange={handleChange}
             />
           </Paper>
-          <label>{t('admin:components.locationModel.lbl-scene')}</label>
+          <label>{t('admin:components.locationModal.lbl-scene')}</label>
           <Paper component="div" className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}>
             <FormControl fullWidth>
               <Select
@@ -205,7 +205,7 @@ const CreateLocation = (props: Props) => {
                 MenuProps={{ classes: { paper: styles.selectPaper } }}
               >
                 <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModel.selectScene')}</em>
+                  <em>{t('admin:components.locationModal.selectScene')}</em>
                 </MenuItem>
                 {adminScenes.value.map((el, i) => (
                   <MenuItem value={`${el.project}/${el.name}`} key={i}>
@@ -215,7 +215,7 @@ const CreateLocation = (props: Props) => {
               </Select>
             </FormControl>
           </Paper>
-          <label>{t('admin:components.locationModel.private')}</label>
+          <label>{t('admin:components.locationModal.private')}</label>
           <Paper component="div" className={styles.createInput}>
             <FormControl fullWidth>
               <Select
@@ -230,7 +230,7 @@ const CreateLocation = (props: Props) => {
                 MenuProps={{ classes: { paper: styles.selectPaper } }}
               >
                 <MenuItem value="" disabled>
-                  <em>{t('admin:components.locationModel.selectType')}</em>
+                  <em>{t('admin:components.locationModal.selectType')}</em>
                 </MenuItem>
                 {locationTypes.value.map((el) => (
                   <MenuItem value={el.type} key={el.type}>
@@ -253,7 +253,7 @@ const CreateLocation = (props: Props) => {
                         name="videoEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-ve') as string}
+                    label={t('admin:components.locationModal.lbl-ve') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -268,7 +268,7 @@ const CreateLocation = (props: Props) => {
                         name="audioEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-ae') as string}
+                    label={t('admin:components.locationModal.lbl-ae') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -283,7 +283,7 @@ const CreateLocation = (props: Props) => {
                         name="globalMediaEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-gme') as string}
+                    label={t('admin:components.locationModal.lbl-gme') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -298,7 +298,7 @@ const CreateLocation = (props: Props) => {
                         name="screenSharingEnabled"
                       />
                     }
-                    label={t('admin:components.locationModel.lbl-se') as string}
+                    label={t('admin:components.locationModal.lbl-se') as string}
                   />
                 </FormControl>
               </FormGroup>
@@ -316,7 +316,7 @@ const CreateLocation = (props: Props) => {
                           name="faceStreamingEnabled"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-fe') as string}
+                      label={t('admin:components.locationModal.lbl-fe') as string}
                     />
                   </FormControl>
                 </FormGroup>
@@ -331,7 +331,7 @@ const CreateLocation = (props: Props) => {
                           name="isLobby"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-lobby') as string}
+                      label={t('admin:components.locationModal.lbl-lobby') as string}
                     />
                   </FormControl>
                 </FormGroup>
@@ -346,7 +346,7 @@ const CreateLocation = (props: Props) => {
                           name="isFeatured"
                         />
                       }
-                      label={t('admin:components.locationModel.lbl-featured') as string}
+                      label={t('admin:components.locationModal.lbl-featured') as string}
                     />
                   </FormControl>
                 </FormGroup>
@@ -355,16 +355,16 @@ const CreateLocation = (props: Props) => {
           </Grid>
           <DialogActions>
             <Button className={styles.submitButton} onClick={handleSubmit}>
-              {t('admin:components.locationModel.submit')}
+              {t('admin:components.locationModal.submit')}
             </Button>
             <Button
               onClick={() => {
                 clearState()
-                closeViewModel && closeViewModel(false)
+                closeViewModal && closeViewModal(false)
               }}
               className={styles.cancelButton}
             >
-              {t('admin:components.locationModel.lbl-cancel')}
+              {t('admin:components.locationModal.lbl-cancel')}
             </Button>
           </DialogActions>
         </Container>

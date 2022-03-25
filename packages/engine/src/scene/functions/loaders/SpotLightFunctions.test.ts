@@ -242,6 +242,26 @@ describe('SpotLightFunctions', () => {
       })
     })
 
+    describe('Property tests for "castShadow"', () => {
+      it('should not update property', () => {
+        updateSpotLight(entity, {})
+
+        assert(spotLightComponent.castShadow === sceneComponentData.castShadow)
+        assert(obj3d.castShadow === sceneComponentData.castShadow)
+      })
+
+      it('should update property', () => {
+        const newCastShadow = false
+        spotLightComponent.castShadow = newCastShadow
+
+        updateSpotLight(entity, { castShadow: newCastShadow })
+        assert(obj3d.castShadow === newCastShadow)
+
+        updateSpotLight(entity, { castShadow: true })
+        assert(obj3d.castShadow === newCastShadow, 'should not update property to passed value')
+      })
+    })
+
     describe('Property tests for "shadowBias"', () => {
       it('should not update property', () => {
         updateSpotLight(entity, {})
