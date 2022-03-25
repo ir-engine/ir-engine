@@ -18,21 +18,46 @@ import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagCompon
 import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
-function positionAtT(inVec, t, p, v, g) {
+const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
   inVec.copy(p)
   inVec.addScaledVector(v, t)
-  inVec.addScaledVector(g, 0.5 * t ** 2)
+  inVec.addScaledVector(gravity, 0.5 * t ** 2)
   return inVec
 }
 
-export default async function AvatarTeleportSystem(world: World) {
-  // Utility Vectors
-  const g = new Vector3(0, -9.8, 0)
-  const tempVec = new Vector3()
-  const tempVec1 = new Vector3()
-  const tempVecP = new Vector3()
-  const tempVecV = new Vector3()
+// Utility Vectors
+const initialVelocity = 6 // In m/s
+const gravity = new Vector3(0, -9.8, 0)
+const tempVec = new Vector3()
+const tempVec1 = new Vector3()
+const tempVecP = new Vector3()
+const tempVecV = new Vector3()
 
+const getParabolaInputParams = (
+  controller: Group,
+  initialVelocity: number,
+  gravity: Vector3
+): { p: Vector3; v: Vector3; t: number } => {
+  // Controller start position
+  const p = controller.getWorldPosition(tempVecP)
+
+  // Set Vector V to the direction of the controller, at 1m/s
+  const v = controller.getWorldDirection(tempVecV)
+
+  // Scale the initial velocity
+  v.multiplyScalar(initialVelocity)
+
+  // Time for tele ball to hit ground
+  const t = (-v.y + Math.sqrt(v.y ** 2 - 2 * p.y * gravity.y)) / gravity.y
+
+  return {
+    p,
+    v,
+    t
+  }
+}
+
+export default async function AvatarTeleportSystem(world: World) {
   // The guideline
   const lineSegments = 10
   const lineGeometry = new BufferGeometry()
@@ -62,40 +87,27 @@ export default async function AvatarTeleportSystem(world: World) {
 
     for (const entity of avatarTeleportQuery(world)) {
       if (guidingController) {
-        // Controller start position
-        const p = guidingController.getWorldPosition(tempVecP)
-
-        // Set Vector V to the direction of the controller, at 1m/s
-        const v = guidingController.getWorldDirection(tempVecV)
-
-        // Scale the initial velocity to 6m/s
-        v.multiplyScalar(6)
-
-        // Time for tele ball to hit ground
-        const t = (-v.y + Math.sqrt(v.y ** 2 - 2 * p.y * g.y)) / g.y
+        const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
 
         const vertex = tempVec.set(0, 0, 0)
         for (let i = 1; i <= lineSegments; i++) {
           // set vertex to current position of the virtual ball at time t
-          positionAtT(vertex, (i * t) / lineSegments, p, v, g)
+          positionAtT(vertex, (i * t) / lineSegments, p, v, gravity)
           guidingController.worldToLocal(vertex)
           vertex.toArray(lineGeometryVertices, i * 3)
         }
         guideline.geometry.attributes.position.needsUpdate = true
 
         // Place the light and sprite near the end of the line
-        positionAtT(guideLight.position, t * 0.98, p, v, g)
+        positionAtT(guideLight.position, t * 0.98, p, v, gravity)
         // positionAtT(guideSprite.position,t*0.98,p,v,g);
       }
     }
 
     for (const entity of avatarTeleportQuery.exit(world)) {
       // Get cursor position and teleport avatar to it
-      const p = guidingController.getWorldPosition(tempVecP);
-      const v = guidingController.getWorldDirection(tempVecV);
-      v.multiplyScalar(6);
-      const t = (-v.y  + Math.sqrt(v.y**2 - 2*p.y*g.y))/g.y;
-      const newPosition = positionAtT(tempVec1,t,p,v,g);
+      const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
+      const newPosition = positionAtT(tempVec1, t, p, v, gravity)
       teleportAvatar(entity, newPosition)
 
       guideLight.intensity = 0
