@@ -17,7 +17,7 @@ import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { resetEngineRenderer, updateRenderSetting } from './loaders/RenderSettingsFunction'
+import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {

@@ -10,13 +10,9 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import config from '../appconfig'
 import logger from '../logger'
 import Page from '../types/PageObject'
-import {
-  extractLoggedInUserFromParams,
-  getInviteLink,
-  sendEmail,
-  sendSms
-} from '../user/auth-management/auth-management.utils'
+import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
+import { UserDataType } from '../user/user/user.class'
 import { Application } from './../../declarations.d'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
@@ -108,7 +104,7 @@ export default () => {
       const inviteType = result.inviteType
       const targetObjectId = result.targetObjectId
 
-      const authUser = extractLoggedInUserFromParams(params)
+      const authUser = params.user as UserDataType
 
       if (result.identityProviderType === 'email') {
         await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)

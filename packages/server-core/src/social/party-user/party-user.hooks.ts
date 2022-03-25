@@ -8,7 +8,7 @@ import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-part
 
 import authenticate from '../../hooks/authenticate'
 import logger from '../../logger'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -21,8 +21,8 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         try {
           const { app, params, data } = context
-          const loggedInUser = extractLoggedInUserFromParams(params)
-          const user = await app.service('user').get(loggedInUser.id)
+          const loggedInUser = params!.user as UserDataType
+          const user = await app.service('user').get(loggedInUser.id!)
           const partyUserResult = await app.service('party-user').find({
             query: {
               userId: loggedInUser.id

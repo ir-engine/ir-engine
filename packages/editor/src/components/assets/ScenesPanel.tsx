@@ -116,7 +116,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   return (
     <>
       <div ref={panelRef} id="file-browser-panel" className={styles.panelContainer}>
-        <div className={styles.btnConatiner}>
+        <div className={styles.btnContainer}>
           <Button onClick={onCreateScene} className={styles.newBtn}>
             {t(`editor:newScene`)}
           </Button>

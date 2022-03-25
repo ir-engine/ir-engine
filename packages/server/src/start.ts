@@ -5,7 +5,7 @@ import psList from 'ps-list'
 import favicon from 'serve-favicon'
 
 import config from '@xrengine/server-core/src/appconfig'
-import { createFeathersExpressApp, serverPipe } from '@xrengine/server-core/src/createApp'
+import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
 import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
 import logger from '@xrengine/server-core/src/logger'
 
@@ -17,12 +17,6 @@ process.on('unhandledRejection', (error, promise) => {
 
 export const start = async (): Promise<void> => {
   const app = createFeathersExpressApp()
-  serverPipe(app)
-
-  // Feathers authentication-oauth will only append the port in production, but then it will also
-  // hard-code http as the protocol, so manually mashing host + port together if in local.
-  app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
-  app.set('port', config.server.port)
 
   app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)

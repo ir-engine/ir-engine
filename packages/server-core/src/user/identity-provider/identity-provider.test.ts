@@ -2,7 +2,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp, serverPipe } from '../../createApp'
+import { createFeathersExpressApp } from '../../createApp'
 
 let providers: any = []
 
@@ -10,7 +10,6 @@ describe('identity-provider service', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
-    serverPipe(app)
     await app.setup()
   })
 

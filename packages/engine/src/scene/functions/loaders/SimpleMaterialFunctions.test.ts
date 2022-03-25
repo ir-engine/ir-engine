@@ -1,5 +1,13 @@
 import assert from 'assert'
-import { BoxGeometry, Mesh, MeshLambertMaterial, MeshPhongMaterial, MeshStandardMaterial, Object3D } from 'three'
+import {
+  BoxGeometry,
+  Material,
+  Mesh,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  Object3D
+} from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -101,7 +109,7 @@ describe('SimpleMaterialFunctions', () => {
       useSimpleMaterial(obj3d)
 
       assert(obj3d.material instanceof MeshPhongMaterial)
-      assert((obj3d as any).prevMaterial === mat)
+      assert(obj3d.userData.prevMaterial === mat)
     })
 
     it('does not replace material other than MeshStandardMaterial', () => {
@@ -117,9 +125,9 @@ describe('SimpleMaterialFunctions', () => {
     it('does nothing if there no material', () => {
       const mat = new MeshStandardMaterial()
       const obj3d = new Object3D()
-      useStandardMaterial(obj3d as Mesh)
+      useStandardMaterial(obj3d as Mesh<any, Material>)
 
-      assert(!(obj3d as any).material)
+      assert(!obj3d.userData.material)
     })
 
     it('restores previous material', () => {
@@ -127,13 +135,13 @@ describe('SimpleMaterialFunctions', () => {
       const obj3d = new Mesh(new BoxGeometry(), new MeshPhongMaterial())
       obj3d.receiveShadow = true
       Engine.csm = { setupMaterial() {} } as any
-      ;(obj3d as any).prevMaterial = mat
+      obj3d.userData.prevMaterial = mat
 
       useStandardMaterial(obj3d)
 
       assert(obj3d.material === (mat as any))
       assert((obj3d.material as any).envMapIntensity === SceneOptions.instance.envMapIntensity)
-      assert(typeof (obj3d as any).prevMaterial === 'undefined')
+      assert(typeof obj3d.userData.prevMaterial === 'undefined')
     })
   })
 })

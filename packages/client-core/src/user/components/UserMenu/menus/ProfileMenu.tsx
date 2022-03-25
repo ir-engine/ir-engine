@@ -276,7 +276,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"
-                onClick={() => changeActiveMenu(Views.Avatar)}
+                onClick={() => changeActiveMenu(Views.AvatarSelect)}
                 disableRipple
               >
                 <Create />
@@ -312,7 +312,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               />
             </span>
 
-            <Grid container justifyContent="right">
+            <Grid container justifyContent="right" className={styles.justify}>
               <Grid item xs={selfUser.userRole?.value === 'guest' ? 6 : 4}>
                 <h2>
                   {selfUser?.userRole?.value === 'admin'

@@ -300,7 +300,7 @@
   }
 }
 
-.inputConatiner {
+.inputContainer {
   width: 100%;
   margin-bottom: 15px;
 
@@ -320,7 +320,7 @@
   margin-top: 10px;
 }
 
-.buttonConatiner {
+.buttonContainer {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -698,4 +698,8 @@
 
 .mb10px {
   margin-bottom: 10px;
+}
+
+.accentText {
+  color: theme.$purpleLighter;
 }

@@ -5,7 +5,7 @@ import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 
@@ -19,7 +19,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params!.user as UserDataType
     const data = auth.data.map((el) => {
       let oauth = JSON.parse(el.oauth)
       let authStrategies = JSON.parse(el.authStrategies)

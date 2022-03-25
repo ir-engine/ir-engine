@@ -3,7 +3,7 @@ import { HookContext } from '@feathersjs/feathers'
 import { disallow } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export default {
   before: {
@@ -12,8 +12,8 @@ export default {
     get: [],
     create: [
       async (context): Promise<HookContext> => {
-        const { app, data } = context
-        const loggedInUser = extractLoggedInUserFromParams(context.params)
+        const { app, data, params } = context
+        const loggedInUser = params.user as UserDataType
         const locationAdmins = await app.service('location-admin').find({
           query: {
             locationId: data.locationId,
