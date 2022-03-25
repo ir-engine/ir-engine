@@ -301,11 +301,11 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.FIXED,
-        systemModulePromise: import('./avatar/AvatarControllerSystem')
+        systemModulePromise: import('./avatar/AvatarTeleportSystem')
       },
       {
         type: SystemUpdateType.FIXED,
-        systemModulePromise: import('./avatar/AvatarTeleportSystem')
+        systemModulePromise: import('./avatar/AvatarControllerSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

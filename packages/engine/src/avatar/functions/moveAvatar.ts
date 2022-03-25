@@ -335,10 +335,11 @@ export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
   }
 
   if (checkValidPositionOnGround(newPosition)) {
-    const transform = getComponent(entity, TransformComponent)
-    transform.position.copy(newPosition)
-
-    const body = getComponent(entity, ColliderComponent).body
-    teleportRigidbody(body, newPosition)
+    const avatar = getComponent(entity, AvatarComponent)
+    const controllerComponent = getComponent(entity, AvatarControllerComponent)
+    newPosition.y = newPosition.y + avatar.avatarHalfHeight
+    controllerComponent.controller.setPosition(newPosition)
+  } else {
+    console.log('invalid position', newPosition)
   }
 }

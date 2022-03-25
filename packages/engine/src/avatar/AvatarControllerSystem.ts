@@ -2,13 +2,7 @@ import { Vector3 } from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
@@ -52,19 +46,7 @@ export default async function AvatarControllerSystem(world: World) {
 
     for (const entity of localXRInputQuery(world)) {
       setAvatarHeadOpacity(entity, 0)
-
-      const avatarMovementScheme = AvatarSettings.instance.movementScheme
-      if (avatarMovementScheme === AvatarMovementScheme.WASD) {
-        moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
-      } else if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
-        const controller = getComponent(entity, AvatarControllerComponent)
-        if (controller.localMovementDirection.z < -0.5 && !hasComponent(entity, AvatarTeleportTagComponent)) {
-          addComponent(entity, AvatarTeleportTagComponent, {})
-        } else if (controller.localMovementDirection.z === 0.0) {
-          removeComponent(entity, AvatarTeleportTagComponent)
-        }
-      }
-
+      moveXRAvatar(world, entity, Engine.camera, lastCamPos, displacement)
       rotateXRAvatar(world, entity, Engine.camera)
     }
 
