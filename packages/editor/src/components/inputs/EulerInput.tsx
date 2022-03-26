@@ -68,7 +68,7 @@ export const EulerInput = (props: EulerInputProps) => {
         onChange={(z) => onChange(vx, vy, z)}
         prefix={
           <Vector3Scrubber {...rest} tag="div" value={vz} onChange={(z) => onChange(vx, vy, z)} axis="z">
-            Y
+            Z
           </Vector3Scrubber>
         }
       />
