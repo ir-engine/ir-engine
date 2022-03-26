@@ -30,10 +30,10 @@
     "react": "17.0.2"
   },
   "dependencies": {
+    "@feathersjs/client": "5.0.0-pre.10",
     "@date-io/moment": "2.13.1",
     "@emotion/react": "11.8.2",
     "@emotion/styled": "11.8.1",
-    "@feathersjs/client": "5.0.0-pre.10",
     "@google/model-viewer": "1.10.1",
     "@mui/icons-material": "5.4.1",
     "@mui/lab": "^5.0.0-alpha.73",

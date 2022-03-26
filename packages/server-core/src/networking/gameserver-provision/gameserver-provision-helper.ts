@@ -1,4 +1,4 @@
-import { Paginated } from '@feathersjs/feathers/lib'
+import { Paginated } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
 import { LocationDataType } from '../../social/location/location.class'
