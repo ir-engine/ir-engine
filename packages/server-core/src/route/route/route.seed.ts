@@ -7,10 +7,6 @@ export const routeSeedData = {
     },
     {
       project: 'default-project',
-      route: '/login'
-    },
-    {
-      project: 'default-project',
       route: '/location'
     },
     {
