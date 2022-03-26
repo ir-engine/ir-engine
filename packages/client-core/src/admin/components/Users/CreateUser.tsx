@@ -24,13 +24,13 @@ import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeSer
 import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import CreateUserRole from './CreateUserRole'
 
 interface Props {
   open: boolean
   handleClose: (open: boolean) => void
-  closeViewModel: (open: boolean) => void
+  closeViewModal: (open: boolean) => void
 }
 
 interface InputSelectProps {
@@ -39,9 +39,8 @@ interface InputSelectProps {
 }
 
 const CreateUser = (props: Props) => {
-  const { open, handleClose, closeViewModel } = props
+  const { open, closeViewModal } = props
   const { t } = useTranslation()
-  const classes = useStyles()
   const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
   const [state, setState] = React.useState({
     name: '',
@@ -135,7 +134,7 @@ const CreateUser = (props: Props) => {
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       UserService.createUser(data)
-      closeViewModel(false)
+      closeViewModal(false)
       clearState()
     } else {
       setError(t('admin:components.user.fillRequiredField'))
@@ -145,7 +144,7 @@ const CreateUser = (props: Props) => {
 
   const handleCancel = () => {
     clearState()
-    closeViewModel(false)
+    closeViewModal(false)
   }
 
   interface ScopeData {
@@ -174,9 +173,9 @@ const CreateUser = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
-        <Container maxWidth="sm" className={classes.marginTp}>
-          <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
+        <Container maxWidth="sm" className={styles.mt20}>
+          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.user.createNewUser')}
           </DialogTitle>
           <InputText
@@ -199,18 +198,18 @@ const CreateUser = (props: Props) => {
             menu={userRoleData}
             formErrors={state.formErrors.userRole}
           />
-          <DialogContentText className={classes.marginBottm}>
-            <span className={classes.select}>{t('admin:components.user.dontSeeUserRole')} </span>{' '}
-            <a href="#h" className={classes.textLink} onClick={createUserRole}>
+          <DialogContentText className={styles.mb15}>
+            <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
+            <a href="#h" className={styles.textLink} onClick={createUserRole}>
               {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>
           <AutoComplete data={scopeData} label="Grant Scope" handleChangeScopeType={handleChangeScopeType} />
           <DialogActions>
-            <Button className={classes.saveBtn} onClick={handleSubmit}>
+            <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.user.submit')}
             </Button>
-            <Button onClick={handleCancel} className={classes.saveBtn}>
+            <Button onClick={handleCancel} className={styles.cancelButton}>
               {t('admin:components.user.cancel')}
             </Button>
           </DialogActions>

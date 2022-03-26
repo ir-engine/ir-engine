@@ -8,8 +8,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import arrayShallowEqual from '../functions/arrayShallowEqual'
 import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
-import { ControlManager } from '../managers/ControlManager'
-import { SceneManager } from '../managers/SceneManager'
+import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 import Command, { CommandParams } from './Command'
 
@@ -67,8 +66,7 @@ export default class RotateAroundCommand extends Command {
 
   emitAfterExecuteEvent() {
     if (this.shouldEmitEvent) {
-      ControlManager.instance.onObjectsChanged(this.affectedObjects, 'matrix')
-      SceneManager.instance.onEmitSceneModified()
+      store.dispatch(EditorAction.sceneModified(true))
       store.dispatch(SelectionAction.changedObject(this.affectedObjects, 'matrix'))
     }
   }

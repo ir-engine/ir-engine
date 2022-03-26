@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-import { ClientSettingResult } from '@xrengine/common/src/interfaces/ClientSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -35,7 +35,7 @@ export const ClientSettingService = {
     const dispatch = useDispatch()
     try {
       await waitForClientAuthenticated()
-      const clientSettings = await client.service('client-setting').find()
+      const clientSettings = (await client.service('client-setting').find()) as Paginated<ClientSetting>
       dispatch(ClientSettingAction.fetchedClient(clientSettings))
     } catch (error) {
       console.error(error.message)
@@ -58,7 +58,7 @@ export const ClientSettingService = {
 
 //Action
 export const ClientSettingAction = {
-  fetchedClient: (clientSettingResult: ClientSettingResult) => {
+  fetchedClient: (clientSettingResult: Paginated<ClientSetting>) => {
     return {
       type: 'CLIENT_SETTING_DISPLAY' as const,
       clientSettingResult: clientSettingResult

@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react'
+import React, { memo, MouseEventHandler, useCallback, useEffect, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
@@ -14,9 +14,9 @@ import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { addMediaNode } from '../../functions/addMediaNode'
+import { getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { unique } from '../../functions/utils'
-import { CommandManager } from '../../managers/CommandManager'
-import { SceneManager } from '../../managers/SceneManager'
 import { ContextMenu, ContextMenuTrigger, MenuItem } from '../layout/ContextMenu'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
@@ -70,7 +70,7 @@ type FileBrowserItemType = {
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   setFileProperties: any
-  setOpenPropertiesModel: any
+  setOpenPropertiesModal: any
   addNewFolder: any
   moveContent: (from: string, to: string, isCopy?: boolean, renameTo?: string) => Promise<void>
 }
@@ -83,7 +83,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     deleteContent,
     onClick,
     moveContent,
-    setOpenPropertiesModel,
+    setOpenPropertiesModal,
     setFileProperties,
     addNewFolder
   } = props
@@ -93,13 +93,13 @@ function FileBrowserItem(props: FileBrowserItemType) {
   const onClickItem = (_) => onClick(item)
 
   const placeObject = useCallback((_, trigger) => {
-    CommandManager.instance.addMedia({ url: trigger.item.url })
+    addMediaNode(trigger.item.url)
   }, [])
 
   const placeObjectAtOrigin = useCallback(async (_, trigger) => {
-    const node = await CommandManager.instance.addMedia({ url: trigger.item.url })
+    const node = await addMediaNode(trigger.item.url)
     const transformComponent = getComponent(node.entity, TransformComponent)
-    if (transformComponent) SceneManager.instance.getSpawnPosition(transformComponent.position)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
   }, [])
 
   const copyURL = useCallback((_, trigger) => {
@@ -129,7 +129,7 @@ function FileBrowserItem(props: FileBrowserItemType) {
     } else {
       setFileProperties(trigger.item)
     }
-    setOpenPropertiesModel(true)
+    setOpenPropertiesModal(true)
   }, [])
 
   const deleteContentCallback = (_, trigger) => {
@@ -242,7 +242,7 @@ type FileBrowserGridTypes = {
   deleteContent: (contentPath: string, type: string) => void
   currentContent: any
   setFileProperties: any
-  setOpenPropertiesModel: any
+  setOpenPropertiesModal: any
   addNewFolder: any
 }
 
@@ -254,7 +254,7 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
     deleteContent,
     currentContent,
     setFileProperties,
-    setOpenPropertiesModel,
+    setOpenPropertiesModal,
     addNewFolder
   } = props
 
@@ -267,7 +267,7 @@ export const FileBrowserGrid: React.FC<FileBrowserGridTypes> = (props) => {
       moveContent={moveContent}
       deleteContent={deleteContent}
       currentContent={currentContent}
-      setOpenPropertiesModel={setOpenPropertiesModel}
+      setOpenPropertiesModal={setOpenPropertiesModal}
       setFileProperties={setFileProperties}
       addNewFolder={addNewFolder}
     />

@@ -1,11 +1,13 @@
+import { Paginated } from '@feathersjs/feathers'
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { createState, useState } from '@speigg/hookstate'
 import _ from 'lodash'
 
+import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Party } from '@xrengine/common/src/interfaces/Party'
-import { PartyResult } from '@xrengine/common/src/interfaces/PartyResult'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
+import { User } from '@xrengine/common/src/interfaces/User'
 
 import { AlertService } from '../../common/services/AlertService'
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
@@ -102,7 +104,7 @@ export const PartyService = {
     {
       try {
         // console.log('CALLING GETPARTY()');
-        const partyResult = await client.service('party').get()
+        const partyResult = (await client.service('party').get('')) as Party
         dispatch(PartyAction.loadedParty(partyResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -114,16 +116,16 @@ export const PartyService = {
     let socketId: any
     const parties = await client.service('party').find()
     const userId = accessAuthState().user.id.value
-    if ((client as any).io && socketId === undefined) {
-      ;(client as any).io.emit('request-user-id', ({ id }: { id: number }) => {
+    if (client.io && socketId === undefined) {
+      client.io.emit('request-user-id', ({ id }: { id: number }) => {
         console.log('Socket-ID received: ', id)
         socketId = id
       })
-      ;(client as any).io.on('message-party', (data: any) => {
+      client.io.on('message-party', (data: any) => {
         console.warn('Message received, data: ', data)
       })
       ;(window as any).joinParty = (userId: number, partyId: number) => {
-        ;(client as any).io.emit(
+        client.io.emit(
           'join-party',
           {
             userId,
@@ -135,14 +137,14 @@ export const PartyService = {
         )
       }
       ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-        ;(client as any).io.emit('message-party-request', {
+        client.io.emit('message-party-request', {
           userId,
           partyId,
           message
         })
       }
       ;(window as any).partyInit = (userId: number) => {
-        ;(client as any).io.emit('party-init', { userId }, (response: any) => {
+        client.io.emit('party-init', { userId }, (response: any) => {
           response ? console.log('Init success', response) : console.log('Init failed')
         })
       }
@@ -165,16 +167,16 @@ export const PartyService = {
     const dispatch = useDispatch()
     {
       try {
-        const channelResult = await client.service('channel').find({
+        const channelResult = (await client.service('channel').find({
           query: {
             channelType: 'party',
             partyId: partyId
           }
-        })
+        })) as Paginated<Channel>
         if (channelResult.total > 0) {
           await client.service('channel').remove(channelResult.data[0].id)
         }
-        const party = await client.service('party').remove(partyId)
+        const party = (await client.service('party').remove(partyId)) as Party
         dispatch(PartyAction.removedParty(party))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -196,7 +198,7 @@ export const PartyService = {
     {
       try {
         await client.service('party-user').patch(partyUserId, {
-          isOwner: 1
+          isOwner: true
         })
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -214,13 +216,17 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     store.dispatch(PartyAction.createdPartyUser(params.partyUser))
     if (params.partyUser.userId === selfUser.id.value) {
       const party = await client.service('party').get(params.partyUser.partyId)
-      const dbUser = await client.service('user').get(selfUser.id.value)
+      const userId = selfUser.id.value ?? ''
+      const dbUser = (await client.service('user').get(userId)) as User
       if (
         party.instanceId != null &&
         party.instanceId !== dbUser.instanceId &&
         accessLocationInstanceConnectionState().provisioning.value === false
       ) {
-        const updateUser = dbUser
+        const updateUser: PartyUser = {
+          ...params.partyUser,
+          user: dbUser
+        }
         updateUser.partyId = party.id
         store.dispatch(PartyAction.patchedPartyUser(updateUser))
         // TODO: Reenable me!
@@ -271,7 +277,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
 //Action
 
 export const PartyAction = {
-  loadedParty: (partyResult: PartyResult) => {
+  loadedParty: (partyResult: Party) => {
     return {
       type: 'LOADED_PARTY' as const,
       party: partyResult

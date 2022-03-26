@@ -20,7 +20,6 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import {
   startFaceTracking,
@@ -36,7 +35,10 @@ import FaceIcon from '@mui/icons-material/Face'
 
 import styles from './MediaIconsBox.module.scss'
 
-const MediaIconsBox = (props) => {
+interface Props {
+  animate?: any
+}
+const MediaIconsBox = (props: Props) => {
   const [hasAudioDevice, setHasAudioDevice] = useState(false)
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
@@ -81,13 +83,17 @@ const MediaIconsBox = (props) => {
         ? 'instance'
         : user.partyId?.value || 'instance'
     if (isFaceTrackingEnabled.value) {
+      MediaStreams.instance.setFaceTracking(false)
       stopFaceTracking()
       stopLipsyncTracking()
+      MediaStreamService.updateFaceTrackingState()
     } else {
       const mediaTransport = getMediaTransport()
       if (await configureMediaTransports(mediaTransport, ['video', 'audio'])) {
+        MediaStreams.instance.setFaceTracking(true)
         startFaceTracking()
         startLipsyncTracking()
+        MediaStreamService.updateFaceTrackingState()
       }
     }
   }
@@ -141,7 +147,7 @@ const MediaIconsBox = (props) => {
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
 
   return (
-    <section className={styles.drawerBox}>
+    <section className={`${styles.drawerBox} ${props.animate}`}>
       {instanceMediaChatEnabled && hasAudioDevice && channelConnectionState.connected.value === true ? (
         <button
           type="button"

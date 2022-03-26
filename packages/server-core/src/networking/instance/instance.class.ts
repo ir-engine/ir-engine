@@ -34,7 +34,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
 
     if (action === 'admin') {
       //TODO: uncomment here
-      // const loggedInUser = extractLoggedInUserFromParams(params)
+      // const loggedInUser = params.user as UserDataType
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');

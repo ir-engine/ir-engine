@@ -202,10 +202,10 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('group').create({
+        const result = (await client.service('group').create({
           name: values.name,
           description: values.description
-        })
+        })) as Group
         dispatch(GroupAction.createdGroup(result))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -223,7 +223,7 @@ export const GroupService = {
         ;(patch as any).description = values.description
       }
       try {
-        const data = await client.service('group').patch(values.id, patch)
+        const data = (await client.service('group').patch(values.id ?? '', patch)) as Group
         // ;(patch as any).id = values.id
         dispatch(GroupAction.patchedGroup(data))
       } catch (err) {

@@ -10,7 +10,7 @@ import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
 import { ActionSets, EditorActionSet, FlyActionSet, FlyMapping } from '../controls/input-mappings'
 import { addInputActionMapping, getInput, removeInputActionMapping } from '../functions/parseInputActionMapping'
-import { ModeAction } from '../services/ModeServices'
+import { accessModeState, ModeAction } from '../services/ModeServices'
 
 const EPSILON = 10e-5
 const UP = new Vector3(0, 1, 0)
@@ -31,6 +31,7 @@ export default async function FlyControlSystem(world: World) {
   const candidateWorldQuat = new Quaternion()
   const normalMatrix = new Matrix3()
   const dispatch = useDispatch()
+  const modeState = accessModeState()
 
   return () => {
     for (let entity of flyControlQuery()) {
@@ -40,7 +41,6 @@ export default async function FlyControlSystem(world: World) {
         const cameraComponent = getComponent(Engine.activeCameraEntity, EditorCameraComponent)
         const cameraObject = getComponent(Engine.activeCameraEntity, Object3DComponent)
 
-        flyControlComponent.enable = false
         removeInputActionMapping(ActionSets.FLY)
         const distance = cameraObject.value.position.distanceTo(cameraComponent.center)
         cameraComponent.center.addVectors(
@@ -48,16 +48,15 @@ export default async function FlyControlSystem(world: World) {
           tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
         )
 
-        dispatch(ModeAction.changedFlyMode())
+        dispatch(ModeAction.changedFlyMode(false))
       }
 
       if (getInput(EditorActionSet.flying)) {
-        flyControlComponent.enable = true
         addInputActionMapping(ActionSets.FLY, FlyMapping)
-        dispatch(ModeAction.changedFlyMode())
+        dispatch(ModeAction.changedFlyMode(true))
       }
 
-      if (!flyControlComponent.enable) return
+      if (!modeState.isFlyModeEnabled.value) return
 
       // assume that Engine.camera[position,quaterion/rotation,scale] are authority
       Engine.camera.updateMatrix()

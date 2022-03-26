@@ -100,7 +100,6 @@ export class CSM {
   createLights(lights?: DirectionalLight[]): void {
     // TODO: support multiple lights (requires shader changes)
 
-    // for (const sourceLightIndex in lights) {
     if (lights?.length) {
       const sourceLightIndex = 0
       const sourceLight = lights[sourceLightIndex]
@@ -114,6 +113,7 @@ export class CSM {
         this.parent.add(light, light.target)
         this.lights[sourceLightIndex].push(light)
       }
+
       return
     }
 
@@ -297,7 +297,7 @@ export class CSM {
     const shaders = this.shaders
 
     const originalOnBeforeCompile = material.onBeforeCompile
-    function CSMonBeforeCompile(shader: ShaderType, renderer) {
+    const CSMonBeforeCompile = (shader: ShaderType, renderer) => {
       if (!this.camera) {
         if (originalOnBeforeCompile) originalOnBeforeCompile(shader, renderer)
         return

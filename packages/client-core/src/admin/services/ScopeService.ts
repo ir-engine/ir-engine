@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { AdminScope } from '@xrengine/common/src/interfaces/AdminScope'
-import { AdminScopeResult } from '@xrengine/common/src/interfaces/AdminScopeResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -60,9 +60,9 @@ export const ScopeService = {
     const dispatch = useDispatch()
     {
       try {
-        const newItem = await client.service('scope').create({
+        const newItem = (await client.service('scope').create({
           ...scopeItem
-        })
+        })) as AdminScope
         dispatch(ScopeAction.addAdminScope(newItem))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -77,12 +77,12 @@ export const ScopeService = {
       const limit = scopeState.limit.value
       try {
         dispatch(ScopeAction.fetchingScope())
-        const list = await client.service('scope').find({
+        const list = (await client.service('scope').find({
           query: {
             $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit
           }
-        })
+        })) as Paginated<AdminScope>
         dispatch(ScopeAction.setAdminScope(list))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -93,9 +93,9 @@ export const ScopeService = {
     const dispatch = useDispatch()
     {
       try {
-        const updatedScope = await client.service('scope').patch(scopeId, {
+        const updatedScope = (await client.service('scope').patch(scopeId, {
           ...scopeItem
-        })
+        })) as AdminScope
         dispatch(ScopeAction.updateAdminScope(updatedScope))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -122,7 +122,7 @@ export const ScopeAction = {
       type: 'SCOPE_FETCHING' as const
     }
   },
-  setAdminScope: (adminScopeResult: AdminScopeResult) => {
+  setAdminScope: (adminScopeResult: Paginated<AdminScope>) => {
     return {
       type: 'SCOPE_ADMIN_RETRIEVED' as const,
       adminScopeResult: adminScopeResult

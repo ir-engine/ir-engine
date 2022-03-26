@@ -49,7 +49,7 @@ describe('createAvatar', () => {
     const networkObject = addComponent(entity, NetworkObjectComponent, {
       // remote owner
       ownerId: Engine.userId,
-      ownerIndex: 0,
+      lastTick: 0,
       networkId: 0 as NetworkId,
       prefab: '',
       parameters: {}

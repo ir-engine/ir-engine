@@ -1,8 +1,8 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
-import { UserRoleResult } from '@xrengine/common/src/interfaces/UserRoleResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -26,7 +26,7 @@ store.receptors.push((action: UserActionType): any => {
   state.batch((s) => {
     switch (action.type) {
       case 'USER_ROLE_RETRIEVED':
-        return s.merge({ userRole: action.types.data, updateNeeded: false })
+        return s.merge({ userRole: action.types, updateNeeded: false })
       case 'USER_ROLE_CREATED':
         return s.merge({ updateNeeded: true })
       case 'USER_ROLE_UPDATED':
@@ -45,7 +45,7 @@ export const UserRoleService = {
     const dispatch = useDispatch()
     {
       try {
-        const userRole = await client.service('user-role').find()
+        const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
         dispatch(UserRoleAction.userRoleRetrieved(userRole))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -55,7 +55,7 @@ export const UserRoleService = {
   createUserRoleAction: async (data) => {
     const dispatch = useDispatch()
     {
-      const result = await client.service('user-role').create(data)
+      const result = (await client.service('user-role').create(data)) as UserRole
       dispatch(UserRoleAction.userRoleCreated(result))
     }
   },
@@ -63,7 +63,7 @@ export const UserRoleService = {
     const dispatch = useDispatch()
     {
       try {
-        const userRole = await client.service('user').patch(id, { userRole: role })
+        const userRole = (await client.service('user').patch(id, { userRole: role })) as User
         dispatch(UserRoleAction.userRoleUpdated(userRole))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -74,10 +74,10 @@ export const UserRoleService = {
 
 //Action
 export const UserRoleAction = {
-  userRoleRetrieved: (data: UserRoleResult) => {
+  userRoleRetrieved: (data: Paginated<UserRole>) => {
     return {
       type: 'USER_ROLE_RETRIEVED' as const,
-      types: data
+      types: data.data
     }
   },
   userRoleCreated: (data: UserRole) => {

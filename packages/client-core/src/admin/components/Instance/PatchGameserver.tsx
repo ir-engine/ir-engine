@@ -15,17 +15,16 @@ import { useAuthState } from '../../../user/services/AuthService'
 import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
 import { GameserverService } from '../../services/GameserverService'
 import { LocationService, useLocationState } from '../../services/LocationService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
   handleClose: any
-  closeViewModel?: any
+  closeViewModal?: any
 }
 
 const PatchGameserver = (props: Props) => {
-  const { open, handleClose, closeViewModel } = props
-  const classes = useStyles()
+  const { open, handleClose, closeViewModal } = props
   const [state, setState] = React.useState({
     location: '',
     locationError: ''
@@ -42,7 +41,7 @@ const PatchGameserver = (props: Props) => {
 
   React.useEffect(() => {
     if (location.created.value) {
-      closeViewModel(false)
+      closeViewModal(false)
       setState({
         ...state,
         location: ''
@@ -62,19 +61,19 @@ const PatchGameserver = (props: Props) => {
       setState({ ...state, locationError })
     } else {
       GameserverService.patchGameserver(state.location)
-      closeViewModel(false)
+      closeViewModal(false)
     }
   }
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: classes.paperDrawer }} open={open} onClose={handleClose(false)}>
-        <Container maxWidth="sm" className={classes.marginTp}>
-          <DialogTitle id="form-dialog-title" className={classes.texAlign}>
+      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={handleClose(false)}>
+        <Container maxWidth="sm" className={styles.mt20}>
+          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.setting.patchGameserver')}
           </DialogTitle>
           <label>{t('admin:components.bot.location')}</label>
-          <Paper component="div" className={state.locationError.length > 0 ? classes.redBorder : classes.createInput}>
+          <Paper component="div" className={state.locationError.length > 0 ? styles.redBorder : styles.createInput}>
             <FormControl fullWidth>
               <Select
                 labelId="demo-controlled-open-select-label"
@@ -83,9 +82,9 @@ const PatchGameserver = (props: Props) => {
                 fullWidth
                 displayEmpty
                 onChange={handleChange}
-                className={classes.select}
+                className={styles.select}
                 name="location"
-                MenuProps={{ classes: { paper: classes.selectPaper } }}
+                MenuProps={{ classes: { paper: styles.selectPaper } }}
               >
                 <MenuItem value="" disabled>
                   <em>{t('admin:components.bot.selectLocation')}</em>
@@ -99,10 +98,10 @@ const PatchGameserver = (props: Props) => {
             </FormControl>
           </Paper>
           <DialogActions>
-            <Button className={classes.saveBtn} onClick={handleSubmit}>
+            <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.setting.save')}
             </Button>
-            <Button onClick={handleClose(false)} className={classes.saveBtn}>
+            <Button onClick={handleClose(false)} className={styles.cancelButton}>
               {t('admin:components.setting.cancel')}
             </Button>
           </DialogActions>

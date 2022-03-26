@@ -29,7 +29,7 @@ import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 const Input = styled('input')({
   display: 'none'
@@ -40,7 +40,6 @@ let scene: Scene
 let renderer: WebGLRenderer = null!
 const AvatarCreate = ({ handleClose, open }) => {
   const { t } = useTranslation()
-  const classes = useStyles()
   const [newAvatar, setNewAvatar] = useState({
     avatarName: '',
     avatarUrl: '',
@@ -54,7 +53,7 @@ const AvatarCreate = ({ handleClose, open }) => {
   const [selectUse, setSelectUse] = useState(false)
   const [openAlter, setOpenAlter] = useState(false)
   const [error, setError] = useState('')
-  const [avatarModel, setAvatarModel] = useState<any>(null)
+  const [avatarModal, setAvatarModal] = useState<any>(null)
   const [fileSelected, setFileSelected] = React.useState(false)
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [validAvatarUrl, setValidAvatarUrl] = useState(false)
@@ -175,17 +174,17 @@ const AvatarCreate = ({ handleClose, open }) => {
             })
             .then((obj) => {
               if (!obj) {
-                setAvatarModel(null!)
+                setAvatarModal(null!)
                 setError('Failed to load')
                 return
               }
               obj.name = 'avatar'
               scene.add(obj)
               renderScene({ scene, renderer, camera })
-              setAvatarModel(obj)
+              setAvatarModal(obj)
               // const error = validate(obj)
               setError(error)
-              if (error === '') setAvatarModel(obj)
+              if (error === '') setAvatarModal(obj)
             })
         }
       } catch (error) {
@@ -226,17 +225,17 @@ const AvatarCreate = ({ handleClose, open }) => {
         })
         .then((obj) => {
           if (!obj) {
-            setAvatarModel(null!)
+            setAvatarModal(null!)
             setError('Failed to load')
             return
           }
           obj.name = 'avatar'
           scene.add(obj)
           renderScene({ scene, renderer, camera })
-          setAvatarModel(obj)
+          setAvatarModal(obj)
           // const error = validate(obj)
           setError(error)
-          if (error === '') setAvatarModel(obj)
+          if (error === '') setAvatarModal(obj)
         })
 
       fetch(event.target.value)
@@ -255,20 +254,16 @@ const AvatarCreate = ({ handleClose, open }) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: classes.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
-        <Container maxWidth="sm" className={classes.marginTp}>
+      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleClose}>
+        <Container maxWidth="sm" className={styles.mt20}>
           <div ref={panelRef}>
             <DialogTitle>
-              <IconButton onClick={handleClose}>
+              <IconButton className={styles.spanWhite} onClick={handleClose}>
                 <ArrowBack />
               </IconButton>
               {t('user:avatar.title')}
             </DialogTitle>
             <DialogContent>
-              <IconButton className={classes.positionRight}>
-                <Help className={classes.spanWhite} />
-              </IconButton>
-
               <div style={{ marginTop: '2rem' }}>
                 <InputText
                   value={newAvatar.avatarName}
@@ -283,16 +278,16 @@ const AvatarCreate = ({ handleClose, open }) => {
                   formErrors={formErrors.description}
                 />
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.openModalBtn}
                   onClick={() => {
                     setSelectUse(!selectUse)
                     if (!selectUse) {
-                      setAvatarModel(null)
+                      setAvatarModal(null)
                       setSelectedFile(null)
                       setFileSelected(false)
                     }
                   }}
-                  style={{ width: '97%' }}
+                  style={{ width: '97%', marginBottom: '10px' }}
                 >
                   {!selectUse ? 'Upload files' : 'Use url instead'}
                 </Button>
@@ -304,25 +299,25 @@ const AvatarCreate = ({ handleClose, open }) => {
                       formErrors={formErrors.avatarUrl}
                       name="avatarUrl"
                     />
-                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                    <div id="stage" style={{ width: '500px', height: '250px' }} />
                   </>
                 ) : (
                   <>
-                    <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                    <div id="stage" style={{ width: '500px', height: '250px' }} />
                     <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                       <Input
                         accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                         id="contained-button-file"
                         type="file"
                         onChange={handleAvatarChange}
-                        disabled={avatarModel ? true : false}
+                        disabled={!!avatarModal}
                       />
                       <Button
                         variant="contained"
                         component="span"
-                        // classes={{ root: classes.rootBtn }}
+                        className={styles.openModalBtn}
                         endIcon={<SystemUpdateAlt />}
-                        disabled={avatarModel ? true : false}
+                        disabled={!!avatarModal}
                       >
                         Avatar
                       </Button>
@@ -332,7 +327,7 @@ const AvatarCreate = ({ handleClose, open }) => {
               </div>
             </DialogContent>
             <DialogActions>
-              <Button className={classes.saveBtn} onClick={uploadByUrls}>
+              <Button className={styles.submitButton} onClick={uploadByUrls}>
                 Upload
               </Button>
               <Button
@@ -340,7 +335,7 @@ const AvatarCreate = ({ handleClose, open }) => {
                   handleClose()
                   clearState()
                 }}
-                className={classes.saveBtn}
+                className={styles.cancelButton}
               >
                 Cancel
               </Button>
