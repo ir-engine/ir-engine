@@ -4,7 +4,10 @@
  * - WebGL port by @supereggbert
  * http://www.glge.org/demos/fxaa/
  * Further improved by Daniel Sturk
+ * Further modified by Josh Field to work with 'postprocessing' library
  */
+
+// kinda broken from https://github.com/mrdoob/three.js/commit/d4a86dc53fb5057eecae4c9dea46685511e15864#diff-73e8b984cde4c8b8831b5d8642508c0819ab68058fed86491810333dcce72704
 
 // https://github.com/mrdoob/three.js/blob/d4a86dc53fb5057eecae4c9dea46685511e15864/examples/jsm/shaders/FXAAShader.js
 
@@ -12,7 +15,7 @@ export default `
 	precision highp float;
 	uniform sampler2D tDiffuse;
 	uniform vec2 resolution;
-	varying vec2 vUv;
+	// varying vec2 vUv;
 	// FXAA 3.11 implementation by NVIDIA, ported to WebGL by Agost Biro (biro@archilogic.com)
 	//----------------------------------------------------------------------------------
 	// File:        es3-kepler\FXAA\assets\shaders/FXAA_DefaultES.frag
@@ -200,11 +203,11 @@ export default `
 					dist * .5
 			);
 	}
-	void main() {
+	void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
 			const float edgeDetectionQuality = .2;
 			const float invEdgeDetectionQuality = 1. / edgeDetectionQuality;
-			gl_FragColor = FxaaPixelShader(
-					vUv,
+			outputColor = FxaaPixelShader(
+					uv,
 					tDiffuse,
 					resolution,
 					edgeDetectionQuality, // [0,1] contrast needed, otherwise early discard

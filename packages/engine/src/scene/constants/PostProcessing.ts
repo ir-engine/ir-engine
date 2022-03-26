@@ -34,7 +34,8 @@ export type EffectType = {
 }
 
 export const EffectMap = new Map<Effects, EffectType>()
-EffectMap.set(Effects.FXAAEffect, { EffectClass: FXAAEffect })
+// TODO: FXAA recently broke due to new threejs & postprocessing version #5568
+// EffectMap.set(Effects.FXAAEffect, { EffectClass: FXAAEffect })
 EffectMap.set(Effects.OutlineEffect, { EffectClass: OutlineEffect })
 EffectMap.set(Effects.SSAOEffect, { EffectClass: SSAOEffect })
 EffectMap.set(Effects.DepthOfFieldEffect, { EffectClass: DepthOfFieldEffect })
