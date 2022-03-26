@@ -1,11 +1,13 @@
+import { GLTF } from 'src/assets/loaders/gltf/GLTFLoader'
 import { createEntity } from 'src/ecs/functions/EntityFunctions'
 import { Color, Object3D } from 'three'
 import { Scene } from 'three'
 
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getAbsolutePath, getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
   getAllComponents,
@@ -18,6 +20,35 @@ import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { getAnimationClips } from './cloneObject3D'
+
+export const gltfToSceneJson = (gltf: GLTF) => {
+  const entities = new Array<EntityJson>()
+  const rootGL = gltf.scene as any
+  const result: SceneJson = {
+    entities: {},
+    root: rootGL.extras['uuid'],
+    version: 2.0
+  }
+
+  const nodes = new Array()
+  gltf.scene.children.forEach((child) => nodes.push(child))
+  while (nodes.length > 0) {
+    const glNode = nodes.pop()
+  }
+  return result
+}
+
+export const sceneFromGLTF = async (_url: string) => {
+  const loader = getGLTFLoader()
+  const url = getAbsolutePath(_url)
+  try {
+    const gltf = await loader.loadAsync(url)
+
+    return gltfToSceneJson(gltf)
+  } catch (error) {
+    throw new RethrownError('error loading scene glTF: ', error)
+  }
+}
 
 export const sceneToGLTF = async (root: Object3DWithEntity) => {
   root.traverse((node: Object3DWithEntity) => {
@@ -87,7 +118,7 @@ const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld(
       const loadingRegister = world.sceneLoadingRegistry.get(comp)
       if (loadingRegister) {
         obj3d.userData.editor_uuid = world.entityTree.entityNodeMap[obj3d.entity]?.uuid
-        if (loadingRegister.prepareForGLTFExport) loadingRegister.prepareForGLTFExport(obj3d)
+        //if (loadingRegister.prepareForGLTFExport) loadingRegister.prepareForGLTFExport(obj3d)
 
         let data = loadingRegister.serialize(obj3d.entity)
         if (data) addComponentDataToGLTFExtenstion(obj3d, data)

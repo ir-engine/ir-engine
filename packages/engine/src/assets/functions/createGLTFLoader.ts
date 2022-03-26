@@ -1,3 +1,4 @@
+import { WebIO } from '@gltf-transform/core'
 import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { isClient } from '../../common/functions/isClient'
@@ -42,6 +43,13 @@ export const createGLTFLoader = (keepMaterials = false) => {
     ;(dracoLoader as any).preload = () => {}
   }
   ;(loader as any).setDRACOLoader(dracoLoader)
-
   return loader
+  /*
+  const loader = new WebIO()
+  loader.registerExtensions()
+  return {
+    load: (url: string, onLoad?, onProgress?, onError?) => {
+
+    }
+  }*/
 }

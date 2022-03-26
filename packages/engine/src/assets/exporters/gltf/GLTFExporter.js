@@ -25,13 +25,21 @@ import {
 	PerspectiveCamera,
 	WebGLRenderer,
 	Uniform,
-	Vector3
+	Vector3,
+	Object3D
 } from 'three';
 
+import { SCENE_COMPONENT_MODEL } from "@xrengine/engine/src/scene/functions/loaders/ModelFunctions"
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { World } from "@xrengine/engine/src/ecs/classes/World"
+import { getComponent } from '../../../ecs/functions/ComponentFunctions';
+import { EntityNodeComponent } from '../../../scene/components/EntityNodeComponent';
 
 class GLTFExporter {
 
 	constructor() {
+
+
 
 		this.pluginCallbacks = [];
 
@@ -370,6 +378,17 @@ let cachedCanvas = null;
 class GLTFWriter {
 
 	constructor() {
+		/**
+		 * toIgnore: set of objects not to serialize
+		 * @type Set
+		 */
+		this.toIgnore = new Set()
+
+		/**
+		 * world: xre world instance
+		 * @type World
+		 */
+		this.world = useWorld()
 
 		this.plugins = [];
 
@@ -564,6 +583,11 @@ class GLTFWriter {
 			}
 
 			if ( Object.keys( json ).length > 0 ) objectDef.extras = json;
+
+			//remove any helper data
+			if(objectDef.extras.helper) {
+				delete objectDef.extras.helper
+			}
 
 		} catch ( error ) {
 
@@ -1946,6 +1970,66 @@ class GLTFWriter {
 
 	}
 
+
+	/**
+	 * 
+	 * @param {THREE.Object3D} object 
+	 * @returns {void}
+	 */
+	ignoreChildren( object ) {
+		const toCheck = new Array()
+		object.children?.forEach((child) => toCheck.push(child))
+		while(toCheck.length > 0) {
+			const child = toCheck.pop()
+			this.toIgnore.add(child)
+			child.children?.forEach((childChild) => toCheck.push(childChild))
+		}
+	}
+
+	/**
+	 * 
+	 * @param {THREE.Object3D} object 
+	 * @returns {boolean} Whether the object should be serialized
+	 */
+	shouldSerialize( object ) {
+		//check if object is already ignored
+		if(this.toIgnore.has(object)) return false
+
+		const uData = object.userData
+		//check if object is a helper
+		if(uData.isHelper) return false
+
+		//check if object is gizmo
+		if(object.rotateControls || object.scaleControls || object.translateControls) {
+			this.ignoreChildren(object)
+			this.toIgnore.add(object)
+			return false
+		}
+
+		const extensions = uData.gltfExtensions
+		
+		if(extensions) {
+			//check if object is a gltf model
+			if(SCENE_COMPONENT_MODEL in extensions) {
+				this.ignoreChildren(object)
+			}
+		} else {
+			//if object has no extensions and no children then ignore it
+			if(! (this.children?.length > 0)) {
+				return false
+			}
+		}
+
+		//check if object is in origin table
+		if(this.world.componentOrigins.check(object)) {
+			this.ignoreChildren(object)
+			this.toIgnore.add(object)
+			return false
+		}
+
+		return true
+	}
+
 	/**
 	 * Process Object3D node
 	 * @param  {THREE.Object3D} node Object3D to processNode
@@ -2000,11 +2084,25 @@ class GLTFWriter {
 			}
 
 		}
-
+		//check if should serialize
+		if (!this.shouldSerialize(object)) return null
+		
 		// We don't export empty strings name because it represents no-name in Three.js.
 		if ( object.name !== '' ) nodeDef.name = String( object.name );
-
 		this.serializeUserData( object, nodeDef );
+
+		if(object.entity !== undefined) {
+			const idTable = this.world.entityTree.uuidNodeMap.entries()
+			for (const [key, value] of idTable) {
+				if(object.entity === value.entity) {
+					if (nodeDef.extras === undefined) {
+						nodeDef.extras = {}
+					}
+					nodeDef.extras["uuid"] = key
+					break
+				}
+			}
+		}
 
 		if ( object.isMesh || object.isLine || object.isPoints ) {
 
@@ -2144,7 +2242,7 @@ class GLTFWriter {
 
 			} else {
 
-				objectsWithoutScene.push( input[ i ] );
+				continue//objectsWithoutScene.push( input[ i ] );
 
 			}
 

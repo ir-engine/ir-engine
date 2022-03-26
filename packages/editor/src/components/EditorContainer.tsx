@@ -8,11 +8,12 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -364,14 +365,16 @@ const EditorContainer = () => {
     if (!confirm) return
     const el = document.createElement('input')
     el.type = 'file'
-    el.accept = '.world'
+    el.accept = '.gltf'
     el.style.display = 'none'
     el.onchange = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          const json = JSON.parse((fileReader as any).result)
-          importScene(json)
+          const loader = getGLTFLoader()
+          //importScene(json)
+
+          loader.parse()
         }
         fileReader.readAsText(el.files[0])
       }

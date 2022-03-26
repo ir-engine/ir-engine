@@ -38,12 +38,12 @@ export interface LoadGLTFResultInterface {
 
 // TODO: refactor global scope
 const loader = createGLTFLoader()
-export function getGLTFLoader(): GLTFLoader {
+export function getGLTFLoader() {
   return loader
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  loader.dracoLoader?.dispose()
+  //loader.dracoLoader?.dispose()
 }
 
 export const loadExtensions = async (gltf: GLTF) => {
@@ -211,7 +211,7 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
   onLoad(asset)
 }
 
-const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
+export const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
 
 const load = async (
   _url: string,
