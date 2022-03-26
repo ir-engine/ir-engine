@@ -28,6 +28,7 @@ export default class ErrorIcon extends Mesh {
     material.map = errorTexture
     material.side = DoubleSide
     material.transparent = true
+    material.needsUpdate = true
     super(geometry, material)
     this.name = 'ErrorIcon'
     this.type = 'ErrorIcon'

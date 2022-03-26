@@ -233,6 +233,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
       if (mesh.material) {
         mesh.material.transparent = nextMode === 'interacting'
         mesh.renderOrder = nextMode === 'interacting' ? 1 : 0
+        mesh.material.needsUpdate = true
       }
     })
   }

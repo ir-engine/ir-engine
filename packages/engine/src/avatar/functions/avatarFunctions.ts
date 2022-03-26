@@ -281,6 +281,7 @@ export function getDefaultSkeleton(): SkinnedMesh {
  */
 export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
   material.transparent = true
+  material.needsUpdate = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndex }
     shader.uniforms.boneWeightThreshold = { value: 0.9 }
