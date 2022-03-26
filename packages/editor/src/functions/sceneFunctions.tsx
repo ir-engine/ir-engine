@@ -86,7 +86,7 @@ export const saveScene = async (
   const sceneData = serializeWorld()
 
   try {
-    return (await client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })) as SceneData
+    return await client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })
   } catch (error) {
     console.error('Error in Getting Project:' + error)
     throw new Error(error)

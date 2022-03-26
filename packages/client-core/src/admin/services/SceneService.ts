@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'

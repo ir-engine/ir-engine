@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
-import { InviteTypeResult } from '@xrengine/common/src/interfaces/InviteTypeResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -44,7 +44,7 @@ export const InviteTypeService = {
     {
       dispatch(InviteTypeAction.fetchingInvitesTypes())
       try {
-        const inviteTypeResult = await client.service('invite-type').find()
+        const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
         dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -55,7 +55,7 @@ export const InviteTypeService = {
 
 //Action
 export const InviteTypeAction = {
-  retrievedInvitesTypes: (inviteType: InviteTypeResult) => {
+  retrievedInvitesTypes: (inviteType: Paginated<InviteType>) => {
     return {
       type: 'LOAD_INVITE_TYPE' as const,
       total: inviteType.total,

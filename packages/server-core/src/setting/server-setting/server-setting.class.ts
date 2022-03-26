@@ -15,7 +15,7 @@ export class ServerSetting<T = ServerSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(): Promise<T[] | Paginated<T>> {
     const serverSetting = (await super.find()) as any
     const data = serverSetting.data.map((el) => {
       let hub = JSON.parse(el.hub)
