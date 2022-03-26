@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ClientSetting as ClientSettingInterface } from '@xrengine/common/src/interfaces/ClientSetting'
@@ -15,7 +15,7 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params): Promise<T[] | Paginated<T>> {
     const clientSettings = (await super.find(params)) as any
     const data = clientSettings.data.map((el) => {
       let appSocialLinks = JSON.parse(el.appSocialLinks)
@@ -35,5 +35,9 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
       skip: clientSettings.skip,
       data
     }
+  }
+
+  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data, params)
   }
 }
