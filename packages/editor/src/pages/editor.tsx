@@ -23,7 +23,7 @@ const EditorProtectedRoutes = () => {
     if (user.scopes.value && user.userRole.value) {
       const hasAccess = userHasAccess('editor:write')
       if (!hasAccess) {
-        history.push('/login')
+        history.push('/')
         setAuthorized(false)
       } else setAuthorized(true)
     }
