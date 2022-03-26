@@ -13,6 +13,7 @@ import {
 
 import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
 
+import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -77,6 +78,7 @@ export default async function AvatarTeleportSystem(world: World) {
 
   // The light at the end of the line
   const guideLight = new PointLight(0xffeeaa, 0, 2)
+  Engine.scene.add(guideLight)
 
   let guidingController = new Group()
 
