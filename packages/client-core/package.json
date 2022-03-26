@@ -30,7 +30,7 @@
     "react": "17.0.2"
   },
   "dependencies": {
-    "@feathersjs/client": "5.0.0-pre.17",
+    "@feathersjs/client": "5.0.0-pre.10",
     "@date-io/moment": "2.13.1",
     "@emotion/react": "11.8.2",
     "@emotion/styled": "11.8.1",
