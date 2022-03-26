@@ -36,7 +36,7 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
  */
 export const saveProject = async (projectName: string) => {
   try {
-    await client.service('project').patch(projectName)
+    await client.service('project').patch(projectName, null!)
   } catch (error) {
     console.log('Error saving project', projectName)
     throw new Error(error)

@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
-import { AdminParty, PatchParty } from '@xrengine/common/src/interfaces/AdminParty'
-import { AdminPartyResult } from '@xrengine/common/src/interfaces/AdminPartyResult'
+import { Party, PatchParty } from '@xrengine/common/src/interfaces/Party'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -12,7 +12,7 @@ import { accessAuthState } from '../../user/services/AuthService'
 export const PARTY_PAGE_LIMIT = 100
 
 const state = createState({
-  parties: [] as Array<AdminParty>,
+  parties: [] as Array<Party>,
   skip: 0,
   limit: PARTY_PAGE_LIMIT,
   total: 0,
@@ -54,7 +54,7 @@ export const PartyService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('party').create(data)
+        const result = (await client.service('party').create(data)) as Party
         dispatch(PartyAction.partyAdminCreated(result))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -70,7 +70,7 @@ export const PartyService = {
       const limit = adminParty.limit.value
       try {
         if (user.userRole.value === 'admin') {
-          const parties = await client.service('party').find({
+          const parties = (await client.service('party').find({
             query: {
               // $sort: {
               //   createdAt: -1
@@ -80,7 +80,7 @@ export const PartyService = {
               action: 'admin',
               search: value
             }
-          })
+          })) as Paginated<Party>
           dispatch(PartyAction.partyRetrievedAction(parties))
         }
       } catch (err) {
@@ -91,7 +91,7 @@ export const PartyService = {
   removeParty: async (id: string) => {
     const dispatch = useDispatch()
     {
-      const result = await client.service('party').remove(id)
+      const result = (await client.service('party').remove(id)) as Party
       dispatch(PartyAction.partyRemoved(result))
     }
   },
@@ -99,7 +99,7 @@ export const PartyService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('party').patch(id, party)
+        const result = (await client.service('party').patch(id, party)) as Party
         dispatch(PartyAction.partyPatched(result))
       } catch (error) {
         AlertService.dispatchAlertError(error)
@@ -111,25 +111,25 @@ export const PartyService = {
 //Action
 
 export const PartyAction = {
-  partyAdminCreated: (data: AdminParty) => {
+  partyAdminCreated: (data: Party) => {
     return {
       type: 'PARTY_ADMIN_CREATED' as const,
       data: data
     }
   },
-  partyRetrievedAction: (data: AdminPartyResult) => {
+  partyRetrievedAction: (data: Paginated<Party>) => {
     return {
       type: 'PARTY_ADMIN_DISPLAYED' as const,
       data: data
     }
   },
-  partyRemoved: (party: AdminParty) => {
+  partyRemoved: (party: Party) => {
     return {
       type: 'ADMIN_PARTY_REMOVED' as const,
       party: party
     }
   },
-  partyPatched: (party: AdminParty) => {
+  partyPatched: (party: Party) => {
     return {
       type: 'ADMIN_PARTY_PATCHED' as const,
       party: party

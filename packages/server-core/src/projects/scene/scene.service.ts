@@ -26,8 +26,15 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+type GetScenesArgsType = {
+  projectName: string
+  metadataOnly: boolean
+  internal?: boolean
+}
+
 export const getScenesForProject = (app: Application) => {
-  return async function ({ projectName, metadataOnly, internal }, params: Params): Promise<{ data: SceneData[] }> {
+  return async function (args: GetScenesArgsType, params?: Params): Promise<{ data: SceneData[] }> {
+    const { projectName, metadataOnly, internal } = args
     try {
       const project = await app.service('project').get(projectName, params)
       if (!project || !project.data) throw new Error(`No project named ${projectName} exists`)
