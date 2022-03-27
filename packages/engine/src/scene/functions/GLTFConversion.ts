@@ -1,19 +1,10 @@
-import { GLTF } from 'src/assets/loaders/gltf/GLTFLoader'
-import { createEntity } from 'src/ecs/functions/EntityFunctions'
 import { Color, Object3D } from 'three'
-import { Scene } from 'three'
 
 import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getAbsolutePath, getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  addComponent,
-  getAllComponents,
-  getComponent,
-  hasComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
