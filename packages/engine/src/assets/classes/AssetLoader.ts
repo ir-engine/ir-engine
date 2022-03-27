@@ -43,7 +43,7 @@ export function getGLTFLoader() {
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  //loader.dracoLoader?.dispose()
+  loader.dracoLoader?.dispose()
 }
 
 export const loadExtensions = async (gltf: GLTF) => {

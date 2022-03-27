@@ -12,8 +12,7 @@ import {
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
-import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-
+// import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
@@ -350,10 +349,7 @@ export const initializeSceneSystems = async () => {
     )
   }
 
-  if (isClient || Engine.isEditor) {
-    const loader = getGLTFLoader()
-    initializeKTX2Loader(loader)
-  }
+  if (isClient) initializeKTX2Loader(getGLTFLoader())
 
   await initSystems(world, systemsToLoad)
 }
@@ -385,11 +381,11 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
   await initSystems(world, systemsToLoad)
 }
 
-export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
-  const world = useWorld()
-  await initSystems(world, systems)
-  await loadEngineInjection(world, projects)
-}
+// export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {
+//   const world = useWorld()
+//   await initSystems(world, systems)
+//   await loadEngineInjection(world, projects)
+// }
 
 export const shutdownEngine = async () => {
   removeClientInputListeners()

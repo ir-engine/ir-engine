@@ -63,9 +63,8 @@ export default class RemoveObjectsCommand extends Command {
           if (!parent) throw new Error('Parent is not defined')
           this.oldParents.push(parent)
 
-          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(obj.entity) - 1])
-          if (!before) throw new Error('Before is not defined')
-          this.oldBefores.push(before)
+          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(obj.entity) + 1])
+          this.oldBefores.push(before!)
         }
 
         if (!this.skipSerialization) this.oldComponents.push(serializeWorld(obj))
