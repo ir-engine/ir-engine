@@ -21,19 +21,42 @@ import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { getAnimationClips } from './cloneObject3D'
 
-export const gltfToSceneJson = (gltf: GLTF) => {
-  const entities = new Array<EntityJson>()
-  const rootGL = gltf.scene as any
+export const nodeToEntityJson = (node: any): EntityJson => {
+  const parentId = node.extras.parent ? { parent: node.extras.parent } : {}
+  return {
+    name: node.name,
+    components: Object.entries(node.extensions).map(([k, v]) => {
+      return { name: k, props: v }
+    }),
+    uuid: node.extras.uuid,
+    ...parentId
+  }
+}
+
+export const gltfToSceneJson = (gltf: any): SceneJson => {
+  const rootGL = gltf.scenes[gltf.scene]
+  const rootUuid = rootGL.extras.uuid
   const result: SceneJson = {
     entities: {},
-    root: rootGL.extras['uuid'],
+    root: rootUuid,
     version: 2.0
   }
-
-  const nodes = new Array()
-  gltf.scene.children.forEach((child) => nodes.push(child))
-  while (nodes.length > 0) {
-    const glNode = nodes.pop()
+  result.entities[rootUuid] = nodeToEntityJson(rootGL)
+  const lookupNode = (idx) => gltf.nodes[idx]
+  const nodeQ: Array<any> = rootGL.nodes.map(lookupNode).map((node) => {
+    node.extras['parent'] = rootUuid
+    return node
+  })
+  while (nodeQ.length > 0) {
+    const node = nodeQ.pop()
+    const uuid = node.extras.uuid
+    let eJson: any = result.entities[uuid]
+    if (!eJson) eJson = {}
+    result.entities[uuid] = { ...eJson, ...nodeToEntityJson(node) }
+    node.children?.map(lookupNode).forEach((child) => {
+      child.extras['parent'] = uuid
+      nodeQ.push(child)
+    })
   }
   return result
 }
@@ -106,7 +129,7 @@ const addComponentDataToGLTFExtenstion = (obj3d: Object3D, data: ComponentJson) 
   obj3d.userData.gltfExtensions[data.name] = componentProps
 }
 
-const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld()) => {
+export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld()) => {
   const entityNode = getComponent(obj3d.entity, EntityNodeComponent)
   const nameCmp = getComponent(obj3d.entity, NameComponent)
   if (nameCmp?.name) {

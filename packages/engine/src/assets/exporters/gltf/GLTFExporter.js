@@ -26,14 +26,27 @@ import {
 	WebGLRenderer,
 	Uniform,
 	Vector3,
-	Object3D
+	Object3D,
+	Light,
+	Group,
+	Camera,
+	CameraHelper
 } from 'three';
 
 import { SCENE_COMPONENT_MODEL } from "@xrengine/engine/src/scene/functions/loaders/ModelFunctions"
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { World } from "@xrengine/engine/src/ecs/classes/World"
-import { getComponent } from '../../../ecs/functions/ComponentFunctions';
+import { hasComponent } from '../../../ecs/functions/ComponentFunctions';
 import { EntityNodeComponent } from '../../../scene/components/EntityNodeComponent';
+import { SCENE_COMPONENT_GROUND_PLANE } from '../../../scene/functions/loaders/GroundPlaneFunctions';
+import { SCENE_COMPONENT_CLOUD } from '../../../scene/functions/loaders/CloudFunctions';
+import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
+import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
+import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/loaders/WaterFunctions'
+import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
+import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { regex, string } from 'ts-matches';
+import { prepareObjectForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 class GLTFExporter {
 
@@ -389,6 +402,9 @@ class GLTFWriter {
 		 * @type World
 		 */
 		this.world = useWorld()
+		this.dudNodes = new Map()
+		this.knownEntities = new Map()
+		this.setParentOps = []
 
 		this.plugins = [];
 
@@ -580,14 +596,21 @@ class GLTFWriter {
 
 				delete json.gltfExtensions;
 
+				for ( const [k, v] in json.entries()) {
+					if (this.toIgnore.has(v)) {
+						delete json[k]
+					}
+				}
 			}
 
 			if ( Object.keys( json ).length > 0 ) objectDef.extras = json;
 
 			//remove any helper data
-			if(objectDef.extras.helper) {
-				delete objectDef.extras.helper
-			}
+
+			if (objectDef.extras.helper) delete objectDef.extras.helper
+			if (objectDef.extras.helperModel) delete objectDef.extras.helperModel
+			if (objectDef.extras.helperBox) delete objectDef.extras.helperBox
+			if (objectDef.extras.cameraHelper) delete objectDef.extras.cameraHelper
 
 		} catch ( error ) {
 
@@ -2006,16 +2029,29 @@ class GLTFWriter {
 			return false
 		}
 
-		const extensions = uData.gltfExtensions
+		//check if object is a light, camera, or group
+		/*const threeTypes = [Light, Camera]
+		if (threeTypes.some((threeType) => object instanceof threeType))
+			return true;*/
 		
+		const extensions = uData.gltfExtensions
 		if(extensions) {
-			//check if object is a gltf model
-			if(SCENE_COMPONENT_MODEL in extensions) {
+			//check if object is a gltf model, image, video, ground plane, water, cloud, ocean
+			const compTypes = [
+				SCENE_COMPONENT_MODEL, 
+				SCENE_COMPONENT_IMAGE,
+				SCENE_COMPONENT_VIDEO,
+				SCENE_COMPONENT_GROUND_PLANE,
+				SCENE_COMPONENT_WATER,
+				SCENE_COMPONENT_OCEAN,
+				SCENE_COMPONENT_CLOUD,
+				SCENE_COMPONENT_PORTAL]
+			if (compTypes.some((compType) => compType in extensions)) {
 				this.ignoreChildren(object)
 			}
 		} else {
 			//if object has no extensions and no children then ignore it
-			if(! (this.children?.length > 0)) {
+			if (! (this.children?.length > 0)) {
 				return false
 			}
 		}
@@ -2037,6 +2073,9 @@ class GLTFWriter {
 	 */
 	processNode( object ) {
 
+		//check if should serialize
+		if (!this.shouldSerialize(object)) return null
+		
 		const json = this.json;
 		const options = this.options;
 		const nodeMap = this.nodeMap;
@@ -2084,16 +2123,15 @@ class GLTFWriter {
 			}
 
 		}
-		//check if should serialize
-		if (!this.shouldSerialize(object)) return null
+		
 		
 		// We don't export empty strings name because it represents no-name in Three.js.
 		if ( object.name !== '' ) nodeDef.name = String( object.name );
 		this.serializeUserData( object, nodeDef );
 
 		if(object.entity !== undefined) {
-			const idTable = this.world.entityTree.uuidNodeMap.entries()
-			for (const [key, value] of idTable) {
+			const idTable = this.world.entityTree.uuidNodeMap
+			for (const [key, value] of idTable.entries()) {
 				if(object.entity === value.entity) {
 					if (nodeDef.extras === undefined) {
 						nodeDef.extras = {}
@@ -2153,6 +2191,70 @@ class GLTFWriter {
 	}
 
 	/**
+	 * Recursive Get Entities (not actually recursive)
+	 * @param {Object3D} root root object to get entities from
+	 */
+	recursiveGetEntities( root ) {
+		const result = new Map()
+		const frontier = [ root ]
+		do {
+			const obj = frontier.pop()
+			if (obj.entity !== undefined && hasComponent(obj.entity, EntityNodeComponent)) {
+				result.set(obj.entity, obj)
+			}
+			obj.children?.forEach((child) => frontier.push(child))
+		} while (frontier.length > 0)
+		return result
+	}
+
+	/**
+	 * Preprocess Scene
+	 * @param {Scene} scene 
+	 */
+	preprocessScene( scene ) {
+		this.knownEntities = this.recursiveGetEntities( scene )
+		const eTree = this.world.entityTree
+		const idNodeMap = eTree.uuidNodeMap
+		
+		for (const eNode of idNodeMap.values()) {
+			if (!this.knownEntities.has(eNode.entity)) {
+				const dud = new Object3D()
+				dud.entity = eNode.entity
+				eNode.children?.forEach((child) => {
+					this.setParentOps.push({parent:eNode.entity, child:child})
+				})
+				if (eNode.parentEntity !== undefined) {
+					this.setParentOps.push({parent:eNode.parentEntity, child:eNode.entity})
+				}
+				prepareObjectForGLTFExport(dud, this.world)
+				this.knownEntities.set(dud.entity, dud)
+				this.dudNodes.set(dud.entity, dud)
+			}
+		}
+		this.setParentOps.forEach((op) => {
+			const child = this.knownEntities.get(op.child)
+			const parent = this.knownEntities.get(op.parent)
+			parent.add(child)
+		})
+	}
+	/**
+	 * Postprocess Scene
+	 * @param  {Scene} node Scene to process
+	 */
+	postprocessScene( scene ) {
+		this.setParentOps.forEach((op) => {
+			const child = this.knownEntities.get(op.child)
+			child.removeFromParent()
+		})
+		for (const dudNode of this.dudNodes.values()) {
+			scene.remove( dudNode )
+		}
+		this.setParentOps = []
+		this.dudNodes = {}
+		this.knownEntities = {}
+	}
+
+	/**
 	 * Process Scene
 	 * @param  {Scene} node Scene to process
 	 */
@@ -2160,6 +2262,8 @@ class GLTFWriter {
 
 		const json = this.json;
 		const options = this.options;
+
+		
 
 		if ( ! json.scenes ) {
 
@@ -2171,26 +2275,24 @@ class GLTFWriter {
 		const sceneDef = {};
 
 		if ( scene.name !== '' ) sceneDef.name = scene.name;
-
+		if (scene.uuid) sceneDef.extras = { uuid:scene.uuid }
 		json.scenes.push( sceneDef );
 
 		const nodes = [];
-
 		for ( let i = 0, l = scene.children.length; i < l; i ++ ) {
-
 			const child = scene.children[ i ];
-
 			if ( child.visible || options.onlyVisible === false ) {
-
 				const nodeIndex = this.processNode( child );
-
-				if ( nodeIndex !== null ) nodes.push( nodeIndex );
-
+				
+				if ( nodeIndex !== null ) { 
+					nodes.push( nodeIndex ) 
+				}
 			}
-
 		}
 
-		if ( nodes.length > 0 ) sceneDef.nodes = nodes;
+		if ( nodes.length > 0 ) {
+			sceneDef.nodes = nodes
+		}
 
 		this.serializeUserData( scene, sceneDef );
 
@@ -2237,9 +2339,9 @@ class GLTFWriter {
 		for ( let i = 0; i < input.length; i ++ ) {
 
 			if ( input[ i ] instanceof Scene ) {
-
+				this.preprocessScene( input [ i ] )
 				this.processScene( input[ i ] );
-
+				this.postprocessScene( input [ i ] )
 			} else {
 
 				continue//objectsWithoutScene.push( input[ i ] );
@@ -2267,6 +2369,8 @@ class GLTFWriter {
 			ext.afterParse && ext.afterParse( input );
 
 		} );
+
+
 
 	}
 

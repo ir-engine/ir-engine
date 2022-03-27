@@ -371,10 +371,14 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          const loader = getGLTFLoader()
-          //importScene(json)
-
-          loader.parse()
+          /*const loader = getGLTFLoader()
+          
+          loader.parse(fileReader.result, '', (gltf) => {
+            const json = gltfToSceneJson(gltf)
+            importScene(json)
+          })*/
+          const json = JSON.parse(fileReader.result)
+          importScene(gltfToSceneJson(json))
         }
         fileReader.readAsText(el.files[0])
       }
