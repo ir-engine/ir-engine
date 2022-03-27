@@ -38,7 +38,7 @@ export interface LoadGLTFResultInterface {
 
 // TODO: refactor global scope
 const loader = createGLTFLoader()
-export function getGLTFLoader() {
+export function getGLTFLoader(): GLTFLoader {
   return loader
 }
 
