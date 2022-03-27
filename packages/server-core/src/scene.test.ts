@@ -6,7 +6,7 @@ import path from 'path'
 import defaultSceneSeed from '@xrengine/projects/default-project/default.scene.json'
 
 import { Application } from '../declarations'
-import { createFeathersExpressApp, serverPipe } from './createApp'
+import { createFeathersExpressApp } from './createApp'
 import { useStorageProvider } from './media/storageprovider/storageprovider'
 import { parseSceneDataCacheURLs } from './projects/scene/scene-parser'
 import { deleteFolderRecursive } from './util/fsHelperFunctions'
@@ -26,7 +26,6 @@ describe('scene.test', () => {
   let app: Application
   before(() => {
     app = createFeathersExpressApp()
-    serverPipe(app)
   })
 
   // wait for initial project loading to occur in CI/CD

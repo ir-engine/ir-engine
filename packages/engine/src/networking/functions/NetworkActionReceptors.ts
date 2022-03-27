@@ -1,8 +1,8 @@
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
+// import { generatePhysicsObject } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -105,7 +105,7 @@ const spawnDebugPhysicsObjectNetworkActionReceptor = (
   world: World,
   action: ReturnType<typeof NetworkWorldAction.spawnDebugPhysicsObject>
 ) => {
-  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
+  // generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
 }
 
 const destroyObjectNetworkActionReceptor = (

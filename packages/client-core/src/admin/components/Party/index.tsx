@@ -10,15 +10,15 @@ import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const [partyModelOpen, setPartyModelOpen] = React.useState(false)
+  const [partyModalOpen, setPartyModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
   const openModalCreate = () => {
-    setPartyModelOpen(true)
+    setPartyModalOpen(true)
   }
 
   const handleCreatePartyClose = () => {
-    setPartyModelOpen(false)
+    setPartyModalOpen(false)
   }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
@@ -39,7 +39,7 @@ const Party = () => {
       <div className={styles.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
-      <CreateParty open={partyModelOpen} handleClose={handleCreatePartyClose} />
+      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { User } from '@xrengine/common/src/interfaces/User'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
@@ -19,7 +19,7 @@ const UserTable = (props: UserProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
-  const [viewModel, setViewModel] = useState(false)
+  const [viewModal, setViewModal] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
   const user = authState.user
@@ -40,11 +40,11 @@ const UserTable = (props: UserProps) => {
     setPage(0)
   }
 
-  const closeViewModel = (open) => {
-    setViewModel(open)
+  const closeViewModal = (open) => {
+    setViewModal(open)
   }
 
-  const handleCloseModel = () => {
+  const handleCloseModal = () => {
     setPopConfirmOpen(false)
   }
 
@@ -79,7 +79,7 @@ const UserTable = (props: UserProps) => {
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
-              setViewModel(true)
+              setViewModal(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
@@ -139,15 +139,15 @@ const UserTable = (props: UserProps) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popConfirmOpen}
-        handleCloseModel={handleCloseModel}
+        handleCloseModal={handleCloseModal}
         submit={submitDeleteUser}
         name={userName}
         label={'user'}
       />
-      {userAdmin && viewModel && (
-        <ViewUser openView={viewModel} userAdmin={userAdmin} closeViewModel={closeViewModel} />
+      {userAdmin && viewModal && (
+        <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />
       )}
     </React.Fragment>
   )

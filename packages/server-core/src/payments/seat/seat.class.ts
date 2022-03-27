@@ -119,7 +119,7 @@ export class Seat<T = SeatDataType> extends Service<T> {
     }
   }
 
-  async patch(id: string, data: any, params?: Params): Promise<T> {
+  async patch(id: string, data: any): Promise<T> {
     const subscriptionId = data.subscriptionId as string
     const subscription = await this.app.service('subscription').get(subscriptionId)
     if (subscription == null) {

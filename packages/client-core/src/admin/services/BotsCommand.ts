@@ -40,7 +40,7 @@ export const BotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
     const dispatch = useDispatch()
     try {
-      const botCammand = await client.service('bot-command').create(data)
+      const botCammand = (await client.service('bot-command').create(data)) as BotCommands
       dispatch(BotsCommandAction.botCammandCreated(botCammand))
     } catch (error) {
       console.error(error)
@@ -49,7 +49,7 @@ export const BotCommandService = {
   removeBotsCommand: async (id: string) => {
     const dispatch = useDispatch()
     try {
-      const result = await client.service('bot-command').remove(id)
+      const result = (await client.service('bot-command').remove(id)) as BotCommands
       dispatch(BotsCommandAction.botCommandRemoved(result))
     } catch (error) {
       console.error(error)

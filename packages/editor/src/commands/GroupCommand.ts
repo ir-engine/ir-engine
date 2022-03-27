@@ -58,7 +58,6 @@ export default class GroupCommand extends Command {
         this.oldParents.push(parent)
 
         const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(object.entity) + 1])
-        if (!before) throw new Error('Before is not defined')
         this.oldBefores.push(before!)
       }
     }

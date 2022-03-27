@@ -18,7 +18,7 @@ import Search from '../../common/Search'
 import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
 import { UserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import UserModel from './CreateUser'
+import UserModal from './CreateUser'
 import UserTable from './UserTable'
 
 interface InputSelectProps {
@@ -56,7 +56,7 @@ const Users = () => {
     }
     setUserModalOpen(open)
   }
-  const closeViewModel = (open: boolean) => {
+  const closeViewModal = (open: boolean) => {
     setUserModalOpen(open)
   }
   const handleSkipGuests = (e: any) => {
@@ -113,7 +113,7 @@ const Users = () => {
       <div className={styles.rootTable}>
         <UserTable search={search} />
       </div>
-      <UserModel open={userModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
+      <UserModal open={userModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
       <Menu
         anchorEl={anchorEl}
         id="account-menu"

@@ -37,7 +37,7 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   openView: boolean
   userAdmin: User
-  closeViewModel?: (open: boolean) => void
+  closeViewModal?: (open: boolean) => void
 }
 
 interface ScopeData {
@@ -50,7 +50,7 @@ interface InputSelectProps {
 }
 
 const ViewUser = (props: Props) => {
-  const { openView, closeViewModel, userAdmin } = props
+  const { openView, closeViewModal, userAdmin } = props
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
   const { t } = useTranslation()
@@ -153,7 +153,7 @@ const ViewUser = (props: Props) => {
       UserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
-      closeViewModel && closeViewModel(false)
+      closeViewModal && closeViewModal(false)
     } else {
       setError(t('admin:components.user.fillRequiredField'))
       setOpenWarning(true)
@@ -170,7 +170,7 @@ const ViewUser = (props: Props) => {
   const handleCloseDrawer = () => {
     setError('')
     setOpenWarning(false)
-    closeViewModel && closeViewModel(false)
+    closeViewModal && closeViewModal(false)
     setState({
       ...state,
       formErrors: {
