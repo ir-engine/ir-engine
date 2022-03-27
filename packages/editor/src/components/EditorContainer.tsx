@@ -400,7 +400,6 @@ const EditorContainer = () => {
     document.body.appendChild(el)
     el.click()
     document.body.removeChild(el)
-    document.body.removeChild(el)
   }
 
   const onSaveScene = async () => {
