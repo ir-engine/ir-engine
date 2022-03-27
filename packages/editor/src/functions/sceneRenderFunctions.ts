@@ -6,6 +6,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
@@ -251,6 +252,13 @@ export function disposeScene() {
       }
     })
 
+    //clear ecs
+    const eTree = Engine.currentWorld.entityTree
+    for (const entity of Array.from(eTree.entityNodeMap.keys())) {
+      removeEntity(entity, true)
+    }
+    emptyEntityTree(eTree)
+    eTree.uuidNodeMap.clear()
     Engine.scene.clear()
   }
 

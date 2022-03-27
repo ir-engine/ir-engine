@@ -229,7 +229,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   component: MappedComponent<T, S>,
   args: T | SoAProxy<S>,
   world = useWorld(),
-  srcComponent = null
+  srcComponent: MappedComponent<any, S> | null = null
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')

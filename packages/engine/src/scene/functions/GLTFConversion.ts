@@ -86,7 +86,7 @@ export const sceneToGLTF = async (root: Object3DWithEntity) => {
           trs: true,
           onlyVisible: false,
           includeCustomExtensions: true,
-          animations: getAnimationClips()
+          animations: [] //getAnimationClips()
         }
       )
     })

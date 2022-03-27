@@ -1,7 +1,7 @@
 export class OriginTable {
-  registry: WeakMap<any, any>
+  registry: Map<any, any>
   constructor() {
-    this.registry = new WeakMap()
+    this.registry = new Map()
   }
 
   register(source: any, subject: any): void {
