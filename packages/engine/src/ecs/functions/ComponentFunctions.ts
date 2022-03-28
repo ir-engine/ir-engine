@@ -243,7 +243,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   }
   component.set(entity, args as T & SoAProxy<S>)
   if (srcComponent !== null) {
-    world.componentOrigins.register(srcComponent, component)
+    world.componentOrigins.register(entity, srcComponent, component)
   }
   return component.get(entity)
 }
@@ -268,7 +268,7 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
     throw new Error('[removeComponent]: entity is undefined')
   }
   ;(component as any)._setPrevious(entity, getComponent(entity, component))
-  world.componentOrigins.remove(component)
+  world.componentOrigins.remove(entity, component)
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 

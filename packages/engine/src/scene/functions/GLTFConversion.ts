@@ -4,13 +4,13 @@ import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getAbsolutePath, getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
-import { getAnimationClips } from './cloneObject3D'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras.parent ? { parent: node.extras.parent } : {}
@@ -70,7 +70,7 @@ export const sceneToGLTF = async (root: Object3DWithEntity) => {
       prepareObjectForGLTFExport(node)
     }
   })
-  const exporter = new GLTFExporter()
+  const exporter: GLTFExporter = new GLTFExporter()
   const doParse = () =>
     new Promise((resolve, reject) => {
       exporter.parse(
@@ -96,10 +96,27 @@ export const sceneToGLTF = async (root: Object3DWithEntity) => {
   } catch (error) {
     throw new RethrownError('error exporting scene', error)
   }
+  const hostPath = Engine.publicPath.replace(/:\d{4}$/, '')
+  const cacheRe = new RegExp(`${hostPath}:\\d{4}\/projects`)
+
+  const frontier: any[] = []
+  gltf.scenes.forEach((scene) => frontier.push(scene))
+  gltf.nodes.forEach((node) => frontier.push(node))
+  while (frontier.length > 0) {
+    const elt = frontier.pop()
+    for (const [k, v] of Object.entries(elt)) {
+      if (typeof v === 'object') {
+        frontier.push(v)
+      }
+      if (typeof v === 'string' && cacheRe.test(v)) {
+        elt[k] = v.replace(cacheRe, '__$project$__')
+      }
+    }
+  }
   return gltf
 }
 
-const addComponentDataToGLTFExtenstion = (obj3d: Object3D, data: ComponentJson) => {
+const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) => {
   if (!obj3d.userData.gltfExtensions) obj3d.userData.gltfExtensions = {}
   //if (!obj3d.userData.gltfExtensions.componentData) obj3d.userData.gltfExtensions.componentData = {}
   if (data.props && typeof data.props !== 'object')
@@ -135,7 +152,7 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = us
         //if (loadingRegister.prepareForGLTFExport) loadingRegister.prepareForGLTFExport(obj3d)
 
         let data = loadingRegister.serialize(obj3d.entity)
-        if (data) addComponentDataToGLTFExtenstion(obj3d, data)
+        if (data) addComponentDataToGLTFExtension(obj3d, data)
       }
     })
   }

@@ -55,10 +55,8 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     active: true
   })
 
-  if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld, TriggerVolumeComponent)
-    boxMesh.material.visible = false
-  }
+  addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld, TriggerVolumeComponent)
+  boxMesh.material.visible = false
 
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
 }

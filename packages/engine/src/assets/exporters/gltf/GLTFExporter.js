@@ -129,7 +129,7 @@ class GLTFExporter {
 
 		if ( typeof onError === 'object' ) {
 
-			console.warn( 'THREE.GLTFExporter: parse() expects options as the fourth argument now.' );
+			console.warn( 'XREngine glTF Exporter: parse() expects options as the fourth argument now.' );
 
 			options = onError;
 
@@ -424,7 +424,7 @@ class GLTFWriter {
 		this.json = {
 			asset: {
 				version: '2.0',
-				generator: 'THREE.GLTFExporter'
+				generator: 'XREngine glTF Exporter'
 			}
 		};
 
@@ -615,7 +615,7 @@ class GLTFWriter {
 
 		} catch ( error ) {
 
-			console.warn( 'THREE.GLTFExporter: userData of \'' + object.name + '\' ' +
+			console.warn( 'XREngine glTF Exporter: userData of \'' + object.name + '\' ' +
 				'won\'t be serialized because of JSON.stringify error - ' + error.message );
 
 		}
@@ -1076,7 +1076,7 @@ class GLTFWriter {
 
 		} else {
 
-			throw new Error( 'THREE.GLTFExporter: Unsupported bufferAttribute component type: ' + attribute.array.constructor );
+			throw new Error( 'XREngine glTF Exporter: Unsupported bufferAttribute component type: ' + attribute.array.constructor );
 
 		}
 
@@ -1394,7 +1394,7 @@ class GLTFWriter {
 
 				emissive.multiplyScalar( 1 / maxEmissiveComponent );
 
-				console.warn( 'THREE.GLTFExporter: Some emissive components exceed 1; emissive has been limited' );
+				console.warn( 'XREngine glTF Exporter: Some emissive components exceed 1; emissive has been limited' );
 
 			}
 
@@ -1544,7 +1544,7 @@ class GLTFWriter {
 
 		if ( geometry.isBufferGeometry !== true ) {
 
-			throw new Error( 'THREE.GLTFExporter: Geometry is not of type THREE.BufferGeometry.' );
+			throw new Error( 'XREngine glTF Exporter: Geometry is not of type THREE.BufferGeometry.' );
 
 		}
 
@@ -1566,7 +1566,7 @@ class GLTFWriter {
 
 		if ( originalNormal !== undefined && ! this.isNormalizedNormalAttribute( originalNormal ) ) {
 
-			console.warn( 'THREE.GLTFExporter: Creating normalized normal attribute from the non-normalized one.' );
+			console.warn( 'XREngine glTF Exporter: Creating normalized normal attribute from the non-normalized one.' );
 
 			geometry.setAttribute( 'normal', this.createNormalizedNormalAttribute( originalNormal ) );
 
@@ -1883,7 +1883,7 @@ class GLTFWriter {
 
 			if ( ! trackNode || ! trackProperty ) {
 
-				console.warn( 'THREE.GLTFExporter: Could not export animation track "%s".', track.name );
+				console.warn( 'XREngine glTF Exporter: Could not export animation track "%s".', track.name );
 				return null;
 
 			}
@@ -2140,14 +2140,14 @@ class GLTFWriter {
 				}
 			}
 		}
-
-		if ( object.isMesh || object.isLine || object.isPoints ) {
+		else if ( object.isMesh || object.isLine || object.isPoints ) {
 
 			const meshIndex = this.processMesh( object );
 
 			if ( meshIndex !== null ) nodeDef.mesh = meshIndex;
 
-		} else if ( object.isCamera ) {
+		}
+		if ( object.isCamera ) {
 
 			nodeDef.camera = this.processCamera( object );
 
@@ -2405,7 +2405,7 @@ class GLTFLightExtension {
 
 		if ( ! light.isDirectionalLight && ! light.isPointLight && ! light.isSpotLight ) {
 
-			console.warn( 'THREE.GLTFExporter: Only directional, point, and spot lights are supported.', light );
+			console.warn( 'XREngine glTF Exporter: Only directional, point, and spot lights are supported.', light );
 			return;
 
 		}
@@ -2446,7 +2446,7 @@ class GLTFLightExtension {
 
 		if ( light.decay !== undefined && light.decay !== 2 ) {
 
-			console.warn( 'THREE.GLTFExporter: Light decay may be lost. glTF is physically-based, '
+			console.warn( 'XREngine glTF Exporter: Light decay may be lost. glTF is physically-based, '
 				+ 'and expects light.decay=2.' );
 
 		}
@@ -2457,7 +2457,7 @@ class GLTFLightExtension {
 				|| light.target.position.y !== 0
 				|| light.target.position.z !== - 1 ) ) {
 
-			console.warn( 'THREE.GLTFExporter: Light direction may be lost. For best results, '
+			console.warn( 'XREngine glTF Exporter: Light direction may be lost. For best results, '
 				+ 'make light.target a child of the light with position 0,0,-1.' );
 
 		}
@@ -2833,11 +2833,11 @@ GLTFExporter.Utils = {
 
 					// This should never happen, because glTF morph target animations
 					// affect all targets already.
-					throw new Error( 'THREE.GLTFExporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.' );
+					throw new Error( 'XREngine glTF Exporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.' );
 
 				}
 
-				console.warn( 'THREE.GLTFExporter: Morph target interpolation mode not yet supported. Using LINEAR instead.' );
+				console.warn( 'XREngine glTF Exporter: Morph target interpolation mode not yet supported. Using LINEAR instead.' );
 
 				sourceTrack = sourceTrack.clone();
 				sourceTrack.setInterpolation( InterpolateLinear );
@@ -2849,7 +2849,7 @@ GLTFExporter.Utils = {
 
 			if ( targetIndex === undefined ) {
 
-				throw new Error( 'THREE.GLTFExporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex );
+				throw new Error( 'XREngine glTF Exporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex );
 
 			}
 
