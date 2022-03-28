@@ -207,7 +207,7 @@ const NumericInput = (props: NumericInputProp) => {
   }
 
   useEffect(() => {
-    inputEl?.current?.select()
+    if (focused) inputEl?.current?.select()
   }, [focused])
 
   const handleBlur = () => {
