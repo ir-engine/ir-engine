@@ -149,6 +149,21 @@
   background: theme.$purpleDarkest;
 }
 
+.Paper2 {
+  display: flex;
+  padding: 5px 10px;
+  flex-direction: row;
+  background: theme.$purpleDarkest;
+
+  &>div {
+    margin: 5px;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
 .focused {
   background: theme.$purpleColor;
 
