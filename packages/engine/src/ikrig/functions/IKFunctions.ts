@@ -1,9 +1,8 @@
 // References:
 // https://www.youtube.com/watch?v=OMmXo3Jejxk&list=PLMinhigDWz6emRKVkVIEAaePW7vtIkaIF&index=135
 // https://github.com/sketchpunk/FunWithWebGL2/tree/master/lesson_137_ik_rigs
-import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from '../../ikrig/constants/Vector3Constants'
 import { Chain } from '../classes/Chain'
 import Pose, { PoseBoneLocalState } from '../classes/Pose'
 import {
@@ -14,12 +13,14 @@ import {
   IKPoseSpineData
 } from '../components/IKPoseComponent'
 import { IKRigComponentType, PointData } from '../components/IKRigComponent'
+import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from '../constants/Vector3Constants'
 import { solveThreeBone } from './IKSolvers'
 import { addChain, addPoint } from './RigFunctions'
 
 const tempMat = new Matrix4()
 const tempQuat1 = new Quaternion()
 const tempQuat2 = new Quaternion()
+const tempQuat3 = new Quaternion()
 const tempVec1 = new Vector3()
 const tempVec2 = new Vector3()
 const tempVec3 = new Vector3()
@@ -225,7 +226,7 @@ export function computeLimb(pose: Pose, chain: Chain, ikLimb) {
 
   // TODO: Our bones are getting further apart, so we need to figure out why
   const boneA = pose.bones[chain.first()], // First Bone
-    boneB = pose.bones[chain.end_idx] // END Bone, which is not part of the chain (Hand,Foot)
+    boneB = pose.bones[chain.endIndex] // END Bone, which is not part of the chain (Hand,Foot)
 
   const aToBVector = tempVec1.subVectors(boneB.world.position, boneA.world.position) // Direction from First Bone to Final Bone ( IK Direction )
 
@@ -285,7 +286,7 @@ export function computeSpine(
   lookDirection: Vector3,
   twistDirection: Vector3
 ): void {
-  const idx_ary = [chain.first(), chain.last()],
+  const indexes = [chain.first(), chain.last()],
     lookDir = tempVec1,
     twistDir = tempVec2
 
@@ -293,7 +294,7 @@ export function computeSpine(
     poseBone: PoseBoneLocalState,
     bindBone: PoseBoneLocalState
 
-  for (const i of idx_ary) {
+  for (const i of indexes) {
     // First get reference to the Bones
     bindBone = rig.tpose.bones[i]
     poseBone = rig.pose.bones[i]
@@ -367,7 +368,7 @@ export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IK
   // Take note that vegeta and roborex's Hips are completely different but by using that inverse
   // direction trick, we are easily able to apply the same movement to both.
 
-  const parentRotation = rig.tpose.getParentRotation(boneInfo.index)
+  const parentRotation = rig.tpose.getParentRotation(boneInfo.index, tempQuat3).invert()
 
   const q = tempQuat1
     .setFromUnitVectors(FORWARD, ikPose.hip.dir) // Create Swing Rotation
@@ -378,13 +379,13 @@ export function applyHip(ikPose: ReturnType<typeof IKPoseComponent.get>, rig: IK
 
   // In the end, we need to convert to local space. Simply premul by the inverse of the parent
   // pmul_invert(q, parentRotation)
-  q.premultiply(tempQuat2.copy(parentRotation).invert())
+  q.premultiply(parentRotation)
 
   // TRANSLATION
-  const h_scl = bind.world.position.y / ikPose.hip.bind_height // Create Scale value from Src's Hip Height and Target's Hip Height
+  const hScl = bind.world.position.y / ikPose.hip.bind_height // Create Scale value from Src's Hip Height and Target's Hip Height
   const position = tempVec1
     .copy(ikPose.hip.movement)
-    .multiplyScalar(h_scl) // Scale the Translation Differnce to Match this Models Scale
+    .multiplyScalar(hScl) // Scale the Translation Differnce to Match this Models Scale
     .add(bind.world.position) // Then Add that change to the TPose Position
 
   // MAYBE we want to keep the stride distance exact, we can reset the XZ positions
@@ -429,9 +430,8 @@ export function applyLimb(
   grounding = 0
 ) {
   // Setup IK Target
-  const bindBoneData = rig.pose.bones[chain.first()]
-  const bindBone = bindBoneData.bone
-
+  //const bindBoneData = rig.pose.bones[chain.first()]
+  //const bindBone = bindBoneData.bone
   //bindBone.parent.matrixWorld.decompose(parentTransform.position, parentTransform.quaternion, parentTransform.scale)
   //bindBone.matrixWorld.decompose(childTransform.position, childTransform.quaternion, childTransform.scale)
 
@@ -466,26 +466,26 @@ export function applyLimb(
  * @param ikPose will be modified
  * @param pos
  * @param dir
- * @param up_dir
- * @param len_scl
+ * @param upDir
+ * @param lenScl
  */
 function targetFromPosDir(
   ikPose: IKPoseComponentType,
   pos: Vector3,
   dir: Vector3,
-  up_dir: Vector3,
-  len_scl: number
+  upDir: Vector3,
+  lenScl: number
 ): void {
   ikPose.startPosition.copy(pos)
   ikPose.endPosition
     .copy(dir)
-    .multiplyScalar(len_scl) // Compute End Effector
+    .multiplyScalar(lenScl) // Compute End Effector
     .add(pos)
 
-  const len_sqr = ikPose.startPosition.distanceToSquared(ikPose.endPosition)
-  ikPose.length = Math.sqrt(len_sqr)
+  const lenSqr = ikPose.startPosition.distanceToSquared(ikPose.endPosition)
+  ikPose.length = Math.sqrt(lenSqr)
 
-  ikPose.axis.fromDirection(dir, up_dir) // Target Axis
+  ikPose.axis.fromDirection(dir, upDir) // Target Axis
 }
 
 /**
@@ -513,7 +513,7 @@ export function applyLookTwist(
 
   const bindBone = rig.tpose.bones[boneInfo.index]
 
-  const parentWorldRot = rig.pose.getParentRotation(boneInfo.index)
+  const parentWorldRot = rig.pose.getParentRotation(boneInfo.index, tempQuat3)
   const boneWorldRot = tempQuat1.copy(parentWorldRot).multiply(bindBone.local.quaternion)
 
   // Next we need to get the Foot's Quaternion Inverse Direction
@@ -599,7 +599,7 @@ export function applySpine(
   // currently exist in World Space.
 
   const boneInfo = rig.pose.bones[chain.first()]
-  const parentInfo = rig.pose.bones[boneInfo.p_idx]
+  const parentInfo = rig.pose.bones[boneInfo.parentIndex]
 
   // TODO: rig.pose.get_parent_world( chain.first() )
 
@@ -613,13 +613,13 @@ export function applySpine(
   ikPose.spineParentScale.copy(parentInfo.local.scale)
   ikPose.spineChildScale.copy(boneInfo.local.scale)
 
-  const cnt = chain.cnt - 1
+  const count = chain.count - 1
 
-  for (let i = 0; i <= cnt; i++) {
+  for (let i = 0; i <= count; i++) {
     // Prepare for the Iteration
     const boneIndex = chain.chainBones[i].index // Bone Index
     const boneBind = rig.tpose.bones[boneIndex] // Bind Values of the Bone
-    const t = i / cnt // ** 2;		// The Lerp Time, be 0 on first bone, 1 at final bone, Can use curves to distribute the lerp differently
+    const t = i / count // ** 2;		// The Lerp Time, be 0 on first bone, 1 at final bone, Can use curves to distribute the lerp differently
 
     // Get bone in WS that has yet to have any rotation applied
     // childTransform.setFromAdd(parentTransform, bind);
@@ -664,7 +664,7 @@ export function applySpine(
     // rig.pose.bones[boneIndex].bone.setRotationFromQuaternion(rotation) // Save result to bone.
     // rig.pose.bones[boneIndex].local.quaternion.copy(rotation) // Save result to bone.
 
-    if (t != 1) {
+    if (t !== 1) {
       // ORIGINAL CODE is
       // this.add(ikPose.spineParentQuaternion, rotation, boneBindValue.position, boneBindValue.scale); // Compute the WS Transform for the next bone in the chain.
       const parentScaleChildPosition = tempVec1
@@ -704,27 +704,26 @@ export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
     // to get its left, then finish it off by recalculating
     // fwd to make it orthogonal. Want to try to keep the orientation
     // while ( fwd, lft ) realigning the up direction.
-    const childWorldQ = tempQuat1
-    bone.getWorldQuaternion(childWorldQ)
+    const childWorldQ = bone.getWorldQuaternion(tempQuat1)
 
     const upDir = tempVec3.copy(dir)
     const forwardDir = tempVec1.copy(FORWARD).applyQuaternion(childWorldQ) // Find Bone's Forward World Direction
     const leftDir = tempVec2.crossVectors(upDir, forwardDir).normalize() // Get World Left
     forwardDir.crossVectors(leftDir, upDir).normalize() // Realign Forward
 
-    const finalRotation = tempQuat2
     tempMat.makeBasis(leftDir, upDir, forwardDir)
-    finalRotation.setFromRotationMatrix(tempMat) // Create Rotation from rot Matrix
+    const finalRotation = tempQuat2.setFromRotationMatrix(tempMat) // Create Rotation from rot Matrix
 
     if (finalRotation.dot(childWorldQ) < 0) negateQuat(finalRotation) // Do a Inverted rotation check, negate it if under zero.
 
-    const parentWorldQ = tempQuat1
-    bone.getWorldQuaternion(parentWorldQ)
+    const parentWorldQ = bone.getWorldQuaternion(tempQuat1)
+    const parentWorldQInv = tempQuat3.copy(parentWorldQ).invert()
 
     //r.pmul( q.from_invert( pt.rot ) );		// Move rotation to local space
-    pmulInvert(finalRotation, parentWorldQ) // Move rotation to local space
+    finalRotation.premultiply(parentWorldQInv)
+
     // pose.set_bone( bone.idx, finalRotation );					// Update Pose with new ls rotation
-    bone.setRotationFromQuaternion(finalRotation)
+    bone.quaternion.copy(finalRotation)
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // If not the last bone, take then the new rotation to calc the next parents
@@ -763,42 +762,11 @@ export function alignChain(pose: Pose, dir: Vector3, boneNames: string[]) {
   pose.skeleton.update()
 }
 
-export function pmulInvert(qOut: Quaternion, q: Quaternion) {
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // q.invert()
-  let ax = q.x,
-    ay = q.y,
-    az = q.z,
-    aw = q.w
-  const dot = ax * ax + ay * ay + az * az + aw * aw
-
-  if (dot == 0) {
-    ax = ay = az = aw = 0
-  } else {
-    const dotInv = 1.0 / dot
-    ax = -ax * dotInv
-    ay = -ay * dotInv
-    az = -az * dotInv
-    aw = aw * dotInv
-  }
-
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Quat.mul( a, b );
-  const bx = qOut.x,
-    by = qOut.y,
-    bz = qOut.z,
-    bw = qOut.w
-  qOut.x = ax * bw + aw * bx + ay * bz - az * by
-  qOut.y = ay * bw + aw * by + az * bx - ax * bz
-  qOut.z = az * bw + aw * bz + ax * by - ay * bx
-  qOut.w = aw * bw - ax * bx - ay * by - az * bz
-}
-
 export function negateQuat(q: Quaternion): Quaternion {
   q.x = -q.x
   q.y = -q.y
   q.z = -q.z
-  q.w = -q.w
+  q.w = -q.w // Is this correct? This negation results in same rotation
   return q
 }
 
@@ -816,40 +784,20 @@ export function spinBoneForward(pose: Pose, boneName: string) {
 
   const b = boneState.bone
 
-  const parentWorldQuaternion = tempQuat2.identity()
-  b.parent?.getWorldQuaternion(parentWorldQuaternion)
+  const parentWorldQuaternion = b.parent?.getWorldQuaternion(tempQuat2)
 
   b.position.copy(v).add(tempVec2.set(0, boneState.length, 0))
 
   //v.multiply(scl) ??
-  v.applyQuaternion(parentWorldQuaternion)
+  v.applyQuaternion(parentWorldQuaternion!)
 
   // v.sub( b.position );							// Get The direction to the tail
   v.x = 0 // Flatten vector to 2D by removing Y Position
   v.normalize() // Make it a unit vector
   q.setFromUnitVectors(v, FORWARD) // Rotation needed to point the foot forward.
   q.multiply(b.quaternion) // Move WS Foot to point forward
-  pmulInvert(q, b.quaternion) // To Local Space
-  pose.setBone(boneState.idx, q) // Save to Pose
-}
-
-export function pmulAxisAngle(out, axis, angle) {
-  const half = angle * 0.5,
-    s = Math.sin(half),
-    ax = axis.x * s, // A Quat based on Axis Angle
-    ay = axis.y * s,
-    az = axis.z * s,
-    aw = Math.cos(half),
-    bx = out.x, // B of mul
-    by = out.y,
-    bz = out.z,
-    bw = out.w
-
-  // Quat.mul( a, b );
-  out.x = ax * bw + aw * bx + ay * bz - az * by
-  out.y = ay * bw + aw * by + az * bx - ax * bz
-  out.z = az * bw + aw * bz + ax * by - ay * bx
-  out.w = aw * bw - ax * bx - ay * by - az * bz
+  q.premultiply(tempQuat2.copy(b.quaternion).invert()) // To Local Space
+  pose.setBone(boneState.index, q) // Save to Pose
 }
 
 export function alignBoneForward(pose: Pose, boneName: string) {
@@ -866,37 +814,14 @@ export function alignBoneForward(pose: Pose, boneName: string) {
 
   const b = boneState.bone
 
-  const parentWorldQuaternion = tempQuat2.identity()
-  b.parent?.getWorldQuaternion(parentWorldQuaternion)
+  const parentWorldQuaternion = b.parent?.getWorldQuaternion(tempQuat2).invert()
 
-  fromQuat(v, b.quaternion, UP) // Get Bone's WS UP Direction
-
+  //fromQuat(v, b.quaternion, UP) // Get Bone's WS UP Direction
+  v.copy(UP).applyQuaternion(b.quaternion)
   q.setFromUnitVectors(v, FORWARD) // Difference between Current UP and WS Forward
   q.multiply(b.quaternion) // PreMul Difference to Current Rotation
-  pmulInvert(q, parentWorldQuaternion) // Convert to Local Space
-
-  pose.setBone(boneState.idx, q) // Save to Pose
-}
-
-function fromQuat(out: Vector3, q: Quaternion, v: Vector3) {
-  const qx = q.x,
-    qy = q.y,
-    qz = q.z,
-    qw = q.w,
-    vx = v.x,
-    vy = v.y,
-    vz = v.z,
-    x1 = qy * vz - qz * vy,
-    y1 = qz * vx - qx * vz,
-    z1 = qx * vy - qy * vx,
-    x2 = qw * x1 + qy * z1 - qz * y1,
-    y2 = qw * y1 + qz * x1 - qx * z1,
-    z2 = qw * z1 + qx * y1 - qy * x1
-
-  out.x = vx + 2 * x2
-  out.y = vy + 2 * y2
-  out.z = vz + 2 * z2
-  return out
+  q.premultiply(parentWorldQuaternion!) // Convert to Local Space
+  pose.setBone(boneState.index, q) // Save to Pose
 }
 
 /**
@@ -918,14 +843,12 @@ export function computeSwingAndTwist(
 ) {
   const quatInverse = tempQuat1.copy(target).invert(),
     altForward = tempVec1.copy(forward).applyQuaternion(quatInverse),
-    altUp = tempVec2.copy(up).applyQuaternion(quatInverse)
-
-  const poseForward = altForward.applyQuaternion(source),
-    poseUp = altUp.applyQuaternion(source)
-
-  const swing = tempQuat1
-    .setFromUnitVectors(forward, poseForward) // First we create a swing rotation from one dir to the other.
-    .multiply(target) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
+    altUp = tempVec2.copy(up).applyQuaternion(quatInverse),
+    poseForward = altForward.applyQuaternion(source),
+    poseUp = altUp.applyQuaternion(source),
+    swing = tempQuat1
+      .setFromUnitVectors(forward, poseForward) // First we create a swing rotation from one dir to the other.
+      .multiply(target) // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
   // a new Up direction based on only swing.
   const swingUp = tempVec3.copy(up).applyQuaternion(swing)
@@ -946,12 +869,9 @@ export function computeSwingAndTwist(
  * @param originalForward
  */
 export function applySwingAndTwist(target: Quaternion, swing: Quaternion, twist: number, originalForward: Vector3) {
-  const p = tempQuat1.copy(target)
   target.premultiply(swing) // PreMultiply our swing rotation to our target's current rotation.
-
-  target.premultiply(tempQuat2.setFromAxisAngle(originalForward, twist))
-
-  pmulInvert(target, p)
+  target.premultiply(tempQuat1.setFromAxisAngle(originalForward, twist))
+  target.premultiply(tempQuat1.copy(target).invert())
 }
 
 /**

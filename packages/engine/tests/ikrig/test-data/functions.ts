@@ -113,12 +113,12 @@ export function adoptBones(rawBones: fungiSerializedPoseBones[]): PoseBoneLocalS
     const bone = new Bone()
     const state: PoseBoneLocalState = {
       bone,
-      idx: rawBone.idx,
-      p_idx: rawBone.p_idx,
+      index: rawBone.idx,
+      parentIndex: rawBone.p_idx,
       name: rawBone.name,
       length: rawBone.len,
       parent: null,
-      chg_state: rawBone.chg_state,
+      changeState: rawBone.chg_state,
       local: {
         position: vector3FromSerialized(rawBone.local.pos),
         quaternion: quaternionFromSerialized(rawBone.local.rot),
@@ -139,8 +139,8 @@ export function adoptBones(rawBones: fungiSerializedPoseBones[]): PoseBoneLocalS
   })
 
   bonesData.forEach((boneData) => {
-    if (boneData.p_idx !== null) {
-      const parent = bonesData[boneData.p_idx].bone
+    if (boneData.parentIndex !== null) {
+      const parent = bonesData[boneData.parentIndex].bone
       boneData.parent = parent
       parent.add(boneData.bone)
     }

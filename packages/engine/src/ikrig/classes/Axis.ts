@@ -23,12 +23,12 @@ export class Axis {
     this.z = new Vector3().copy(FORWARD)
   }
   //Passing in Vectors.
-  set(x, y, z, do_norm = false) {
+  set(x: Vector3, y: Vector3, z: Vector3, normalize: boolean = false) {
     this.x.copy(x)
     this.y.copy(y)
     this.z.copy(z)
 
-    if (do_norm) {
+    if (normalize) {
       this.x.normalize()
       this.y.normalize()
       this.z.normalize()
@@ -36,19 +36,17 @@ export class Axis {
     return this
   }
 
-  fromDirection(fwd, up) {
-    this.z.copy(fwd).normalize()
+  fromDirection(forward: Vector3, up: Vector3): Axis {
+    this.z.copy(forward).normalize()
     this.x.copy(up).cross(this.z).normalize()
     this.y.copy(this.z).cross(this.x).normalize()
     return this
   }
 
-  rotate(rad, axis = 'x', out: any = null) {
-    out = out || this
-
+  rotate(rad: number, axis: 'x' | 'y' | 'z' = 'x'): Axis {
     const sin = Math.sin(rad),
       cos = Math.cos(rad)
-    let x, y, z
+    let x: number, y: number, z: number
 
     switch (axis) {
       case 'y': //..........................
@@ -86,6 +84,6 @@ export class Axis {
         break
     }
 
-    return out
+    return this
   }
 }

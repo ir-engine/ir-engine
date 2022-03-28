@@ -18,9 +18,9 @@ export type BoneTransform = {
 export type PoseBoneLocalState = {
   bone: Bone
   parent: Bone | null
-  chg_state: number // If Local Has Been Updated
-  idx: number // Bone Index in Armature
-  p_idx: number // Parent Bone Index in Armature
+  changeState: number // If Local Has Been Updated
+  index: number // Bone Index in Armature
+  parentIndex: number // Parent Bone Index in Armature
   length: number // Length of Bone
   name: string
   local: BoneTransform // Local Transform, use Bind pose as default
@@ -37,36 +37,36 @@ class Pose {
   bones: PoseBoneLocalState[]
   rootOffset = {
     quaternion: new Quaternion(),
-    position: new Vector3(0, 0, 0),
+    position: new Vector3(),
     scale: new Vector3(1, 1, 1)
   }
   helper: any
 
-  alignLeg(b_names: string[]) {
-    alignChain(this, DOWN, b_names)
+  alignLeg(boneNames: string[]) {
+    alignChain(this, DOWN, boneNames)
     return this
   }
-  alignArmLeft(b_names: string[]) {
-    alignChain(this, LEFT, b_names)
+  alignArmLeft(boneNames: string[]) {
+    alignChain(this, LEFT, boneNames)
     return this
   }
-  alignArmRight(b_names: string[]) {
-    alignChain(this, RIGHT, b_names)
-    return this
-  }
-
-  alignFoot(b_name: string) {
-    spinBoneForward(this, b_name)
-    alignBoneForward(this, b_name)
+  alignArmRight(boneNames: string[]) {
+    alignChain(this, RIGHT, boneNames)
     return this
   }
 
-  spinBoneForward(b_name: string) {
-    spinBoneForward(this, b_name)
+  alignFoot(boneName: string) {
+    spinBoneForward(this, boneName)
+    alignBoneForward(this, boneName)
     return this
   }
-  alignBoneForward(b_name: string) {
-    alignBoneForward(this, b_name)
+
+  spinBoneForward(boneName: string) {
+    spinBoneForward(this, boneName)
+    return this
+  }
+  alignBoneForward(boneName: string) {
+    alignBoneForward(this, boneName)
     return this
   }
 
@@ -121,18 +121,18 @@ class Pose {
 
     for (let i = 0; i < this.skeleton.bones.length; i++) {
       const bone = this.skeleton.bones[i]
-      let p_idx, boneParent
+      let parentIndex, boneParent
       if (bone.parent && bone.parent instanceof Bone) {
-        p_idx = this.skeleton.bones.indexOf(bone.parent)
+        parentIndex = this.skeleton.bones.indexOf(bone.parent)
         boneParent = bone.parent
       }
 
       const boneData = {
         bone,
         parent: boneParent,
-        chg_state: 0, // If Local Has Been Updated
-        idx: i, // Bone Index in Armature
-        p_idx: p_idx, // Parent Bone Index in Armature
+        changeState: 0, // If Local Has Been Updated
+        index: i, // Bone Index in Armature
+        parentIndex, // Parent Bone Index in Armature
         length: 0.1, // Length of Bone
         name: bone.name,
         local: {
@@ -174,8 +174,8 @@ class Pose {
   getAllSkeleton(rootObject: Object3D): Skeleton | null {
     let bones: any[] = []
 
-    rootObject.traverse((object) => {
-      if (object instanceof SkinnedMesh && object.skeleton != null) {
+    rootObject.traverse((object: SkinnedMesh) => {
+      if (object.isSkinnedMesh && object.skeleton !== null) {
         object.skeleton.bones.forEach((bone) => {
           if (bones.indexOf(bone) == -1) {
             if (bone.parent && bone.parent.type !== 'Bone') {
@@ -212,8 +212,8 @@ class Pose {
   getSkeleton(rootObject: Object3D): Skeleton | null {
     let skeleton: Skeleton | null = null
 
-    rootObject.traverse((object) => {
-      if (object instanceof SkinnedMesh && object.skeleton != null) {
+    rootObject.traverse((object: SkinnedMesh) => {
+      if (object.isSkinnedMesh && object.skeleton !== null) {
         if (skeleton && skeleton.bones.length > object.skeleton.bones.length) {
           return
         }
@@ -248,107 +248,48 @@ class Pose {
     // Copies modified LquatInverseocal Transforms of the Pose to the Bone Entities.
     // const targetSkeleton: Skeleton = getComponent(this.entity, IKObj).ref.skeleton
 
-    let pb: PoseBoneLocalState, // Pose Bone
-      o: Bone // Bone Object
+    let poseBone: PoseBoneLocalState, // Pose Bone
+      bone: Bone // Bone Object
     for (let i = 0; i < this.skeleton.bones.length; i++) {
-      pb = this.bones[i]
+      poseBone = this.bones[i]
 
       // Check if bone has been modified in the pose
-      o = this.skeleton.bones[i]
+      bone = this.skeleton.bones[i]
       // Copy changes to Bone Entity
       // o.setRotationFromQuaternion(pb.quaternion)
 
-      o.quaternion.copy(pb.local.quaternion)
-      o.position.copy(pb.local.position)
-      o.scale.copy(pb.local.scale)
+      bone.quaternion.copy(poseBone.local.quaternion)
+      bone.position.copy(poseBone.local.position)
+      bone.scale.copy(poseBone.local.scale)
     }
     this.skeleton.update()
     // targetSkeleton.update()
     return this
   }
 
-  // If these are temp vars okay, but these might need to move to the bones?? Do we need these if we have world poses on bones?
-  parentQuaternion = new Quaternion()
-  parentScale = new Vector3(1, 1, 1)
-  parentPosition = new Vector3(0, 0, 0)
-
-  childQuaternion = new Quaternion()
-  childScale = new Vector3(1, 1, 1)
-  childPosition = new Vector3(0, 0, 0)
-
-  // Make sure this is properly named
-  setChildFromParent(parent: Object3D, child: Object3D): Pose {
-    // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
-    // TODO: Make sure this matrix isn't flipped
-    const v: Vector3 = new Vector3()
-      .copy(parent.scale)
-      .multiply(child.position) // parent.scale * child.position;
-      .applyQuaternion(parent.quaternion) //Vec3.transformQuat( v, tp.quaternion, v );
-    this.childPosition = new Vector3().copy(parent.position).add(v) // Vec3.add( tp.position, v, this.position );
-
-    // SCALE - parent.scale * child.scale
-    // TODO: not flipped, right?
-    this.childScale = new Vector3().copy(parent.scale).multiply(child.scale)
-
-    // ROTATION - parent.quaternion * child.quaternion
-    this.childQuaternion = new Quaternion().copy(parent.quaternion).multiply(child.quaternion)
-
-    return this
-  }
-
-  getParentRotation(boneIndex: number): Quaternion {
-    // // ORIGINAL CODE
-    // // get_parent_rot( b_idx, q=null ){
-    // // 	let cbone = this.bones[ b_idx ];
-    // // 	q = q || new Quat();
-    //
-    // const bone = this.skeleton.bones[this.bones[boneIndex].idx]
-    // const q = new Quaternion()
-    //
-    // // ORIGINAL CODE
-    // //if( cbone.p_idx == null ) q.reset();
-    // // Child is a Root Bone, just reset since there is no parent.
-    // if (bone.parent == null) q.identity()
-    // else {
-    //   // ORIGINAL CODE
-    //   // let b = this.bones[ cbone.p_idx ];
-    //   // 	q.copy( b.local.rot );
-    //
-    //   // 	while( b.p_idx != null ){
-    //   // 		b = this.bones[ b.p_idx ];
-    //   // 		q.pmul( b.local.rot );
-    //   // 	}
-    //   // Parents Exist, loop till reaching the root
-    //   let b = bone.parent
-    //   q.copy(b.quaternion)
-    //   while (b.parent != null && b.parent.type === 'Bone') {
-    //     b = b.parent
-    //     q.premultiply(b.quaternion)
-    //   }
-    // }
-    // // ORIGINAL CODE
-    // // q.pmul( this.root_offset.rot ); // Add Starting Offset
-    // q.premultiply(this.rootOffset.quaternion) // Add Starting Offset
+  getParentRotation(boneIndex: number, outQuat: Quaternion): Quaternion {
     const cbone = this.bones[boneIndex]
-    const q = new Quaternion()
+    outQuat.identity()
+
+    //TODO: Prevent re-calculation of the chain on every call
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Child is a Root Bone, just reset since there is no parent.
-    if (cbone.p_idx == null) q.identity()
+    if (cbone.parentIndex == null) outQuat.identity()
     else {
       // Parents Exist, loop till reaching the root
-      let b = this.bones[cbone.p_idx]
-      q.copy(b.local.quaternion)
+      let b = this.bones[cbone.parentIndex]
+      outQuat.copy(b.local.quaternion)
 
-      while (b.p_idx != null) {
-        b = this.bones[b.p_idx]
-        q.premultiply(b.local.quaternion)
+      while (b.parentIndex != null) {
+        b = this.bones[b.parentIndex]
+        outQuat.premultiply(b.local.quaternion)
       }
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    q.premultiply(this.rootOffset.quaternion) // Add Starting Offset
-    return q
+    outQuat.premultiply(this.rootOffset.quaternion) // Add Starting Offset
+    return outQuat
   }
 
   transformAddRev(pt: BoneTransform, ct: BoneTransform) {
@@ -361,25 +302,25 @@ class Pose {
     pt.quaternion.premultiply(ct.quaternion) // Must Rotate from Parent->Child, need PMUL
   }
 
-  getParentWorld(b_idx: number, pt: BoneTransform, ct: BoneTransform, t_offset?: BoneTransform) {
-    const cbone = this.bones[b_idx]
+  getParentWorld(boneIndex: number, pt: BoneTransform, ct: BoneTransform, t_offset?: BoneTransform) {
+    const cbone = this.bones[boneIndex]
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    //TODO: Prevent re-calculation of the chain on every call
 
     // Child is a Root Bone, just reset since there is no parent.
-    if (cbone.p_idx == null) {
-      pt.position.set(0, 0, 0)
-      pt.scale.set(0, 0, 0)
-      pt.quaternion.set(0, 0, 0, 0)
+    if (cbone.parentIndex == null) {
+      pt.position.setScalar(0)
+      pt.scale.setScalar(0)
+      pt.quaternion.identity()
     } else {
       // Parents Exist, loop till reaching the root
-      let b = this.bones[cbone.p_idx]
+      let b = this.bones[cbone.parentIndex]
       pt.position.copy(b.local.position)
       pt.scale.copy(b.local.scale)
       pt.quaternion.copy(b.local.quaternion)
 
-      while (b.p_idx != null) {
-        b = this.bones[b.p_idx]
+      while (b.parentIndex != null) {
+        b = this.bones[b.parentIndex]
         this.transformAddRev(pt, b.local)
       }
     }
@@ -396,7 +337,6 @@ class Pose {
       ct.scale.copy(pt.scale)
       ct.quaternion.copy(pt.quaternion)
       transformAdd(ct, cbone.local) // Requesting Child WS Info Too
-      // ct.from_add(pt, cbone.local) // Requesting Child WS Info Too
     }
 
     return pt

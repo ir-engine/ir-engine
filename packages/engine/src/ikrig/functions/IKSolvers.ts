@@ -28,21 +28,24 @@ const tempQuat3 = new Quaternion()
 const tempVec1 = new Vector3()
 const tempVec2 = new Vector3()
 const tempVec3 = new Vector3()
+const rot = new Quaternion()
+const rot2 = new Quaternion()
+const rotationMatrix = new Matrix4()
 
 /**
  *
  * @param chain
- * @param tpose
+ * @param tPose
  * @param pose
  * @param axis IKPose.target.axis
  * @param cLen IKPose.target.len
- * @param p_wt parent world transform
+ * @param pwt parent world transform
  */
-export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: BoneTransform) {
+export function solveLimb(chain: Chain, tPose: Pose, pose: Pose, axis: Axis, cLen: number, pwt: BoneTransform) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Using law of cos SSS, we need the length of all sides of the triangle
-  let bindA = tpose.bones[chain.chainBones[0].index], // Bone Reference from Bind
-    bindB = tpose.bones[chain.chainBones[1].index],
+  let bindA = tPose.bones[chain.chainBones[0].index], // Bone Reference from Bind
+    bindB = tPose.bones[chain.chainBones[1].index],
     poseA = pose.bones[chain.chainBones[0].index], // Bone Reference from Pose
     poseB = pose.bones[chain.chainBones[1].index],
     aLen = bindA.length,
@@ -52,7 +55,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // FIRST BONE - Aim then rotate by the angle.
-  _aim_bone2(chain, tpose, axis, p_wt, rot) // Aim the first bone toward the target oriented with the bend direction.
+  aimBone2(chain, tPose, axis, pwt, rot) // Aim the first bone toward the target oriented with the bend direction.
 
   const rotAfterAim = tempQuat2.copy(rot)
   const acbLen = { aLen, cLen, bLen }
@@ -63,14 +66,14 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
 
   rot
     .premultiply(tempQuat3.setFromAxisAngle(axis.x, -rad)) // Use the Target's X axis for rotation along with the angle from SSS
-    .premultiply(tempQuat3.copy(p_wt.quaternion).invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
+    .premultiply(tempQuat3.copy(pwt.quaternion).invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
 
-  pose.setBone(bindA.idx, rot) // Save result to bone.
+  pose.setBone(bindA.index, rot) // Save result to bone.
   // Update World Data for future use
 
-  poseA.world.position.copy(p_wt.position)
-  poseA.world.quaternion.copy(p_wt.quaternion)
-  poseA.world.scale.copy(p_wt.scale)
+  poseA.world.position.copy(pwt.position)
+  poseA.world.quaternion.copy(pwt.quaternion)
+  poseA.world.scale.copy(pwt.scale)
   transformAdd(
     // transform
     poseA.world,
@@ -94,7 +97,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
     .premultiply(tempQuat3.setFromAxisAngle(axis.x, rad)) // Rotate it by the target's x-axis
     .premultiply(tempQuat3.copy(poseA.world.quaternion).invert()) // Convert to Bone's Local Space
 
-  pose.setBone(bindB.idx, rot) // Save result to bone.
+  pose.setBone(bindB.index, rot) // Save result to bone.
 
   // Update World Data for future use
   poseB.world.position.copy(poseA.world.position)
@@ -121,7 +124,7 @@ export function solveLimb(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLe
   }
 }
 
-export function solveThreeBone(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, p_wt: BoneTransform) {
+export function solveThreeBone(chain: Chain, tpose: Pose, pose: Pose, axis: Axis, cLen: number, pwt: BoneTransform) {
   //------------------------------------
   // Get the length of the bones, the calculate the ratio length for the bones based on the chain length
   // The 3 bones when placed in a zig-zag pattern creates a Parallelogram shape. We can break the shape down into two triangles
@@ -131,78 +134,76 @@ export function solveThreeBone(chain: Chain, tpose: Pose, pose: Pose, axis: Axis
   // both triangles, but if bones are uneven, then we need to solve an angle for each triangle which this function does.
 
   //------------------------------------
-  let bind_a = tpose.bones[chain.chainBones[0].index], // Bone Reference from Bind
-    bind_b = tpose.bones[chain.chainBones[1].index],
-    bind_c = tpose.bones[chain.chainBones[2].index],
-    pose_a = pose.bones[chain.chainBones[0].index], // Bone Reference from Pose
-    pose_b = pose.bones[chain.chainBones[1].index],
-    pose_c = pose.bones[chain.chainBones[2].index],
-    a_len = bind_a.length, // First Bone length
-    b_len = bind_b.length, // Second Bone Length
-    c_len = bind_c.length, // Third Bone Length
-    bh_len = bind_b.length * 0.5, // How Much of Bone 2 to use with Bone 1
-    t_ratio = (a_len + bh_len) / (a_len + b_len + c_len), // How much to subdivide the Target length between the two triangles
-    ta_len = cLen * t_ratio, // Goes with A & B
-    tb_len = cLen - ta_len, // Goes with B & C
-    rot = new Quaternion(),
-    rad
+  let bindBoneA = tpose.bones[chain.chainBones[0].index], // Bone Reference from Bind
+    bindBoneB = tpose.bones[chain.chainBones[1].index],
+    bindBoneC = tpose.bones[chain.chainBones[2].index],
+    boneA = pose.bones[chain.chainBones[0].index], // Bone Reference from Pose
+    boneB = pose.bones[chain.chainBones[1].index],
+    boneC = pose.bones[chain.chainBones[2].index],
+    aLen = bindBoneA.length, // First Bone length
+    bLen = bindBoneB.length, // Second Bone Length
+    c_len = bindBoneC.length, // Third Bone Length
+    bhLen = bindBoneB.length * 0.5, // How Much of Bone 2 to use with Bone 1
+    tRatio = (aLen + bhLen) / (aLen + bLen + c_len), // How much to subdivide the Target length between the two triangles
+    taLen = cLen * tRatio, // Goes with A & B
+    tbLen = cLen - taLen, // Goes with B & C
+    rot = tempQuat1
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Bone A
-  _aim_bone2(chain, tpose, axis, p_wt, rot) // Aim the first bone toward the target oriented with the bend direction.
+  aimBone2(chain, tpose, axis, pwt, rot) // Aim the first bone toward the target oriented with the bend direction.
 
-  rad = cosSSS(a_len, ta_len, bh_len) // Get the Angle between First Bone and Target.
+  let rad = cosSSS(aLen, taLen, bhLen) // Get the Angle between First Bone and Target.
   rot
     .premultiply(quat.setFromAxisAngle(axis.x, -rad)) // Rotate the the aimed bone by the angle from SSS
-    .premultiply(quat.copy(p_wt.quaternion).invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
+    .premultiply(quat.copy(pwt.quaternion).invert()) // Convert to Bone's Local Space by mul invert of parent bone rotation
 
-  pose.setBone(bind_a.idx, rot)
+  pose.setBone(bindBoneA.index, rot)
 
-  pose_a.world.position.copy(p_wt.position)
-  pose_a.world.quaternion.copy(p_wt.quaternion)
-  pose_a.world.scale.copy(p_wt.scale)
+  boneA.world.position.copy(pwt.position)
+  boneA.world.quaternion.copy(pwt.quaternion)
+  boneA.world.scale.copy(pwt.scale)
 
-  transformAdd(pose_a.world, { ...bind_a.local, quaternion: rot })
+  transformAdd(boneA.world, { ...bindBoneA.local, quaternion: rot })
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Bone B
-  rad = Math.PI - cosSSS(a_len, bh_len, ta_len)
+  rad = Math.PI - cosSSS(aLen, bhLen, taLen)
 
   rot
-    .copy(pose_a.world.quaternion)
-    .multiply(bind_b.local.quaternion) // Add Bone Local to get its WS rot
+    .copy(boneA.world.quaternion)
+    .multiply(bindBoneB.local.quaternion) // Add Bone Local to get its WS rot
     .premultiply(quat.setFromAxisAngle(axis.x, rad)) // Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-    .premultiply(quat.copy(pose_a.world.quaternion).invert()) // Convert to Local Space in temp to save WS rot for next bone.
+    .premultiply(quat.copy(boneA.world.quaternion).invert()) // Convert to Local Space in temp to save WS rot for next bone.
 
-  pose.setBone(bind_b.idx, rot)
+  pose.setBone(bindBoneB.index, rot)
 
-  pose_b.world.position.copy(pose_a.world.position)
-  pose_b.world.quaternion.copy(pose_a.world.quaternion)
-  pose_b.world.scale.copy(pose_a.world.scale)
+  boneB.world.position.copy(boneA.world.position)
+  boneB.world.quaternion.copy(boneA.world.quaternion)
+  boneB.world.scale.copy(boneA.world.scale)
 
-  transformAdd(pose_b.world, { ...bind_b.local, quaternion: rot })
+  transformAdd(boneB.world, { ...bindBoneB.local, quaternion: rot })
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Bone C
-  rad = Math.PI - cosSSS(c_len, bh_len, tb_len)
+  rad = Math.PI - cosSSS(c_len, bhLen, tbLen)
   rot
-    .copy(pose_b.world.quaternion)
-    .multiply(bind_c.local.quaternion) // Still contains WS from previous bone, Add next bone's local
+    .copy(boneB.world.quaternion)
+    .multiply(bindBoneC.local.quaternion) // Still contains WS from previous bone, Add next bone's local
     .premultiply(quat.setFromAxisAngle(axis.x, -rad)) // Rotate it by the target's x-axis
-    .premultiply(quat.copy(pose_b.world.quaternion).invert()) // Convert to Bone's Local Space
+    .premultiply(quat.copy(boneB.world.quaternion).invert()) // Convert to Bone's Local Space
 
-  pose.setBone(bind_c.idx, rot)
+  pose.setBone(bindBoneC.index, rot)
 
-  pose_c.world.position.copy(pose_b.world.position)
-  pose_c.world.quaternion.copy(pose_b.world.quaternion)
-  pose_c.world.scale.copy(pose_b.world.scale)
+  boneC.world.position.copy(boneB.world.position)
+  boneC.world.quaternion.copy(boneB.world.quaternion)
+  boneC.world.scale.copy(boneB.world.scale)
 
-  transformAdd(pose_c.world, { ...bind_c.local, quaternion: rot })
+  transformAdd(boneC.world, { ...bindBoneC.local, quaternion: rot })
 }
 
-// Computing Transforms, Parent -> Child
 /**
- *
+ * Computing Transforms, Parent -> Child
  * @param target target transform (will be modified)
  * @param source source transform
  */
@@ -223,10 +224,7 @@ export function transformAdd(target: BoneTransform, source: BoneTransform) {
 
 //// helpers
 
-const rot = new Quaternion()
-const rot2 = new Quaternion()
-const rotationMatrix = new Matrix4()
-function _aim_bone2(chain: Chain, tpose: Pose, axis: Axis, p_wt: BoneTransform, out: Quaternion) {
+function aimBone2(chain: Chain, tpose: Pose, axis: Axis, pwt: BoneTransform, out: Quaternion) {
   const bone = tpose.bones[chain.first()].bone
   rotationMatrix.extractRotation(bone.matrixWorld)
 

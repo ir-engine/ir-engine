@@ -7,7 +7,7 @@ import Pose from '../classes/Pose'
 import { IKObj } from '../components/IKObj'
 import { IKRigComponent, IKRigComponentType, IKRigTargetComponent } from '../components/IKRigComponent'
 import { ArmatureType } from '../enums/ArmatureType'
-import { setupMixamoIKRig, setupTRexIKRig } from './IKFunctions'
+import { setupMixamoIKRig } from './IKFunctions'
 import { IKSolverFunction, solveLimb } from './IKSolvers'
 
 export function addRig(
@@ -91,10 +91,6 @@ function _addRig(
 
 const noop = () => {}
 
-function initMixamoRig(armature, rig) {
-  console.error('initMixamoRig NOT IMPLEMENTED')
-}
-
 export function addPoint(rig: IKRigComponentType, name: string, boneName: string): void {
   const bones = rig.tpose.bones
   rig.points[name] = {
@@ -130,12 +126,12 @@ export function addChain(
     const o = { index, ref: bone, length }
 
     chain.chainBones.push(o)
-    chain.cnt++
+    chain.count++
     chain.length += length
   }
 
   if (end_name) {
-    chain.end_idx = bones.findIndex((bone) => bone.name.toLowerCase().includes(end_name.toLowerCase()))
+    chain.endIndex = bones.findIndex((bone) => bone.name.toLowerCase().includes(end_name.toLowerCase()))
   }
 
   chain.ikSolver = ikSolver ?? solveLimb
@@ -162,5 +158,4 @@ export function getRigTransform(entity: Entity) {
 
 export function setReference(entity: Entity, o: SkinnedMesh) {
   getComponent(entity, IKObj).ref = o
-  // Engine.scene.add( o );
 }
