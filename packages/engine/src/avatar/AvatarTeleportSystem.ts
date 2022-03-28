@@ -1,5 +1,3 @@
-// import { ParityValue } from 'src/common/enums/ParityValue'
-// import { getHandPosition } from 'src/xr/functions/WebXRFunctions'
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -7,18 +5,22 @@ import {
   Group,
   Line,
   LineBasicMaterial,
-  PointLight,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  TorusGeometry,
   Vector3
 } from 'three'
 
 import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
 
-import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { AvatarTeleportTagComponent} from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
+import { createEntity } from '../ecs/functions/EntityFunctions'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
 
 // Guideline parabola function
 const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
@@ -76,9 +78,15 @@ export default async function AvatarTeleportSystem(world: World) {
   const lineMaterial = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
   const guideline = new Line(lineGeometry, lineMaterial)
 
-  // The light at the end of the line
-  const guideLight = new PointLight(0xffeeaa, 0, 2)
-  Engine.scene.add(guideLight)
+  // The guide cursor at the end of the line
+  const guideCursorGeometry = new TorusGeometry( 10, 3, 16, 100 );
+  const guideCursorMaterial = new MeshBasicMaterial( { color: 0xffff00 } );
+  const guideCursorTorusMesh = new Mesh( guideCursorGeometry, guideCursorMaterial );
+  const guideCursor = new Object3D()
+  guideCursor.add(guideCursorTorusMesh)
+
+  const guideCursorEntity = createEntity()
+  addComponent(guideCursorEntity, Object3DComponent, { value: guideCursor })
 
   let guidingController = new Group()
 
@@ -88,7 +96,7 @@ export default async function AvatarTeleportSystem(world: World) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const controller = xrInputSourceComponent.controllerRightParent
       guidingController = controller
-      guideLight.intensity = 1
+      guideCursor.visible = true
       guidingController.add(guideline)
     }
 
@@ -106,8 +114,7 @@ export default async function AvatarTeleportSystem(world: World) {
         guideline.geometry.attributes.position.needsUpdate = true
 
         // Place the light and sprite near the end of the line
-        positionAtT(guideLight.position, t * 0.98, p, v, gravity)
-        // positionAtT(guideSprite.position,t*0.98,p,v,g);
+        positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
       }
     }
 
@@ -117,7 +124,7 @@ export default async function AvatarTeleportSystem(world: World) {
       const newPosition = positionAtT(tempVec1, t, p, v, gravity)
       teleportAvatar(entity, newPosition)
 
-      guideLight.intensity = 0
+      guideCursor.visible = false
       guidingController.remove(guideline)
     }
   }
