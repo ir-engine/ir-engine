@@ -379,6 +379,20 @@ export const AuthService = {
       }
     }
   },
+  loginUserMagicLink: async (token, redirectSuccess, redirectError) => {
+    const dispatch = useDispatch()
+    {
+      try {
+        const res = await client.service('login-token').find({
+          query: {
+            token: token
+          }
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  },
   logoutUser: async () => {
     const dispatch = useDispatch()
     {

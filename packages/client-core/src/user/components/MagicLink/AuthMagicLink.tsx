@@ -20,16 +20,16 @@ interface Props {
 const AuthMagicLink = (props: Props): JSX.Element => {
   const { token, type } = props
   const { t } = useTranslation()
-
+  const user = useAuthState().user
   useEffect(() => {
     if (type === 'login') {
       AuthService.loginUserByJwt(token, '/', '/')
     } else if (type === 'connection') {
-      const user = useAuthState().user
+      AuthService.loginUserMagicLink(token, '/', '/')
       if (user !== null) {
         AuthService.refreshConnections(user.id.value!)
       }
-      window.location.href = '/profile-connections'
+      // window.location.href = '/profile-connections'
     }
   }, [])
 
