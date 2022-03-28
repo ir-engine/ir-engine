@@ -4,7 +4,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
-import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
+import checkValidPosition from '@xrengine/engine/src/common/functions/checkValidPosition'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -291,7 +291,7 @@ export const handleJoinWorld = async (
         const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
         inviterUserObject3d.value.translateZ(2)
 
-        const validSpawnablePosition = checkValidPositionOnGround(inviterUserObject3d.value.position)
+        const validSpawnablePosition = checkValidPosition(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
           spawnPose = {

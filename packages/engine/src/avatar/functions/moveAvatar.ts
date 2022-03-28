@@ -1,6 +1,6 @@
 import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import checkValidPositionOnGround from '../../common/functions/checkValidPositionOnGround'
+import checkValidPosition from '../../common/functions/checkValidPosition'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -334,7 +334,7 @@ export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
     return
   }
 
-  if (checkValidPositionOnGround(newPosition)) {
+  if (checkValidPosition(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
     const controllerComponent = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight

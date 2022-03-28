@@ -21,6 +21,7 @@ import { AvatarTeleportTagComponent} from './components/AvatarTeleportTagCompone
 import { teleportAvatar } from './functions/moveAvatar'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
+import checkValidPosition from 'src/common/functions/checkValidPosition'
 
 // Guideline parabola function
 const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
@@ -89,6 +90,7 @@ export default async function AvatarTeleportSystem(world: World) {
   addComponent(guideCursorEntity, Object3DComponent, { value: guideCursor })
 
   let guidingController = new Group()
+  let canTeleport = false
 
   const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
   return () => {
@@ -98,23 +100,45 @@ export default async function AvatarTeleportSystem(world: World) {
       guidingController = controller
       guideCursor.visible = true
       guidingController.add(guideline)
+
+      lineGeometryVertices.fill(0)
     }
 
     for (const entity of avatarTeleportQuery(world)) {
       if (guidingController) {
         const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
 
-        const vertex = tempVec.set(0, 0, 0)
-        for (let i = 1; i <= lineSegments; i++) {
+        const currentVertex = tempVec.set(0, 0, 0)
+        let lastValidationData
+        let guidelineBlocked = false
+        for (let i = 1; i <= lineSegments && !guidelineBlocked; i++) {
           // set vertex to current position of the virtual ball at time t
-          positionAtT(vertex, (i * t) / lineSegments, p, v, gravity)
-          guidingController.worldToLocal(vertex)
-          vertex.toArray(lineGeometryVertices, i * 3)
+          positionAtT(currentVertex, (i * t) / lineSegments, p, v, gravity)
+          guidingController.worldToLocal(currentVertex)
+          currentVertex.toArray(lineGeometryVertices, i * 3)
+          
+          const nextVertex = positionAtT(tempVec1, ((i+1) * t) / lineSegments, p, v, gravity)
+          const direction = nextVertex.sub(currentVertex)
+
+          const validationData = checkValidPosition(currentVertex, false, direction)
+          if (!validationData.validPosition && validationData.raycastHit !== null) {
+              guidelineBlocked = true
+          }
+
+          lastValidationData = validationData
         }
+        (!guidelineBlocked && lastValidationData.validPosition) ? canTeleport = true : canTeleport = false
+
         guideline.geometry.attributes.position.needsUpdate = true
 
-        // Place the light and sprite near the end of the line
-        positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
+        if (canTeleport) {
+            // Place the cursor near the end of the line
+            guideCursor.visible = true
+            positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
+        }
+        else {
+            guideCursor.visible = false
+        }
       }
     }
 
