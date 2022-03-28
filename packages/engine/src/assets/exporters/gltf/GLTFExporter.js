@@ -580,8 +580,9 @@ class GLTFWriter {
 		const extensionsUsed = this.extensionsUsed;
 
 		try {
-
-			const json = JSON.parse( JSON.stringify( object.userData ) );
+			const uData = { gltfExtensions:object.userData.gltfExtensions }
+				
+			const json = JSON.parse( JSON.stringify( uData ) );
 
 			if ( options.includeCustomExtensions && json.gltfExtensions ) {
 
@@ -2050,10 +2051,8 @@ class GLTFWriter {
 				this.ignoreChildren(object)
 			}
 		} else {
-			//if object has no extensions and no children then ignore it
-			if (! (this.children?.length > 0)) {
-				return false
-			}
+			//if object has no extensions ignore it
+			return false
 		}
 
 		//check if object is in origin table

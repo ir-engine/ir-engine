@@ -55,7 +55,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value)
+      addComponent(entity, component, value, Engine.currentWorld, ModelComponent)
     }
   }
 
