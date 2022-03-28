@@ -26,6 +26,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   json: ComponentJson<TriggerVolumeComponentType>
 ): void => {
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
+  boxMesh.material.visible = false
   boxMesh.userData = {
     type: 'box',
     isTrigger: true,
@@ -54,11 +55,10 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     target: json.props.target,
     active: true
   })
-
-  addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld, TriggerVolumeComponent)
-  boxMesh.material.visible = false
-
-  if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
+  if (Engine.isEditor) {
+    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld, TriggerVolumeComponent)
+    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
+  }
 }
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
