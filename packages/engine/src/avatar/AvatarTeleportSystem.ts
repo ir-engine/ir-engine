@@ -14,14 +14,14 @@ import {
 
 import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
 
+import checkValidPosition from '../common/functions/checkValidPosition'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { AvatarTeleportTagComponent} from './components/AvatarTeleportTagComponent'
-import { teleportAvatar } from './functions/moveAvatar'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import checkValidPosition from 'src/common/functions/checkValidPosition'
+import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
+import { teleportAvatar } from './functions/moveAvatar'
 
 // Guideline parabola function
 const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity: Vector3): Vector3 => {
@@ -80,11 +80,14 @@ export default async function AvatarTeleportSystem(world: World) {
   const guideline = new Line(lineGeometry, lineMaterial)
 
   // The guide cursor at the end of the line
-  const guideCursorGeometry = new TorusGeometry( 10, 3, 16, 100 );
-  const guideCursorMaterial = new MeshBasicMaterial( { color: 0xffff00 } );
-  const guideCursorTorusMesh = new Mesh( guideCursorGeometry, guideCursorMaterial );
+  const guideCursorGeometry = new TorusGeometry(1, 0.1, 10, 20)
+  const guideCursorMaterial = new MeshBasicMaterial({ color: 0xffff00 })
+  const guideCursorTorusMesh = new Mesh(guideCursorGeometry, guideCursorMaterial)
   const guideCursor = new Object3D()
   guideCursor.add(guideCursorTorusMesh)
+  guideCursor.scale.set(0.2, 0.2, 0.2)
+  guideCursor.lookAt(0, 1, 0)
+  guideCursor.visible = false
 
   const guideCursorEntity = createEntity()
   addComponent(guideCursorEntity, Object3DComponent, { value: guideCursor })
@@ -116,28 +119,27 @@ export default async function AvatarTeleportSystem(world: World) {
           positionAtT(currentVertex, (i * t) / lineSegments, p, v, gravity)
           guidingController.worldToLocal(currentVertex)
           currentVertex.toArray(lineGeometryVertices, i * 3)
-          
-          const nextVertex = positionAtT(tempVec1, ((i+1) * t) / lineSegments, p, v, gravity)
+
+          const nextVertex = positionAtT(tempVec1, ((i + 1) * t) / lineSegments, p, v, gravity)
           const direction = nextVertex.sub(currentVertex)
 
           const validationData = checkValidPosition(currentVertex, false, direction)
           if (!validationData.validPosition && validationData.raycastHit !== null) {
-              guidelineBlocked = true
+            guidelineBlocked = true
           }
 
           lastValidationData = validationData
         }
-        (!guidelineBlocked && lastValidationData.validPosition) ? canTeleport = true : canTeleport = false
+        !guidelineBlocked && lastValidationData.validPosition ? (canTeleport = true) : (canTeleport = false)
 
         guideline.geometry.attributes.position.needsUpdate = true
 
         if (canTeleport) {
-            // Place the cursor near the end of the line
-            guideCursor.visible = true
-            positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
-        }
-        else {
-            guideCursor.visible = false
+          // Place the cursor near the end of the line
+          guideCursor.visible = true
+          positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
+        } else {
+          guideCursor.visible = false
         }
       }
     }
