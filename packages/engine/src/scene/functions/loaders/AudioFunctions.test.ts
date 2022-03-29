@@ -70,15 +70,6 @@ describe('AudioFunctions', () => {
   let entity: Entity
   let audioFunctions = proxyquire('./AudioFunctions', {
     '../../../common/functions/isClient': { isClient: true },
-    '../../../assets/functions/loadTexture': {
-      default: () => {
-        return {
-          then: (func: Function) => {
-            func({})
-          }
-        }
-      }
-    },
     '../../../assets/functions/loadAudio': {
       loadAudio: (url: string) => {
         return testURLs[url].buffer

@@ -11,7 +11,6 @@ import {
   Vector3
 } from 'three'
 
-import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'

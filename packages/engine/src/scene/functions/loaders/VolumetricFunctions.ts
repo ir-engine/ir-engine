@@ -63,10 +63,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
   updateVolumetric(entity, props)
 }
 
-export const updateVolumetric: ComponentUpdateFunction = async (
-  entity: Entity,
-  properties: VolumetricVideoComponentType
-) => {
+export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, properties: VolumetricVideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
   const paths = component.paths.filter((p) => p)

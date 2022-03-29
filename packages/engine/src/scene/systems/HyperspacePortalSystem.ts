@@ -21,6 +21,7 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 export default async function HyperspacePortalSystem(world: World) {
   const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
   const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
+  console.log(texture)
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
