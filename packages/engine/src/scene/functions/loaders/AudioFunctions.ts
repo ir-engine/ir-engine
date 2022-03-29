@@ -71,17 +71,16 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
     )
     obj3d.add(obj3d.userData.textureMesh)
     obj3d.userData.textureMesh.userData.disableOutline = true
+    setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
 
-    if (!audioTexture) {
+    if (audioTexture) {
+      obj3d.userData.textureMesh.material.map = audioTexture
+    } else {
       // can't use await since component should have to be deserialize for media component to work properly
       AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
         audioTexture = texture!
         obj3d.userData.textureMesh.material.map = audioTexture
-        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
       })
-    } else {
-      obj3d.userData.textureMesh.material.map = audioTexture
-      setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
     }
   }
 
