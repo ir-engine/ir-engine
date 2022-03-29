@@ -17,42 +17,13 @@ import {
 	RGBAFormat,
 	RepeatWrapping,
 	Scene,
-	Texture,
-	CompressedTexture,
-	PlaneBufferGeometry,
-	ShaderMaterial,
-	Mesh,
-	PerspectiveCamera,
-	WebGLRenderer,
-	Uniform,
-	Vector3,
-	Object3D,
-	Light,
-	Group,
-	Camera,
-	CameraHelper
+	Vector3
 } from 'three';
 
-import { SCENE_COMPONENT_MODEL } from "@xrengine/engine/src/scene/functions/loaders/ModelFunctions"
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { World } from "@xrengine/engine/src/ecs/classes/World"
-import { hasComponent } from '../../../ecs/functions/ComponentFunctions';
-import { EntityNodeComponent } from '../../../scene/components/EntityNodeComponent';
-import { SCENE_COMPONENT_GROUND_PLANE } from '../../../scene/functions/loaders/GroundPlaneFunctions';
-import { SCENE_COMPONENT_CLOUD } from '../../../scene/functions/loaders/CloudFunctions';
-import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
-import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
-import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/loaders/WaterFunctions'
-import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
-import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { regex, string } from 'ts-matches';
-import { prepareObjectForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 
 class GLTFExporter {
 
 	constructor() {
-
-
 
 		this.pluginCallbacks = [];
 
@@ -129,7 +100,7 @@ class GLTFExporter {
 
 		if ( typeof onError === 'object' ) {
 
-			console.warn( 'XREngine glTF Exporter: parse() expects options as the fourth argument now.' );
+			console.warn( 'THREE.GLTFExporter: parse() expects options as the fourth argument now.' );
 
 			options = onError;
 
@@ -176,7 +147,6 @@ const WEBGL_CONSTANTS = {
 	TRIANGLE_STRIP: 0x0005,
 	TRIANGLE_FAN: 0x0006,
 
-	BYTE: 0x1400,
 	UNSIGNED_BYTE: 0x1401,
 	UNSIGNED_SHORT: 0x1403,
 	FLOAT: 0x1406,
@@ -391,20 +361,6 @@ let cachedCanvas = null;
 class GLTFWriter {
 
 	constructor() {
-		/**
-		 * toIgnore: set of objects not to serialize
-		 * @type Set
-		 */
-		this.toIgnore = new Set()
-
-		/**
-		 * world: xre world instance
-		 * @type World
-		 */
-		this.world = useWorld()
-		this.dudNodes = new Map()
-		this.knownEntities = new Map()
-		this.setParentOps = []
 
 		this.plugins = [];
 
@@ -424,7 +380,7 @@ class GLTFWriter {
 		this.json = {
 			asset: {
 				version: '2.0',
-				generator: 'XREngine glTF Exporter'
+				generator: 'THREE.GLTFExporter'
 			}
 		};
 
@@ -580,9 +536,8 @@ class GLTFWriter {
 		const extensionsUsed = this.extensionsUsed;
 
 		try {
-			const uData = { gltfExtensions:object.userData.gltfExtensions }
-				
-			const json = JSON.parse( JSON.stringify( uData ) );
+
+			const json = JSON.parse( JSON.stringify( object.userData ) );
 
 			if ( options.includeCustomExtensions && json.gltfExtensions ) {
 
@@ -597,25 +552,13 @@ class GLTFWriter {
 
 				delete json.gltfExtensions;
 
-				for ( const [k, v] in json.entries()) {
-					if (this.toIgnore.has(v)) {
-						delete json[k]
-					}
-				}
 			}
 
 			if ( Object.keys( json ).length > 0 ) objectDef.extras = json;
 
-			//remove any helper data
-
-			if (objectDef.extras.helper) delete objectDef.extras.helper
-			if (objectDef.extras.helperModel) delete objectDef.extras.helperModel
-			if (objectDef.extras.helperBox) delete objectDef.extras.helperBox
-			if (objectDef.extras.cameraHelper) delete objectDef.extras.cameraHelper
-
 		} catch ( error ) {
 
-			console.warn( 'XREngine glTF Exporter: userData of \'' + object.name + '\' ' +
+			console.warn( 'THREE.GLTFExporter: userData of \'' + object.name + '\' ' +
 				'won\'t be serialized because of JSON.stringify error - ' + error.message );
 
 		}
@@ -745,113 +688,67 @@ class GLTFWriter {
 
 	}
 
-	buildReadableTexture( map ) {
+	buildMetalRoughTexture( metalnessMap, roughnessMap ) {
 
-		const fullscreenQuadGeometry = new PlaneBufferGeometry( 2, 2, 1, 1 );
-		const fullscreenQuadMaterial = new ShaderMaterial( {
-			uniforms: { blitTexture: new Uniform( map ) },
-			vertexShader: `
-				varying vec2 vUv;
-				void main(){
-					vUv = uv;
-					gl_Position = vec4(position.xy * 1.0,0.,.999999);
-				}`,
-			fragmentShader: `
-				uniform sampler2D blitTexture; 
-				varying vec2 vUv;
-				void main(){ 
-					gl_FragColor = vec4(vUv.xy, 0, 1);
-					gl_FragColor = texture2D( blitTexture, vUv);
-				}`
-		} );
+		if ( metalnessMap === roughnessMap ) return metalnessMap;
 
-		const fullscreenQuad = new Mesh( fullscreenQuadGeometry, fullscreenQuadMaterial );
-		fullscreenQuad.frustrumCulled = false;
+		console.warn( 'THREE.GLTFExporter: Merged metalnessMap and roughnessMap textures.' );
 
-		const temporaryCam = new PerspectiveCamera();
-		const temporaryScene = new Scene();
-		temporaryScene.add( fullscreenQuad );
+		const metalness = metalnessMap?.image;
+		const roughness = roughnessMap?.image;
 
-		const temporaryRenderer = new WebGLRenderer( { antialias: false } );
-		temporaryRenderer.setSize( map.image.width, map.image.height );
-		temporaryRenderer.clear();
-		temporaryRenderer.render( temporaryScene, temporaryCam );
+		const width = Math.max( metalness?.width || 0, roughness?.width || 0 );
+		const height = Math.max( metalness?.height || 0, roughness?.height || 0 );
 
-		return new Texture( temporaryRenderer.domElement );
+		const canvas = document.createElement( 'canvas' );
+		canvas.width = width;
+		canvas.height = height;
 
-	}
+		const context = canvas.getContext( '2d' );
+		context.fillStyle = '#00ffff';
+		context.fillRect( 0, 0, width, height );
 
-	buildORMTexture( material ) {
-		const br = (x) => this.buildReadableTexture(x)
-		const occlusion = material.aoMap?.image ? br(material.aoMap) : null
-		const roughness = material.roughnessMap?.image ? br(material.roughnessMap) : null
-		const metalness = material.metalnessMap?.image ? br(material.metalnessMap) : null
+		const composite = context.getImageData( 0, 0, width, height );
 
-		if ( occlusion === roughness && roughness === metalness ) return material.aoMap;
+		if ( metalness ) {
 
-		if ( occlusion || roughness || metalness ) {
-			
-			const width = Math.max( occlusion?.width || 0, roughness?.width || 0, metalness?.width || 0 );
-			const height = Math.max( occlusion?.height || 0, roughness?.height || 0, metalness?.height || 0 );
-			if(width > 0 && height > 0)
-			{
-				const canvas = document.createElement( 'canvas' );
-				canvas.width = width;
-				canvas.height = height;
-	
-				const context = canvas.getContext( '2d' );
-				context.fillStyle = '#ffffff';
-				context.fillRect( 0, 0, width, height );
-	
-				const composite = context.getImageData( 0, 0, width, height );
-	
-				if ( occlusion ) {
-	
-					context.drawImage( occlusion, 0, 0, width, height );
-	
-					const data = context.getImageData( 0, 0, width, height ).data;
-	
-					for ( let i = 0; i < data.length; i += 4 ) {
-	
-						composite.data[ i ] = data[ i ];
-	
-					}
-	
-				}
-	
-				if ( roughness ) {
-	
-					context.drawImage( roughness, 0, 0, width, height );
-	
-					const data = context.getImageData( 0, 0, width, height ).data;
-	
-					for ( let i = 1; i < data.length; i += 4 ) {
-	
-						composite.data[ i ] = data[ i ];
-	
-					}
-	
-				}
-	
-				if ( metalness ) {
-	
-					context.drawImage( metalness, 0, 0, width, height );
-	
-					const data = context.getImageData( 0, 0, width, height ).data;
-	
-					for ( let i = 2; i < data.length; i += 4 ) {
-	
-						composite.data[ i ] = data[ i ];
-	
-					}
-	
-				}
-	
-				context.putImageData( composite, 0, 0 );
-	
-				return new Texture( canvas );
+			context.drawImage( metalness, 0, 0, width, height );
+
+			const data = context.getImageData( 0, 0, width, height ).data;
+
+			for ( let i = 2; i < data.length; i += 4 ) {
+
+				composite.data[ i ] = data[ i ];
+
 			}
+
 		}
+
+		if ( roughness ) {
+
+			context.drawImage( roughness, 0, 0, width, height );
+
+			const data = context.getImageData( 0, 0, width, height ).data;
+
+			for ( let i = 1; i < data.length; i += 4 ) {
+
+				composite.data[ i ] = data[ i ];
+
+			}
+
+		}
+
+		context.putImageData( composite, 0, 0 );
+
+		//
+
+		const reference = metalnessMap || roughnessMap;
+
+		const texture = reference.clone();
+
+		texture.source = new Texture(canvas).source
+
+		return texture;
 
 	}
 
@@ -893,7 +790,7 @@ class GLTFWriter {
 
 		let componentSize;
 
-		if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE || componentType === WEBGL_CONSTANTS.BYTE ) {
+		if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
 
 			componentSize = 1;
 
@@ -947,10 +844,6 @@ class GLTFWriter {
 				} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
 
 					dataView.setUint8( offset, value );
-
-				} else if ( componentType === WEBGL_CONSTANTS.BYTE ) {
-
-					dataView.setInt8( offset, value );
 
 				}
 
@@ -1070,13 +963,9 @@ class GLTFWriter {
 
 			componentType = WEBGL_CONSTANTS.UNSIGNED_BYTE;
 
-		} else if ( attribute.array.constructor === Int8Array ) {
-
-			componentType = WEBGL_CONSTANTS.BYTE;
-
 		} else {
 
-			throw new Error( 'XREngine glTF Exporter: Unsupported bufferAttribute component type: ' + attribute.array.constructor );
+			throw new Error( 'THREE.GLTFExporter: Unsupported bufferAttribute component type.' );
 
 		}
 
@@ -1138,9 +1027,10 @@ class GLTFWriter {
 	 * @param  {Image} image to process
 	 * @param  {Integer} format of the image (RGBAFormat)
 	 * @param  {Boolean} flipY before writing out the image
+	 * @param  {String} mimeType export format
 	 * @return {Integer}     Index of the processed texture in the "images" array
 	 */
-	processImage( image, format, flipY ) {
+	processImage( image, format, flipY, mimeType = 'image/png' ) {
 
 		const writer = this;
 		const cache = writer.cache;
@@ -1151,8 +1041,8 @@ class GLTFWriter {
 		if ( ! cache.images.has( image ) ) cache.images.set( image, {} );
 
 		const cachedImages = cache.images.get( image );
-		const mimeType = format === RGBAFormat ? 'image/png' : 'image/jpeg';
-		const key = mimeType + ':flipY/' + ( flipY || false ).toString();
+
+		const key = mimeType + ':flipY/' + flipY.toString();
 
 		if ( cachedImages[ key ] !== undefined ) return cachedImages[ key ];
 
@@ -1187,7 +1077,7 @@ class GLTFWriter {
 
 				if ( format !== RGBAFormat ) {
 
-					console.error( 'GLTFExporter: Only RGBAFormat is supported.', image );
+					console.error( 'GLTFExporter: Only RGBAFormat is supported.' );
 
 				}
 
@@ -1283,20 +1173,13 @@ class GLTFWriter {
 
 		if ( ! json.textures ) json.textures = [];
 
+		let mimeType = map.userData.mimeType;
 
-		let modifiedMap = map;
-
-		// make non-readable textures (e.g. CompressedTexture) readable by blitting them into a new texture
-		// TODO: how to detect that a texture isn't readable?
-		if ( typeof CompressedTexture !== 'undefined' && map instanceof CompressedTexture ) {
-
-			modifiedMap = this.buildReadableTexture( map );
-
-		}
+		if ( mimeType === 'image/webp' ) mimeType = 'image/png';
 
 		const textureDef = {
 			sampler: this.processSampler( map ),
-			source: this.processImage( modifiedMap.image, modifiedMap.format, modifiedMap.flipY )
+			source: this.processImage( map.image, map.format, map.flipY, mimeType )
 		};
 
 		if ( map.name ) textureDef.name = map.name;
@@ -1364,13 +1247,13 @@ class GLTFWriter {
 
 		}
 
-		const ormTexture = this.buildORMTexture( material );
-
 		// pbrMetallicRoughness.metallicRoughnessTexture
-		if (ormTexture && ( material.metalnessMap || material.roughnessMap )) {
+		if ( material.metalnessMap || material.roughnessMap ) {
 
-			const metalRoughMapDef = { index: this.processTexture( ormTexture ) };
-			this.applyTextureTransform( metalRoughMapDef, material.metalnessMap || material.roughnessMap );
+			const metalRoughTexture = this.buildMetalRoughTexture( material.metalnessMap, material.roughnessMap );
+
+			const metalRoughMapDef = { index: this.processTexture( metalRoughTexture ) };
+			this.applyTextureTransform( metalRoughMapDef, metalRoughTexture );
 			materialDef.pbrMetallicRoughness.metallicRoughnessTexture = metalRoughMapDef;
 
 		}
@@ -1394,7 +1277,7 @@ class GLTFWriter {
 
 				emissive.multiplyScalar( 1 / maxEmissiveComponent );
 
-				console.warn( 'XREngine glTF Exporter: Some emissive components exceed 1; emissive has been limited' );
+				console.warn( 'THREE.GLTFExporter: Some emissive components exceed 1; emissive has been limited' );
 
 			}
 
@@ -1434,10 +1317,10 @@ class GLTFWriter {
 		}
 
 		// occlusionTexture
-		if (ormTexture && material.aoMap ) {
+		if ( material.aoMap ) {
 
 			const occlusionMapDef = {
-				index: this.processTexture( ormTexture ),
+				index: this.processTexture( material.aoMap ),
 				texCoord: 1
 			};
 
@@ -1544,7 +1427,7 @@ class GLTFWriter {
 
 		if ( geometry.isBufferGeometry !== true ) {
 
-			throw new Error( 'XREngine glTF Exporter: Geometry is not of type THREE.BufferGeometry.' );
+			throw new Error( 'THREE.GLTFExporter: Geometry is not of type THREE.BufferGeometry.' );
 
 		}
 
@@ -1566,7 +1449,7 @@ class GLTFWriter {
 
 		if ( originalNormal !== undefined && ! this.isNormalizedNormalAttribute( originalNormal ) ) {
 
-			console.warn( 'XREngine glTF Exporter: Creating normalized normal attribute from the non-normalized one.' );
+			console.warn( 'THREE.GLTFExporter: Creating normalized normal attribute from the non-normalized one.' );
 
 			geometry.setAttribute( 'normal', this.createNormalizedNormalAttribute( originalNormal ) );
 
@@ -1579,7 +1462,7 @@ class GLTFWriter {
 		for ( let attributeName in geometry.attributes ) {
 
 			// Ignore morph target attributes, which are exported later.
-			if ( attributeName.substr( 0, 5 ) === 'morph' ) continue;
+			if ( attributeName.slice( 0, 5 ) === 'morph' ) continue;
 
 			const attribute = geometry.attributes[ attributeName ];
 			attributeName = nameConversion[ attributeName ] || attributeName.toUpperCase();
@@ -1883,7 +1766,7 @@ class GLTFWriter {
 
 			if ( ! trackNode || ! trackProperty ) {
 
-				console.warn( 'XREngine glTF Exporter: Could not export animation track "%s".', track.name );
+				console.warn( 'THREE.GLTFExporter: Could not export animation track "%s".', track.name );
 				return null;
 
 			}
@@ -1994,77 +1877,6 @@ class GLTFWriter {
 
 	}
 
-
-	/**
-	 * 
-	 * @param {THREE.Object3D} object 
-	 * @returns {void}
-	 */
-	ignoreChildren( object ) {
-		const toCheck = new Array()
-		object.children?.forEach((child) => toCheck.push(child))
-		while(toCheck.length > 0) {
-			const child = toCheck.pop()
-			this.toIgnore.add(child)
-			child.children?.forEach((childChild) => toCheck.push(childChild))
-		}
-	}
-
-	/**
-	 * 
-	 * @param {THREE.Object3D} object 
-	 * @returns {boolean} Whether the object should be serialized
-	 */
-	shouldSerialize( object ) {
-		//check if object is already ignored
-		if(this.toIgnore.has(object)) return false
-
-		const uData = object.userData
-		//check if object is a helper
-		if(uData.isHelper) return false
-
-		//check if object is gizmo
-		if(object.rotateControls || object.scaleControls || object.translateControls) {
-			this.ignoreChildren(object)
-			this.toIgnore.add(object)
-			return false
-		}
-
-		//check if object is a light, camera, or group
-		/*const threeTypes = [Light, Camera]
-		if (threeTypes.some((threeType) => object instanceof threeType))
-			return true;*/
-		
-		const extensions = uData.gltfExtensions
-		if(extensions) {
-			//check if object is a gltf model, image, video, ground plane, water, cloud, ocean
-			const compTypes = [
-				SCENE_COMPONENT_MODEL, 
-				SCENE_COMPONENT_IMAGE,
-				SCENE_COMPONENT_VIDEO,
-				SCENE_COMPONENT_GROUND_PLANE,
-				SCENE_COMPONENT_WATER,
-				SCENE_COMPONENT_OCEAN,
-				SCENE_COMPONENT_CLOUD,
-				SCENE_COMPONENT_PORTAL]
-			if (compTypes.some((compType) => compType in extensions)) {
-				this.ignoreChildren(object)
-			}
-		} else {
-			//if object has no extensions ignore it
-			return false
-		}
-
-		//check if object is in origin table
-		if(this.world.componentOrigins.check(object)) {
-			this.ignoreChildren(object)
-			this.toIgnore.add(object)
-			return false
-		}
-
-		return true
-	}
-
 	/**
 	 * Process Object3D node
 	 * @param  {THREE.Object3D} node Object3D to processNode
@@ -2072,9 +1884,6 @@ class GLTFWriter {
 	 */
 	processNode( object ) {
 
-		//check if should serialize
-		if (!this.shouldSerialize(object)) return null
-		
 		const json = this.json;
 		const options = this.options;
 		const nodeMap = this.nodeMap;
@@ -2122,32 +1931,19 @@ class GLTFWriter {
 			}
 
 		}
-		
-		
+
 		// We don't export empty strings name because it represents no-name in Three.js.
 		if ( object.name !== '' ) nodeDef.name = String( object.name );
+
 		this.serializeUserData( object, nodeDef );
 
-		if(object.entity !== undefined) {
-			const idTable = this.world.entityTree.uuidNodeMap
-			for (const [key, value] of idTable.entries()) {
-				if(object.entity === value.entity) {
-					if (nodeDef.extras === undefined) {
-						nodeDef.extras = {}
-					}
-					nodeDef.extras["uuid"] = key
-					break
-				}
-			}
-		}
-		else if ( object.isMesh || object.isLine || object.isPoints ) {
+		if ( object.isMesh || object.isLine || object.isPoints ) {
 
 			const meshIndex = this.processMesh( object );
 
 			if ( meshIndex !== null ) nodeDef.mesh = meshIndex;
 
-		}
-		if ( object.isCamera ) {
+		} else if ( object.isCamera ) {
 
 			nodeDef.camera = this.processCamera( object );
 
@@ -2190,70 +1986,6 @@ class GLTFWriter {
 	}
 
 	/**
-	 * Recursive Get Entities (not actually recursive)
-	 * @param {Object3D} root root object to get entities from
-	 */
-	recursiveGetEntities( root ) {
-		const result = new Map()
-		const frontier = [ root ]
-		do {
-			const obj = frontier.pop()
-			if (obj.entity !== undefined && hasComponent(obj.entity, EntityNodeComponent)) {
-				result.set(obj.entity, obj)
-			}
-			obj.children?.forEach((child) => frontier.push(child))
-		} while (frontier.length > 0)
-		return result
-	}
-
-	/**
-	 * Preprocess Scene
-	 * @param {Scene} scene 
-	 */
-	preprocessScene( scene ) {
-		this.knownEntities = this.recursiveGetEntities( scene )
-		const eTree = this.world.entityTree
-		const idNodeMap = eTree.uuidNodeMap
-		
-		for (const eNode of idNodeMap.values()) {
-			if (!this.knownEntities.has(eNode.entity)) {
-				const dud = new Object3D()
-				dud.entity = eNode.entity
-				eNode.children?.forEach((child) => {
-					this.setParentOps.push({parent:eNode.entity, child:child})
-				})
-				if (eNode.parentEntity !== undefined) {
-					this.setParentOps.push({parent:eNode.parentEntity, child:eNode.entity})
-				}
-				prepareObjectForGLTFExport(dud, this.world)
-				this.knownEntities.set(dud.entity, dud)
-				this.dudNodes.set(dud.entity, dud)
-			}
-		}
-		this.setParentOps.forEach((op) => {
-			const child = this.knownEntities.get(op.child)
-			const parent = this.knownEntities.get(op.parent)
-			parent.add(child)
-		})
-	}
-	/**
-	 * Postprocess Scene
-	 * @param  {Scene} node Scene to process
-	 */
-	postprocessScene( scene ) {
-		this.setParentOps.forEach((op) => {
-			const child = this.knownEntities.get(op.child)
-			child.removeFromParent()
-		})
-		for (const dudNode of this.dudNodes.values()) {
-			scene.remove( dudNode )
-		}
-		this.setParentOps = []
-		this.dudNodes = {}
-		this.knownEntities = {}
-	}
-
-	/**
 	 * Process Scene
 	 * @param  {Scene} node Scene to process
 	 */
@@ -2261,8 +1993,6 @@ class GLTFWriter {
 
 		const json = this.json;
 		const options = this.options;
-
-		
 
 		if ( ! json.scenes ) {
 
@@ -2274,24 +2004,26 @@ class GLTFWriter {
 		const sceneDef = {};
 
 		if ( scene.name !== '' ) sceneDef.name = scene.name;
-		if (scene.uuid) sceneDef.extras = { uuid:scene.uuid }
+
 		json.scenes.push( sceneDef );
 
 		const nodes = [];
+
 		for ( let i = 0, l = scene.children.length; i < l; i ++ ) {
+
 			const child = scene.children[ i ];
+
 			if ( child.visible || options.onlyVisible === false ) {
+
 				const nodeIndex = this.processNode( child );
-				
-				if ( nodeIndex !== null ) { 
-					nodes.push( nodeIndex ) 
-				}
+
+				if ( nodeIndex !== null ) nodes.push( nodeIndex );
+
 			}
+
 		}
 
-		if ( nodes.length > 0 ) {
-			sceneDef.nodes = nodes
-		}
+		if ( nodes.length > 0 ) sceneDef.nodes = nodes;
 
 		this.serializeUserData( scene, sceneDef );
 
@@ -2338,12 +2070,12 @@ class GLTFWriter {
 		for ( let i = 0; i < input.length; i ++ ) {
 
 			if ( input[ i ] instanceof Scene ) {
-				this.preprocessScene( input [ i ] )
+
 				this.processScene( input[ i ] );
-				this.postprocessScene( input [ i ] )
+
 			} else {
 
-				continue//objectsWithoutScene.push( input[ i ] );
+				objectsWithoutScene.push( input[ i ] );
 
 			}
 
@@ -2368,8 +2100,6 @@ class GLTFWriter {
 			ext.afterParse && ext.afterParse( input );
 
 		} );
-
-
 
 	}
 
@@ -2405,7 +2135,7 @@ class GLTFLightExtension {
 
 		if ( ! light.isDirectionalLight && ! light.isPointLight && ! light.isSpotLight ) {
 
-			console.warn( 'XREngine glTF Exporter: Only directional, point, and spot lights are supported.', light );
+			console.warn( 'THREE.GLTFExporter: Only directional, point, and spot lights are supported.', light );
 			return;
 
 		}
@@ -2446,7 +2176,7 @@ class GLTFLightExtension {
 
 		if ( light.decay !== undefined && light.decay !== 2 ) {
 
-			console.warn( 'XREngine glTF Exporter: Light decay may be lost. glTF is physically-based, '
+			console.warn( 'THREE.GLTFExporter: Light decay may be lost. glTF is physically-based, '
 				+ 'and expects light.decay=2.' );
 
 		}
@@ -2457,7 +2187,7 @@ class GLTFLightExtension {
 				|| light.target.position.y !== 0
 				|| light.target.position.z !== - 1 ) ) {
 
-			console.warn( 'XREngine glTF Exporter: Light direction may be lost. For best results, '
+			console.warn( 'THREE.GLTFExporter: Light direction may be lost. For best results, '
 				+ 'make light.target a child of the light with position 0,0,-1.' );
 
 		}
@@ -2833,11 +2563,11 @@ GLTFExporter.Utils = {
 
 					// This should never happen, because glTF morph target animations
 					// affect all targets already.
-					throw new Error( 'XREngine glTF Exporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.' );
+					throw new Error( 'THREE.GLTFExporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.' );
 
 				}
 
-				console.warn( 'XREngine glTF Exporter: Morph target interpolation mode not yet supported. Using LINEAR instead.' );
+				console.warn( 'THREE.GLTFExporter: Morph target interpolation mode not yet supported. Using LINEAR instead.' );
 
 				sourceTrack = sourceTrack.clone();
 				sourceTrack.setInterpolation( InterpolateLinear );
@@ -2849,7 +2579,7 @@ GLTFExporter.Utils = {
 
 			if ( targetIndex === undefined ) {
 
-				throw new Error( 'XREngine glTF Exporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex );
+				throw new Error( 'THREE.GLTFExporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex );
 
 			}
 

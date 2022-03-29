@@ -29,7 +29,6 @@ import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
-import { OriginTable } from './OriginTable'
 
 type RemoveIndex<T> = {
   [K in keyof T as string extends K ? never : number extends K ? never : K]: T[K]
@@ -40,8 +39,6 @@ export class World {
   private constructor() {
     bitecs.createWorld(this)
     Engine.worlds.push(this)
-
-    this.componentOrigins = new OriginTable()
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
@@ -147,9 +144,6 @@ export class World {
 
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
-
-  /** Table of component origins */
-  componentOrigins: OriginTable
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()

@@ -35,19 +35,6 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   }
 
   createCollider(entity, boxMesh)
-  /*
-  addComponent(entity, Object3DComponent, { value: new Object3D() })
-
-  createColliderForObject3D(
-    entity,
-    {
-      type: 'box',
-      isTrigger: true,
-      collisionLayer: CollisionGroups.Trigger,
-      collisionMask: CollisionGroups.Default
-    },
-    false
-  )*/
 
   addComponent(entity, TriggerVolumeComponent, {
     onEnter: json.props.onEnter,
@@ -56,7 +43,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     active: true
   })
   if (Engine.isEditor) {
-    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld, TriggerVolumeComponent)
+    addComponent(entity, Object3DComponent, { value: boxMesh }, Engine.currentWorld)
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRIGGER_VOLUME)
   }
 }

@@ -228,8 +228,7 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
   args: T | SoAProxy<S>,
-  world = useWorld(),
-  srcComponent: MappedComponent<any, S> | null = null
+  world = useWorld()
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
@@ -242,9 +241,6 @@ export const addComponent = <T, S extends bitECS.ISchema>(
     }
   }
   component.set(entity, args as T & SoAProxy<S>)
-  if (srcComponent !== null) {
-    world.componentOrigins.register(entity, srcComponent, component)
-  }
   return component.get(entity)
 }
 
@@ -268,7 +264,6 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
     throw new Error('[removeComponent]: entity is undefined')
   }
   ;(component as any)._setPrevious(entity, getComponent(entity, component))
-  world.componentOrigins.remove(entity, component)
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove
 }
 

@@ -211,7 +211,7 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
   onLoad(asset)
 }
 
-export const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
+const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.publicPath + url)
 
 const load = async (
   _url: string,
