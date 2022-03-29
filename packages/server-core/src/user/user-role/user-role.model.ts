@@ -1,6 +1,6 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserRoleInterface } from '@xrengine/common/src/dbmodels/UserRole'
+import { UserRole as UserRoleInterface } from '@xrengine/common/src/interfaces/UserRole'
 
 import { Application } from '../../../declarations'
 

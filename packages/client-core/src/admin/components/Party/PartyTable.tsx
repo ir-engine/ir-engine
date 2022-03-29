@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AdminParty } from '@xrengine/common/src/interfaces/AdminParty'
+import { Party } from '@xrengine/common/src/interfaces/Party'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import { useFetchAdminParty } from '../../common/hooks/party.hooks'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
@@ -20,8 +20,8 @@ const PartyTable = (props: PartyPropsTable) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
-  const [viewModel, setViewModel] = useState(false)
-  const [partyAdmin, setPartyAdmin] = useState<AdminParty>()
+  const [viewModal, setViewModal] = useState(false)
+  const [partyAdmin, setPartyAdmin] = useState<Party>()
   const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
@@ -40,7 +40,7 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(newPage)
   }
 
-  const handleCloseModel = () => {
+  const handleCloseModal = () => {
     setPopConfirmOpen(false)
   }
 
@@ -49,13 +49,13 @@ const PartyTable = (props: PartyPropsTable) => {
     setPopConfirmOpen(false)
   }
 
-  const openViewModel = (open: boolean, party: any) => {
+  const openViewModal = (open: boolean, party: any) => {
     setPartyAdmin(party)
-    setViewModel(open)
+    setViewModal(open)
   }
 
-  const closeViewModel = () => {
-    setViewModel(false)
+  const closeViewModal = () => {
+    setViewModal(false)
     setPartyAdmin(undefined)
     setEditMode(false)
   }
@@ -64,7 +64,7 @@ const PartyTable = (props: PartyPropsTable) => {
     setEditMode(open)
   }
 
-  const createData = (el: AdminParty, id: string, instance: any, location: any): PartyData => {
+  const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
     return {
       el,
       id,
@@ -72,7 +72,7 @@ const PartyTable = (props: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => openViewModel(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={() => openViewModal(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
@@ -96,10 +96,10 @@ const PartyTable = (props: PartyPropsTable) => {
     setPage(0)
   }
 
-  const rows = adminPartyData?.map((el: AdminParty) => {
+  const rows = adminPartyData?.map((el: Party) => {
     return createData(
       el,
-      el.id,
+      el.id!,
       el?.instance?.ipAddress || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
       el.location?.name || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
     )
@@ -116,16 +116,16 @@ const PartyTable = (props: PartyPropsTable) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popConfirmOpen}
-        handleCloseModel={handleCloseModel}
+        handleCloseModal={handleCloseModal}
         submit={submitRemoveParty}
         name={partyName}
         label={t('admin:components.party.partyWithInstanceOf') as string}
       />
       <ViewParty
-        openView={viewModel}
-        closeViewModel={closeViewModel}
+        openView={viewModal}
+        closeViewModal={closeViewModal}
         partyAdmin={partyAdmin}
         editMode={editMode}
         handleEditMode={handleEditMode}

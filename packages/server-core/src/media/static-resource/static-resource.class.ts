@@ -71,7 +71,7 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
     } else return super.find(params)
   }
 
-  async remove(id: string, params?: Params): Promise<T> {
+  async remove(id: string): Promise<T> {
     return (await super.remove(id)) as T
   }
 }

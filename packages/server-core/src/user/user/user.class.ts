@@ -1,5 +1,5 @@
 import { Forbidden } from '@feathersjs/errors'
-import { Params } from '@feathersjs/feathers'
+import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
@@ -122,5 +122,9 @@ export class User<T = UserDataType> extends Service<T> {
   async create(data: any, params?: Params): Promise<T | T[]> {
     data.inviteCode = Math.random().toString(36).slice(2)
     return await super.create(data, params)
+  }
+
+  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

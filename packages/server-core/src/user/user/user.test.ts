@@ -4,7 +4,7 @@ import { v1 } from 'uuid'
 import { User } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp, serverPipe } from '../../createApp'
+import { createFeathersExpressApp } from '../../createApp'
 
 let users: any = []
 
@@ -12,7 +12,6 @@ describe('user service', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
-    serverPipe(app)
     await app.setup()
   })
 

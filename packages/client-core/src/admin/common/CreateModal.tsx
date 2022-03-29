@@ -17,7 +17,7 @@ interface Props {
   submit: () => void
 }
 
-const CreateModel = (props: Props) => {
+const CreateModal = (props: Props) => {
   const { open, handleClose, children, action, text, submit } = props
   const { t } = useTranslation()
 
@@ -51,4 +51,4 @@ const CreateModel = (props: Props) => {
   )
 }
 
-export default CreateModel
+export default CreateModal

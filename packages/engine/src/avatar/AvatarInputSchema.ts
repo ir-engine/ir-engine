@@ -2,8 +2,8 @@ import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 
+// import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
@@ -482,11 +482,11 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-    dispatchFrom(Engine.userId, () =>
-      NetworkWorldAction.spawnDebugPhysicsObject({
-        config: boxDynamicConfig // Any custom config can be provided here
-      })
-    )
+    // dispatchFrom(Engine.userId, () =>
+    //   NetworkWorldAction.spawnDebugPhysicsObject({
+    //     config: boxDynamicConfig // Any custom config can be provided here
+    //   })
+    // )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchLocal(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
   }

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
@@ -18,7 +18,7 @@ interface Props {
 const GroupTable = (props: Props) => {
   const { search } = props
   const user = useAuthState().user
-  const [viewModel, setViewModel] = useState(false)
+  const [viewModal, setViewModal] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
@@ -45,7 +45,7 @@ const GroupTable = (props: Props) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setViewModel(true)
+      setViewModal(true)
     }
   }
 
@@ -63,8 +63,8 @@ const GroupTable = (props: Props) => {
     GroupService.deleteGroupByAdmin(groupId)
   }
 
-  const closeViewModel = (open) => {
-    setViewModel(open)
+  const closeViewModal = (open) => {
+    setViewModal(open)
   }
 
   useEffect(() => {
@@ -114,15 +114,15 @@ const GroupTable = (props: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={showWarning}
-        handleCloseModel={handleCloseWarning}
+        handleCloseModal={handleCloseWarning}
         submit={deleteGroupHandler}
         name={groupName}
         label={'group'}
       />
-      {singleGroup && viewModel && (
-        <ViewGroup groupAdmin={singleGroup} openView={viewModel} closeViewModal={closeViewModel} />
+      {singleGroup && viewModal && (
+        <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />
       )}
     </React.Fragment>
   )

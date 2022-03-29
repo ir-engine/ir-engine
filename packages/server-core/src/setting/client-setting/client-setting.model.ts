@@ -50,6 +50,26 @@ export default (app: Application) => {
       icon512px: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      appBackground: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      appTitle: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      appSubtitle: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      appDescription: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      appSocialLinks: {
+        type: DataTypes.JSON,
+        allowNull: true
       }
     },
     {

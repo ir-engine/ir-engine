@@ -26,7 +26,7 @@ export const AdminAssetUploadService = {
       files,
       args
     }
-    const result = await client.service('asset-upload').create(uploadArguments)
+    const result = await client.service('upload-asset').create(uploadArguments)
     const dispatch = useDispatch()
     dispatch(AssetUploadAction.fetchedAssets(result))
   }

@@ -63,7 +63,7 @@ const Instance = () => {
       <div className={styles.rootTableWithSearch}>
         <InstanceTable search={search} />
       </div>
-      {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModel={closePatchModal} />}
+      {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModal={closePatchModal} />}
       {patch && openAlert && (
         <AlertMessage
           open

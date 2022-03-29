@@ -11,7 +11,7 @@ import Button from '@mui/material/Button'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -19,6 +19,7 @@ import ViewProjectFiles from './ViewProjectFiles'
 
 export default function ProjectTable() {
   const { t } = useTranslation()
+  const [processing, setProcessing] = useState(false)
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
   const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
@@ -37,7 +38,7 @@ export default function ProjectTable() {
         const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
-          handleCloseRemoveModel()
+          handleCloseRemoveModal()
         } else {
           throw Error('Failed to find the project')
         }
@@ -52,19 +53,29 @@ export default function ProjectTable() {
       if (project) {
         if (!project.repositoryPath && project.name !== 'default-project') return
         const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
+        setProcessing(true)
         await ProjectService.uploadProject(
           project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath
         )
+        setProcessing(false)
+        setProject(null!)
+        setPopupReuploadConfirmOpen(false)
       }
     } catch (err) {
+      setProcessing(false)
       console.log(err)
     }
   }
   const handleInvalidateCache = async () => {
     try {
       setPopupInvalidateConfirmOpen(false)
+      setProcessing(true)
       await ProjectService.invalidateProjectCache(project.name)
+      setProcessing(false)
+      setProject(null!)
+      setPopupInvalidateConfirmOpen(false)
     } catch (err) {
+      setProcessing(false)
       console.log(err)
     }
   }
@@ -92,17 +103,17 @@ export default function ProjectTable() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
 
-  const handleCloseReuploadModel = () => {
+  const handleCloseReuploadModal = () => {
     setProject(null!)
     setPopupReuploadConfirmOpen(false)
   }
 
-  const handleCloseInvalidateModel = () => {
+  const handleCloseInvalidateModal = () => {
     setProject(null!)
     setPopupInvalidateConfirmOpen(false)
   }
 
-  const handleCloseRemoveModel = () => {
+  const handleCloseRemoveModal = () => {
     setProject(null!)
     setPopupRemoveConfirmOpen(false)
   }
@@ -200,25 +211,27 @@ export default function ProjectTable() {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popupReuploadConfirmOpen}
-        handleCloseModel={handleCloseReuploadModel}
+        handleCloseModal={handleCloseReuploadModal}
         submit={tryReuploadProjects}
         name={project?.name}
         label={t('admin:components.project.project')}
         type="rebuild"
+        processing={processing}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popupInvalidateConfirmOpen}
-        handleCloseModel={handleCloseInvalidateModel}
+        handleCloseModal={handleCloseInvalidateModal}
         submit={handleInvalidateCache}
         name={project?.name}
         label={t('admin:components.project.storageProvidersCacheOf')}
         type="invalidates"
+        processing={processing}
       />
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popupRemoveConfirmOpen}
-        handleCloseModel={handleCloseRemoveModel}
+        handleCloseModal={handleCloseRemoveModal}
         submit={onRemoveProject}
         name={project?.name}
         label={t('admin:components.project.project')}
