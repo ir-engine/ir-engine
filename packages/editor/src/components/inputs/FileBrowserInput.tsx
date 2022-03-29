@@ -55,7 +55,6 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
 
   return (
     <>
-      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
       <ControlledStringInput
         ref={dropRef}
         onChange={(value, e) => onChange(value, {}, e)}
@@ -63,6 +62,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         canDrop={isOver && canDrop}
         {...rest}
       />
+      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
     </>
   )
 }
