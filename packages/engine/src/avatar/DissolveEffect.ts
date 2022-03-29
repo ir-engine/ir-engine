@@ -1,16 +1,6 @@
-import {
-  Color,
-  Mesh,
-  Object3D,
-  ShaderLib,
-  ShaderMaterial,
-  TangentSpaceNormalMap,
-  UniformsLib,
-  UniformsUtils,
-  Vector2
-} from 'three'
+import { Mesh, Object3D, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
 
-import { CustomMaterial, extendMaterial } from './ExtendMaterial'
+import { Engine } from '../ecs/classes/Engine'
 
 export class DissolveEffect {
   time = 0
@@ -55,6 +45,8 @@ export class DissolveEffect {
     const hasUV = object.geometry.hasAttribute('uv')
     const material = object.material as any
     const hasTexture = !!material.map
+    const isShaderMaterial = material.type == 'ShaderMaterial'
+    const isPhysicMaterial = material.type == 'MeshStandardMaterial'
 
     const shaderNameMapping = {
       MeshLambertMaterial: 'lambert',
@@ -78,40 +70,49 @@ export class DissolveEffect {
       diffuse: {
         value: (material as any).color
       },
-      origin_texture: {
-        value: (material as any).map
-      },
       time: {
         value: -200
       }
     }
 
-    console.error(shaderNameMapping[material.type])
+    let fragmentShader = ''
+    let vertexShader = ''
 
-    const shader = ShaderLib[shaderNameMapping[material.type] ?? 'standard']
-    let fragmentShader = shader.fragmentShader
-    let vertexShader = shader.vertexShader
+    console.error(material.type)
 
-    Object.keys(shader.uniforms).forEach((key) => {
-      if (material[key]) {
-        uniforms[key] = { value: material[key] }
-      }
-    })
+    if (isShaderMaterial) {
+      uniforms = UniformsUtils.merge([material.uniforms, uniforms])
+      fragmentShader = material.fragmentShader
+      vertexShader = material.vertexShader
+    } else {
+      // built-in material
+      const shader = ShaderLib[shaderNameMapping[material.type] ?? 'standard']
+      fragmentShader = shader.fragmentShader
+      vertexShader = shader.vertexShader
+      Object.keys(shader.uniforms).forEach((key) => {
+        if (material[key]) {
+          uniforms[key] = { value: material[key] }
+        }
+      })
+    }
 
     uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
 
     const vertexNonUVShader = `
+      #include <fog_vertex>
       vec2 clipSpace = gl_Position.xy / gl_Position.w;
       vUv3 = clipSpace * 0.5 + 0.5;
       vPosition = position.y;
-      `
+    `
 
     const vertexUVShader = `
+      #include <fog_vertex>
       vUv3 = uv;
       vPosition = position.y;
-      `
+    `
 
     const fragmentColorShader = `
+      #include <output_fragment>
       float offset = vPosition - time;
       if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
@@ -122,12 +123,13 @@ export class DissolveEffect {
       if(offset > 0.0){
       discard;
       }
-      `
+    `
 
     const fragmentTextureShader = `
+      #include <output_fragment>
       float offset = vPosition - time;
-      if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor = texture2D(origin_texture, vUv3);
+      if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor.r = 0.0;
       gl_FragColor.g = 1.0;
       gl_FragColor.b = 0.0;
@@ -135,13 +137,16 @@ export class DissolveEffect {
       if(offset > 0.0){
       discard;
       }
-      `
+    `
+
     const vertexHeaderShader = `
+      #include <clipping_planes_pars_vertex>
       varying vec2 vUv3;
       varying float vPosition;
     `
 
     const fragmentHeaderShader = `
+      #include <clipping_planes_pars_fragment>
       uniform vec3 color;
       varying vec2 vUv3;
       varying float vPosition;
@@ -151,37 +156,49 @@ export class DissolveEffect {
       float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
     `
 
-    const appendText = (text, pattern, word) => {
-      const textArray = text.split(pattern)
-      if (textArray.length != 0) {
-        const idx = textArray[0].length + pattern.length
-        return text.slice(0, idx) + word + text.slice(idx)
-      } else {
-        return text
-      }
-    }
-
-    vertexShader = appendText(vertexShader, '#include <clipping_planes_pars_vertex>', vertexHeaderShader)
-    vertexShader = appendText(vertexShader, '#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
-
-    fragmentShader = appendText(fragmentShader, '#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
-    fragmentShader = appendText(
-      fragmentShader,
+    vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
+    vertexShader = vertexShader.replace('#include <fog_vertex>', hasUV ? vertexUVShader : vertexNonUVShader)
+    fragmentShader = fragmentShader.replace('#include <clipping_planes_pars_fragment>', fragmentHeaderShader)
+    fragmentShader = fragmentShader.replace(
       '#include <output_fragment>',
       hasTexture ? fragmentTextureShader : fragmentColorShader
     )
 
-    const myMaterial = new ShaderMaterial({
-      uniforms,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      lights: true
-    })
+    if (isShaderMaterial) {
+      material.vertexShader = vertexShader
+      material.fragmentShader = fragmentShader
+      material.uniforms = uniforms
+      material.needsUpdate = true
+      return material
+    } else {
+      const myMaterial = new ShaderMaterial({
+        uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        lights: true,
+        fog: false
+      })
 
-    console.error(uniforms)
+      if (myMaterial.uniforms.map) {
+        myMaterial.uniforms.map.value = (material as any).map
+      }
 
-    return myMaterial
+      myMaterial.uniforms.origin_texture = {
+        value: (material as any).map
+      }
+      if (isPhysicMaterial) {
+        //@ts-ignore
+        myMaterial.envMap = Engine.scene.environment
+        //@ts-ignore
+        myMaterial.envMapIntensity = { value: 1 }
+        myMaterial.uniforms.envMap = {
+          value: Engine.scene.environment
+        }
+        myMaterial.uniforms.envMapIntensity = { value: 1 }
+      }
 
-    // return material
+      myMaterial.needsUpdate = true
+      return myMaterial
+    }
   }
 }
