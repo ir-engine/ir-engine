@@ -10,9 +10,6 @@ const config: ProjectConfigInterface = {
         exact: true
       }
     },
-    '/login': {
-      component: () => import('@xrengine/client/src/pages/login')
-    },
     '/admin': {
       component: () => import('@xrengine/client-core/src/admin/adminRoutes')
     },
