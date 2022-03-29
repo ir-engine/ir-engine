@@ -1,4 +1,3 @@
-import { Entity } from 'src/ecs/classes/Entity'
 import {
   CubeTexture,
   CubeTextureLoader,
@@ -12,6 +11,7 @@ import {
 } from 'three'
 
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
+import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
