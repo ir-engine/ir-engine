@@ -44,9 +44,14 @@ export class LoginToken<T = LoginTokenDataType> extends Service<T> {
   async find(params: Params): Promise<any> {
     let identityProvider
     const result = (await super.find(params)) as any
+
+    if (result.data.length === 0) throw new Error('Invalid token or have been used!.')
     if (result?.data[0]?.expiresAt.getTime() > Date.now()) {
-      identityProvider = await this.app.service('iden')
+      identityProvider = await this.app.service('identity-provider').get(result?.data[0]?.identityProviderId)
+      await super.remove(result?.data[0]?.id)
+    } else {
+      throw new Error('Invalid token or has expired!.')
     }
-    return result
+    return identityProvider
   }
 }

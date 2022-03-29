@@ -26,9 +26,9 @@ const AuthMagicLink = (props: Props): JSX.Element => {
       AuthService.loginUserByJwt(token, '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
-      if (user !== null) {
-        AuthService.refreshConnections(user.id.value!)
-      }
+      // if (user !== null) {
+      //   AuthService.refreshConnections(user.id.value!)
+      // }
       // window.location.href = '/profile-connections'
     }
   }, [])

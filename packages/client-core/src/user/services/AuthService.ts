@@ -388,8 +388,11 @@ export const AuthService = {
             token: token
           }
         })
+        AuthService.loadUserData(res.userId)
       } catch (err) {
-        console.log(err)
+        AlertService.alertError(err.message)
+      } finally {
+        window.location.href = redirectSuccess
       }
     }
   },
