@@ -103,7 +103,8 @@ function avatarActionReceptor(action) {
         const velocity = getComponent(entity, VelocityComponent)
         const avatar = getComponent(entity, AvatarComponent)
         controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
-        velocity.velocity.setScalar(0)
+        velocity.linear.setScalar(0)
+        velocity.angular.setScalar(0)
       }
     })
 }
@@ -120,7 +121,7 @@ export default async function AvatarSystem(world: World) {
   return () => {
     for (const entity of xrInputQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      initializeXRInputs(entity)
+      if (isClient) initializeXRInputs(entity)
 
       xrInputSourceComponent.container.add(
         xrInputSourceComponent.controllerLeftParent,

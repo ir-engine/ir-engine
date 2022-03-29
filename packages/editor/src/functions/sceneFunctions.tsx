@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 
 import { client } from '@xrengine/client-core/src/feathers'
-import { SceneDetailInterface } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 /**
@@ -9,7 +9,7 @@ import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWo
  *
  * @return {Promise}
  */
-export const getScenes = async (projectName: string): Promise<SceneDetailInterface[]> => {
+export const getScenes = async (projectName: string): Promise<SceneData[]> => {
   try {
     const result = await client.service('scenes').get({ projectName, metadataOnly: true })
     return result?.data
@@ -25,11 +25,7 @@ export const getScenes = async (projectName: string): Promise<SceneDetailInterfa
  * @param projectId
  * @returns
  */
-export const getScene = async (
-  projectName: string,
-  sceneName: string,
-  metadataOnly = true
-): Promise<SceneDetailInterface> => {
+export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneData> => {
   try {
     const { data } = await client.service('scene').get({ projectName, sceneName, metadataOnly })
     return data
@@ -90,9 +86,7 @@ export const saveScene = async (
   const sceneData = serializeWorld()
 
   try {
-    return (await client
-      .service('scene')
-      .update(projectName, { sceneName, sceneData, thumbnailBuffer })) as SceneDetailInterface
+    return await client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })
   } catch (error) {
     console.error('Error in Getting Project:' + error)
     throw new Error(error)

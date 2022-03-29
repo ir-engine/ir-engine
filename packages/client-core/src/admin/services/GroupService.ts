@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 
-import { Group } from '@xrengine/common/src/interfaces/Group'
+import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -84,11 +84,11 @@ export const GroupService = {
       }
     }
   },
-  createGroupByAdmin: async (groupItem: any) => {
+  createGroupByAdmin: async (groupItem: CreateGroup) => {
     const dispatch = useDispatch()
     {
       try {
-        const newGroup = await client.service('group').create({ ...groupItem })
+        const newGroup = (await client.service('group').create({ ...groupItem })) as Group
         dispatch(GroupAction.addAdminGroup(newGroup))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -99,7 +99,7 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        const group = await client.service('group').patch(groupId, groupItem)
+        const group = (await client.service('group').patch(groupId, groupItem)) as Group
         dispatch(GroupAction.updateGroup(group))
       } catch (err) {
         AlertService.dispatchAlertError(err)

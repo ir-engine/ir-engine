@@ -7,7 +7,7 @@ import Container from '@mui/material/Container'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 
-const GoogleCallbackComponent = (props): any => {
+const GoogleCallbackComponent = (props): JSX.Element => {
   const { t } = useTranslation()
   const initialState = { error: '', token: '' }
   const [state, setState] = useState(initialState)

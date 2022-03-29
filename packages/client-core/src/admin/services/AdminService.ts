@@ -19,7 +19,7 @@ import { useAuthState } from '../../user/services/AuthService'
 export const ADMIN_PAGE_LIMIT = 100
 
 const state = createState({
-  data: {}
+  data: {} as VideoCreatedResponse
 })
 
 store.receptors.push((action: AdminActionType): any => {
@@ -59,7 +59,7 @@ export const AdminService = {
       client
         .service('static-resource')
         .patch(data.id, data)
-        .then((updatedVideo) => {
+        .then((updatedVideo: VideoUpdatedResponse) => {
           AlertService.dispatchAlertSuccess('Video updated')
           dispatch(AdminAction.videoUpdated(updatedVideo))
         })
@@ -71,7 +71,7 @@ export const AdminService = {
       client
         .service('static-resource')
         .remove(id)
-        .then((removedVideo) => {
+        .then((removedVideo: VideoUpdatedResponse) => {
           AlertService.dispatchAlertSuccess('Video deleted')
           dispatch(AdminAction.videoDeleted(removedVideo))
         })

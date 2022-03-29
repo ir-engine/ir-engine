@@ -8,19 +8,20 @@ import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import {
   createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
   initializeNode,
-  initializeProjectSystems,
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
 // import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
@@ -75,9 +76,10 @@ const loadScene = async (app: Application, scene: string) => {
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
-    await initializeProjectSystems(projects, systems)
-
     const world = useWorld()
+    await initSystems(world, systems)
+    await loadEngineInjection(world, projects)
+
     const userId = 'server' as UserId
     Engine.userId = userId
     const hostIndex = world.userIndexCount++
@@ -86,31 +88,9 @@ const loadScene = async (app: Application, scene: string) => {
     world.userIndexToUserId.set(hostIndex, userId)
   }
 
-  let entitiesLeft = -1
-  let lastEntitiesLeft = -1
-  const loadingInterval = setInterval(() => {
-    if (entitiesLeft >= 0 && lastEntitiesLeft !== entitiesLeft) {
-      lastEntitiesLeft = entitiesLeft
-      console.log(entitiesLeft + ' entites left...')
-    }
-  }, 1000)
-
-  const receptor = (action: EngineActionType) => {
-    switch (action.type) {
-      case EngineEvents.EVENTS.SCENE_ENTITY_LOADED:
-        entitiesLeft = action.entitiesLeft
-        break
-    }
-  }
-  Engine.currentWorld.receptors.push(receptor)
   await loadSceneFromJSON(sceneData)
 
-  ///remove receptor
-  const receptorIndex = Engine.currentWorld.receptors.indexOf(receptor)
-  Engine.currentWorld.receptors.splice(receptorIndex, 1)
-
   console.log('Scene loaded!')
-  clearInterval(loadingInterval)
   dispatchLocal(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
@@ -195,7 +175,7 @@ const handleInstance = async (
 
   const localIp = await getLocalServerIp(app.isChannelInstance)
   const selfIpAddress = `${status.address}:${status.portsList[0].port}`
-  const ipAddress = config.gameserver.mode === 'local' ? `${localIp.ipAddress}:${localIp.port}` : selfIpAddress
+  const ipAddress = config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:${localIp.port}`
   const existingInstanceQuery = {
     ipAddress: ipAddress,
     ended: false
@@ -235,14 +215,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
-    await initializeProjectSystems(projects, [])
+    await loadEngineInjection(world, projects)
 
     const hostIndex = world.userIndexCount++
     world.clients.set(userId, { userId, name: 'media', userIndex: hostIndex })
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 
-    Engine.sceneLoaded = true
     dispatchLocal(EngineActions.sceneLoaded())
     dispatchLocal(EngineActions.joinedWorld())
   } else {
@@ -611,12 +590,28 @@ export default (app: Application): void => {
     return
   }
 
-  const shouldLoadGameserver =
-    (config.kubernetes.enabled && config.gameserver.mode === 'realtime') ||
-    process.env.APP_ENV === 'development' ||
-    config.gameserver.mode === 'local'
+  const shouldLoadGameserver = config.kubernetes.enabled || process.env.APP_ENV === 'development'
 
   if (!shouldLoadGameserver) return
+
+  app.service('gameserver-load').on('patched', async (params) => {
+    const { id, ipAddress, podName, locationId, sceneId } = params
+
+    if (app.instance && app.instance.id !== id) {
+      return
+    }
+
+    const gsResult = await app.agonesSDK.getGameServer()
+    const gsName = gsResult.objectMeta.name
+    const status = gsResult.status as GameserverStatus
+
+    // Validate if pod name match
+    if (gsName !== podName) {
+      return
+    }
+
+    loadGameserver(app, status, locationId, null!, sceneId, null!)
+  })
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

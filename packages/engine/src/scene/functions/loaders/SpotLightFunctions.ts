@@ -23,11 +23,11 @@ export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
   intensity: 10,
   range: 0,
   decay: 2,
-  angle: Math.PI / 2,
+  angle: Math.PI / 3,
   penumbra: 1,
   castShadow: true,
   shadowMapResolution: [256, 256],
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1
 }
 
@@ -82,7 +82,7 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
   if (typeof properties.angle !== 'undefined') light.angle = component.angle
   if (typeof properties.shadowBias !== 'undefined') light.shadow.bias = component.shadowBias
   if (typeof properties.shadowRadius !== 'undefined') light.shadow.radius = component.shadowRadius
-  // if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
+  if (typeof properties.castShadow !== 'undefined') light.castShadow = component.castShadow
 
   if (typeof properties.shadowMapResolution !== 'undefined') {
     light.shadow.mapSize.copy(component.shadowMapResolution)
@@ -132,7 +132,7 @@ export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunctio
   }
 }
 
-const parseSpotLightProperties = (props): SpotLightComponentType => {
+export const parseSpotLightProperties = (props): SpotLightComponentType => {
   return {
     color: new Color(props.color ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.color),
     intensity: props.intensity ?? SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES.intensity,

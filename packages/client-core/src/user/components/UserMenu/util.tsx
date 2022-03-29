@@ -11,7 +11,8 @@ export const Views = {
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
   Emote: 'Emote',
-  ReadyPlayer: 'ReadyPlayer'
+  ReadyPlayer: 'ReadyPlayer',
+  AvatarSelect: 'AvatarSelect'
 }
 
 export interface SettingMenuProps {

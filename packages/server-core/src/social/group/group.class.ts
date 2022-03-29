@@ -5,7 +5,7 @@ import { Op } from 'sequelize'
 import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { UserDataType } from '../../user/user/user.class'
 
 export type GroupDataType = GroupInterface
 /**
@@ -30,7 +30,7 @@ export class Group<T = GroupDataType> extends Service<T> {
    */
 
   async find(params?: Params): Promise<Paginated<T>> {
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params!.user as UserDataType
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
     const search = params?.query?.search

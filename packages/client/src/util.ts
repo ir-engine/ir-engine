@@ -41,3 +41,14 @@ export const initialize = (): Promise<void> => {
     resolve()
   })
 }
+
+// TODO: support typed translations
+// declare module 'react-i18next' {
+//   // and extend them!
+//   interface CustomTypeOptions {
+//     // custom namespace type if you changed it
+//     defaultNS: 'en';
+//     // custom resources type
+//     resources: ReturnType<typeof getClientCoreI18nConfigs>['resources'];
+//   }
+// }

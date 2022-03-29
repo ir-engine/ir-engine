@@ -38,14 +38,14 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
 
 export const useSimpleMaterial = (obj: Mesh): void => {
   if (obj.material instanceof MeshStandardMaterial) {
-    ;(obj as any).prevMaterial = obj.material
+    obj.userData.prevMaterial = obj.material
     obj.material = new MeshPhongMaterial()
-    MeshBasicMaterial.prototype.copy.call(obj.material, (obj as any).prevMaterial)
+    MeshBasicMaterial.prototype.copy.call(obj.material, obj.userData.prevMaterial)
   }
 }
 
-export const useStandardMaterial = (obj: Mesh): void => {
-  const material = (obj as any).prevMaterial ?? obj.material
+export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
+  const material = obj.userData.prevMaterial ?? obj.material
 
   if (typeof material === 'undefined') return
 
@@ -57,12 +57,12 @@ export const useStandardMaterial = (obj: Mesh): void => {
     )
   }
 
-  ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
+  material.envMapIntensity = SceneOptions.instance.envMapIntensity
 
-  if ((obj as any).prevMaterial) {
-    ;(obj.material as Material).dispose()
+  if (obj.userData.prevMaterial) {
+    obj.material.dispose()
     obj.material = material
-    ;(obj as any).prevMaterial = undefined
+    obj.userData.prevMaterial = undefined
   }
 
   if (obj.receiveShadow) Engine.csm?.setupMaterial(obj)

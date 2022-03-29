@@ -1,15 +1,15 @@
 import { BadRequest } from '@feathersjs/errors'
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { UserDataType } from '../user/user/user.class'
 
 /**
  * prevent user to join new search game more then once at time
  */
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { app } = context
-    const loggedInUser = extractLoggedInUserFromParams(context.params)
+    const { app, params } = context
+    const loggedInUser = params.user as UserDataType
     const matchUserResult = await app.service('match-user').find({
       query: {
         userId: loggedInUser.id,

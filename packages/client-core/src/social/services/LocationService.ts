@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
@@ -44,7 +45,7 @@ store.receptors.push((action: LocationActionType): any => {
           currentLocation: {
             location: {
               ...action.location,
-              locationSettings: (action.location as any).location_setting
+              locationSetting: (action.location as any).location_setting
             },
             bannedUsers,
             selfUserBanned: false
@@ -95,17 +96,13 @@ export const LocationService = {
   getLocationByName: async (locationName: string) => {
     const dispatch = useDispatch()
     dispatch(LocationAction.fetchingCurrentSocialLocation())
-    const locationResult = await client
-      .service('location')
-      .find({
-        query: {
-          slugifiedName: locationName,
-          joinableLocations: true
-        }
-      })
-      .catch((error) => {
-        console.log("Couldn't get location by name", error)
-      })
+    const locationResult = (await client.service('location').find({
+      query: {
+        slugifiedName: locationName,
+        joinableLocations: true
+      }
+    })) as Paginated<Location>
+
     if (locationResult && locationResult.total > 0) {
       dispatch(LocationAction.socialLocationRetrieved(locationResult.data[0]))
     } else {
@@ -113,20 +110,17 @@ export const LocationService = {
     }
   },
   getLobby: async () => {
-    const lobbyResult = await client
-      .service('location')
-      .find({
-        query: {
-          isLobby: true,
-          $limit: 1
-        }
-      })
-      .catch((error) => {
-        console.log("Couldn't get Lobby", error)
-      })
+    const lobbyResult = (await client.service('location').find({
+      query: {
+        isLobby: true,
+        $limit: 1
+      }
+    })) as Paginated<Location>
 
     if (lobbyResult && lobbyResult.total > 0) {
       return lobbyResult.data[0]
+    } else {
+      return null
     }
   },
   banUserFromLocation: async (userId: string, locationId: string) => {

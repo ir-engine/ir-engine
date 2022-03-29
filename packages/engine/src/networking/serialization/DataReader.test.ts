@@ -41,6 +41,7 @@ import { Vector3SoA, Vector4SoA } from './Utils'
 import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
+  // todo: should be beforeEach?
   before(() => {
     Engine.currentWorld = createWorld()
   })
@@ -351,12 +352,12 @@ describe('DataReader', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      ownerIndex: userIndex,
+      lastTick: 0,
       prefab: '',
       parameters: {}
     })
 
-    writeEntity(view, userIndex, networkId, entity)
+    writeEntity(view, networkId, entity)
 
     transform.position.x = 0
     transform.position.y = 0
@@ -368,7 +369,7 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    readEntity(view, Engine.currentWorld)
+    readEntity(view, Engine.currentWorld, userId)
 
     strictEqual(TransformComponent.position.x[entity], x)
     strictEqual(TransformComponent.position.y[entity], y)
@@ -383,14 +384,14 @@ describe('DataReader', () => {
 
     view.cursor = 0
 
-    writeEntity(view, userIndex, networkId, entity)
+    writeEntity(view, networkId, entity)
 
     transform.position.x = x
     transform.rotation.z = z
 
     view.cursor = 0
 
-    readEntity(view, Engine.currentWorld)
+    readEntity(view, Engine.currentWorld, userId)
 
     strictEqual(TransformComponent.position.x[entity], 0)
     strictEqual(TransformComponent.position.y[entity], y)
@@ -425,14 +426,14 @@ describe('DataReader', () => {
     addComponent(entity, NetworkObjectComponent, {
       networkId,
       ownerId: userId,
-      ownerIndex: userIndex,
+      lastTick: 0,
       prefab: '',
       parameters: {}
     })
 
     addComponent(entity, NetworkObjectAuthorityTag, {})
 
-    writeEntity(view, userIndex, networkId, entity)
+    writeEntity(view, networkId, entity)
 
     view.cursor = 0
 
@@ -441,7 +442,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.currentWorld)
+    readEntity(view, Engine.currentWorld, userId)
 
     // should no repopulate as we own this entity
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -453,7 +454,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 204)
+    strictEqual(view.cursor, 36)
   })
 
   it('should not readEntity if entity is undefined', () => {
@@ -478,7 +479,7 @@ describe('DataReader', () => {
       scale: new Vector3(1, 1, 1)
     })
 
-    writeEntity(view, userIndex, networkId, entity)
+    writeEntity(view, networkId, entity)
 
     view.cursor = 0
 
@@ -487,7 +488,7 @@ describe('DataReader', () => {
     transform.rotation.set(0, 0, 0, 0)
 
     // read entity will populate data stored in 'view'
-    readEntity(view, Engine.currentWorld)
+    readEntity(view, Engine.currentWorld, userId)
 
     // should no repopulate as entity is not listed in network entities
     strictEqual(TransformComponent.position.x[entity], 0)
@@ -499,7 +500,7 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 204)
+    strictEqual(view.cursor, 36)
   })
 
   it('should readEntities', () => {
@@ -508,6 +509,7 @@ describe('DataReader', () => {
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
+    const userId = 'userId' as UserId
     const n = 50
     const entities: Entity[] = Array(n)
       .fill(0)
@@ -517,7 +519,6 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
       const userIndex = entity
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
@@ -527,7 +528,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -552,7 +553,7 @@ describe('DataReader', () => {
     const packet = sliceViewCursor(writeView)
 
     const readView = createViewCursor(packet)
-    readEntities(readView, Engine.currentWorld, packet.byteLength)
+    readEntities(readView, Engine.currentWorld, packet.byteLength, userId)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -573,6 +574,12 @@ describe('DataReader', () => {
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
 
+    Engine.userId = 'userId' as UserId
+    const userId = Engine.userId
+    const userIndex = 0
+    Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
+    Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
+
     const n = 10
     const entities: Entity[] = Array(n)
       .fill(0)
@@ -582,8 +589,6 @@ describe('DataReader', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId
-      const userIndex = entity
       addComponent(entity, TransformComponent, {
         position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
         rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
@@ -592,27 +597,23 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
-      Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
-      Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
     })
 
     const packet = write(Engine.currentWorld, entities)
 
     const readView = createViewCursor(packet)
 
-    const tick = readUint32(readView)
+    const _tick = readUint32(readView)
+    const _userIndex = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
 
     for (let i = 0; i < count; i++) {
-      // read userIndex
-      strictEqual(readUint32(readView), entities[i])
-
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 
@@ -669,11 +670,12 @@ describe('DataReader', () => {
     }
   })
 
-  it('should createDataReader and return empty packet if no changes were made', () => {
+  it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
+    Engine.currentWorld.fixedTick = 1
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -694,7 +696,7 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -713,11 +715,12 @@ describe('DataReader', () => {
     })
   })
 
-  it('should createDataReader and detect changes', () => {
+  it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
     const write = createDataWriter()
 
     Engine.currentWorld.userIndexToUserId = new Map()
     Engine.currentWorld.userIdToUserIndex = new Map()
+    Engine.currentWorld.fixedTick = 60
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -738,7 +741,46 @@ describe('DataReader', () => {
       addComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerId: userId,
-        ownerIndex: userIndex,
+        lastTick: 0,
+        prefab: '',
+        parameters: {}
+      })
+      Engine.currentWorld.userIndexToUserId.set(userIndex, userId)
+      Engine.currentWorld.userIdToUserIndex.set(userId, userIndex)
+    })
+
+    const packet = write(Engine.currentWorld, entities)
+
+    strictEqual(packet.byteLength, 372)
+  })
+
+  it('should createDataReader and detect changes', () => {
+    const write = createDataWriter()
+
+    Engine.currentWorld.userIndexToUserId = new Map()
+    Engine.currentWorld.userIdToUserIndex = new Map()
+    Engine.currentWorld.fixedTick = 1
+
+    const n = 10
+    const entities: Entity[] = Array(n)
+      .fill(0)
+      .map(() => createEntity())
+
+    const [x, y, z, w] = [0, 0, 0, 0]
+
+    entities.forEach((entity) => {
+      const networkId = entity as unknown as NetworkId
+      const userId = entity as unknown as UserId
+      const userIndex = entity
+      addComponent(entity, TransformComponent, {
+        position: createVector3Proxy(TransformComponent.position, entity).set(x, y, z),
+        rotation: createQuaternionProxy(TransformComponent.rotation, entity).set(x, y, z, w),
+        scale: new Vector3(1, 1, 1)
+      })
+      addComponent(entity, NetworkObjectComponent, {
+        networkId,
+        ownerId: userId,
+        lastTick: 0,
         prefab: '',
         parameters: {}
       })
@@ -768,15 +810,13 @@ describe('DataReader', () => {
 
     readView = createViewCursor(packet)
 
-    const tick = readUint32(readView)
+    const _tick = readUint32(readView)
+    const _userIndex = readUint32(readView)
 
     const count = readUint32(readView)
     strictEqual(count, 1) // only one entity changed
 
     for (let i = 0; i < count; i++) {
-      // read userIndex
-      strictEqual(readUint32(readView), entities[i])
-
       // read networkId
       strictEqual(readUint32(readView), entities[i])
 

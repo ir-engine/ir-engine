@@ -10,6 +10,7 @@ import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
 import Snackbar from '@mui/material/Snackbar'
@@ -28,10 +29,10 @@ import styles from '../UserMenu.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
-  changeActiveMenu?: any
-  setProfileMenuOpen?: any
+  changeActiveMenu?: (type: string | null) => void
+  setProfileMenuOpen?: (open: boolean) => void
   className?: string
-  hideLogin?: any
+  hideLogin?: boolean
 }
 
 const initialState = {
@@ -47,10 +48,10 @@ const initialState = {
   emailMagicLink: false
 }
 
-const ProfileMenu = (props: Props): any => {
+const ProfileMenu = (props: Props): JSX.Element => {
   const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
   const { t } = useTranslation()
-  const location: any = useLocation()
+  const location = useLocation()
 
   const selfUser = useAuthState().user
 
@@ -65,6 +66,7 @@ const ProfileMenu = (props: Props): any => {
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
+  const loading = useAuthState().isProcessing.value
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
@@ -161,7 +163,7 @@ const ProfileMenu = (props: Props): any => {
     // window.location.reload()
   }
 
-  const handleWalletLoginClick = async (e) => {
+  /*  const handleWalletLoginClick = async (e) => {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
@@ -186,7 +188,7 @@ const ProfileMenu = (props: Props): any => {
     console.log(result)
 
     AuthService.loginUserByXRWallet(result)
-  }
+  }*/
 
   const handleShowId = () => {
     setShowUserId(!showUserId)
@@ -274,7 +276,7 @@ const ProfileMenu = (props: Props): any => {
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"
-                onClick={() => changeActiveMenu(Views.Avatar)}
+                onClick={() => changeActiveMenu(Views.AvatarSelect)}
                 disableRipple
               >
                 <Create />
@@ -310,7 +312,7 @@ const ProfileMenu = (props: Props): any => {
               />
             </span>
 
-            <Grid container justifyContent="right">
+            <Grid container justifyContent="right" className={styles.justify}>
               <Grid item xs={selfUser.userRole?.value === 'guest' ? 6 : 4}>
                 <h2>
                   {selfUser?.userRole?.value === 'admin'
@@ -491,6 +493,11 @@ const ProfileMenu = (props: Props): any => {
                       )
                     }}
                   />
+                  {loading && (
+                    <div className={styles.container}>
+                      <CircularProgress size={30} />
+                    </div>
+                  )}
                 </form>
               </section>
             )}

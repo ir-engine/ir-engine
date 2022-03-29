@@ -1,5 +1,6 @@
 import { defineQuery } from 'bitecs'
 import {
+  ArrayCamera,
   BoxBufferGeometry,
   BufferGeometry,
   Float32BufferAttribute,
@@ -90,12 +91,13 @@ export const DebugRenderer = () => {
         geom = new BoxBufferGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2)
       }
       const mesh = new Mesh(geom, _materials[5])
-      mesh.position.copy(obstacle.getPosition() as Vector3)
-      mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
       setObjectLayers(mesh, ObjectLayers.PhysicsHelper)
       Engine.scene.add(mesh)
       _obstacles.set(id, mesh)
     }
+    const mesh = _obstacles.get(id)
+    mesh.position.copy(obstacle.getPosition() as Vector3)
+    mesh.quaternion.copy(obstacle.getRotation() as Quaternion)
   }
 
   function _updateController(body: PhysX.PxRigidActor) {
@@ -243,8 +245,15 @@ export const DebugRenderer = () => {
     if (enabled !== _enabled) {
       enabled = _enabled
       setEnabled(_enabled)
-      if (enabled) Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
-      else Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+      // @ts-ignore
+      const xrCameras = Engine.xrManager?.getCamera() as ArrayCamera
+      if (enabled) {
+        Engine.camera.layers.enable(ObjectLayers.PhysicsHelper)
+        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))
+      } else {
+        Engine.camera.layers.disable(ObjectLayers.PhysicsHelper)
+        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.disable(ObjectLayers.PhysicsHelper))
+      }
     }
 
     if (!enabled) return

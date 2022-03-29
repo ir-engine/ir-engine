@@ -1,110 +1,175 @@
-@use "../theme.scss" as theme;
+@use '../theme.scss'as theme;
 
-.panelContainer {
-    height: 100%;
-    position: relative;
-    flex: 1;
-    background-color: transparent;
-    overflow-y: auto;
+.assetsPanel {
+  height: 100%;
 }
 
-.fileListItemContainer  {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding-left: 5px;
-    color: white;
-    cursor: pointer;
+.panelContainer {
+  height: 100%;
+  position: relative;
+  flex: 1;
+  background-color: transparent;
+  overflow-y: auto;
+}
 
-    &:hover {
-        background: theme.$hover;
-    }
+.fileListItemContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 5px;
+  color: white;
+  cursor: pointer;
 
-    .fileNameContainer {
-        margin-right: 3px;
-    }
+  &:hover {
+    background: theme.$hover;
+  }
+
+  .fileNameContainer {
+    margin-right: 3px;
+  }
+}
+
+.paperDialog {
+  background: rgb(58, 65, 73) !important;
+  color: #f1f1f1;
+  width: 100%;
+  padding: 40px 10px 40px 10px;
+}
+
+.primaryText {
+  color: #f1f1f1;
+  font-size: 1.3rem;
+}
+
+.secondaryText {
+  color: #b3b3b3;
+}
+
+.inputContainer {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  background: #343b41;
+  border: 1px solid #23282c;
+  color: #f1f1f1 !important;
+}
+
+.input {
+  flex: 1;
+  color: #f1f1f1;
 }
 
 .contentContainer {
-    display: flex;
-    flex: 1;
-    overflow: auto;
+  display: flex;
+  flex: 1;
+  overflow: auto;
 }
 
-.btnConatiner {
-    display: flex;
-    width: 100%;
-    justify-content: end;
-    padding: 10px 10px 0 10px;
+.btnContainer {
+  display: flex;
+  width: 100%;
+  justify-content: end;
+  padding: 10px 10px 0 10px;
 
-    .newBtn {
-        margin: 0;
-        height: 35px;
-        width: 100px;
-        font-size: 14px;
-        flex-shrink: 0;
-    }
+  .newBtn {
+    margin: 0;
+    height: 35px;
+    width: 100px;
+    font-size: 14px;
+    flex-shrink: 0;
+    background-color: theme.$purpleColor;
+  }
 }
 
 .sceneGridContainer {
-    display: grid;
-    grid-gap: 10px;
-    width: 100%;
-    margin-bottom: auto;
-    padding: 10px;
-    grid-template-columns: repeat(auto-fill,minmax(125px,1fr));
+  display: grid;
+  grid-gap: 10px;
+  width: 100%;
+  margin-bottom: auto;
+  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
 
-    .sceneContainer {
-        border-radius: 4px;
-        overflow: hidden;
-        background: theme.$background2;
-        min-height: 125px;
-        cursor: pointer;
+  .sceneContainer {
+    border-radius: 4px;
+    overflow: hidden;
+    background: theme.$inputBackground;
+    min-height: 125px;
+    cursor: pointer;
 
-        .thumbnailContainer {
-            height: calc(100% - 40px);
-            width: 100%;
-        }
-
-        .detailBlock {
-            padding-left: 10px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 40px;
-
-            span {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            .inputContainer {
-                background: theme.$panel;
-                color: theme.$text;
-
-                .input { font-size: 12px; padding: 0 5px; }
-            }
-        }
-
-        button { color: theme.$text; }
-
-        &:hover, &:focus-visible {
-            outline: solid 2px theme.$blue;
-            .detailBlock { color: theme.$text; }
-        }
+    .thumbnailContainer {
+      height: calc(100% - 40px);
+      width: 100%;
     }
 
+    .detailBlock {
+      padding-left: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .inputContainer {
+        background: theme.$inputBackground;
+        color: theme.$text;
+
+        .input {
+          font-size: 12px;
+          padding: 0 5px;
+        }
+      }
+    }
+
+    button {
+      color: theme.$text;
+    }
+
+    &:hover,
+    &:focus-visible {
+      outline: solid 2px theme.$purpleLight;
+
+      .detailBlock {
+        color: theme.$text;
+      }
+    }
+  }
 }
 
 .sceneContextMenu {
-    background: theme.$panel;
-    color: theme.$text;
+  background: theme.$inputBackground;
+  color: theme.$text;
 
-    .menuItem {
-        font-size: 14px;
-        &:hover, &:focus-visible { background: theme.$blue; }
+  .menuItem {
+    font-size: 14px;
+
+    &:hover,
+    &:focus-visible {
+      background: theme.$purpleColor;
     }
+  }
+}
+
+.container {
+  height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  color: #c53a7d;
+  font-weight: bold;
+}
+
+.separator {
+  color: #5d646c;
 }

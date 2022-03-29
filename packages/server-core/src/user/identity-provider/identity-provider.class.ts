@@ -13,7 +13,7 @@ import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import Paginated from '../../types/PageObject'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+import { UserDataType } from '../user/user.class'
 
 /**
  * A class for identity-provider service
@@ -236,7 +236,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const loggedInUser = extractLoggedInUserFromParams(params!)
+    const loggedInUser = params!.user as UserDataType
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

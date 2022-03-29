@@ -1,5 +1,6 @@
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -77,7 +78,8 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeLinearVelocity = writeVector3(VelocityComponent.velocity)
+export const writeLinearVelocity = writeVector3(VelocityComponent.linear)
+export const writeAngularVelocity = writeVector3(VelocityComponent.angular)
 export const writeRotation = writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
@@ -104,7 +106,7 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let b = 0
 
   changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
-  // changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0 // TODO: angular velocity
+  changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
@@ -162,10 +164,9 @@ export const writeXRInputs = (v: ViewCursor, entity: Entity) => {
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
 
-export const writeEntity = (v: ViewCursor, userIndex: number, networkId: NetworkId, entity: Entity) => {
+export const writeEntity = (v: ViewCursor, networkId: NetworkId, entity: Entity) => {
   const rewind = rewindViewCursor(v)
 
-  const writeUserIndex = spaceUint32(v)
   const writeNetworkId = spaceUint32(v)
 
   const writeChangeMask = spaceUint8(v)
@@ -176,10 +177,7 @@ export const writeEntity = (v: ViewCursor, userIndex: number, networkId: Network
   changeMask |= writeVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeXRInputs(v, entity) ? 1 << b++ : b++ && 0
 
-  return (
-    (changeMask > 0 && writeUserIndex(userIndex) && writeNetworkId(networkId) && writeChangeMask(changeMask)) ||
-    rewind()
-  )
+  return (changeMask > 0 && writeNetworkId(networkId) && writeChangeMask(changeMask)) || rewind()
 }
 
 export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
@@ -188,9 +186,8 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   let count = 0
   for (let i = 0, l = entities.length; i < l; i++) {
     const entity = entities[i]
-    const userIndex = NetworkObjectComponent.ownerIndex[entity]
     const networkId = NetworkObjectComponent.networkId[entity] as NetworkId
-    count += writeEntity(v, userIndex, networkId, entity) ? 1 : 0
+    count += writeEntity(v, networkId, entity) ? 1 : 0
   }
 
   if (count > 0) writeCount(count)
@@ -198,8 +195,8 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 }
 
 export const writeMetadata = (v: ViewCursor, world: World) => {
+  writeUint32(v, world.userIdToUserIndex.get(Engine.userId)!)
   writeUint32(v, world.fixedTick)
-  // writeUint32(v, Date.now())
 }
 
 export const createDataWriter = (size: number = 100000) => {

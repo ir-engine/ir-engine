@@ -16,7 +16,8 @@ export const InputGroupContainer = (styled as any).div`
   display: flex;
   flex-direction: row;
   padding: 4px 8px;
-  flex: 1;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
   min-height: 24px;
 
   ${(props) =>
@@ -42,8 +43,7 @@ export const InputGroupContainer = (styled as any).div`
  */
 export const InputGroupContent = (styled as any).div`
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: space-between; 
 
   &>*:first-child {
     max-width: calc(100% - 23px)
@@ -93,7 +93,7 @@ export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.purpleColor};
   cursor: pointer;
   align-self: center;
 `

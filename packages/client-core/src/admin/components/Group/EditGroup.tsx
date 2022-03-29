@@ -1,5 +1,8 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { Group } from '@xrengine/common/src/interfaces/Group'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -13,23 +16,22 @@ import AutoComplete from '../../common/AutoComplete'
 import { validateForm } from '../../common/validation/formValidation'
 import { GroupService } from '../../services/GroupService'
 import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  groupAdmin: any
-  closeEditModal: any
-  closeViewModal?: any
+  groupAdmin: Group
+  closeEditModal: (open: boolean) => void
+  closeViewModal?: (open: boolean) => void
 }
 interface ScopeData {
   type: string
 }
 
 const EditGroup = (props: Props) => {
-  const classes = useStyles()
   const { groupAdmin, closeEditModal, closeViewModal } = props
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
-  const adminScopeTypes = adminScopeTypeState.scopeTypes
+  const { t } = useTranslation()
 
   const [state, setState] = useState({
     name: groupAdmin.name,
@@ -59,9 +61,9 @@ const EditGroup = (props: Props) => {
     e.preventDefault()
     const { name, description, scopeTypes } = state
     let temp = state.formErrors
-    temp.name = !state.name ? "Name can't be empty" : ''
-    temp.description = !state.description ? "Description can't be empty" : ''
-    temp.scopeTypes = !state.scopeTypes.length ? "Scope can't be empty" : ''
+    temp.name = !state.name ? t('admin:components.group.nameCantEmpty') : ''
+    temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
+    temp.scopeTypes = !state.scopeTypes?.length ? t('admin:components.group.scopeCantEmpty') : ''
 
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
@@ -73,7 +75,7 @@ const EditGroup = (props: Props) => {
         scopeTypes: []
       })
       closeEditModal(false)
-      if (typeof closeViewModal === 'function') closeViewModal()
+      if (typeof closeViewModal === 'function') closeViewModal(false)
     }
   }
   const handleChangeScopeType = (scope) => {
@@ -87,32 +89,32 @@ const EditGroup = (props: Props) => {
   })
 
   return (
-    <Container maxWidth="sm" className={classes.marginTp}>
+    <Container maxWidth="sm" className={styles.mt20}>
       <form onSubmit={(e) => onSubmitHandler(e)}>
-        <DialogTitle id="form-dialog-title" className={classes.texAlign}>
-          Edit Group
+        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+          {t('admin:components.group.editGroup')}
         </DialogTitle>
-        <label>Name</label>
-        <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+        <label>{t('admin:components.group.name')}</label>
+        <Paper component="div" className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}>
           <InputBase
-            className={classes.input}
+            className={styles.input}
             name="name"
-            placeholder="Enter group name"
+            placeholder={t('admin:components.group.enterGroupName')}
             style={{ color: '#fff' }}
             autoComplete="off"
             value={state.name}
             onChange={handleChange}
           />
         </Paper>
-        <label>Description</label>
+        <label>{t('admin:components.group.description')}</label>
         <Paper
           component="div"
-          className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+          className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
         >
           <InputBase
-            className={classes.input}
+            className={styles.input}
             name="description"
-            placeholder="Enter description"
+            placeholder={t('admin:components.group.enterGroupDescription')}
             style={{ color: '#fff' }}
             autoComplete="off"
             value={state.description}
@@ -122,14 +124,14 @@ const EditGroup = (props: Props) => {
 
         <AutoComplete
           data={scopeData}
-          label="Grant Scope"
+          label={t('admin:components.group.groupScope')}
           handleChangeScopeType={handleChangeScopeType}
           scopes={state.scopeTypes as any}
         />
 
-        <DialogActions className={classes.marginTp}>
-          <Button type="submit" className={classes.saveBtn}>
-            Submit
+        <DialogActions className={styles.mt20}>
+          <Button type="submit" className={styles.submitButton}>
+            {t('admin:components.group.submit')}
           </Button>
           <Button
             onClick={() => {
@@ -141,9 +143,9 @@ const EditGroup = (props: Props) => {
               })
               closeEditModal(false)
             }}
-            className={classes.saveBtn}
+            className={styles.cancelButton}
           >
-            Cancel
+            {t('admin:components.group.cancel')}
           </Button>
         </DialogActions>
       </form>

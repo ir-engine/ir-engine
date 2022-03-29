@@ -1,3 +1,5 @@
+import { SceneData, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
+
 export interface SceneColumn {
   id: 'name' | 'description' | 'type' | 'entity' | 'version' | 'action'
   label: string
@@ -34,7 +36,7 @@ export const sceneColumns: SceneColumn[] = [
   }
 ]
 
-export interface SceneData {
+export interface SceneViewModel {
   id: string
   name: string | JSX.Element
   description: string | JSX.Element
@@ -74,7 +76,7 @@ export interface SceneProps {
 }
 
 export interface ViewSceneProps {
-  adminScene: any
+  adminScene: SceneMetadata
   viewModal: boolean
-  closeViewModal: any
+  closeViewModal: (open: boolean) => void
 }

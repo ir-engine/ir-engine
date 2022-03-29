@@ -7,7 +7,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { executeModifyPropertyCommand } from '../../classes/History'
 import { PropertiesPanelButton } from '../inputs/Button'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
@@ -28,7 +28,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const scale = new Vector3()
 
     updatedTransform.decompose(position, rotation, scale)
-    CommandManager.instance.setProperty([props.node], {
+    executeModifyPropertyCommand([props.node], {
       component: TransformComponent,
       properties: { position, rotation }
     })

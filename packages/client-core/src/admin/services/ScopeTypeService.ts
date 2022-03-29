@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { AdminScopTypeResult } from '@xrengine/common/src/interfaces/AdminScopeTypeResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -53,12 +53,12 @@ export const ScopeTypeService = {
       const skip = scopeState.skip.value
       const limit = scopeState.limit.value
       try {
-        const result = await client.service('scope-type').find({
+        const result = (await client.service('scope-type').find({
           query: {
             $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit
           }
-        })
+        })) as Paginated<AdminScopeType>
         dispatch(ScopeTypeAction.getScopeTypes(result))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -69,7 +69,7 @@ export const ScopeTypeService = {
 
 //Action
 export const ScopeTypeAction = {
-  getScopeTypes: (adminScopeTypeResult: AdminScopTypeResult) => {
+  getScopeTypes: (adminScopeTypeResult: Paginated<AdminScopeType>) => {
     return {
       type: 'SCOPE_TYPES_RETRIEVED' as const,
       adminScopeTypeResult: adminScopeTypeResult

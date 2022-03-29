@@ -78,7 +78,7 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
               ContentType: getContentType(file),
               Key: `projects/${projectName}${filePathRelative}`
             })
-            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain))
+            resolve(getCachedAsset(`projects/${projectName}${filePathRelative}`, storageProvider.cacheDomain, true))
           } catch (e) {
             console.log(e)
             resolve(null)
@@ -112,6 +112,7 @@ export class Project extends Service {
     if (projectConfig.onEvent) {
       return onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
     }
+
     return Promise.resolve()
   }
 
@@ -264,7 +265,8 @@ export class Project extends Service {
    * downloads file from storage provider to project
    *   OR
    * uploads project to the storage provider
-   * @param app
+   * @param projectName The name of the project
+   * @param data The names of the files in the project
    * @returns
    */
   async patch(projectName: string, data: { files: string[] }, params?: Params) {
@@ -286,7 +288,7 @@ export class Project extends Service {
             if (!fs.existsSync(path.dirname(metadataPath)))
               fs.mkdirSync(path.dirname(metadataPath), { recursive: true })
             fs.writeFileSync(metadataPath, fileResult.Body)
-            resolve(getCachedAsset(filePath, storageProvider.cacheDomain))
+            resolve(getCachedAsset(filePath, storageProvider.cacheDomain, params && params.provider == null))
           })
         )
       }
@@ -331,8 +333,20 @@ export class Project extends Service {
     }
   }
 
+  async updateSettings(id: Id, data: { settings: string }) {
+    return super.patch(id, data)
+  }
+
   //@ts-ignore
   async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
+    params = {
+      ...params,
+      query: {
+        ...params?.query,
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'storageProviderPath']
+      }
+    }
+
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
     return {
       data

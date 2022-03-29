@@ -1,14 +1,28 @@
+import AgonesSDK from '@google-cloud/agones-sdk'
 import { exec } from 'child_process'
 import fs from 'fs'
 import https from 'https'
 import psList from 'ps-list'
 
+import { pipe } from '@xrengine/common/src/utils/pipe'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import '@xrengine/engine/src/patchEngineNode'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
+import {
+  configureK8s,
+  configureOpenAPI,
+  configureRedis,
+  configureSocketIO,
+  createFeathersExpressApp,
+  serverPipe
+} from '@xrengine/server-core/src/createApp'
 import logger from '@xrengine/server-core/src/logger'
 
+import channels from './channels'
+import { ServerTransportHandler, SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
+
 // import preloadLocation from './preload-location'
-import { createApp } from './app'
 
 /**
  * @param status
@@ -17,8 +31,54 @@ import { createApp } from './app'
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').')
 })
+
+const onSocketIO = (app: Application) => {
+  Network.instance.transportHandler = new ServerTransportHandler()
+  app.transport = new SocketWebRTCServerTransport(app)
+  app.transport.initialize()
+}
+
+export const instanceServerPipe = pipe(
+  configureOpenAPI(),
+  configureSocketIO(true, onSocketIO),
+  configureRedis(),
+  configureK8s()
+) as (app: Application) => Application
+
 export const start = async (): Promise<Application> => {
-  const app = createApp()
+  const app = createFeathersExpressApp(instanceServerPipe)
+
+  const agonesSDK = new AgonesSDK()
+
+  if (config.kubernetes.enabled || process.env.APP_ENV === 'development') {
+    agonesSDK.connect()
+    agonesSDK.ready().catch((err) => {
+      console.log(err)
+      throw new Error(
+        '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
+      )
+    })
+    app.agonesSDK = agonesSDK
+    setInterval(() => agonesSDK.health(), 1000)
+
+    app.configure(channels)
+  } else {
+    console.warn('Did not create gameserver')
+  }
+
+  /**
+   * When using local dev, to properly test multiple worlds for portals we
+   * need to programatically shut down and restart the gameserver process.
+   */
+  if (process.env.APP_ENV === 'development' && !config.kubernetes.enabled) {
+    app.restart = () => {
+      require('child_process').spawn('npm', ['run', 'dev'], {
+        cwd: process.cwd(),
+        stdio: 'inherit'
+      })
+      process.exit(0)
+    }
+  }
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {

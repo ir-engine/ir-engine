@@ -2,6 +2,7 @@ import React from 'react'
 import { useDrop } from 'react-dnd'
 
 import { ItemTypes } from '../../constants/AssetTypes'
+import { AddCorsProxyButton } from '../AddCorsProxyButton'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput } from './StringInput'
 
@@ -53,13 +54,16 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
   })
 
   return (
-    <ControlledStringInput
-      ref={dropRef}
-      onChange={(value, e) => onChange(value, {}, e)}
-      error={isOver && !canDrop}
-      canDrop={isOver && canDrop}
-      {...rest}
-    />
+    <>
+      <AddCorsProxyButton value={rest.value} onAddCorsProxy={onChange} />
+      <ControlledStringInput
+        ref={dropRef}
+        onChange={(value, e) => onChange(value, {}, e)}
+        error={isOver && !canDrop}
+        canDrop={isOver && canDrop}
+        {...rest}
+      />
+    </>
   )
 }
 

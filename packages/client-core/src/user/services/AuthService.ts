@@ -1,7 +1,9 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, Downgraded, useState } from '@speigg/hookstate'
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
+import i18n from 'i18next'
 import querystring from 'querystring'
 import { v1 } from 'uuid'
 
@@ -52,13 +54,15 @@ const state = createState({
   avatarList: [] as Array<UserAvatar>
 })
 
+export type AuthState = typeof state
+
 export const avatarFetchedReceptor = (s: typeof state, action: ReturnType<typeof AuthAction.updateAvatarList>) => {
   const resources = action.avatarList
   const avatarData = {}
   for (let resource of resources) {
     const r = avatarData[(resource as any).name] || {}
     if (!r) {
-      console.warn('Avatar resource is empty, have you synced avatars to your static file storage?')
+      console.warn(i18n.t('user:avatar.warning-msg'))
       return
     }
     r[(resource as any).staticResourceType] = resource
@@ -236,7 +240,7 @@ export const AuthService = {
                 userId: userId
               }
             })
-            .then((settingsRes) => {
+            .then((settingsRes: Paginated<UserSetting>) => {
               if (settingsRes.total === 0) {
                 return client
                   .service('user-settings')
@@ -261,7 +265,7 @@ export const AuthService = {
         dispatch(AuthAction.loadedUserData(user))
       })
       .catch((err: any) => {
-        AlertService.dispatchAlertError(new Error('Failed to load user data'))
+        AlertService.dispatchAlertError(new Error(i18n.t('common:error.loading-error')))
       })
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
@@ -269,7 +273,7 @@ export const AuthService = {
     {
       // check email validation.
       if (!validateEmail(form.email)) {
-        AlertService.dispatchAlertError(new Error('Please input valid email address'))
+        AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
 
         return
       }
@@ -296,7 +300,7 @@ export const AuthService = {
           AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
         })
         .catch((err: any) => {
-          dispatch(AuthAction.loginUserError('Failed to login'))
+          dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
           AlertService.dispatchAlertError(err)
         })
         .finally(() => dispatch(AuthAction.actionProcessing(false)))
@@ -320,7 +324,7 @@ export const AuthService = {
         // loadXRAvatarForUpdatedUser(walletUser) // TODO
         dispatch(AuthAction.loadedUserData(walletUser))
       } catch (err) {
-        dispatch(AuthAction.loginUserError('Failed to login'))
+        dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
         AlertService.dispatchAlertError(err)
       } finally {
         dispatch(AuthAction.actionProcessing(false))
@@ -368,7 +372,7 @@ export const AuthService = {
         dispatch(AuthAction.actionProcessing(false))
         window.location.href = redirectSuccess
       } catch (err) {
-        dispatch(AuthAction.loginUserError('Failed to login'))
+        dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
         AlertService.dispatchAlertError(err)
         window.location.href = `${redirectError}?error=${err.message}`
         dispatch(AuthAction.actionProcessing(false))
@@ -521,7 +525,9 @@ export const AuthService = {
         const stripped = emailPhone.replace(/-/g, '')
         if (validatePhoneNumber(stripped)) {
           if (!enableSmsMagicLink) {
-            AlertService.dispatchAlertError(new Error('Please input valid email address'))
+            AlertService.dispatchAlertError(
+              new Error(i18n.t('common:error.validation-error', { type: 'email address' }))
+            )
 
             return
           }
@@ -530,13 +536,17 @@ export const AuthService = {
           emailPhone = '+1' + stripped
         } else if (validateEmail(emailPhone)) {
           if (!enableEmailMagicLink) {
-            AlertService.dispatchAlertError(new Error('Please input valid phone number'))
+            AlertService.dispatchAlertError(
+              new Error(i18n.t('common:error.validation-error', { type: 'phone number' }))
+            )
 
             return
           }
           type = 'email'
         } else {
-          AlertService.dispatchAlertError(new Error('Please input valid email or phone number'))
+          AlertService.dispatchAlertError(
+            new Error(i18n.t('common:error.validation-error', { type: 'email or phone number' }))
+          )
 
           return
         }
@@ -551,7 +561,7 @@ export const AuthService = {
         .then((res: any) => {
           console.log(res)
           dispatch(AuthAction.didCreateMagicLink(true))
-          AlertService.dispatchAlertSuccess('Login Magic Link was sent. Please check your Email or SMS.')
+          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.success-msg'))
         })
         .catch((err: any) => {
           dispatch(AuthAction.didCreateMagicLink(false))
@@ -596,7 +606,10 @@ export const AuthService = {
         })
         .then((res: any) => {
           const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) return AuthService.loadUserData(identityProvider.userId)
+          if (identityProvider.userId != null) {
+            AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.email-sent-msg'))
+            return AuthService.loadUserData(identityProvider.userId)
+          }
         })
         .catch((err: any) => {
           AlertService.dispatchAlertError(err)
@@ -623,7 +636,10 @@ export const AuthService = {
         })
         .then((res: any) => {
           const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) return AuthService.loadUserData(identityProvider.userId)
+          if (identityProvider.userId != null) {
+            AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.sms-sent-msg'))
+            return AuthService.loadUserData(identityProvider.userId)
+          }
         })
         .catch((err: any) => {
           AlertService.dispatchAlertError(err)
@@ -665,7 +681,7 @@ export const AuthService = {
   },
   updateUserSettings: async (id: any, data: any) => {
     const dispatch = useDispatch()
-    const res = await client.service('user-settings').patch(id, data)
+    const res = (await client.service('user-settings').patch(id, data)) as UserSetting
     dispatch(AuthAction.updatedUserSettingsAction(res))
   },
   uploadAvatar: async (data: any) => {
@@ -679,7 +695,8 @@ export const AuthService = {
           Authorization: 'Bearer ' + token
         }
       })
-      await client.service('user').patch(selfUser.id.value, {
+      const userId = selfUser.id.value ?? null
+      await client.service('user').patch(userId, {
         name: selfUser.name.value
       })
       const result = res.data
@@ -701,11 +718,12 @@ export const AuthService = {
       const dispatch = useDispatch()
       dispatch(AuthAction.userAvatarIdUpdated(response))
       const selfUser = accessAuthState().user
+      const userId = selfUser.id.value ?? null
       client
         .service('user')
-        .patch(selfUser.id.value, { avatarId: avatarName })
+        .patch(userId, { avatarId: avatarName })
         .then((_) => {
-          AlertService.dispatchAlertSuccess('Avatar Uploaded Successfully.')
+          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
           dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
               avatarDetail: response
@@ -731,7 +749,7 @@ export const AuthService = {
           query: { keys }
         })
         .then((_) => {
-          AlertService.dispatchAlertSuccess('Avatar Removed Successfully.')
+          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.remove-success-msg'))
           AuthService.fetchAvatarList()
         })
     }
@@ -762,7 +780,7 @@ export const AuthService = {
           name: name
         })
         .then((res: any) => {
-          AlertService.dispatchAlertSuccess('Username updated')
+          AlertService.dispatchAlertSuccess(i18n.t('user:usermenu.profile.update-msg'))
           dispatch(AuthAction.usernameUpdated(res))
         })
     }
@@ -812,7 +830,7 @@ export const AuthService = {
 
   updateApiKey: async () => {
     const dispatch = useDispatch()
-    const apiKey = await client.service('user-api-key').patch()
+    const apiKey = (await client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatch(AuthAction.apiKeyUpdated(apiKey))
   },
   listenForUserPatch: () => {
@@ -834,7 +852,8 @@ export const AuthService = {
         if (selfPartyUser != undefined && selfPartyUser?.id != null) {
           await client.service('party-user').remove(selfPartyUser.id)
         }
-        const user = resolveUser(await client.service('user').get(selfUser.id.value))
+        const userId = selfUser.id.value ?? ''
+        const user = resolveUser(await client.service('user').get(userId))
         store.dispatch(AuthAction.userUpdated(user))
       }
     })

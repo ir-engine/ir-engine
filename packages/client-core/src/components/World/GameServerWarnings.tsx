@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   LocationInstanceConnectionService,
@@ -13,7 +14,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 
-import { usePartyState } from '../../social/services/PartyService'
 import WarningRefreshModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 type GameServerWarningsProps = {
@@ -39,11 +39,20 @@ enum WarningModalTypes {
 const GameServerWarnings = (props: GameServerWarningsProps) => {
   const locationState = useLocationState()
   const [modalValues, setModalValues] = useState(initialModalValues)
+  const [currentError, _setCurrentError] = useState(-1)
   const invalidLocationState = locationState.invalidLocation
   const engineState = useEngineState()
   const chatState = useChatState()
   const instanceConnectionState = useLocationInstanceConnectionState()
   const [erroredInstanceId, setErroredInstanceId] = useState(null)
+  const { t } = useTranslation()
+
+  const currentErrorRef = useRef(currentError)
+
+  const setCurrentError = (value) => {
+    currentErrorRef.current = value
+    _setCurrentError(value)
+  }
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -51,28 +60,37 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       ({ instanceId }) => {
         setErroredInstanceId(instanceId)
         updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
+        setCurrentError(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
       }
     )
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_WEBGL_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
-    )
+      setCurrentError(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
-    )
+      setCurrentError(WarningModalTypes.INSTANCE_DISCONNECTED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
       updateWarningModal(WarningModalTypes.USER_KICKED, message)
-    )
+      setCurrentError(WarningModalTypes.USER_KICKED)
+    })
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () =>
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
       updateWarningModal(WarningModalTypes.CHANNEL_DISCONNECTED)
+      setCurrentError(WarningModalTypes.CHANNEL_DISCONNECTED)
+    })
+
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () =>
+      reset(WarningModalTypes.INSTANCE_DISCONNECTED)
     )
 
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, reset)
-
-    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, reset)
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, () =>
+      reset(WarningModalTypes.CHANNEL_DISCONNECTED)
+    )
 
     // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
     var db = indexedDB.open('test')
@@ -93,8 +111,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
           open: true,
-          title: 'Browser Error',
-          body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+          title: t('common:gameServer.browserError'),
+          body: t('common:gameServer.browserErrorMessage'),
           noCountdown: true
         })
         break
@@ -103,8 +121,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
         const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
-          title: 'No Available Servers',
-          body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
+          title: t('common:gameServer.noAvailableServers'),
+          body: t('common:gameServer.noAvailableServersMessage'),
           action: async () => LocationInstanceConnectionService.provisionServer(currentLocation.id),
           parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
           noCountdown: false
@@ -113,12 +131,12 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.INSTANCE_DISCONNECTED:
         if (!Engine.userId) return
-        if (transport.left || engineState.isTeleporting.value) return
+        if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
           open: true,
-          title: 'World disconnected',
-          body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
+          title: t('common:gameServer.worldDisconnected'),
+          body: t('common:gameServer.worldDisconnectedMessage'),
           action: async () => window.location.reload(),
           timeout: 30000,
           noCountdown: false
@@ -127,7 +145,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
       case WarningModalTypes.CHANNEL_DISCONNECTED:
         if (!Engine.userId) return
-        if (transport.left) return
+        if (transport.left || transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
@@ -148,8 +166,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
 
         setModalValues({
           open: true,
-          title: 'WebGL not enabled',
-          body: 'Your browser does not support WebGL, or it is disabled. Please enable WebGL or consider upgrading to the latest version of your browser.',
+          title: t('common:gameServer.webGLNotEnabled'),
+          body: t('common:gameServer.webGLNotEnabledMessage'),
           action: async () => window.location.reload(),
           noCountdown: true
         })
@@ -158,8 +176,8 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.USER_KICKED:
         setModalValues({
           open: true,
-          title: "You've been kicked from the world",
-          body: 'You were kicked from this world for the following reason: ' + message,
+          title: t('common:gameServer.youKickedFromWorld'),
+          body: `${t('common:gameServer.youKickedFromWorldMessage')}: ${message}`,
           noCountdown: true
         })
         break
@@ -167,8 +185,10 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       case WarningModalTypes.INVALID_LOCATION:
         setModalValues({
           open: true,
-          title: 'Invalid location',
-          body: `We can't find the location '${props.locationName}'. It may be misspelled, or it may not exist.`,
+          title: t('common:gameServer.invalidLocation'),
+          body: `${t('common:gameServer.cantFindLocation')} '${props.locationName}'. ${t(
+            'common:gameServer.misspelledOrNotExist'
+          )}`,
           noCountdown: true
         })
         break
@@ -177,15 +197,17 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
     }
   }
 
-  const reset = () => {
+  const reset = (modalType?: number) => {
+    if (modalType && modalType !== currentErrorRef.current) return
     setModalValues(initialModalValues)
+    setCurrentError(-1)
   }
 
   return (
     <WarningRefreshModal
       {...modalValues}
       open={modalValues.open && !engineState.isTeleporting.value}
-      handleClose={reset}
+      handleClose={() => reset()}
     />
   )
 }

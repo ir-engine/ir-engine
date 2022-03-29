@@ -24,3 +24,8 @@ export interface ServerSetting {
 export interface HubInfo {
   endpoint?: string
 }
+
+export interface PatchServerSetting {
+  gaTrackingId?: string
+  gitPem?: string
+}

@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModel from '../../common/ConfirmModel'
+import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAvatarState } from '../../services/AvatarService'
 import { AvatarService } from '../../services/AvatarService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import ViewAvatar from './ViewAvatar'
 
 if (!global.setImmediate) {
@@ -15,7 +18,7 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-  locationState?: any
+  // locationState?: any
   search: string
 }
 
@@ -26,22 +29,23 @@ const AvatarTable = (props: Props) => {
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
-  const classes = useStyles()
+  const { t } = useTranslation()
+
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
-  const [viewModel, setViewModel] = useState(false)
-  const [avatarAdmin, setAvatarAdmin] = useState(null)
+  const [viewModal, setViewModal] = useState(false)
+  const [avatarAdmin, setAvatarAdmin] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    AvatarService.fetchAdminAvatars(incDec, newPage)
+    AvatarService.fetchAdminAvatars(incDec, newPage, null)
     setPage(newPage)
   }
 
-  const handleCloseModel = () => {
+  const handleCloseModal = () => {
     setPopConfirmOpen(false)
   }
 
@@ -52,12 +56,18 @@ const AvatarTable = (props: Props) => {
 
   useEffect(() => {
     if (user?.id.value && adminAvatarState.updateNeeded.value) {
-      AvatarService.fetchAdminAvatars('increment', 0, search)
+      AvatarService.fetchAdminAvatars('increment', 0, null)
     }
+
     AvatarService.fetchAdminAvatars('increment', 0, search)
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
-  const createData = (el: any, sid: any, name: string | undefined, key: string | undefined): AvatarData => {
+  const createData = (
+    el: AvatarInterface,
+    sid: string | undefined,
+    name: string | undefined,
+    key: string | undefined
+  ): AvatarData => {
     return {
       el,
       sid,
@@ -67,24 +77,24 @@ const AvatarTable = (props: Props) => {
         <>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setAvatarAdmin(el)
-              setViewModel(true)
+              setViewModal(true)
             }}
           >
-            <span className={classes.spanWhite}>View</span>
+            <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
           </a>
           <a
             href="#h"
-            className={classes.actionStyle}
+            className={styles.actionStyle}
             onClick={() => {
               setPopConfirmOpen(true)
               setAvatarId(el.id)
               setAvatarName(name as any)
             }}
           >
-            <span className={classes.spanDange}>Delete</span>
+            <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
           </a>
         </>
       )
@@ -100,8 +110,8 @@ const AvatarTable = (props: Props) => {
     setPopConfirmOpen(false)
   }
 
-  const closeViewModel = (open) => {
-    setViewModel(open)
+  const closeViewModal = (open: boolean) => {
+    setViewModal(open)
   }
 
   return (
@@ -111,7 +121,7 @@ const AvatarTable = (props: Props) => {
         column={avatarColumns}
         page={page}
         rowsPerPage={rowsPerPage}
-        count={adminAvatars.value.length}
+        count={adminAvatarCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
@@ -119,15 +129,15 @@ const AvatarTable = (props: Props) => {
           <AvatarSelectMenu changeActiveMenu={() => setAvatarSelectMenuOpen(false)} isPublicAvatar={true} />
         )} */}
 
-      <ConfirmModel
+      <ConfirmModal
         popConfirmOpen={popConfirmOpen}
-        handleCloseModel={handleCloseModel}
+        handleCloseModal={handleCloseModal}
         submit={submitRemoveAvatar}
         name={avatarName}
         label={'avatar'}
       />
-      {avatarAdmin && viewModel && (
-        <ViewAvatar openView={viewModel} avatarData={avatarAdmin} closeViewModel={closeViewModel} />
+      {avatarAdmin && viewModal && (
+        <ViewAvatar openView={viewModal} avatarData={avatarAdmin} closeViewModal={closeViewModal} />
       )}
     </React.Fragment>
   )

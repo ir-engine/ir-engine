@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -9,7 +10,7 @@ import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/Tr
 
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
@@ -25,7 +26,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
     const options: any[] = []
     const entityTree = useWorld().entityTree
 
-    entityTree.traverse((o) => {
+    traverseEntityNode(entityTree.rootNode, (o) => {
       if (o === entityTree.rootNode) return
       if (hasComponent(o.entity, Object3DComponent)) {
         const obj3d = getComponent(o.entity, Object3DComponent).value as any
@@ -38,7 +39,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
 
   //function to handle the changes in target
   const onChangeTarget = (target) => {
-    CommandManager.instance.setPropertyOnSelectionEntities({
+    setPropertyOnSelectionEntities({
       component: TriggerVolumeComponent,
       properties: {
         target,

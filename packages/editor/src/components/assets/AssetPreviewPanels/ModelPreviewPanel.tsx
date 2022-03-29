@@ -1,16 +1,21 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { AmbientLight, Box3, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  initialize3D,
+  onWindowResize,
+  renderScene
+} from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
+import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 
-import { FlyControlComponent } from '../../../classes/FlyControlComponent'
-import { ProjectManager } from '../../../managers/ProjectManager'
-import { SceneManager } from '../../../managers/SceneManager'
+import CircularProgress from '@mui/material/CircularProgress'
+
 import { EditorAction, useEditorState } from '../../../services/EditorServices'
 import { useModeState } from '../../../services/ModeServices'
+import styles from '../styles.module.scss'
 
 /**
  * @author Abhishek Pathak
@@ -31,78 +36,68 @@ const ModelPreview = (styled as any).canvas`
  * @returns
  */
 
+export let camera: PerspectiveCamera
+export let scene: Scene
+export let renderer: WebGLRenderer = null!
+
 export const ModelPreviewPanel = (props) => {
   const modeState = useModeState()
   const dispatch = useDispatch()
   const url = props.resourceProps.resourceUrl
-  const initializeRefFly = React.useRef<boolean>(false)
-  const assestPanelRef = React.createRef<HTMLCanvasElement>()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const scene = new Scene()
-  const camera = new PerspectiveCamera(75)
-  // const editor = new Editor(null, { camera, scene })
-
-  const editorState = useEditorState()
-
-  const [flyModeEnabled, setFlyModeEnabled] = useState(false)
-
-  const renderScene = () => {
-    const canvas = assestPanelRef.current as any
-    const renderer = new WebGLRenderer({
-      canvas: canvas
-    })
-
-    renderer.setSize(canvas.width, canvas.height)
-
-    const light = new AmbientLight(0x404040)
-    scene.add(light)
-
-    camera.aspect = canvas.width / canvas.width
-    scene.add(camera)
-    renderer.render(scene, camera)
-
-    new GLTFLoader().load(
-      url,
-      (gltf) => {
-        scene.add(gltf.scene)
-        const bbox = new Box3().setFromObject(gltf.scene)
-        bbox.getCenter(camera.position)
-        camera.position.z = bbox.max.z + 1
-      },
-      undefined,
-      () => {
-        console.log('Error Loading GLTF From URl')
-      }
-    )
+  const loadModel = async () => {
+    try {
+      const model = await loadAvatarModelAsset(url)
+      model.name = 'avatar'
+      const result = scene.getObjectByName(model.name)
+      if (result) scene.remove(result)
+      scene.add(model)
+      setLoading(false)
+      renderScene({ scene, camera, renderer })
+    } catch (err) {
+      setLoading(false)
+      setError(err.message)
+    }
   }
 
-  const onFlyModeChanged = useCallback(() => {
-    const flyControlComponent = getComponent(SceneManager.instance.editorEntity, FlyControlComponent)
-    setFlyModeEnabled(flyControlComponent.enable)
-  }, [setFlyModeEnabled])
+  if (renderer) loadModel()
 
   useEffect(() => {
-    if (initializeRefFly.current && editorState.rendererInitialized.value) {
-      onFlyModeChanged()
-    } else {
-      initializeRefFly.current = true
-    }
-  }, [modeState.flyModeChanged.value])
+    const init = initialize3D()
+    scene = init.scene
+    camera = init.camera
+    renderer = init.renderer
+    const controls = getOrbitControls(camera, renderer.domElement)
+    ;(controls as any).addEventListener('change', () => renderScene({ scene, camera, renderer }))
 
-  useEffect(() => {
-    SceneManager.instance.initializeRenderer()
-    renderScene()
+    controls.minDistance = 0.1
+    controls.maxDistance = 10
+    controls.target.set(0, 1.25, 0)
+    controls.update()
+    if (loading) loadModel()
+
+    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
 
     return () => {
-      ProjectManager.instance.dispose()
+      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
     }
   }, [])
 
   return (
     <>
-      <div>
-        <ModelPreview ref={assestPanelRef} />
-      </div>
+      {loading && (
+        <div className={styles.container}>
+          <CircularProgress />
+        </div>
+      )}
+      {error && (
+        <div className={styles.container}>
+          <h1 className={styles.error}>{error}</h1>
+        </div>
+      )}
+      <div id="stage" style={{ width: '100%', height: '100%' }}></div>
     </>
   )
 }

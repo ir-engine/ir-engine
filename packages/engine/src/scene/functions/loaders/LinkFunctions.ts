@@ -27,7 +27,7 @@ export const SCENE_COMPONENT_LINK_DEFAULT_VALUES = {
 
 if (isClient) {
   // todo: make this not top level
-  AssetLoader.load({ url: '/static/editor/link-icon.png' })
+  AssetLoader.load('/static/editor/link-icon.png')
 }
 
 export const deserializeLink: ComponentDeserializeFunction = (

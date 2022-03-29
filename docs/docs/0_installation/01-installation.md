@@ -122,7 +122,7 @@ https://mediasoup.org/documentation/v3/mediasoup/installation/
 4. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
 for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
 
-5. install all dependences using npm.
+5. install all dependencies using npm.
 
 6. If error persists then check for typos in environment variables.
 
@@ -305,7 +305,7 @@ You can administrate many features from the admin panel at https://localhost:300
 
 How to make a user an admin:
 
-Create a user at `/login`
+Create a user at `https://localhost:3000/`
 
 To locate your User ID:
 In Chrome Dev Tools console, write `copy(userId)`. This will copy your User ID (As shown in attached screenshot). Paste it in and run the following command in a 'nix shell (e.g. Bash, ZSH):

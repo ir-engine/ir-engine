@@ -1,7 +1,9 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
-import { Invite } from '@xrengine/common/src/interfaces/Invite'
+import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
+import { User } from '@xrengine/common/src/interfaces/User'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -96,7 +98,7 @@ export const useInviteState = () => useState(state) as any as typeof state
 
 //Service
 export const InviteService = {
-  sendInvite: async (data: any) => {
+  sendInvite: async (data: SendInvite) => {
     const dispatch = useDispatch()
     {
       if (data.identityProviderType === 'email') {
@@ -117,22 +119,22 @@ export const InviteService = {
           AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
           return
         } else {
-          const userResult = await client.service('user').find({
-            query: {
-              action: 'invite-code-lookup',
-              inviteCode: data.inviteCode
-            }
-          })
-          if (userResult.errors || userResult.code) {
-            AlertService.dispatchAlertError(userResult.message)
-            return
-          }
+          try {
+            const userResult = (await client.service('user').find({
+              query: {
+                action: 'invite-code-lookup',
+                inviteCode: data.inviteCode
+              }
+            })) as Paginated<User>
 
-          if (userResult.total === 0) {
-            AlertService.dispatchAlertError(new Error('No user has that invite code'))
-            return
-          } else {
-            data.invitee = userResult.data[0].id
+            if (userResult.total === 0) {
+              AlertService.dispatchAlertError(new Error('No user has that invite code'))
+              return
+            } else {
+              data.invitee = userResult.data[0].id
+            }
+          } catch (error) {
+            AlertService.dispatchAlertError(error)
           }
         }
       }
@@ -158,9 +160,9 @@ export const InviteService = {
           inviteeId: data.invitee
         }
 
-        const existingInviteResult = await client.service('invite').find({
+        const existingInviteResult = (await client.service('invite').find({
           query: params
-        })
+        })) as Paginated<Invite>
 
         let inviteResult
         if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
@@ -180,13 +182,13 @@ export const InviteService = {
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit
       try {
-        const inviteResult = await client.service('invite').find({
+        const inviteResult = (await client.service('invite').find({
           query: {
             type: 'received',
             $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit
           }
-        })
+        })) as Paginated<Invite>
         dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -201,13 +203,13 @@ export const InviteService = {
       const skip = inviteState.sentInvites.skip
       const limit = inviteState.sentInvites.limit
       try {
-        const inviteResult = await client.service('invite').find({
+        const inviteResult = (await client.service('invite').find({
           query: {
             type: 'sent',
             $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
             $limit: limit
           }
-        })
+        })) as Paginated<Invite>
         dispatch(InviteAction.retrievedSentInvites(inviteResult))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -298,7 +300,7 @@ export const InviteAction = {
       skip: inviteResult.skip
     }
   },
-  retrievedReceivedInvites: (inviteResult: InviteResult) => {
+  retrievedReceivedInvites: (inviteResult: Paginated<Invite>) => {
     return {
       type: 'RECEIVED_INVITES_RETRIEVED' as const,
       invites: inviteResult.data,

@@ -8,7 +8,7 @@ geometry.position = - vViewPosition;
 geometry.normal = normal;
 geometry.viewDir = ( isOrthographic ) ? vec3( 0, 0, 1 ) : normalize( vViewPosition );
 
-#ifdef CLEARCOAT
+#ifdef USE_CLEARCOAT
 
 	geometry.clearcoatNormal = clearcoatNormal;
 
@@ -28,7 +28,7 @@ IncidentLight directLight;
 
 		pointLight = pointLights[ i ];
 
-		getPointDirectLightIrradiance( pointLight, geometry.normal, directLight );
+		getPointLightInfo( pointLight, geometry, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_POINT_LIGHT_SHADOWS )
 		pointLightShadow = pointLightShadows[ i ];
@@ -54,7 +54,7 @@ IncidentLight directLight;
 
 		spotLight = spotLights[ i ];
 
-		getSpotDirectLightIrradiance( spotLight, geometry.normal, directLight );
+		getSpotLightInfo( spotLight, geometry, directLight );
 
 		#if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_SPOT_LIGHT_SHADOWS )
 		spotLightShadow = spotLightShadows[ i ];
@@ -68,7 +68,7 @@ IncidentLight directLight;
 
 #endif
 
-#if ( NUM_DIR_LIGHTS > 0) && defined( RE_Direct ) && defined( USE_CSM ) && defined( CSM_CASCADES )
+#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct ) && defined( USE_CSM ) && defined( CSM_CASCADES )
 
 	DirectionalLight directionalLight;
 	float linearDepth = (vViewPosition.z) / (shadowFar - cameraNear);

@@ -1,9 +1,8 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
 import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-import { LocationTypesResult } from '@xrengine/common/src/interfaces/LocationTypesResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { ErrorAction } from '../../common/services/ErrorService'
@@ -48,7 +47,7 @@ store.receptors.push((action: LocationActionType): any => {
       case 'ADMIN_LOCATION_REMOVED':
         return s.merge({ updateNeeded: true })
       case 'ADMIN_LOCATION_TYPES_RETRIEVED':
-        return s.merge({ locationTypes: action.locationTypesResult.data, updateNeeded: false })
+        return s.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
     }
   }, action.type)
 })
@@ -62,7 +61,7 @@ export const LocationService = {
   fetchLocationTypes: async () => {
     const dispatch = useDispatch()
     {
-      const locationTypes = await client.service('location-type').find()
+      const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
       dispatch(LocationAction.locationTypesRetrieved(locationTypes))
     }
   },
@@ -103,7 +102,7 @@ export const LocationService = {
     const dispatch = useDispatch()
     {
       try {
-        const locations = await client.service('location').find({
+        const locations = (await client.service('location').find({
           query: {
             $sort: {
               name: 1
@@ -113,7 +112,7 @@ export const LocationService = {
             adminnedLocations: true,
             search: value
           }
-        })
+        })) as Paginated<Location>
         dispatch(LocationAction.locationsRetrieved(locations))
       } catch (error) {
         console.error(error)
@@ -125,7 +124,7 @@ export const LocationService = {
     const dispatch = useDispatch()
     {
       try {
-        const result = await client.service('location').find({
+        const result = (await client.service('location').find({
           query: {
             search: value,
             $sort: {
@@ -135,7 +134,7 @@ export const LocationService = {
             $limit: accessLocationState().limit.value,
             adminnedLocations: true
           }
-        })
+        })) as Paginated<Location>
         dispatch(LocationAction.locationsRetrieved(result))
       } catch (error) {
         console.error(error)
@@ -147,7 +146,11 @@ export const LocationService = {
 
 //Action
 export const LocationAction = {
-  locationsRetrieved: (locations: LocationResult) => {
+  locationsRetrieved: (locations: Paginated<Location>) => {
+    locations.data.forEach((locationData) => {
+      if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
+    })
+
     return {
       type: 'ADMIN_LOCATIONS_RETRIEVED' as const,
       locations: locations
@@ -192,10 +195,10 @@ export const LocationAction = {
       type: 'ADMIN_LOCATION_NOT_FOUND' as const
     }
   },
-  locationTypesRetrieved: (locationTypesResult: LocationTypesResult) => {
+  locationTypesRetrieved: (locationTypes: Paginated<LocationType>) => {
     return {
       type: 'ADMIN_LOCATION_TYPES_RETRIEVED' as const,
-      locationTypesResult: locationTypesResult
+      locationTypes: locationTypes
     }
   }
 }

@@ -59,7 +59,7 @@ const ProtectedRoutes = (props: Props) => {
   })
 
   if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to={{ pathname: '/login', state: { from: '/admin' } }} />
+    return <Redirect to={{ pathname: '/', state: { from: '/admin' } }} />
   }
 
   return (

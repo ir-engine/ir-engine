@@ -1,14 +1,14 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
-  return async (context: HookContext): Promise<any> => {
+  return async (context: HookContext): Promise<HookContext> => {
     let fetchedGroupId
     const { id, method, params, app, path } = context
-    const loggedInUser = extractLoggedInUserFromParams(params)
+    const loggedInUser = params.user as UserDataType
     if (path === 'group-user' && method === 'remove') {
       const groupUser = await app.service('group-user').get(id!, null!)
       fetchedGroupId = groupUser.groupId

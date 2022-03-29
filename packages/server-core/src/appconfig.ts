@@ -4,7 +4,9 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
-import '@xrengine/engine/src/patchEngineNode'
+const { register } = require('trace-unhandled')
+
+register()
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
@@ -149,7 +151,6 @@ const gameserver = {
   domain: process.env.GAMESERVER_DOMAIN || 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME!,
   port: process.env.GAMESERVER_PORT!,
-  mode: process.env.GAMESERVER_MODE!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.GAMESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
@@ -291,7 +292,6 @@ const aws = {
   }
 }
 
-console.log('aws settings in appconfig', aws, aws.s3.endpoint)
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
   apiKey: process.env.CHARGEBEE_API_KEY!

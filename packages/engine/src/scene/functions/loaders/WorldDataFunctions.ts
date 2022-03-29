@@ -1,4 +1,4 @@
-import { createState, StateMethods } from '@speigg/hookstate'
+import { createState } from '@speigg/hookstate'
 import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -55,7 +55,7 @@ export const serializeWorldData: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_WORLDDATA,
     props: {
-      data: component.interactionUserData
+      data: component.interactionUserData.value
     }
   }
 }
