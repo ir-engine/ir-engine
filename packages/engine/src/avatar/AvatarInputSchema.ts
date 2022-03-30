@@ -302,7 +302,11 @@ const morphNameByInput = {
   [CameraInput.Open]: 'Happy'
 }
 
-const setAvatarExpression: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
+export const setAvatarExpression: InputBehaviorType = (
+  entity: Entity,
+  inputKey: InputAlias,
+  inputValue: InputValue
+): void => {
   const object = getComponent(entity, Object3DComponent)
   let body
   object.value.traverse((obj: SkinnedMesh) => {

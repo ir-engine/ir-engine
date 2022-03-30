@@ -263,9 +263,8 @@ export const ChatService = {
         //const d = getAllComponentsOfType(VideoComponent)
         //console.log('Video Components:', d)
 
-        console.log('video:', video)
         const [controlType, videoUrl] = text.split(' ')
-        console.log('got command, controlType:', controlType, 'videoUrl:', videoUrl)
+
         switch (controlType) {
           case '/playVideo':
             //d[0].videoSource = videoUrl
