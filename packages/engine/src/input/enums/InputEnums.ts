@@ -76,6 +76,6 @@ export enum CameraInput {
 }
 
 export enum AvatarMovementScheme {
-  WASD = 150, // Need a better name for this?
+  Linear = 150, // Need a better name for this?
   Teleport = 151
 }
