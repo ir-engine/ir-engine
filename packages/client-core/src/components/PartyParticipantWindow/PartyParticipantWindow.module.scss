@@ -1,4 +1,4 @@
-@use '../../theme.scss' as theme;
+@use '../../theme.scss'as theme;
 @import '@xrengine/client-core/src/styles/imports.module.scss';
 
 .party-chat-user {
@@ -117,7 +117,7 @@
       justify-content: space-between;
       margin: 0 5px;
 
-      & > .spacer {
+      &>.spacer {
         height: 5px;
       }
     }
@@ -148,7 +148,7 @@
       align-items: center;
       margin-top: 5px;
 
-      & > span {
+      &>span {
         margin: 0 10px;
       }
 
@@ -299,11 +299,13 @@
       text-overflow: ellipsis;
       max-width: 150px;
     }
+
     .audio-slider {
       svg {
         width: 20px;
       }
     }
+
     &:hover,
     &:focus {
       .user-controls {
@@ -318,12 +320,14 @@
   @media (max-width: 768px) {
     margin: 0 10px;
     flex-direction: column;
+
     .user-controls {
       width: 100%;
       margin: -10px auto 0 auto;
       z-index: 10;
       height: 0;
     }
+
     &:focus,
     &:focus-within {
       .video-wrapper {
@@ -347,6 +351,7 @@
       height: 100%;
       border-radius: 0;
     }
+
     .user-controls {
       display: flex;
       position: absolute;
@@ -363,16 +368,20 @@
         flex-direction: row;
         justify-content: space-between;
         margin-left: 5px;
+
         .audio-slider {
           margin-top: 0;
         }
+
         .pipBtn {
           transform: rotate(180deg);
         }
       }
+
       button {
         margin: 0;
       }
+
       .username {
         max-width: 230px;
       }
@@ -387,9 +396,11 @@
     @media (max-width: 768px) {
       width: 200px;
       height: 200px;
+
       .username {
         max-width: 180px;
       }
+
       .controls {
         flex-direction: column !important;
         margin-left: 0 !important;
