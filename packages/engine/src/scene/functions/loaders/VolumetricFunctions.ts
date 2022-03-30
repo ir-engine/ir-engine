@@ -1,4 +1,4 @@
-import { Box3, Group, RGBAFormat } from 'three'
+import { Box3, Group, LinearFilter, MeshBasicMaterial, RGBAFormat, RGBFormat, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
@@ -26,7 +26,7 @@ import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player').default.prototype
+    player: typeof import('volumetric/player').default.prototype
     isEffect: boolean
     time: number
   }
@@ -36,15 +36,12 @@ type VolumetricObject3D = UpdateableObject3D & {
   callbacks()
 }
 
-let DracosisPlayer =
-  null! as typeof import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player').default
+let DracosisPlayer = null! as typeof import('volumetric/player').default
 
 if (isClient) {
-  Promise.all([import('../../../../../../../volumetric-player-demo-master/UniversalVolumetric/web/player')]).then(
-    ([module1]) => {
-      DracosisPlayer = module1.default
-    }
-  )
+  Promise.all([import('volumetric/player')]).then(([module1]) => {
+    DracosisPlayer = module1.default
+  })
 }
 
 export const VolumetricCallbacks = [
@@ -101,6 +98,7 @@ export const updateVolumetric: ComponentUpdateFunction = async (
         scene: obj3d,
         renderer: Engine.renderer,
         paths,
+        isLoadingEffect: true,
         playMode: component.playMode as any,
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
@@ -117,6 +115,12 @@ export const updateVolumetric: ComponentUpdateFunction = async (
           }
         }
       })
+
+      window.UVOLPlayer = obj3d.userData.player
+      window.MeshBasicMaterial = MeshBasicMaterial
+      window.RGBFormat = RGBFormat
+      window.LinearFilter = LinearFilter
+      window.Texture = Texture
 
       removeError(entity, 'error')
 
