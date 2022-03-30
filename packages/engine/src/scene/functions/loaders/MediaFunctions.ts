@@ -36,7 +36,7 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   updateMedia(entity, props)
 }
 
-export const updateMedia: ComponentUpdateFunction = async (entity: Entity, properties: MediaComponentType) => {
+export const updateMedia: ComponentUpdateFunction = (entity: Entity, properties: MediaComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, MediaComponent)
 

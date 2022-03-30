@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "bodyType.schema.json",
+  "title": "bodyType",
+  "type": "integer",
+  "description": "body type enum descriptor",
+  "anyOf": [
+    {
+      "const": 0,
+      "description": "STATIC"
+    },
+    {
+      "const": 1,
+      "description": "DYNAMIC"
+    },
+    {
+      "const": 2,
+      "description": "KINEMATIC"
+    },
+    {
+      "const": 3,
+      "description": "CONTROLLER"
+    }
+  ]
+}

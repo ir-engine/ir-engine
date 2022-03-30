@@ -3,6 +3,7 @@ import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, Video
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -10,7 +11,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineEvents } from '../../../ecs/classes/EngineEvents'
 import { accessEngineState } from '../../../ecs/classes/EngineService'
@@ -90,17 +90,17 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   updateVideo(entity, props)
 }
 
-export const updateVideo: ComponentUpdateFunction = async (entity: Entity, properties: VideoComponentType) => {
+export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
   const mesh = obj3d.userData.mesh
   const component = getComponent(entity, VideoComponent)
 
   if (properties.videoSource) {
     try {
-      const { url, contentType } = await resolveMedia(component.videoSource)
-      if (isHLS(url, contentType)) {
+      const assetClass = AssetLoader.getAssetClass(component.videoSource)
+      if (isHLS(component.videoSource)) {
         if (component.hls) component.hls.destroy()
-        component.hls = setupHLS(entity, url)
+        component.hls = setupHLS(entity, component.videoSource)
         component.hls?.attachMedia(obj3d.userData.videoEl)
       }
       // else if (isDash(url)) {
@@ -112,7 +112,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
       else {
         obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
         obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
-        obj3d.userData.videoEl.src = url
+        obj3d.userData.videoEl.src = component.videoSource
       }
 
       const texture = new VideoTexture(obj3d.userData.videoEl)

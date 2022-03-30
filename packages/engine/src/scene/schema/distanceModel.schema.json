@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "distanceModel.schema.json",
+  "title": "distanceModel",
+  "type": "string",
+  "description": "distance model enum descriptor",
+  "anyOf": [
+    {
+      "const": "linear",
+      "description": "LINEAR",
+      "type": "string"
+    },
+    {
+      "const": "exponential",
+      "description": "EXPONENTIAL",
+      "type": "string"
+    },
+    {
+      "const": "inverse",
+      "description": "INVERSE",
+      "type": "string"
+    }
+  ]
+}
