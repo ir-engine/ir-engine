@@ -25,6 +25,7 @@ export interface User {
   name: string
   userRole?: string
   avatarId?: string
+  themeMode?: string
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
   relationType?: RelationshipType
@@ -46,6 +47,7 @@ export const UserSeed: User = {
   name: '',
   userRole: '',
   avatarId: '',
+  themeMode: 'dark',
   apiKey: {
     id: '',
     token: '',
@@ -100,6 +102,7 @@ export function resolveWalletUser(credentials: any): User {
     instanceId: credentials.user.id,
     name: credentials.user.displayName,
     userRole: 'guest',
+    themeMode: 'dark',
     avatarId: credentials.user.id,
     identityProviders: [],
     locationAdmins: [],

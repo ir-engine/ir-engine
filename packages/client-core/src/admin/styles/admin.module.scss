@@ -62,7 +62,7 @@
 .botRoot {
   width: 100%;
   color: #fff;
-  background-color: theme.$purpleDarkest;
+  background-color: var(--purpleDarkest);
 }
 
 .botHeader {
@@ -374,7 +374,7 @@
 .middlePaper {
   color: theme.$text;
   padding: 20px 0 8px 20px;
-  background: theme.$purpleDarkest;
+  background: var(--purpleDarkest);
   height: 10rem;
 }
 

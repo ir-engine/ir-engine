@@ -828,13 +828,22 @@ export const AuthService = {
     }
   },
 
+  updateUserTheme: async (userId: string, theme: string) => {
+    const dispatch = useDispatch()
+    {
+      const user = (await client.service('user').patch(userId, {
+        themeMode: theme
+      })) as User
+      dispatch(AuthAction.userUpdated(user))
+    }
+  },
+
   updateApiKey: async () => {
     const dispatch = useDispatch()
     const apiKey = (await client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatch(AuthAction.apiKeyUpdated(apiKey))
   },
   listenForUserPatch: () => {
-    console.log('listenForUserPatch')
     client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
     client.service('location-ban').on('created', async (params) => {
       const selfUser = accessAuthState().user

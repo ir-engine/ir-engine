@@ -31,6 +31,11 @@ export default (app: Application) => {
       inviteCode: {
         type: DataTypes.STRING,
         unique: true
+      },
+      themeMode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: (): string => 'dark'
       }
     },
     {

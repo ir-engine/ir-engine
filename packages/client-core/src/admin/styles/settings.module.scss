@@ -146,14 +146,14 @@
 
 .Paper {
   padding: 0px 10px 6px 10px;
-  background: theme.$purpleDarkest;
+  background: var(--purpleDarkest);
 }
 
 .Paper2 {
   display: flex;
   padding: 5px 10px;
   flex-direction: row;
-  background: theme.$purpleDarkest;
+  background: var(--purpleDarkest);
 
   &>div {
     margin: 5px;

@@ -72,7 +72,7 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: theme.$purpleDarkest;
+  background-color: var(--purpleDarkest);
   pointer-events: auto;
 }
 
@@ -416,7 +416,7 @@
     background: theme.$purplePinkGradient;
 
     &:disabled {
-      background: theme.$purpleDarkest;
+      background: var(--purpleDarkest);
     }
   }
 

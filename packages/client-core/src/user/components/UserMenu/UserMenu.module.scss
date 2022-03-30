@@ -18,6 +18,21 @@
   }
 }
 
+.themeSettingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label {
+    margin: 0px;
+  }
+}
+
+.themeHeading {
+  font-size: 12px;
+  color: theme.$text;
+}
+
 .settingContainer {
   position: fixed;
   bottom: 20px;
@@ -248,7 +263,7 @@
       }
 
       button[disabled] {
-        background: theme.$purpleDarkest;
+        background: var(--purpleDarkest);
         opacity: 1 !important;
       }
 
@@ -2179,7 +2194,7 @@
 }
 
 .unselectedTab {
-  color: theme.$purpleDarkest !important;
+  color: var(--purpleDarkest) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
