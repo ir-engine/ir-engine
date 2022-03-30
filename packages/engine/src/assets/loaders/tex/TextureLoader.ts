@@ -19,7 +19,6 @@ export class TextureLoader extends Loader {
       url,
       (image) => {
         texture.image = image
-        texture.format = RGBAFormat
         texture.needsUpdate = true
         if (onLoad !== undefined) {
           onLoad(texture)

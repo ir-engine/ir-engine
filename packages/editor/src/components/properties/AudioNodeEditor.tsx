@@ -1,6 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -36,6 +37,12 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
   const isVolumetric = hasComponent(entity, VolumetricComponent)
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
+  const updateSrc = async (src: string) => {
+    AssetLoader.Cache.delete(src)
+    await AssetLoader.loadAsync(src)
+    updateProperty(AudioComponent, 'audioSource')(src)
+  }
+
   return (
     <NodeEditor
       {...props}
@@ -44,7 +51,7 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
     >
       {!isVideo && !isVolumetric && (
         <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
-          <AudioInput value={audioComponent.audioSource} onChange={updateProperty(AudioComponent, 'audioSource')} />
+          <AudioInput value={audioComponent.audioSource} onChange={updateSrc} />
           {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
         </InputGroup>
       )}

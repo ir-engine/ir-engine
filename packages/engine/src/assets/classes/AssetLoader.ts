@@ -1,5 +1,6 @@
 import {
   AnimationClip,
+  AudioLoader,
   FileLoader,
   Group,
   Loader,
@@ -23,6 +24,7 @@ import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { TGALoader } from '../loaders/tga/TGALoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
 
@@ -37,13 +39,13 @@ export interface LoadGLTFResultInterface {
 }
 
 // TODO: refactor global scope
-const loader = createGLTFLoader()
+const gltfLoader = createGLTFLoader()
 export function getGLTFLoader(): GLTFLoader {
-  return loader
+  return gltfLoader
 }
 
 export function disposeDracoLoaderWorkers(): void {
-  loader.dracoLoader?.dispose()
+  gltfLoader.dracoLoader?.dispose()
 }
 
 export const loadExtensions = async (gltf: GLTF) => {
@@ -135,8 +137,13 @@ const getAssetType = (assetFileName: string): AssetType => {
   if (/\.(?:gltf|glb)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
+  else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
   else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
   else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
+  else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
+  else if (/\.(?:aac)$/.test(assetFileName)) return AssetType.AAC
+  else if (/\.(?:ogg)$/.test(assetFileName)) return AssetType.OGG
+  else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
   return null!
 }
 
@@ -148,8 +155,12 @@ const getAssetType = (assetFileName: string): AssetType => {
 const getAssetClass = (assetFileName: string): AssetClass => {
   if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga$/.test(assetFileName)) {
     return AssetClass.Image
+  } else if (/\.mp4|avi|webm|mov$/.test(assetFileName)) {
+    return AssetClass.Video
+  } else if (/\.mp3|ogg|m4a|flac|wav$/.test(assetFileName)) {
+    return AssetClass.Audio
   } else {
     return null!
   }
@@ -171,17 +182,26 @@ const isSupported = (assetFileName: string) => {
 const fbxLoader = new FBXLoader()
 const textureLoader = new TextureLoader()
 const fileLoader = new FileLoader()
+const audioLoader = new AudioLoader()
+const tgaLoader = new TGALoader()
 
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.glTF:
     case AssetType.VRM:
-      return getGLTFLoader()
+      return gltfLoader
     case AssetType.FBX:
       return fbxLoader
+    case AssetType.TGA:
+      return tgaLoader
     case AssetType.PNG:
     case AssetType.JPEG:
       return textureLoader
+    case AssetType.AAC:
+    case AssetType.MP3:
+    case AssetType.OGG:
+    case AssetType.M4A:
+      return audioLoader
     default:
       return fileLoader
   }
