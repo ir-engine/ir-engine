@@ -28,6 +28,7 @@ body {
   position: fixed;
   bottom: 20px;
   left: 66.4px;
+
   @media (max-width: 450px) {
     left: 57.4px;
   }
@@ -44,10 +45,14 @@ body {
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   min-width: 90px;
-  scrollbar-width: none; /* IE */
-  -ms-overflow-style: none; /* Firefox */
+  scrollbar-width: none;
+  /* IE */
+  -ms-overflow-style: none;
+
+  /* Firefox */
   &::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none;
+    /* Safari and Chrome */
   }
 
   &::after {
@@ -64,10 +69,12 @@ body {
     top: -50px;
     right: -15px;
     margin: 0;
+
     &::after {
       display: inline-block;
     }
   }
+
   @media (max-width: 450px) {
     padding-left: 0;
     padding-right: 0;
@@ -86,13 +93,16 @@ body {
   left: 30px;
   border-radius: 50%;
   z-index: 11;
+
   svg {
     width: 50%;
     height: 50%;
   }
+
   &.expanded {
     background: $PurpleButtonColor;
   }
+
   &::before {
     content: ' ';
     position: absolute;
@@ -107,18 +117,22 @@ body {
     border-radius: 50%;
     transform: scale(0);
   }
+
   &:hover {
     &::before {
       transform: scale(1);
     }
   }
+
   @media (min-width: 769px) {
     display: none;
   }
+
   @media (max-width: 450px) {
     width: 40px;
     height: 40px;
     left: 10px;
+
     &::before {
       width: 40px;
       height: 40px;
@@ -174,6 +188,7 @@ body {
   padding: 0;
   border-radius: 50%;
   opacity: 1;
+
   &:hover {
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
@@ -182,6 +197,7 @@ body {
   svg {
     color: #313131;
   }
+
   @media (max-width: 450px) {
     width: 30px;
     height: 30px;
@@ -202,6 +218,7 @@ body {
   padding: 0;
   border-radius: 50%;
   opacity: 0.99;
+
   &:hover {
     box-shadow: 0 1rem 2rem rgba(#000, 0.2);
     opacity: 1;
@@ -210,6 +227,7 @@ body {
   svg {
     color: black;
   }
+
   @media (max-width: 450px) {
     width: 40px;
     height: 40px;
@@ -220,6 +238,7 @@ body {
   position: fixed !important;
   bottom: 20px !important;
   left: 66.4px !important;
+
   @media (max-width: 450px) {
     left: 57.4px !important;
   }
@@ -229,10 +248,12 @@ body {
   position: fixed;
   bottom: 20px;
   left: 125px;
+
   @media (max-width: 450px) {
     left: 106px;
   }
 }
+
 .fadeOutTop {
   opacity: 0;
   transform: translateY(-4rem);
@@ -266,6 +287,7 @@ body {
     opacity: 0;
     transform: translateY(1rem);
   }
+
   100% {
     opacity: 1;
     transform: translate(0);
@@ -277,6 +299,7 @@ body {
     opacity: 0;
     transform: translateY(1rem);
   }
+
   100% {
     opacity: 1;
     transform: translate(0);
@@ -288,6 +311,7 @@ body {
     opacity: 0;
     transform: translateY(-1rem);
   }
+
   100% {
     opacity: 1;
     transform: translate(0);
@@ -299,6 +323,7 @@ body {
     opacity: 0;
     transform: translateY(-1rem);
   }
+
   100% {
     opacity: 1;
     transform: translate(0);
