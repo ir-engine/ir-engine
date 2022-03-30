@@ -26,13 +26,13 @@
     ]
   },
   "resolutions": {
-    "@types/react": "17.0.41",
+    "@types/react": "17.0.43",
     "react": "17.0.2",
     "terser": "5.12.1",
     "**/terser-webpack-plugin": "5.3.1"
   },
   "peerDependencies": {
-    "@types/react": "17.0.41",
+    "@types/react": "17.0.43",
     "react": "17.0.2"
   },
   "dependencies": {
@@ -48,7 +48,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.0.0-beta.17",
     "@tsconfig/docusaurus": "1.0.5",
-    "@types/react": "17.0.41",
+    "@types/react": "17.0.43",
     "@types/react-helmet": "6.1.5",
     "@types/react-router-dom": "5.3.3",
     "cross-env": "7.0.3",
