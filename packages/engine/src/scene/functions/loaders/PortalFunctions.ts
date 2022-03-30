@@ -105,7 +105,7 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
       redirect: portalComponent.redirect,
       // cubemapBakeId: component.cubemapBakeId, // TODO
       spawnPosition: helperTransform.position,
-      spawnRotation: new Vector3().setFromEuler(new Euler().setFromQuaternion(helperTransform.rotation))
+      spawnRotation: new Vector3().applyEuler(new Euler().setFromQuaternion(helperTransform.rotation))
     }
   }
 }
