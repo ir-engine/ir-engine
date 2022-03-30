@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 
 /**
@@ -21,7 +21,7 @@ export default function checkPositionIsValid(
   const filterData = new PhysX.PxQueryFilterData()
   onlyAllowPositionOnGround
     ? filterData.setWords(CollisionGroups.Ground, 0)
-    : filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
+    : filterData.setWords(AvatarCollisionMask, 0)
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 
