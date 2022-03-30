@@ -39,7 +39,7 @@ export const deserializeWater: ComponentDeserializeFunction = (
   updateWater(entity, json.props)
 }
 
-export const updateWater: ComponentUpdateFunction = async (_entity: Entity, _properties: WaterComponentType) => {}
+export const updateWater: ComponentUpdateFunction = (_entity: Entity, _properties: WaterComponentType) => {}
 
 export const serializeWater: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, WaterComponent) as WaterComponentType
