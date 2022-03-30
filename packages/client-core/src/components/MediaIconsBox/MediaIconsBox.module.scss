@@ -41,25 +41,31 @@
     &:hover::before {
       transform: scale(1);
     }
+
     &.on svg {
       color: rgba(122, 255, 100, 1);
     }
-    > svg {
+
+    >svg {
       height: 50%;
       width: 50%;
     }
   }
+
   @media (max-width: 450px) {
     justify-content: flex-middle;
+
     .iconContainer {
       width: 40px;
       height: 40px;
+
       &:before {
         width: 40px;
         height: 40px;
       }
     }
   }
+
   @media (max-width: 395px) {
     top: 60px;
     width: auto;
