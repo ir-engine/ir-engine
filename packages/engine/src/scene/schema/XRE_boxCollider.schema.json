@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_boxCollider.schema.json",
+  "title": "XRE_boxCollider glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine box collider components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "isTrigger": {
+      "type": "boolean",
+      "default": false
+    },
+    "removeMesh": {
+      "type": "boolean",
+      "default": false
+    },
+    "collisionLayer": {
+      "type": "number"
+    },
+    "collisionMask": {
+      "type": "number"
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

@@ -217,6 +217,7 @@ export function updateMaterial(material: any, config: particleMeshOptions): void
   material.uniforms.textureAtlas.value[1] = 0.50012207031 // 1.,1. unpacked uvs
 
   material.transparent = config.transparent
+  material.needsUpdate = true
   material.blending = config.blending
   material.fog = config.fog
   material.depthWrite = config.depthWrite

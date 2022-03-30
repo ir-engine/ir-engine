@@ -30,7 +30,7 @@ export const deserializeInteractable: ComponentDeserializeFunction = (
   updateInteractable(entity, props)
 }
 
-export const updateInteractable: ComponentUpdateFunction = async (
+export const updateInteractable: ComponentUpdateFunction = (
   _entity: Entity,
   _properties: InteractableComponentType
 ) => {}

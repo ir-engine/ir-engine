@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_node.schema.json",
+  "title": "XRE_node glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine scene nodes",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "uuid": {
+      "type": "string",
+      "description": "uuid of node"
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

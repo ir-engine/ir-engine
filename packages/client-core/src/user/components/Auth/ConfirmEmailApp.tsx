@@ -55,7 +55,7 @@ const ConfirmEmail = (props: Props): JSX.Element => {
         <p>
           <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
             {t('user:auth.confirmEmail.haveAnAccount')}{' '}
-            <span onClick={() => history.push('/login')}>{t('user:auth.register.login')}</span>
+            <span onClick={() => history.push('/')}>{t('user:auth.register.login')}</span>
           </Trans>
         </p>
       </section>

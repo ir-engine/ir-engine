@@ -13,7 +13,8 @@ import {
   Vector3
 } from 'three'
 
-import loadTexture from '../../assets/functions/loadTexture'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 import { addError, removeError } from '../functions/ErrorFunctions'
 
@@ -71,7 +72,9 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
   _noise: SimplexNoise
   needsUpdate: boolean
 
-  constructor() {
+  entity: Entity
+
+  constructor(entity: Entity) {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
@@ -92,6 +95,7 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
     })
 
     super(geometry, material)
+    this.entity = entity
 
     this.frustumCulled = false
     this._noise = new SimplexNoise('seed')
@@ -201,13 +205,13 @@ export class Clouds extends Mesh<InstancedBufferGeometry, ShaderMaterial> {
 
   set texture(path: string) {
     this._texture = path
-    loadTexture(path)
+    AssetLoader.loadAsync(path)
       .then((texture) => {
         this.material.uniforms.map.value = texture
-        removeError((this as Object3D as Object3DWithEntity).entity, 'error')
+        removeError(this.entity, 'error')
       })
       .catch((error) => {
-        addError((this as Object3D as Object3DWithEntity).entity, 'error', error.message)
+        addError(this.entity, 'error', error.message)
       })
   }
 

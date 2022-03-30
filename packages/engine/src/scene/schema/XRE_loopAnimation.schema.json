@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_loopAnimation.schema.json",
+  "title": "XRE_loopAnimation glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine loop animation components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "mixer": {
+      "type": "object",
+      "properties": {
+        "time": { "type": "number" },
+        "timeScale": { "type": "number" }
+      }
+    },
+    "animations": {
+      "type": "array",
+      "items": {
+        "$ref": "animationClip.schema.json"
+      }
+    },
+    "animationSpeed": { "type": "number" }
+  },
+  "extensions": {},
+  "extras": {}
+}

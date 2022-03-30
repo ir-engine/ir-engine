@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "XRE_groundPlane glTF extension",
+  "$id": "XRE_groundPlane.schema.json",
+  "type": "object",
+  "description": "serialization extension for XREngine ground plane components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "color": {
+      "$ref": "color.schema.json",
+      "default": "#ffffff"
+    },
+    "generateNavmesh": {
+      "type": "boolean",
+      "default": false
+    },
+    "isNavmeshGenerated": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}
