@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_link.schema.json",
+  "title": "XRE_link glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine link components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "href": { "$ref": "url.schema.json" }
+  },
+  "extensions": {},
+  "extras": {}
+}

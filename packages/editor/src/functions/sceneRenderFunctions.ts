@@ -1,28 +1,21 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
-import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { GLTFExporter } from '@xrengine/engine/src/assets/loaders/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { getAnimationClips } from '@xrengine/engine/src/scene/functions/cloneObject3D'
-import { serializeForGLTFExport } from '@xrengine/engine/src/scene/functions/GLTFExportFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 
 import EditorInfiniteGridHelper from '../classes/EditorInfiniteGridHelper'
-import { executeCommand } from '../classes/History'
-import MeshCombinationGroup from '../classes/MeshCombinationGroup'
-import EditorCommands from '../constants/EditorCommands'
 import { RenderModes, RenderModesType } from '../constants/RenderModes'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
@@ -31,7 +24,6 @@ import { accessModeState } from '../services/ModeServices'
 import { createCameraEntity } from './createCameraEntity'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
-import isEmptyObject from './isEmptyObject'
 import { addInputActionMapping } from './parseInputActionMapping'
 
 export type DefaultExportOptionsType = {
@@ -179,6 +171,7 @@ function removeUnusedObjects(object3d: Object3D) {
  * @param  {Object}  [options={}]
  * @return {Promise}              [scene data as object]
  */
+/*
 export async function exportScene(options = {} as DefaultExportOptionsType) {
   const { shouldCombineMeshes, shouldRemoveUnusedObjects } = Object.assign({}, DefaultExportOptions, options)
 
@@ -234,7 +227,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
   } catch (error) {
     throw new RethrownError('Error creating glb blob', error)
   }
-}
+}*/
 
 export function disposeScene() {
   if (Engine.activeCameraEntity) removeEntity(Engine.activeCameraEntity, true)
@@ -259,6 +252,13 @@ export function disposeScene() {
       }
     })
 
+    //clear ecs
+    const eTree = Engine.currentWorld.entityTree
+    for (const entity of Array.from(eTree.entityNodeMap.keys())) {
+      removeEntity(entity, true)
+    }
+    emptyEntityTree(eTree)
+    eTree.uuidNodeMap.clear()
     Engine.scene.clear()
   }
 

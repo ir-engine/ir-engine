@@ -44,6 +44,7 @@ export const deserializeLink: ComponentDeserializeFunction = (
     material.map = AssetLoader.getFromCache('/static/editor/link-icon.png')
     material.side = DoubleSide
     material.transparent = true
+    material.needsUpdate = true
     const helper = new Mesh(geometry, material)
     setObjectLayers(helper, ObjectLayers.NodeHelper)
     obj3d.add(helper)

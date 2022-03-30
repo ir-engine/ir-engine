@@ -8,9 +8,12 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
@@ -22,8 +25,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject }
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import {
   DefaultExportOptions,
-  DefaultExportOptionsType,
-  exportScene,
+  DefaultExportOptionsType, //exportScene,
   initializeRenderer
 } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
@@ -289,7 +291,7 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-
+  /*
   const onExportProject = async () => {
     if (!sceneName) return
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
@@ -324,7 +326,7 @@ const EditorContainer = () => {
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = Engine.scene.name + '.glb'
+      el.download = Engine.scene.name + '.gltf'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -345,7 +347,7 @@ const EditorContainer = () => {
         />
       )
     }
-  }
+  }*/
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -363,14 +365,20 @@ const EditorContainer = () => {
     if (!confirm) return
     const el = document.createElement('input')
     el.type = 'file'
-    el.accept = '.world'
+    el.accept = '.gltf'
     el.style.display = 'none'
     el.onchange = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          const json = JSON.parse((fileReader as any).result)
-          importScene(json)
+          /*const loader = getGLTFLoader()
+          
+          loader.parse(fileReader.result, '', (gltf) => {
+            const json = gltfToSceneJson(gltf)
+            importScene(json)
+          })*/
+          const json = JSON.parse(fileReader.result)
+          importScene(gltfToSceneJson(json))
         }
         fileReader.readAsText(el.files[0])
       }
@@ -379,12 +387,15 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = serializeWorld()
+    /*
+    const projectFile = serializeWorld()*/
+    const projectFile = await sceneToGLTF(Engine.scene as any)
+
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
     const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.world'
+    el.download = fileName + '.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()

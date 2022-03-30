@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "url.schema.json",
+  "title": "url",
+  "type": "string"
+}

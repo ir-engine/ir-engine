@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "projectionType.schema.json",
+  "title": "projectionType",
+  "type": "integer",
+  "description": "projection type enum descriptor",
+  "anyOf": [
+    {
+      "const": 0,
+      "description": "Orthographic"
+    },
+    {
+      "const": 1,
+      "description": "Perspective"
+    }
+  ]
+}

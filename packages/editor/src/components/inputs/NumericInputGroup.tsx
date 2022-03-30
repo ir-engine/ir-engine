@@ -2,6 +2,7 @@ import React from 'react'
 
 import Grid from '@mui/material/Grid'
 
+import { InfoTooltip } from '../layout/Tooltip'
 import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
@@ -38,13 +39,19 @@ export function NumericInputGroup({ name, className, info, label, ...rest }: Num
   const { displayPrecision, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <Scrubber style={{ color: '#9FA4B5' }} {...scrubberProps}>
-            {label}:
-          </Scrubber>
+      <Grid container spacing="10px">
+        <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
+          <InfoTooltip
+            className="tooltip"
+            title={label ?? name}
+            disableInteractive
+            placement="right-start"
+            followCursor
+          >
+            <Scrubber {...scrubberProps}>{label}</Scrubber>
+          </InfoTooltip>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={9}>
           <InputGroupContent>
             <NumericInput {...rest} />
             {info && <InputGroupInfo info={info} />}
