@@ -11,11 +11,11 @@
 .tableCellHeader {
   background: var(--purplePanel) !important;
   color: #f1f1f1 !important;
-  border-bottom: 2px solid #23282c !important;
+  border-bottom: 2px solid var(--purpleDarkest) !important;
 }
 
 .tableCellBody {
-  border-bottom: 1px solid #23282c !important;
+  border-bottom: 1px solid var(--purpleDarkest) !important;
   color: #f1f1f1 !important;
   background: var(--purpleLighter) !important;
 }
