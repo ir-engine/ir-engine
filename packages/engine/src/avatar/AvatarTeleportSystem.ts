@@ -2,6 +2,7 @@ import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
+  Color,
   Group,
   Line,
   LineBasicMaterial,
@@ -41,6 +42,9 @@ const currentVertexWorld = new Vector3()
 const nextVertexWorld = new Vector3()
 const tempVecP = new Vector3()
 const tempVecV = new Vector3()
+
+const white = new Color('white')
+const red = new Color('red')
 
 const getParabolaInputParams = (
   controller: Group,
@@ -152,8 +156,10 @@ export default async function AvatarTeleportSystem(world: World) {
           // Place the cursor near the end of the line
           guideCursor.position.copy(currentVertexWorld)
           guideCursor.visible = true
+          lineMaterial.color = white
         } else {
           guideCursor.visible = false
+          lineMaterial.color = red
         }
       }
     }

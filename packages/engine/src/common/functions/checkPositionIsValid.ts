@@ -32,7 +32,7 @@ export default function checkPositionIsValid(
     hits: [],
     origin: position,
     direction: raycastDirection,
-    maxDistance: 10,
+    maxDistance: 2,
     flags
   }
   world.physics.doRaycast(raycastComponentData)
