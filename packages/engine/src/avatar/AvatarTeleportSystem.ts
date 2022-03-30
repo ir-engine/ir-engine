@@ -14,7 +14,7 @@ import {
 
 import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
 
-import checkValidPosition from '../common/functions/checkValidPosition'
+import checkPositionIsValid from '../common/functions/checkPositionIsValid'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
@@ -36,8 +36,9 @@ const positionAtT = (inVec: Vector3, t: number, p: Vector3, v: Vector3, gravity:
 const initialVelocity = 6
 const dynamicVelocity = 10
 const gravity = new Vector3(0, -9.8, 0)
-const tempVec = new Vector3()
-const tempVec1 = new Vector3()
+const currentVertexLocal = new Vector3()
+const currentVertexWorld = new Vector3()
+const nextVertexWorld = new Vector3()
 const tempVecP = new Vector3()
 const tempVecV = new Vector3()
 
@@ -99,45 +100,45 @@ export default async function AvatarTeleportSystem(world: World) {
   return () => {
     for (const entity of avatarTeleportQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const controller = xrInputSourceComponent.controllerRightParent
+      const controller = xrInputSourceComponent.controllerRight
       guidingController = controller
-      guideCursor.visible = true
       guidingController.add(guideline)
-
-      lineGeometryVertices.fill(0)
     }
 
     for (const entity of avatarTeleportQuery(world)) {
       if (guidingController) {
         const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
 
-        const currentVertex = tempVec.set(0, 0, 0)
+        lineGeometryVertices.fill(0)
+        currentVertexLocal.set(0, 0, 0)
         let lastValidationData
         let guidelineBlocked = false
         for (let i = 1; i <= lineSegments && !guidelineBlocked; i++) {
           // set vertex to current position of the virtual ball at time t
-          positionAtT(currentVertex, (i * t) / lineSegments, p, v, gravity)
-          guidingController.worldToLocal(currentVertex)
-          currentVertex.toArray(lineGeometryVertices, i * 3)
+          positionAtT(currentVertexWorld, (i * t) / lineSegments, p, v, gravity)
+          currentVertexLocal.copy(currentVertexWorld)
+          guidingController.worldToLocal(currentVertexLocal)
+          currentVertexLocal.toArray(lineGeometryVertices, i * 3)
 
-          const nextVertex = positionAtT(tempVec1, ((i + 1) * t) / lineSegments, p, v, gravity)
-          const direction = nextVertex.sub(currentVertex)
+          positionAtT(nextVertexWorld, ((i + 1) * t) / lineSegments, p, v, gravity)
+          console.log(currentVertexWorld, nextVertexWorld)
+          const direction = nextVertexWorld.subVectors(nextVertexWorld, currentVertexWorld)
 
-          const validationData = checkValidPosition(currentVertex, false, direction)
-          if (!validationData.validPosition && validationData.raycastHit !== null) {
+          const validationData = checkPositionIsValid(currentVertexWorld, false, direction)
+          if (!validationData.positionValid && validationData.raycastHit !== null) {
             guidelineBlocked = true
           }
 
           lastValidationData = validationData
         }
-        !guidelineBlocked && lastValidationData.validPosition ? (canTeleport = true) : (canTeleport = false)
+        !guidelineBlocked && lastValidationData.positionValid ? (canTeleport = true) : (canTeleport = false)
 
         guideline.geometry.attributes.position.needsUpdate = true
 
         if (canTeleport) {
           // Place the cursor near the end of the line
           guideCursor.visible = true
-          positionAtT(guideCursor.position, t * 0.98, p, v, gravity)
+          positionAtT(guideCursor.position, t, p, v, gravity)
         } else {
           guideCursor.visible = false
         }
@@ -147,7 +148,7 @@ export default async function AvatarTeleportSystem(world: World) {
     for (const entity of avatarTeleportQuery.exit(world)) {
       // Get cursor position and teleport avatar to it
       const { p, v, t } = getParabolaInputParams(guidingController, initialVelocity, gravity)
-      const newPosition = positionAtT(tempVec1, t, p, v, gravity)
+      const newPosition = positionAtT(currentVertexLocal, t, p, v, gravity)
       teleportAvatar(entity, newPosition)
 
       guideCursor.visible = false
