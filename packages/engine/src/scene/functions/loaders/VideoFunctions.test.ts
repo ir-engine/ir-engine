@@ -40,12 +40,12 @@ describe('VideoFunctions', () => {
   let world: World
   let entity: Entity
   let videoFunctions = proxyquire('./VideoFunctions', {
-    '../../../common/functions/isClient': { isClient: true },
-    '../../../common/functions/resolveMedia': {
-      resolveMedia: (url: string) => {
-        return testURLs[url]
-      }
-    }
+    '../../../common/functions/isClient': { isClient: true }
+    // '../../../common/functions/resolveMedia': {
+    //   resolveMedia: (url: string) => {
+    //     return testURLs[url]
+    //   }
+    // }
   })
 
   beforeEach(() => {
