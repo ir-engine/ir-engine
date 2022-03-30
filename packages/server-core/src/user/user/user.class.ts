@@ -1,5 +1,5 @@
 import { Forbidden } from '@feathersjs/errors'
-import { Params } from '@feathersjs/feathers'
+import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
@@ -7,7 +7,6 @@ import { Op } from 'sequelize'
 import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
 
 export type UserDataType = UserInterface
 /**
@@ -40,9 +39,11 @@ export class User<T = UserDataType> extends Service<T> {
 
     delete query.search
 
+    const loggedInUser = params!.user as UserDataType
+
     if (action === 'friends') {
       delete params.query.action
-      const loggedInUser = extractLoggedInUserFromParams(params)
+      const loggedInUser = params!.user as UserDataType
       const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
@@ -64,19 +65,16 @@ export class User<T = UserDataType> extends Service<T> {
       return super.find(params)
     } else if (action === 'layer-users') {
       delete params.query.action
-      const loggedInUser = extractLoggedInUserFromParams(params)
       params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'channel-users') {
       delete params.query.action
-      const loggedInUser = extractLoggedInUserFromParams(params)
       params.query.channelInstanceId =
         params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
       return super.find(params)
     } else if (action === 'admin') {
       delete params.query.action
       delete params.query.search
-      const loggedInUser = extractLoggedInUserFromParams(params)
       if (!params.isInternal && loggedInUser.userRole !== 'admin')
         throw new Forbidden('Must be system admin to execute this action')
 
@@ -115,7 +113,6 @@ export class User<T = UserDataType> extends Service<T> {
       delete params.query.action
       return super.find(params)
     } else {
-      const loggedInUser = extractLoggedInUserFromParams(params)
       if (loggedInUser?.userRole !== 'admin' && !params.isInternal)
         throw new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
@@ -125,5 +122,9 @@ export class User<T = UserDataType> extends Service<T> {
   async create(data: any, params?: Params): Promise<T | T[]> {
     data.inviteCode = Math.random().toString(36).slice(2)
     return await super.create(data, params)
+  }
+
+  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

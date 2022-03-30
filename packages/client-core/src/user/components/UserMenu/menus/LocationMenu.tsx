@@ -1,8 +1,8 @@
+import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
-import { LocationResult } from '@xrengine/common/src/interfaces/LocationResult'
 
 import AddIcon from '@mui/icons-material/Add'
 import SearchIcon from '@mui/icons-material/Search'
@@ -25,7 +25,7 @@ interface Props {
 }
 const LocationMenu = (props: Props) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState<LocationResult>(null!)
+  const [locationDetails, setLocationsDetails] = useState<Paginated<Location>>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -54,7 +54,7 @@ const LocationMenu = (props: Props) => {
           search
         }
       })
-      .then((res: LocationResult) => {
+      .then((res: Paginated<Location>) => {
         setLocationsDetails(res)
       })
   }

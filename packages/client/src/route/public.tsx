@@ -12,7 +12,6 @@ if (typeof globalThis.process === 'undefined') {
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
-const $login = React.lazy(() => import('@xrengine/client/src/pages/login'))
 const $503 = React.lazy(() => import('../pages/503'))
 const $404 = React.lazy(() => import('../pages/404'))
 
@@ -39,7 +38,6 @@ function RouterComp(props) {
             ))}
             {/* default to allowing admin access regardless */}
             <Route key={'default-admin'} path={'/admin'} component={$admin} />
-            <Route key={'default-login'} path={'/login'} component={$login} />
             <Route key={'default-auth'} path={'/auth'} component={$auth} />
             {/* if no index page has been provided, indicate this as obviously as possible */}
             <Route key={'/503'} path={'/'} component={$503} exact />

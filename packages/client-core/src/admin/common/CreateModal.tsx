@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import Typography from '@mui/material/Typography'
 
-import { useStyles } from '../styles/ui'
+import styles from '../styles/admin.module.scss'
 
 interface Props {
   handleClose: () => void
@@ -17,9 +17,8 @@ interface Props {
   submit: () => void
 }
 
-const CreateModel = (props: Props) => {
+const CreateModal = (props: Props) => {
   const { open, handleClose, children, action, text, submit } = props
-  const classes = useStyles()
   const { t } = useTranslation()
 
   return (
@@ -29,20 +28,20 @@ const CreateModel = (props: Props) => {
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        classes={{ paper: classes.paperDialog }}
+        classes={{ paper: styles.paperDialog }}
         fullWidth={true}
         maxWidth="sm"
       >
         <div style={{ padding: '20px' }}>
-          <Typography variant="h5" gutterBottom={true} className={classes.marginTop}>
+          <Typography variant="h5" gutterBottom={true} className={styles.mt30px}>
             {action} {t('admin:components.common.new')} {text}
           </Typography>
           {children}
           <DialogActions>
-            <Button onClick={handleClose} className={classes.spanNone}>
+            <Button onClick={handleClose} className={styles.spanNone}>
               {t('admin:components.common.cancel')}
             </Button>
-            <Button className={classes.spanDange} autoFocus onClick={submit}>
+            <Button className={styles.spanDange} autoFocus onClick={submit}>
               {action}
             </Button>
           </DialogActions>
@@ -52,4 +51,4 @@ const CreateModel = (props: Props) => {
   )
 }
 
-export default CreateModel
+export default CreateModal

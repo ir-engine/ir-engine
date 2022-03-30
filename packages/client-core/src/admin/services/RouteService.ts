@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
@@ -41,8 +42,8 @@ export const RouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = await client.service('routes-installed').find()
-        dispatch(RouteActions.installedRoutesRetrievedAction(routes.data as Array<InstalledRoutesInterface>))
+        const routes = (await client.service('routes-installed').find()) as Paginated<InstalledRoutesInterface>
+        dispatch(RouteActions.installedRoutesRetrievedAction(routes.data))
       }
     } catch (err) {
       AlertService.dispatchAlertError(err)

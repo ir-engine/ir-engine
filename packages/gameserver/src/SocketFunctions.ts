@@ -71,16 +71,19 @@ export const setupSocketFunctions = (transport: SocketWebRTCServerTransport) => 
     const userId = identityProvider.userId
 
     // Check database to verify that user ID is valid
-    const user = await (app.service('user') as any).Model.findOne({
-      attributes: ['id', 'name', 'instanceId', 'avatarId'],
-      where: {
-        id: userId
-      }
-    }).catch((error) => {
-      // They weren't found in the dabase, so send the client an error message and return
-      callback({ success: false, message: error })
-      return console.warn('Failed to authorize user')
-    })
+    const user = await app
+      .service('user')
+      .Model.findOne({
+        attributes: ['id', 'name', 'instanceId', 'avatarId'],
+        where: {
+          id: userId
+        }
+      })
+      .catch((error) => {
+        // They weren't found in the dabase, so send the client an error message and return
+        callback({ success: false, message: error })
+        return console.warn('Failed to authorize user')
+      })
 
     // Check database to verify that user ID is valid
     const avatarResources = await app

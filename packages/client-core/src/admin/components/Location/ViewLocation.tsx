@@ -26,17 +26,16 @@ import AlertMessage from '../../common/AlertMessage'
 import { validateForm } from '../../common/validation/formValidation'
 import { LocationService, useLocationState } from '../../services/LocationService'
 import { useSceneState } from '../../services/SceneService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   openView: boolean
-  closeViewModel: (open: boolean) => void
+  closeViewModal: (open: boolean) => void
   locationAdmin?: LocationFetched
 }
 
 const ViewLocation = (props: Props) => {
-  const { openView, closeViewModel, locationAdmin } = props
-  const classes = useStyles()
+  const { openView, closeViewModal, locationAdmin } = props
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({
     name: '',
@@ -99,16 +98,16 @@ const ViewLocation = (props: Props) => {
     let temp = state.formErrors
     switch (name) {
       case 'name':
-        temp.name = value.length < 2 ? t('admin:components.locationModel.nameRequired') : ''
+        temp.name = value.length < 2 ? t('admin:components.locationModal.nameRequired') : ''
         break
       case 'maxUsers':
-        temp.maxUsers = value.length < 2 ? t('admin:components.locationModel.maxUsersRequired') : ''
+        temp.maxUsers = value.length < 2 ? t('admin:components.locationModal.maxUsersRequired') : ''
         break
       case 'scene':
-        temp.scene = value.length < 2 ? t('admin:components.locationModel.sceneRequired') : ''
+        temp.scene = value.length < 2 ? t('admin:components.locationModal.sceneRequired') : ''
         break
       case 'type':
-        temp.type = value.length < 2 ? t('admin:components.locationModel.privateRoleRequired') : ''
+        temp.type = value.length < 2 ? t('admin:components.locationModal.privateRoleRequired') : ''
         break
       default:
         break
@@ -135,16 +134,16 @@ const ViewLocation = (props: Props) => {
 
     let temp = state.formErrors
     if (!state.name) {
-      temp.name = t('admin:components.locationModel.nameCantEmpty')
+      temp.name = t('admin:components.locationModal.nameCantEmpty')
     }
     if (!state.maxUsers) {
-      temp.maxUsers = t('admin:components.locationModel.maxUserCantEmpty')
+      temp.maxUsers = t('admin:components.locationModal.maxUserCantEmpty')
     }
     if (!state.scene) {
-      temp.scene = t('admin:components.locationModel.sceneCantEmpty')
+      temp.scene = t('admin:components.locationModal.sceneCantEmpty')
     }
     if (!state.type) {
-      temp.type = t('admin:components.locationModel.typeCantEmpty')
+      temp.type = t('admin:components.locationModal.typeCantEmpty')
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
@@ -157,9 +156,9 @@ const ViewLocation = (props: Props) => {
         scene: ''
       })
       setEditMode(false)
-      closeViewModel(false)
+      closeViewModal(false)
     } else {
-      setError(t('admin:components.locationModel.fillRequiredFields'))
+      setError(t('admin:components.locationModal.fillRequiredFields'))
       setOpenWarning(true)
     }
   }
@@ -174,39 +173,30 @@ const ViewLocation = (props: Props) => {
   const handleCloseDrawe = () => {
     setError('')
     setOpenWarning(false)
-    closeViewModel(false)
+    closeViewModal(false)
     setState({ ...state, formErrors: { ...state.formErrors, name: '', maxUsers: '', scene: '', type: '' } })
   }
 
   return (
     <React.Fragment>
-      <Drawer
-        anchor="right"
-        open={openView}
-        onClose={() => handleCloseDrawe()}
-        classes={{ paper: classes.paperDrawer }}
-      >
-        <Paper elevation={0} className={classes.rootPaper}>
+      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: styles.paperDrawer }}>
+        <Paper elevation={0} className={styles.rootPaper}>
           {location && (
             <Container maxWidth="sm">
-              <div className={classes.locationTitle}>
+              <div className={styles.locationTitle}>
                 <Typography variant="h4" component="span">
                   {location?.name}
                 </Typography>
               </div>
-              <div className={classes.locationSubTitle}>
+              <div className={styles.locationSubTitle}>
                 {location.isFeatured && (
                   <Chip
                     style={{ marginLeft: '5px' }}
                     avatar={<Avatar>F</Avatar>}
                     label={t('admin:components.index.featured')}
-                    //  onClick={handleClick}
                   />
                 )}
                 {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
-                {/* <Paper className={classes.smpd} elevation={0}>
-                        <Typography variant="h6" component="span" >{location.createdAt ? `Created At: ${location.createdAt.slice(0, 10)}`:""}</Typography>
-                        </Paper> */}
               </div>
             </Container>
           )}
@@ -214,35 +204,34 @@ const ViewLocation = (props: Props) => {
 
         {editMode ? (
           <Container maxWidth="sm">
-            <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
-                {' '}
-                {t('admin:components.locationModel.updateLocationInfo')}{' '}
+            <div className={styles.mt10}>
+              <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
+                {t('admin:components.locationModal.updateLocationInfo')}{' '}
               </Typography>
-              <label>{t('admin:components.locationModel.lbl-name')}</label>
+              <label>{t('admin:components.locationModal.lbl-name')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="name"
-                  placeholder={t('admin:components.locationModel.enterName')}
+                  placeholder={t('admin:components.locationModal.enterName')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   value={state.name}
                   onChange={handleInputChange}
                 />
               </Paper>
-              <label>{t('admin:components.locationModel.lbl-maxuser')}</label>
+              <label>{t('admin:components.locationModal.lbl-maxuser')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.maxUsers.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.maxUsers.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="maxUsers"
-                  placeholder={t('admin:components.locationModel.enterMaxUsers')}
+                  placeholder={t('admin:components.locationModal.enterMaxUsers')}
                   style={{ color: '#fff' }}
                   autoComplete="off"
                   type="number"
@@ -250,10 +239,10 @@ const ViewLocation = (props: Props) => {
                   onChange={handleInputChange}
                 />
               </Paper>
-              <label>{t('admin:components.locationModel.lbl-scene')}</label>
+              <label>{t('admin:components.locationModal.lbl-scene')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.scene.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <FormControl fullWidth>
                   <Select
@@ -263,12 +252,12 @@ const ViewLocation = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="scene"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>{t('admin:components.locationModel.selectScene')}</em>
+                      <em>{t('admin:components.locationModal.selectScene')}</em>
                     </MenuItem>
                     {adminScenes.value.map((el, index) => (
                       <MenuItem value={`${el.project}/${el.name}`} key={index}>{`${el.name} (${el.project})`}</MenuItem>
@@ -276,10 +265,10 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <label>{t('admin:components.locationModel.type')}</label>
+              <label>{t('admin:components.locationModal.type')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.type.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.type.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <FormControl fullWidth>
                   <Select
@@ -289,12 +278,12 @@ const ViewLocation = (props: Props) => {
                     fullWidth
                     displayEmpty
                     onChange={handleInputChange}
-                    className={classes.select}
+                    className={styles.select}
                     name="type"
-                    MenuProps={{ classes: { paper: classes.selectPaper } }}
+                    MenuProps={{ classes: { paper: styles.selectPaper } }}
                   >
                     <MenuItem value="" disabled>
-                      <em>{t('admin:components.locationModel.selectType')}</em>
+                      <em>{t('admin:components.locationModal.selectType')}</em>
                     </MenuItem>
                     {locationTypes.value.map((el, index) => (
                       <MenuItem value={el.type} key={index}>
@@ -304,7 +293,7 @@ const ViewLocation = (props: Props) => {
                   </Select>
                 </FormControl>
               </Paper>
-              <Grid container spacing={5} className={classes.marginBottm}>
+              <Grid container spacing={5} className={styles.mb15}>
                 <Grid item xs={6}>
                   <FormGroup>
                     <FormControl>
@@ -317,7 +306,7 @@ const ViewLocation = (props: Props) => {
                             name="videoEnabled"
                           />
                         }
-                        label={t('admin:components.locationModel.lbl-ve') as string}
+                        label={t('admin:components.locationModal.lbl-ve') as string}
                       />
                     </FormControl>
                   </FormGroup>
@@ -332,7 +321,7 @@ const ViewLocation = (props: Props) => {
                             name="audioEnabled"
                           />
                         }
-                        label={t('admin:components.locationModel.lbl-ae') as string}
+                        label={t('admin:components.locationModal.lbl-ae') as string}
                       />
                     </FormControl>
                   </FormGroup>
@@ -347,7 +336,7 @@ const ViewLocation = (props: Props) => {
                             name="globalMediaEnabled"
                           />
                         }
-                        label={t('admin:components.locationModel.lbl-gme') as string}
+                        label={t('admin:components.locationModal.lbl-gme') as string}
                       />
                     </FormControl>
                   </FormGroup>
@@ -362,7 +351,7 @@ const ViewLocation = (props: Props) => {
                             name="screenSharingEnabled"
                           />
                         }
-                        label={t('admin:components.locationModel.lbl-se') as string}
+                        label={t('admin:components.locationModal.lbl-se') as string}
                       />
                     </FormControl>
                   </FormGroup>
@@ -380,7 +369,7 @@ const ViewLocation = (props: Props) => {
                               name="faceStreamingEnabled"
                             />
                           }
-                          label={t('admin:components.locationModel.lbl-fe') as string}
+                          label={t('admin:components.locationModal.lbl-fe') as string}
                         />
                       </FormControl>
                     </FormGroup>
@@ -395,7 +384,7 @@ const ViewLocation = (props: Props) => {
                               name="isLobby"
                             />
                           }
-                          label={t('admin:components.locationModel.lbl-lobby') as string}
+                          label={t('admin:components.locationModal.lbl-lobby') as string}
                         />
                       </FormControl>
                     </FormGroup>
@@ -410,7 +399,7 @@ const ViewLocation = (props: Props) => {
                               name="isFeatured"
                             />
                           }
-                          label={t('admin:components.locationModel.lbl-featured') as string}
+                          label={t('admin:components.locationModal.lbl-featured') as string}
                         />
                       </FormControl>
                     </FormGroup>
@@ -421,105 +410,100 @@ const ViewLocation = (props: Props) => {
           </Container>
         ) : (
           <React.Fragment>
-            {' '}
-            <Paper elevation={3} className={classes.middlePaper}>
-              <Grid container spacing={2} className={classes.pdl}>
-                <Grid item xs={5} className={classes.typo}>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    {t('admin:components.locationModel.lbl-maxuser')}
+            <Paper elevation={3} className={styles.middlePaper}>
+              <Grid container spacing={2} className={styles.pdl}>
+                <Grid item xs={5} className={styles.typo}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                    {t('admin:components.locationModal.lbl-maxuser')}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
-                    {t('admin:components.locationModel.lbl-sceneId')}
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                    {t('admin:components.locationModal.lbl-sceneId')}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={classes.locationOtherInfo}>
-                    {t('admin:components.locationModel.slugyName')}
+                  <Typography variant="h5" component="h5" className={styles.locationOtherInfo}>
+                    {t('admin:components.locationModal.slugyName')}
                   </Typography>
                 </Grid>
-                <Grid item xs={7} className={classes.typo}>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                <Grid item xs={7} className={styles.typo}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {(location as any)?.maxUsersPerInstance || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
                     )}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo} ${classes.mb}`}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
                     {location?.sceneId || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
                     )}
                   </Typography>
-                  <Typography variant="h5" component="h5" className={`${classes.locationOtherInfo}`}>
+                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo}`}>
                     {location?.slugifiedName || (
-                      <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
                     )}
                   </Typography>
                 </Grid>
               </Grid>
             </Paper>
-            <Typography
-              variant="h4"
-              component="h4"
-              className={`${classes.mb20px} ${classes.spacing} ${classes.typoFont}`}
-            >
-              {t('admin:components.locationModel.locationSettings')}{' '}
+            <Typography variant="h4" component="h4" className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont}`}>
+              {t('admin:components.locationModal.locationSettings')}
             </Typography>
-            <Grid container spacing={2} className={classes.pdlarge}>
+            <Grid container spacing={2} className={styles.pdlarge}>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.locationType')}:
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.locationType')}:
                 </Typography>
-                {/* <Typography variant="h6" component="h6" className={classes.mb10}>Updated At:</Typography> */}
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.videoEnabled')}:
+                {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.videoEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.audioEnabled')}:
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.audioEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.faceStreamingEnabled')}:
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.faceStreamingEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.screenSharingEnabled')}:
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.screenSharingEnabled')}:
                 </Typography>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
-                  {t('admin:components.locationModel.mediaChatEnabled')}:
+                <Typography variant="h6" component="h6" className={styles.mb10}>
+                  {t('admin:components.locationModal.mediaChatEnabled')}:
                 </Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={classes.mb10}>
+                <Typography variant="h6" component="h6" className={styles.mb10}>
                   {location?.location_setting?.locationType || (
-                    <span className={classes.spanNone}>{t('admin:components.locationModel.none')}</span>
+                    <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
                   )}
                 </Typography>
-                {/* <Typography variant="h6" component="h6" className={classes.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={classes.spanNone}>None</span>}</Typography> */}
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                {/* <Typography variant="h6" component="h6" className={styles.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={styles.spanNone}>None</span>}</Typography> */}
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.videoEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.audioEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.faceStreamingEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.screenSharingEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
                   </span>
                 </Typography>
-                <Typography variant="h5" component="h5" className={classes.mb10}>
-                  <span className={classes.spanNone}>
+                <Typography variant="h5" component="h5" className={styles.mb10}>
+                  <span className={styles.spanNone}>
                     {location?.location_setting?.instanceMediaChatEnabled
                       ? t('admin:components.index.yes')
                       : t('admin:components.index.no')}
@@ -529,39 +513,39 @@ const ViewLocation = (props: Props) => {
             </Grid>
           </React.Fragment>
         )}
-        <DialogActions className={classes.mb10}>
+        <DialogActions className={styles.mb10}>
           {editMode ? (
-            <div className={classes.marginTpM}>
-              <Button onClick={handleSubmit} className={classes.saveBtn}>
+            <DialogActions>
+              <Button onClick={handleSubmit} className={styles.submitButton}>
                 <span style={{ marginRight: '15px' }}>
                   <Save />
                 </span>{' '}
-                {t('admin:components.locationModel.submit')}
+                {t('admin:components.locationModal.submit')}
               </Button>
               <Button
-                className={classes.saveBtn}
+                className={styles.cancelButton}
                 onClick={() => {
                   setEditMode(false)
                 }}
               >
-                {t('admin:components.locationModel.lbl-cancel')}
+                {t('admin:components.locationModal.lbl-cancel')}
               </Button>
-            </div>
+            </DialogActions>
           ) : (
-            <div className={classes.marginTpM}>
+            <DialogActions>
               <Button
                 disabled={!isLocationWrite}
-                className={classes.saveBtn}
+                className={styles.submitButton}
                 onClick={() => {
                   setEditMode(true)
                 }}
               >
-                {t('admin:components.locationModel.lbl-edit')}
+                {t('admin:components.locationModal.lbl-edit')}
               </Button>
-              <Button onClick={() => handleCloseDrawe()} className={classes.saveBtn}>
-                {t('admin:components.locationModel.lbl-cancel')}
+              <Button onClick={() => handleCloseDrawe()} className={styles.cancelButton}>
+                {t('admin:components.locationModal.lbl-cancel')}
               </Button>
-            </div>
+            </DialogActions>
           )}
         </DialogActions>
       </Drawer>

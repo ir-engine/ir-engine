@@ -33,7 +33,7 @@ import AlertMessage from '../../common/AlertMessage'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AvatarService } from '../../services/AvatarService'
-import { useStyles } from '../../styles/ui'
+import styles from '../../styles/admin.module.scss'
 import AvatarDetail from './AvatarDetail'
 
 const Input = styled('input')({
@@ -42,7 +42,7 @@ const Input = styled('input')({
 
 interface Props {
   openView: boolean
-  closeViewModel?: (open: boolean) => void
+  closeViewModal?: (open: boolean) => void
   avatarData: AvatarInterface
 }
 
@@ -50,9 +50,8 @@ let camera: PerspectiveCamera
 let scene: Scene
 let renderer: WebGLRenderer = null!
 const ViewAvatar = (props: Props) => {
-  const classes = useStyles()
   const { t } = useTranslation()
-  const { openView, closeViewModel, avatarData } = props
+  const { openView, closeViewModal, avatarData } = props
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({
     name: '',
@@ -74,9 +73,8 @@ const ViewAvatar = (props: Props) => {
   const [error, setError] = useState('')
   const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
 
-  const ref = useRef(null)
   const handleCloseDrawer = () => {
-    closeViewModel && closeViewModel(false)
+    closeViewModal && closeViewModal(false)
   }
 
   const initialData = () => {
@@ -260,7 +258,7 @@ const ViewAvatar = (props: Props) => {
         })
       }
       setEditMode(false)
-      closeViewModel && closeViewModel(false)
+      closeViewModal && closeViewModal(false)
     } else {
       setError(t('admin:components.avatar.fillRequiredFields'))
       setOpenAlter(true)
@@ -280,18 +278,18 @@ const ViewAvatar = (props: Props) => {
         anchor="right"
         open={openView}
         onClose={() => handleCloseDrawer()}
-        classes={{ paper: classes.paperDrawer }}
+        classes={{ paper: styles.paperDrawer }}
       >
         {avatarData && (
-          <Paper elevation={3} className={classes.rootPaper}>
-            <Container maxWidth="sm" className={classes.pad}>
-              <Grid container spacing={2} className={classes.centering}>
+          <Paper elevation={3} className={styles.rootPaper}>
+            <Container maxWidth="sm" className={styles.pad}>
+              <Grid container spacing={2} className={styles.centering}>
                 <Grid item xs={4}>
-                  <Avatar className={classes.large} alt="avatar" src={avatarData.url} />
+                  <Avatar className={styles.large} alt="avatar" src={avatarData.url} />
                 </Grid>
                 <Grid item xs={8}>
                   <div>
-                    <Typography variant="h4" component="span" className={classes.typoFontTitle}>
+                    <Typography variant="h4" component="span" className={styles.typoFontTitle}>
                       {avatarData.name}
                     </Typography>
                   </div>
@@ -302,17 +300,17 @@ const ViewAvatar = (props: Props) => {
         )}
         <Container maxWidth="sm">
           {editMode ? (
-            <div className={classes.mt10}>
-              <Typography variant="h4" component="h4" className={`${classes.mb10} ${classes.headingFont}`}>
+            <div className={styles.mt10}>
+              <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
                 {t('user:avatar.uploadAvatarInfo')}
               </Typography>
               <label>{t('user:avatar.name')}</label>
               <Paper
                 component="div"
-                className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.name.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="name"
                   placeholder={t('user:avatar.enterName')}
                   style={{ color: '#fff' }}
@@ -324,10 +322,10 @@ const ViewAvatar = (props: Props) => {
               <label>Description</label>
               <Paper
                 component="div"
-                className={state.formErrors.description.length > 0 ? classes.redBorder : classes.createInput}
+                className={state.formErrors.description.length > 0 ? styles.redBorder : styles.createInput}
               >
                 <InputBase
-                  className={classes.input}
+                  className={styles.input}
                   name="description"
                   placeholder="Enter description"
                   style={{ color: '#fff' }}
@@ -337,7 +335,7 @@ const ViewAvatar = (props: Props) => {
                 />
               </Paper>
               <Button
-                className={classes.saveBtn}
+                className={styles.openModalBtn}
                 onClick={() => {
                   setSelectUse(!selectUse)
                   if (!selectUse) {
@@ -364,57 +362,42 @@ const ViewAvatar = (props: Props) => {
                 </>
               ) : (
                 <>
-                  <div id="stage" style={{ width: '500px', height: '250px' }}></div>
+                  <div id="stage" style={{ width: '500px', height: '250px' }} />
                   <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                     <Input
                       accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                       id="contained-button-file"
                       type="file"
                       onChange={handleAvatarChange}
-                      disabled={avatarModel ? true : false}
+                      disabled={!!avatarModel}
                     />
                     <Button
                       variant="contained"
                       component="span"
-                      // classes={{ root: classes.rootBtn }}
+                      className={styles.openModalBtn}
                       endIcon={<SystemUpdateAlt />}
-                      disabled={avatarModel ? true : false}
+                      disabled={!!avatarModel}
                     >
                       Avatar
                     </Button>
                   </label>
                 </>
               )}
-              {/* <label>{t('user:avatar.avatarUrl')}</label> */}
-              {/* <Paper
-                component="div"
-                className={state.formErrors.url.length > 0 ? classes.redBorder : classes.createInput}
-              >
-                <InputBase
-                  className={classes.input}
-                  name="url"
-                  placeholder="Enter url"
-                  style={{ color: '#fff' }}
-                  autoComplete="off"
-                  value={state.url}
-                  onChange={handleInputChange}
-                />
-              </Paper> */}
             </div>
           ) : (
             <AvatarDetail avatarData={avatarData} />
           )}
-          <DialogActions className={classes.mb10}>
+          <DialogActions className={styles.mb10}>
             {editMode ? (
-              <div className={classes.marginTop}>
-                <Button onClick={updateAvatar} className={classes.saveBtn}>
+              <DialogActions className={styles.mt30px}>
+                <Button onClick={updateAvatar} className={styles.submitButton}>
                   <span style={{ marginRight: '15px' }}>
                     <Save />
                   </span>
                   {t('user:avatar.submit')}
                 </Button>
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.cancelButton}
                   onClick={() => {
                     initialData()
                     setEditMode(false)
@@ -427,21 +410,21 @@ const ViewAvatar = (props: Props) => {
                 >
                   {t('user:avatar.cancel')}
                 </Button>
-              </div>
+              </DialogActions>
             ) : (
-              <div className={classes.marginTop}>
+              <DialogActions className={styles.mt30px}>
                 <Button
-                  className={classes.saveBtn}
+                  className={styles.submitButton}
                   onClick={() => {
                     setEditMode(true)
                   }}
                 >
                   {t('user:avatar.edit')}
                 </Button>
-                <Button onClick={() => handleCloseDrawer()} className={classes.saveBtn}>
+                <Button onClick={() => handleCloseDrawer()} className={styles.cancelButton}>
                   {t('user:avatar.cancel')}
                 </Button>
-              </div>
+              </DialogActions>
             )}
           </DialogActions>
         </Container>

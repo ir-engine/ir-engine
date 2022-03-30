@@ -88,7 +88,11 @@ export const OceanNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(OceanComponent, 'opacityFadeDistance')}
       />
       <InputGroup name="Opacity Range" label={t('editor:properties.ocean.lbl-opacityRange')}>
-        <Vector2Input value={oceanComponent.opacityRange} onChange={updateProperty(OceanComponent, 'opacityRange')} />
+        <Vector2Input
+          value={oceanComponent.opacityRange}
+          onChange={updateProperty(OceanComponent, 'opacityRange')}
+          hideLabels
+        />
       </InputGroup>
       <NumericInputGroup
         name="Shininess"

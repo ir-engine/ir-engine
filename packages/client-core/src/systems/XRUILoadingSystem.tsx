@@ -59,7 +59,7 @@ export default async function XRUILoadingSystem(world: World) {
 
     if (xrui) {
       const dist = 0.1
-      const ppu = xrui.container.options.manager.pixelsPerUnit
+      const ppu = xrui.container.options.manager.pixelsPerMeter
       const contentWidth = ui.state.imageWidth.value / ppu
       const contentHeight = ui.state.imageHeight.value / ppu
 

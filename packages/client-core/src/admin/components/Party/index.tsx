@@ -6,21 +6,19 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import { useStyles } from '../../styles/ui'
 import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const classes = useStyles()
-  const [partyModelOpen, setPartyModelOpen] = React.useState(false)
+  const [partyModalOpen, setPartyModalOpen] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
   const openModalCreate = () => {
-    setPartyModelOpen(true)
+    setPartyModalOpen(true)
   }
 
   const handleCreatePartyClose = () => {
-    setPartyModelOpen(false)
+    setPartyModalOpen(false)
   }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
@@ -28,7 +26,7 @@ const Party = () => {
 
   return (
     <div>
-      <Grid container spacing={3} className={classes.marginBottom}>
+      <Grid container spacing={3} className={styles.mb10px}>
         <Grid item xs={9}>
           <Search text="party" handleChange={handleChange} />
         </Grid>
@@ -38,10 +36,10 @@ const Party = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={classes.rootTableWithSearch}>
+      <div className={styles.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
-      <CreateParty open={partyModelOpen} handleClose={handleCreatePartyClose} />
+      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
     </div>
   )
 }

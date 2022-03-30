@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
-import { AdminBotResult } from '@xrengine/common/src/interfaces/AdminBotResult'
 
 import { client } from '../../feathers'
 import { useDispatch } from '../../store'
@@ -65,7 +65,7 @@ export const BotService = {
       const skip = accessBotState().skip.value
       const limit = accessBotState().limit.value
       if (user.userRole.value === 'admin') {
-        const bots = await client.service('bot').find({
+        const bots = (await client.service('bot').find({
           query: {
             $sort: {
               name: 1
@@ -74,7 +74,7 @@ export const BotService = {
             $limit: limit,
             action: 'admin'
           }
-        })
+        })) as Paginated<AdminBot>
         dispatch(BotsAction.fetchedBot(bots))
       }
     } catch (error) {
@@ -84,7 +84,7 @@ export const BotService = {
   removeBots: async (id: string) => {
     const dispatch = useDispatch()
     try {
-      const bot = await client.service('bot').remove(id)
+      const bot = (await client.service('bot').remove(id)) as AdminBot
       dispatch(BotsAction.botRemoved(bot))
     } catch (error) {
       console.error(error)
@@ -93,7 +93,7 @@ export const BotService = {
   updateBotAsAdmin: async (id: string, bot: CreateBotAsAdmin) => {
     const dispatch = useDispatch()
     try {
-      const result = await client.service('bot').patch(id, bot)
+      const result = (await client.service('bot').patch(id, bot)) as AdminBot
       dispatch(BotsAction.botPatched(result))
     } catch (error) {
       console.error(error)
@@ -102,7 +102,7 @@ export const BotService = {
 }
 //Action
 export const BotsAction = {
-  fetchedBot: (bots: AdminBotResult) => {
+  fetchedBot: (bots: Paginated<AdminBot>) => {
     return {
       type: 'BOT_ADMIN_DISPLAY' as const,
       bots: bots

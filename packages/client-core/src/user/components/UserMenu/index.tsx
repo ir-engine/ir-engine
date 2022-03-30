@@ -12,6 +12,7 @@ import AvatarMenu from './menus/AvatarMenu'
 import AvatarSelectMenu from './menus/AvatarSelectMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
+import selectAvatarMenu from './menus/SelectAvatar'
 import SettingMenu from './menus/SettingMenu'
 import ShareMenu from './menus/ShareMenu'
 import styles from './UserMenu.module.scss'
@@ -29,7 +30,7 @@ export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
-UserMenuPanels.set(Views.Avatar, AvatarMenu)
+UserMenuPanels.set(Views.AvatarSelect, selectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarSelectMenu)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
@@ -41,7 +42,11 @@ HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Emote, '/static/EmoteIcon.svg')
 
-const UserMenu = (): JSX.Element => {
+interface Props {
+  animate?: any
+}
+
+const UserMenu = (props: Props): any => {
   const [engineLoaded, setEngineLoaded] = useState(false)
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
 
@@ -56,7 +61,7 @@ const UserMenu = (): JSX.Element => {
   return (
     <>
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <section className={styles.settingContainer}>
+        <section className={`${styles.settingContainer} ${props.animate}`}>
           <div className={styles.iconContainer}>
             {Array.from(HotbarMenu.keys()).map((id, index) => {
               const IconNode = HotbarMenu.get(id)

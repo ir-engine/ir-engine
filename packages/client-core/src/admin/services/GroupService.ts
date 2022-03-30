@@ -88,7 +88,7 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        const newGroup = await client.service('group').create({ ...groupItem })
+        const newGroup = (await client.service('group').create({ ...groupItem })) as Group
         dispatch(GroupAction.addAdminGroup(newGroup))
       } catch (err) {
         AlertService.dispatchAlertError(err)
@@ -99,7 +99,7 @@ export const GroupService = {
     const dispatch = useDispatch()
     {
       try {
-        const group = await client.service('group').patch(groupId, groupItem)
+        const group = (await client.service('group').patch(groupId, groupItem)) as Group
         dispatch(GroupAction.updateGroup(group))
       } catch (err) {
         AlertService.dispatchAlertError(err)

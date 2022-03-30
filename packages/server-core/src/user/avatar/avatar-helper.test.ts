@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp, serverPipe } from '../../createApp'
+import { createFeathersExpressApp } from '../../createApp'
 import { getAvatarFromStaticResources } from './avatar-helper'
 
 // import { generateAvatarThumbnail } from './generateAvatarThumbnail'
@@ -16,7 +16,6 @@ describe('avatar-helper', () => {
   let app: Application
   before(async () => {
     app = createFeathersExpressApp()
-    serverPipe(app)
     await app.setup()
   })
 

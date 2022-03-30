@@ -2,13 +2,12 @@ import { Downgraded } from '@speigg/hookstate'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmModel from '@xrengine/client-core/src/admin/common/ConfirmModel'
+import ConfirmModal from '@xrengine/client-core/src/admin/common/ConfirmModal'
 import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -67,8 +66,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const fileState = useFileBrowserState()
   const filesValue = fileState.files.attach(Downgraded).value
   const [fileProperties, setFileProperties] = useState<any>(null)
-  const [openPropertiesModel, setOpenPropertiesModel] = useState(false)
-  const [openConfirmModel, setConfirmModel] = useState(false)
+  const [openPropertiesConfirmModal, setOpenPropertiesModal] = useState(false)
+  const [openConfirmModal, setConfirmModal] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
   const [contentToDeleteType, setContentToDeleteType] = useState('')
 
@@ -180,13 +179,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
-    setConfirmModel(true)
+    setConfirmModal(true)
     setContentToDeletePath(contentPath)
     setContentToDeleteType(type)
   }
 
-  const handleCloseModel = () => {
-    setConfirmModel(false)
+  const handleCloseModal = () => {
+    setConfirmModal(false)
     setContentToDeletePath('')
     setContentToDeleteType('')
   }
@@ -194,7 +193,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const deleteContent = async (): Promise<void> => {
     if (isLoading) return
     setLoading(true)
-    setConfirmModel(false)
+    setConfirmModal(false)
     await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
     onRefreshDirectory()
   }
@@ -256,7 +255,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               moveContent={moveContent}
               deleteContent={handleConfirmDelete}
               currentContent={currentContentRef}
-              setOpenPropertiesModel={setOpenPropertiesModel}
+              setOpenPropertiesModal={setOpenPropertiesModal}
               setFileProperties={setFileProperties}
               addNewFolder={addNewFolder}
             />
@@ -268,10 +267,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <MenuItem onClick={() => addNewFolder(null, null)}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
-      {openPropertiesModel && fileProperties && (
+      {openPropertiesConfirmModal && fileProperties && (
         <Dialog
-          open={openPropertiesModel}
-          onClose={() => setOpenPropertiesModel(false)}
+          open={openPropertiesConfirmModal}
+          onClose={() => setOpenPropertiesModal(false)}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
           classes={{ paper: styles.paperDialog }}
@@ -295,9 +294,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Grid>
         </Dialog>
       )}
-      <ConfirmModel
-        popConfirmOpen={openConfirmModel}
-        handleCloseModel={handleCloseModel}
+      <ConfirmModal
+        popConfirmOpen={openConfirmModal}
+        handleCloseModal={handleCloseModal}
         submit={deleteContent}
         name={''}
         label={`this ${contentToDeleteType == 'folder' ? 'folder' : 'file'}`}
