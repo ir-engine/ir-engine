@@ -8,7 +8,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -50,7 +49,7 @@ export const deserializeOcean: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  const obj3d = new Ocean()
+  const obj3d = new Ocean(entity)
   const props = parseOceanProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
@@ -66,14 +65,13 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   updateOcean(entity, props)
 }
 
-export const updateOcean: ComponentUpdateFunction = async (entity: Entity, properties: OceanComponentType) => {
+export const updateOcean: ComponentUpdateFunction = (entity: Entity, properties: OceanComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Ocean
   const component = getComponent(entity, OceanComponent)
 
   if (properties.normalMap) {
     try {
-      const { url } = await resolveMedia(component.normalMap)
-      obj3d.normalMap = url
+      obj3d.normalMap = component.normalMap
       removeError(entity, 'normalMapError')
     } catch (error) {
       addError(entity, 'normalMapError', error.message)
@@ -83,8 +81,7 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.distortionMap) {
     try {
-      const { url } = await resolveMedia(component.distortionMap)
-      obj3d.distortionMap = url
+      obj3d.distortionMap = component.distortionMap
       removeError(entity, 'distortionMapError')
     } catch (error) {
       addError(entity, 'distortionMapError', error.message)
@@ -94,8 +91,7 @@ export const updateOcean: ComponentUpdateFunction = async (entity: Entity, prope
 
   if (properties.envMap) {
     try {
-      const { url } = await resolveMedia(component.envMap)
-      obj3d.envMap = url
+      obj3d.envMap = component.envMap
       removeError(entity, 'envMapError')
     } catch (error) {
       addError(entity, 'envMapError', error.message)

@@ -11,7 +11,6 @@ import {
   Vector3
 } from 'three'
 
-import isHLS from '@xrengine/engine/src/scene/functions/isHLS'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -233,6 +232,7 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
       if (mesh.material) {
         mesh.material.transparent = nextMode === 'interacting'
         mesh.renderOrder = nextMode === 'interacting' ? 1 : 0
+        mesh.material.needsUpdate = true
       }
     })
   }
