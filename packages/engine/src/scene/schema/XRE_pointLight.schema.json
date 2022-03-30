@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_pointLight.schema.json",
+  "title": "XRE_pointLight glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine point light components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "color": { "$ref": "color.schema.json" },
+    "intensity": { "type": "number" },
+    "range": { "type": "number" },
+    "decay": { "type": "number" },
+    "castShadow": { "type": "boolean" },
+    "shadowMapResolution": { "$ref": "vec2.schema.json" },
+    "shadowBias": { "type": "number" },
+    "shadowRadius": { "type": "number" }
+  },
+  "extensions": {},
+  "extras": {}
+}

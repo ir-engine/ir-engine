@@ -42,18 +42,36 @@ export const EulerInput = (props: EulerInputProps) => {
 
   return (
     <Vector3InputContainer>
-      <Vector3Scrubber {...rest} tag="div" value={vx} onChange={(x) => onChange(x, vy, vz)}>
-        X:
-      </Vector3Scrubber>
-      <NumericInput {...rest} value={vx} onChange={(x) => onChange(x, vy, vz)} />
-      <Vector3Scrubber {...rest} tag="div" value={vy} onChange={(y) => onChange(vx, y, vz)}>
-        Y:
-      </Vector3Scrubber>
-      <NumericInput {...rest} value={vy} onChange={(y) => onChange(vx, y, vz)} />
-      <Vector3Scrubber {...rest} tag="div" value={vz} onChange={(z) => onChange(vx, vy, z)}>
-        Z:
-      </Vector3Scrubber>
-      <NumericInput {...rest} value={vz} onChange={(z) => onChange(vx, vy, z)} />
+      <NumericInput
+        {...rest}
+        value={vx}
+        onChange={(x) => onChange(x, vy, vz)}
+        prefix={
+          <Vector3Scrubber {...rest} tag="div" value={vx} onChange={(x) => onChange(x, vy, vz)} axis="x">
+            X
+          </Vector3Scrubber>
+        }
+      />
+      <NumericInput
+        {...rest}
+        value={vy}
+        onChange={(y) => onChange(vx, y, vz)}
+        prefix={
+          <Vector3Scrubber {...rest} tag="div" value={vy} onChange={(y) => onChange(vx, y, vz)} axis="y">
+            Y
+          </Vector3Scrubber>
+        }
+      />
+      <NumericInput
+        {...rest}
+        value={vz}
+        onChange={(z) => onChange(vx, vy, z)}
+        prefix={
+          <Vector3Scrubber {...rest} tag="div" value={vz} onChange={(z) => onChange(vx, vy, z)} axis="z">
+            Z
+          </Vector3Scrubber>
+        }
+      />
       <UniformButtonContainer />
     </Vector3InputContainer>
   )

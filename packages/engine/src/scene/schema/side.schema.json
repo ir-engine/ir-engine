@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "side.schema.json",
+  "title": "side",
+  "type": "integer",
+  "anyOf": [
+    { "const": 0, "description": "FrontSide" },
+    { "const": 1, "description": "BackSide" },
+    { "const": 2, "description": "DoubleSide" }
+  ]
+}

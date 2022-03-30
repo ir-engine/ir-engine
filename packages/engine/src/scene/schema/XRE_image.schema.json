@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_image.schema.json",
+  "title": "XRE_image glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine image components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "imageSource": {
+      "type": "string",
+      "default": ""
+    },
+    "alphaMode": {
+      "$ref": "imageAlphaMode.schema.json",
+      "default": "Opaque"
+    },
+    "alphaCutoff": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 0.5
+    },
+    "projection": {
+      "$ref": "imageProjection.schema.json",
+      "default": "Flat"
+    },
+    "side": {
+      "$ref": "side.schema.json",
+      "default": 2
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

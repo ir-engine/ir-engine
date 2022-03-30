@@ -161,7 +161,6 @@ const Layout = (props: Props): any => {
                 </button>
                 <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
                 <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-                  {path === '/login' && <NavMenu login={login} />}
                   {!props.hideVideo && (
                     <>
                       <section className={styles.locationUserMenu}>
