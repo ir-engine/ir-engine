@@ -5,7 +5,7 @@
   height: 50px;
   width: 100%;
   margin: 0px;
-  background: theme.$purpleLighter;
+  background: var(--purpleLighter);
   color: theme.$text !important;
 
   &:hover {
@@ -21,7 +21,7 @@
   height: 50px;
   width: 100%;
   margin: 0px;
-  background: theme.$purplePinkGradient;
+  background: var(--purplePinkGradient);
   color: theme.$text !important;
 
   &:hover {
@@ -29,7 +29,7 @@
   }
 
   &:disabled {
-    background: theme.$purpleLighter;
+    background: var(--purpleLighter);
   }
 
   @media(max-width: 900px) {
@@ -38,7 +38,7 @@
 }
 
 .submitButton {
-  background: theme.$purplePinkGradient;
+  background: var(--purplePinkGradient);
   color: theme.$text !important;
 
   &:hover {
@@ -46,12 +46,12 @@
   }
 
   &:disabled {
-    background: theme.$purpleLighter;
+    background: var(--purpleLighter);
   }
 }
 
 .cancelButton {
-  background: theme.$purpleLighter;
+  background: var(--purpleLighter);
   color: theme.$text !important;
 
   &:hover {
@@ -104,13 +104,13 @@
   width: 100%;
   color: #fff;
   margin-top: 15px;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 }
 
 .botRootLeft {
   width: 100%;
   color: #fff;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 }
 
 .smFont {
@@ -126,7 +126,7 @@
 .botSaveBtn {
   margin: 5px 25px 5px auto;
   width: 150px;
-  background: theme.$purplePinkGradient;
+  background: var(--purplePinkGradient);
   color: theme.$text !important;
 
   &:hover {
@@ -180,12 +180,12 @@
 }
 
 .botDetails {
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
   color: #fff;
 }
 
 .alterContainer {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
   border-radius: 5px;
   width: 100%;
@@ -193,7 +193,7 @@
 }
 
 .createAlterContainer {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border-radius: 5px;
   width: 100%;
   margin-top: 10px;
@@ -204,7 +204,7 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   color: theme.$text !important;
 }
 
@@ -221,7 +221,7 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   color: theme.$text !important;
 }
 
@@ -231,12 +231,12 @@
 }
 
 .selectPaper {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   color: theme.$text;
 }
 
 .paperDialog {
-  background: theme.$purplePanel !important;
+  background: var(--purplePanel) !important;
   color: theme.$text;
   width: 100%;
   padding: 40px 10px 40px 10px;
@@ -268,7 +268,7 @@
 
 .paperDrawer {
   width: 40%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
   color: theme.$text;
   overflow: auto;
 
@@ -293,7 +293,7 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
 
   @media (max-width: 768px) {
     width: 90%
@@ -310,7 +310,7 @@
 
   input {
     color: theme.$text;
-    background-color: theme.$inputBackground;
+    background-color: var(--inputBackground);
   }
 }
 
@@ -337,7 +337,7 @@
 
 .rootPaper {
   min-height: 15vh;
-  background: theme.$purpleLighter;
+  background: var(--purpleLighter);
   color: theme.$text;
 
   @media (max-width: 900px) {
@@ -498,12 +498,12 @@
 
 .chip {
   color: theme.$text;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
 }
 
 .filterButton {
   svg {
-    color: theme.$purpleLighter;
+    color: var(--purpleLighter);
   }
 }
 
@@ -513,7 +513,7 @@
 
 .menuPaper {
   min-height: 15vh;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
   color: theme.$text;
 
   @media (max-width: 900px) {
@@ -535,7 +535,7 @@
 
 .rootList {
   width: 100%;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
 }
 
 .thead {
@@ -603,7 +603,7 @@
   color: theme.$text;
   height: 35rem;
   width: 99.9%;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
 }
 
 .btn {
@@ -662,7 +662,7 @@
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: theme.$purplePanel
+  background-color: var(--purplePanel)
 }
 
 .label {
@@ -686,7 +686,7 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   top: 0px;
 }
 
@@ -701,5 +701,5 @@
 }
 
 .accentText {
-  color: theme.$purpleLighter;
+  color: var(--purpleLighter);
 }

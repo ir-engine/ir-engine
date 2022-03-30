@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   pointer-events: auto;
-  background: theme.$dock;
+  background: var(--dock);
   height: 50px;
 
   .navContainer {

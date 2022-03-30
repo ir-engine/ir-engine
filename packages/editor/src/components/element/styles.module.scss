@@ -14,7 +14,7 @@
     align-content: start;
     overflow-y: auto;
     pointer-events: auto;
-    background: rgba($color: theme.$dock, $alpha: 0.875);
+    background: var(--dock);
     padding: 5px;
     border-radius: 5px;
 

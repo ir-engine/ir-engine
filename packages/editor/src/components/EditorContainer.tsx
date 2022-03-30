@@ -82,7 +82,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: ${(props) => props.theme.dock};
+    background: var(--dock);
   }
   .dock-top .dock-bar {
     font-size: 12px;

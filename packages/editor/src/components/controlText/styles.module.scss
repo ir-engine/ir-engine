@@ -8,7 +8,7 @@
   color: theme.$white;
   padding: 8px;
   height: 30px;
-  background: theme.$dock;
+  background: var(--dock);
   width: 100vw;
   z-index: 1000;
   text-align: right;

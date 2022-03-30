@@ -10,7 +10,7 @@
   position: fixed;
   z-index: 1000;
   user-select: none;
-  background: theme.$dock;
+  background: var(--dock);
   padding: 0 5px;
 }
 
@@ -54,7 +54,7 @@
   input {
     border-width: 0;
     border-radius: 4px;
-    background: theme.$inputBackground;
+    background: var(--inputBackground);
 
     &+* {
       background: transparent;

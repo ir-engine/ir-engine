@@ -14,15 +14,15 @@
 
 .inputWrapper {
   width: 100%;
-  border: 1px solid theme.$inputBackground;
-  background-color: theme.$inputBackground;
+  border: 1px solid var(--inputBackground);
+  background-color: var(--inputBackground);
   border-radius: 4px;
   padding: 1px;
   display: flex;
   flex-wrap: wrap;
 
   input {
-    background-color: theme.$inputBackground;
+    background-color: var(--inputBackground);
     color: theme.$text;
     height: 30px;
     box-sizing: border-box;
@@ -42,7 +42,7 @@
   padding: 0;
   position: absolute;
   list-style: none;
-  background-color: theme.$inputBackground;
+  background-color: var(--inputBackground);
   color: theme.$text;
   overflow: auto;
   max-height: 30vh;

@@ -20,7 +20,7 @@
 }
 
 .selectPaper {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   color: theme.$text;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .saveBtn {
-  background: theme.$purplePinkGradient;
+  background: var(--purplePinkGradient);
 }
 
 .settings {
@@ -56,7 +56,7 @@
   z-index: 1;
   flex-direction: column;
   text-align: center;
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
   color: #FFF;
   max-width: 310px;
   position: absolute;
@@ -89,7 +89,7 @@
 
 .contents {
   padding: 10px;
-  background: theme.$purplePanel !important;
+  background: var(--purplePanel) !important;
 }
 
 .input {
@@ -97,7 +97,7 @@
   flex: 1;
   width: 100%;
   color: #f1f1f1;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
 }
 
 .selectInput {
@@ -105,7 +105,7 @@
   padding: 2px 4px;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
   color: #f1f1f1 !important;
 }
@@ -117,7 +117,7 @@
   align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border: 1px solid #23282c;
   color: #f1f1f1 !important;
 }
@@ -181,7 +181,7 @@
 }
 
 .notFocused {
-  background: theme.$purplePanel;
+  background: var(--purplePanel);
 
   &:hover {
     background-color: theme.$purpleColor;

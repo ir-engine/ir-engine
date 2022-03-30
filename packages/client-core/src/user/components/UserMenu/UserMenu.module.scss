@@ -103,7 +103,7 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: theme.$purpleLighter;
+    background-color: var(--purpleLighter);
     border-radius: 20px;
     width: 140px;
     right: 100px;
@@ -201,7 +201,7 @@
     bottom: 75px;
     padding: 0 30px;
     border-radius: 20px;
-    background-color: theme.$purpleLighter;
+    background-color: var(--purpleLighter);
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -274,7 +274,7 @@
       }
 
       .uploadBtn {
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
         cursor: pointer;
         font-size: 1rem;
         font-weight: bold;
@@ -315,7 +315,7 @@
         .legend {
           position: absolute;
           padding: 10px;
-          background: theme.$purplePanel;
+          background: var(--purplePanel);
           border-radius: 5px;
           top: 30px;
           right: 5px;
@@ -329,7 +329,7 @@
           }
 
           .shiftKey {
-            background: theme.$purplePanel;
+            background: var(--purplePanel);
             color: theme.$text;
             padding: 2px 4px;
             border-radius: 4px;
@@ -450,7 +450,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -682,7 +682,7 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
         color: theme.$text;
         border-radius: 20px;
         margin: 15px 0 20px;
@@ -885,7 +885,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
 
         &:hover {
           opacity: 0.8;
@@ -1489,7 +1489,7 @@
     }
 
     .uploadBtn {
-      background: theme.$purplePinkGradient;
+      background: var(--purplePinkGradient);
     }
 
     button:hover,
@@ -1521,7 +1521,7 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: theme.$purplePanel;
+        background: var(--purplePanel);
         border-radius: 5px;
         top: 30px;
         right: 5px;
@@ -1535,7 +1535,7 @@
         }
 
         .shiftKey {
-          background: theme.$purplePanel;
+          background: var(--purplePanel);
           color: theme.$text;
           padding: 2px 4px;
           border-radius: 4px;
@@ -1622,7 +1622,7 @@
 .ReadyPlayerPanel {
   @include panel-popup-container-styling();
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   padding: 0;
 
   .controlContainer {
