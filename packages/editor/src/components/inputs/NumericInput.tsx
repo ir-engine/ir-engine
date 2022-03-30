@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useRef } from 'react'
 import { useState } from 'react'
 import styled from 'styled-components'
@@ -39,31 +39,17 @@ const NumericInputContainer = (styled as any).div`
   position: relative;
   display: flex;
   flex: 1;
-  max-width: 100px;
-`
-
-/**
- * @author Robert Long
- */
-const StyledNumericInput = (styled as any).input`
-  display: flex;
-  width: 100%;
-  color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.inputBackground};
-  border-radius: 4px;
   border: 1px solid ${(props) => props.theme.border};
-  padding-left: 6px;
-  font-size: 12px;
+  border-radius: 4px;
   height: 24px;
-  box-sizing: border-box;
-  outline: none;
-  padding-right: ${(props) => (props.unit ? props.unit.length * 6 + 10 + 'px' : 0)};
+  overflow: hidden;
 
   &:hover {
     border-color: ${(props) => props.theme.blueHover};
   }
 
-  &:focus {
+  &:focus, &:focus-visible, &:focus-within {
     border-color: ${(props) => props.theme.blue};
   }
 
@@ -76,23 +62,41 @@ const StyledNumericInput = (styled as any).input`
 /**
  * @author Robert Long
  */
-const NumericInputUnit = (styled as any).div`
-  position: absolute;
-  color: ${(props) => props.theme.text2};
-  right: 1px;
-  top: 1px;
-  bottom: 1px;
+const StyledNumericInput = (styled as any).input`
+  color: ${(props) => props.theme.text};
   background-color: ${(props) => props.theme.inputBackground};
+  border: none;
+  font-size: 12px;
+  height: 22px;
+  box-sizing: border-box;
+  outline: none;
   padding: 0 4px;
+  flex-grow: 1;
+  min-width: 0;
+
+  &:disabled {
+    background-color: ${(props) => props.theme.disabled};
+    color: ${(props) => props.theme.disabledText};
+  }
+`
+
+/**
+ * @author Robert Long
+ */
+const NumericInputUnit = (styled as any).div`
+  color: ${(props) => props.theme.text2};
+  background-color: ${(props) => props.theme.inputBackground};
+  padding-right: 4px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   line-height: 20px;
-  height: 22px;
+  height: 100%;
 `
 
 interface NumericInputProp {
   className?: any
   unit?: any
+  prefix?: any
   displayPrecision?: any
   value?: any
   convertFrom?: any
@@ -200,9 +204,11 @@ const NumericInput = (props: NumericInputProp) => {
       })
     )
     setFocused(true)
-
-    inputEl?.current?.select()
   }
+
+  useEffect(() => {
+    if (focused) inputEl?.current?.select()
+  }, [focused])
 
   const handleBlur = () => {
     const { value, onCommit, onChange } = props
@@ -231,15 +237,17 @@ const NumericInput = (props: NumericInputProp) => {
     convertFrom,
     onChange,
     onCommit,
+    prefix,
     ...rest
   } = props
 
   return (
     <NumericInputContainer>
+      {prefix ? prefix : null}
       <StyledNumericInput
         {...rest}
         unit={unit}
-        innerRef={inputEl}
+        ref={inputEl}
         value={focused ? tempValue : toPrecisionString(convertFrom(value), displayPrecision)}
         onKeyUp={handleKeyPress}
         onKeyDown={handleKeyDown}
