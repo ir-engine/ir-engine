@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_cameraProperties.schema.json",
+  "title": "XRE_cameraProperties glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine camera properties components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "fov": {
+      "type": "number",
+      "minimum": 0.1,
+      "maximum": 360.0,
+      "default": 50.0
+    },
+    "cameraNearClip": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 0.01
+    },
+    "cameraFarClip": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 100.0
+    },
+    "projectionType": {
+      "allOf": [{ "$ref": "projectionType.schema.json" }],
+      "default": 1
+    },
+    "minCameraDistance": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 1.0
+    },
+    "maxCameraDistance": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 50.0
+    },
+    "startCameraDistance": {
+      "type": "number",
+      "minimum": 0.0,
+      "default": 5.0
+    },
+    "cameraMode": {
+      "allOf": [{ "$ref": "cameraMode.schema.json" }],
+      "default": 5
+    },
+    "cameraModeDefault": {
+      "allOf": [{ "$ref": "cameraMode.schema.json" }],
+      "default": 2
+    },
+    "startInFreeLook": {
+      "type": "boolean",
+      "default": false
+    },
+    "minPhi": {
+      "type": "number",
+      "default": -70.0
+    },
+    "maxPhi": {
+      "type": "number",
+      "default": 85.0
+    },
+    "startPhi": {
+      "type": "number",
+      "default": 10.0
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

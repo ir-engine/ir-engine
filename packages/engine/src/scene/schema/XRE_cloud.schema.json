@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_cloud.schema.json",
+  "title": "XRE_cloud glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine cloud components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "texture": {
+      "$ref": "glTFid.schema.json",
+      "default": "/clouds/cloud.png"
+    },
+    "worldScale": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 1000, "y": 150, "z": 1000 }
+    },
+    "dimensions": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 8, "y": 4, "z": 8 }
+    },
+    "noiseZoom": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 7, "y": 11, "z": 7 }
+    },
+    "noiseOffset": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 0, "y": 4000, "z": 3137 }
+    },
+    "spriteScaleRange": {
+      "$ref": "vec3.schema.json",
+      "default": { "x": 50, "y": 100 }
+    },
+    "fogColor": {
+      "type": "number",
+      "default": 4555955
+    },
+    "fogRange": {
+      "$ref": "vec2.schema.json",
+      "default": { "x": -100, "y": 3000 }
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}
