@@ -8,6 +8,7 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
+import { copyRecursiveSync, getIncreamentalName } from '../FileUtil'
 import {
   BlobStore,
   StorageListObjectInterface,
@@ -225,24 +226,18 @@ export class LocalStorage implements StorageProviderInterface {
     renameTo: string = null!
   ): Promise<boolean> => {
     const contentpath = path.join(this.PATH_PREFIX)
-    let fileName = renameTo != null ? renameTo : path.basename(current)
-    let fileCount = 1
-    const file = fileName.split('.')
     current = path.join(contentpath, current)
     destination = path.join(contentpath, destination)
-    while (fs.existsSync(path.join(destination, fileName))) {
-      fileName = ''
-      for (let i = 0; i < file.length - 1; i++) fileName += file[i]
-      fileName = `${fileName}(${fileCount}).${file[file.length - 1]}`
-      fileCount++
-    }
+    let fileName = renameTo != null ? getIncreamentalName(renameTo, destination) : path.basename(current)
+
     try {
       isCopy
-        ? await fs.promises.copyFile(current, path.join(destination, fileName))
+        ? await copyRecursiveSync(current, path.join(destination, fileName))
         : await fs.promises.rename(current, path.join(destination, fileName))
     } catch (err) {
       return false
     }
+
     return true
   }
 }

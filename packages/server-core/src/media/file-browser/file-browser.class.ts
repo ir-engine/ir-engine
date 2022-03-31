@@ -1,12 +1,25 @@
-import { Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
+import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
+import { copyRecursiveSync, getIncreamentalName } from '../FileUtil'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
 const storageProvider = useStorageProvider()
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
+
+type UpdateParamsType = {
+  oldName: string
+  newName: string
+  oldPath: string
+  newPath: string
+  isCopy?: boolean
+}
 
 interface PatchParams {
   body: Buffer
@@ -22,11 +35,11 @@ interface PatchParams {
 export class FileBrowserService implements ServiceMethods<any> {
   store: StorageProviderInterface
 
-  async setup(app, path: string): Promise<void> {
+  async setup(_app, _path: string): Promise<void> {
     this.store = useStorageProvider()
   }
 
-  async find(params?: Params) {}
+  async find(_params?: Params) {}
 
   /**
    * Return the metadata for each file in a directory
@@ -34,8 +47,8 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params): Promise<FileContentType[]> {
-    if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
+  async get(directory: string, _params?: Params): Promise<FileContentType[]> {
+    if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     const result = await this.store.listFolderContent(directory)
     return result
   }
@@ -46,9 +59,17 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async create(directory, params?: Params) {
-    if (directory.substr(0, 1) === '/') directory = directory.slice(1) // remove leading slash
-    return this.store.putObject({ Key: directory + '/', Body: Buffer.alloc(0), ContentType: 'application/x-empty' })
+  async create(directory) {
+    if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
+    const result = await this.store.putObject({
+      Key: directory + '/',
+      Body: Buffer.alloc(0),
+      ContentType: 'application/x-empty'
+    })
+
+    fs.mkdirSync(path.join(projectsRootFolder, directory))
+
+    return result
   }
 
   /**
@@ -58,10 +79,26 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async update(from: string, { destination, isCopy, renameTo }, params?: Params) {
-    // TODO
-    // throw new Error('[File Browser]: Temporarily disabled for instability. - TODO')
-    return this.store.moveObject(from, destination, isCopy, renameTo)
+  async update(_id: NullableId, data: UpdateParamsType, _params?: Params) {
+    const result = await this.store.moveObject(
+      path.join(data.oldPath, data.oldName),
+      data.newPath,
+      data.isCopy,
+      data.newName
+    )
+
+    const newParentPath = path.join(projectsRootFolder, data.newPath)
+    const fileName = getIncreamentalName(data.newName, newParentPath)
+    const oldNamePath = path.join(projectsRootFolder, data.oldPath, data.oldName)
+    const newNamePath = path.join(newParentPath, fileName)
+
+    if (data.isCopy) {
+      copyRecursiveSync(oldNamePath, newNamePath)
+    } else {
+      fs.renameSync(oldNamePath, newNamePath)
+    }
+
+    return result
   }
 
   /**
@@ -70,13 +107,16 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(path: string, data: PatchParams, params?: Params) {
+  async patch(key: string, data: PatchParams, params?: Params) {
     await this.store.putObject({
-      Key: path,
+      Key: key,
       Body: data.body,
       ContentType: data.contentType
     })
-    return getCachedAsset(path, storageProvider.cacheDomain, params && params.provider == null)
+
+    fs.writeFileSync(path.join(projectsRootFolder, key), data.body)
+
+    return getCachedAsset(key, storageProvider.cacheDomain, params && params.provider == null)
   }
 
   /**
@@ -85,8 +125,17 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async remove(path: string, params?: Params) {
-    const dirs = await this.store.listObjects(path + '/', [], true, null!)
-    return await this.store.deleteResources([path, ...dirs.Contents.map((a) => a.Key)])
+  async remove(key: string, _params?: Params) {
+    const dirs = await this.store.listObjects(key + '/', [], true, null!)
+    const result = await this.store.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
+
+    const filePath = path.join(projectsRootFolder, key)
+    if (fs.statSync(filePath).isDirectory()) {
+      fs.rmSync(filePath, { force: true, recursive: true })
+    } else {
+      fs.unlinkSync(filePath)
+    }
+
+    return result
   }
 }
