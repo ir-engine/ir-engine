@@ -1,3 +1,4 @@
+import { RenderPass } from 'postprocessing'
 import { Light, MeshBasicMaterial, MeshNormalMaterial } from 'three'
 
 import { store } from '@xrengine/client-core/src/store'
@@ -28,8 +29,8 @@ export function changeRenderMode(mode: RenderModesType): void {
 
   SceneState.renderMode = mode
 
-  const passes = Engine.effectComposer?.passes.filter((p) => p.name === 'RenderPass')
-  const renderPass = passes ? passes[0] : undefined
+  const passes = Engine.effectComposer?.passes.filter((p) => p.name === 'RenderPass') as any
+  const renderPass: RenderPass = passes ? passes[0] : undefined
 
   if (!renderPass) return
 
@@ -42,15 +43,15 @@ export function changeRenderMode(mode: RenderModesType): void {
           obj.visible = false
         }
       })
-      renderPass.overrideMaterial = null
+      renderPass.overrideMaterial = null!
       break
     case RenderModes.LIT:
       Engine.renderer.shadowMap.enabled = false
-      renderPass.overrideMaterial = null
+      renderPass.overrideMaterial = null!
       break
     case RenderModes.SHADOW:
       Engine.renderer.shadowMap.enabled = true
-      renderPass.overrideMaterial = null
+      renderPass.overrideMaterial = null!
       break
     case RenderModes.WIREFRAME:
       Engine.renderer.shadowMap.enabled = false
