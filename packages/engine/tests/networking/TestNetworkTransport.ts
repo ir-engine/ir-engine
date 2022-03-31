@@ -1,6 +1,6 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { Action } from '../../src/ecs/functions/Action'
+import { Action } from '../../src/hyperflux/functions/ActionFunctions'
 import { NetworkTransportHandler } from '../../src/networking/classes/Network'
 import { NetworkTransport } from '../../src/networking/interfaces/NetworkTransport'
 

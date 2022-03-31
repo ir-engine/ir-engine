@@ -1,43 +1,34 @@
-import matches from 'ts-matches'
-
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
-import {
-  defineActionCreator,
-  matchesNetworkId,
-  matchesQuaternion,
-  matchesUserId,
-  matchesVector3,
-  matchesWithDefault
-} from '../../ecs/functions/Action'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { defineAction, matches } from '../../hyperflux'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class NetworkWorldAction {
-  static createClient = defineActionCreator({
+  static createClient = defineAction({
     type: 'network.CREATE_CLIENT',
     name: matches.string,
     index: matches.number
   })
 
-  static destroyClient = defineActionCreator({
+  static destroyClient = defineAction({
     type: 'network.DESTROY_CLIENT'
   })
 
-  static setXRMode = defineActionCreator({
+  static setXRMode = defineAction({
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean
   })
 
-  static xrHandsConnected = defineActionCreator({
+  static xrHandsConnected = defineAction({
     type: 'network.XR_HANDS_CONNECTED'
   })
 
-  static spawnObject = defineActionCreator(
+  static spawnObject = defineAction(
     {
       type: 'network.SPAWN_OBJECT',
       prefab: matches.string,
-      networkId: matchesWithDefault(matchesNetworkId, () => useWorld().createNetworkId()),
+      networkId: matches.withDefault(matches.networkId, () => useWorld().createNetworkId()),
       ownerIndex: matches.number,
       parameters: matches.any.optional()
     },
@@ -46,7 +37,7 @@ export class NetworkWorldAction {
     }
   )
 
-  static spawnDebugPhysicsObject = defineActionCreator(
+  static spawnDebugPhysicsObject = defineAction(
     {
       type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
       config: matches.any.optional()
@@ -56,13 +47,13 @@ export class NetworkWorldAction {
     }
   )
 
-  static spawnAvatar = defineActionCreator(
+  static spawnAvatar = defineAction(
     {
       ...NetworkWorldAction.spawnObject.actionShape,
       prefab: 'avatar',
       parameters: matches.shape({
-        position: matchesVector3,
-        rotation: matchesQuaternion
+        position: matches.vector3,
+        rotation: matches.quaternion
       })
     },
     (action) => {
@@ -70,28 +61,28 @@ export class NetworkWorldAction {
     }
   )
 
-  static destroyObject = defineActionCreator({
+  static destroyObject = defineAction({
     type: 'network.DESTROY_OBJECT',
-    networkId: matchesNetworkId
+    networkId: matches.networkId
   })
 
-  static setEquippedObject = defineActionCreator({
+  static setEquippedObject = defineAction({
     type: 'network.SET_EQUIPPED_OBJECT',
     object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
+      ownerId: matches.userId,
+      networkId: matches.networkId
     }),
     equip: matches.boolean,
     attachmentPoint: matches.number
   })
 
-  static avatarAnimation = defineActionCreator({
+  static avatarAnimation = defineAction({
     type: 'network.AVATAR_ANIMATION',
     newStateName: matches.string,
     params: matchesWeightsParameters
   })
 
-  static avatarDetails = defineActionCreator(
+  static avatarDetails = defineAction(
     {
       type: 'network.AVATAR_DETAILS',
       avatarDetail: matchesAvatarProps
@@ -101,30 +92,30 @@ export class NetworkWorldAction {
     }
   )
 
-  static teleportObject = defineActionCreator({
+  static teleportObject = defineAction({
     type: 'network.TELEPORT_OBJECT',
     object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
+      ownerId: matches.userId,
+      networkId: matches.networkId
     }),
     pose: matchPose
   })
 
-  static requestAuthorityOverObject = defineActionCreator({
+  static requestAuthorityOverObject = defineAction({
     type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
+      ownerId: matches.userId,
+      networkId: matches.networkId
     }),
-    requester: matchesUserId
+    requester: matches.userId
   })
 
-  static transferAuthorityOfObject = defineActionCreator({
+  static transferAuthorityOfObject = defineAction({
     type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
+      ownerId: matches.userId,
+      networkId: matches.networkId
     }),
-    newAuthor: matchesUserId
+    newAuthor: matches.userId
   })
 }

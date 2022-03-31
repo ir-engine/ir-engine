@@ -1,4 +1,4 @@
-import { Action } from '../../ecs/functions/Action'
+import { Action } from '../../hyperflux/functions/ActionFunctions'
 
 /** Interface for the Transport. */
 export interface NetworkTransport {

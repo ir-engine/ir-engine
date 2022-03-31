@@ -7,12 +7,11 @@ import {
   SkinnedMesh,
   Vector3
 } from 'three'
-import matches from 'ts-matches'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { matchesVector3 } from '../../ecs/functions/Action'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { matches } from '../../hyperflux'
 import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
@@ -85,7 +84,7 @@ export const AvatarAnimations = {
 
 const matchesMovementType = matches.shape({
   /** Velocity of the avatar */
-  velocity: matchesVector3,
+  velocity: matches.vector3,
   /** Distance from the ground of the avatar */
   distanceFromGround: matches.number
 })

@@ -8,13 +8,14 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { Action } from '../../hyperflux/functions/ActionFunctions'
+import StoreFunctions from '../../hyperflux/functions/StoreFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { Action } from '../functions/Action'
 import {
   addComponent,
   defineQuery,
@@ -62,6 +63,8 @@ export class World {
   fixedTick = 0
 
   _pipeline = [] as SystemModuleType<any>[]
+
+  store = StoreFunctions.createStore()
 
   physics = new Physics()
 
