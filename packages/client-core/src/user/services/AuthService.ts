@@ -380,20 +380,13 @@ export const AuthService = {
     }
   },
   loginUserMagicLink: async (token, redirectSuccess, redirectError) => {
-    const dispatch = useDispatch()
-    {
-      try {
-        const res = await client.service('login-token').find({
-          query: {
-            token: token
-          }
-        })
-        AuthService.loadUserData(res.userId)
-      } catch (err) {
-        AlertService.alertError(err.message)
-      } finally {
-        window.location.href = redirectSuccess
-      }
+    try {
+      const res = await client.service('login').get(token)
+      await AuthService.loginUserByJwt(res.token, '/', '/')
+    } catch (err) {
+      AlertService.alertError(err.message)
+    } finally {
+      window.location.href = redirectSuccess
     }
   },
   logoutUser: async () => {

@@ -1,4 +1,3 @@
-import { Params } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import moment from 'moment'
@@ -39,19 +38,5 @@ export class LoginToken<T = LoginTokenDataType> extends Service<T> {
       expiresAt: moment().utc().add(2, 'days').toDate()
     }
     return (await super.create({ ...tokenData }, {})) as T
-  }
-
-  async find(params: Params): Promise<any> {
-    let identityProvider
-    const result = (await super.find(params)) as any
-
-    if (result.data.length === 0) throw new Error('Invalid token or have been used!.')
-    if (result?.data[0]?.expiresAt.getTime() > Date.now()) {
-      identityProvider = await this.app.service('identity-provider').get(result?.data[0]?.identityProviderId)
-      await super.remove(result?.data[0]?.id)
-    } else {
-      throw new Error('Invalid token or has expired!.')
-    }
-    return identityProvider
   }
 }

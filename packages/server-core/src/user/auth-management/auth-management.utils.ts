@@ -61,6 +61,7 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  * @author Vyacheslav Solovjov
  */
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
+  console.log('sendSMS() to:', sms)
   await app
     .service('sms')
     .create(sms, null!)

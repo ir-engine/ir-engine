@@ -23,7 +23,7 @@ const AuthMagicLink = (props: Props): JSX.Element => {
   const user = useAuthState().user
   useEffect(() => {
     if (type === 'login') {
-      AuthService.loginUserByJwt(token, '/', '/')
+      AuthService.loginUserMagicLink(token, '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
       // if (user !== null) {
