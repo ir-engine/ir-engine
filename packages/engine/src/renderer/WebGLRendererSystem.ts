@@ -137,7 +137,8 @@ export class EngineRenderer {
       precision: 'highp',
       powerPreference: 'high-performance',
       stencil: false,
-      antialias: !Engine.isHMD,
+      antialias: false,
+      depth: false,
       canvas,
       context,
       preserveDrawingBuffer: !Engine.isHMD

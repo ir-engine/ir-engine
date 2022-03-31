@@ -8,7 +8,6 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { resolveMedia } from '../../../common/functions/resolveMedia'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -31,7 +30,7 @@ export const deserializeInterior: ComponentDeserializeFunction = (
 ) => {
   if (!isClient) return
 
-  const obj3d = new Interior()
+  const obj3d = new Interior(entity)
   const props = parseInteriorProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
@@ -46,14 +45,13 @@ export const deserializeInterior: ComponentDeserializeFunction = (
   updateInterior(entity, props)
 }
 
-export const updateInterior: ComponentUpdateFunction = async (entity: Entity, properties: InteriorComponentType) => {
+export const updateInterior: ComponentUpdateFunction = (entity: Entity, properties: InteriorComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Interior
   const component = getComponent(entity, InteriorComponent)
 
   if (properties.cubeMap) {
     try {
-      const { url } = await resolveMedia(component.cubeMap)
-      obj3d.cubeMap = url
+      obj3d.cubeMap = component.cubeMap
       removeError(entity, 'error')
     } catch (error) {
       addError(entity, 'error', error.message)

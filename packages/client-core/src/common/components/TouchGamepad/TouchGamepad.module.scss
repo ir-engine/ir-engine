@@ -9,6 +9,7 @@ $mobileControllButtonsSize: 3em;
   div {
     margin: auto;
   }
+
   @media (max-width: 478px) {
     left: 25px;
   }
@@ -33,7 +34,7 @@ $mobileControllButtonsSize: 3em;
     text-align: center;
     border: 1px solid #ffffff;
 
-    > svg {
+    >svg {
       height: 2em;
     }
 

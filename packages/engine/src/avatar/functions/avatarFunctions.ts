@@ -177,8 +177,6 @@ export const setupAvatarMaterials = (root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
-      // Transparency fix
-      object.material.format = RGBAFormat
       const material = object.material.clone()
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
       materialList.push({
@@ -283,6 +281,7 @@ export function getDefaultSkeleton(): SkinnedMesh {
  */
 export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
   material.transparent = true
+  material.needsUpdate = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndex }
     shader.uniforms.boneWeightThreshold = { value: 0.9 }
