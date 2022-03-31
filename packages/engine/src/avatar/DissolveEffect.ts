@@ -78,8 +78,6 @@ export class DissolveEffect {
     let fragmentShader = ''
     let vertexShader = ''
 
-    console.error(material.type)
-
     if (isShaderMaterial) {
       uniforms = UniformsUtils.merge([material.uniforms, uniforms])
       fragmentShader = material.fragmentShader
