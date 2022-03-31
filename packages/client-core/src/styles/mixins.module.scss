@@ -135,8 +135,7 @@
 }
 
 @mixin purple-pink-linear-gradient() {
-  background: -moz-linear-gradient(357.78deg, #5236ff 0, #c20560 100%);
-  background: linear-gradient(92.22deg, #5236ff, #c20560);
+  background: var(--purplePinkGradient);
 }
 
 @mixin paper-modal() {
