@@ -118,7 +118,7 @@ import {
   SCENE_COMPONENT_POSTPROCESSING,
   serializePostprocessing,
   shouldDeserializePostprocessing,
-  updatePostProcessing
+  updatePostprocessing
 } from './loaders/PostprocessingFunctions'
 import {
   deserializePreventBake,
@@ -305,7 +305,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
     deserialize: deserializePostprocessing,
     serialize: serializePostprocessing,
-    update: updatePostProcessing,
+    update: updatePostprocessing,
     shouldDeserialize: shouldDeserializePostprocessing
   })
 
