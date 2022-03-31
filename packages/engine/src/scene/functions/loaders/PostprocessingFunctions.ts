@@ -31,14 +31,14 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
 ): Promise<void> {
   if (!isClient) return
 
-  addComponent(entity, PostprocessingComponent, json.props)
+  addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(json.props))
   addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
   if (Engine.isEditor) getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)
 }
 
-export const updatePostProcessing: ComponentUpdateFunction = (_: Entity) => {
+export const updatePostprocessing: ComponentUpdateFunction = (_: Entity) => {
   configureEffectComposer()
 }
 
@@ -56,4 +56,17 @@ export const serializePostprocessing: ComponentSerializeFunction = (entity) => {
 
 export const shouldDeserializePostprocessing: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(PostprocessingComponent) <= 0
+}
+
+const parsePostprocessingProperties = (props): PostprocessingComponentType => {
+  return {
+    options: Object.assign(
+      {},
+      ...Object.keys(SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES.options).map((k) => {
+        return {
+          [k]: props.options[k] ?? SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES.options[k]
+        }
+      })
+    )
+  }
 }
