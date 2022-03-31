@@ -71,7 +71,8 @@ export class Group<T = GroupDataType> extends Service<T> {
       limit: limit,
       order: [['name', 'ASC']],
       include: include,
-      where: q
+      where: q,
+      distinct: true
     })
 
     await Promise.all(
