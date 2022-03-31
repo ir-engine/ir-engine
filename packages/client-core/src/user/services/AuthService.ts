@@ -394,10 +394,8 @@ export const AuthService = {
     }
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
-    console.log('1 registerUserByEmail')
     const dispatch = useDispatch()
     {
-      console.log('2 dispatch', dispatch)
       dispatch(AuthAction.actionProcessing(true))
       client
         .service('identity-provider')
@@ -651,7 +649,6 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) => {
-    const dispatch = useDispatch()
     {
       window.open(
         `https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`,
@@ -816,26 +813,20 @@ export const AuthService = {
     }
   },
   removeUser: async (userId: string) => {
-    const dispatch = useDispatch()
-    {
-      await client.service('user').remove(userId)
-      await client.service('identity-provider').remove(null, {
-        query: {
-          userId: userId
-        }
-      })
-      AuthService.logoutUser()
-    }
+    await client.service('user').remove(userId)
+    await client.service('identity-provider').remove(null, {
+      query: {
+        userId: userId
+      }
+    })
+    AuthService.logoutUser()
   },
 
   updateUserTheme: async (userId: string, theme: string) => {
-    const dispatch = useDispatch()
-    {
-      const user = (await client.service('user').patch(userId, {
-        themeMode: theme
-      })) as User
-      dispatch(AuthAction.userUpdated(user))
-    }
+    await client.service('user').patch(userId, {
+      themeMode: theme
+    })
+    await AuthService.loadUserData(userId)
   },
 
   updateApiKey: async () => {
