@@ -55,14 +55,14 @@
   flex-direction: column;
   text-align: center;
   background: var(--purplePanel);
-  color: #FFF;
+  color: var(--text);
   max-width: 310px;
   position: absolute;
   padding: 2px 18px 2px 18px;
 }
 
 .settingsHeading {
-  color: orange;
+  color: var(--text);
   text-align: center;
   margin-bottom: 10px;
   font-weight: 300;
@@ -71,7 +71,7 @@
 }
 
 .hoverSettingsHeading {
-  color: orange;
+  color: var(--text);
   text-align: center;
   font-weight: 300;
   line-height: 1.7;
