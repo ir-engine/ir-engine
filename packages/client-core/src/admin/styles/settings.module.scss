@@ -1,5 +1,3 @@
-@use "../../theme.scss"as theme;
-
 .root {
   flex-grow: 1;
 }
@@ -21,7 +19,7 @@
 
 .selectPaper {
   background: var(--inputBackground);
-  color: theme.$text;
+  color: var(--text);
 }
 
 .divider {
@@ -32,7 +30,7 @@
 .menuBtn {
   color: #fff;
   font-size: 3rem;
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   position: fixed;
 }
 
@@ -165,18 +163,18 @@
 }
 
 .focused {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 
 .autoFocused {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 
@@ -184,7 +182,7 @@
   background: var(--purplePanel);
 
   &:hover {
-    background-color: theme.$purpleColor;
+    background-color: var(--purpleColor);
   }
 }
 

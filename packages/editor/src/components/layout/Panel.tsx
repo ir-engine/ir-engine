@@ -6,7 +6,7 @@ import styled from 'styled-components'
  *  @author Robert Long
  */
 export const PanelIcon = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   margin-right: 6px;
   width: 18px;
 `
@@ -16,7 +16,7 @@ export const PanelIcon = (styled as any).div`
  *  @author Robert Long
  */
 export const PanelTitle = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   position: relative;
 `
 

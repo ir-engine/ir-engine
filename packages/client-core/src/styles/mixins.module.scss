@@ -36,7 +36,7 @@
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -81,7 +81,7 @@
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -107,7 +107,7 @@
   &::before {
     content: "✓";
     position: absolute;
-    background: theme.$purpleColor0;
+    background: var(--purpleColor0);
     height: 20px;
     width: 20px;
     top: 5px;
@@ -123,7 +123,7 @@
   &::after {
     content: "✓";
     position: absolute;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     height: 20px;
     width: 20px;
     top: 5px;

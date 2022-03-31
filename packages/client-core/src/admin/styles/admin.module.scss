@@ -1,4 +1,3 @@
-@use "../../theme.scss"as theme;
 @import '../../styles/imports.module.scss';
 
 .openModalBtn {
@@ -6,10 +5,10 @@
   width: 100%;
   margin: 0px;
   background: var(--purpleLighter);
-  color: theme.$text !important;
+  color: var(--text) !important;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 
   @media(max-width: 900px) {
@@ -22,7 +21,7 @@
   width: 100%;
   margin: 0px;
   background: var(--purplePinkGradient);
-  color: theme.$text !important;
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
@@ -39,7 +38,7 @@
 
 .submitButton {
   background: var(--purplePinkGradient);
-  color: theme.$text !important;
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
@@ -52,10 +51,10 @@
 
 .cancelButton {
   background: var(--purpleLighter);
-  color: theme.$text !important;
+  color: var(--text) !important;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 }
 
@@ -67,7 +66,7 @@
 
 .botHeader {
   height: 50px;
-  background: theme.$purpleColor4;
+  background: var(--purpleColor4);
   color: #fff;
   display: flex;
   flex-direction: row;
@@ -127,7 +126,7 @@
   margin: 5px 25px 5px auto;
   width: 150px;
   background: var(--purplePinkGradient);
-  color: theme.$text !important;
+  color: var(--text) !important;
 
   &:hover {
     opacity: 0.8;
@@ -169,7 +168,7 @@
 }
 
 .summary {
-  background: theme.$purpleColor4;
+  background: var(--purpleColor4);
   border-bottom: 1px solid #23282c;
   color: #f1f1f1;
   border-radius: 0px;
@@ -205,13 +204,13 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  color: theme.$text !important;
+  color: var(--text) !important;
 }
 
 .input {
   margin-left: 8px;
   flex: 1;
-  color: theme.$text;
+  color: var(--text);
 }
 
 .redBorder {
@@ -222,22 +221,22 @@
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);
-  color: theme.$text !important;
+  color: var(--text) !important;
 }
 
 .select {
-  color: theme.$text !important;
+  color: var(--text) !important;
   height: 2.4rem !important;
 }
 
 .selectPaper {
   background: var(--inputBackground);
-  color: theme.$text;
+  color: var(--text);
 }
 
 .paperDialog {
   background: var(--purplePanel) !important;
-  color: theme.$text;
+  color: var(--text);
   width: 100%;
   padding: 40px 10px 40px 10px;
 }
@@ -251,7 +250,7 @@
 }
 
 .spanWhite {
-  color: theme.$text !important;
+  color: var(--text) !important;
 }
 
 .actionStyle {
@@ -269,7 +268,7 @@
 .paperDrawer {
   width: 40%;
   background-color: var(--purplePanel);
-  color: theme.$text;
+  color: var(--text);
   overflow: auto;
 
   @media(max-width: 900px) {
@@ -309,7 +308,7 @@
   }
 
   input {
-    color: theme.$text;
+    color: var(--text);
     background-color: var(--inputBackground);
   }
 }
@@ -338,7 +337,7 @@
 .rootPaper {
   min-height: 15vh;
   background: var(--purpleLighter);
-  color: theme.$text;
+  color: var(--text);
 
   @media (max-width: 900px) {
     height: 10vh
@@ -372,7 +371,7 @@
 }
 
 .middlePaper {
-  color: theme.$text;
+  color: var(--text);
   padding: 20px 0 8px 20px;
   background: var(--purpleDarkest);
   height: 10rem;
@@ -455,7 +454,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: theme.$text;
+  color: var(--text);
   max-height: calc(100vh - 112px);
 }
 
@@ -464,7 +463,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  color: theme.$text;
+  color: var(--text);
   max-height: calc(100vh - 172px);
 }
 
@@ -497,7 +496,7 @@
 }
 
 .chip {
-  color: theme.$text;
+  color: var(--text);
   background-color: var(--purpleLighter);
 }
 
@@ -508,13 +507,13 @@
 }
 
 .checkbox {
-  color: theme.$text;
+  color: var(--text);
 }
 
 .menuPaper {
   min-height: 15vh;
   background: var(--purplePanel);
-  color: theme.$text;
+  color: var(--text);
 
   @media (max-width: 900px) {
     height: 10vh;
@@ -600,7 +599,7 @@
 .analyticsPaper {
   padding: 16px;
   text-align: center;
-  color: theme.$text;
+  color: var(--text);
   height: 35rem;
   width: 99.9%;
   background-color: var(--purplePanel);
@@ -619,7 +618,7 @@
 .btnSelected {
   color: white !important;
   border-color: white;
-  background-color: theme.$purpleColor !important;
+  background-color: var(--purpleColor) !important;
 }
 
 .dashboardCardsContainer {
@@ -648,15 +647,15 @@
   justify-content: flex-end;
 
   input {
-    color: theme.$text;
+    color: var(--text);
   }
 
   fieldset {
-    border-color: theme.$text;
+    border-color: var(--text);
   }
 
   fieldset:hover {
-    border-color: rgba(theme.$text, 0.8);
+    border-color: rgba(var(--text), 0.8);
   }
 }
 
@@ -666,7 +665,7 @@
 }
 
 .label {
-  color: theme.$text
+  color: var(--text)
 }
 
 .checkboxContainer {
@@ -693,7 +692,7 @@
 .checkboxButton {
   margin: 0px;
   padding: 0px;
-  color: theme.$text;
+  color: var(--text);
 }
 
 .mb10px {

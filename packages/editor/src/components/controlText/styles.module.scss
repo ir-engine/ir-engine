@@ -1,11 +1,9 @@
-@use "../theme.scss"as theme;
-
 .controlsText {
   position: fixed;
   bottom: 0px;
   left: 0;
   pointer-events: none;
-  color: theme.$white;
+  color: var(--white);
   padding: 8px;
   height: 30px;
   background: var(--dock);

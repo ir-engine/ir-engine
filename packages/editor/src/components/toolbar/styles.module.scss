@@ -1,6 +1,3 @@
-@use "../theme.scss"as theme;
-
-
 .toolbarContainer {
   display: flex;
   flex-direction: row;
@@ -19,9 +16,9 @@
   top: 70px;
   z-index: 1000;
   left: 20px;
-  color: theme.$white;
+  color: var(--white);
   padding: 8px;
-  background-color: theme.$panel2Opaque;
+  background-color: var(--panel2Opaque);
   border-radius: 4px;
   width: 150px;
 
@@ -34,7 +31,7 @@
 
     &>li {
       font: 12px;
-      color: theme.$text3;
+      color: var(--text3);
 
       &+li {
         margin-top: 5px;
@@ -42,7 +39,7 @@
 
       ul {
         margin-left: 5px;
-        color: theme.$white;
+        color: var(--white);
       }
     }
   }
@@ -67,7 +64,7 @@
     margin: 0 4px;
 
     &:hover {
-      background: theme.$purpleColor1;
+      background: var(--purpleColor1);
     }
   }
 }
@@ -79,7 +76,7 @@
   align-items: center;
   border: none;
   border-radius: 4px;
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   column-gap: 4px;
   padding: 4px;
 
@@ -90,18 +87,18 @@
     width: 25px;
     height: 25px;
     border: none;
-    color: theme.$white;
+    color: var(--white);
     cursor: pointer;
     position: relative;
-    background-color: theme.$toolbar;
+    background-color: var(--toolbar);
     border-radius: 4px;
 
     &:hover {
-      background-color: theme.$purpleColor1;
+      background-color: var(--purpleColor1);
     }
 
     &.selected {
-      background-color: theme.$purpleColor2;
+      background-color: var(--purpleColor2);
 
       &:hover {
         opacity: 0.8;
@@ -116,9 +113,9 @@
     width: 25px;
     height: 25px;
     border: none;
-    color: theme.$white;
+    color: var(--white);
     position: relative;
-    background-color: theme.$toolbar;
+    background-color: var(--toolbar);
     border-radius: 4px;
   }
 
@@ -127,7 +124,7 @@
     z-index: 1500000;
 
     div[class$="-control"] {
-      background: theme.$panel2;
+      background: var(--panel2);
       height: 25px;
       border-radius: 4px;
       border-width: 0;
@@ -137,7 +134,7 @@
     }
 
     div[class$="-menu"] {
-      background: theme.$panel;
+      background: var(--panel);
       border: none;
       overflow: hidden;
       margin-top: 10px;
@@ -146,7 +143,7 @@
         background: transparent;
 
         &:hover {
-          background: theme.$blue;
+          background: var(--blue);
         }
       }
     }
@@ -161,7 +158,7 @@
     height: 31px;
 
     &:hover {
-      background-color: theme.$purpleColor1;
+      background-color: var(--purpleColor1);
     }
 
     .selected {

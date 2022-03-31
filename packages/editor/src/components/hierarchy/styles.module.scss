@@ -1,5 +1,3 @@
-@use "../theme.scss"as theme;
-
 .panelContainer {
   outline: none;
   user-select: none;
@@ -8,7 +6,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  color: theme.$text2;
+  color: var(--text2);
 }
 
 .nodeContent {
@@ -23,32 +21,32 @@
   outline: none;
   overflow: hidden;
   background: transparent;
-  color: theme.$text2;
+  color: var(--text2);
 
   &:hover,
   &:focus {
     background-color: var(--dock);
-    color: theme.$text;
+    color: var(--text);
   }
 
   &.rootNode {
-    border-bottom: rgba($color: theme.$panel2, $alpha: 0.8);
+    border-bottom: rgba($color: var(--panel2), $alpha: 0.8);
     background: var(--dock);
   }
 
   &.selected {
-    background: theme.$selected;
-    color: theme.$text;
+    background: var(--selected);
+    color: var(--text);
 
     &:hover,
     &:focus {
-      background-color: theme.$selected;
+      background-color: var(--selected);
     }
   }
 
   &:active,
   &.active {
-    background: theme.$selected;
+    background: var(--selected);
   }
 }
 
@@ -67,8 +65,8 @@
       top: -3px;
       width: 100%;
       background-color: var(--inputBackground);
-      color: theme.$text;
-      border: theme.$borderStyleLight;
+      color: var(--text);
+      border: var(--borderStyleLight);
       padding: 2px 4px;
       outline: none;
       border-radius: 3px;
@@ -88,7 +86,7 @@
 
       &.dropTarget {
         background-color: rgba(255, 255, 255, 0.3);
-        color: theme.$text;
+        color: var(--text);
       }
     }
   }
@@ -106,11 +104,11 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: theme.$text2;
+  color: var(--text2);
 
   &:hover {
-    color: theme.$text;
-    background-color: theme.$hover2;
+    color: var(--text);
+    background-color: var(--hover2);
     border-radius: 3px;
   }
 }

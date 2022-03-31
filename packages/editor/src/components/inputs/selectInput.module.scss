@@ -1,7 +1,5 @@
-@use "../theme.scss"as theme;
-
 .autoComplete {
-    color: theme.$white;
+    color: var(--white);
     background: var(--inputBackground);
     border-radius: 4px;
     font-size: 11px;
@@ -11,14 +9,14 @@
         padding: 0;
         background: var(--inputBackground);
         border-radius: 4px;
-        border: theme.$borderStyle;
+        border: var(--borderStyle);
     }
 
     .inputWrapper {
         padding: 0px 43px 0px 5px !important;
 
         .inputfield {
-            color: theme.$white;
+            color: var(--white);
             font-size: 12px;
             padding: 0;
 
@@ -39,7 +37,7 @@
         }
 
         svg {
-            color: theme.$white !important;
+            color: var(--white) !important;
             width: 80%;
         }
     }
@@ -50,15 +48,15 @@
     margin-top: 10px !important;
 
     .paper {
-        background: theme.$dropdown;
+        background: var(--dropdown);
         font-size: 12px;
 
         .option {
             padding: 5px 10px;
-            color: theme.$white;
+            color: var(--white);
 
             &:global(.Mui-focused) {
-                background: theme.$hover;
+                background: var(--hover);
             }
         }
     }
@@ -71,11 +69,11 @@
     cursor: pointer;
     padding: 2px 7px;
     font-size: 11px;
-    color: theme.$white;
+    color: var(--white);
 }
 
 .icon {
-    color: theme.$white;
+    color: var(--white);
     font-size: 15px;
 }
 
@@ -85,7 +83,7 @@
     font-size: 11px;
     background: var(--inputBackground);
     padding: 0;
-    color: theme.$white;
+    color: var(--white);
     max-height: 120px;
     overflow: auto;
 }
@@ -95,6 +93,6 @@
     font-size: 12px;
 
     &:hover {
-        background: theme.$hover;
+        background: var(--hover);
     }
 }

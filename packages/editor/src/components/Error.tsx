@@ -17,7 +17,7 @@ const StyledError = (styled as any).div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  color: ${(props) => props.theme.red};
+  color: var(--red);
 
   svg {
     margin-bottom: 20px;
