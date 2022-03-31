@@ -94,7 +94,7 @@ describe('PostprocessingFunctions', () => {
 
   describe('updatePostprocessing()', () => {
     it('updates postprocessing stats', () => {
-      postprocessingFunctions.updatePostProcessing()
+      postprocessingFunctions.updatePostprocessing()
       assert(true)
     })
   })

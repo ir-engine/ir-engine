@@ -47,6 +47,7 @@ import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { bonesData2 } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
+import { resizeAvatar } from './resizeAvatar'
 
 const vec3 = new Vector3()
 
@@ -194,9 +195,11 @@ export const setupAvatarHeight = (entity: Entity, boneStructure: BoneStructure) 
   const eyeTarget = boneStructure.LeftEye ?? boneStructure.Head ?? boneStructure.Neck
   boneStructure.Neck.updateMatrixWorld(true)
   boneStructure.Root.updateMatrixWorld(true)
-  const avatar = getComponent(entity, AvatarComponent)
-  avatar.avatarHeight = eyeTarget.getWorldPosition(vec3).y - boneStructure.Root.getWorldPosition(vec3).y
-  avatar.avatarHalfHeight = avatar.avatarHeight / 2
+
+  const eyeHeight = eyeTarget.getWorldPosition(vec3).y
+  const rootHeight = boneStructure.Root.getWorldPosition(vec3).y
+
+  resizeAvatar(entity, eyeHeight - rootHeight)
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
