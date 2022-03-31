@@ -39,7 +39,7 @@ export class User<T = UserDataType> extends Service<T> {
 
     delete query.search
 
-    const loggedInUser = params!.user as UserDataType
+    let loggedInUser = params!.user as any
 
     if (action === 'friends') {
       delete params.query.action
@@ -65,8 +65,8 @@ export class User<T = UserDataType> extends Service<T> {
       return super.find(params)
     } else if (action === 'layer-users') {
       delete params.query.action
-      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
-      return super.find(params)
+      params.query.instanceId = params.query.instanceId
+      return await super.find(params)
     } else if (action === 'channel-users') {
       delete params.query.action
       params.query.channelInstanceId =
@@ -124,7 +124,7 @@ export class User<T = UserDataType> extends Service<T> {
     return await super.create(data, params)
   }
 
-  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    return super.patch(id, data)
+  patch(id: NullableId, data: any, params?: Params): any {
+    if (id != null) return super.patch(id, data)
   }
 }

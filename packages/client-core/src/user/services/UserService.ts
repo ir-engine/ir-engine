@@ -110,13 +110,20 @@ export const UserService = {
     }
   },
 
-  getLayerUsers: async (instance = true) => {
+  getLayerUsers: async (instance) => {
     const dispatch = useDispatch()
     {
+      const search = window.location.search
+      let instanceId
+      if (search != null) {
+        const parsed = new URL(window.location.href).searchParams.get('instanceId')
+        instanceId = parsed
+      }
       const layerUsers = (await client.service('user').find({
         query: {
           $limit: 1000,
-          action: instance ? 'layer-users' : 'channel-users'
+          action: instance ? 'layer-users' : 'channel-users',
+          instanceId
         }
       })) as Paginated<User>
       dispatch(
