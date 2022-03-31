@@ -61,11 +61,7 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (
-    incDec?: 'increment' | 'decrement',
-    search: string | null = null,
-    skip = accessGroupState().skip.value
-  ) => {
+  getGroupService: async (incDec?: 'increment' | 'decrement', search: string | null = null, skip = 0) => {
     const dispatch = useDispatch()
     {
       const limit = accessGroupState().limit.value

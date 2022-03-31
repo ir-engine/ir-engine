@@ -81,11 +81,7 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (
-    incDec?: 'increment' | 'decrement',
-    value: string | null = null,
-    skip = accessUserState().skip.value
-  ) => {
+  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null, skip = 0) => {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
