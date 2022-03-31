@@ -2,6 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { createState, useState } from '@speigg/hookstate'
+import i18n from 'i18next'
 import _ from 'lodash'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -178,6 +179,19 @@ export const PartyService = {
         }
         const party = (await client.service('party').remove(partyId)) as Party
         dispatch(PartyAction.removedParty(party))
+      } catch (err) {
+        AlertService.dispatchAlertError(err)
+      }
+    }
+  },
+  inviteToParty: async (partyId: string, userId: string) => {
+    {
+      try {
+        const result = await client.service('party-user').create({
+          partyId,
+          userId
+        })
+        AlertService.dispatchAlertSuccess(i18n.t('social:partyInvitationSent'))
       } catch (err) {
         AlertService.dispatchAlertError(err)
       }
