@@ -22,36 +22,6 @@ function Tag(props: TagProps) {
   )
 }
 
-const StyledTag = styled(Tag)<TagProps>(
-  ({ theme }) => `
-  display: flex;
-  align-items: center;
-  height: 24px;
-  margin: 2px;
-  line-height: 22px;
-  background-color: #343b41;
-  border: 1px solid #23282c;
-  border-radius: 2px;
-  box-sizing: content-box;
-  padding: 0 4px 0 10px;
-  outline: 0;
-  overflow: hidden;
-  color: #f1f1f1;
-  & span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  & svg {
-    font-size: 12px;
-    cursor: pointer;
-    padding: 4px;
-    color: #ffffff;
-  }
-`
-)
-
 export default function AutoComplete({ data, label, handleChangeScopeType, scopes = [] }) {
   const {
     getRootProps,
