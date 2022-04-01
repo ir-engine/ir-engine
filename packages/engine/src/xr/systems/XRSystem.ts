@@ -12,7 +12,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputType } from '../../input/enums/InputType'
 import { gamepadMapping } from '../../input/functions/GamepadInput'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -28,10 +28,10 @@ const startXRSession = async () => {
     Engine.xrSession = session
     Engine.xrManager.setSession(session)
     Engine.xrManager.setFoveation(1)
-    dispatchLocal(EngineActions.xrSession() as any)
+    dispatchLocalAction(EngineActions.xrSession() as any)
 
     Engine.xrManager.addEventListener('sessionend', async () => {
-      dispatchLocal(EngineActions.xrEnd() as any)
+      dispatchLocalAction(EngineActions.xrEnd() as any)
     })
 
     startWebXR()
@@ -50,7 +50,7 @@ export default async function XRSystem(world: World) {
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
 
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
-    dispatchLocal(EngineActions.xrSupported(supported) as any)
+    dispatchLocalAction(EngineActions.xrSupported(supported) as any)
   })
 
   // TEMPORARY - precache controller model

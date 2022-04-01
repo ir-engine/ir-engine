@@ -3,8 +3,7 @@ import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/type
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { Action } from '@xrengine/engine/src/hyperflux/functions/ActionFunctions'
 import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
@@ -42,9 +41,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     this.app = app
   }
 
-  public sendActions = (actions: Set<Required<Action>>): any => {
-    if (actions.size === 0 || this.app.io == null) return
-    const world = useWorld()
+  public sendActions = (actions: Array<Required<Action>>): any => {
+    if (actions.length === 0 || this.app.io == null) return
+    const world = Engine.currentWorld
     const clients = world.clients
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of clients) userIdMap[client.socketId!] = id
@@ -68,7 +67,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         action.$to === 'local' ||
         action.$to === Engine.userId
       )
-        world.incomingActions.add(action)
+        world.store.actions.incoming.push(action)
     }
   }
 

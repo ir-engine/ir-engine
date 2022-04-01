@@ -5,8 +5,8 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { client } from '../../feathers'
@@ -138,7 +138,7 @@ export const LocationInstanceConnectionService = {
 
       const authState = accessAuthState()
       const user = authState.user.value
-      dispatchLocal(EngineActions.connect(user.id) as any)
+      dispatchLocalAction(EngineActions.connect(user.id) as any)
 
       EngineEvents.instance.addEventListener(
         MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS,

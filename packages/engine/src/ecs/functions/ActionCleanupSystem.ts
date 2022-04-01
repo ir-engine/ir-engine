@@ -3,19 +3,19 @@ import { NetworkTransport } from '../../networking/interfaces/NetworkTransport'
 import { World } from '../classes/World'
 
 const sendOutgoingActions = (transport: NetworkTransport, world: World) => {
-  const { outgoingActions } = world
+  const { outgoing } = world.store.actions
 
-  for (const o of outgoingActions) console.log('OUTGOING', o)
+  for (const o of outgoing) console.log('OUTGOING', o)
 
   if (transport) {
     try {
-      transport.sendActions(outgoingActions)
+      transport.sendActions(outgoing)
     } catch (e) {
       console.error(e)
     }
   }
 
-  outgoingActions.clear()
+  outgoing.length = 0
 
   return world
 }

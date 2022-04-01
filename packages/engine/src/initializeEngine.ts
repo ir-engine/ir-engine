@@ -30,7 +30,7 @@ import { useWorld } from './ecs/functions/SystemHooks'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
-import { dispatchLocal } from './networking/functions/dispatchFrom'
+import { dispatchLocalAction } from './networking/functions/dispatchFrom'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
 import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
@@ -100,7 +100,7 @@ export const initializeBrowser = () => {
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchLocal(EngineActions.setUserHasInteracted())
+    dispatchLocalAction(EngineActions.setUserHasInteracted())
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -115,7 +115,7 @@ const setupInitialClickListener = () => {
  */
 export const initializeNode = () => {
   const joinedWorld = () => {
-    dispatchLocal(EngineActions.enableScene({ physics: true }))
+    dispatchLocalAction(EngineActions.enableScene({ physics: true }))
     Engine.hasJoinedWorld = true
   }
   receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
@@ -171,7 +171,7 @@ export const initializeMediaServerSystems = async () => {
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchLocal(EngineActions.initializeEngine(true) as any)
+  dispatchLocalAction(EngineActions.initializeEngine(true) as any)
 }
 
 export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = []) => {
@@ -241,7 +241,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
   Engine.engineTimer.start()
 
   Engine.isInitialized = true
-  dispatchLocal(EngineActions.initializeEngine(true) as any)
+  dispatchLocalAction(EngineActions.initializeEngine(true) as any)
 }
 
 /**

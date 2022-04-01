@@ -9,7 +9,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -53,7 +53,7 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  dispatchLocal(EngineActions.sceneLoading())
+  dispatchLocalAction(EngineActions.sceneLoading())
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -62,7 +62,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   }
   const onComplete = () => {
     promisesCompleted++
-    dispatchLocal(
+    dispatchLocalAction(
       EngineActions.sceneLoadingProgress(
         promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
       )
@@ -106,7 +106,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchLocal(EngineActions.sceneLoaded()).delay(2)
+  dispatchLocalAction(EngineActions.sceneLoaded()).delay(2)
 }
 
 /**

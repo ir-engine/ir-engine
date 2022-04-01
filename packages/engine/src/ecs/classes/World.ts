@@ -8,8 +8,8 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { createStore } from '../../hyperflux'
 import { Action } from '../../hyperflux/functions/ActionFunctions'
-import StoreFunctions from '../../hyperflux/functions/StoreFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
@@ -64,7 +64,7 @@ export class World {
 
   _pipeline = [] as SystemModuleType<any>[]
 
-  store = StoreFunctions.createStore()
+  store = createStore()
 
   physics = new Physics()
 
@@ -80,18 +80,6 @@ export class World {
 
   /** Connected clients */
   clients = new Map() as Map<UserId, NetworkClient>
-
-  /** Incoming actions */
-  incomingActions = new Set<Required<Action>>()
-
-  /** Cached actions */
-  cachedActions = new Set<Required<Action>>()
-
-  /** Outgoing actions */
-  outgoingActions = new Set<Action>()
-
-  /** All actions that have been dispatched */
-  actionHistory = new Set<Action>()
 
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()
@@ -193,9 +181,11 @@ export class World {
   }
 
   /**
-   * Action receptors
+   * @deprecated Use store.receptors
    */
-  receptors = new Array<(action: Action) => void>()
+  get receptors() {
+    return this.store.receptors
+  }
 
   /**
    * Execute systems on this world
@@ -205,7 +195,7 @@ export class World {
    */
   execute(delta: number, elapsedTime: number) {
     const start = nowMilliseconds()
-    const incomingActions = Array.from(this.incomingActions.values())
+    const incomingActions = [...this.store.actions.incoming]
     const incomingBufferLength = Network.instance?.incomingMessageQueueUnreliable.getBufferLength()
 
     this.delta = delta

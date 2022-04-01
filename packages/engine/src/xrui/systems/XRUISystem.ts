@@ -9,7 +9,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
@@ -68,11 +68,11 @@ export default async function XRUISystem(world: World) {
       const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchLocal(EngineActions.userAvatarTapped(userId))
+        dispatchLocalAction(EngineActions.userAvatarTapped(userId))
         return
       }
     }
-    dispatchLocal(EngineActions.userAvatarTapped(null!))
+    dispatchLocalAction(EngineActions.userAvatarTapped(null!))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {

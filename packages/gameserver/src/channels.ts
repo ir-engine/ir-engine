@@ -10,6 +10,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import {
   createEngine,
   initializeCoreSystems,
@@ -19,7 +20,6 @@ import {
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 // import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
@@ -91,7 +91,7 @@ const loadScene = async (app: Application, scene: string) => {
   await loadSceneFromJSON(sceneData)
 
   console.log('Scene loaded!')
-  dispatchLocal(EngineActions.joinedWorld())
+  dispatchLocalAction(EngineActions.joinedWorld())
 
   // const portals = getAllComponentsOfType(PortalComponent)
   // await Promise.all(
@@ -222,8 +222,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     world.userIdToUserIndex.set(userId, hostIndex)
     world.userIndexToUserId.set(hostIndex, userId)
 
-    dispatchLocal(EngineActions.sceneLoaded())
-    dispatchLocal(EngineActions.joinedWorld())
+    dispatchLocalAction(EngineActions.sceneLoaded())
+    dispatchLocalAction(EngineActions.joinedWorld())
   } else {
     Network.instance.transportHandler.worldTransports.set('server' as UserId, app.transport)
     await loadScene(app, sceneId)

@@ -3,7 +3,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
@@ -28,7 +28,7 @@ export default async function TriggerSystem(world: World) {
           continue
         }
         world.activePortal = portalComponent
-        dispatchLocal(EngineActions.setTeleporting(true))
+        dispatchLocalAction(EngineActions.setTeleporting(true))
         continue
       }
 

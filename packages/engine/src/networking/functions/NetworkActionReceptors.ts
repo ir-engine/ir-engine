@@ -7,9 +7,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { dispatchAction, dispatchLocalAction } from '../../hyperflux'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { dispatchFrom, dispatchLocal } from './dispatchFrom'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
 const removeAllNetworkClients = (world: World, removeSelf = false) => {
@@ -45,7 +45,7 @@ const removeClientNetworkActionReceptor = (world: World, userId: UserId, allowRe
 
   for (const eid of world.getOwnedNetworkObjects(userId)) {
     const { networkId } = getComponent(eid, NetworkObjectComponent)
-    dispatchLocal(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
+    dispatchLocalAction(NetworkWorldAction.destroyObject({ $from: userId, networkId }))
   }
 
   const { userIndex } = world.clients.get(userId)!
@@ -136,7 +136,7 @@ const requestAuthorityOverObjectNetworkActionReceptor = (
     )
 
   // If any custom logic is required in future around which client can request authority over which objects, that can be handled here.
-  dispatchFrom(Engine.userId, () =>
+  dispatchAction(
     NetworkWorldAction.transferAuthorityOfObject({
       object: action.object,
       newAuthor: action.requester
@@ -175,14 +175,14 @@ const setEquippedObjectNetworkActionReceptor = (
   if (Engine.currentWorld.isHosting === false) return
 
   if (action.equip) {
-    dispatchLocal(
+    dispatchLocalAction(
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
       })
     )
   } else {
-    dispatchLocal(
+    dispatchLocalAction(
       NetworkWorldAction.requestAuthorityOverObject({
         object: action.object,
         requester: Engine.currentWorld.hostId

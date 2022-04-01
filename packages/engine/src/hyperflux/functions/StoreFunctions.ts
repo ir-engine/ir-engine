@@ -6,12 +6,16 @@ import { Action } from './ActionFunctions'
 export interface HyperStore {
   state: Map<string, State<any>>
   actions: {
-    history: Array<Action>
-    cached: Array<Action>
-    incoming: Array<Action>
+    /** All actions that have been dispatched */
+    history: Array<Required<Action>>
+    /** Cached actions */
+    cached: Array<Required<Action>>
+    /** Incoming actions */
+    incoming: Array<Required<Action>>
+    /** Outgoing actions */
     outgoing: Array<Action>
   }
-  receptors: Array<() => void>
+  receptors: Array<(action: Action) => void>
   reactors: Array<() => void>
   _reactorRoots: WeakMap<() => void, any>
 }

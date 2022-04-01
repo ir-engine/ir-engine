@@ -1,7 +1,7 @@
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { SoundEffect } from '../components/SoundEffect'
@@ -37,7 +37,7 @@ export default async function AudioSystem(world: World) {
     if (audioReady) return
     console.log('starting audio')
     audioReady = true
-    dispatchLocal(EngineActions.startSuspendedContexts() as any)
+    dispatchLocalAction(EngineActions.startSuspendedContexts() as any)
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
       context = new window.AudioContext()

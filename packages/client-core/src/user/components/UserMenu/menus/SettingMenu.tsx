@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
@@ -82,8 +82,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchLocal(EngineRendererAction.setQualityLevel(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchLocalAction(EngineRendererAction.setQualityLevel(value))
+                dispatchLocalAction(EngineRendererAction.setAutomatic(false))
               }}
               className={styles.slider}
               min={1}
@@ -97,8 +97,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setPostProcessing(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchLocalAction(EngineRendererAction.setPostProcessing(value))
+                dispatchLocalAction(EngineRendererAction.setAutomatic(false))
               }}
             />
             {/* <FormControlLabel
@@ -116,8 +116,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setShadows(value))
-                dispatchLocal(EngineRendererAction.setAutomatic(false))
+                dispatchLocalAction(EngineRendererAction.setShadows(value))
+                dispatchLocalAction(EngineRendererAction.setAutomatic(false))
               }}
             />
           </div>
@@ -128,7 +128,7 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchLocal(EngineRendererAction.setAutomatic(value))
+                dispatchLocalAction(EngineRendererAction.setAutomatic(value))
               }}
             />
           </div>

@@ -17,9 +17,9 @@ import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { dispatchAction } from '@xrengine/engine/src/hyperflux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -724,7 +724,7 @@ export const AuthService = {
         .patch(userId, { avatarId: avatarName })
         .then((_) => {
           AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
-          dispatchFrom(Engine.userId, () =>
+          dispatchAction(
             NetworkWorldAction.avatarDetails({
               avatarDetail: response
             })
@@ -796,7 +796,7 @@ export const AuthService = {
         .then((res: any) => {
           // dispatchAlertSuccess(dispatch, 'User Avatar updated');
           dispatch(AuthAction.userAvatarIdUpdated(res))
-          dispatchFrom(Engine.userId, () =>
+          dispatchAction(
             NetworkWorldAction.avatarDetails({
               avatarDetail: {
                 avatarURL,

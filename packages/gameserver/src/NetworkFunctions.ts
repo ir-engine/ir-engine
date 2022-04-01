@@ -9,8 +9,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { dispatchFrom } from '@xrengine/engine/src/hyperflux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -322,7 +322,7 @@ export const handleJoinWorld = async (
 
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Action[]
-  for (const action of world.cachedActions as Set<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
+  for (const action of world.store.actions.cached as Array<ReturnType<typeof NetworkWorldAction.spawnAvatar>>) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = action.$from
@@ -368,7 +368,7 @@ export function handleIncomingActions(socket, message) {
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    world.outgoingActions.add(a)
+    world.store.actions.outgoing.push(a)
   }
   // console.log('SERVER INCOMING ACTIONS', JSON.stringify(actions))
 }
@@ -403,7 +403,7 @@ export async function handleDisconnect(socket): Promise<any> {
 }
 
 export async function handleLeaveWorld(socket, data, callback): Promise<any> {
-  const world = useWorld()
+  const world = Engine.currentWorld
   const userId = getUserIdFromSocketId(socket.id)!
   if (Network.instance.transports)
     for (const [, transport] of Object.entries(Network.instance.transports))
@@ -415,17 +415,21 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
 }
 
 export function clearCachedActionsForDisconnectedUsers() {
-  for (const action of Engine.currentWorld.cachedActions) {
+  const cached = Engine.currentWorld.store.actions.cached
+  for (const action of [...cached]) {
     if (Engine.currentWorld.clients.has(action.$from) === false) {
-      Engine.currentWorld.cachedActions.delete(action)
+      const idx = cached.indexOf(action)
+      cached.splice(idx, 1)
     }
   }
 }
 
 export function clearCachedActionsForUser(user: UserId) {
-  for (const action of Engine.currentWorld.cachedActions) {
+  const cached = Engine.currentWorld.store.actions.cached
+  for (const action of [...cached]) {
     if (action.$from === user) {
-      Engine.currentWorld.cachedActions.delete(action)
+      const idx = cached.indexOf(action)
+      cached.splice(idx, 1)
     }
   }
 }

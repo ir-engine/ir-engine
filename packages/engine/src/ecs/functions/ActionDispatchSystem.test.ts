@@ -1,12 +1,11 @@
 import assert, { strictEqual } from 'assert'
+import ActionFunctions, { ActionRecipients } from 'src/hyperflux/functions/ActionFunctions'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { createWorld } from '../classes/World'
-import { ActionRecipients } from './Action'
-import { applyIncomingActions } from './ActionDispatchSystem'
 
 describe('IncomingNetworkSystem Unit Tests', async () => {
   describe('applyIncomingActions', () => {
@@ -27,13 +26,15 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients
       })
 
-      world.incomingActions.add(action)
+      world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      world.receptors.push((a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a)))
+      ActionFunctions.addActionReceptor((a) =>
+        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+      )
 
       /* run */
-      applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world)
 
       /* assert */
       strictEqual(recepted.length, 0)
@@ -56,13 +57,15 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients
       })
 
-      world.incomingActions.add(action)
+      world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      world.receptors.push((a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a)))
+      ActionFunctions.addActionReceptor((a) =>
+        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+      )
 
       /* run */
-      applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world)
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -88,17 +91,19 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
         $cache: true
       })
 
-      world.incomingActions.add(action)
+      world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      world.receptors.push((a) => matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a)))
+      ActionFunctions.addActionReceptor((a) =>
+        matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
+      )
 
       /* run */
-      applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world)
 
       /* assert */
       strictEqual(recepted.length, 1)
-      assert(world.cachedActions.has(action))
+      assert(world.store.actions.cached.indexOf(action) !== -1)
     })
   })
 })

@@ -12,7 +12,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -87,7 +87,7 @@ export default async function InteractiveSystem() {
       } else if (hasComponent(entity, VolumetricComponent)) {
         toggleVolumetric(entity)
       } else {
-        dispatchLocal(EngineActions.objectActivation(interactiveComponent))
+        dispatchLocalAction(EngineActions.objectActivation(interactiveComponent))
       }
       removeComponent(entity, InteractedComponent)
     }

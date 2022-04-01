@@ -3,7 +3,7 @@ import { Color, Object3D } from 'three'
 
 import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -24,7 +24,7 @@ import {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
-  dispatchLocal(EngineActions.sceneUnloaded())
+  dispatchLocalAction(EngineActions.sceneUnloaded())
 
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
@@ -82,7 +82,7 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
-  dispatchLocal(EngineActions.sceneUnloaded())
+  dispatchLocalAction(EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null

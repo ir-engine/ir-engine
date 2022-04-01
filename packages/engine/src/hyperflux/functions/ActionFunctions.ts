@@ -1,4 +1,6 @@
+import { deepEqual } from 'src/common/functions/deepEqual'
 import { Engine } from 'src/ecs/classes/Engine'
+import { World } from 'src/ecs/classes/World'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
@@ -207,11 +209,11 @@ const dispatchAction = <A extends Action>(action: A) => {
   return _createModifier(action)
 }
 
-export const dispatchLocalAction = <A extends Action>(action: A) => {
+const dispatchLocalAction = <A extends Action>(action: A) => {
   return dispatchAction(action).to('local')
 }
 
-function addActionReceptor(receptor: () => {}) {
+function addActionReceptor(receptor: (action: Required<Action>) => {}) {
   const store = StoreFunctions.getStore()
   store.receptors.push(receptor)
 }
@@ -222,10 +224,82 @@ function removeActionReceptor(receptor: () => {}) {
   if (idx >= 0) store.reactors.splice(idx, 1)
 }
 
+const updateCachedActions = (action: Required<Action>, store = StoreFunctions.getStore()) => {
+  if (action.$cache) {
+    const cachedActions = store.actions.cached
+    // see if we must remove any previous actions
+    if (typeof action.$cache === 'boolean') {
+      if (action.$cache) cachedActions.push(action)
+    } else {
+      const remove = action.$cache.removePrevious
+
+      if (remove) {
+        for (const a of cachedActions) {
+          if (a.$from === action.$from && a.type === action.type) {
+            if (remove === true) {
+              const idx = cachedActions.indexOf(a)
+              cachedActions.splice(idx, 1)
+            } else {
+              let matches = true
+              for (const key of remove) {
+                if (!deepEqual(a[key], action[key])) {
+                  matches = false
+                  break
+                }
+              }
+              if (matches) {
+                const idx = cachedActions.indexOf(a)
+                cachedActions.splice(idx, 1)
+              }
+            }
+          }
+        }
+      }
+
+      if (!action.$cache.disable) cachedActions.push(action)
+    }
+  }
+}
+
+const applyAndArchiveIncomingAction = (action: Required<Action>, store = StoreFunctions.getStore()) => {
+  try {
+    for (const receptor of [...store.receptors]) receptor(action)
+    updateCachedActions(action)
+    store.actions.history.push(action)
+  } catch (e) {
+    store.actions.history.push({ $ERROR: e, ...action } as any)
+    console.error(e)
+  } finally {
+    const idx = store.actions.incoming.indexOf(action)
+    store.actions.incoming.splice(idx, 1)
+  }
+}
+
+const applyIncomingActions = (world: World = Engine.currentWorld) => {
+  const { incoming } = world.store.actions
+
+  for (const action of incoming) {
+    if (action.$tick > world.fixedTick) {
+      continue
+    }
+    if (action.$tick < world.fixedTick) {
+      console.warn(`LATE ACTION ${action.type}`, action)
+    } else {
+      console.log(`ACTION ${action.type}`, action)
+    }
+    applyAndArchiveIncomingAction(action)
+  }
+
+  return world
+}
+
 export default {
   defineAction,
   dispatchAction,
   dispatchLocalAction,
   addActionReceptor,
-  removeActionReceptor
+  removeActionReceptor,
+  updateCachedActions,
+  applyAndArchiveIncomingAction,
+  applyIncomingActions
 }

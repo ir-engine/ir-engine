@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { accessEngineState, EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 import SelectAllIcon from '@mui/icons-material/SelectAll'
@@ -18,7 +18,7 @@ export const HelperToggleTool = () => {
 
   const togglePhysicsDebug = () => {
     forceUpdate()
-    dispatchLocal(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value) as any)
+    dispatchLocalAction(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value) as any)
   }
   const toggleNodeHelpers = () => {
     Engine.camera.layers.toggle(ObjectLayers.NodeHelper)

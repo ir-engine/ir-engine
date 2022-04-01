@@ -4,7 +4,7 @@ import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
+import { Action } from '@xrengine/engine/src/hyperflux/functions/ActionFunctions'
 import {
   Network,
   NetworkTransportHandler,
@@ -82,9 +82,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
 
-  sendActions(actions: Set<Action>) {
-    if (actions.size === 0) return
-    this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ Array.from(actions)) //)
+  sendActions(actions: Action[]) {
+    if (actions.length === 0) return
+    this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
   sendNetworkStatUpdateMessage(message): void {

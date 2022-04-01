@@ -6,8 +6,8 @@ import JSONTree from 'react-json-tree'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { getComponent, MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 export const Debug = () => {
@@ -42,11 +42,11 @@ export const Debug = () => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    dispatchLocal(EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
+    dispatchLocalAction(EngineActions.setPhysicsDebug(!engineState.isPhysicsDebug.value) as any)
   }
 
   const toggleAvatarDebug = () => {
-    dispatchLocal(EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
+    dispatchLocalAction(EngineActions.setAvatarDebug(!engineState.isAvatarDebug.value) as any)
   }
 
   const renderNamedEntities = () => {

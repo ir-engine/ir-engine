@@ -21,7 +21,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 import { World } from '../ecs/classes/World'
-import { dispatchLocal } from '../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
@@ -94,7 +94,7 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
 
     if (!context) {
-      dispatchLocal(
+      dispatchLocalAction(
         EngineActions.browserNotSupported(
           'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
         ) as any
@@ -221,15 +221,15 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchLocalAction(EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 
   doAutomaticRenderQuality() {
     const state = accessEngineRendererState()
-    dispatchLocal(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchLocal(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchLocal(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
+    dispatchLocalAction(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
+    dispatchLocalAction(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
+    dispatchLocalAction(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 
   async loadGraphicsSettingsFromStorage() {
@@ -240,11 +240,11 @@ export class EngineRenderer {
       // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
     ])
-    dispatchLocal(EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchLocal(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
-    dispatchLocal(EngineRendererAction.setShadows(useShadows ?? true))
-    // dispatchLocal(EngineRendererAction.setPBR(pbr ?? true))
-    dispatchLocal(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
+    dispatchLocalAction(EngineRendererAction.setAutomatic(automatic ?? true))
+    dispatchLocalAction(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
+    dispatchLocalAction(EngineRendererAction.setShadows(useShadows ?? true))
+    // dispatchLocalAction(EngineRendererAction.setPBR(pbr ?? true))
+    dispatchLocalAction(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
   }
 }
 

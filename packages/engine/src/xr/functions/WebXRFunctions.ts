@@ -9,8 +9,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { dispatchAction } from '../../hyperflux'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
@@ -153,7 +153,7 @@ export const startWebXR = async (): Promise<void> => {
   Engine.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
 
   addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
+  dispatchAction(NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
   bindXRHandEvents()
 }
 
@@ -171,7 +171,7 @@ export const endXR = (): void => {
   addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
 
-  dispatchFrom(Engine.userId, () => NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
+  dispatchAction(NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
 }
 
 /**
@@ -202,7 +202,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchFrom(Engine.userId, () => NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
+        dispatchAction(NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
         eventSent = true
       }
     })

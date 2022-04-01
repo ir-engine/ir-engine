@@ -2,7 +2,7 @@ import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
+import { dispatchAction } from '../../hyperflux'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AnimationManager } from '../AnimationManager'
@@ -214,7 +214,7 @@ export class AvatarAnimationGraph extends AnimationGraph {
     super.changeState(newStateName)
     if (isEntityLocalClient(this.entity)) {
       const params = {}
-      dispatchFrom(Engine.userId, () => NetworkWorldAction.avatarAnimation({ newStateName, params }))
+      dispatchAction(NetworkWorldAction.avatarAnimation({ newStateName, params }))
     }
   }
 }

@@ -44,7 +44,7 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
+import { dispatchFrom, dispatchLocalAction } from '../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -482,13 +482,13 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
-    // dispatchFrom(Engine.userId, () =>
+    // dispatchAction(
     //   NetworkWorldAction.spawnDebugPhysicsObject({
     //     config: boxDynamicConfig // Any custom config can be provided here
     //   })
     // )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchLocal(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
+    dispatchLocalAction(EngineActions.setPhysicsDebug(!accessEngineState().isPhysicsDebug.value))
   }
 }
 

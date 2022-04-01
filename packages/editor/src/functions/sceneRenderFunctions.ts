@@ -7,7 +7,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { accessEngineRendererState, EngineRendererAction } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
@@ -100,14 +100,14 @@ export function initializeRenderer(): void {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    dispatchLocal(
+    dispatchLocalAction(
       EngineActions.enableScene({
         renderer: true,
         physics: true
       }) as any
     )
 
-    dispatchLocal(EngineActions.setPhysicsDebug(true) as any)
+    dispatchLocalAction(EngineActions.setPhysicsDebug(true) as any)
 
     SceneState.grid.setSize(accessModeState().translationSnap.value)
 
@@ -117,7 +117,7 @@ export function initializeRenderer(): void {
     EngineRenderer.instance.disableUpdate = false
 
     accessEngineRendererState().automatic.set(false)
-    dispatchLocal(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    dispatchLocalAction(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
   } catch (error) {
     console.error(error)
   }

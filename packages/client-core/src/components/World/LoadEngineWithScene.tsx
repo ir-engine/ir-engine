@@ -11,7 +11,7 @@ import { SceneAction, SceneService, useSceneState } from '@xrengine/client-core/
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 
 import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
@@ -84,7 +84,7 @@ export const LoadEngineWithScene = (props: Props) => {
   useHookedEffect(() => {
     if (engineState.joinedWorld.value && engineState.isTeleporting.value) {
       // if we are coming from another scene, reset our teleporting status
-      dispatchLocal(EngineActions.setTeleporting(false))
+      dispatchLocalAction(EngineActions.setTeleporting(false))
     }
   }, [engineState.joinedWorld])
 

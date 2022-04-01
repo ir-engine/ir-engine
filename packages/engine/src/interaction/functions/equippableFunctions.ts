@@ -3,8 +3,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
+import { dispatchAction } from '../../hyperflux'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -40,7 +40,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const attachmentPoint = equippedComponent.attachmentPoint
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
-  dispatchFrom(Engine.userId, () =>
+  dispatchAction(
     NetworkWorldAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,

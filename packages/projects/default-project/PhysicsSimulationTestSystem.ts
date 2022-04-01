@@ -8,7 +8,7 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchFrom } from '@xrengine/engine/src/networking/functions/dispatchFrom'
+import { dispatchFrom } from '@xrengine/engine/src/hyperflux'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'

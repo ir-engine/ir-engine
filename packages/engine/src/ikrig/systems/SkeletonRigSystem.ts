@@ -8,7 +8,7 @@ import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CameraIKComponent } from '../components/CameraIKComponent'
@@ -57,13 +57,13 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocal({ ...NetworkWorldAction.createClient({ name: 'user', index: networkId }), $from: userId })
-    dispatchLocal({
+    dispatchLocalAction({ ...NetworkWorldAction.createClient({ name: 'user', index: networkId }), $from: userId })
+    dispatchLocalAction({
       ...NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: networkId }),
       networkId,
       $from: userId
     })
-    dispatchLocal({ ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
+    dispatchLocalAction({ ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
   }
 }
 

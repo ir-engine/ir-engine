@@ -6,7 +6,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchLocal } from '../../networking/functions/dispatchFrom'
+import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 
 export async function overrideXR() {
@@ -68,7 +68,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  dispatchLocal(EngineActions.xrStart() as any)
+  dispatchLocalAction(EngineActions.xrStart() as any)
   EngineEvents.instance.dispatchEvent({
     type: 'webxr-pose',
     detail: {

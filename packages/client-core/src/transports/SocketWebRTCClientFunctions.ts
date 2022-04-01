@@ -4,12 +4,12 @@ import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
+import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
+import { Action } from '@xrengine/engine/src/hyperflux/functions/ActionFunctions'
 import { Network, TransportTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -72,16 +72,16 @@ export async function onConnectToInstance(networkTransport: SocketWebRTCClientTr
     ])
   } catch (err) {
     console.log(err)
-    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    dispatchLocalAction(EngineActions.connectToWorldTimeout(true) as any)
     return
   }
 
   if (!ConnectToWorldResponse) {
-    dispatchLocal(EngineActions.connectToWorldTimeout(true) as any)
+    dispatchLocalAction(EngineActions.connectToWorldTimeout(true) as any)
     return
   }
   const { routerRtpCapabilities } = ConnectToWorldResponse as any
-  dispatchLocal(EngineActions.connectToWorld(true) as any)
+  dispatchLocalAction(EngineActions.connectToWorld(true) as any)
 
   if (networkTransport.mediasoupDevice.loaded !== true)
     await networkTransport.mediasoupDevice.load({ routerRtpCapabilities })
@@ -114,7 +114,7 @@ export async function onConnectToWorldInstance(networkTransport: SocketWebRTCCli
     const actions = message as any as Required<Action>[]
     // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
     for (const a of actions) {
-      Engine.currentWorld!.incomingActions.add(a)
+      Engine.currentWorld!.store.actions.incoming.push(a)
     }
   }
 
@@ -892,7 +892,7 @@ export async function leave(networkTransport: SocketWebRTCClientTransport, kicke
         })
       ])
       if (result?.error) console.error(result.error)
-      dispatchLocal(EngineActions.leaveWorld() as any)
+      dispatchLocalAction(EngineActions.leaveWorld() as any)
     }
 
     networkTransport.leaving = false
