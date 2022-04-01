@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
@@ -30,6 +30,7 @@ const LocationTable = (props: LocationProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
   const [locationId, setLocationId] = React.useState('')
   const [locationName, setLocationName] = React.useState('')
+  const [orderby, setOrderby] = React.useState('asc')
   const [viewModal, setViewModal] = React.useState(false)
   const [locationAdmin, setLocationAdmin] = React.useState<Location>()
   const authState = useAuthState()
@@ -49,14 +50,20 @@ const LocationTable = (props: LocationProps) => {
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(incDec, null, newPage)
+    //const incDec = page < newPage ? 'increment' : 'decrement'
+    LocationService.fetchAdminLocations(null, newPage, orderby)
     setPage(newPage)
   }
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
   }
+
+  useEffect(() => {
+    if (adminUserState.fetched.value) {
+      LocationService.fetchAdminLocations(null, page, orderby)
+    }
+  }, [orderby])
 
   const submitRemoveLocation = async () => {
     await LocationService.removeLocation(locationId)
@@ -171,6 +178,9 @@ const LocationTable = (props: LocationProps) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        orderby={orderby}
+        setOrderby={setOrderby}
         rows={rows}
         column={locationColumns}
         page={page}

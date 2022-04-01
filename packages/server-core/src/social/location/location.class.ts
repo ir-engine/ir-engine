@@ -132,7 +132,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
-        order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC'])
+        order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
       })
 
     if (joinableLocations) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -19,6 +19,7 @@ const UserTable = (props: UserProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
+  const [orderby, setOrderby] = useState('asc')
   const [viewModal, setViewModal] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
@@ -30,10 +31,16 @@ const UserTable = (props: UserProps) => {
   useFetchUsersAsAdmin(user, adminUserState, UserService, search)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(incDec, null, newPage)
+    //const incDec = page < newPage ? 'increment' : 'decrement'
+    UserService.fetchUsersAsAdmin(null, newPage, orderby)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminUserState.fetched.value) {
+      UserService.fetchUsersAsAdmin(null, page, orderby)
+    }
+  }, [orderby])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
@@ -131,6 +138,9 @@ const UserTable = (props: UserProps) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        orderby={orderby}
+        setOrderby={setOrderby}
         rows={rows}
         column={userColumns}
         page={page}

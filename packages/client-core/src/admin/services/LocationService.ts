@@ -10,7 +10,7 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-export const LOCATION_PAGE_LIMIT = 12
+export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
   locations: [] as Array<Location>,
@@ -95,9 +95,9 @@ export const LocationService = {
     }
   },
   fetchAdminLocations: async (
-    incDec?: 'increment' | 'decrement',
     value: string | null = null,
-    skip = accessLocationState().skip.value
+    skip = accessLocationState().skip.value,
+    orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
     {
@@ -105,7 +105,7 @@ export const LocationService = {
         const locations = (await client.service('location').find({
           query: {
             $sort: {
-              name: 1
+              name: orderBy === 'desc' ? 0 : 1
             },
             $skip: skip * LOCATION_PAGE_LIMIT,
             $limit: accessLocationState().limit.value,
@@ -120,7 +120,7 @@ export const LocationService = {
       }
     }
   },
-  searchAdminLocations: async (value) => {
+  searchAdminLocations: async (value, orderBy = 'asc') => {
     const dispatch = useDispatch()
     {
       try {
@@ -128,7 +128,7 @@ export const LocationService = {
           query: {
             search: value,
             $sort: {
-              name: 1
+              name: orderBy === 'desc' ? 0 : 1
             },
             $skip: accessLocationState().skip.value,
             $limit: accessLocationState().limit.value,

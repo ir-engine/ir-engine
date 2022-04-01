@@ -15,7 +15,7 @@ import { store, useDispatch } from '../../store'
  */
 
 //State
-export const GROUP_PAGE_LIMIT = 12
+export const GROUP_PAGE_LIMIT = 100
 
 export const state = createState({
   group: [] as Array<Group>,

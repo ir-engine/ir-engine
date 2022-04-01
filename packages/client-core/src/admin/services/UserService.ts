@@ -9,7 +9,7 @@ import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
-export const USER_PAGE_LIMIT = 12
+export const USER_PAGE_LIMIT = 100
 
 const state = createState({
   users: [] as Array<User>,
@@ -81,7 +81,7 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null, skip = 0) => {
+  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, orderBy = 'asc') => {
     const dispatch = useDispatch()
     {
       const userState = accessUserState()
@@ -94,7 +94,7 @@ export const UserService = {
           const params = {
             query: {
               $sort: {
-                name: 1
+                name: orderBy === 'desc' ? 0 : 1
               },
               $skip: skip * USER_PAGE_LIMIT,
               $limit: limit,

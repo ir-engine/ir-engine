@@ -8,7 +8,7 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-export const AVATAR_PAGE_LIMIT = 12
+export const AVATAR_PAGE_LIMIT = 100
 
 const state = createState({
   avatars: [] as Array<AvatarInterface>,
