@@ -1,0 +1,23 @@
+{
+  "extends": ["stylelint-config-standard-scss", "stylelint-config-prettier-scss"],
+  "overrides": [
+    {
+      "files": ["packages/**/*.scss"],
+      "customSyntax": "postcss-scss"
+    }
+  ],
+  "rules": {
+    "at-rule-no-unknown": false,
+    "no-descending-specificity": false,
+    "indentation": "tab",
+    "number-leading-zero": null,
+    "property-no-vendor-prefix": false,
+    "selector-class-pattern": ["camelcase", "kebabcase"],
+    "number-max-precision": [
+      4,
+      {
+        "severity": "warning"
+      }
+    ]
+  }
+}
