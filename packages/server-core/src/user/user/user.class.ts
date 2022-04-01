@@ -65,7 +65,7 @@ export class User<T = UserDataType> extends Service<T> {
       return super.find(params)
     } else if (action === 'layer-users') {
       delete params.query.action
-      params.query.instanceId = params.query.instanceId
+      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
       return await super.find(params)
     } else if (action === 'channel-users') {
       delete params.query.action
