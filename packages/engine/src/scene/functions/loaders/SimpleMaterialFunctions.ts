@@ -1,4 +1,14 @@
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial } from 'three'
+import {
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  MeshStandardMaterial,
+  ShaderLib,
+  ShaderMaterial,
+  UniformsLib,
+  UniformsUtils
+} from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -37,11 +47,45 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
 }
 
 export const useSimpleMaterial = (obj: Mesh): void => {
-  if (obj.material instanceof MeshStandardMaterial) {
-    obj.userData.prevMaterial = obj.material
-    obj.material = new MeshPhongMaterial()
-    MeshBasicMaterial.prototype.copy.call(obj.material, obj.userData.prevMaterial)
+  // if (obj.material instanceof MeshStandardMaterial) {
+  //   obj.userData.prevMaterial = obj.material
+  //   obj.material = new MeshPhongMaterial()
+  //   MeshBasicMaterial.prototype.copy.call(obj.material, obj.userData.prevMaterial)
+  // }
+
+  if (!obj.material) return
+
+  obj.userData.prevMaterial = obj.material
+
+  let uniforms = {
+    color: {
+      value: (obj.material as any).color
+    },
+    diffuse: {
+      value: (obj.material as any).color
+    }
   }
+
+  Object.keys(ShaderLib.basic.uniforms).forEach((key) => {
+    if (obj.material[key]) {
+      uniforms[key] = {
+        value: obj.material[key]
+      }
+    }
+  })
+
+  uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
+
+  obj.material = new ShaderMaterial({
+    uniforms,
+    vertexShader: ShaderLib.basic.vertexShader,
+    fragmentShader: ShaderLib.basic.fragmentShader,
+    lights: true
+  })
+
+  Object.keys(uniforms).forEach((key) => {
+    obj.material[key] = uniforms[key].value
+  })
 }
 
 export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
