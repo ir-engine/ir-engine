@@ -8,7 +8,7 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 
 import config from '../../appconfig'
 import { getContentType } from '../../util/fileUtils'
-import { copyRecursiveSync, getIncreamentalName } from '../FileUtil'
+import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import {
   BlobStore,
   StorageListObjectInterface,
@@ -98,24 +98,6 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
-  removeDir(path: string) {
-    if (fs.existsSync(path)) {
-      const files = fs.readdirSync(path)
-      if (files.length > 0) {
-        files.forEach((filename) => {
-          if (fs.statSync(path + filename).isDirectory()) {
-            this.removeDir(path + filename)
-          } else {
-            fs.unlinkSync(path + filename)
-          }
-        })
-        fs.rmdirSync(path)
-      } else {
-        fs.rmdirSync(path)
-      }
-    }
-  }
-
   deleteResources(keys: string[]) {
     const blobs = this.getStorage()
 
@@ -132,8 +114,8 @@ export class LocalStorage implements StorageProviderInterface {
               blobs.remove(key, (err) => {
                 if (err) {
                   const filePath = path.join(this.PATH_PREFIX, key)
-                  if (fs.statSync(filePath).isDirectory()) {
-                    this.removeDir(filePath)
+                  if (fs.lstatSync(filePath).isDirectory()) {
+                    fs.rmSync(filePath, { force: true, recursive: true })
                     resolve(true)
                   } else {
                     resolve(false)
@@ -176,7 +158,7 @@ export class LocalStorage implements StorageProviderInterface {
       })
       let totalSize = 0
       filePaths.forEach((file) => {
-        const stat = fs.statSync(file)
+        const stat = fs.lstatSync(file)
         totalSize += stat.size
       })
       res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
@@ -189,7 +171,7 @@ export class LocalStorage implements StorageProviderInterface {
 
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
-      res.size = this.formatBytes(fs.statSync(pathString).size)
+      res.size = this.formatBytes(fs.lstatSync(pathString).size)
       res.url = signedUrl.url + path.sep + signedUrl.fields.Key
     }
 
@@ -228,7 +210,7 @@ export class LocalStorage implements StorageProviderInterface {
     const contentpath = path.join(this.PATH_PREFIX)
     current = path.join(contentpath, current)
     destination = path.join(contentpath, destination)
-    let fileName = renameTo != null ? getIncreamentalName(renameTo, destination) : path.basename(current)
+    let fileName = renameTo != null ? getIncrementalName(renameTo, destination) : path.basename(current)
 
     try {
       isCopy

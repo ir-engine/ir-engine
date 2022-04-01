@@ -5,7 +5,7 @@ import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
-import { copyRecursiveSync, getIncreamentalName } from '../FileUtil'
+import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
@@ -88,7 +88,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     )
 
     const newParentPath = path.join(projectsRootFolder, data.newPath)
-    const fileName = getIncreamentalName(data.newName, newParentPath)
+    const fileName = getIncrementalName(data.newName, newParentPath)
     const oldNamePath = path.join(projectsRootFolder, data.oldPath, data.oldName)
     const newNamePath = path.join(newParentPath, fileName)
 
@@ -130,7 +130,7 @@ export class FileBrowserService implements ServiceMethods<any> {
     const result = await this.store.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
 
     const filePath = path.join(projectsRootFolder, key)
-    if (fs.statSync(filePath).isDirectory()) {
+    if (fs.lstatSync(filePath).isDirectory()) {
       fs.rmSync(filePath, { force: true, recursive: true })
     } else {
       fs.unlinkSync(filePath)

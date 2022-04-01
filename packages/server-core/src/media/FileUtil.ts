@@ -14,7 +14,7 @@ export const copyRecursiveSync = function (src: string, dest: string): void {
   }
 }
 
-export const getIncreamentalName = function (name: string, parentPath: string): string {
+export const getIncrementalName = function (name: string, parentPath: string): string {
   let filename = name
   const _path = path.join(parentPath, name)
 
