@@ -39,7 +39,7 @@ export class User<T = UserDataType> extends Service<T> {
 
     delete query.search
 
-    let loggedInUser = params!.user as any
+    const loggedInUser = params!.user as any
 
     if (action === 'friends') {
       delete params.query.action
@@ -124,7 +124,8 @@ export class User<T = UserDataType> extends Service<T> {
     return await super.create(data, params)
   }
 
-  patch(id: NullableId, data: any, params?: Params): any {
-    if (id != null) return super.patch(id, data)
+  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    if (id == null) throw new Error('ID is required')
+    return super.patch(id, data)
   }
 }
