@@ -9,6 +9,7 @@ import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import Button from '@mui/material/Button'
 
+import { PartyService } from '../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import { useAuthState } from '../../user/services/AuthService'
 import { UserService, useUserState } from '../../user/services/UserService'
@@ -118,6 +119,13 @@ const AvatarContextMenu = () => {
     }
   }
 
+  const inviteToParty = () => {
+    if (authState.user?.partyId?.value !== null && user) {
+      const partyId = authState.user?.partyId?.value ?? ''
+      const userId = user.id?.value ?? ''
+      PartyService.inviteToParty(partyId, userId)
+    }
+  }
   useEffect(() => {
     if (engineState.avatarTappedId.value !== authState.user.id.value)
       detailState.id.set(engineState.avatarTappedId.value)
@@ -128,13 +136,7 @@ const AvatarContextMenu = () => {
       <img style={styles.ownerImage as {}} src={getAvatarURLForUser(user?.id?.value)} />
       <div style={styles.buttonContainer}>
         <section style={styles.buttonSection}>
-          <Button
-            style={styles.button as {}}
-            onClick={() => {
-              UserService.getUserRelationship(authState.user.id?.value ?? '')
-              console.log('Invite to Party')
-            }}
-          >
+          <Button style={styles.button as {}} onClick={inviteToParty}>
             {t('user:personMenu.inviteToParty')}
           </Button>
           <Button style={styles.button as {}} onClick={addAsFriend}>
