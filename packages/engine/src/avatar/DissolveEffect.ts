@@ -123,10 +123,16 @@ export class DissolveEffect {
       }
     `
 
+    let textureShader = `gl_FragColor = textureColor;`
+    if (hasTexture && (material as any).map.isVideoTexture) {
+      textureShader = `gl_FragColor = sRGBToLinear(textureColor);`
+    }
+
     const fragmentTextureShader = `
       #include <output_fragment>
       float offset = vPosition - time;
-      gl_FragColor = texture2D(origin_texture, vUv3);
+      vec4 textureColor = texture2D(origin_texture, vUv3);
+      ${textureShader}
       if(offset > (-0.01 - rand(time) * 0.3)){
       gl_FragColor.r = 0.0;
       gl_FragColor.g = 1.0;
@@ -152,6 +158,9 @@ export class DissolveEffect {
       uniform sampler2D texture_dissolve;
       uniform sampler2D origin_texture;
       float rand(float co) { return fract(sin(co*(91.3458)) * 47453.5453); }
+      vec4 sRGBToLinear( in vec4 value ) {
+        return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.a );
+      }
     `
 
     vertexShader = vertexShader.replace('#include <clipping_planes_pars_vertex>', vertexHeaderShader)
