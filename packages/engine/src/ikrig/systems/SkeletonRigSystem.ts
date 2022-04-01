@@ -3,12 +3,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CameraIKComponent } from '../components/CameraIKComponent'
@@ -57,13 +57,16 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchLocalAction({ ...NetworkWorldAction.createClient({ name: 'user', index: networkId }), $from: userId })
-    dispatchLocalAction({
+    dispatchAction(Engine.store, {
+      ...NetworkWorldAction.createClient({ name: 'user', index: networkId }),
+      $from: userId
+    })
+    dispatchAction(Engine.store, {
       ...NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: networkId }),
       networkId,
       $from: userId
     })
-    dispatchLocalAction({ ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
+    dispatchAction(Engine.store, { ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
   }
 }
 

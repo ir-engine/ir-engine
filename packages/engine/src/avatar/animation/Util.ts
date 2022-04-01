@@ -8,13 +8,11 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { matches } from '@xrengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { matches } from '../../hyperflux'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 /** State of the avatar animation */

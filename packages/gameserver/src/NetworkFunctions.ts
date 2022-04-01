@@ -6,15 +6,14 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import checkValidPositionOnGround from '@xrengine/engine/src/common/functions/checkValidPositionOnGround'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/ecs/functions/Action'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchFrom } from '@xrengine/engine/src/hyperflux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import logger from '@xrengine/server-core/src/logger'
@@ -211,7 +210,7 @@ export function handleConnectToWorld(
 
   // Create a new client object
   // and add to the dictionary
-  const world = useWorld()
+  const world = Engine.currentWorld
   const userIndex = world.userIndexCount++
   world.clients.set(userId, {
     userId: userId,
@@ -348,7 +347,8 @@ export const handleJoinWorld = async (
     avatarSpawnPose: spawnPose
   })
 
-  dispatchFrom(world.hostId, () =>
+  dispatchAction(
+    world.store,
     NetworkWorldAction.createClient({
       $from: joinedUserId,
       name: client.name,
@@ -391,7 +391,7 @@ export async function handleDisconnect(socket): Promise<any> {
   //The new connection will overwrite the socketID for the user's client.
   //This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -409,7 +409,7 @@ export async function handleLeaveWorld(socket, data, callback): Promise<any> {
     for (const [, transport] of Object.entries(Network.instance.transports))
       if ((transport as any).appData.peerId === userId) closeTransport(transport)
   if (world.clients.has(userId)) {
-    dispatchFrom(world.hostId, () => NetworkWorldAction.destroyClient({ $from: userId }))
+    dispatchAction(world.store, NetworkWorldAction.destroyClient({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }

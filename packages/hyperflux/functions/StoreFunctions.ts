@@ -1,9 +1,10 @@
 import { State } from '@speigg/hookstate'
-import { Engine } from 'src/ecs/classes/Engine'
 
-import { Action } from './ActionFunctions'
+import { Action, ActionReceptor } from './ActionFunctions'
 
 export interface HyperStore {
+  networked: boolean
+  id: string
   state: Map<string, State<any>>
   actions: {
     /** All actions that have been dispatched */
@@ -13,15 +14,17 @@ export interface HyperStore {
     /** Incoming actions */
     incoming: Array<Required<Action>>
     /** Outgoing actions */
-    outgoing: Array<Action>
+    outgoing: Array<Required<Action>>
   }
-  receptors: Array<(action: Action) => void>
+  receptors: Array<ActionReceptor>
   reactors: Array<() => void>
   _reactorRoots: WeakMap<() => void, any>
 }
 
-function createStore() {
+function createStore(options: { id: string; networked?: boolean }) {
   return {
+    id: options.id,
+    networked: options.networked ?? false,
     state: new Map<string, State<any>>(),
     actions: {
       history: new Array<Action>(),
@@ -35,10 +38,6 @@ function createStore() {
   } as HyperStore
 }
 
-function getStore(world = Engine.currentWorld) {
-  return world.store
-}
-
 // function destroyStore(store = getStore()) {
 //     for (const reactor of [...store.reactors]) {
 //         StateFunctions.removeStateReactor(reactor)
@@ -46,6 +45,5 @@ function getStore(world = Engine.currentWorld) {
 // }
 
 export default {
-  createStore,
-  getStore
+  createStore
 }

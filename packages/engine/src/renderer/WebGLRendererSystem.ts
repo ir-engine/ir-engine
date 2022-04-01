@@ -14,6 +14,8 @@ import {
 } from 'postprocessing'
 import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
@@ -21,7 +23,6 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions, EngineActionType } from '../ecs/classes/EngineService'
 import { World } from '../ecs/classes/World'
-import { dispatchLocalAction } from '../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../networking/functions/matchActionOnce'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { accessEngineRendererState, EngineRendererAction, EngineRendererReceptor } from './EngineRendererState'
@@ -94,7 +95,8 @@ export class EngineRenderer {
     const context = this.supportWebGL2 ? canvas.getContext('webgl2')! : canvas.getContext('webgl')!
 
     if (!context) {
-      dispatchLocalAction(
+      dispatchAction(
+        Engine.store,
         EngineActions.browserNotSupported(
           'Your browser does not have WebGL enabled. Please enable WebGL, or try another browser.'
         ) as any
@@ -221,15 +223,15 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchLocalAction(EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel))
     }
   }
 
   doAutomaticRenderQuality() {
     const state = accessEngineRendererState()
-    dispatchLocalAction(EngineRendererAction.setShadows(state.qualityLevel.value > 1))
-    dispatchLocalAction(EngineRendererAction.setQualityLevel(state.qualityLevel.value))
-    dispatchLocalAction(EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
+    dispatchAction(Engine.store, EngineRendererAction.setShadows(state.qualityLevel.value > 1))
+    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(state.qualityLevel.value))
+    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(state.qualityLevel.value > 2))
   }
 
   async loadGraphicsSettingsFromStorage() {
@@ -240,11 +242,11 @@ export class EngineRenderer {
       // ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as Promise<boolean>,
       ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as Promise<boolean>
     ])
-    dispatchLocalAction(EngineRendererAction.setAutomatic(automatic ?? true))
-    dispatchLocalAction(EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
-    dispatchLocalAction(EngineRendererAction.setShadows(useShadows ?? true))
-    // dispatchLocalAction(EngineRendererAction.setPBR(pbr ?? true))
-    dispatchLocalAction(EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setAutomatic(automatic ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setQualityLevel(qualityLevel ?? 1))
+    dispatchAction(Engine.store, EngineRendererAction.setShadows(useShadows ?? true))
+    // dispatchAction(Engine.store, EngineRendererAction.setPBR(pbr ?? true))
+    dispatchAction(Engine.store, EngineRendererAction.setPostProcessing(usePostProcessing ?? true))
   }
 }
 

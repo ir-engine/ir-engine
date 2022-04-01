@@ -1,8 +1,9 @@
 import assert from 'assert'
 
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+
 import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld } from '../../src/ecs/classes/World'
-import { dispatchFrom } from '../../src/networking/functions/dispatchFrom'
 import { mockProgressWorldForNetworkActions } from './NetworkTestHelpers'
 
 describe('NetworkTestHelpers', () => {
@@ -29,11 +30,11 @@ describe('NetworkTestHelpers', () => {
 
       let actionResponse = null as any
 
-      Engine.currentWorld?.receptors.push((action) => {
+      addActionReceptor(Engine.store, (action) => {
         actionResponse = action
       })
 
-      dispatchFrom(Engine.userId as any, mockAction).to('local')
+      dispatchAction(Engine.store, mockAction())
       mockProgressWorldForNetworkActions(world)
       assert.deepEqual(actionResponse, mockActionResponse)
     })

@@ -1,6 +1,8 @@
 import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { NavMesh, Polygon } from 'yuka'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
@@ -11,9 +13,7 @@ import { accessEngineState } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { dispatchFrom } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
@@ -153,7 +153,7 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   }
 }
 
-export const overrideTexture = (entity: Entity, object3d?: Object3D, world = useWorld()): void => {
+export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.currentWorld): void => {
   const state = accessEngineState()
 
   if (state.sceneLoaded.value) {
@@ -203,7 +203,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     })
   }
 
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   if (props.textureOverride) {
     // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
@@ -212,10 +212,11 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
     overrideTexture(entity, obj3d, world)
   }
 
-  if (props.isDynamicObject) {
+  if (world.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
-      dispatchFrom(world.hostId, () =>
+      dispatchAction(
+        world.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid },

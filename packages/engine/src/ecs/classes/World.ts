@@ -2,14 +2,13 @@ import * as bitecs from 'bitecs'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { createStore } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { createStore } from '../../hyperflux'
-import { Action } from '../../hyperflux/functions/ActionFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkClient } from '../../networking/interfaces/NetworkClient'
@@ -64,7 +63,7 @@ export class World {
 
   _pipeline = [] as SystemModuleType<any>[]
 
-  store = createStore()
+  store = createStore({ id: Engine.userId, networked: true })
 
   physics = new Physics()
 
@@ -99,7 +98,7 @@ export class World {
   /**
    * The UserId of the host
    */
-  hostId = 'server' as HostUserId
+  hostId = 'server' as UserId
 
   /**
    * The world entity

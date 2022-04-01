@@ -1,9 +1,10 @@
 /** Functions to provide engine level functionalities. */
 import { Color, Object3D } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AssetLoader, disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -24,7 +25,7 @@ import {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
-  dispatchLocalAction(EngineActions.sceneUnloaded())
+  dispatchAction(Engine.store, EngineActions.sceneUnloaded())
 
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())
@@ -82,7 +83,7 @@ export const unloadScene = async (world: World, removePersisted = false) => {
   await Promise.all(Engine.sceneLoadPromises)
   unloadAllEntities(world, removePersisted)
 
-  dispatchLocalAction(EngineActions.sceneUnloaded())
+  dispatchAction(Engine.store, EngineActions.sceneUnloaded())
 
   Engine.scene.background = new Color('black')
   Engine.scene.environment = null

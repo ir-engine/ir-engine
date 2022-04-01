@@ -1,5 +1,7 @@
 import { Color, Mesh, Raycaster } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
@@ -9,7 +11,6 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
@@ -68,11 +69,11 @@ export default async function XRUISystem(world: World) {
       const intersectObjects = screenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchLocalAction(EngineActions.userAvatarTapped(userId))
+        dispatchAction(Engine.store, EngineActions.userAvatarTapped(userId))
         return
       }
     }
-    dispatchLocalAction(EngineActions.userAvatarTapped(null!))
+    dispatchAction(Engine.store, EngineActions.userAvatarTapped(null!))
   }
 
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {

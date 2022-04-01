@@ -1,17 +1,16 @@
-import { deepEqual } from 'src/common/functions/deepEqual'
-import { Engine } from 'src/ecs/classes/Engine'
-import { World } from 'src/ecs/classes/World'
-
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import matches, { Validator } from '../MatchesUtils'
-import StoreFunctions from './StoreFunctions'
+import StoreFunctions, { HyperStore } from './StoreFunctions'
 
 export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionRecipients = UserId | UserId[] | 'all' | 'local' | 'others'
+export type ActionReceptor = (action: Required<Action>) => void
+
+export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
 export type ActionCacheOptions =
   | boolean
@@ -28,21 +27,22 @@ export type ActionCacheOptions =
     }
 
 export type ActionOptions = {
-  /** The user who sent this action */
+  /**
+   * The id of the sender
+   */
   $from?: UserId
 
   /**
-   * The intended recipients of this action.
+   * The intended recipients
    */
   $to?: ActionRecipients
 
   /**
-   * The intended simulation (fixed) tick for this action.
-   * - If this option is missing, the next simulation tick is assumed.
-   * - If this action is received late (after the desired tick has passed),
-   * it is dispatched on the next tick.
+   * The intended time for this action to be applied
+   * - If this option is missing, the action is applied the next time applyIncomingActions() is called.
+   * - If this action is received late (after the desired tick has passed), it is dispatched on the next tick.
    */
-  $tick?: number
+  $time?: number | undefined
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -148,7 +148,7 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
   actionCreator.actionShape = actionShape as Shape
   actionCreator.resolvedActionShape = resolvedActionShape
   actionCreator.type = actionShape.type
-  actionCreator.matches = matchesShape // matches.every(matchesShape, matchesActionFromTrusted)
+  actionCreator.matches = matchesShape
   /**
    * @deprecated
    */
@@ -160,89 +160,76 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
   return actionCreator as unknown as ((partialAction: PartialAction<Shape>) => ResolvedAction) & FunctionProps
 }
 
-function _createModifier<A extends Action>(action: A) {
+function _createActionModifier<A extends Action>(action: A) {
   const modifier = {
     /**
      * Dispatch to select recipients
      */
     to(to: ActionRecipients) {
-      if (action) {
-        action.$to = to
-        if (to === 'local') {
-          const store = StoreFunctions.getStore()
-          store.actions.incoming.push(action as any)
-          const idx = store.actions.outgoing.indexOf(action as any)
-          if (idx >= 0) store.actions.outgoing.splice(idx, 1)
-        }
-      }
+      action.$to = to
       return modifier
     },
     /**
      * Dispatch on a future tick
-     * @param tickOffset The number of ticks in the future specifying when this action should be dispatched.
-     * Default is 2 ticks in the future
+     * @param timeOffset The minimum number of milliseconds to delay the action
      */
-    delay(tickOffset: number) {
-      if (action) action.$tick = Engine.currentWorld.fixedTick + tickOffset
+    delay(timeOffset: number) {
+      action.$time += timeOffset
       return modifier
     },
     /**
-     * Cache this action to replay for clients that join late
+     * Cache this action for possible replay
      *
      * @param cache The cache options
      * - Default: true
      */
     cache(cache = true as ActionCacheOptions) {
-      if (action) action.$cache = cache
+      action.$cache = cache
       return modifier
     }
   }
   return modifier
 }
 
-const dispatchAction = <A extends Action>(action: A) => {
-  const world = Engine.currentWorld
-  action.$from = action.$from ?? Engine.userId
+const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
+  action.$from = action.$from ?? (store.id as UserId)
   action.$to = action.$to ?? 'all'
-  action.$tick = action.$tick ?? world.fixedTick + 1
-  world.store.actions.outgoing.push(action)
-  return _createModifier(action)
+  action.$time = action.$time ?? -1
+  action.$cache = action.$cache ?? false
+  store.networked
+    ? store.actions.outgoing.push(action as Required<Action>)
+    : store.actions.incoming.push(action as Required<Action>)
+  return _createActionModifier(action)
 }
 
-const dispatchLocalAction = <A extends Action>(action: A) => {
-  return dispatchAction(action).to('local')
-}
-
-function addActionReceptor(receptor: (action: Required<Action>) => {}) {
-  const store = StoreFunctions.getStore()
+function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
   store.receptors.push(receptor)
 }
 
-function removeActionReceptor(receptor: () => {}) {
-  const store = StoreFunctions.getStore()
+function removeActionReceptor(store: HyperStore, receptor: ActionReceptor) {
   const idx = store.receptors.indexOf(receptor)
   if (idx >= 0) store.reactors.splice(idx, 1)
 }
 
-const updateCachedActions = (action: Required<Action>, store = StoreFunctions.getStore()) => {
-  if (action.$cache) {
+const updateCachedActions = (store: HyperStore, incomingAction: Required<Action>) => {
+  if (incomingAction.$cache) {
     const cachedActions = store.actions.cached
     // see if we must remove any previous actions
-    if (typeof action.$cache === 'boolean') {
-      if (action.$cache) cachedActions.push(action)
+    if (typeof incomingAction.$cache === 'boolean') {
+      if (incomingAction.$cache) cachedActions.push(incomingAction)
     } else {
-      const remove = action.$cache.removePrevious
+      const remove = incomingAction.$cache.removePrevious
 
       if (remove) {
         for (const a of cachedActions) {
-          if (a.$from === action.$from && a.type === action.type) {
+          if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
             if (remove === true) {
               const idx = cachedActions.indexOf(a)
               cachedActions.splice(idx, 1)
             } else {
               let matches = true
               for (const key of remove) {
-                if (!deepEqual(a[key], action[key])) {
+                if (!deepEqual(a[key], incomingAction[key])) {
                   matches = false
                   break
                 }
@@ -256,15 +243,15 @@ const updateCachedActions = (action: Required<Action>, store = StoreFunctions.ge
         }
       }
 
-      if (!action.$cache.disable) cachedActions.push(action)
+      if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
     }
   }
 }
 
-const applyAndArchiveIncomingAction = (action: Required<Action>, store = StoreFunctions.getStore()) => {
+const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Action>) => {
   try {
     for (const receptor of [...store.receptors]) receptor(action)
-    updateCachedActions(action)
+    updateCachedActions(store, action)
     store.actions.history.push(action)
   } catch (e) {
     store.actions.history.push({ $ERROR: e, ...action } as any)
@@ -275,28 +262,25 @@ const applyAndArchiveIncomingAction = (action: Required<Action>, store = StoreFu
   }
 }
 
-const applyIncomingActions = (world: World = Engine.currentWorld) => {
-  const { incoming } = world.store.actions
-
+const applyIncomingActions = (store: HyperStore) => {
+  const { incoming } = store.actions
+  const now = Date.now()
   for (const action of incoming) {
-    if (action.$tick > world.fixedTick) {
+    if (action.$time > now) {
       continue
     }
-    if (action.$tick < world.fixedTick) {
+    if (action.$time < now) {
       console.warn(`LATE ACTION ${action.type}`, action)
     } else {
       console.log(`ACTION ${action.type}`, action)
     }
-    applyAndArchiveIncomingAction(action)
+    applyAndArchiveIncomingAction(store, action)
   }
-
-  return world
 }
 
 export default {
   defineAction,
   dispatchAction,
-  dispatchLocalAction,
   addActionReceptor,
   removeActionReceptor,
   updateCachedActions,

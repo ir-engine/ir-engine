@@ -1,0 +1,19 @@
+{
+  "name": "@xrengine/hyperflux",
+  "version": "0.5.1",
+  "main": "index.ts",
+  "description": "State Management for XREngine",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XRFoundation/XREngine/issues"
+  },
+  "dependencies": {
+    "@speigg/hookstate": "3.0.13-stable-state"
+  }
+}

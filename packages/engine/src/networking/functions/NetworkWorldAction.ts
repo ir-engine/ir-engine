@@ -1,6 +1,7 @@
+import { defineAction, matches } from '@xrengine/hyperflux'
+
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { defineAction, matches } from '../../hyperflux'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 

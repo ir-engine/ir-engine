@@ -1,4 +1,5 @@
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
@@ -9,7 +10,6 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -53,7 +53,7 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
-  dispatchLocalAction(EngineActions.sceneLoading())
+  dispatchAction(Engine.store, EngineActions.sceneLoading())
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -62,7 +62,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
   }
   const onComplete = () => {
     promisesCompleted++
-    dispatchLocalAction(
+    dispatchAction(
+      Engine.store,
       EngineActions.sceneLoadingProgress(
         promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
       )
@@ -106,7 +107,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchLocalAction(EngineActions.sceneLoaded()).delay(2)
+  dispatchAction(Engine.store, EngineActions.sceneLoaded()).delay(2)
 }
 
 /**

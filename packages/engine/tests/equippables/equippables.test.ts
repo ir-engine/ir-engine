@@ -2,7 +2,7 @@ import assert from 'assert'
 import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../src/ecs/classes/Engine'
 import { createWorld } from '../../src/ecs/classes/World'
@@ -29,7 +29,7 @@ describe('Equippables Integration Tests', () => {
     const world = createWorld()
     Engine.currentWorld = world
 
-    const hostUserId = 'server' as HostUserId
+    const hostUserId = 'server' as UserId
     world.hostId = hostUserId
     const hostIndex = 0
     world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })

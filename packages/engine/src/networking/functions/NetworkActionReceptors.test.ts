@@ -2,7 +2,7 @@ import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { HostUserId, UserId } from '@xrengine/common/src/interfaces/UserId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { mockProgressWorldForNetworkActions } from '../../../tests/networking/NetworkTestHelpers'
 import { Engine } from '../../ecs/classes/Engine'
@@ -42,7 +42,7 @@ describe('NetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      world.hostId = userId as HostUserId
+      world.hostId = userId as UserId
       Engine.userId = userId
 
       NetworkActionReceptors.addClientNetworkActionReceptor(world, userId, userName, userIndex)
@@ -108,7 +108,7 @@ describe('NetworkActionReceptors', () => {
     it('should spawn object owned by host', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      const hostUserId = 'server' as HostUserId
+      const hostUserId = 'server' as UserId
       world.hostId = hostUserId
       const hostIndex = 0
       world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
@@ -131,7 +131,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -156,7 +156,7 @@ describe('NetworkActionReceptors', () => {
       Engine.currentWorld = world
 
       const userId = 'user id' as UserId
-      world.hostId = userId as HostUserId
+      world.hostId = userId as UserId
       Engine.userId = userId
       const userName = 'user name'
       const userIndex = 1
@@ -174,7 +174,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -197,7 +197,7 @@ describe('NetworkActionReceptors', () => {
     it('should spawn avatar owned by other', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      const hostUserId = 'server' as HostUserId
+      const hostUserId = 'server' as UserId
       world.hostId = hostUserId
       const hostIndex = 0
       world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
@@ -228,7 +228,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -254,7 +254,7 @@ describe('NetworkActionReceptors', () => {
       world.localClientEntity = createEntity(world)
 
       const userId = 'user id' as UserId
-      world.hostId = userId as HostUserId
+      world.hostId = userId as UserId
       Engine.userId = userId
       const userName = 'user name'
       const userIndex = 1
@@ -275,7 +275,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -289,7 +289,7 @@ describe('NetworkActionReceptors', () => {
     it('should update userIndex of component when a user rejoins', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      const hostUserId = 'server' as HostUserId
+      const hostUserId = 'server' as UserId
       world.hostId = hostUserId
       const hostIndex = 0
       world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
@@ -320,7 +320,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -361,7 +361,7 @@ describe('NetworkActionReceptors', () => {
       const world = createWorld()
       Engine.currentWorld = world
 
-      const hostUserId = 'server' as HostUserId
+      const hostUserId = 'server' as UserId
       world.hostId = hostUserId
       const hostIndex = 0
       world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
@@ -386,7 +386,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -408,7 +408,7 @@ describe('NetworkActionReceptors', () => {
         },
         requester: userId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -427,7 +427,7 @@ describe('NetworkActionReceptors', () => {
     it('should not transfer ownership of object (only host can process ownership transfer)', () => {
       const world = createWorld()
       Engine.currentWorld = world
-      const hostUserId = 'server' as HostUserId
+      const hostUserId = 'server' as UserId
       world.hostId = hostUserId
       const hostIndex = 0
       world.clients.set(hostUserId, { userId: hostUserId, name: 'server', userIndex: hostIndex })
@@ -452,7 +452,7 @@ describe('NetworkActionReceptors', () => {
         type: 'network.SPAWN_OBJECT', // plain object
         networkId: objNetId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 
@@ -474,7 +474,7 @@ describe('NetworkActionReceptors', () => {
         },
         requester: Engine.userId,
         $to: 'all',
-        $tick: 0,
+        $time: 0,
         $cache: true
       })
 

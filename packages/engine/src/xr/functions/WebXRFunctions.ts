@@ -1,5 +1,7 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
@@ -8,8 +10,6 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchAction } from '../../hyperflux'
 import { IKRigComponent } from '../../ikrig/components/IKRigComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -115,7 +115,7 @@ export const startWebXR = async (): Promise<void> => {
   const controllerRight = new Group()
   const controllerGripLeft = new Group()
   const controllerGripRight = new Group()
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   removeComponent(world.localClientEntity, FollowCameraComponent)
   container.add(Engine.camera)
@@ -168,8 +168,9 @@ export const endXR = (): void => {
   Engine.xrManager.setSession(null!)
   Engine.scene.add(Engine.camera)
 
-  addComponent(useWorld().localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
-  removeComponent(useWorld().localClientEntity, XRInputSourceComponent)
+  const world = Engine.currentWorld
+  addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  removeComponent(world.localClientEntity, XRInputSourceComponent)
 
   dispatchAction(NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
 }
@@ -181,7 +182,7 @@ export const endXR = (): void => {
  */
 
 export const bindXRHandEvents = () => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   const hands = [Engine.xrManager.getHand(0), Engine.xrManager.getHand(1)]
   let eventSent = false
 

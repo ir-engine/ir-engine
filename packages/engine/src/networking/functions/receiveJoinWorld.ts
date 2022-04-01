@@ -2,12 +2,11 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { dispatchAction } from '@xrengine/hyperflux'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchAction, dispatchLocalAction } from '../../hyperflux'
-import { Action } from '../../hyperflux/functions/ActionFunctions'
 import { AvatarProps } from '../interfaces/WorldState'
 import { NetworkWorldAction } from './NetworkWorldAction'
 
@@ -21,13 +20,13 @@ export type JoinWorldProps = {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) {
-    dispatchLocalAction(EngineActions.connectToWorldTimeout(true))
+    dispatchAction(Engine.store, EngineActions.connectToWorldTimeout(true))
     return
   }
   const { tick, clients, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log('RECEIVED JOIN WORLD RESPONSE', tick, clients, cachedActions, avatarDetail, avatarSpawnPose)
-  dispatchLocalAction(EngineActions.joinedWorld())
-  const world = useWorld()
+  dispatchAction(Engine.store, EngineActions.joinedWorld())
+  const world = Engine.currentWorld
   world.fixedTick = tick
 
   const engineState = accessEngineState()
@@ -48,13 +47,14 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     Engine.currentWorld.store.actions.incoming.push({ $fromCache: true, ...action } as any)
 
   dispatchAction(
+    world.store,
     NetworkWorldAction.spawnAvatar({
       ownerIndex: clients.find((client) => client.userId === Engine.userId)!.index,
       parameters: { ...spawnPose }
     })
   ).cache()
 
-  dispatchAction(NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
+  dispatchAction(world.store, NetworkWorldAction.avatarDetails({ avatarDetail })).cache({
     removePrevious: true
   })
 }

@@ -1,8 +1,9 @@
 import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { dispatchAction } from '../../hyperflux'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { AnimationManager } from '../AnimationManager'

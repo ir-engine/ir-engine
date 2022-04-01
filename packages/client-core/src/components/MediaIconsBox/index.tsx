@@ -20,8 +20,8 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getMediaTransport } from '@xrengine/client-core/src/transports/SocketWebRTCClientTransport'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -29,6 +29,7 @@ import {
   stopLipsyncTracking
 } from '@xrengine/engine/src/input/functions/WebcamInput'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
@@ -141,7 +142,7 @@ const MediaIconsBox = (props: Props) => {
     }
   }
 
-  const handleVRClick = () => dispatchLocalAction(EngineActions.xrStart() as any)
+  const handleVRClick = () => dispatchAction(Engine.store, EngineActions.xrStart())
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff

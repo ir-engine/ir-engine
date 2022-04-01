@@ -19,7 +19,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { EngineActions, EngineActionType } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { initSystems, SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchLocalAction } from '@xrengine/engine/src/hyperflux'
 import {
   createEngine,
   initializeBrowser,
@@ -31,6 +30,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
@@ -84,9 +84,9 @@ const createOfflineUser = (sceneData: SceneJson) => {
   // it is needed by AvatarSpawnSystem
   Engine.userId = userId
   // Replicate the server behavior
-  dispatchLocalAction(NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
-  dispatchLocalAction(NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: 0 }))
-  dispatchLocalAction(NetworkWorldAction.avatarDetails({ avatarDetail }))
+  dispatchAction(Engine.store, NetworkWorldAction.createClient({ name: 'user', index: 0 }) as any)
+  dispatchAction(Engine.store, NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: 0 }))
+  dispatchAction(Engine.store, NetworkWorldAction.avatarDetails({ avatarDetail }))
 }
 
 const injectedSystems: SystemModuleType<any>[] = [

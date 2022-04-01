@@ -1,5 +1,3 @@
-import { Engine } from 'src/ecs/classes/Engine'
-import { useWorld } from 'src/ecs/functions/SystemHooks'
 import { Quaternion, Vector3 } from 'three'
 import matches, { Validator } from 'ts-matches'
 
@@ -38,20 +36,6 @@ const actionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
 }
 
-/**
- * match when we are the server and we are supposed to receive it, or when it is dispatched locally
- */
-
-const actionFromTrusted = matches.guard((v): v is { $from: UserId } => {
-  if (typeof v !== 'object') return false
-  if (v && '$from' in v) {
-    return (
-      (v['$from'] === useWorld().hostId && (v['$to'] === 'all' || v['$to'] === Engine.userId)) || v['$to'] === 'local'
-    )
-  }
-  return false
-})
-
 const withDefault = <V extends Validator<unknown, A>, A>(matches: V, callback: () => A) => {
   return { matches, callback }
 }
@@ -63,7 +47,6 @@ export default {
   vector3,
   quaternion,
   actionFromUser,
-  actionFromTrusted,
   withDefault,
   Validator
 }

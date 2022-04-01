@@ -1,5 +1,7 @@
 import { Not } from 'bitecs'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -12,7 +14,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { dispatchLocalAction } from '../../networking/functions/dispatchFrom'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -87,7 +88,7 @@ export default async function InteractiveSystem() {
       } else if (hasComponent(entity, VolumetricComponent)) {
         toggleVolumetric(entity)
       } else {
-        dispatchLocalAction(EngineActions.objectActivation(interactiveComponent))
+        dispatchAction(Engine.store, EngineActions.objectActivation(interactiveComponent))
       }
       removeComponent(entity, InteractedComponent)
     }

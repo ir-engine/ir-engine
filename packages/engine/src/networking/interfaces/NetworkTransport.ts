@@ -1,4 +1,4 @@
-import { Action } from '../../hyperflux/functions/ActionFunctions'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 /** Interface for the Transport. */
 export interface NetworkTransport {

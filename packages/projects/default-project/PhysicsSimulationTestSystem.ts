@@ -2,13 +2,10 @@ import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3
 
 import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { dispatchFrom } from '@xrengine/engine/src/hyperflux'
 import { NetworkWorldAction } from '@xrengine/engine/src/networking/functions/NetworkWorldAction'
 import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
@@ -22,6 +19,7 @@ import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFMod
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 // Maybe do this using system injection node
 // receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -162,7 +160,7 @@ export const generatePhysicsObject = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
-  const world = useWorld()
+  const world = Engine.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   const transform = getComponent(entity, TransformComponent)
@@ -177,7 +175,8 @@ export const generatePhysicsObject = (
 
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
-      dispatchFrom(world.hostId, () =>
+      dispatchAction(
+        world.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position },

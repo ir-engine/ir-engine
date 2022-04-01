@@ -1,9 +1,10 @@
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
-import { dispatchAction } from '../../hyperflux'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EquippedComponent } from '../components/EquippedComponent'
