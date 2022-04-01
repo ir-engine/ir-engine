@@ -133,6 +133,7 @@ export function ElementList() {
   const { t } = useTranslation()
   const selectionState = useSelectionState()
   const [prefabs, setPrefabs] = useState(getPrefabList())
+  console.log(prefabs)
 
   useEffect(() => {
     updatePrefabList()
