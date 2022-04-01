@@ -41,14 +41,13 @@ export const useInviteTypeState = () => useState(state) as any as typeof state
 export const InviteTypeService = {
   retrieveInvites: async () => {
     const dispatch = useDispatch()
-    {
-      dispatch(InviteTypeAction.fetchingInvitesTypes())
-      try {
-        const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
-        dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    dispatch(InviteTypeAction.fetchingInvitesTypes())
+    try {
+      const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
+      dispatch(InviteTypeAction.retrievedInvitesTypes(inviteTypeResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
