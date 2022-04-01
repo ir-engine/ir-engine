@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-export const useFetchUsersAsAdmin = (user, adminUserState, UserService, search) => {
+export const useFetchUsersAsAdmin = (user, adminUserState, UserService, search, orderby) => {
   useEffect(() => {
-    if (user?.id.value && adminUserState.updateNeeded.value) {
-      UserService.fetchUsersAsAdmin(null)
-    } else {
-      UserService.fetchUsersAsAdmin(search)
-    }
+    //if (user?.id.value && adminUserState.updateNeeded.value) {
+    // UserService.fetchUsersAsAdmin(search, 0, orderby)
+    //} else {
+    UserService.fetchUsersAsAdmin(search, 0, orderby)
+    //}
   }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 }
 

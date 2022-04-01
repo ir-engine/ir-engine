@@ -43,15 +43,15 @@ const LocationTable = (props: LocationProps) => {
   // Call custom hooks
   const { t } = useTranslation()
   const adminUserState = useUserState()
-  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService)
+  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, orderby)
   useFetchAdminScenes(user, SceneService)
   useFetchLocationTypes(user, adminLocationState, LocationService)
-  useFetchUsersAsAdmin(user, adminUserState, UserService, null)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, '', orderby)
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(null, newPage, orderby)
+    LocationService.fetchAdminLocations(search, newPage, orderby)
     setPage(newPage)
   }
 
@@ -61,7 +61,7 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      LocationService.fetchAdminLocations(null, page, orderby)
+      LocationService.fetchAdminLocations(search, page, orderby)
     }
   }, [orderby])
 

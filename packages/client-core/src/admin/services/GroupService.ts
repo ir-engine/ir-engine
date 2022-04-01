@@ -61,7 +61,7 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (incDec?: 'increment' | 'decrement', search: string | null = null, skip = 0) => {
+  getGroupService: async (search: string | null = null, skip = 0, orderBy = 'asc') => {
     const dispatch = useDispatch()
     {
       const limit = accessGroupState().limit.value
@@ -69,6 +69,9 @@ export const GroupService = {
         dispatch(GroupAction.fetchingGroup())
         const list = await client.service('group').find({
           query: {
+            $sort: {
+              name: orderBy === 'desc' ? 0 : 1
+            },
             $skip: skip * GROUP_PAGE_LIMIT,
             $limit: limit,
             search: search

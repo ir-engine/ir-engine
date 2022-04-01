@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 
-export const useFetchLocation = (user, adminLocationState, adminScopeReadErrMsg, search, LocationService) => {
+export const useFetchLocation = (user, adminLocationState, adminScopeReadErrMsg, search, LocationService, orderby) => {
   useEffect(() => {
-    if (user?.id?.value && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
-      LocationService.fetchAdminLocations(null)
-    } else {
-      LocationService.fetchAdminLocations(search)
-    }
+    //if (user?.id?.value && adminLocationState.updateNeeded.value && !adminScopeReadErrMsg?.value) {
+    //  LocationService.fetchAdminLocations(search, 0, orderby)
+    //} else {
+    LocationService.fetchAdminLocations(search, 0, orderby)
+    //}
   }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
 }
 

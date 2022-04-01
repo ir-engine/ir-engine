@@ -28,17 +28,17 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, search, orderby)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(null, newPage, orderby)
+    UserService.fetchUsersAsAdmin(search, newPage, orderby)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      UserService.fetchUsersAsAdmin(null, page, orderby)
+      UserService.fetchUsersAsAdmin(search, page, orderby)
     }
   }, [orderby])
 
