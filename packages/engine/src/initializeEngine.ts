@@ -12,12 +12,11 @@ import {
 //@ts-ignore
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioListener } from './audio/StereoAudioListener'
 import { BotHookFunctions } from './bot/functions/botHookFunctions'
 import { isClient } from './common/functions/isClient'
@@ -25,10 +24,9 @@ import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { EngineActions, EngineEventReceptor } from './ecs/classes/EngineService'
-import { createWorld, World } from './ecs/classes/World'
+import { createWorld } from './ecs/classes/World'
 import { reset } from './ecs/functions/EngineFunctions'
 import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
-import { useWorld } from './ecs/functions/SystemHooks'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
@@ -131,7 +129,7 @@ export const createEngine = () => {
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
 
-  world.receptors.push(EngineEventReceptor)
+  addActionReceptor(world.store, EngineEventReceptor)
 
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
@@ -156,7 +154,7 @@ export const initializeMediaServerSystems = async () => {
     }
   )
 
-  const world = useWorld()
+  const world = Engine.currentWorld
 
   await initSystems(world, coreSystems)
 
@@ -226,7 +224,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     )
   }
 
-  const world = useWorld()
+  const world = Engine.currentWorld
   await initSystems(world, systemsToLoad)
 
   // load injected systems which may rely on core systems
@@ -250,7 +248,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
  */
 
 export const initializeSceneSystems = async () => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   NetworkActionReceptors.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
@@ -378,8 +376,7 @@ export const initializeRealtimeSystems = async (media = true, pose = true) => {
     )
   }
 
-  const world = useWorld()
-  await initSystems(world, systemsToLoad)
+  await initSystems(Engine.currentWorld, systemsToLoad)
 }
 
 // export const initializeProjectSystems = async (projects: string[] = [], systems: SystemModuleType<any>[] = []) => {

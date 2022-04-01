@@ -2,7 +2,6 @@ import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import { accessEngineState, EngineActions } from '@xrengine/engine/src/ecs/classes/EngineService'
-import { dispatchFrom, dispatchLocalAction } from '@xrengine/hyperflux'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 // import { boxDynamicConfig } from '@xrengine/projects/default-project/PhysicsSimulationTestSystem'

@@ -8,7 +8,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionReceptor = (action: Required<Action>) => void
+export type ActionReceptor = (action: Action) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
