@@ -42,17 +42,16 @@ export const useStaticResourceState = () => useState(state) as any as typeof sta
 export const staticResourceService = {
   fetchStaticResource: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('static-resource').find({
-          query: {
-            staticResourceType: 'avatar'
-          }
-        })
-        dispatch(StaticResourceAction.fetchedStaticResource(result))
-      } catch (error) {
-        console.error(error)
-      }
+
+    try {
+      const result = await client.service('static-resource').find({
+        query: {
+          staticResourceType: 'avatar'
+        }
+      })
+      dispatch(StaticResourceAction.fetchedStaticResource(result))
+    } catch (error) {
+      console.error(error)
     }
   },
   refetchSingleUserAdmin: async () => {}

@@ -57,23 +57,21 @@ export const AvatarService = {
     search: string | null = null
   ) => {
     const dispatch = useDispatch()
-    {
-      const adminAvatarState = accessAvatarState()
-      const limit = adminAvatarState.limit.value
-      const avatars = await client.service('static-resource').find({
-        query: {
-          $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-          staticResourceType: 'avatar',
-          userId: null,
-          $limit: limit,
-          $skip: skip * AVATAR_PAGE_LIMIT,
-          getAvatarThumbnails: true,
-          search: search
-        }
-      })
-      if (avatars.data.length) {
-        dispatch(AvatarAction.avatarsFetched(avatars))
+    const adminAvatarState = accessAvatarState()
+    const limit = adminAvatarState.limit.value
+    const avatars = await client.service('static-resource').find({
+      query: {
+        $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
+        staticResourceType: 'avatar',
+        userId: null,
+        $limit: limit,
+        $skip: skip * AVATAR_PAGE_LIMIT,
+        getAvatarThumbnails: true,
+        search: search
       }
+    })
+    if (avatars.data.length) {
+      dispatch(AvatarAction.avatarsFetched(avatars))
     }
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
