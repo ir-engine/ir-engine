@@ -1,4 +1,4 @@
-import { Box3, Group, LinearFilter, MeshBasicMaterial, RGBAFormat, RGBFormat, Texture } from 'three'
+import { Box3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
@@ -75,12 +75,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, properties: VolumetricVideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
-  // const paths = component.paths.filter((p) => p)
-  const paths = [
-    'https://172.160.10.156:8642/uvol/liam.drcs',
-    'https://172.160.10.156:8642/uvol/brennan.drcs',
-    'https://172.160.10.156:8642/uvol/sam_low_fuse.drcs'
-  ]
+  const paths = component.paths.filter((p) => p)
   let height = 0
   let step = 0.001
 
@@ -95,13 +90,11 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         scene: obj3d,
         renderer: Engine.renderer,
         paths,
-        isLoadingEffect: true,
+        isLoadingEffect: isClient,
+        isVideoTexture: true,
         playMode: component.playMode as any,
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
-          if (type != 'frameupdate') {
-            console.error(type)
-          }
           if (type == 'videostatus' && data.status == 'initplay') {
             height = calculateHeight(obj3d)
             height = height * obj3d.scale.y + 1
@@ -112,12 +105,6 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
           }
         }
       })
-
-      window.UVOLPlayer = obj3d.userData.player
-      window.MeshBasicMaterial = MeshBasicMaterial
-      window.RGBFormat = RGBFormat
-      window.LinearFilter = LinearFilter
-      window.Texture = Texture
 
       removeError(entity, 'error')
 
@@ -253,7 +240,6 @@ const setupLoadingEffect = (entity, obj) => {
   obj.traverse((object) => {
     if (object.material && object.material.clone) {
       // Transparency fix
-      object.material.format = RGBAFormat
       const material = object.material.clone()
       materialList.push({
         id: object.uuid,
