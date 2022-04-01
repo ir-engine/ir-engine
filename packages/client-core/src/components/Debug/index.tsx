@@ -58,14 +58,17 @@ export const Debug = () => {
               return [
                 key + '(' + eid + ')',
                 Object.fromEntries(
-                  getEntityComponents(Engine.currentWorld, eid).reduce((components, C: MappedComponent<any, any>) => {
-                    if (C !== NameComponent) {
-                      engineState.fixedTick.value
-                      const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
-                      components.push([C._name, { ...component }])
-                    }
-                    return components
-                  }, [] as [string, any][])
+                  getEntityComponents(Engine.currentWorld, eid).reduce(
+                    (components: any, C: MappedComponent<any, any>) => {
+                      if (C !== NameComponent) {
+                        engineState.fixedTick.value
+                        const component = C.isReactive ? getComponent(eid, C).value : getComponent(eid, C)
+                        components.push([C._name, { ...component }])
+                      }
+                      return components
+                    },
+                    [] as [string, any][]
+                  )
                 )
               ]
             } catch (e) {
