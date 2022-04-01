@@ -2,6 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { createState, useState } from '@speigg/hookstate'
+import i18n from 'i18next'
 import _ from 'lodash'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -101,7 +102,6 @@ export const usePartyState = () => useState(state) as any as typeof state
 export const PartyService = {
   getParty: async () => {
     const dispatch = useDispatch()
-
     try {
       // console.log('CALLING GETPARTY()');
       const partyResult = (await client.service('party').get('')) as Party
@@ -152,8 +152,6 @@ export const PartyService = {
     }
   },
   createParty: async () => {
-    const dispatch = useDispatch()
-
     console.log('CREATING PARTY')
     try {
       await client.service('party').create({})
@@ -180,9 +178,18 @@ export const PartyService = {
       AlertService.dispatchAlertError(err)
     }
   },
+  inviteToParty: async (partyId: string, userId: string) => {
+    try {
+      const result = await client.service('party-user').create({
+        partyId,
+        userId
+      })
+      AlertService.dispatchAlertSuccess(i18n.t('social:partyInvitationSent'))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
+    }
+  },
   removePartyUser: async (partyUserId: string) => {
-    const dispatch = useDispatch()
-
     try {
       await client.service('party-user').remove(partyUserId)
     } catch (err) {
@@ -190,8 +197,6 @@ export const PartyService = {
     }
   },
   transferPartyOwner: async (partyUserId: string) => {
-    const dispatch = useDispatch()
-
     try {
       await client.service('party-user').patch(partyUserId, {
         isOwner: true
