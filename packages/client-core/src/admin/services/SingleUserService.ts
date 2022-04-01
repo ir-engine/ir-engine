@@ -40,14 +40,13 @@ export const useSingleUserState = () => useState(state) as any as typeof state
 export const SingleUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const result = await client.service('user').get(id)
-        dispatch(SingleUserAction.fetchedSingleUser(result))
-      } catch (error) {
-        console.error(error)
-        AlertService.dispatchAlertError(error.message)
-      }
+
+    try {
+      const result = await client.service('user').get(id)
+      dispatch(SingleUserAction.fetchedSingleUser(result))
+    } catch (error) {
+      console.error(error)
+      AlertService.dispatchAlertError(error.message)
     }
   },
   refetchSingleUserAdmin: async () => {}

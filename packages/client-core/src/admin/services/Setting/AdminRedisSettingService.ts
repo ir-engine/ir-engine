@@ -34,13 +34,11 @@ export const useAdminRedisSettingState = () => useState(state) as any as typeof 
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
-        dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+    try {
+      const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
+      dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
