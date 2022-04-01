@@ -100,164 +100,157 @@ export const useInviteState = () => useState(state) as any as typeof state
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
     const dispatch = useDispatch()
-    {
-      if (data.identityProviderType === 'email') {
-        if (emailRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError(new Error('Invalid email address'))
-          return
-        }
-      }
-      if (data.identityProviderType === 'sms') {
-        if (phoneRegex.test(data.token) !== true) {
-          AlertService.dispatchAlertError(new Error('Invalid 10-digit US phone number'))
-          return
-        }
-      }
 
-      if (data.inviteCode != null) {
-        if (inviteCodeRegex.test(data.inviteCode) !== true) {
-          AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
-          return
-        } else {
-          try {
-            const userResult = (await client.service('user').find({
-              query: {
-                action: 'invite-code-lookup',
-                inviteCode: data.inviteCode
-              }
-            })) as Paginated<User>
-
-            if (userResult.total === 0) {
-              AlertService.dispatchAlertError(new Error('No user has that invite code'))
-              return
-            } else {
-              data.invitee = userResult.data[0].id
-            }
-          } catch (error) {
-            AlertService.dispatchAlertError(error)
-          }
-        }
-      }
-
-      if (data.invitee != null) {
-        if (userIdRegex.test(data.invitee) !== true) {
-          AlertService.dispatchAlertError(new Error('Invalid user ID'))
-          return
-        }
-      }
-
-      if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
-        AlertService.dispatchAlertError(new Error(`Not a valid recipient`))
+    if (data.identityProviderType === 'email') {
+      if (emailRegex.test(data.token) !== true) {
+        AlertService.dispatchAlertError(new Error('Invalid email address'))
         return
       }
-
-      try {
-        const params = {
-          inviteType: data.type,
-          token: data.token,
-          targetObjectId: data.targetObjectId,
-          identityProviderType: data.identityProviderType,
-          inviteeId: data.invitee
-        }
-
-        const existingInviteResult = (await client.service('invite').find({
-          query: params
-        })) as Paginated<Invite>
-
-        let inviteResult
-        if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
-
-        AlertService.dispatchAlertSuccess('Invite Sent')
-        dispatch(InviteAction.sentInvite(inviteResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+    }
+    if (data.identityProviderType === 'sms') {
+      if (phoneRegex.test(data.token) !== true) {
+        AlertService.dispatchAlertError(new Error('Invalid 10-digit US phone number'))
+        return
       }
+    }
+
+    if (data.inviteCode != null) {
+      if (inviteCodeRegex.test(data.inviteCode) !== true) {
+        AlertService.dispatchAlertError(new Error('Invalid Invite Code'))
+        return
+      } else {
+        try {
+          const userResult = (await client.service('user').find({
+            query: {
+              action: 'invite-code-lookup',
+              inviteCode: data.inviteCode
+            }
+          })) as Paginated<User>
+
+          if (userResult.total === 0) {
+            AlertService.dispatchAlertError(new Error('No user has that invite code'))
+            return
+          } else {
+            data.invitee = userResult.data[0].id
+          }
+        } catch (error) {
+          AlertService.dispatchAlertError(error)
+        }
+      }
+    }
+
+    if (data.invitee != null) {
+      if (userIdRegex.test(data.invitee) !== true) {
+        AlertService.dispatchAlertError(new Error('Invalid user ID'))
+        return
+      }
+    }
+
+    if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
+      AlertService.dispatchAlertError(new Error(`Not a valid recipient`))
+      return
+    }
+
+    try {
+      const params = {
+        inviteType: data.type,
+        token: data.token,
+        targetObjectId: data.targetObjectId,
+        identityProviderType: data.identityProviderType,
+        inviteeId: data.invitee
+      }
+
+      const existingInviteResult = (await client.service('invite').find({
+        query: params
+      })) as Paginated<Invite>
+
+      let inviteResult
+      if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
+
+      AlertService.dispatchAlertSuccess('Invite Sent')
+      dispatch(InviteAction.sentInvite(inviteResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   retrieveReceivedInvites: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
-    {
-      dispatch(InviteAction.fetchingReceivedInvites())
-      const inviteState = accessInviteState().value
-      const skip = inviteState.receivedInvites.skip
-      const limit = inviteState.receivedInvites.limit
-      try {
-        const inviteResult = (await client.service('invite').find({
-          query: {
-            type: 'received',
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })) as Paginated<Invite>
-        dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    dispatch(InviteAction.fetchingReceivedInvites())
+    const inviteState = accessInviteState().value
+    const skip = inviteState.receivedInvites.skip
+    const limit = inviteState.receivedInvites.limit
+    try {
+      const inviteResult = (await client.service('invite').find({
+        query: {
+          type: 'received',
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
+        }
+      })) as Paginated<Invite>
+      dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   retrieveSentInvites: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
-    {
-      dispatch(InviteAction.fetchingSentInvites())
-      const inviteState = accessInviteState().value
-      const skip = inviteState.sentInvites.skip
-      const limit = inviteState.sentInvites.limit
-      try {
-        const inviteResult = (await client.service('invite').find({
-          query: {
-            type: 'sent',
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })) as Paginated<Invite>
-        dispatch(InviteAction.retrievedSentInvites(inviteResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    dispatch(InviteAction.fetchingSentInvites())
+    const inviteState = accessInviteState().value
+    const skip = inviteState.sentInvites.skip
+    const limit = inviteState.sentInvites.limit
+    try {
+      const inviteResult = (await client.service('invite').find({
+        query: {
+          type: 'sent',
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
+        }
+      })) as Paginated<Invite>
+      dispatch(InviteAction.retrievedSentInvites(inviteResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeInvite: async (invite: Invite) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('invite').remove(invite.id)
-        dispatch(InviteAction.removedSentInvite())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('invite').remove(invite.id)
+      dispatch(InviteAction.removedSentInvite())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   acceptInvite: async (inviteId: string, passcode: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('a-i').get(inviteId, {
-          query: {
-            passcode: passcode
-          }
-        })
-        dispatch(InviteAction.acceptedInvite())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('a-i').get(inviteId, {
+        query: {
+          passcode: passcode
+        }
+      })
+      dispatch(InviteAction.acceptedInvite())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   declineInvite: async (invite: Invite) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('invite').remove(invite.id)
-        dispatch(InviteAction.declinedInvite())
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('invite').remove(invite.id)
+      dispatch(InviteAction.declinedInvite())
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   updateInviteTarget: async (targetObjectType?: string, targetObjectId?: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(InviteAction.setInviteTarget(targetObjectType, targetObjectId))
-    }
+
+    dispatch(InviteAction.setInviteTarget(targetObjectType, targetObjectId))
   }
 }
 
