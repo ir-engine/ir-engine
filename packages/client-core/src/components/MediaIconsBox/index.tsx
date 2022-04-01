@@ -40,6 +40,7 @@ import styles from './MediaIconsBox.module.scss'
 export const soundEvent = new EventEmitter()
 export let soundFunc: Function
 export function setSoundFunction(func: Function) {
+  console.log('sound function set')
   soundFunc = func
 }
 
@@ -126,9 +127,11 @@ const MediaIconsBox = (props) => {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) {
           await pauseProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+          console.log('emiting sound event, false')
           soundEvent.emit('updateInput', false)
         } else {
           await resumeProducer(mediaTransport, MediaStreams.instance.camAudioProducer)
+          console.log('emiting sound event, true')
           soundEvent.emit('updateInput', true)
         }
         checkEndVideoChat()

@@ -457,6 +457,10 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     const selfUser = accessAuthState().user.value
     const { message } = params
     if (message != undefined && message.text != undefined) {
+      if (message.text.startsWith('!voice|')) {
+        return
+      }
+
       if (isPlayerLocal(message.senderId)) {
         if (handleCommand(message.text, Engine.currentWorld.localClientEntity, message.senderId)) return
         else {
