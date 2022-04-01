@@ -270,65 +270,63 @@ export const AuthService = {
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
     const dispatch = useDispatch()
-    {
-      // check email validation.
-      if (!validateEmail(form.email)) {
-        AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
 
-        return
-      }
+    // check email validation.
+    if (!validateEmail(form.email)) {
+      AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
 
-      dispatch(AuthAction.actionProcessing(true))
-      ;(client as any)
-        .authenticate({
-          strategy: 'local',
-          email: form.email,
-          password: form.password
-        })
-        .then((res: any) => {
-          const authUser = resolveAuthUser(res)
-
-          if (!authUser.identityProvider.isVerified) {
-            ;(client as any).logout()
-
-            dispatch(AuthAction.registerUserByEmailSuccess(authUser.identityProvider))
-            window.location.href = '/auth/confirm'
-            return
-          }
-
-          dispatch(AuthAction.loginUserSuccess(authUser))
-          AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
-        })
-        .catch((err: any) => {
-          dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
+      return
     }
+
+    dispatch(AuthAction.actionProcessing(true))
+    ;(client as any)
+      .authenticate({
+        strategy: 'local',
+        email: form.email,
+        password: form.password
+      })
+      .then((res: any) => {
+        const authUser = resolveAuthUser(res)
+
+        if (!authUser.identityProvider.isVerified) {
+          ;(client as any).logout()
+
+          dispatch(AuthAction.registerUserByEmailSuccess(authUser.identityProvider))
+          window.location.href = '/auth/confirm'
+          return
+        }
+
+        dispatch(AuthAction.loginUserSuccess(authUser))
+        AuthService.loadUserData(authUser.identityProvider.userId).then(() => (window.location.href = '/'))
+      })
+      .catch((err: any) => {
+        dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   loginUserByXRWallet: async (wallet: any) => {
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(AuthAction.actionProcessing(true))
 
-        const credentials: any = parseUserWalletCredentials(wallet)
-        console.log(credentials)
+    try {
+      dispatch(AuthAction.actionProcessing(true))
 
-        const walletUser = resolveWalletUser(credentials)
+      const credentials: any = parseUserWalletCredentials(wallet)
+      console.log(credentials)
 
-        //TODO: This is temp until we move completely to XR wallet
-        const oldId = accessAuthState().user.id.value
-        walletUser.id = oldId
+      const walletUser = resolveWalletUser(credentials)
 
-        // loadXRAvatarForUpdatedUser(walletUser) // TODO
-        dispatch(AuthAction.loadedUserData(walletUser))
-      } catch (err) {
-        dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-        AlertService.dispatchAlertError(err)
-      } finally {
-        dispatch(AuthAction.actionProcessing(false))
-      }
+      //TODO: This is temp until we move completely to XR wallet
+      const oldId = accessAuthState().user.id.value
+      walletUser.id = oldId
+
+      // loadXRAvatarForUpdatedUser(walletUser) // TODO
+      dispatch(AuthAction.loadedUserData(walletUser))
+    } catch (err) {
+      dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
+      AlertService.dispatchAlertError(err)
+    } finally {
+      dispatch(AuthAction.actionProcessing(false))
     }
   },
   loginUserByOAuth: async (service: string, location: any) => {
@@ -356,322 +354,310 @@ export const AuthService = {
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        dispatch(AuthAction.actionProcessing(true))
-        await (client as any).authentication.setAccessToken(accessToken as string)
-        const res = await (client as any).authenticate({
-          strategy: 'jwt',
-          accessToken
-        })
 
-        const authUser = resolveAuthUser(res)
+    try {
+      dispatch(AuthAction.actionProcessing(true))
+      await (client as any).authentication.setAccessToken(accessToken as string)
+      const res = await (client as any).authenticate({
+        strategy: 'jwt',
+        accessToken
+      })
 
-        dispatch(AuthAction.loginUserSuccess(authUser))
-        await AuthService.loadUserData(authUser.identityProvider.userId)
-        dispatch(AuthAction.actionProcessing(false))
-        window.location.href = redirectSuccess
-      } catch (err) {
-        dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
-        AlertService.dispatchAlertError(err)
-        window.location.href = `${redirectError}?error=${err.message}`
-        dispatch(AuthAction.actionProcessing(false))
-      }
+      const authUser = resolveAuthUser(res)
+
+      dispatch(AuthAction.loginUserSuccess(authUser))
+      await AuthService.loadUserData(authUser.identityProvider.userId)
+      dispatch(AuthAction.actionProcessing(false))
+      window.location.href = redirectSuccess
+    } catch (err) {
+      dispatch(AuthAction.loginUserError(i18n.t('common:error.login-error')))
+      AlertService.dispatchAlertError(err)
+      window.location.href = `${redirectError}?error=${err.message}`
+      dispatch(AuthAction.actionProcessing(false))
+    }
+  },
+  loginUserMagicLink: async (token, redirectSuccess, redirectError) => {
+    try {
+      const res = await client.service('login').get(token)
+      await AuthService.loginUserByJwt(res.token, '/', '/')
+    } catch (err) {
+      AlertService.alertError(err.message)
+    } finally {
+      window.location.href = redirectSuccess
     }
   },
   logoutUser: async () => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      ;(client as any)
-        .logout()
-        .then(() => dispatch(AuthAction.didLogout()))
-        .catch(() => dispatch(AuthAction.didLogout()))
-        .finally(() => {
-          dispatch(AuthAction.actionProcessing(false))
-          AuthService.doLoginAuto(true, true)
-        })
-    }
+
+    dispatch(AuthAction.actionProcessing(true))
+    ;(client as any)
+      .logout()
+      .then(() => dispatch(AuthAction.didLogout()))
+      .catch(() => dispatch(AuthAction.didLogout()))
+      .finally(() => {
+        dispatch(AuthAction.actionProcessing(false))
+        AuthService.doLoginAuto(true, true)
+      })
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      client
-        .service('identity-provider')
-        .create({
-          token: form.email,
-          password: form.password,
-          type: 'password'
-        })
-        .then((identityProvider: any) => {
-          console.log('3 ', identityProvider)
-          dispatch(AuthAction.registerUserByEmailSuccess(identityProvider))
-          window.location.href = '/auth/confirm'
-        })
-        .catch((err: any) => {
-          console.log('error', err)
-          dispatch(AuthAction.registerUserByEmailError(err.message))
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => {
-          console.log('4 finally', dispatch)
-          dispatch(AuthAction.actionProcessing(false))
-        })
-    }
+    dispatch(AuthAction.actionProcessing(true))
+    client
+      .service('identity-provider')
+      .create({
+        token: form.email,
+        password: form.password,
+        type: 'password'
+      })
+      .then((identityProvider: any) => {
+        console.log('3 ', identityProvider)
+        dispatch(AuthAction.registerUserByEmailSuccess(identityProvider))
+        window.location.href = '/auth/confirm'
+      })
+      .catch((err: any) => {
+        console.log('error', err)
+        dispatch(AuthAction.registerUserByEmailError(err.message))
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => {
+        console.log('4 finally', dispatch)
+        dispatch(AuthAction.actionProcessing(false))
+      })
   },
   verifyEmail: async (token: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('authManagement')
-        .create({
-          action: 'verifySignupLong',
-          value: token
-        })
-        .then((res: any) => {
-          dispatch(AuthAction.didVerifyEmail(true))
-          AuthService.loginUserByJwt(res.accessToken, '/', '/')
-        })
-        .catch((err: any) => {
-          dispatch(AuthAction.didVerifyEmail(false))
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+    dispatch(AuthAction.actionProcessing(true))
+
+    client
+      .service('authManagement')
+      .create({
+        action: 'verifySignupLong',
+        value: token
+      })
+      .then((res: any) => {
+        dispatch(AuthAction.didVerifyEmail(true))
+        AuthService.loginUserByJwt(res.accessToken, '/', '/')
+      })
+      .catch((err: any) => {
+        dispatch(AuthAction.didVerifyEmail(false))
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   resendVerificationEmail: async (email: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('authManagement')
-        .create({
-          action: 'resendVerifySignup',
-          value: {
-            token: email,
-            type: 'password'
-          }
-        })
-        .then(() => dispatch(AuthAction.didResendVerificationEmail(true)))
-        .catch(() => dispatch(AuthAction.didResendVerificationEmail(false)))
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+    dispatch(AuthAction.actionProcessing(true))
+
+    client
+      .service('authManagement')
+      .create({
+        action: 'resendVerifySignup',
+        value: {
+          token: email,
+          type: 'password'
+        }
+      })
+      .then(() => dispatch(AuthAction.didResendVerificationEmail(true)))
+      .catch(() => dispatch(AuthAction.didResendVerificationEmail(false)))
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   forgotPassword: async (email: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      console.log('forgotPassword', email)
-      client
-        .service('authManagement')
-        .create({
-          action: 'sendResetPwd',
-          value: {
-            token: email,
-            type: 'password'
-          }
-        })
-        .then(() => dispatch(AuthAction.didForgotPassword(true)))
-        .catch(() => dispatch(AuthAction.didForgotPassword(false)))
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+
+    dispatch(AuthAction.actionProcessing(true))
+    console.log('forgotPassword', email)
+    client
+      .service('authManagement')
+      .create({
+        action: 'sendResetPwd',
+        value: {
+          token: email,
+          type: 'password'
+        }
+      })
+      .then(() => dispatch(AuthAction.didForgotPassword(true)))
+      .catch(() => dispatch(AuthAction.didForgotPassword(false)))
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   resetPassword: async (token: string, password: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('authManagement')
-        .create({
-          action: 'resetPwdLong',
-          value: { token, password }
-        })
-        .then((res: any) => {
-          console.log(res)
-          dispatch(AuthAction.didResetPassword(true))
-          window.location.href = '/'
-        })
-        .catch((err: any) => {
-          dispatch(AuthAction.didResetPassword(false))
-          window.location.href = '/'
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+    dispatch(AuthAction.actionProcessing(true))
+
+    client
+      .service('authManagement')
+      .create({
+        action: 'resetPwdLong',
+        value: { token, password }
+      })
+      .then((res: any) => {
+        console.log(res)
+        dispatch(AuthAction.didResetPassword(true))
+        window.location.href = '/'
+      })
+      .catch((err: any) => {
+        dispatch(AuthAction.didResetPassword(false))
+        window.location.href = '/'
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   createMagicLink: async (emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      let type = 'email'
-      let paramName = 'email'
-      const enableEmailMagicLink = authState?.emailMagicLink
-      const enableSmsMagicLink = authState?.smsMagicLink
+    dispatch(AuthAction.actionProcessing(true))
 
-      if (linkType === 'email') {
-        type = 'email'
-        paramName = 'email'
-      } else if (linkType === 'sms') {
-        type = 'sms'
-        paramName = 'mobile'
-      } else {
-        const stripped = emailPhone.replace(/-/g, '')
-        if (validatePhoneNumber(stripped)) {
-          if (!enableSmsMagicLink) {
-            AlertService.dispatchAlertError(
-              new Error(i18n.t('common:error.validation-error', { type: 'email address' }))
-            )
+    let type = 'email'
+    let paramName = 'email'
+    const enableEmailMagicLink = authState?.emailMagicLink
+    const enableSmsMagicLink = authState?.smsMagicLink
 
-            return
-          }
-          type = 'sms'
-          paramName = 'mobile'
-          emailPhone = '+1' + stripped
-        } else if (validateEmail(emailPhone)) {
-          if (!enableEmailMagicLink) {
-            AlertService.dispatchAlertError(
-              new Error(i18n.t('common:error.validation-error', { type: 'phone number' }))
-            )
-
-            return
-          }
-          type = 'email'
-        } else {
-          AlertService.dispatchAlertError(
-            new Error(i18n.t('common:error.validation-error', { type: 'email or phone number' }))
-          )
+    if (linkType === 'email') {
+      type = 'email'
+      paramName = 'email'
+    } else if (linkType === 'sms') {
+      type = 'sms'
+      paramName = 'mobile'
+    } else {
+      const stripped = emailPhone.replace(/-/g, '')
+      if (validatePhoneNumber(stripped)) {
+        if (!enableSmsMagicLink) {
+          AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'email address' })))
 
           return
         }
-      }
+        type = 'sms'
+        paramName = 'mobile'
+        emailPhone = '+1' + stripped
+      } else if (validateEmail(emailPhone)) {
+        if (!enableEmailMagicLink) {
+          AlertService.dispatchAlertError(new Error(i18n.t('common:error.validation-error', { type: 'phone number' })))
 
-      client
-        .service('magic-link')
-        .create({
-          type,
-          [paramName]: emailPhone
-        })
-        .then((res: any) => {
-          console.log(res)
-          dispatch(AuthAction.didCreateMagicLink(true))
-          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.success-msg'))
-        })
-        .catch((err: any) => {
-          dispatch(AuthAction.didCreateMagicLink(false))
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
+          return
+        }
+        type = 'email'
+      } else {
+        AlertService.dispatchAlertError(
+          new Error(i18n.t('common:error.validation-error', { type: 'email or phone number' }))
+        )
+
+        return
+      }
     }
+
+    client
+      .service('magic-link')
+      .create({
+        type,
+        [paramName]: emailPhone
+      })
+      .then((res: any) => {
+        console.log(res)
+        dispatch(AuthAction.didCreateMagicLink(true))
+        AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.success-msg'))
+      })
+      .catch((err: any) => {
+        dispatch(AuthAction.didCreateMagicLink(false))
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   addConnectionByPassword: async (form: EmailLoginForm, userId: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('identity-provider')
-        .create({
-          token: form.email,
-          password: form.password,
-          type: 'password',
-          userId
-        })
-        .then((res: any) => {
-          const identityProvider = res as IdentityProvider
-          return AuthService.loadUserData(identityProvider.userId)
-        })
-        .catch((err: any) => {
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+    dispatch(AuthAction.actionProcessing(true))
+
+    client
+      .service('identity-provider')
+      .create({
+        token: form.email,
+        password: form.password,
+        type: 'password',
+        userId
+      })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        return AuthService.loadUserData(identityProvider.userId)
+      })
+      .catch((err: any) => {
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   addConnectionByEmail: async (email: string, userId: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
-      client
-        .service('magic-link')
-        .create({
-          email,
-          type: 'email',
-          userId
-        })
-        .then((res: any) => {
-          const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) {
-            AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.email-sent-msg'))
-            return AuthService.loadUserData(identityProvider.userId)
-          }
-        })
-        .catch((err: any) => {
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+
+    dispatch(AuthAction.actionProcessing(true))
+    client
+      .service('magic-link')
+      .create({
+        email,
+        type: 'email',
+        userId
+      })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        if (identityProvider.userId != null) {
+          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.email-sent-msg'))
+          return AuthService.loadUserData(identityProvider.userId)
+        }
+      })
+      .catch((err: any) => {
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   addConnectionBySms: async (phone: string, userId: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      let sendPhone = phone.replace(/-/g, '')
-      if (sendPhone.length === 10) {
-        sendPhone = '1' + sendPhone
-      }
+    dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('magic-link')
-        .create({
-          mobile: sendPhone,
-          type: 'sms',
-          userId
-        })
-        .then((res: any) => {
-          const identityProvider = res as IdentityProvider
-          if (identityProvider.userId != null) {
-            AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.sms-sent-msg'))
-            return AuthService.loadUserData(identityProvider.userId)
-          }
-        })
-        .catch((err: any) => {
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
+    let sendPhone = phone.replace(/-/g, '')
+    if (sendPhone.length === 10) {
+      sendPhone = '1' + sendPhone
     }
+
+    client
+      .service('magic-link')
+      .create({
+        mobile: sendPhone,
+        type: 'sms',
+        userId
+      })
+      .then((res: any) => {
+        const identityProvider = res as IdentityProvider
+        if (identityProvider.userId != null) {
+          AlertService.dispatchAlertSuccess(i18n.t('user:auth.magiklink.sms-sent-msg'))
+          return AuthService.loadUserData(identityProvider.userId)
+        }
+      })
+      .catch((err: any) => {
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   addConnectionByOauth: async (
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) => {
-    {
-      window.open(
-        `https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`,
-        '_blank'
-      )
-    }
+    window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
   removeConnection: async (identityProviderId: number, userId: string) => {
     const dispatch = useDispatch()
-    {
-      dispatch(AuthAction.actionProcessing(true))
 
-      client
-        .service('identity-provider')
-        .remove(identityProviderId)
-        .then(() => {
-          return AuthService.loadUserData(userId)
-        })
-        .catch((err: any) => {
-          AlertService.dispatchAlertError(err)
-        })
-        .finally(() => dispatch(AuthAction.actionProcessing(false)))
-    }
+    dispatch(AuthAction.actionProcessing(true))
+
+    client
+      .service('identity-provider')
+      .remove(identityProviderId)
+      .then(() => {
+        return AuthService.loadUserData(userId)
+      })
+      .catch((err: any) => {
+        AlertService.dispatchAlertError(err)
+      })
+      .finally(() => dispatch(AuthAction.actionProcessing(false)))
   },
   refreshConnections: (userId: string) => {
     AuthService.loadUserData(userId)
@@ -683,23 +669,22 @@ export const AuthService = {
   },
   uploadAvatar: async (data: any) => {
     const dispatch = useDispatch()
-    {
-      const token = accessAuthState().authUser.accessToken.value
-      const selfUser = accessAuthState().user
-      const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: 'Bearer ' + token
-        }
-      })
-      const userId = selfUser.id.value ?? null
-      await client.service('user').patch(userId, {
-        name: selfUser.name.value
-      })
-      const result = res.data
-      AlertService.dispatchAlertSuccess('Avatar updated')
-      dispatch(AuthAction.avatarUpdated(result))
-    }
+
+    const token = accessAuthState().authUser.accessToken.value
+    const selfUser = accessAuthState().user
+    const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: 'Bearer ' + token
+      }
+    })
+    const userId = selfUser.id.value ?? null
+    await client.service('user').patch(userId, {
+      name: selfUser.name.value
+    })
+    const result = res.data
+    AlertService.dispatchAlertSuccess('Avatar updated')
+    dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
     const uploadArguments: AssetUploadType = {
@@ -739,78 +724,74 @@ export const AuthService = {
   },
   removeAvatar: async (keys: string) => {
     const dispatch = useDispatch()
-    {
-      await client
-        .service('avatar')
-        .remove('', {
-          query: { keys }
-        })
-        .then((_) => {
-          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.remove-success-msg'))
-          AuthService.fetchAvatarList()
-        })
-    }
+
+    await client
+      .service('avatar')
+      .remove('', {
+        query: { keys }
+      })
+      .then((_) => {
+        AlertService.dispatchAlertSuccess(i18n.t('user:avatar.remove-success-msg'))
+        AuthService.fetchAvatarList()
+      })
   },
   fetchAvatarList: async () => {
     const selfUser = accessAuthState().user
     const dispatch = useDispatch()
-    {
-      const result = await client.service('static-resource').find({
-        query: {
-          $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-          staticResourceType: {
-            $in: ['avatar', 'user-thumbnail']
-          },
-          $or: [{ userId: selfUser.id.value }, { userId: null }],
-          $limit: 1000
-        }
-      })
-      dispatch(AuthAction.updateAvatarList(result.data))
-    }
+
+    const result = await client.service('static-resource').find({
+      query: {
+        $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
+        staticResourceType: {
+          $in: ['avatar', 'user-thumbnail']
+        },
+        $or: [{ userId: selfUser.id.value }, { userId: null }],
+        $limit: 1000
+      }
+    })
+    dispatch(AuthAction.updateAvatarList(result.data))
   },
   updateUsername: async (userId: string, name: string) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('user')
-        .patch(userId, {
-          name: name
-        })
-        .then((res: any) => {
-          AlertService.dispatchAlertSuccess(i18n.t('user:usermenu.profile.update-msg'))
-          dispatch(AuthAction.usernameUpdated(res))
-        })
-    }
+
+    client
+      .service('user')
+      .patch(userId, {
+        name: name
+      })
+      .then((res: any) => {
+        AlertService.dispatchAlertSuccess(i18n.t('user:usermenu.profile.update-msg'))
+        dispatch(AuthAction.usernameUpdated(res))
+      })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('user')
-        .patch(userId, {
-          avatarId: avatarId
-        })
-        .then((res: any) => {
-          // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-          dispatch(AuthAction.userAvatarIdUpdated(res))
-          dispatchFrom(Engine.userId, () =>
-            NetworkWorldAction.avatarDetails({
-              avatarDetail: {
-                avatarURL,
-                thumbnailURL
-              }
-            })
-          ).cache({ removePrevious: true })
-          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-          transport?.sendNetworkStatUpdateMessage({
-            type: MessageTypes.AvatarUpdated,
-            userId,
-            avatarId,
-            avatarURL,
-            thumbnailURL
+
+    client
+      .service('user')
+      .patch(userId, {
+        avatarId: avatarId
+      })
+      .then((res: any) => {
+        // dispatchAlertSuccess(dispatch, 'User Avatar updated');
+        dispatch(AuthAction.userAvatarIdUpdated(res))
+        dispatchFrom(Engine.userId, () =>
+          NetworkWorldAction.avatarDetails({
+            avatarDetail: {
+              avatarURL,
+              thumbnailURL
+            }
           })
+        ).cache({ removePrevious: true })
+        const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
+        transport?.sendNetworkStatUpdateMessage({
+          type: MessageTypes.AvatarUpdated,
+          userId,
+          avatarId,
+          avatarURL,
+          thumbnailURL
         })
-    }
+      })
   },
   removeUser: async (userId: string) => {
     await client.service('user').remove(userId)

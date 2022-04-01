@@ -35,25 +35,23 @@ export const useAdminAwsSettingState = () => useState(state) as any as typeof st
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const awsSetting = (await client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
-        dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const awsSetting = (await client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
+      dispatch(AwsSettingAction.awsSettingRetrieved(awsSetting))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('aws-setting').patch(id, data)
-        dispatch(AwsSettingAction.awsSettingPatched())
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('aws-setting').patch(id, data)
+      dispatch(AwsSettingAction.awsSettingPatched())
+    } catch (err) {
+      console.log(err)
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }
