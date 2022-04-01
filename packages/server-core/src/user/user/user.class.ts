@@ -125,7 +125,6 @@ export class User<T = UserDataType> extends Service<T> {
   }
 
   patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    if (id == null) throw new Error('ID is required')
-    return super.patch(id, data)
+    return super.patch(id, data, params)
   }
 }
