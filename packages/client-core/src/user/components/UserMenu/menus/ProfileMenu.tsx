@@ -436,7 +436,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               <div className={styles.themeSettingContainer}>
                 <FormControlLabel
                   control={
-                    <MaterialUISwitch sx={{ m: 1 }} checked={selfUser?.user_setting?.themeMode?.value === 'dark'} />
+                    <MaterialUISwitch sx={{ m: 1 }} checked={selfUser?.user_setting?.value?.themeMode === 'dark'} />
                   }
                   label={<div className={styles.themeHeading}>Theme Mode:</div>}
                   labelPlacement="start"
