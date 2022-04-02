@@ -91,7 +91,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         renderer: Engine.renderer,
         paths,
         isLoadingEffect: isClient,
-        isVideoTexture: true,
+        isVideoTexture: false,
         playMode: component.playMode as any,
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
