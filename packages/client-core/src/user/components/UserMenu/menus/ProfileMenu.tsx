@@ -125,6 +125,10 @@ const ProfileMenu = (props: Props): JSX.Element => {
   }, [])
 
   useEffect(() => {
+    selfUser?.id.value && AuthService.loadUserData(selfUser?.id.value)
+  }, [])
+
+  useEffect(() => {
     if (authSetting) {
       let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {
