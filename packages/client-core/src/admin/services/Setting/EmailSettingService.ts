@@ -42,13 +42,12 @@ export const EmailSettingService = {
   },
   patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('email-setting').patch(id, data)
-        dispatch(EmailSettingAction.emailSettingPatched())
-      } catch (err) {
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('email-setting').patch(id, data)
+      dispatch(EmailSettingAction.emailSettingPatched())
+    } catch (err) {
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }
