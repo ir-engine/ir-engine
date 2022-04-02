@@ -34,7 +34,7 @@
     "@mui/material": "5.5.2",
     "@mui/styles": "5.5.1",
     "@speigg/hookstate": "3.0.13-stable-state",
-    "@types/react-infinite-scroller": "1.2.2",
+    "@types/react-infinite-scroller": "1.2.3",
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.24",
     "@xrengine/client-core": "^0.5.1",
