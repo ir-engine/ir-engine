@@ -93,21 +93,20 @@ export const useUserState = () => useState(state) as any as typeof state as unkn
 export const UserService = {
   getUserRelationship: async (userId: string) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('user-relationship')
-        .findAll({
-          query: {
-            userId
-          }
-        })
-        .then((res: Relationship) => {
-          dispatch(UserAction.loadedUserRelationship(res as Relationship))
-        })
-        .catch((err: any) => {
-          console.log(err)
-        })
-    }
+
+    client
+      .service('user-relationship')
+      .findAll({
+        query: {
+          userId
+        }
+      })
+      .then((res: Relationship) => {
+        dispatch(UserAction.loadedUserRelationship(res as Relationship))
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
   },
 
   getLayerUsers: async (instance) => {
@@ -159,52 +158,49 @@ export const UserService = {
 
 function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .create({
-        relatedUserId,
-        userRelationshipType: type
-      })
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .create({
+      relatedUserId,
+      userRelationshipType: type
+    })
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 function removeRelation(userId: string, relatedUserId: string) {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .remove(relatedUserId)
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .remove(relatedUserId)
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .patch(relatedUserId, {
-        userRelationshipType: type
-      })
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .patch(relatedUserId, {
+      userRelationshipType: type
+    })
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 //Action
