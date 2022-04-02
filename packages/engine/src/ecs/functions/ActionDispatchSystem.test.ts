@@ -1,8 +1,8 @@
 import assert, { strictEqual } from 'assert'
-import ActionFunctions, { ActionRecipients } from 'src/hyperflux/functions/ActionFunctions'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { createWorld } from '../classes/World'
@@ -22,19 +22,19 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
         prefab: '',
         parameters: {},
         // incoming action from future
-        $tick: 1,
+        $time: Date.now() + 16,
         $to: '0' as ActionRecipients
       })
 
       world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
+      ActionFunctions.addActionReceptor(world.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
 
       /* assert */
       strictEqual(recepted.length, 0)
@@ -44,28 +44,25 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
       /* mock */
       const world = createWorld()
 
-      // fixed tick in future
-      world.fixedTick = 1
-
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
         ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past
-        $tick: 0,
+        $time: Date.now() - 100,
         $to: '0' as ActionRecipients
       })
 
       world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
+      ActionFunctions.addActionReceptor(world.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -77,16 +74,13 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
       /* mock */
       const world = createWorld()
 
-      // fixed tick in future
-      world.fixedTick = 1
-
       const action = NetworkWorldAction.spawnObject({
         $from: '0' as UserId,
         ownerIndex: 0,
         prefab: '',
         parameters: {},
         // incoming action from past
-        $tick: 0,
+        $time: 0,
         $to: '0' as ActionRecipients,
         $cache: true
       })
@@ -94,12 +88,12 @@ describe('IncomingNetworkSystem Unit Tests', async () => {
       world.store.actions.incoming.push(action)
 
       const recepted: typeof action[] = []
-      ActionFunctions.addActionReceptor((a) =>
+      ActionFunctions.addActionReceptor(world.store, (a) =>
         matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
 
       /* assert */
       strictEqual(recepted.length, 1)

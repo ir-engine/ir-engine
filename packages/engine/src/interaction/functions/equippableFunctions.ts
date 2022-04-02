@@ -4,7 +4,6 @@ import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -34,7 +33,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
 }
 
 const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
-  const world = useWorld()
+  const world = Engine.currentWorld
   if (Engine.userId === world.hostId) return
 
   const equippedComponent = getComponent(equippedEntity, EquippedComponent)
@@ -42,6 +41,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
   const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
 
   dispatchAction(
+    world.store,
     NetworkWorldAction.setEquippedObject({
       object: {
         ownerId: networkComponet.ownerId,

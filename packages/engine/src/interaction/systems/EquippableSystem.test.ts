@@ -61,7 +61,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       networkId: networkObject.networkId,
       $from: Engine.userId,
       $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
+      $time: 0,
       $cache: true,
       ownerIndex: 0
     })

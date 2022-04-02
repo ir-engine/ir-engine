@@ -66,7 +66,7 @@ describe('createAvatar', () => {
       ownerIndex: 0,
       $from: Engine.userId,
       $to: 'all',
-      $tick: Engine.currentWorld.fixedTick,
+      $time: 0,
       $cache: true
     })
 

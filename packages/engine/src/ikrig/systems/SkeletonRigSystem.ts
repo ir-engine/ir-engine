@@ -1,4 +1,5 @@
 import { random } from 'lodash'
+import { Engine } from 'src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'

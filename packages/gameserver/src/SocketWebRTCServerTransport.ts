@@ -3,10 +3,10 @@ import { DataProducer, Router, Transport, Worker } from 'mediasoup/node/lib/type
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Action } from '@xrengine/engine/src/hyperflux/functions/ActionFunctions'
 import { NetworkTransportHandler } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
+import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 
 import { setupSubdomain } from './NetworkFunctions'

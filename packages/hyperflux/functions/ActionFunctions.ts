@@ -174,7 +174,7 @@ function _createActionModifier<A extends Action>(action: A) {
      * @param timeOffset The minimum number of milliseconds to delay the action
      */
     delay(timeOffset: number) {
-      action.$time += timeOffset
+      action.$time = action.$time! + timeOffset
       return modifier
     },
     /**
@@ -262,18 +262,13 @@ const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Actio
   }
 }
 
-const applyIncomingActions = (store: HyperStore) => {
+const applyIncomingActions = (store: HyperStore, now: number) => {
   const { incoming } = store.actions
-  const now = Date.now()
   for (const action of incoming) {
     if (action.$time > now) {
       continue
     }
-    if (action.$time < now) {
-      console.warn(`LATE ACTION ${action.type}`, action)
-    } else {
-      console.log(`ACTION ${action.type}`, action)
-    }
+    console.log(`ACTION ${action.type}`, action)
     applyAndArchiveIncomingAction(store, action)
   }
 }

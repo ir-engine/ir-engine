@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash'
+import { Engine } from 'src/ecs/classes/Engine'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 

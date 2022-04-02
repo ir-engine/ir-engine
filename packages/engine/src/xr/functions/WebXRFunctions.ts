@@ -153,7 +153,7 @@ export const startWebXR = async (): Promise<void> => {
   Engine.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
 
   addComponent(world.localClientEntity, XRInputSourceComponent, inputData)
-  dispatchAction(NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: true })).cache({ removePrevious: true })
   bindXRHandEvents()
 }
 
@@ -172,7 +172,7 @@ export const endXR = (): void => {
   addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(world.localClientEntity, XRInputSourceComponent)
 
-  dispatchAction(NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
+  dispatchAction(world.store, NetworkWorldAction.setXRMode({ enabled: false })).cache({ removePrevious: true })
 }
 
 /**
@@ -203,7 +203,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
+        dispatchAction(world.store, NetworkWorldAction.xrHandsConnected({})).cache({ removePrevious: true })
         eventSent = true
       }
     })
