@@ -1,4 +1,4 @@
-@use "../../theme.scss"as theme;
+@use '../../theme.scss' as theme;
 @import '../../styles/imports.module.scss';
 
 .openModalBtn {
@@ -12,7 +12,7 @@
     background: theme.$purpleColor;
   }
 
-  @media(max-width: 900px) {
+  @media (max-width: 900px) {
     font-size: 0.7rem;
   }
 }
@@ -32,7 +32,7 @@
     background: theme.$purpleLighter;
   }
 
-  @media(max-width: 900px) {
+  @media (max-width: 900px) {
     font-size: 0.7rem;
   }
 }
@@ -76,8 +76,8 @@
   border-radius: 0px;
   padding-left: 20px;
 
-  @media(max-width: 900px) {
-    paddingLeft: 5px;
+  @media (max-width: 900px) {
+    padding-left: 5px;
   }
 }
 
@@ -87,8 +87,8 @@
   flex-direction: row;
   align-items: center;
 
-  @media(max-width: 600px) {
-    fontSize: 14;
+  @media (max-width: 600px) {
+    font-size: 14;
   }
 }
 
@@ -117,7 +117,7 @@
   font-size: 20px;
   margin-left: 10px;
 
-  @media(max-width: 900px) {
+  @media (max-width: 900px) {
     font-size: 14px;
     margin-left: 5px;
   }
@@ -133,12 +133,12 @@
     opacity: 0.8;
   }
 
-  @media(max-width: 900px) {
+  @media (max-width: 900px) {
     font-size: 0.7rem;
     width: 120px;
   }
 
-  @media(max-width: 600px) {
+  @media (max-width: 600px) {
     font-size: 0.7rem;
     width: 100px;
   }
@@ -147,18 +147,18 @@
 .saveBtnIcon {
   margin-right: 10px;
 
-  @media(max-width: 900px) {
-    marginRight: 5px;
+  @media (max-width: 900px) {
+    margin-right: 5px;
   }
 }
 
 .secondaryHeading {
   font-size: 1rem;
-  color: #C0C0C0;
+  color: #c0c0c0;
 }
 
 .thirdHeading {
-  color: #C0C0C0;
+  color: #c0c0c0;
   margin-top: 15px;
 }
 
@@ -243,7 +243,7 @@
 }
 
 .spanDange {
-  color: #FF8C00;
+  color: #ff8c00;
 }
 
 .spanNone {
@@ -272,14 +272,15 @@
   color: theme.$text;
   overflow: auto;
 
-  @media(max-width: 900px) {
-    overflowY: scroll;
+  @media (max-width: 900px) {
+    overflow-y: scroll;
   }
 }
 
 .paper {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
   background-color: #fff;
 }
 
@@ -296,7 +297,7 @@
   background-color: theme.$purplePanel;
 
   @media (max-width: 768px) {
-    width: 90%
+    width: 90%;
   }
 }
 
@@ -305,7 +306,7 @@
   margin-bottom: 15px;
 
   :global(.MuiFormControl-root) {
-    width: 100%
+    width: 100%;
   }
 
   input {
@@ -341,7 +342,7 @@
   color: theme.$text;
 
   @media (max-width: 900px) {
-    height: 10vh
+    height: 10vh;
   }
 }
 
@@ -351,7 +352,7 @@
   text-align: center;
 
   @media (max-width: 900px) {
-    margin: 10px auto
+    margin: 10px auto;
   }
 }
 
@@ -362,12 +363,12 @@
 }
 
 .mt10 {
-  margin-top: 10%
+  margin-top: 10%;
 }
 
 .headingFont {
   @media (max-width: 900px) {
-    fontSize: 1.6rem
+    font-size: 1.6rem;
   }
 }
 
@@ -382,7 +383,7 @@
   padding-left: 1rem;
 
   @media (max-width: 900px) {
-    paddingLeft: 0
+    padding-left: 0;
   }
 }
 
@@ -426,7 +427,7 @@
   margin-bottom: 15px;
 
   @media (max-width: 900px) {
-    margin-bottom: 0px
+    margin-bottom: 0px;
   }
 }
 
@@ -474,7 +475,7 @@
   overflow-y: scroll;
 
   @media (max-width: 1200px) {
-    width: 100%
+    width: 100%;
   }
 }
 
@@ -488,7 +489,7 @@
 }
 
 .centering {
-  justify-content: center
+  justify-content: center;
 }
 
 .large {
@@ -527,9 +528,9 @@
   grid-gap: 10px;
   margin-top: 4%;
 
-  @media(max-width: 600px) {
+  @media (max-width: 600px) {
     display: grid;
-    gridTemplateColumns: 4fr;
+    grid-template-columns: 4fr;
   }
 }
 
@@ -594,7 +595,7 @@
 }
 
 .root {
-  flex-grow: 1
+  flex-grow: 1;
 }
 
 .analyticsPaper {
@@ -612,7 +613,7 @@
   font-size: 0.875rem;
 
   @media (max-width: 900px) {
-    font-size: 0.6rem
+    font-size: 0.6rem;
   }
 }
 
@@ -628,15 +629,15 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
 
   @media (max-width: 900px) {
-    gridTemplateColumns: 1fr 1fr 1fr
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   @media (max-width: 700px) {
-    gridTemplateColumns: 1fr 1fr
+    grid-template-columns: 1fr 1fr;
   }
 
   @media (max-width: 500px) {
-    gridTemplateColumns: 1fr
+    grid-template-columns: 1fr;
   }
 }
 
@@ -662,11 +663,11 @@
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: theme.$purplePanel
+  background-color: theme.$purplePanel;
 }
 
 .label {
-  color: theme.$text
+  color: theme.$text;
 }
 
 .checkboxContainer {

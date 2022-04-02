@@ -144,10 +144,10 @@ const TableComponent = (props: Props) => {
           />
           <TableBody>
             {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              //.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={`${index}${row.name}`}>
                     {column.map((column, index) => {
                       const value = row[column.id]
                       return (

@@ -140,11 +140,11 @@ const ProfileMenu = (props: Props): JSX.Element => {
     return true
   }
 
-  const handleSubmit = (e: any): any => {
+  const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value!)
-    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value!)
+    if (type === 'email') AuthService.createMagicLink(emailPhone, authState, 'email')
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone, authState, 'sms')
     return
   }
 
@@ -372,7 +372,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     }
                   }
                 }}
-              ></Grid>
+              />
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
@@ -473,7 +473,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                   {getConnectText()}
                 </Typography>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleGuestSubmit}>
                   <TextField
                     className={styles.emailField}
                     size="small"
@@ -485,7 +485,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end" onClick={handleSubmit}>
+                        <InputAdornment position="end" onClick={handleGuestSubmit}>
                           <a href="#" className={styles.materialIconBlock}>
                             <Send className={styles.primaryForeground} />
                           </a>
