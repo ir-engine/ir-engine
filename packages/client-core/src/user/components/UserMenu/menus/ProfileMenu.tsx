@@ -118,6 +118,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
   const loading = useAuthState().isProcessing.value
+  const userSettings = selfUser?.user_setting.value
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
@@ -136,8 +137,9 @@ const ProfileMenu = (props: Props): JSX.Element => {
   }, [authSettingState?.updateNeeded?.value])
 
   const handleChangeUserThemeMode = (event) => {
-    selfUser?.id?.value &&
-      AuthService.updateUserTheme(selfUser?.id?.value as string, event.target.checked ? 'dark' : 'light')
+    const settings = { ...userSettings, themeMode: event.target.checked ? 'dark' : 'light' }
+    selfUser?.user_setting?.value?.id &&
+      AuthService.updateUserSettings(selfUser?.user_setting?.value?.id as string, settings)
   }
 
   let type = ''
@@ -433,7 +435,9 @@ const ProfileMenu = (props: Props): JSX.Element => {
             {selfUser && (
               <div className={styles.themeSettingContainer}>
                 <FormControlLabel
-                  control={<MaterialUISwitch sx={{ m: 1 }} checked={selfUser?.themeMode?.value === 'dark'} />}
+                  control={
+                    <MaterialUISwitch sx={{ m: 1 }} checked={selfUser?.user_setting?.themeMode?.value === 'dark'} />
+                  }
                   label={<div className={styles.themeHeading}>Theme Mode:</div>}
                   labelPlacement="start"
                   onChange={(e) => handleChangeUserThemeMode(e)}

@@ -60,9 +60,9 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      html.dataset.theme = selfUser?.themeMode?.value || 'dark'
+      html.dataset.theme = selfUser?.user_setting?.value?.themeMode || 'dark'
     }
-  }, [selfUser?.themeMode?.value])
+  }, [selfUser?.user_setting?.value])
 
   useEffect(initApp, [])
 

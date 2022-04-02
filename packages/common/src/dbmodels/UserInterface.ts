@@ -3,5 +3,4 @@ export interface UserInterface {
   name: string
   avatarId: string
   inviteCode: string
-  themeMode: string
 }

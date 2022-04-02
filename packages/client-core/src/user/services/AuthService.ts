@@ -803,13 +803,6 @@ export const AuthService = {
     AuthService.logoutUser()
   },
 
-  updateUserTheme: async (userId: string, theme: string) => {
-    await client.service('user').patch(userId, {
-      themeMode: theme
-    })
-    await AuthService.loadUserData(userId)
-  },
-
   updateApiKey: async () => {
     const dispatch = useDispatch()
     const apiKey = (await client.service('user-api-key').patch(null, {})) as UserApiKey
