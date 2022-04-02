@@ -38,10 +38,9 @@ Use a tool like ifconfig to get your local IP address.
 
 ## Start local databases
 
-``` bash
+```bash
 cd scripts
 docker-compose up
-
 ```
 
 When the logging stops, that indicates that the databases have been created and 
