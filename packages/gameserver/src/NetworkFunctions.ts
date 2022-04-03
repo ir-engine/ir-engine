@@ -291,7 +291,7 @@ export const handleJoinWorld = async (
         const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
         inviterUserObject3d.value.translateZ(2)
 
-        const validSpawnablePosition = checkValidPosition(inviterUserObject3d.value.position, false)
+        const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
           spawnPose = {
