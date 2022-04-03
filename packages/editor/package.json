@@ -65,7 +65,7 @@
     "react-select": "5.2.2",
     "react-virtualized-auto-sizer": "1.0.6",
     "react-window": "1.8.6",
-    "styled-components": "5.3.3",
+    "styled-components": "5.3.5",
     "use-http": "1.0.26"
   },
   "devDependencies": {
