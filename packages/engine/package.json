@@ -94,7 +94,7 @@
     "sinon": "12.0.1",
     "trace-unhandled": "2.0.1",
     "typedoc": "0.22.13",
-    "typescript": "4.6.2",
+    "typescript": "4.6.3",
     "url-polyfill": "1.1.12"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
