@@ -84,6 +84,7 @@ export class Login implements ServiceMethods<Data> {
         {},
         { subject: identityProvider.id.toString() }
       )
+      await this.app.service('login-token').remove(result.id)
       return {
         token: token
       }
