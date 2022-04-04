@@ -11,7 +11,7 @@ export const resizeAvatar = (entity: Entity, height: number) => {
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
 
-  getComponent(entity, AvatarControllerComponent).controller.resize(avatar.avatarHeight - 0.5)
+  getComponent(entity, AvatarControllerComponent)?.controller.resize(avatar.avatarHeight - 0.5)
   const shape = getComponent(entity, ColliderComponent).body.getShapes() as PhysX.PxShape
   const geometry = new PhysX.PxCapsuleGeometry(0, 0)
   shape.getCapsuleGeometry(geometry)

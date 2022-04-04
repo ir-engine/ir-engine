@@ -48,21 +48,20 @@ export const useScopeTypeState = () => useState(state) as any as typeof state
 export const ScopeTypeService = {
   getScopeTypeService: async (incDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
-    {
-      const scopeState = accessScopeTypeState()
-      const skip = scopeState.skip.value
-      const limit = scopeState.limit.value
-      try {
-        const result = (await client.service('scope-type').find({
-          query: {
-            $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
-            $limit: limit
-          }
-        })) as Paginated<AdminScopeType>
-        dispatch(ScopeTypeAction.getScopeTypes(result))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    const scopeState = accessScopeTypeState()
+    const skip = scopeState.skip.value
+    const limit = scopeState.limit.value
+    try {
+      const result = (await client.service('scope-type').find({
+        query: {
+          $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
+          $limit: limit
+        }
+      })) as Paginated<AdminScopeType>
+      dispatch(ScopeTypeAction.getScopeTypes(result))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
