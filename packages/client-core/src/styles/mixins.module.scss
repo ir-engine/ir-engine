@@ -1,4 +1,5 @@
-@import "./variables.module.scss";
+@use '../theme.scss';
+@import './variables.module.scss';
 
 @mixin panel-popup-container-styling() {
   position: absolute;
@@ -31,15 +32,14 @@
   &::before {
     content: ' ';
     position: absolute;
-    ;
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: $PurpleButtonColor;
+    background: theme.$purpleColor;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    transition: all 0.15s cubic-bezier(.18, .89, .32, 1.28);
+    transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
 
   &:hover,
@@ -77,15 +77,14 @@
   &::before {
     content: ' ';
     position: absolute;
-    ;
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: $PrimaryGreenColor;
+    background: theme.$purpleColor;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    transition: all 0.15s cubic-bezier(.18, .89, .32, 1.28);
+    transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
   }
 
   &:hover,
@@ -105,9 +104,9 @@
 
 @mixin selected-avatar() {
   &::before {
-    content: "✓";
+    content: '✓';
     position: absolute;
-    background: $SelectedGreenColor;
+    background: theme.$purpleColor0;
     height: 20px;
     width: 20px;
     top: 5px;
@@ -121,9 +120,9 @@
 
 @mixin active-avatar() {
   &::after {
-    content: "✓";
+    content: '✓';
     position: absolute;
-    background: $PurpleButtonColor;
+    background: theme.$purpleColor;
     height: 20px;
     width: 20px;
     top: 5px;
@@ -142,6 +141,19 @@
 
 @mixin paper-modal() {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14), 0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
   background-color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: auto;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 1px grey;
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme.$purplePinkLinearGradient;
 }

@@ -10,6 +10,7 @@ import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import InputAdornment from '@mui/material/InputAdornment'
 import Snackbar from '@mui/material/Snackbar'
@@ -65,6 +66,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const authSettingState = useAdminAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
+  const loading = useAuthState().isProcessing.value
 
   useEffect(() => {
     !authSetting && AuthSettingService.fetchAuthSetting()
@@ -138,11 +140,11 @@ const ProfileMenu = (props: Props): JSX.Element => {
     return true
   }
 
-  const handleSubmit = (e: any): any => {
+  const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.addConnectionByEmail(emailPhone, selfUser?.id?.value!)
-    else if (type === 'sms') AuthService.addConnectionBySms(emailPhone, selfUser?.id?.value!)
+    if (type === 'email') AuthService.createMagicLink(emailPhone, authState, 'email')
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone, authState, 'sms')
     return
   }
 
@@ -274,7 +276,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"
-                onClick={() => changeActiveMenu(Views.Avatar)}
+                onClick={() => changeActiveMenu(Views.AvatarSelect)}
                 disableRipple
               >
                 <Create />
@@ -310,7 +312,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               />
             </span>
 
-            <Grid container justifyContent="right">
+            <Grid container justifyContent="right" className={styles.justify}>
               <Grid item xs={selfUser.userRole?.value === 'guest' ? 6 : 4}>
                 <h2>
                   {selfUser?.userRole?.value === 'admin'
@@ -370,7 +372,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     }
                   }
                 }}
-              ></Grid>
+              />
             )}
             <h4>
               {selfUser.userRole.value !== 'guest' && (
@@ -471,7 +473,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                   {getConnectText()}
                 </Typography>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleGuestSubmit}>
                   <TextField
                     className={styles.emailField}
                     size="small"
@@ -483,7 +485,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                     helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end" onClick={handleSubmit}>
+                        <InputAdornment position="end" onClick={handleGuestSubmit}>
                           <a href="#" className={styles.materialIconBlock}>
                             <Send className={styles.primaryForeground} />
                           </a>
@@ -491,6 +493,11 @@ const ProfileMenu = (props: Props): JSX.Element => {
                       )
                     }}
                   />
+                  {loading && (
+                    <div className={styles.container}>
+                      <CircularProgress size={30} />
+                    </div>
+                  )}
                 </form>
               </section>
             )}

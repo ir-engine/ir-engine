@@ -57,23 +57,21 @@ export const AvatarService = {
     search: string | null = null
   ) => {
     const dispatch = useDispatch()
-    {
-      const adminAvatarState = accessAvatarState()
-      const limit = adminAvatarState.limit.value
-      const avatars = await client.service('static-resource').find({
-        query: {
-          $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-          staticResourceType: 'avatar',
-          userId: null,
-          $limit: limit,
-          $skip: skip * AVATAR_PAGE_LIMIT,
-          getAvatarThumbnails: true,
-          search: search
-        }
-      })
-      if (avatars.data.length) {
-        dispatch(AvatarAction.avatarsFetched(avatars))
+    const adminAvatarState = accessAvatarState()
+    const limit = adminAvatarState.limit.value
+    const avatars = await client.service('static-resource').find({
+      query: {
+        $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
+        staticResourceType: 'avatar',
+        userId: null,
+        $limit: limit,
+        $skip: skip * AVATAR_PAGE_LIMIT,
+        getAvatarThumbnails: true,
+        search: search
       }
+    })
+    if (avatars.data.length) {
+      dispatch(AvatarAction.avatarsFetched(avatars))
     }
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
@@ -118,7 +116,7 @@ export const AvatarService = {
         const response = await client.service('upload-asset').create(uploadArguments)
         data.url = response[0]
       }
-      const result = await client.service('static-resource').patch(id, data)
+      const result = (await client.service('static-resource').patch(id, data)) as AvatarInterface
       dispatch(AvatarAction.avatarUpdated(result))
     } catch (error) {
       console.error(error)

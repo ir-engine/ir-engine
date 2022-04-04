@@ -1,15 +1,15 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils'
+import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default (propertyName: string) => {
-  return (context: HookContext): any => {
+  return (context: HookContext): HookContext => {
     // console.log('\n\n\n', context)
     // Getting logged in user and attaching owner of user
-    const loggedInUser = extractLoggedInUserFromParams(context.params)
+    const loggedInUser = context.params.user as UserDataType
     if (Array.isArray(context.data)) {
-      context.data = context.data.map((item: any) => {
+      context.data = context.data.map((item) => {
         return {
           ...item,
           [propertyName]: loggedInUser.id

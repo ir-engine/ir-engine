@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { InstanceResult } from '@xrengine/common/src/interfaces/InstanceResult'
 
 import { AlertService } from '../../common/services/AlertService'
 import { client } from '../../feathers'
@@ -51,38 +51,34 @@ export const useInstanceState = () => useState(state) as any as typeof state
 export const InstanceService = {
   fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
     const dispatch = useDispatch()
-    {
-      const skip = accessInstanceState().skip.value
-      const limit = accessInstanceState().limit.value
-      const user = accessAuthState().user
-      try {
-        if (user.userRole.value === 'admin') {
-          const instances = await client.service('instance').find({
-            query: {
-              $sort: {
-                createdAt: -1
-              },
-              $skip: skip,
-              $limit: limit,
-              action: 'admin',
-              search: search
-            }
-          })
-          dispatch(InstanceAction.instancesRetrievedAction(instances))
-        }
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
+
+    const skip = accessInstanceState().skip.value
+    const limit = accessInstanceState().limit.value
+    const user = accessAuthState().user
+    try {
+      if (user.userRole.value === 'admin') {
+        const instances = (await client.service('instance').find({
+          query: {
+            $sort: {
+              createdAt: -1
+            },
+            $skip: skip,
+            $limit: limit,
+            action: 'admin',
+            search: search
+          }
+        })) as Paginated<Instance>
+        dispatch(InstanceAction.instancesRetrievedAction(instances))
       }
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   removeInstance: async (id: string) => {
     const dispatch = useDispatch()
-    {
-      const result = await client.service('instance').patch(id, {
-        ended: true
-      })
-      dispatch(InstanceAction.instanceRemovedAction(result))
-    }
+
+    const result = (await client.service('instance').patch(id, { ended: true })) as Instance
+    dispatch(InstanceAction.instanceRemovedAction(result))
   }
 }
 
@@ -94,7 +90,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
 
 //Action
 export const InstanceAction = {
-  instancesRetrievedAction: (instanceResult: InstanceResult) => {
+  instancesRetrievedAction: (instanceResult: Paginated<Instance>) => {
     return {
       type: 'INSTANCES_RETRIEVED' as const,
       instanceResult: instanceResult

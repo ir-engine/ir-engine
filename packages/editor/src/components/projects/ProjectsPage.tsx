@@ -316,8 +316,8 @@ const ProjectsPage = () => {
                 areInstalledProjects && onClickExisting(e, project)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }}></div>
-              <div className={styles.headerConatiner}>
+              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
+              <div className={styles.headerContainer}>
                 <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
                 {project.name !== 'default-project' && (
                   <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>

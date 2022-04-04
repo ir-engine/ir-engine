@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_envMap.schema.json",
+  "title": "XRE_envMap glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine environment map components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "type": {
+      "type": "string",
+      "anyOf": [{ "const": "Default" }, { "const": "Texture" }, { "const": "Color" }]
+    },
+    "envMapTextureType": {
+      "type": "string",
+      "anyOf": [{ "const": "Cubemap" }, { "const": "Equirectangular" }]
+    },
+    "envMapSourceColor": {
+      "$ref": "color.schema.json",
+      "default": "#000000"
+    },
+    "envMapSourceURL": {
+      "type": "string",
+      "default": "/hdr/cubemap/skyboxsun25deg/"
+    },
+    "envMapIntensity": {
+      "type": "number",
+      "default": 1.0
+    },
+    "envMapCubemapBake": {
+      "type": "object",
+      "default": {},
+      "properties": {
+        "bakePosition": { "$ref": "vec3.schema.json" },
+        "bakePositionOffset": { "$ref": "vec3.schema.json" },
+        "bakeScale": { "$ref": "vec3.schema.json" },
+        "bakeType": {
+          "type": "string",
+          "anyOf": [{ "const": "Realtime" }, { "const": "Baked" }]
+        },
+        "resolution": { "$ref": "resolution.schema.json" },
+        "refreshMode": {
+          "type": "string",
+          "anyOf": [{ "const": "OnAwake" }, { "const": "EveryFrame" }]
+        },
+        "envMapOrigin": { "type": "string" },
+        "boxProjection": { "type": "boolean" }
+      }
+    }
+  },
+  "extensions": {},
+  "extras": {}
+}

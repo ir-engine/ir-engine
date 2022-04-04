@@ -27,11 +27,11 @@ export const InputGroupContainer = (styled as any).div`
     opacity: 0.3;
   `}
 
-  & > label {
-    display: block;
+  .tooltip {
     color: ${(props) => props.theme.text2};
-    padding-bottom: 2px;
-    padding-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 `
 
@@ -93,7 +93,7 @@ export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: ${(props) => props.theme.blue};
+  color: ${(props) => props.theme.purpleColor};
   cursor: pointer;
   align-self: center;
 `
@@ -147,11 +147,19 @@ type InputGroupPropType = React.PropsWithChildren<
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupPropType) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <label style={{ color: '#9FA4B5' }}>{label}:</label>
+      <Grid container spacing="10px">
+        <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
+          <InfoTooltip
+            className="tooltip"
+            title={label ?? name}
+            disableInteractive
+            placement="right-start"
+            followCursor
+          >
+            <label>{label}</label>
+          </InfoTooltip>
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={9}>
           <InputGroupContent>
             {children}
             {info && <InputGroupInfo info={info} />}

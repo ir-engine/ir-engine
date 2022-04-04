@@ -16,9 +16,9 @@ export const uploadProjectFile = async (
           uploadPath: pathName,
           fileId: file.name
         })
-        const response = await client.service('project').patch(projectName, {
+        const response = (await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
-        })
+        })) as any[]
         resolve({ url: response[0] })
       })
     )
@@ -61,9 +61,9 @@ const processEntry = async (item, projectName: string, directory: string, promis
           uploadPath: pathName,
           fileId: file.name
         })
-        const response = await client.service('project').patch(projectName, {
+        const response = (await client.service('project').patch(projectName, {
           files: [`${pathName}/${file.name}`]
-        })
+        })) as any[]
 
         resolve({ url: response[0] })
       })

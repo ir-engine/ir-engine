@@ -1,6 +1,6 @@
 {
   "components": {
-    "locationModel": {
+    "locationModal": {
       "lbl-name": "Name",
       "lbl-maxuser": "Max Users",
       "lbl-scene": "Scene",
@@ -233,6 +233,13 @@
       "key": "Key",
       "callback": "Callback",
       "appId": "App ID",
+      "appTitle": "App Title",
+      "appSubtitle": "App Subtitle",
+      "appDescription": "App Description",
+      "appBackground": "App Background",
+      "appSocialLinks": "Social Links",
+      "icon": "Icon",
+      "link": "Link",
       "cancel": "Cancel",
       "save": "Save",
       "aws": "AWS",

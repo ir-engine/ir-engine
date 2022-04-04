@@ -6,6 +6,7 @@ import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInt
 
 import GitHubIcon from '@mui/icons-material/GitHub'
 import GroupIcon from '@mui/icons-material/Group'
+import { Grid } from '@mui/material'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
@@ -16,7 +17,7 @@ import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import styles from './Projects.module.scss'
+import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
@@ -26,7 +27,6 @@ interface Props {
 
 const UploadProjectModal = (props: Props): any => {
   const { open, handleClose, repos } = props
-
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
@@ -78,12 +78,12 @@ const UploadProjectModal = (props: Props): any => {
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modalContent]: true
             })}
           >
-            {processing === false && createOrPatch === 'patch' && (
+            {!processing && createOrPatch === 'patch' && (
               <FormControl>
-                <div className={styles.inputConatiner}>
+                <div className={styles.inputContainer}>
                   {!isPublicUrl && repos && repos.length != 0 ? (
                     <Select
                       labelId="demo-controlled-open-select-label"
@@ -99,59 +99,63 @@ const UploadProjectModal = (props: Props): any => {
                       </MenuItem>
                       {repos &&
                         repos.map((el: any, i) => (
-                          <MenuItem value={`${el.repositoryPath.value}`} key={i}>
-                            {el.name.value} ({el.user.value})
+                          <MenuItem value={`${el.repositoryPath}`} key={i}>
+                            {el.name} ({el.user})
                           </MenuItem>
                         ))}
                     </Select>
                   ) : (
-                    <div>
-                      <label>{t('admin:components.project.insertPublicUrl')}</label>
-                      <TextField
-                        className={styles['pack-select']}
-                        id="urlSelect"
-                        value={projectURL}
-                        placeholder={'URL'}
-                        onChange={(e) => setProjectURL(e.target.value)}
-                      />
-                    </div>
+                    <Grid container spacing={1} direction="column">
+                      <Grid item>
+                        <label>{t('admin:components.project.insertPublicUrl')}</label>
+                      </Grid>
+                      <Grid item>
+                        <TextField
+                          id="urlSelect"
+                          fullWidth
+                          value={projectURL}
+                          placeholder={'URL'}
+                          onChange={(e) => setProjectURL(e.target.value)}
+                        />
+                      </Grid>
+                    </Grid>
                   )}
                 </div>
-                <div className={styles.buttonConatiner}>
+                <div className={styles.buttonContainer}>
                   <Button
                     type="submit"
                     startIcon={<GitHubIcon />}
                     variant="contained"
                     color="primary"
+                    className={styles.gradientButton}
                     onClick={tryUploadProject}
                   >
                     {t('admin:components.project.uploadProject')}
                   </Button>
-                  {repos && repos.length != 0 ? (
+                  {repos && repos.length != 0 && (
                     <Button
                       type="submit"
                       startIcon={<GroupIcon />}
                       variant="contained"
                       color="primary"
+                      className={styles.gradientButton}
                       onClick={trySelectPublicUrl}
                     >
                       {!isPublicUrl
                         ? t('admin:components.project.customPublicUrl')
                         : t('admin:components.project.selectFromList')}
                     </Button>
-                  ) : (
-                    <></>
                   )}
                 </div>
               </FormControl>
             )}
-            {processing === true && (
-              <div className={styles.processing}>
+            {processing && (
+              <div>
                 <CircularProgress color="primary" />
-                <div className={styles.text}>{t('admin:components.project.processing')}</div>
+                <div className={styles.accentText}>{t('admin:components.project.processing')}</div>
               </div>
             )}
-            {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}
+            {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
           </div>
         </Fade>
       </Modal>

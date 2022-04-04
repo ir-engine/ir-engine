@@ -1,9 +1,10 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { Object3D } from 'three'
+import { Object3D, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -70,29 +71,9 @@ describe('AudioFunctions', () => {
   let entity: Entity
   let audioFunctions = proxyquire('./AudioFunctions', {
     '../../../common/functions/isClient': { isClient: true },
-    '../../../assets/functions/loadTexture': {
-      default: () => {
-        return {
-          then: (func: Function) => {
-            func({})
-          }
-        }
-      }
-    },
-    '../../../assets/functions/loadAudio': {
-      loadAudio: (url: string) => {
-        return testURLs[url].buffer
-      }
-    },
     three: {
       Audio: Audio,
       PositionalAudio: PositionalAudio
-    },
-    '../../../common/functions/resolveMedia': {
-      resolveMedia: (url: string) => {
-        if (url === 'error') return Promise.reject(new Error())
-        return testURLs[url]
-      }
     }
   })
 
@@ -199,7 +180,7 @@ describe('AudioFunctions', () => {
         const obj3d = getComponent(entity, Object3DComponent).value
         const obj3d2 = getComponent(entity2, Object3DComponent).value
 
-        assert(obj3d.userData.textureMesh.material.map === obj3d2.userData.textureMesh.material.map)
+        // assert(obj3d.userData.textureMesh.material.map === obj3d2.userData.textureMesh.material.map)
         assert(obj3d.userData.textureMesh.layers.isEnabled(ObjectLayers.NodeHelper))
         assert(obj3d2.userData.textureMesh.layers.isEnabled(ObjectLayers.NodeHelper))
       })
@@ -226,55 +207,59 @@ describe('AudioFunctions', () => {
     })
 
     describe('Property tests for "audioType"', () => {
-      it('should not update property', async () => {
-        await audioFunctions.updateAudio(entity, {})
+      it('should not update property', () => {
+        audioFunctions.updateAudio(entity, {})
 
         assert(audioComponent.audioType === sceneComponentData.audioType)
         assert(obj3d.userData.audioEl instanceof PositionalAudio)
       })
 
-      it('should update property', async () => {
+      it('should update property', () => {
         audioComponent.audioType = AudioType.Stereo
-        await audioFunctions.updateAudio(entity, { audioType: AudioType.Stereo })
+        audioFunctions.updateAudio(entity, { audioType: AudioType.Stereo })
 
         assert(obj3d.userData.audioEl instanceof Audio)
 
-        await audioFunctions.updateAudio(entity, { audioType: AudioType.Positional })
+        audioFunctions.updateAudio(entity, { audioType: AudioType.Positional })
         assert(obj3d.userData.audioEl.constructor === Audio, 'should not update property to passed value')
       })
     })
 
     describe('Property tests for "audioSource"', () => {
-      it('should not update property', async () => {
-        await audioFunctions.updateAudio(entity, {})
+      it('should not update property', () => {
+        audioFunctions.updateAudio(entity, {})
 
         assert(audioComponent.audioSource === sceneComponentData.audioSource)
       })
 
-      it('should add error component if some error occurs while fetching data', async () => {
+      it('should add error component if some error occurs while fetching data', () => {
         audioComponent.audioSource = 'error'
-        await audioFunctions.updateAudio(entity, { audioSource: 'error' })
+        audioFunctions.updateAudio(entity, { audioSource: 'error' })
         assert(hasComponent(entity, ErrorComponent))
       })
 
-      it('should add error component if content type of source can not be determined', async () => {
+      it('should add error component if content type of source can not be determined', () => {
         audioComponent.audioSource = 'noContentType'
-        await audioFunctions.updateAudio(entity, { audioSource: 'noContentType' })
+        audioFunctions.updateAudio(entity, { audioSource: 'noContentType' })
         assert(hasComponent(entity, ErrorComponent))
       })
 
-      it('should not update buffer', async () => {
+      it('should not update buffer', () => {
         audioComponent.audioSource = 'noBuffer'
         const num = Math.random()
         obj3d.userData.audioEl.buffer = num
-        await audioFunctions.updateAudio(entity, { audioSource: audioComponent.audioSource })
+        audioFunctions.updateAudio(entity, { audioSource: audioComponent.audioSource })
 
         assert.equal(obj3d.userData.audioEl.buffer, num)
       })
 
-      it('should update property', async () => {
+      it('should update property', () => {
         obj3d.userData.audioEl.isPlaying = true
-        await audioFunctions.updateAudio(entity, { audioSource: audioComponent.audioSource })
+        AssetLoader.Cache.set(
+          AssetLoader.getAbsolutePath(audioComponent.audioSource),
+          testURLs[audioComponent.audioSource].buffer
+        )
+        audioFunctions.updateAudio(entity, { audioSource: audioComponent.audioSource })
 
         assert.equal(obj3d.userData.audioEl.buffer, testURLs[audioComponent.audioSource].buffer)
         assert(!hasComponent(entity, ErrorComponent))
@@ -283,48 +268,48 @@ describe('AudioFunctions', () => {
     })
 
     describe('Property tests for "volume"', () => {
-      it('should not update property', async () => {
-        await audioFunctions.updateAudio(entity, {})
+      it('should not update property', () => {
+        audioFunctions.updateAudio(entity, {})
 
         assert(audioComponent.volume === sceneComponentData.volume)
         assert(obj3d.userData.audioEl.volume === sceneComponentData.volume)
       })
 
-      it('should update property', async () => {
+      it('should update property', () => {
         audioComponent.volume = Math.random()
 
-        await audioFunctions.updateAudio(entity, { volume: audioComponent.volume })
+        audioFunctions.updateAudio(entity, { volume: audioComponent.volume })
         assert(obj3d.userData.audioEl.volume === audioComponent.volume)
 
-        await audioFunctions.updateAudio(entity, { volume: Math.random() })
+        audioFunctions.updateAudio(entity, { volume: Math.random() })
         assert(obj3d.userData.audioEl.volume === audioComponent.volume, 'should not update property to passed value')
       })
     })
 
     describe('Positional Audio Properties', () => {
-      it('should not update positional properties for sterio type', async () => {
+      it('should not update positional properties for sterio type', () => {
         audioComponent.rolloffFactor = Math.random()
         audioComponent.audioType = AudioType.Stereo
-        await audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
+        audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
 
         assert(obj3d.userData.audioEl.rolloffFactor !== audioComponent.rolloffFactor)
       })
 
       describe('Property tests for "distanceModel"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.distanceModel === sceneComponentData.distanceModel)
           assert(obj3d.userData.audioEl.distanceModel === sceneComponentData.distanceModel)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.distanceModel = 'exponential'
 
-          await audioFunctions.updateAudio(entity, { distanceModel: audioComponent.distanceModel })
+          audioFunctions.updateAudio(entity, { distanceModel: audioComponent.distanceModel })
           assert(obj3d.userData.audioEl.distanceModel === audioComponent.distanceModel)
 
-          await audioFunctions.updateAudio(entity, { distanceModel: 'linear' })
+          audioFunctions.updateAudio(entity, { distanceModel: 'linear' })
           assert(
             obj3d.userData.audioEl.distanceModel === audioComponent.distanceModel,
             'should not update property to passed value'
@@ -333,20 +318,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "rolloffFactor"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.rolloffFactor === sceneComponentData.rolloffFactor)
           assert(obj3d.userData.audioEl.rolloffFactor === sceneComponentData.rolloffFactor)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.rolloffFactor = Math.random()
 
-          await audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
+          audioFunctions.updateAudio(entity, { rolloffFactor: audioComponent.rolloffFactor })
           assert(obj3d.userData.audioEl.rolloffFactor === audioComponent.rolloffFactor)
 
-          await audioFunctions.updateAudio(entity, { rolloffFactor: Math.random() })
+          audioFunctions.updateAudio(entity, { rolloffFactor: Math.random() })
           assert(
             obj3d.userData.audioEl.rolloffFactor === audioComponent.rolloffFactor,
             'should not update property to passed value'
@@ -355,20 +340,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "refDistance"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.refDistance === sceneComponentData.refDistance)
           assert(obj3d.userData.audioEl.refDistance === sceneComponentData.refDistance)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.refDistance = Math.random()
 
-          await audioFunctions.updateAudio(entity, { refDistance: audioComponent.refDistance })
+          audioFunctions.updateAudio(entity, { refDistance: audioComponent.refDistance })
           assert(obj3d.userData.audioEl.refDistance === audioComponent.refDistance)
 
-          await audioFunctions.updateAudio(entity, { refDistance: Math.random() })
+          audioFunctions.updateAudio(entity, { refDistance: Math.random() })
           assert(
             obj3d.userData.audioEl.refDistance === audioComponent.refDistance,
             'should not update property to passed value'
@@ -377,20 +362,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "maxDistance"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.maxDistance === sceneComponentData.maxDistance)
           assert(obj3d.userData.audioEl.maxDistance === sceneComponentData.maxDistance)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.maxDistance = Math.random()
 
-          await audioFunctions.updateAudio(entity, { maxDistance: audioComponent.maxDistance })
+          audioFunctions.updateAudio(entity, { maxDistance: audioComponent.maxDistance })
           assert(obj3d.userData.audioEl.maxDistance === audioComponent.maxDistance)
 
-          await audioFunctions.updateAudio(entity, { maxDistance: Math.random() })
+          audioFunctions.updateAudio(entity, { maxDistance: Math.random() })
           assert(
             obj3d.userData.audioEl.maxDistance === audioComponent.maxDistance,
             'should not update property to passed value'
@@ -399,20 +384,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "coneInnerAngle"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.coneInnerAngle === sceneComponentData.coneInnerAngle)
           assert(obj3d.userData.audioEl.panner.coneInnerAngle === sceneComponentData.coneInnerAngle)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.coneInnerAngle = Math.random()
 
-          await audioFunctions.updateAudio(entity, { coneInnerAngle: audioComponent.coneInnerAngle })
+          audioFunctions.updateAudio(entity, { coneInnerAngle: audioComponent.coneInnerAngle })
           assert(obj3d.userData.audioEl.panner.coneInnerAngle === audioComponent.coneInnerAngle)
 
-          await audioFunctions.updateAudio(entity, { coneInnerAngle: Math.random() })
+          audioFunctions.updateAudio(entity, { coneInnerAngle: Math.random() })
           assert(
             obj3d.userData.audioEl.panner.coneInnerAngle === audioComponent.coneInnerAngle,
             'should not update property to passed value'
@@ -421,20 +406,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "coneOuterAngle"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.coneOuterAngle === sceneComponentData.coneOuterAngle)
           assert(obj3d.userData.audioEl.panner.coneOuterAngle === sceneComponentData.coneOuterAngle)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.coneOuterAngle = Math.random()
 
-          await audioFunctions.updateAudio(entity, { coneOuterAngle: audioComponent.coneOuterAngle })
+          audioFunctions.updateAudio(entity, { coneOuterAngle: audioComponent.coneOuterAngle })
           assert(obj3d.userData.audioEl.panner.coneOuterAngle === audioComponent.coneOuterAngle)
 
-          await audioFunctions.updateAudio(entity, { coneOuterAngle: Math.random() })
+          audioFunctions.updateAudio(entity, { coneOuterAngle: Math.random() })
           assert(
             obj3d.userData.audioEl.panner.coneOuterAngle === audioComponent.coneOuterAngle,
             'should not update property to passed value'
@@ -443,20 +428,20 @@ describe('AudioFunctions', () => {
       })
 
       describe('Property tests for "coneOuterGain"', () => {
-        it('should not update property', async () => {
-          await audioFunctions.updateAudio(entity, {})
+        it('should not update property', () => {
+          audioFunctions.updateAudio(entity, {})
 
           assert(audioComponent.coneOuterGain === sceneComponentData.coneOuterGain)
           assert(obj3d.userData.audioEl.panner.coneOuterGain === sceneComponentData.coneOuterGain)
         })
 
-        it('should update property', async () => {
+        it('should update property', () => {
           audioComponent.coneOuterGain = Math.random()
 
-          await audioFunctions.updateAudio(entity, { coneOuterGain: audioComponent.coneOuterGain })
+          audioFunctions.updateAudio(entity, { coneOuterGain: audioComponent.coneOuterGain })
           assert(obj3d.userData.audioEl.panner.coneOuterGain === audioComponent.coneOuterGain)
 
-          await audioFunctions.updateAudio(entity, { coneOuterGain: Math.random() })
+          audioFunctions.updateAudio(entity, { coneOuterGain: Math.random() })
           assert(
             obj3d.userData.audioEl.panner.coneOuterGain === audioComponent.coneOuterGain,
             'should not update property to passed value'
@@ -467,7 +452,7 @@ describe('AudioFunctions', () => {
   })
 
   describe('serializeAudio()', () => {
-    it('should properly serialize audio', async () => {
+    it('should properly serialize audio', () => {
       audioFunctions.deserializeAudio(entity, sceneComponent)
       assert.deepEqual(audioFunctions.serializeAudio(entity), sceneComponent)
     })
@@ -478,7 +463,7 @@ describe('AudioFunctions', () => {
   })
 
   describe('toggleAudio()', () => {
-    it('should properly toggle audio', async () => {
+    it('should properly toggle audio', () => {
       audioFunctions.deserializeAudio(entity, sceneComponent)
 
       const audioEl = getComponent(entity, Object3DComponent)?.value.userData.audioEl as Audio
@@ -493,7 +478,7 @@ describe('AudioFunctions', () => {
       assert(audioEl.isPlaying !== prevState)
     })
 
-    it('should do nothing if no audio component is there', async () => {
+    it('should do nothing if no audio component is there', () => {
       const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
       audioFunctions.toggleAudio(entity)

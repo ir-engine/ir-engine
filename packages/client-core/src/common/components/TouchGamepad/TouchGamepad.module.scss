@@ -1,4 +1,4 @@
-$mobileControllButtonsSize:3em;
+$mobileControllButtonsSize: 3em;
 
 .stickLeft {
   position: fixed;
@@ -9,6 +9,10 @@ $mobileControllButtonsSize:3em;
   div {
     margin: auto;
   }
+
+  @media (max-width: 478px) {
+    left: 25px;
+  }
 }
 
 .controlButtonContainer {
@@ -16,7 +20,7 @@ $mobileControllButtonsSize:3em;
   border-radius: 50%;
   right: 75px;
   bottom: 100px;
-  line-height: ($mobileControllButtonsSize+1em);
+  line-height: ($mobileControllButtonsSize + 1em);
 
   .controllButton {
     position: absolute;

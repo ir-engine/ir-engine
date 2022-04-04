@@ -28,7 +28,10 @@
       "lbl-phone": "Phone number",
       "agree": "I agree to the ",
       "terms": "Terms & Conditions",
-      "lbl-submit": "Send Login Link"
+      "lbl-submit": "Send Login Link",
+      "email-sent-msg": "Login Magic Link was sent. Please check your Email.",
+      "success-msg": "Login Magic Link was sent. Please check your Email or SMS.",
+      "sms-sent-msg": "Login Magic Link was sent. Please check your SMS."
     },
     "passwordLogin": {
       "header": "Sign In",
@@ -67,8 +70,8 @@
       "lbl-password": "Password",
       "lbl-confirmPassword": "Password Confirm",
       "passwordNotMatch": "Passwords Don't Match",
-      "nowLoginYourAccount":"You can now log into the your account",
-      "yourPasswordResetSuccess":"Your password was successfully reset!"
+      "nowLoginYourAccount": "You can now log into the your account",
+      "yourPasswordResetSuccess": "Your password was successfully reset!"
     },
     "verifyEmail": {
       "header": "Verify Email",
@@ -130,6 +133,7 @@
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
+      "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "youAreAn": "You are an",
       "youAreA": "You are a",
@@ -137,7 +141,7 @@
       "hideUserId": "Hide User ID",
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
-      "apiKey":"API key",
+      "apiKey": "API key",
       "logout": "Log out",
       "connectPhone": "Connect your phone number",
       "connectEmail": "Connect your email",
@@ -184,11 +188,11 @@
       }
     },
     "oauth": {
-        "authenticating": "Authenticating...",
-        "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating...",
+      "authFailed": "{{service}} authentication failed."
     },
     "magikLink": {
-        "wait": "Please wait a moment while processing..."
+      "wait": "Please wait a moment while processing..."
     },
     "dashboard": {
       "header": "Dashboard",
@@ -257,39 +261,41 @@
     "confirmation": "Are you sure?",
     "canNotBeRemoved": "Active Avatar can not be removed",
     "remove": "Remove avatar",
-    "uploadFiles":"Upload files",
-    "useUrlInstead":"Use url instead",
-    "avatar":"Avatar",
-    "cancel":"Cancel",
-    "createAvatar":"Create Avatar",
-    "delete":"Delete",
-    "view":"View",
-    "uploadAvatarInfo":"Update avatar Information",
-    "name":"Name",
-    "enterName":"Enter name",
-    "avatarInformation":"Avatar Information",
-    "description":"Description",
-    "key":"Key",
-    "none":"None",
-    "submit":"Submit",
-    "edit":"Edit",
-    "avatarUrl":"Avatar url"
+    "uploadFiles": "Upload files",
+    "useUrlInstead": "Use url instead",
+    "avatar": "Avatar",
+    "cancel": "Cancel",
+    "createAvatar": "Create Avatar",
+    "delete": "Delete",
+    "view": "View",
+    "uploadAvatarInfo": "Update avatar Information",
+    "name": "Name",
+    "enterName": "Enter name",
+    "avatarInformation": "Avatar Information",
+    "description": "Description",
+    "key": "Key",
+    "none": "None",
+    "submit": "Submit",
+    "edit": "Edit",
+    "avatarUrl": "Avatar url",
+    "upload-success-msg": "Avatar Uploaded Successfully.",
+    "remove-success-msg": "Avatar Uploaded Successfully.",
+    "warning-msg": "Avatar resource is empty, have you synced avatars to your static file storage?"
   },
-  "personMenu":{
-    "inviteToParty":"Invite To Party",
-    "addAsFriend":"Add As Friend",
-    "mute":"Mute",
-    "block":"Block"
+  "personMenu": {
+    "inviteToParty": "Invite To Party",
+    "addAsFriend": "Add As Friend",
+    "mute": "Mute",
+    "block": "Block"
   },
-  "person":{
-    "you":"You",
-    "muteForEveryone":"Mute for everyone",
-    "unmuteForEveryone":"Unmute for everyone",
-    "muteMe":"Mute me",
-    "unmuteMe":"Unmute me",
-    "muteThisPerson":"Mute this person",
-    "unmuteThisPerson":"Unmute this person",
-    "openPictureInPicture":"Open Picture in Picture"
+  "person": {
+    "you": "You",
+    "muteForEveryone": "Mute for everyone",
+    "unmuteForEveryone": "Unmute for everyone",
+    "muteMe": "Mute me",
+    "unmuteMe": "Unmute me",
+    "muteThisPerson": "Mute this person",
+    "unmuteThisPerson": "Unmute this person",
+    "openPictureInPicture": "Open Picture in Picture"
   }
-  
 }

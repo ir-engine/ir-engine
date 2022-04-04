@@ -1,4 +1,4 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAwsSetting as AdminAwsSettingInterface } from '@xrengine/common/src/interfaces/AdminAwsSetting'
@@ -15,7 +15,7 @@ export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(): Promise<T[] | Paginated<T>> {
     const awsSetting = (await super.find()) as any
     const data = awsSetting.data.map((el) => {
       let keys = JSON.parse(el.keys)
@@ -49,5 +49,9 @@ export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
       skip: awsSetting.skip,
       data
     }
+  }
+
+  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
+    return super.patch(id, data)
   }
 }

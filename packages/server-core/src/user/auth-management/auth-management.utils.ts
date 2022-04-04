@@ -13,8 +13,8 @@ import config from '../../appconfig'
  */
 export function getLink(type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
-    : `${config.server.url}/login/${hash}`
+    ? `${config.client.url}/auth/magiclink/${hash}?subId=${subscriptionId}`
+    : `${config.client.url}/auth/magiclink/?token=${hash}&type=${type}`
 }
 
 /**
@@ -61,20 +61,10 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  * @author Vyacheslav Solovjov
  */
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
+  console.log('sendSMS() to:', sms)
   await app
     .service('sms')
     .create(sms, null!)
     .then(() => console.log('Sent SMS'))
     .catch((err: any) => console.log('Error sending SMS', err))
-}
-
-/**
- * This method will extract the loggedIn User from params
- *
- * @param params
- * @returns extracted user
- * @author Vyacheslav Solovjov
- */
-export const extractLoggedInUserFromParams = (params?: Params): any => {
-  return params?.user
 }

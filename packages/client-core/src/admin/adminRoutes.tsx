@@ -14,14 +14,10 @@ const instance = React.lazy(() => import('./pages/instance'))
 const invites = React.lazy(() => import('./pages/invites'))
 const locations = React.lazy(() => import('./pages/locations'))
 const routes = React.lazy(() => import('./pages/routes'))
-// const scenes = React.lazy(() => import('./pages/scenes'))
 const users = React.lazy(() => import('./pages/users'))
 const party = React.lazy(() => import('./pages/party'))
 const botSetting = React.lazy(() => import('./pages/bot'))
 const projects = React.lazy(() => import('./pages/projects'))
-// const arMedia = React.lazy(() => import('./pages/admin/social/armedia'))
-// const feeds = React.lazy(() => import('./pages/admin/social/feeds'))
-// const creator = React.lazy(() => import('./pages/admin/social/creator'))
 const setting = React.lazy(() => import('./pages/Setting'))
 
 interface Props {}
@@ -59,7 +55,7 @@ const ProtectedRoutes = (props: Props) => {
   })
 
   if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
-    return <Redirect to={{ pathname: '/login', state: { from: '/admin' } }} />
+    return <Redirect to={{ pathname: '/', state: { from: '/admin' } }} />
   }
 
   return (

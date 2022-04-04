@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
-import { ServerSettingResult } from '@xrengine/common/src/interfaces/ServerSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -33,7 +33,7 @@ export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
     const dispatch = useDispatch()
     try {
-      const server = await client.service('server-setting').find()
+      const server = (await client.service('server-setting').find()) as Paginated<ServerSetting>
       dispatch(ServerSettingAction.fetchedSeverInfo(server))
     } catch (error) {
       console.error(error)
@@ -42,21 +42,20 @@ export const ServerSettingService = {
   },
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('server-setting').patch(id, data)
-        dispatch(ServerSettingAction.serverSettingPatched())
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('server-setting').patch(id, data)
+      dispatch(ServerSettingAction.serverSettingPatched())
+    } catch (err) {
+      console.log(err)
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }
 
 //Action
 export const ServerSettingAction = {
-  fetchedSeverInfo: (serverSettingResult: ServerSettingResult) => {
+  fetchedSeverInfo: (serverSettingResult: Paginated<ServerSetting>) => {
     return {
       type: 'SETTING_SERVER_DISPLAY' as const,
       serverSettingResult: serverSettingResult

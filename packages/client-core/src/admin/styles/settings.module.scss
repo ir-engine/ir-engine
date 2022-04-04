@@ -1,0 +1,220 @@
+@use "../../theme.scss"as theme;
+
+.root {
+  flex-grow: 1;
+}
+
+.rootId {
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  width: 400;
+}
+
+.iconButton {
+  padding: 10;
+}
+
+.select {
+  color: #f1f1f1 !important;
+}
+
+.selectPaper {
+  background: theme.$inputBackground;
+  color: theme.$text;
+}
+
+.divider {
+  height: 28px;
+  margin: 4px;
+}
+
+.menuBtn {
+  color: #fff;
+  font-size: 3rem;
+  background: theme.$purpleLight;
+  position: fixed;
+}
+
+.saveBtn {
+  background: theme.$purplePinkGradient;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: #43484F;
+  color: #FFF;
+  max-width: 310px;
+  position: fixed;
+  padding: 2px 18px 2px 18px;
+}
+
+.hoverSettings {
+  display: flex;
+  z-index: 1;
+  flex-direction: column;
+  text-align: center;
+  background: theme.$purplePanel;
+  color: #FFF;
+  max-width: 310px;
+  position: absolute;
+  padding: 2px 18px 2px 18px;
+}
+
+.settingsHeading {
+  color: orange;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.hoverSettingsHeading {
+  color: orange;
+  text-align: center;
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 20px;
+}
+
+.settingContainer {
+  background: #343b41;
+  width: 370px;
+  height: 150px;
+  padding: 60px;
+}
+
+.contents {
+  padding: 10px;
+  background: theme.$purplePanel !important;
+}
+
+.input {
+  margin-left: 8px;
+  flex: 1;
+  width: 100%;
+  color: #f1f1f1;
+  background: theme.$inputBackground;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 2px 4px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: theme.$inputBackground;
+  border: 1px solid #23282c;
+  color: #f1f1f1 !important;
+}
+
+.createInput {
+  width: 100%;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  background: theme.$inputBackground;
+  border: 1px solid #23282c;
+  color: #f1f1f1 !important;
+}
+
+.container {
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginBtn {
+  background: #F0FFF0;
+}
+
+.nested {
+  padding-left: 32px;
+}
+
+.clientSettingsContainer {
+  padding: 50px;
+
+  @media (max-width: 1200px) {
+    padding: 5px;
+  }
+}
+
+.Paper {
+  padding: 0px 10px 6px 10px;
+  background: theme.$purpleDarkest;
+}
+
+.Paper2 {
+  display: flex;
+  padding: 5px 10px;
+  flex-direction: row;
+  background: theme.$purpleDarkest;
+
+  &>div {
+    margin: 5px;
+  }
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+.focused {
+  background: theme.$purpleColor;
+
+  &:hover {
+    background-color: theme.$purpleColor;
+  }
+}
+
+.autoFocused {
+  background: theme.$purpleColor;
+
+  &:hover {
+    background-color: theme.$purpleColor;
+  }
+}
+
+.notFocused {
+  background: theme.$purplePanel;
+
+  &:hover {
+    background-color: theme.$purpleColor;
+  }
+}
+
+.spanDange {
+  color: #FF8C00 !important;
+  margin-bottom: 0.8rem;
+  position: fixed;
+}
+
+.clearMenuBg {
+  background: #43484F;
+  border: 1px solid #43484F;
+  border-radius: 50%;
+  position: fixed;
+  z-index: 3;
+}
+
+.invisible {
+  display: none;
+
+  @media (max-width: 1200px) {
+    display: inline-block;
+    marginBottom: 3rem;
+  }
+}
+
+.visible {
+  display: inline-block;
+
+  @media (max-width: 1200px) {
+    display: none;
+  }
+}

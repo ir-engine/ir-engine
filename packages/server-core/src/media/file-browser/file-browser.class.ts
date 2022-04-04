@@ -2,7 +2,6 @@ import { Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
-import { Application } from '../../../declarations'
 import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
@@ -23,7 +22,7 @@ interface PatchParams {
 export class FileBrowserService implements ServiceMethods<any> {
   store: StorageProviderInterface
 
-  async setup(app: Application, path: string) {
+  async setup(app, path: string): Promise<void> {
     this.store = useStorageProvider()
   }
 
@@ -77,7 +76,7 @@ export class FileBrowserService implements ServiceMethods<any> {
       Body: data.body,
       ContentType: data.contentType
     })
-    return getCachedAsset(path, storageProvider.cacheDomain)
+    return getCachedAsset(path, storageProvider.cacheDomain, params && params.provider == null)
   }
 
   /**

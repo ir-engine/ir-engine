@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "animationClip.schema.json",
+  "title": "animationClip",
+  "type": "object",
+  "description": "serialization of threejs AnimationClip class",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "name": { "type": "string" },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "$ref": "keyframeTrack.schema.json"
+      }
+    },
+    "blendMode": {
+      "type": "integer",
+      "anyOf": [
+        { "const": 0, "description": "NormalAnimationBlendMode" },
+        { "const": 1, "description": "AdditiveAnimationBlendMode" }
+      ]
+    },
+    "duration": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "uuid": { "type": "string" },
+    "results": { "type": "array" }
+  },
+  "extensions": {},
+  "extras": {}
+}

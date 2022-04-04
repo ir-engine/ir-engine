@@ -5,8 +5,9 @@ import styled from 'styled-components'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
-import { CommandManager } from '../../managers/CommandManager'
+import { setPropertyOnSelectionEntities } from '../../classes/History'
 import { useSelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
@@ -40,14 +41,22 @@ export const NameInputGroup: EditorComponentType = (props) => {
 
   useEffect(() => {
     onObjectChange(selectionState.affectedObjects.value, selectionState.propertyName.value)
-  }, [selectionState.objectChanged.value])
+  }, [selectionState.objectChangeCounter.value])
 
   const onObjectChange = (_: any, propertyName: string) => {
     if (propertyName === 'name') setName(getComponent(props.node.entity, NameComponent).name)
   }
 
   //function to handle change in name property
-  const onUpdateName = (name) => setName(name)
+  const updateName = () => {
+    setPropertyOnSelectionEntities({
+      component: NameComponent,
+      properties: { name }
+    })
+
+    const obj3d = getComponent(props.node.entity, Object3DComponent)?.value
+    if (obj3d) obj3d.name = name
+  }
 
   //function called when element get focused
   const onFocus = () => {
@@ -60,10 +69,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
     // Check that the focused node is current node before setting the property.
     // This can happen when clicking on another node in the HierarchyPanel
     if (nodeName !== name && props?.node === focusedNode) {
-      CommandManager.instance.setPropertyOnSelectionEntities({
-        component: NameComponent,
-        properties: { name }
-      })
+      updateName()
     }
 
     setFocusedNode(undefined)
@@ -73,16 +79,13 @@ export const NameInputGroup: EditorComponentType = (props) => {
   const onKeyUpName = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      CommandManager.instance.setPropertyOnSelectionEntities({
-        component: NameComponent,
-        properties: { name }
-      })
+      updateName()
     }
   }
 
   return (
     <StyledNameInputGroup name="Name" label={t('editor:properties.name.lbl-name')}>
-      <StringInput value={name} onChange={onUpdateName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} />
+      <StringInput value={name} onChange={setName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} />
     </StyledNameInputGroup>
   )
 }

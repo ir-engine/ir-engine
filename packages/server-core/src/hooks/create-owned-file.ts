@@ -25,7 +25,7 @@ export default () => {
       })
     } else {
       const reqArgs = context.arguments.find((arg) => arg.body != null)
-      const resourceData = {
+      const resourceData: any = {
         id: body.fileId,
         name: data.name || body.name,
         url: data.uri || data.url,
@@ -43,9 +43,9 @@ export default () => {
           })
         } else { */
       if (context.params.parentResourceId) {
-        ;(resourceData as any).parentResourceId = context.params.parentResourceId
+        resourceData.parentResourceId = context.params.parentResourceId
       }
-      ;(resourceData as any).type = getBasicMimetype(resourceData.content_type)
+      resourceData.type = getBasicMimetype(resourceData.content_type)
 
       // Remap input from Editor to fit
       const modifiedResourceData = {

@@ -1,17 +1,18 @@
+@use '../../../theme.scss'as theme;
 @import '../../../styles/imports.module.scss';
 
 .primary {
-  background: $PurpleButtonColor;
+  background: theme.$purpleColor;
 }
 
 .primaryForeground {
-  color: $PrimaryGreenColor;
+  color: theme.$purpleColor;
 }
 
 .apiRefresh {
   &:hover {
     cursor: pointer;
-    color: white;
+    color: theme.$text;
     background-color: dimgray;
     border-radius: 100px;
   }
@@ -49,22 +50,21 @@
 
     .materialIconBlock {
       padding: 1em;
-      opacity: 0.8;
       margin-right: 5px;
       border-radius: 50%;
-      background-color: $PurpleButtonColor;
+      background-color: theme.$purpleColor1;
 
       @media (max-width: 500px) {
         padding: 8px;
       }
 
       svg {
-        color: white;
+        color: theme.$text;
       }
 
       &:hover {
-        opacity: 1;
         cursor: pointer;
+        background-color: theme.$purpleColor;
       }
 
       &:last-child {
@@ -75,15 +75,21 @@
     .materialIconBlock.activeMenu {
       color: #a8a8ff;
     }
+
+    @media (max-width: 560px) {
+      height: 100%;
+      flex-direction: column;
+      margin-left: 10px;
+      justify-content: space-around;
+    }
   }
 
   .avatarPanel {
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-
+    background-color: theme.$purpleLighter;
     border-radius: 20px;
-    background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
     width: 140px;
     right: 100px;
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -180,7 +186,7 @@
     bottom: 75px;
     padding: 0 30px;
     border-radius: 20px;
-    background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+    background-color: theme.$purpleLighter;
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -198,12 +204,13 @@
 
       .iconBlock {
         display: inline-block;
-        color: white;
+        cursor: pointer;
+        color: theme.$text;
       }
 
       h2 {
         font-size: 18px;
-        color: white;
+        color: theme.$text;
         font-weight: bold;
         display: inline-block;
         vertical-align: middle;
@@ -218,10 +225,10 @@
 
       button {
         height: 35px;
-        background: $PurpleButtonColor;
+        background-color: theme.$purpleColor1;
         padding: 0;
         border: none;
-        color: white;
+        color: theme.$text;
         flex-grow: 1;
         border-radius: 3px;
         font-size: 14px;
@@ -230,6 +237,10 @@
           font-size: 18px;
           margin-left: 5px;
         }
+
+        &:hover {
+          background-color: theme.$purpleColor;
+        }
       }
 
       button+button {
@@ -237,7 +248,7 @@
       }
 
       button[disabled] {
-        background: grey;
+        background: theme.$purpleDarkest;
         opacity: 1 !important;
       }
 
@@ -248,7 +259,7 @@
       }
 
       .uploadBtn {
-        background: $SelectedGreenColor;
+        background: theme.$purplePinkGradient;
         cursor: pointer;
         font-size: 1rem;
         font-weight: bold;
@@ -278,22 +289,23 @@
         top: 5px;
 
         &>svg {
-          opacity: 0.5;
+          opacity: 1;
+          color: theme.$purpleColor;
 
           &:hover {
-            opacity: 0.75;
+            opacity: 0.8;
           }
         }
 
         .legend {
           position: absolute;
           padding: 10px;
-          background: rgb(0, 0, 0, 0.75);
+          background: theme.$purplePanel;
           border-radius: 5px;
           top: 30px;
           right: 5px;
           width: 130px;
-          color: #c8c8c8;
+          color: theme.$text;
           font-size: 12px;
           display: none;
 
@@ -302,8 +314,8 @@
           }
 
           .shiftKey {
-            background: #c8c8c8;
-            color: rgb(0, 0, 0, 0.75);
+            background: theme.$purplePanel;
+            color: theme.$text;
             padding: 2px 4px;
             border-radius: 4px;
             font-weight: bold;
@@ -314,6 +326,11 @@
             font-size: 18px;
             margin-right: 5px;
             width: 40px;
+            color: theme.$text;
+
+            path {
+              fill: theme.$text;
+            }
           }
 
           &>div+div {
@@ -353,7 +370,7 @@
       .thumbnailSelectLabel {
         margin: 20px 0 8px 0;
         font-size: 15px;
-        color: white;
+        color: theme.$text;
       }
     }
 
@@ -363,15 +380,15 @@
       margin: 8px 0px;
 
       .avatarNameInput {
-        color: white;
-        border-color: white;
+        color: theme.$text;
+        border-color: theme.$text;
         background: transparent;
 
         input {
           padding: 5px;
           font-size: 14px;
-          color: white;
-          border-color: white;
+          color: theme.$text;
+          border-color: theme.$text;
 
           &::selection {
             background-color: transparent;
@@ -379,7 +396,7 @@
         }
 
         :global(.MuiFormLabel-root) {
-          color: white;
+          color: theme.$text;
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -405,6 +422,12 @@
       }
     }
   }
+
+  @media (max-width: 560px) {
+    height: 200px;
+    bottom: 100px;
+    width: auto;
+  }
 }
 
 .menuPanel {
@@ -412,7 +435,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+  background-color: theme.$purpleLighter;
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -421,7 +444,6 @@
   max-height: calc(100vh - 100px);
   overflow: auto;
   touch-action: auto;
-  backdrop-filter: blur(50px);
 
   * {
     touch-action: auto;
@@ -483,8 +505,8 @@
           margin: 0;
           min-width: 30px;
           border-radius: 50%;
-          color: white;
-          background: $PurpleButtonColor;
+          color: theme.$text;
+          background-color: theme.$purpleColor1;
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -494,6 +516,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
+            background-color: theme.$purpleColor;
           }
 
           svg {
@@ -514,7 +537,7 @@
           font-size: 14px;
           font-weight: bold;
           margin: 0;
-          color: white;
+          color: theme.$text;
         }
 
         .inputBlock {
@@ -528,16 +551,20 @@
 
             input {
               font-size: 18px;
-              color: white;
-              border-color: white;
+              color: theme.$text;
+              border-color: theme.$text;
             }
 
             :global(.MuiFormLabel-root) {
-              color: white;
+              color: theme.$text;
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
+            }
+
+            @media (max-width: 560px) {
+              width: 200px;
             }
           }
 
@@ -546,12 +573,18 @@
           }
         }
 
+        .justify {
+          @media (max-width: 560px) {
+            justify-content: space-between !important;
+          }
+        }
+
         h2 {
           font-family: 'Roboto';
           font-size: 14px;
           text-align: left;
           opacity: 0.8;
-          color: white;
+          color: theme.$text;
           margin: 5px 0 !important;
 
           span {
@@ -570,7 +603,7 @@
         h4 {
           margin-top: 4px;
           text-align: left;
-          color: white;
+          color: theme.$text;
 
           .logout {
             max-width: 50px;
@@ -592,23 +625,23 @@
         font-size: 14px;
         font-weight: bold;
         margin: 0;
-        color: white;
+        color: theme.$text;
       }
 
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
-        color: white;
+        color: theme.$text;
         background: transparent;
 
         input {
-          color: white;
-          border-color: white;
+          color: theme.$text;
+          border-color: theme.$text;
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: white;
+          border-color: theme.$text;
         }
 
         .materialIconBlock {
@@ -621,7 +654,7 @@
       text-align: center;
 
       .textBlock {
-        color: #ffffff;
+        color: theme.$text;
         font-size: 14px;
         font-weight: normal;
         text-align: center;
@@ -634,8 +667,8 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: $PurpleButtonColor;
-        color: #ffffff;
+        background: theme.$purplePinkGradient;
+        color: theme.$text;
         border-radius: 20px;
         margin: 15px 0 20px;
 
@@ -673,7 +706,7 @@
 
       .textBlock {
         font-size: 14px;
-        color: #ffffff;
+        color: theme.$text;
         font-weight: normal;
         text-align: center;
         display: block;
@@ -682,7 +715,7 @@
 
       .smallTextBlock {
         font-size: 12px;
-        color: #ffffff;
+        color: theme.$text;
         font-weight: normal;
         text-align: center;
         display: block;
@@ -693,7 +726,7 @@
 
   .settingPanel {
     .settingSection {
-      color: #ffffff;
+      color: theme.$text;
       position: relative;
 
       &+.settingSection {
@@ -718,7 +751,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: $PrimaryGreenColor;
+          color: theme.$purpleColor;
           margin-right: 10px;
 
           svg {
@@ -743,7 +776,13 @@
         flex-shrink: 0;
 
         svg {
-          color: $PrimaryGreenColor;
+          color: theme.$purpleColor;
+        }
+      }
+
+      .settingHeader {
+        @media (max-width: 560px) {
+          font-size: 1.125rem;
         }
       }
 
@@ -758,13 +797,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: $PrimaryGreenColor;
+          color: theme.$purpleColor;
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: $PrimaryGreenColor;
-          border: $PrimaryGreenColor;
+          background: theme.$purpleColor;
+          border: theme.$purpleColor;
           width: 16px;
           height: 16px;
         }
@@ -792,7 +831,7 @@
 
     .panelHeader {
       font-size: 18px;
-      color: #ffffff;
+      color: theme.$text;
       font-weight: bold;
     }
 
@@ -831,7 +870,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: $PurpleButtonColor;
+        background: theme.$purplePinkGradient;
 
         &:hover {
           opacity: 0.8;
@@ -840,7 +879,7 @@
     }
 
     h5 {
-      color: #ffffff;
+      color: theme.$text;
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
@@ -849,47 +888,52 @@
     .copyField {
       margin-top: 10px;
       width: 100%;
-      color: #ffffff;
+      color: theme.$text;
 
       input {
-        color: #ffffff;
-        border-color: #ffffff;
+        color: theme.$text;
+        border-color: theme.$text;
+        -webkit-text-fill-color: theme.$text;
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: #ffffff;
+          border-color: theme.$text;
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: #ffffff;
+        color: theme.$text;
         cursor: pointer;
 
         &:hover {
           opacity: 0.8;
         }
       }
+
+      @media (max-width: 560px) {
+        width: 200px;
+      }
     }
 
     .emailField {
       margin-top: 30px;
       width: 100%;
-      color: #ffffff;
+      color: theme.$text;
 
       input {
-        color: #ffffff;
-        border-color: #ffffff;
+        color: theme.$text;
+        border-color: theme.$text;
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: #ffffff;
+          border-color: theme.$text;
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: #ffffff;
+        color: theme.$text;
         cursor: pointer;
 
         &:hover {
@@ -961,7 +1005,7 @@
 
       .tableHead {
         background: $PurpleButtonColor;
-        color: white;
+        color: theme.$text;
       }
 
       .tablebody {
@@ -991,7 +1035,7 @@
 
       button:hover {
         background: $PurpleButtonColor;
-        color: white;
+        color: theme.$text;
       }
     }
 
@@ -1124,7 +1168,7 @@
     }
 
     .savebtn {
-      color: white;
+      color: theme.$text;
       background: $PurpleButtonColor;
       height: 35px;
       width: 150px;
@@ -1182,6 +1226,13 @@
         }
       }
     }
+  }
+
+  @media (max-width: 560px) {
+    left: 100%;
+    width: auto;
+    bottom: 125px;
+    transform: none;
   }
 
   @media screen and (max-width: 500px) {
@@ -1254,7 +1305,7 @@
         border-radius: 50%;
         background: $PurpleButtonColor;
         box-shadow: 2px 2px 10px gray;
-        color: white;
+        color: theme.$text;
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         display: flex;
         align-items: center;
@@ -1390,10 +1441,10 @@
 
     button {
       height: 35px;
-      background: $PurpleButtonColor;
+      background: theme.$purpleColor;
       padding: 0;
       border: none;
-      color: white;
+      color: theme.$text;
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
@@ -1423,7 +1474,7 @@
     }
 
     .uploadBtn {
-      background: $SelectedGreenColor;
+      background: theme.$purplePinkGradient;
     }
 
     button:hover,
@@ -1444,22 +1495,23 @@
       top: 5px;
 
       &>svg {
-        opacity: 0.5;
+        opacity: 1;
+        color: theme.$purpleColor;
 
         &:hover {
-          opacity: 0.75;
+          opacity: 0.8;
         }
       }
 
       .legend {
         position: absolute;
         padding: 10px;
-        background: rgb(0, 0, 0, 0.75);
+        background: theme.$purplePanel;
         border-radius: 5px;
         top: 30px;
         right: 5px;
         width: 130px;
-        color: #c8c8c8;
+        color: theme.$text;
         font-size: 12px;
         display: none;
 
@@ -1468,8 +1520,8 @@
         }
 
         .shiftKey {
-          background: #c8c8c8;
-          color: rgb(0, 0, 0, 0.75);
+          background: theme.$purplePanel;
+          color: theme.$text;
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -1480,6 +1532,11 @@
           font-size: 18px;
           margin-right: 5px;
           vertical-align: middle;
+          color: theme.$text;
+
+          path {
+            fill: theme.$text;
+          }
         }
 
         &>div+div {
@@ -1514,7 +1571,7 @@
     .thumbnailSelectLabel {
       margin: 20px 3px 8px 0;
       font-size: 15px;
-      color: $PurpleButtonColor;
+      color: theme.$purpleColor;
 
       &.avatarSelectError,
       &.thumbnailSelectError {
@@ -1550,7 +1607,7 @@
 .ReadyPlayerPanel {
   @include panel-popup-container-styling();
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+  background-color: theme.$purpleLighter;
   padding: 0;
 
   .controlContainer {
@@ -1638,13 +1695,13 @@
     }
 
     button {
-      color: white;
+      color: theme.$text;
       display: flex;
       padding: 3px 5px;
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: $PurpleButtonColor;
+      background-color: theme.$purpleColor;
       border: none;
       border-radius: 3px;
     }
@@ -1687,7 +1744,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: white;
+      background-color: theme.$text;
       cursor: pointer;
 
       &:hover {
@@ -1708,20 +1765,20 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: $PurpleButtonColor;
+        background-color: theme.$purpleColor;
 
         svg {
-          color: white;
+          color: theme.$text;
           font-size: 20px;
         }
       }
 
       &.selectedAvatar {
-        border: solid 2px $SelectedGreenColor;
+        border: solid 2px theme.$purpleColor0;
       }
 
       &.activeAvatar {
-        border: solid 2px $PurpleButtonColor;
+        border: solid 2px theme.$purpleColor;
       }
     }
   }
@@ -1742,7 +1799,7 @@
 
   .iconBlock {
     position: relative;
-    color: white;
+    color: theme.$text;
     border: none;
     padding: 0;
     background-color: transparent;
@@ -1798,7 +1855,7 @@
 
   .iconBlock {
     position: relative;
-    color: white;
+    color: theme.$text;
     border: none;
     padding: 0;
     background-color: transparent;
@@ -1904,4 +1961,226 @@
       }
     }
   }
+}
+
+.avatarSelectContainer {
+  position: absolute;
+  bottom: 110px;
+  padding: 15px 20px 20px 17px;
+  border-radius: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: black;
+  height: 550px;
+  overflow: hidden;
+  width: 400px;
+  z-index: 1400;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4.9px);
+  -webkit-backdrop-filter: blur(4.9px);
+}
+
+.paperAvatar {
+  height: 140px;
+  width: 170px;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgb(81 81 255 / 45%);
+  }
+}
+
+.avatarContainer {
+  height: 80%;
+  margin-bottom: 70px;
+}
+
+.menuContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 8px;
+}
+
+.innerMenuContainer {
+  display: flex;
+}
+
+.btnDeepColor {
+  background-color: #23af3a !important;
+}
+
+.btnDeepColorCancel {
+  background-color: #f87678 !important;
+}
+
+.btn {
+  border: none;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btnBack {
+  border: none;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.btnPerson {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #808080;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+  }
+}
+
+.btnCheck {
+  background-color: #a5f2b2;
+  color: #fff;
+  margin: 0 10px;
+
+  &:hover {
+    background-color: #1e9932 !important;
+  }
+}
+
+.btnArrow {
+  background-color: #6e6ef7;
+  color: #fff;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #5f5ff8;
+  }
+}
+
+.btnCancel {
+  color: #fff;
+  background-color: #fca7a8;
+
+  &:hover {
+    background-color: #e76a6c !important;
+  }
+}
+
+.avatar {
+  height: 80%;
+  width: 80%;
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.size {
+  height: 15px;
+}
+
+.selectedAvatar {
+  border: 3px solid rgb(81 81 255 / 45%) !important;
+}
+
+.activeAvatar {
+  background: rgb(81 81 255 / 60%);
+  cursor: not-allowed;
+}
+
+.disabled {
+  background-color: #a8a8fe !important;
+  cursor: not-allowed;
+}
+
+.disabledBtn {
+  cursor: not-allowed !important;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.paper {
+  background: theme.$purpleLight;
+  display: flex;
+  align-items: center;
+}
+
+.selectPaper {
+  background: #343b41;
+  color: #f1f1f1;
+}
+
+.rootBtn {
+  font-size: 13px;
+  width: auto;
+  font-weight: bold;
+  background: theme.$purpleColor1;
+  padding: 6px 28px;
+
+  &:hover {
+    background: theme.$purpleColor;
+  }
+}
+
+.btnContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.input {
+  font-size: 14px;
+  color: theme.$text;
+  background-color: theme.$purpleLight;
+}
+
+.tabRoot {
+  min-height: 20px;
+  color: #ccc;
+}
+
+.selected {
+  background: theme.$text;
+}
+
+.color {
+  color: theme.$text;
+}
+
+.paper2 {
+  background: theme.$purpleLight;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 0px;
+}
+
+.selectedTab {
+  color: theme.$text !important;
+  font-weight: bold;
+  font-size: 17px;
+  text-transform: capitalize;
+}
+
+.unselectedTab {
+  color: theme.$purpleDarkest !important;
+  font-weight: bold;
+  font-size: 17px;
+  text-transform: capitalize;
 }

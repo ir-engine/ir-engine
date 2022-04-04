@@ -8,22 +8,29 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
+import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { gltfToSceneJson, sceneFromGLTF, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
-import { saveProject } from '../functions/projectFunctions'
+import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
+import {
+  DefaultExportOptions,
+  DefaultExportOptionsType, //exportScene,
+  initializeRenderer
+} from '../functions/sceneRenderFunctions'
+import { takeScreenshot } from '../functions/takeScreenshot'
 import { uploadBakeToServer } from '../functions/uploadCubemapBake'
 import { cmdOrCtrlString } from '../functions/utils'
-import { CacheManager } from '../managers/CacheManager'
-import { ProjectManager } from '../managers/ProjectManager'
-import { DefaultExportOptionsType, SceneManager } from '../managers/SceneManager'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import AssetDropZone from './assets/AssetDropZone'
@@ -75,7 +82,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: ${(props) => props.theme.panel}E0;
+    background: ${(props) => props.theme.dock};
   }
   .dock-top .dock-bar {
     font-size: 12px;
@@ -91,8 +98,11 @@ export const DockContainer = (styled as any).div`
   }
   .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
   .dock-tab > div { padding: 2px 12px; }
+  .dock-tab-active {
+    color: ${(props) => props.theme.purpleColor};
+  }
   .dock-ink-bar {
-    background-color: 2px solid ${(props) => props.theme.blue};
+    background-color: ${(props) => props.theme.purpleColor};
   }
 `
 /**
@@ -131,7 +141,7 @@ const EditorContainer = () => {
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {
-      await ProjectManager.instance.loadProjectScene(sceneFile)
+      await loadProjectScene(sceneFile)
       dispatch(EditorAction.sceneModified(true))
       setDialogComponent(null)
     } catch (error) {
@@ -173,7 +183,7 @@ const EditorContainer = () => {
       const project = await getScene(projectName.value, sceneName, false)
 
       if (!project.scene) return
-      await ProjectManager.instance.loadProjectScene(project.scene)
+      await loadProjectScene(project.scene)
 
       setDialogComponent(null)
     } catch (error) {
@@ -235,10 +245,6 @@ const EditorContainer = () => {
     )
   }
 
-  const onProjectLoaded = () => {
-    SceneManager.instance.initializeRenderer()
-  }
-
   const onCloseProject = () => {
     history.push('/editor')
   }
@@ -254,7 +260,7 @@ const EditorContainer = () => {
     try {
       let saveProjectFlag = true
       if (sceneName.value || modified.value) {
-        const blob = await SceneManager.instance.takeScreenshot(512, 320)
+        const blob = await takeScreenshot(512, 320)
         const result: { name: string } = (await new Promise((resolve) => {
           setDialogComponent(
             <SaveNewProjectDialog
@@ -285,13 +291,13 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-
+  /*
   const onExportProject = async () => {
     if (!sceneName) return
     const options = await new Promise<DefaultExportOptionsType>((resolve) => {
       setDialogComponent(
         <ExportProjectDialog
-          defaultOptions={Object.assign({}, SceneManager.DefaultExportOptions)}
+          defaultOptions={Object.assign({}, DefaultExportOptions)}
           onConfirm={resolve}
           onCancel={resolve}
         />
@@ -315,12 +321,12 @@ const EditorContainer = () => {
     )
 
     try {
-      const { glbBlob } = await SceneManager.instance.exportScene(options)
+      const { glbBlob } = await exportScene(options)
 
       setDialogComponent(null)
 
       const el = document.createElement('a')
-      el.download = Engine.scene.name + '.glb'
+      el.download = Engine.scene.name + '.gltf'
       el.href = URL.createObjectURL(glbBlob)
       document.body.appendChild(el)
       el.click()
@@ -341,7 +347,7 @@ const EditorContainer = () => {
         />
       )
     }
-  }
+  }*/
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -359,14 +365,20 @@ const EditorContainer = () => {
     if (!confirm) return
     const el = document.createElement('input')
     el.type = 'file'
-    el.accept = '.world'
+    el.accept = '.gltf'
     el.style.display = 'none'
     el.onchange = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          const json = JSON.parse((fileReader as any).result)
-          importScene(json)
+          /*const loader = getGLTFLoader()
+          
+          loader.parse(fileReader.result, '', (gltf) => {
+            const json = gltfToSceneJson(gltf)
+            importScene(json)
+          })*/
+          const json = JSON.parse(fileReader.result)
+          importScene(gltfToSceneJson(json))
         }
         fileReader.readAsText(el.files[0])
       }
@@ -375,12 +387,15 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    const projectFile = await (Engine.scene as any).serialize(sceneName)
+    /*
+    const projectFile = serializeWorld()*/
+    const projectFile = await sceneToGLTF(Engine.scene as any)
+
     const projectJson = JSON.stringify(projectFile)
     const projectBlob = new Blob([projectJson])
     const el = document.createElement('a')
     const fileName = Engine.scene.name.toLowerCase().replace(/\s+/g, '-')
-    el.download = fileName + '.world'
+    el.download = fileName + '.gltf'
     el.href = URL.createObjectURL(projectBlob)
     document.body.appendChild(el)
     el.click()
@@ -417,7 +432,7 @@ const EditorContainer = () => {
     // Wait for 5ms so that the ProgressDialog shows up.
     await new Promise((resolve) => setTimeout(resolve, 5))
 
-    const blob = await SceneManager.instance.takeScreenshot(512, 320)
+    const blob = await takeScreenshot(512, 320)
 
     try {
       if (projectName.value) {
@@ -468,9 +483,7 @@ const EditorContainer = () => {
   }, [sceneLoaded])
 
   useEffect(() => {
-    CacheManager.init()
-
-    ProjectManager.instance.init().then(() => {
+    runPreprojectLoadTasks().then(() => {
       setEditorReady(true)
     })
   }, [])
@@ -484,9 +497,15 @@ const EditorContainer = () => {
   useEffect(() => {
     return () => {
       setEditorReady(false)
-      ProjectManager.instance.dispose()
+      disposeProject()
     }
   }, [])
+
+  useEffect(() => {
+    if (editorState.projectLoaded.value === true) {
+      initializeRenderer()
+    }
+  }, [editorState.projectLoaded.value])
 
   const generateToolbarMenu = () => {
     return [

@@ -41,11 +41,13 @@ import AvatarBoneMatching, { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { bonesData2 } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
+import { resizeAvatar } from './resizeAvatar'
 
 const vec3 = new Vector3()
 
@@ -141,16 +143,17 @@ export const animateAvatarModel = (entity: Entity) => (sourceSkeletonRoot: Group
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const velocityComponent = getComponent(entity, VelocityComponent)
-  const avatarComponent = getComponent(entity, AvatarComponent)
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
 
   animationComponent.mixer = new AnimationMixer(sourceSkeletonRoot)
   if (avatarAnimationComponent)
     (avatarAnimationComponent.animationGraph as AvatarAnimationGraph).initialize(
+      entity,
       animationComponent.mixer,
-      velocityComponent.velocity,
-      avatarComponent
+      velocityComponent.linear,
+      controllerComponent
     )
 
   // advance animation for a frame to eliminate potential t-pose
@@ -175,8 +178,6 @@ export const setupAvatarMaterials = (root) => {
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
-      // Transparency fix
-      object.material.format = RGBAFormat
       const material = object.material.clone()
       addBoneOpacityParamsToMaterial(material, 5) // Head bone
       materialList.push({
@@ -194,9 +195,11 @@ export const setupAvatarHeight = (entity: Entity, boneStructure: BoneStructure) 
   const eyeTarget = boneStructure.LeftEye ?? boneStructure.Head ?? boneStructure.Neck
   boneStructure.Neck.updateMatrixWorld(true)
   boneStructure.Root.updateMatrixWorld(true)
-  const avatar = getComponent(entity, AvatarComponent)
-  avatar.avatarHeight = eyeTarget.getWorldPosition(vec3).y - boneStructure.Root.getWorldPosition(vec3).y
-  avatar.avatarHalfHeight = avatar.avatarHeight / 2
+
+  const eyeHeight = eyeTarget.getWorldPosition(vec3).y
+  const rootHeight = boneStructure.Root.getWorldPosition(vec3).y
+
+  resizeAvatar(entity, eyeHeight - rootHeight)
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
@@ -281,6 +284,7 @@ export function getDefaultSkeleton(): SkinnedMesh {
  */
 export const addBoneOpacityParamsToMaterial = (material, boneIndex = -1) => {
   material.transparent = true
+  material.needsUpdate = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndex }
     shader.uniforms.boneWeightThreshold = { value: 0.9 }
@@ -343,6 +347,7 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
   const rig = getComponent(entity, IKRigComponent)
+  if (!rig) return false
   const bone = rig.boneStructure[boneName]
   if (!bone) return false
   bone.updateWorldMatrix(true, false)

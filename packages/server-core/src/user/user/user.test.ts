@@ -3,15 +3,15 @@ import { v1 } from 'uuid'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
-import { createApp } from '../../../../server/src/app'
 import { Application } from '../../../declarations'
+import { createFeathersExpressApp } from '../../createApp'
 
 let users: any = []
 
 describe('user service', () => {
   let app: Application
   before(async () => {
-    app = createApp()
+    app = createFeathersExpressApp()
     await app.setup()
   })
 
@@ -126,6 +126,27 @@ describe('user service', () => {
       const { name } = await app.service('user').get(user.id)
       assert.equal(newName, name)
     }
+  })
+
+  it('should patch a user with a query without affecting users not part of that query', async () => {
+    const newName = v1()
+    const user1 = users[0]
+    const user2 = users[1]
+    await app.service('user').patch(
+      null,
+      {
+        name: newName
+      },
+      {
+        query: {
+          id: user1.id
+        }
+      }
+    )
+    const updatedUser1 = await app.service('user').get(user1.id)
+    const updatedUser2 = await app.service('user').get(user2.id)
+    assert.equal(newName, updatedUser1.name)
+    assert.notEqual(newName, updatedUser2.name)
   })
 
   it('should remove users', async () => {

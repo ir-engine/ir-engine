@@ -2,10 +2,17 @@ import { createState, useState } from '@speigg/hookstate'
 
 import { store } from '@xrengine/client-core/src/store'
 
+export enum TaskStatus {
+  NOT_STARTED = 0,
+  IN_PROGRESS = 1,
+  COMPLETED = 2
+}
+
 type EditorServiceStateType = {
   projectName: string | null
   sceneName: string | null
   sceneModified: boolean
+  preprojectLoadTaskStatus: TaskStatus
   projectLoaded: boolean
   rendererInitialized: boolean
 }
@@ -14,6 +21,7 @@ const state = createState<EditorServiceStateType>({
   projectName: null,
   sceneName: null,
   sceneModified: false,
+  preprojectLoadTaskStatus: TaskStatus.NOT_STARTED,
   projectLoaded: false,
   rendererInitialized: false
 })
@@ -27,6 +35,8 @@ store.receptors.push((action: EditorActionType): any => {
         return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
       case 'EDITOR_SCENE_MODIFIED':
         return s.merge({ sceneModified: action.modified })
+      case 'UPDATE_PREPROJECT_TASK_STATUS':
+        return s.merge({ preprojectLoadTaskStatus: action.taskStatus })
       case 'EDITOR_PROJECT_LOADED':
         return s.merge({ projectLoaded: action.loaded })
       case 'EDITOR_RENDERER_INITIALIZED':
@@ -72,6 +82,12 @@ export const EditorAction = {
     return {
       type: 'EDITOR_RENDERER_INITIALIZED' as const,
       initialized
+    }
+  },
+  updatePreprojectLoadTask: (taskStatus: TaskStatus) => {
+    return {
+      type: 'UPDATE_PREPROJECT_TASK_STATUS' as const,
+      taskStatus
     }
   }
 }

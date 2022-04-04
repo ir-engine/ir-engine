@@ -1,4 +1,4 @@
-@use "../theme.scss" as theme;
+@use "../theme.scss"as theme;
 
 .panelContainer {
     outline: none;
@@ -25,24 +25,31 @@
     background: transparent;
     color: theme.$text2;
 
-    &:hover, &:focus {
-        background-color: theme.$panel;
+    &:hover,
+    &:focus {
+        background-color: theme.$dock;
         color: theme.$text;
     }
 
     &.rootNode {
         border-bottom: rgba($color: theme.$panel2, $alpha: 0.8);
-        background: rgba($color: theme.$panel, $alpha: 0.8);
+        background: rgba($color: theme.$dock, $alpha: 0.8);
     }
 
     &.selected {
         background: theme.$selected;
         color: theme.$text;
 
-        &:hover, &:focus { background-color: theme.$blueHover; }
+        &:hover,
+        &:focus {
+            background-color: theme.$selected;
+        }
     }
 
-    &:active, &.active { background: theme.$blue; }
+    &:active,
+    &.active {
+        background: theme.$selected;
+    }
 }
 
 .selectTarget {
@@ -77,6 +84,7 @@
             color: inherit;
             border-radius: 4px;
             padding: 0 2px;
+            flex-shrink: 0;
 
             &.dropTarget {
                 background-color: rgba(255, 255, 255, 0.3);
@@ -115,5 +123,5 @@
 
 .spacer {
     width: 20px;
+    flex-shrink: 0;
 }
-

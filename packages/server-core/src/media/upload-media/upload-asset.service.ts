@@ -112,9 +112,19 @@ export default (app: Application): void => {
         } else if (data.type === 'admin-file-upload') {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
-          return Promise.all(
-            data?.files.map((file, i) => addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] }))
-          )
+          if (params && params.files && params.files.length > 0) {
+            return Promise.all(
+              params?.files.map((file, i) =>
+                addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
+              )
+            )
+          } else {
+            return Promise.all(
+              data?.files.map((file, i) =>
+                addGenericAssetToS3AndStaticResources(app, file as Buffer, { ...argsData[0] })
+              )
+            )
+          }
         }
       }
     }

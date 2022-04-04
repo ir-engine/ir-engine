@@ -43,6 +43,10 @@ const Input = styled.input`
     background-color: ${(props) => props.theme.disabled};
     color: ${(props) => props.theme.disabledText};
   }
+
+  &:focus-visible {
+    outline: none;
+  }
 `
 /**
  * Used to render component view.

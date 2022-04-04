@@ -5,6 +5,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { IKRigComponent } from '../ikrig/components/IKRigComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
+import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -29,6 +30,8 @@ export default async function AnimationSystem(world: World) {
   function animationActionReceptor(action) {
     matches(action).when(NetworkWorldAction.avatarAnimation.matches, ({ $from }) => {
       const avatarEntity = world.getUserAvatarEntity($from)
+      if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
+
       const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
       if (!networkObject) {
         return console.warn(`Avatar Entity for user id ${$from} does not exist! You should probably reconnect...`)

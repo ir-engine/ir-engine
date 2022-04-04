@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, none, useState } from '@speigg/hookstate'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
@@ -92,36 +93,40 @@ export const useUserState = () => useState(state) as any as typeof state as unkn
 export const UserService = {
   getUserRelationship: async (userId: string) => {
     const dispatch = useDispatch()
-    {
-      client
-        .service('user-relationship')
-        .findAll({
-          query: {
-            userId
-          }
-        })
-        .then((res: Relationship) => {
-          dispatch(UserAction.loadedUserRelationship(res as Relationship))
-        })
-        .catch((err: any) => {
-          console.log(err)
-        })
-    }
-  },
 
-  getLayerUsers: async (instance = true) => {
-    const dispatch = useDispatch()
-    {
-      const layerUsers = await client.service('user').find({
+    client
+      .service('user-relationship')
+      .findAll({
         query: {
-          $limit: 1000,
-          action: instance ? 'layer-users' : 'channel-users'
+          userId
         }
       })
-      dispatch(
-        instance ? UserAction.loadedLayerUsers(layerUsers.data) : UserAction.loadedChannelLayerUsers(layerUsers.data)
-      )
+      .then((res: Relationship) => {
+        dispatch(UserAction.loadedUserRelationship(res as Relationship))
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
+  },
+
+  getLayerUsers: async (instance) => {
+    const dispatch = useDispatch()
+    const search = window.location.search
+    let instanceId
+    if (search != null) {
+      const parsed = new URL(window.location.href).searchParams.get('instanceId')
+      instanceId = parsed
     }
+    const layerUsers = (await client.service('user').find({
+      query: {
+        $limit: 1000,
+        action: instance ? 'layer-users' : 'channel-users',
+        instanceId
+      }
+    })) as Paginated<User>
+    dispatch(
+      instance ? UserAction.loadedLayerUsers(layerUsers.data) : UserAction.loadedChannelLayerUsers(layerUsers.data)
+    )
   },
 
   requestFriend: (userId: string, relatedUserId: string) => {
@@ -151,52 +156,49 @@ export const UserService = {
 
 function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .create({
-        relatedUserId,
-        userRelationshipType: type
-      })
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .create({
+      relatedUserId,
+      userRelationshipType: type
+    })
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 function removeRelation(userId: string, relatedUserId: string) {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .remove(relatedUserId)
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .remove(relatedUserId)
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
   const dispatch = useDispatch()
-  {
-    client
-      .service('user-relationship')
-      .patch(relatedUserId, {
-        userRelationshipType: type
-      })
-      .then((res: any) => {
-        dispatch(UserAction.changedRelation())
-      })
-      .catch((err: any) => {
-        console.log(err)
-      })
-  }
+
+  client
+    .service('user-relationship')
+    .patch(relatedUserId, {
+      userRelationshipType: type
+    })
+    .then((res: any) => {
+      dispatch(UserAction.changedRelation())
+    })
+    .catch((err: any) => {
+      console.log(err)
+    })
 }
 
 //Action

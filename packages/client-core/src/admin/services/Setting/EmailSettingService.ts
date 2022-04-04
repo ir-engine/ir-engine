@@ -1,7 +1,7 @@
+import { Paginated } from '@feathersjs/feathers'
 import { createState, useState } from '@speigg/hookstate'
 
 import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces/EmailSetting'
-import { EmailSettingResult } from '@xrengine/common/src/interfaces/EmailSettingResult'
 
 import { AlertService } from '../../../common/services/AlertService'
 import { client } from '../../../feathers'
@@ -33,7 +33,7 @@ export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     const dispatch = useDispatch()
     try {
-      const emailSettings = await client.service('email-setting').find()
+      const emailSettings = (await client.service('email-setting').find()) as Paginated<EmailSetting>
       dispatch(EmailSettingAction.fetchedEmail(emailSettings))
     } catch (error) {
       console.log(error.message)
@@ -42,21 +42,19 @@ export const EmailSettingService = {
   },
   patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('email-setting').patch(id, data)
-        dispatch(EmailSettingAction.emailSettingPatched())
-      } catch (err) {
-        console.log(err)
-        AlertService.dispatchAlertError(err.message)
-      }
+
+    try {
+      await client.service('email-setting').patch(id, data)
+      dispatch(EmailSettingAction.emailSettingPatched())
+    } catch (err) {
+      AlertService.dispatchAlertError(err.message)
     }
   }
 }
 
 //Action
 export const EmailSettingAction = {
-  fetchedEmail: (emailSettingResult: EmailSettingResult) => {
+  fetchedEmail: (emailSettingResult: Paginated<EmailSetting>) => {
     return {
       type: 'EMAIL_SETTING_DISPLAY' as const,
       emailSettingResult: emailSettingResult

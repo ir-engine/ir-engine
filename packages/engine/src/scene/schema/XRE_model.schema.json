@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "XRE_model.schema.json",
+  "title": "XRE_model glTF extension",
+  "type": "object",
+  "description": "serialization extension for XREngine model components",
+  "allOf": [{ "$ref": "glTFProperty.schema.json" }],
+  "properties": {
+    "src": { "$ref": "url.schema.json" },
+    "envMapOverride": { "type": "string" },
+    "textureOverride": { "type": "string" },
+    "matrixAutoUpdate": { "type": "boolean" },
+    "isUsingGPUInstancing": { "type": "boolean" },
+    "isDynamicObject": { "type": "boolean" }
+  },
+  "extensions": {},
+  "extras": {}
+}

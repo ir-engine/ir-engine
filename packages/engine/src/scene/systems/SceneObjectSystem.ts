@@ -40,14 +40,14 @@ export class SceneOptions {
   boxProjection = false
 }
 
-export const processObject3d = (entity: Entity) => {
+const processObject3d = (entity: Entity) => {
   if (!isClient) return
 
   const object3DComponent = getComponent(entity, Object3DComponent)
   const shadowComponent = getComponent(entity, ShadowComponent)
 
-  object3DComponent.value.traverse((obj: Mesh) => {
-    const material = obj.material as Material
+  object3DComponent.value.traverse((obj: Mesh<any, Material>) => {
+    const material = obj.material
     if (typeof material !== 'undefined') material.dithering = true
 
     if (shadowComponent) {
@@ -90,9 +90,9 @@ export default async function SceneObjectSystem(world: World) {
       const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
       obj3d.entity = entity
 
-      const node = world.entityTree.findNodeFromEid(entity)
+      const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
-        reparentObject3D(node, node.parentNode)
+        if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
       } else {
         let found = false
         Engine.scene.traverse((obj) => {
@@ -149,7 +149,7 @@ export default async function SceneObjectSystem(world: World) {
     for (const _ of simpleMaterialsQuery.exit()) {
       Engine.simpleMaterials = false
       Engine.scene.traverse((obj) => {
-        useStandardMaterial(obj as Mesh)
+        useStandardMaterial(obj as Mesh<any, Material>)
       })
     }
   }
