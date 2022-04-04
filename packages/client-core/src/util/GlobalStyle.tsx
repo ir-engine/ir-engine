@@ -100,19 +100,19 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   ::selection {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.selected};
+    color: var(--text);
+    background-color: var(--selected);
   }
 
   a {
-    color: ${(props) => props.theme.text};
+    color: var(--text);
 
     &:hover {
-      color: ${(props) => props.theme.blueHover};
+      color: var(--blueHover);
     }
 
     &:active {
-      color: ${(props) => props.theme.bluePressed};
+      color: var(--bluePressed);
     }
   }
 
@@ -134,10 +134,10 @@ const GlobalStyle = createGlobalStyle<{ theme: EditorTheme }>`
   }
 
   body {
-    font-family: ${(props) => props.theme.lato};
+    font-family: var(--lato);
     font-size: 12px;
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.background};
+    color: var(--text);
+    background-color: var(--background);
     scrollbar-color: #282c31 #5d646c;
   }
 

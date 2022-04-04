@@ -13,6 +13,7 @@ export interface UserSetting {
   volume?: number
   audio: number
   microphone: number
+  themeMode: string
 }
 
 export interface UserScope {
