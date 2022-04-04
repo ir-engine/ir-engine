@@ -21,10 +21,9 @@ export const Vector3InputContainer = (styled as any).div`
 export const Vector3Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
-  color: ${(props) => props.theme.text};
+  color: var(--text);
   padding: 4px;
-  background: ${(props) =>
-    props.axis === 'x' ? props.theme.red : props.axis === 'y' ? props.theme.green : props.theme.blue};
+  background: ${(props) => (props.axis === 'x' ? 'var(--red)' : props.axis === 'y' ? 'var(--green)' : 'var(--blue)')};
 `
 
 export const UniformButtonContainer = (styled as any).div`
@@ -40,11 +39,11 @@ export const UniformButtonContainer = (styled as any).div`
   }
 
   label {
-    color: ${(props) => props.theme.text2};
+    color: var(--text2);
   }
 
   label:hover {
-    color: ${(props) => props.theme.blueHover};
+    color: var(--blueHover);
   }
 `
 
