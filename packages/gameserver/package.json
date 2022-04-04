@@ -57,7 +57,7 @@
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.4.0",
     "helmet": "5.0.2",
-    "mediasoup": "3.9.6",
+    "mediasoup": "3.9.9",
     "msgpackr": "1.5.5",
     "ps-list": "7.2.0",
     "serve-favicon": "2.5.0",
