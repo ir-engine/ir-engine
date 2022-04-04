@@ -17,12 +17,12 @@ export const DnsInfoIcon = (styled as any)(DnsIcon)`
   width: 18px;
   display: flex;
   margin-left: 5px;
-  color: ${(props) => props.theme.purpleColor};
+  color: var(--purpleColor);
   cursor: pointer;
   align-self: center;
 
   &:hover {
-    color: ${(props) => props.theme.text};
+    color: var(--text);
   }
 `
 

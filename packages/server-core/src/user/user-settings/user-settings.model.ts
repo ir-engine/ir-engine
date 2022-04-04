@@ -32,6 +32,11 @@ export default (app: Application) => {
       spatialAudioEnabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+      },
+      themeMode: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: (): string => 'dark'
       }
     },
     {

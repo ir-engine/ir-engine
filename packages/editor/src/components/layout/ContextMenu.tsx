@@ -25,7 +25,7 @@ export const ContextMenuTrigger = _ContextMenuTrigger
  */
 export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu {
-    background-color: ${(props) => props.theme.dropdown};
+    background-color: var(--dropdown);
     background-clip: padding-box;
     border-radius: 4px;
     margin: 2px 0 0;
@@ -35,7 +35,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
     padding: 4px 0;
     pointer-events: none;
     text-align: left;
-    box-shadow: ${(props) => props.theme.shadow30};
+    box-shadow: var(--shadow30);
   }
 
   .react-contextmenu-wrapper {
@@ -60,13 +60,13 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
     display: flex;
     flex: 1;
     justify-content: space-between;
-    color: ${(props) => props.theme.text};
+    color: var(--text);
   }
 
   .react-contextmenu-item.react-contextmenu-item--active,
   .react-contextmenu-item.react-contextmenu-item--selected {
-    color: ${(props) => props.theme.text};
-    background-color: ${(props) => props.theme.selected};
+    color: var(--text);
+    background-color: var(--selected);
     border-color: transparent;
     text-decoration: none;
   }
@@ -75,11 +75,11 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: EditorTheme }>`
   .react-contextmenu-item.react-contextmenu-item--disabled:hover {
     background-color: transparent;
     border-color: rgba(0,0,0,.15);
-    color: ${(props) => props.theme.text};
+    color: var(--text);
   }
 
   .react-contextmenu-item--divider {
-    border-bottom: 1px solid ${(props) => props.theme.border};
+    border-bottom: 1px solid var(--border);
     cursor: inherit;
     margin: 4px 0;
     height: 1px;

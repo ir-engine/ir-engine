@@ -1,5 +1,4 @@
-@use '../theme.scss';
-@import './variables.module.scss';
+@import "./variables.module.scss";
 
 @mixin panel-popup-container-styling() {
   position: absolute;
@@ -35,7 +34,7 @@
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -80,7 +79,7 @@
     width: 0px;
     height: 0px;
     border-radius: 20px;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -106,7 +105,7 @@
   &::before {
     content: '✓';
     position: absolute;
-    background: theme.$purpleColor0;
+    background: var(--purpleColor0);
     height: 20px;
     width: 20px;
     top: 5px;
@@ -122,7 +121,7 @@
   &::after {
     content: '✓';
     position: absolute;
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
     height: 20px;
     width: 20px;
     top: 5px;
@@ -135,8 +134,7 @@
 }
 
 @mixin purple-pink-linear-gradient() {
-  background: -moz-linear-gradient(357.78deg, #5236ff 0, #c20560 100%);
-  background: linear-gradient(92.22deg, #5236ff, #c20560);
+  background: var(--purplePinkGradient);
 }
 
 @mixin paper-modal() {
@@ -144,16 +142,4 @@
   box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
     0px 1px 14px 0px rgba(0, 0, 0, 0.12);
   background-color: #fff;
-}
-
-::-webkit-scrollbar {
-  width: auto;
-}
-
-::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 1px grey;
-}
-
-::-webkit-scrollbar-thumb {
-  background: theme.$purplePinkLinearGradient;
 }
