@@ -1,21 +1,35 @@
-@use '../../../theme.scss'as theme;
 @import '../../../styles/imports.module.scss';
 
 .primary {
-  background: theme.$purpleColor;
+  background: var(--purpleColor);
 }
 
 .primaryForeground {
-  color: theme.$purpleColor;
+  color: var(--purpleColor);
 }
 
 .apiRefresh {
   &:hover {
     cursor: pointer;
-    color: theme.$text;
+    color: var(--text);
     background-color: dimgray;
     border-radius: 100px;
   }
+}
+
+.themeSettingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  label {
+    margin: 0px;
+  }
+}
+
+.themeHeading {
+  font-size: 12px;
+  color: var(--text);
 }
 
 .settingContainer {
@@ -52,19 +66,19 @@
       padding: 1em;
       margin-right: 5px;
       border-radius: 50%;
-      background-color: theme.$purpleColor1;
+      background-color: var(--purpleColor1);
 
       @media (max-width: 500px) {
         padding: 8px;
       }
 
       svg {
-        color: theme.$text;
+        color: var(--text);
       }
 
       &:hover {
         cursor: pointer;
-        background-color: theme.$purpleColor;
+        background-color: var(--purpleColor);
       }
 
       &:last-child {
@@ -88,7 +102,7 @@
     position: absolute;
     bottom: 75px;
     padding: 0 20px;
-    background-color: theme.$purpleLighter;
+    background-color: var(--purpleLighter);
     border-radius: 20px;
     width: 140px;
     right: 100px;
@@ -186,7 +200,7 @@
     bottom: 75px;
     padding: 0 30px;
     border-radius: 20px;
-    background-color: theme.$purpleLighter;
+    background-color: var(--purpleLighter);
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 16px 16px 32px 0px #11111159;
@@ -205,12 +219,12 @@
       .iconBlock {
         display: inline-block;
         cursor: pointer;
-        color: theme.$text;
+        color: var(--text);
       }
 
       h2 {
         font-size: 18px;
-        color: theme.$text;
+        color: var(--text);
         font-weight: bold;
         display: inline-block;
         vertical-align: middle;
@@ -225,10 +239,10 @@
 
       button {
         height: 35px;
-        background-color: theme.$purpleColor1;
+        background-color: var(--purpleColor1);
         padding: 0;
         border: none;
-        color: theme.$text;
+        color: var(--text);
         flex-grow: 1;
         border-radius: 3px;
         font-size: 14px;
@@ -239,7 +253,7 @@
         }
 
         &:hover {
-          background-color: theme.$purpleColor;
+          background-color: var(--purpleColor);
         }
       }
 
@@ -248,7 +262,7 @@
       }
 
       button[disabled] {
-        background: theme.$purpleDarkest;
+        background: var(--purpleDarkest);
         opacity: 1 !important;
       }
 
@@ -259,7 +273,7 @@
       }
 
       .uploadBtn {
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
         cursor: pointer;
         font-size: 1rem;
         font-weight: bold;
@@ -290,7 +304,7 @@
 
         &>svg {
           opacity: 1;
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
 
           &:hover {
             opacity: 0.8;
@@ -300,12 +314,12 @@
         .legend {
           position: absolute;
           padding: 10px;
-          background: theme.$purplePanel;
+          background: var(--purplePanel);
           border-radius: 5px;
           top: 30px;
           right: 5px;
           width: 130px;
-          color: theme.$text;
+          color: var(--text);
           font-size: 12px;
           display: none;
 
@@ -314,8 +328,8 @@
           }
 
           .shiftKey {
-            background: theme.$purplePanel;
-            color: theme.$text;
+            background: var(--purplePanel);
+            color: var(--text);
             padding: 2px 4px;
             border-radius: 4px;
             font-weight: bold;
@@ -326,10 +340,10 @@
             font-size: 18px;
             margin-right: 5px;
             width: 40px;
-            color: theme.$text;
+            color: var(--text);
 
             path {
-              fill: theme.$text;
+              fill: var(--text);
             }
           }
 
@@ -370,7 +384,7 @@
       .thumbnailSelectLabel {
         margin: 20px 0 8px 0;
         font-size: 15px;
-        color: theme.$text;
+        color: var(--text);
       }
     }
 
@@ -380,15 +394,15 @@
       margin: 8px 0px;
 
       .avatarNameInput {
-        color: theme.$text;
-        border-color: theme.$text;
+        color: var(--text);
+        border-color: var(--text);
         background: transparent;
 
         input {
           padding: 5px;
           font-size: 14px;
-          color: theme.$text;
-          border-color: theme.$text;
+          color: var(--text);
+          border-color: var(--text);
 
           &::selection {
             background-color: transparent;
@@ -396,7 +410,7 @@
         }
 
         :global(.MuiFormLabel-root) {
-          color: theme.$text;
+          color: var(--text);
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -435,7 +449,7 @@
   bottom: 75px;
   padding: 0 30px;
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   width: calc(100% - 50px);
   left: 50%;
   transform: translateX(-50%);
@@ -505,8 +519,8 @@
           margin: 0;
           min-width: 30px;
           border-radius: 50%;
-          color: theme.$text;
-          background-color: theme.$purpleColor1;
+          color: var(--text);
+          background-color: var(--purpleColor1);
           box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
@@ -516,7 +530,7 @@
             height: 40px;
             bottom: -15px;
             right: -15px;
-            background-color: theme.$purpleColor;
+            background-color: var(--purpleColor);
           }
 
           svg {
@@ -537,7 +551,7 @@
           font-size: 14px;
           font-weight: bold;
           margin: 0;
-          color: theme.$text;
+          color: var(--text);
         }
 
         .inputBlock {
@@ -551,12 +565,12 @@
 
             input {
               font-size: 18px;
-              color: theme.$text;
-              border-color: theme.$text;
+              color: var(--text);
+              border-color: var(--text);
             }
 
             :global(.MuiFormLabel-root) {
-              color: theme.$text;
+              color: var(--text);
             }
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -584,7 +598,7 @@
           font-size: 14px;
           text-align: left;
           opacity: 0.8;
-          color: theme.$text;
+          color: var(--text);
           margin: 5px 0 !important;
 
           span {
@@ -603,7 +617,7 @@
         h4 {
           margin-top: 4px;
           text-align: left;
-          color: theme.$text;
+          color: var(--text);
 
           .logout {
             max-width: 50px;
@@ -625,23 +639,23 @@
         font-size: 14px;
         font-weight: bold;
         margin: 0;
-        color: theme.$text;
+        color: var(--text);
       }
 
       .emailField {
         margin-top: 10px;
         margin-bottom: 20px;
         width: 100%;
-        color: theme.$text;
+        color: var(--text);
         background: transparent;
 
         input {
-          color: theme.$text;
-          border-color: theme.$text;
+          color: var(--text);
+          border-color: var(--text);
         }
 
         :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
 
         .materialIconBlock {
@@ -654,7 +668,7 @@
       text-align: center;
 
       .textBlock {
-        color: theme.$text;
+        color: var(--text);
         font-size: 14px;
         font-weight: normal;
         text-align: center;
@@ -667,8 +681,8 @@
         font-size: 14px;
         width: 250px;
         max-width: 100%;
-        background: theme.$purplePinkGradient;
-        color: theme.$text;
+        background: var(--purplePinkGradient);
+        color: var(--text);
         border-radius: 20px;
         margin: 15px 0 20px;
 
@@ -706,7 +720,7 @@
 
       .textBlock {
         font-size: 14px;
-        color: theme.$text;
+        color: var(--text);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -715,7 +729,7 @@
 
       .smallTextBlock {
         font-size: 12px;
-        color: theme.$text;
+        color: var(--text);
         font-weight: normal;
         text-align: center;
         display: block;
@@ -726,7 +740,7 @@
 
   .settingPanel {
     .settingSection {
-      color: theme.$text;
+      color: var(--text);
       position: relative;
 
       &+.settingSection {
@@ -751,7 +765,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
           margin-right: 10px;
 
           svg {
@@ -776,7 +790,7 @@
         flex-shrink: 0;
 
         svg {
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
         }
       }
 
@@ -797,13 +811,13 @@
 
       :global(.MuiSlider-root) {
         &.slider {
-          color: theme.$purpleColor;
+          color: var(--purpleColor);
           margin: 0 10px;
         }
 
         :global(.MuiSlider-thumb) {
-          background: theme.$purpleColor;
-          border: theme.$purpleColor;
+          background: var(--purpleColor);
+          border: var(--purpleColor);
           width: 16px;
           height: 16px;
         }
@@ -831,7 +845,7 @@
 
     .panelHeader {
       font-size: 18px;
-      color: theme.$text;
+      color: var(--text);
       font-weight: bold;
     }
 
@@ -870,7 +884,7 @@
       .sendInvite {
         width: 125px;
         height: 35px;
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
 
         &:hover {
           opacity: 0.8;
@@ -879,7 +893,7 @@
     }
 
     h5 {
-      color: theme.$text;
+      color: var(--text);
       margin-top: 10px;
       font-size: 14px;
       font-weight: normal;
@@ -888,22 +902,22 @@
     .copyField {
       margin-top: 10px;
       width: 100%;
-      color: theme.$text;
+      color: var(--text);
 
       input {
-        color: theme.$text;
-        border-color: theme.$text;
-        -webkit-text-fill-color: theme.$text;
+        color: var(--text);
+        border-color: var(--text);
+        -webkit-text-fill-color: var(--text);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: theme.$text;
+        color: var(--text);
         cursor: pointer;
 
         &:hover {
@@ -919,21 +933,21 @@
     .emailField {
       margin-top: 30px;
       width: 100%;
-      color: theme.$text;
+      color: var(--text);
 
       input {
-        color: theme.$text;
-        border-color: theme.$text;
+        color: var(--text);
+        border-color: var(--text);
       }
 
       :global(.MuiOutlinedInput-root) {
         fieldset {
-          border-color: theme.$text;
+          border-color: var(--text);
         }
       }
 
       :global(.MuiInputAdornment-root) {
-        color: theme.$text;
+        color: var(--text);
         cursor: pointer;
 
         &:hover {
@@ -1005,7 +1019,7 @@
 
       .tableHead {
         background: $PurpleButtonColor;
-        color: theme.$text;
+        color: var(--text);
       }
 
       .tablebody {
@@ -1035,7 +1049,7 @@
 
       button:hover {
         background: $PurpleButtonColor;
-        color: theme.$text;
+        color: var(--text);
       }
     }
 
@@ -1168,7 +1182,7 @@
     }
 
     .savebtn {
-      color: theme.$text;
+      color: var(--text);
       background: $PurpleButtonColor;
       height: 35px;
       width: 150px;
@@ -1305,7 +1319,7 @@
         border-radius: 50%;
         background: $PurpleButtonColor;
         box-shadow: 2px 2px 10px gray;
-        color: theme.$text;
+        color: var(--text);
         transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         display: flex;
         align-items: center;
@@ -1441,10 +1455,10 @@
 
     button {
       height: 35px;
-      background: theme.$purpleColor;
+      background: var(--purpleColor);
       padding: 0;
       border: none;
-      color: theme.$text;
+      color: var(--text);
       flex-grow: 1;
       border-radius: 3px;
       font-size: 14px;
@@ -1474,7 +1488,7 @@
     }
 
     .uploadBtn {
-      background: theme.$purplePinkGradient;
+      background: var(--purplePinkGradient);
     }
 
     button:hover,
@@ -1496,7 +1510,7 @@
 
       &>svg {
         opacity: 1;
-        color: theme.$purpleColor;
+        color: var(--purpleColor);
 
         &:hover {
           opacity: 0.8;
@@ -1506,12 +1520,12 @@
       .legend {
         position: absolute;
         padding: 10px;
-        background: theme.$purplePanel;
+        background: var(--purplePanel);
         border-radius: 5px;
         top: 30px;
         right: 5px;
         width: 130px;
-        color: theme.$text;
+        color: var(--text);
         font-size: 12px;
         display: none;
 
@@ -1520,8 +1534,8 @@
         }
 
         .shiftKey {
-          background: theme.$purplePanel;
-          color: theme.$text;
+          background: var(--purplePanel);
+          color: var(--text);
           padding: 2px 4px;
           border-radius: 4px;
           font-weight: bold;
@@ -1532,10 +1546,10 @@
           font-size: 18px;
           margin-right: 5px;
           vertical-align: middle;
-          color: theme.$text;
+          color: var(--text);
 
           path {
-            fill: theme.$text;
+            fill: var(--text);
           }
         }
 
@@ -1571,7 +1585,7 @@
     .thumbnailSelectLabel {
       margin: 20px 3px 8px 0;
       font-size: 15px;
-      color: theme.$purpleColor;
+      color: var(--purpleColor);
 
       &.avatarSelectError,
       &.thumbnailSelectError {
@@ -1607,7 +1621,7 @@
 .ReadyPlayerPanel {
   @include panel-popup-container-styling();
   border-radius: 20px;
-  background-color: theme.$purpleLighter;
+  background-color: var(--purpleLighter);
   padding: 0;
 
   .controlContainer {
@@ -1695,13 +1709,13 @@
     }
 
     button {
-      color: theme.$text;
+      color: var(--text);
       display: flex;
       padding: 3px 5px;
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      background-color: theme.$purpleColor;
+      background-color: var(--purpleColor);
       border: none;
       border-radius: 3px;
     }
@@ -1744,7 +1758,7 @@
       margin: 0;
       padding: 0;
       min-width: 0;
-      background-color: theme.$text;
+      background-color: var(--text);
       cursor: pointer;
 
       &:hover {
@@ -1765,20 +1779,20 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        background-color: theme.$purpleColor;
+        background-color: var(--purpleColor);
 
         svg {
-          color: theme.$text;
+          color: var(--text);
           font-size: 20px;
         }
       }
 
       &.selectedAvatar {
-        border: solid 2px theme.$purpleColor0;
+        border: solid 2px var(--purpleColor0);
       }
 
       &.activeAvatar {
-        border: solid 2px theme.$purpleColor;
+        border: solid 2px var(--purpleColor);
       }
     }
   }
@@ -1799,7 +1813,7 @@
 
   .iconBlock {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     border: none;
     padding: 0;
     background-color: transparent;
@@ -1855,7 +1869,7 @@
 
   .iconBlock {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     border: none;
     padding: 0;
     background-color: transparent;
@@ -2116,7 +2130,7 @@
 }
 
 .paper {
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   display: flex;
   align-items: center;
 }
@@ -2130,11 +2144,11 @@
   font-size: 13px;
   width: auto;
   font-weight: bold;
-  background: theme.$purpleColor1;
+  background: var(--purpleColor1);
   padding: 6px 28px;
 
   &:hover {
-    background: theme.$purpleColor;
+    background: var(--purpleColor);
   }
 }
 
@@ -2146,8 +2160,8 @@
 
 .input {
   font-size: 14px;
-  color: theme.$text;
-  background-color: theme.$purpleLight;
+  color: var(--text);
+  background-color: var(--purpleLight);
 }
 
 .tabRoot {
@@ -2156,15 +2170,15 @@
 }
 
 .selected {
-  background: theme.$text;
+  background: var(--text);
 }
 
 .color {
-  color: theme.$text;
+  color: var(--text);
 }
 
 .paper2 {
-  background: theme.$purpleLight;
+  background: var(--purpleLight);
   display: flex;
   align-items: center;
   width: 100%;
@@ -2172,14 +2186,14 @@
 }
 
 .selectedTab {
-  color: theme.$text !important;
+  color: var(--text) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
 }
 
 .unselectedTab {
-  color: theme.$purpleDarkest !important;
+  color: var(--purpleDarkest) !important;
   font-weight: bold;
   font-size: 17px;
   text-transform: capitalize;
