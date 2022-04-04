@@ -14,8 +14,8 @@ import {
   initializeCoreSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
-// import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 
@@ -107,7 +107,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)
       const world = useWorld()
-      // loadEngineInjection(world, projects)
+      loadEngineInjection(world, projects)
       setEngineReady(true)
     })
   }, [projectState.projects.value])
