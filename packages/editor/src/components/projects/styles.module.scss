@@ -1,11 +1,9 @@
-@use "../theme.scss"as theme;
-
 .navbar {
   width: 100%;
   display: flex;
   justify-content: center;
   pointer-events: auto;
-  background: theme.$dock;
+  background: var(--dock);
   height: 50px;
 
   .navContainer {
@@ -24,7 +22,7 @@
     .profileButton {
       display: flex;
       align-items: center;
-      color: theme.$text;
+      color: var(--text);
       background: transparent;
 
       span {
@@ -34,7 +32,7 @@
 
       &:hover,
       &:focus-visible {
-        color: theme.$green;
+        color: var(--green);
       }
     }
 
@@ -72,7 +70,7 @@
 .projectPage {
   width: 100%;
   display: flex;
-  background-color: theme.$purpleDarkest;
+  background-color: var(--purpleDarkest);
   pointer-events: auto;
 }
 
@@ -82,7 +80,7 @@
   align-content: space-between;
   margin: 30px auto;
   width: 90vw;
-  background-color: theme.$purplePanel;
+  background-color: var(--purplePanel);
   padding: 30px;
   border-radius: 10px;
   min-height: calc(100vh - 110px);
@@ -112,11 +110,11 @@
         width: 90px;
         font-size: 16px;
         flex-shrink: 0;
-        background: theme.$purplePinkGradient;
+        background: var(--purplePinkGradient);
       }
 
       .searchInputRoot {
-        background: theme.$inputBackground;
+        background: var(--inputBackground);
         display: flex;
         align-items: center;
         width: 100%;
@@ -125,18 +123,18 @@
         margin: 0 30px;
 
         button {
-          color: theme.$text2;
+          color: var(--text2);
           padding: 10px;
 
           &:hover,
           &:focus-visible {
-            color: theme.$text;
+            color: var(--text);
           }
         }
 
         .inputRoot {
           flex: 1;
-          color: theme.$text;
+          color: var(--text);
         }
       }
 
@@ -164,7 +162,7 @@
       flex-direction: column;
 
       .errorMsg {
-        color: theme.$red;
+        color: var(--red);
         text-align: center;
       }
 
@@ -179,7 +177,7 @@
         }
 
         .expansionSummary {
-          color: theme.$text2;
+          color: var(--text2);
           font-size: 15px;
           padding: 0;
           min-height: 30px;
@@ -191,7 +189,7 @@
 
           button {
             padding: 0;
-            color: theme.$text2;
+            color: var(--text2);
             margin-left: -16px;
 
             svg {
@@ -227,7 +225,7 @@
           width: 232px;
           padding: 10px;
           flex-shrink: 0;
-          background: theme.$purpleLighter;
+          background: var(--purpleLighter);
           border-radius: 3px;
           position: relative;
           overflow: hidden;
@@ -236,14 +234,14 @@
             text-decoration: none;
 
             &:hover {
-              color: theme.$text;
+              color: var(--text);
             }
           }
 
           &:hover,
           &:focus-within {
             cursor: pointer;
-            outline: solid 1px theme.$purpleLight;
+            outline: solid 1px var(--purpleLight);
           }
 
           .thumbnailContainer {
@@ -260,13 +258,13 @@
               width: calc(100% - 24px);
               font-size: 14px;
               font-weight: bold;
-              color: theme.$text;
+              color: var(--text);
             }
 
             button {
               width: 24px;
               height: 24px;
-              color: theme.$purpleLight;
+              color: var(--purpleColor4);
               padding: 0;
 
               svg {
@@ -293,7 +291,7 @@
             &::before {
               content: "";
               position: absolute;
-              background: theme.$purpleLight;
+              background: var(--purpleLight);
               width: 60px;
               height: 60px;
               border-radius: 50%;
@@ -305,7 +303,7 @@
           .description {
             font-size: 12px;
             margin-top: 8px;
-            color: theme.$text;
+            color: var(--text);
             opacity: 0.9;
             height: 45px;
             overflow: hidden;
@@ -344,7 +342,7 @@
       font-size: 15px;
       text-align: center;
       margin-top: 10px;
-      color: theme.$text2;
+      color: var(--text2);
     }
 
     button {
@@ -357,17 +355,17 @@
 }
 
 .filterMenu {
-  background: theme.$dock;
+  background: var(--dock);
 
   .filterMenuItem {
     position: relative;
-    color: theme.$text;
+    color: var(--text);
     font-size: 14px;
     padding-left: 35px;
 
     &:hover,
     &:focus-visible {
-      background: theme.$purpleColor;
+      background: var(--purpleColor);
     }
 
     &>svg,
@@ -381,31 +379,31 @@
 }
 
 .createProjectDialog {
-  background: linear-gradient(180deg, rgba(137, 137, 242, 0.5) 0%, rgba(92, 92, 92, 0.5) 100%);
+  background: var(--purpleLighter);
   box-shadow: 16px 16px 32px 0 #11111159;
   backdrop-filter: blur(50px);
-  color: theme.$text;
+  color: var(--text);
   width: 300px;
 
   .inputContainer {
-    color: theme.$text;
+    color: var(--text);
     width: 100%;
     font-size: 14px;
-    background-color: theme.$inputBackground;
+    background-color: var(--inputBackground);
   }
 
   .input {
-    border-color: theme.$text;
-    background-color: theme.$inputBackground;
+    border-color: var(--text);
+    background-color: var(--inputBackground);
   }
 
   .input:hover+.outline {
-    border-color: theme.$text;
+    border-color: var(--text);
   }
 
   .input:focus+.outline,
   .outline {
-    border-color: theme.$text2;
+    border-color: var(--text2);
   }
 
   .btn {
@@ -413,15 +411,15 @@
     height: 35px;
     width: 85px;
     font-size: 15px;
-    background: theme.$purplePinkGradient;
+    background: var(--purplePinkGradient);
 
     &:disabled {
-      background: theme.$purpleDarkest;
+      background: var(--purpleDarkest);
     }
   }
 
   .errorMessage {
-    color: theme.$red;
+    color: var(--red);
     margin: 5px 2px;
   }
 
@@ -431,19 +429,19 @@
     align-items: center;
 
     svg {
-      color: theme.$blue;
+      color: var(--blue);
     }
 
     .text {
       margin-top: 10px;
-      color: theme.$text2;
+      color: var(--text2);
     }
   }
 }
 
 .deleteDialog {
-  background: theme.$panel2;
-  color: theme.$text;
+  background: var(--panel2);
+  color: var(--text);
   width: 300px;
 
   .contentWrapper {
@@ -456,12 +454,12 @@
       width: 85px;
       font-size: 14px;
       background: transparent;
-      color: theme.$blue;
+      color: var(--blue);
 
       &:hover,
       &:focus-visible {
-        background: theme.$blue;
-        color: theme.$text;
+        background: var(--blue);
+        color: var(--text);
       }
     }
 
@@ -470,7 +468,7 @@
       height: 35px;
       width: 85px;
       font-size: 14px;
-      background: theme.$red;
+      background: var(--red);
 
       &:hover,
       &:focus-visible {
@@ -479,8 +477,8 @@
     }
 
     .confirmBtn[disabled] {
-      background: theme.$disabledText;
-      color: theme.$text;
+      background: var(--disabledText);
+      color: var(--text);
       cursor: initial;
       opacity: 1 !important;
     }

@@ -400,10 +400,7 @@ export const AuthService = {
       })
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
-    console.log('1 registerUserByEmail')
     const dispatch = useDispatch()
-
-    console.log('2 dispatch', dispatch)
     dispatch(AuthAction.actionProcessing(true))
     client
       .service('identity-provider')
@@ -644,8 +641,6 @@ export const AuthService = {
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
     userId: string
   ) => {
-    const dispatch = useDispatch()
-
     window.open(`https://${globalThis.process.env['VITE_SERVER_HOST']}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
   removeConnection: async (identityProviderId: number, userId: string) => {
@@ -799,8 +794,6 @@ export const AuthService = {
       })
   },
   removeUser: async (userId: string) => {
-    const dispatch = useDispatch()
-
     await client.service('user').remove(userId)
     await client.service('identity-provider').remove(null, {
       query: {
@@ -816,7 +809,6 @@ export const AuthService = {
     dispatch(AuthAction.apiKeyUpdated(apiKey))
   },
   listenForUserPatch: () => {
-    console.log('listenForUserPatch')
     client.service('user').on('patched', (params) => useDispatch()(AuthAction.userPatched(params)))
     client.service('location-ban').on('created', async (params) => {
       const selfUser = accessAuthState().user
