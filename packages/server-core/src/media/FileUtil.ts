@@ -26,15 +26,15 @@ export const getIncrementalName = function (name: string, parentPath: string): s
     do {
       filename = `${name}(${count})`
       count++
-    } while (fs.existsSync(filename))
+    } while (fs.existsSync(path.join(parentPath, filename)))
   } else {
-    const extension = path.extname(name) // parts[parts.length - 1]
-    const baseName = path.basename(name, extension) // newNamePath.split('.')
+    const extension = path.extname(name)
+    const baseName = path.basename(name, extension)
 
     do {
-      filename = `${baseName}(${count}).${extension}`
+      filename = `${baseName}(${count})${extension}`
       count++
-    } while (fs.existsSync(filename))
+    } while (fs.existsSync(path.join(parentPath, filename)))
   }
 
   return filename

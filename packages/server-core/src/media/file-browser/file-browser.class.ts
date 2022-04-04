@@ -10,8 +10,7 @@ import { getCachedAsset } from '../storageprovider/getCachedAsset'
 import { useStorageProvider } from '../storageprovider/storageprovider'
 import { StorageProviderInterface } from '../storageprovider/storageprovider.interface'
 
-const storageProvider = useStorageProvider()
-const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
+export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')
 
 type UpdateParamsType = {
   oldName: string
@@ -116,7 +115,7 @@ export class FileBrowserService implements ServiceMethods<any> {
 
     fs.writeFileSync(path.join(projectsRootFolder, key), data.body)
 
-    return getCachedAsset(key, storageProvider.cacheDomain, params && params.provider == null)
+    return getCachedAsset(key, this.store.cacheDomain, params && params.provider == null)
   }
 
   /**
