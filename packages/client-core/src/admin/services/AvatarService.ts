@@ -53,26 +53,25 @@ export const useAvatarState = () => useState(state) as any as typeof state
 export const AvatarService = {
   fetchAdminAvatars: async (skip = 0, search: string | null = null, orderBy = 'asc') => {
     const dispatch = useDispatch()
-    {
-      const adminAvatarState = accessAvatarState()
-      const limit = adminAvatarState.limit.value
-      const avatars = await client.service('static-resource').find({
-        query: {
-          $sort: {
-            sid: orderBy === 'desc' ? 0 : 1
-          },
-          $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-          staticResourceType: 'avatar',
-          userId: null,
-          $limit: limit,
-          $skip: skip * AVATAR_PAGE_LIMIT,
-          getAvatarThumbnails: true,
-          search: search
-        }
-      })
 
-      dispatch(AvatarAction.avatarsFetched(avatars))
-    }
+    const adminAvatarState = accessAvatarState()
+    const limit = adminAvatarState.limit.value
+    const avatars = await client.service('static-resource').find({
+      query: {
+        $sort: {
+          sid: orderBy === 'desc' ? 0 : 1
+        },
+        $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
+        staticResourceType: 'avatar',
+        userId: null,
+        $limit: limit,
+        $skip: skip * AVATAR_PAGE_LIMIT,
+        getAvatarThumbnails: true,
+        search: search
+      }
+    })
+
+    dispatch(AvatarAction.avatarsFetched(avatars))
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()

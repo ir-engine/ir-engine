@@ -63,57 +63,53 @@ export const useGroupState = () => useState(state) as any as typeof state
 export const GroupService = {
   getGroupService: async (search: string | null = null, skip = 0, orderBy = 'asc') => {
     const dispatch = useDispatch()
-    {
-      const limit = accessGroupState().limit.value
-      try {
-        dispatch(GroupAction.fetchingGroup())
-        const list = await client.service('group').find({
-          query: {
-            $sort: {
-              name: orderBy === 'desc' ? 0 : 1
-            },
-            $skip: skip * GROUP_PAGE_LIMIT,
-            $limit: limit,
-            search: search
-          }
-        })
-        dispatch(GroupAction.setAdminGroup(list))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    const limit = accessGroupState().limit.value
+    try {
+      dispatch(GroupAction.fetchingGroup())
+      const list = await client.service('group').find({
+        query: {
+          $sort: {
+            name: orderBy === 'desc' ? 0 : 1
+          },
+          $skip: skip * GROUP_PAGE_LIMIT,
+          $limit: limit,
+          search: search
+        }
+      })
+      dispatch(GroupAction.setAdminGroup(list))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   createGroupByAdmin: async (groupItem: CreateGroup) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const newGroup = (await client.service('group').create({ ...groupItem })) as Group
-        dispatch(GroupAction.addAdminGroup(newGroup))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const newGroup = (await client.service('group').create({ ...groupItem })) as Group
+      dispatch(GroupAction.addAdminGroup(newGroup))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   patchGroupByAdmin: async (groupId, groupItem) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const group = (await client.service('group').patch(groupId, groupItem)) as Group
-        dispatch(GroupAction.updateGroup(group))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const group = (await client.service('group').patch(groupId, groupItem)) as Group
+      dispatch(GroupAction.updateGroup(group))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   deleteGroupByAdmin: async (groupId) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('group').remove(groupId)
-        dispatch(GroupAction.removeGroupAction(groupId))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('group').remove(groupId)
+      dispatch(GroupAction.removeGroupAction(groupId))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }

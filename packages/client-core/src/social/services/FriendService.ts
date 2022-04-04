@@ -110,22 +110,21 @@ export const FriendService = {
 
   getFriends: async (skip: number = 0, limit: number = 10) => {
     const dispatch = useDispatch()
-    {
-      dispatch(FriendAction.fetchingFriends())
-      try {
-        const friendState = accessFriendState()
-        const friendResult = (await client.service('user').find({
-          query: {
-            action: 'friends',
-            $limit: limit != null ? limit : friendState.friends.limit.value,
-            $skip: skip != null ? skip : friendState.friends.skip.value
-          }
-        })) as Paginated<User>
-        dispatch(FriendAction.loadedFriends(friendResult))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-        dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
-      }
+
+    dispatch(FriendAction.fetchingFriends())
+    try {
+      const friendState = accessFriendState()
+      const friendResult = (await client.service('user').find({
+        query: {
+          action: 'friends',
+          $limit: limit != null ? limit : friendState.friends.limit.value,
+          $skip: skip != null ? skip : friendState.friends.skip.value
+        }
+      })) as Paginated<User>
+      dispatch(FriendAction.loadedFriends(friendResult))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
+      dispatch(FriendAction.loadedFriends({ data: [], limit: 0, skip: 0, total: 0 }))
     }
   },
 
@@ -147,12 +146,11 @@ export const FriendService = {
   //
   removeFriend: async (relatedUserId: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        await client.service('user-relationship').remove(relatedUserId)
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      await client.service('user-relationship').remove(relatedUserId)
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   //

@@ -43,31 +43,28 @@ export const useUserRoleState = () => useState(state) as any as typeof state
 export const UserRoleService = {
   fetchUserRole: async () => {
     const dispatch = useDispatch()
-    {
-      try {
-        const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
-        dispatch(UserRoleAction.userRoleRetrieved(userRole))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
+      dispatch(UserRoleAction.userRoleRetrieved(userRole))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   },
   createUserRoleAction: async (data) => {
     const dispatch = useDispatch()
-    {
-      const result = (await client.service('user-role').create(data)) as UserRole
-      dispatch(UserRoleAction.userRoleCreated(result))
-    }
+
+    const result = (await client.service('user-role').create(data)) as UserRole
+    dispatch(UserRoleAction.userRoleCreated(result))
   },
   updateUserRole: async (id: string, role: string) => {
     const dispatch = useDispatch()
-    {
-      try {
-        const userRole = (await client.service('user').patch(id, { userRole: role })) as User
-        dispatch(UserRoleAction.userRoleUpdated(userRole))
-      } catch (err) {
-        AlertService.dispatchAlertError(err)
-      }
+
+    try {
+      const userRole = (await client.service('user').patch(id, { userRole: role })) as User
+      dispatch(UserRoleAction.userRoleUpdated(userRole))
+    } catch (err) {
+      AlertService.dispatchAlertError(err)
     }
   }
 }
