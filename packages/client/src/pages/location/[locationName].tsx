@@ -1,3 +1,4 @@
+import { getGPUTier } from 'detect-gpu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRouteMatch } from 'react-router-dom'
@@ -15,6 +16,14 @@ const LocationPage = () => {
   const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
   const engineState = useEngineState()
+
+  React.useEffect(() => {
+    const checkGpuTier = async () => {
+      const gpuTier = await getGPUTier()
+      console.log('RESULT', gpuTier)
+    }
+    checkGpuTier()
+  }, [])
 
   return (
     <Layout useLoadingScreenOpacity pageTitle={t('location.locationName.pageTitle')}>
