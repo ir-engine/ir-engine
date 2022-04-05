@@ -1,5 +1,6 @@
 {
   "extends": ["stylelint-config-standard-scss"],
+  "plugins": ["stylelint-scss"],
   "overrides": [
     {
       "files": ["packages/**/*.scss"],
@@ -7,12 +8,21 @@
     }
   ],
   "rules": {
-    "at-rule-no-unknown": false,
-    "no-descending-specificity": false,
+    "scss/at-import-partial-extension": null,
+    "scss/no-global-function-names": null,
+    "at-rule-no-unknown": null,
+    "no-descending-specificity": null,
     "indentation": "tab",
     "number-leading-zero": null,
-    "property-no-vendor-prefix": false,
-    "selector-class-pattern": ["camelcase", "kebabcase"],
+    "property-no-vendor-prefix": null,
+    "font-family-no-missing-generic-family-keyword": null,
+    "selector-pseudo-class-no-unknown": null,
+    "selector-class-pattern": [
+      "(^[a-z][a-zA-Z0-9]+$)|(^([a-z][a-z0-9]*)(-[a-z0-9]+)*$)|(^([A-Z][a-zA-Z0-9]*)(-[a-zA-Z0-9]+)*$)"
+    ],
+    "keyframes-name-pattern": "^[a-z][a-zA-Z0-9]+$",
+    "custom-property-pattern": "^[a-z][a-zA-Z0-9]+$",
+    "scss/dollar-variable-pattern": "^[A-Z][a-zA-Z0-9]+$",
     "number-max-precision": [
       4,
       {
