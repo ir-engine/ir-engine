@@ -1,13 +1,18 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CONTROL_SCHEME, CONTROLLER_TYPES } from '@xrengine/common/src/constants/AvatarConstants'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import Checkbox from '@mui/material/Checkbox'
+import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
 
@@ -21,11 +26,20 @@ const SettingMenu = (): JSX.Element => {
   const authState = useAuthState()
   const selfUser = authState.user
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
-
+  const [controlTypeSelected, setControlType] = React.useState('')
+  const [controlSchemeSelected, setControlScheme] = React.useState('')
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSettings, ...newSetting }
     setUserSetting(setting)
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
+  }
+
+  const handleChangeControlType = (event: SelectChangeEvent) => {
+    setControlType(event.target.value)
+  }
+
+  const handleChangeControlScheme = (event: SelectChangeEvent) => {
+    setControlScheme(event.target.value)
   }
 
   return (
@@ -131,6 +145,53 @@ const SettingMenu = (): JSX.Element => {
                 dispatchLocal(EngineRendererAction.setAutomatic(value))
               }}
             />
+          </div>
+        </section>
+        <section className={styles.settingSection}>
+          <div className={styles.controlsContainer}>
+            <Typography variant="h4" className={styles.settingHeader}>
+              {t('user:usermenu.setting.controls')}
+            </Typography>
+            <div className={styles.selectSize}>
+              <FormControl fullWidth>
+                <InputLabel>{t('user:usermenu.setting.lbl-control-scheme')}</InputLabel>
+                <Select
+                  value={controlSchemeSelected}
+                  onChange={handleChangeControlScheme}
+                  size="small"
+                  classes={{
+                    select: styles.select
+                  }}
+                  MenuProps={{ classes: { paper: styles.paper } }}
+                >
+                  {CONTROL_SCHEME.map((el, index) => (
+                    <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
+                      {el}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <div className={styles.selectSize}>
+              <FormControl fullWidth>
+                <InputLabel>{t('user:usermenu.setting.lbl-control-type')}</InputLabel>
+                <Select
+                  value={controlTypeSelected}
+                  onChange={handleChangeControlType}
+                  size="small"
+                  classes={{
+                    select: styles.select
+                  }}
+                  MenuProps={{ classes: { paper: styles.paper } }}
+                >
+                  {CONTROLLER_TYPES.map((el, index) => (
+                    <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
+                      {el}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
           </div>
         </section>
       </div>
