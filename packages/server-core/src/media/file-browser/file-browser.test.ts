@@ -263,7 +263,7 @@ describe('file browser service', () => {
     })
   })
 
-  it('patche file with new data', async () => {
+  it('patch file with new data', async () => {
     const fileName = 'Patch_Service_File_Test_' + Math.round(Math.random() * 100) + '.txt'
     const filePath = path.join(PROJECT_PATH, fileName)
     const fileStoragePath = path.join(STORAGE_PATH, fileName)

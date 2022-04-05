@@ -143,11 +143,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading) return
 
     setLoading(true)
-    const path = dropOn?.isFolder
-      ? selectedDirectory.split('/')[-1] == dropOn.name
-        ? selectedDirectory
-        : selectedDirectory + dropOn.name + '/'
-      : selectedDirectory
+    const path = dropOn?.isFolder ? dropOn.key : selectedDirectory
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
