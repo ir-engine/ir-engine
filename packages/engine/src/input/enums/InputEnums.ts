@@ -76,6 +76,6 @@ export enum CameraInput {
 }
 
 export enum AvatarMovementScheme {
-  Linear = 150, // Need a better name for this?
+  Linear = 150,
   Teleport = 151
 }
