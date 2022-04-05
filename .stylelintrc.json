@@ -12,7 +12,7 @@
     "scss/no-global-function-names": null,
     "at-rule-no-unknown": null,
     "no-descending-specificity": null,
-    "indentation": "tab",
+    "indentation": 2,
     "number-leading-zero": null,
     "property-no-vendor-prefix": null,
     "font-family-no-missing-generic-family-keyword": null,

@@ -1,97 +1,97 @@
 .autoComplete {
-	color: var(--white);
-	background: var(--inputBackground);
-	border-radius: 4px;
-	font-size: 11px;
-	height: 20px;
+  color: var(--white);
+  background: var(--inputBackground);
+  border-radius: 4px;
+  font-size: 11px;
+  height: 20px;
 
-	.inputfieldContainer {
-		padding: 0;
-		background: var(--inputBackground);
-		border-radius: 4px;
-		border: var(--borderStyle);
-	}
+  .inputfieldContainer {
+    padding: 0;
+    background: var(--inputBackground);
+    border-radius: 4px;
+    border: var(--borderStyle);
+  }
 
-	.inputWrapper {
-		padding: 0 43px 0 5px !important;
+  .inputWrapper {
+    padding: 0 43px 0 5px !important;
 
-		.inputfield {
-			color: var(--white);
-			font-size: 12px;
-			padding: 0;
+    .inputfield {
+      color: var(--white);
+      font-size: 12px;
+      padding: 0;
 
-			& + fieldset {
-				border: none !important;
-			}
-		}
-	}
+      & + fieldset {
+        border: none !important;
+      }
+    }
+  }
 
-	.adornmentContainer {
-		right: 3 !important;
-		top: 0 !important;
+  .adornmentContainer {
+    right: 3 !important;
+    top: 0 !important;
 
-		.adornment {
-			padding: 0;
-			width: 20px;
-			height: 20px;
-		}
+    .adornment {
+      padding: 0;
+      width: 20px;
+      height: 20px;
+    }
 
-		svg {
-			color: var(--white) !important;
-			width: 80%;
-		}
-	}
+    svg {
+      color: var(--white) !important;
+      width: 80%;
+    }
+  }
 }
 
 .popper {
-	margin-top: 10px !important;
+  margin-top: 10px !important;
 
-	.paper {
-		background: var(--dropdown);
-		font-size: 12px;
+  .paper {
+    background: var(--dropdown);
+    font-size: 12px;
 
-		.option {
-			padding: 5px 10px;
-			color: var(--white);
+    .option {
+      padding: 5px 10px;
+      color: var(--white);
 
-			&:global(.Mui-focused) {
-				background: var(--hover);
-			}
-		}
-	}
+      &:global(.Mui-focused) {
+        background: var(--hover);
+      }
+    }
+  }
 }
 
 .select {
-	background: var(--inputBackground);
-	border-radius: 4px;
-	border-width: 0;
-	cursor: pointer;
-	padding: 2px 7px;
-	font-size: 11px;
-	color: var(--white);
+  background: var(--inputBackground);
+  border-radius: 4px;
+  border-width: 0;
+  cursor: pointer;
+  padding: 2px 7px;
+  font-size: 11px;
+  color: var(--white);
 }
 
 .icon {
-	color: var(--white);
-	font-size: 15px;
+  color: var(--white);
+  font-size: 15px;
 }
 
 .paper {
-	margin-top: 10px;
-	border-radius: 4px;
-	font-size: 11px;
-	background: var(--inputBackground);
-	padding: 0;
-	color: var(--white);
-	max-height: 120px;
-	overflow: auto;
+  margin-top: 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: var(--inputBackground);
+  padding: 0;
+  color: var(--white);
+  max-height: 120px;
+  overflow: auto;
 }
 
 .menuItem {
-	padding: 5px;
-	font-size: 12px;
+  padding: 5px;
+  font-size: 12px;
 
-	&:hover {
-		background: var(--hover);
-	}
+  &:hover {
+    background: var(--hover);
+  }
 }
