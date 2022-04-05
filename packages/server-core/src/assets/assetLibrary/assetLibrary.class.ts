@@ -71,7 +71,7 @@ export class AssetLibrary implements ServiceMethods<any> {
 
   async remove(id: NullableId, params?: Params): Promise<any> {}
 
-  async get(id: Id, params: Params) {
+  async get(id: Id, params?: Params) {
     if (id.valueOf() === 'storage-provider') {
       return config.server.storageProvider
     }

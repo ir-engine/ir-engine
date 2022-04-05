@@ -295,21 +295,6 @@ const EditorContainer = () => {
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
 
-  const onImportZippedGLTF = async () => {
-    const el = document.createElement('input')
-    el.type = 'file'
-    el.multiple = true
-    el.accept = '.zip'
-    el.onchange = async () => {
-      if (el.files && el.files.length > 0 && projectName.value) {
-        const fList = el.files
-        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuBase = await uploadProjectFile(projectName.value, files, true)
-        nuBase.forEach((url) => {})
-      }
-    }
-  }
-
   const onImportAsset = async () => {
     const el = document.createElement('input')
     el.type = 'file'
@@ -323,8 +308,7 @@ const EditorContainer = () => {
         const files = [...Array(el.files.length).keys()].map((i) => fList[i])
         const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-        const extractPromises = new Array()
-        extractPromises.push(...zipFiles.map((zipped) => extractGLTF(pName, zipped)))
+        const extractPromises = [...zipFiles.map((zipped) => extractGLTF(pName, zipped))]
         Promise.all(extractPromises).then(() => {
           console.log('extraction complete')
         })
@@ -365,8 +349,6 @@ const EditorContainer = () => {
   }
 
   const onExportScene = async () => {
-    /*
-    const projectFile = serializeWorld()*/
     const projectFile = await sceneToGLTF(Engine.scene as any)
 
     const projectJson = JSON.stringify(projectFile)
