@@ -21,6 +21,7 @@ interface Props {
   count: number
   orderby?: string
   allowSort?: boolean
+  setSortField?: (fueld: string) => void
   setOrderby?: (order: string) => void
   handlePageChange: (e: unknown, newPage: number) => void
   handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -133,6 +134,7 @@ const TableComponent = (props: Props) => {
     count,
     orderby,
     allowSort,
+    setSortField,
     setOrderby,
     handlePageChange,
     handleRowsPerPageChange
@@ -142,6 +144,7 @@ const TableComponent = (props: Props) => {
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
+    setSortField && setSortField(property)
     setOrderby && setOrderby(order)
     setOrderBy(property)
   }

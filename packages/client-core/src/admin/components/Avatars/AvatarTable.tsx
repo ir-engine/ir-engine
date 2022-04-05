@@ -37,18 +37,19 @@ const AvatarTable = (props: Props) => {
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
   const [orderby, setOrderby] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [avatarAdmin, setAvatarAdmin] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    AvatarService.fetchAdminAvatars(newPage, search, orderby)
+    AvatarService.fetchAdminAvatars(newPage, search, sortField, orderby)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminAvatarState.fetched.value) {
-      AvatarService.fetchAdminAvatars(page, search, orderby)
+      AvatarService.fetchAdminAvatars(page, search, sortField, orderby)
     }
   }, [orderby])
 
@@ -62,11 +63,11 @@ const AvatarTable = (props: Props) => {
   }
 
   useEffect(() => {
-    if (user?.id.value && adminAvatarState.updateNeeded.value) {
-      AvatarService.fetchAdminAvatars(0, search, orderby)
-    } else {
-      AvatarService.fetchAdminAvatars(0, search, orderby)
-    }
+    //if (user?.id.value && adminAvatarState.updateNeeded.value) {
+    //  AvatarService.fetchAdminAvatars(0, search,sortField, orderby)
+    //} else {
+    AvatarService.fetchAdminAvatars(0, search, sortField, orderby)
+    //}
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
@@ -126,6 +127,7 @@ const AvatarTable = (props: Props) => {
       <TableComponent
         allowSort={false}
         orderby={orderby}
+        setSortField={setSortField}
         setOrderby={setOrderby}
         rows={rows}
         column={avatarColumns}

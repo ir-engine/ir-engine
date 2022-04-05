@@ -132,7 +132,18 @@ export class Location<T = LocationDataType> extends Service<T> {
     const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
-        order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+        if (name === 'type') {
+          order.push([Sequelize.literal('`location_setting.locationType`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else if (name === 'instanceMediaChatEnabled') {
+          order.push([
+            Sequelize.literal('`location_setting.instanceMediaChatEnabled`'),
+            $sort[name] === 0 ? 'DESC' : 'ASC'
+          ])
+        } else if (name === 'videoEnabled') {
+          order.push([Sequelize.literal('`location_setting.videoEnabled`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else {
+          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+        }
       })
 
     if (joinableLocations) {
@@ -204,12 +215,17 @@ export class Location<T = LocationDataType> extends Service<T> {
           ]
         }
       }
+      console.log('=================')
+      console.log({ ...strippedQuery, ...q })
+      console.log('=================')
       const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
-        where: { ...strippedQuery, ...q },
+        //where: { ...strippedQuery, ...q },
         order: order,
-        include: include
+        include: include,
+        raw: true,
+        nest: true
       })
       return {
         skip: $skip,

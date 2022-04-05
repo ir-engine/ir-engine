@@ -25,6 +25,7 @@ const GroupTable = (props: Props) => {
   const [groupId, setGroupId] = useState('')
   const [groupName, setGroupName] = useState('')
   const [orderby, setOrderby] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
@@ -33,13 +34,13 @@ const GroupTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     // const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(search, newPage, orderby)
+    GroupService.getGroupService(search, newPage, sortField, orderby)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminGroupState.fetched.value) {
-      GroupService.getGroupService(search, page, orderby)
+      GroupService.getGroupService(search, page, sortField, orderby)
     }
   }, [orderby])
 
@@ -78,7 +79,7 @@ const GroupTable = (props: Props) => {
     //if (adminGroupState.updateNeeded.value && user.id.value) {
     //  GroupService.getGroupService(null)
     // } else {
-    GroupService.getGroupService(search, 0, orderby)
+    GroupService.getGroupService(search, 0, sortField, orderby)
     // }
   }, [adminGroupState.updateNeeded.value, user, search])
 
@@ -116,6 +117,7 @@ const GroupTable = (props: Props) => {
       <TableComponent
         allowSort={false}
         orderby={orderby}
+        setSortField={setSortField}
         setOrderby={setOrderby}
         rows={rows}
         column={columns}

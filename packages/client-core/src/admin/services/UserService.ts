@@ -81,23 +81,33 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, orderBy = 'asc') => {
+  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     const userState = accessUserState()
     const user = accessAuthState().user
-    const limit = userState.limit.value
     const skipGuests = userState.skipGuests.value
     const userRole = userState.userRole.value
     try {
       if (user.userRole.value === 'admin') {
+        let sortData = {}
+        //disable location sort
+        if (sortField == 'location') {
+          //sortField = ''
+          return
+        }
+
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
+
         const params = {
           query: {
             $sort: {
-              name: orderBy === 'desc' ? 0 : 1
+              ...sortData
             },
             $skip: skip * USER_PAGE_LIMIT,
-            $limit: limit,
+            $limit: USER_PAGE_LIMIT,
             action: 'admin',
             search: value
           }

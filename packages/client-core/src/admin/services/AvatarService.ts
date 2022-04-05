@@ -51,15 +51,18 @@ export const useAvatarState = () => useState(state) as any as typeof state
 
 //Service
 export const AvatarService = {
-  fetchAdminAvatars: async (skip = 0, search: string | null = null, orderBy = 'asc') => {
+  fetchAdminAvatars: async (skip = 0, search: string | null = null, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
-
+    let sortData = {}
+    if (sortField.length > 0) {
+      sortData[sortField] = orderBy === 'desc' ? 0 : 1
+    }
     const adminAvatarState = accessAvatarState()
     const limit = adminAvatarState.limit.value
     const avatars = await client.service('static-resource').find({
       query: {
         $sort: {
-          sid: orderBy === 'desc' ? 0 : 1
+          ...sortData
         },
         $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
         staticResourceType: 'avatar',
@@ -70,7 +73,6 @@ export const AvatarService = {
         search: search
       }
     })
-
     dispatch(AvatarAction.avatarsFetched(avatars))
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {

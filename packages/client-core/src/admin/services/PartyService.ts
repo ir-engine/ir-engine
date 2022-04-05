@@ -32,6 +32,7 @@ store.receptors.push((action: PartyActionType): any => {
           skip: action.data.skip,
           limit: action.data.limit,
           total: action.data.total,
+          fetched: true,
           lastFetched: Date.now()
         })
       case 'PARTY_ADMIN_CREATED':
@@ -60,26 +61,31 @@ export const PartyService = {
       AlertService.dispatchAlertError(err)
     }
   },
-  fetchAdminParty: async (incDec?: 'increment' | 'decrement', value: string | null = null) => {
+  fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'location', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     const user = accessAuthState().user
-    const adminParty = accessPartyState()
-    const skip = adminParty.skip.value
-    const limit = adminParty.limit.value
+
     try {
       if (user.userRole.value === 'admin') {
+        let sortData = {}
+
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
+        console.log(sortData)
         const parties = (await client.service('party').find({
           query: {
-            // $sort: {
-            //   createdAt: -1
-            // },
-            $skip: skip,
-            $limit: limit,
+            $sort: {
+              ...sortData
+            },
+            $skip: skip * PARTY_PAGE_LIMIT,
+            $limit: PARTY_PAGE_LIMIT,
             action: 'admin',
             search: value
           }
         })) as Paginated<Party>
+
         dispatch(PartyAction.partyRetrievedAction(parties))
       }
     } catch (err) {

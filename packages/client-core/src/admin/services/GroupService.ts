@@ -61,22 +61,28 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (search: string | null = null, skip = 0, orderBy = 'asc') => {
+  getGroupService: async (search: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     const limit = accessGroupState().limit.value
     try {
+      let sortData = {}
+
+      if (sortField.length > 0) {
+        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+      }
       dispatch(GroupAction.fetchingGroup())
       const list = await client.service('group').find({
         query: {
           $sort: {
-            name: orderBy === 'desc' ? 0 : 1
+            ...sortData
           },
           $skip: skip * GROUP_PAGE_LIMIT,
           $limit: limit,
           search: search
         }
       })
+      console.log(sortData)
       dispatch(GroupAction.setAdminGroup(list))
     } catch (err) {
       AlertService.dispatchAlertError(err)

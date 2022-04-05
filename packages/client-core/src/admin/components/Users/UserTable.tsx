@@ -20,6 +20,7 @@ const UserTable = (props: UserProps) => {
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
   const [orderby, setOrderby] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
@@ -28,17 +29,17 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search, orderby)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, orderby)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(search, newPage, orderby)
+    UserService.fetchUsersAsAdmin(search, newPage, sortField, orderby)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      UserService.fetchUsersAsAdmin(search, page, orderby)
+      UserService.fetchUsersAsAdmin(search, page, sortField, orderby)
     }
   }, [orderby])
 
@@ -64,8 +65,8 @@ const UserTable = (props: UserProps) => {
     id: string,
     el: User,
     name: string,
-    avatar: string | JSX.Element,
-    status: string | JSX.Element,
+    avatarId: string | JSX.Element,
+    userRole: string | JSX.Element,
     location: string | JSX.Element,
     inviteCode: string | JSX.Element,
     instanceId: string | JSX.Element
@@ -74,8 +75,8 @@ const UserTable = (props: UserProps) => {
       id,
       el,
       name,
-      avatar,
-      status,
+      avatarId,
+      userRole,
       location,
       inviteCode,
       instanceId,
@@ -140,6 +141,7 @@ const UserTable = (props: UserProps) => {
       <TableComponent
         allowSort={false}
         orderby={orderby}
+        setSortField={setSortField}
         setOrderby={setOrderby}
         rows={rows}
         column={userColumns}

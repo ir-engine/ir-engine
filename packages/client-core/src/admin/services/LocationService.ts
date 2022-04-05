@@ -93,18 +93,30 @@ export const LocationService = {
   fetchAdminLocations: async (
     value: string | null = null,
     skip = accessLocationState().skip.value,
+    sortField = 'name',
     orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
 
     try {
+      let sortData = {}
+
+      if (sortField.length > 0) {
+        if (sortField === 'tags') {
+          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+        } else {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
+      }
+      console.log(sortData)
       const locations = (await client.service('location').find({
         query: {
           $sort: {
-            name: orderBy === 'desc' ? 0 : 1
+            ...sortData
           },
           $skip: skip * LOCATION_PAGE_LIMIT,
-          $limit: accessLocationState().limit.value,
+          $limit: LOCATION_PAGE_LIMIT,
           adminnedLocations: true,
           search: value
         }

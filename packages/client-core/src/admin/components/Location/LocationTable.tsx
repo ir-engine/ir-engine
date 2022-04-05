@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
@@ -25,14 +25,15 @@ const LocationTable = (props: LocationProps) => {
   const { search } = props
   const adminInstanceState = useInstanceState()
 
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(LOCATION_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
-  const [locationId, setLocationId] = React.useState('')
-  const [locationName, setLocationName] = React.useState('')
-  const [orderby, setOrderby] = React.useState('asc')
-  const [viewModal, setViewModal] = React.useState(false)
-  const [locationAdmin, setLocationAdmin] = React.useState<Location>()
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [locationId, setLocationId] = useState('')
+  const [locationName, setLocationName] = useState('')
+  const [orderby, setOrderby] = useState('asc')
+  const [sortField, setSortField] = useState('name')
+  const [viewModal, setViewModal] = useState(false)
+  const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
   const adminScopeReadErrMsg = useErrorState().readError.scopeErrorMessage
@@ -43,15 +44,15 @@ const LocationTable = (props: LocationProps) => {
   // Call custom hooks
   const { t } = useTranslation()
   const adminUserState = useUserState()
-  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, orderby)
+  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, sortField, orderby)
   useFetchAdminScenes(user, SceneService)
   useFetchLocationTypes(user, adminLocationState, LocationService)
-  useFetchUsersAsAdmin(user, adminUserState, UserService, '', orderby)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, '', 'name', orderby)
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(search, newPage, orderby)
+    LocationService.fetchAdminLocations(search, newPage, sortField, orderby)
     setPage(newPage)
   }
 
@@ -60,8 +61,8 @@ const LocationTable = (props: LocationProps) => {
   }
 
   useEffect(() => {
-    if (adminUserState.fetched.value) {
-      LocationService.fetchAdminLocations(search, page, orderby)
+    if (adminLocationState.fetched.value) {
+      LocationService.fetchAdminLocations(search, page, sortField, orderby)
     }
   }, [orderby])
 
@@ -180,6 +181,7 @@ const LocationTable = (props: LocationProps) => {
       <TableComponent
         allowSort={false}
         orderby={orderby}
+        setSortField={setSortField}
         setOrderby={setOrderby}
         rows={rows}
         column={locationColumns}
