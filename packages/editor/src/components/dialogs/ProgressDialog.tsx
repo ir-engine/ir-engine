@@ -12,7 +12,7 @@ import Dialog from './Dialog'
  * @type {Styled component}
  */
 const ProgressContainer = (styled as any).div`
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   display: flex;
   flex: 1;
   flex-direction: column;

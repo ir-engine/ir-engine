@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
@@ -136,7 +136,6 @@ const ProjectsPage = () => {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
 
-  const unmounted = useRef(false)
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
@@ -149,12 +148,8 @@ const ProjectsPage = () => {
     setLoading(true)
     try {
       const data = await getProjects()
-      if (unmounted.current) return
-
       setInstalledProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -167,12 +162,9 @@ const ProjectsPage = () => {
       const data = await (query
         ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : OfficialProjectData)
-      if (unmounted.current) return
 
       setOfficialProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -185,12 +177,9 @@ const ProjectsPage = () => {
       const data = await (query
         ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : CommunityProjectData)
-      if (unmounted.current) return
 
       setCommunityProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      if (unmounted.current) return
-
       console.error(error)
       setError(error)
     }
@@ -204,10 +193,6 @@ const ProjectsPage = () => {
     fetchInstalledProjects()
     fetchOfficialProjects()
     fetchCommunityProjects()
-
-    return () => {
-      unmounted.current = true
-    }
   }, [authUser.accessToken])
 
   // TODO: Implement tutorial

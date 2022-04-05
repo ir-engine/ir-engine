@@ -32,9 +32,9 @@ const DragPreviewContainer = (styled as any).div.attrs((props) => ({
     transform: `translate(${props.offset.x}px, ${props.offset.y}px)`
   }
 }))`
-  background-color: ${(props) => props.theme.blue};
+  background-color: var(--blue);
   opacity: 0.3;
-  color: ${(props) => props.theme.text};
+  color: var(--text);
   padding: 4px;
   border-radius: 4px;
   display: inline-block;

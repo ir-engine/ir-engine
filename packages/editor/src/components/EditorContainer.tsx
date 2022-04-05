@@ -82,7 +82,7 @@ export const DockContainer = (styled as any).div`
   }
   .dock {
     border-radius: 4px;
-    background: ${(props) => props.theme.dock};
+    background: var(--dock);
   }
   .dock-top .dock-bar {
     font-size: 12px;
@@ -96,13 +96,13 @@ export const DockContainer = (styled as any).div`
   .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
     border-bottom: 1px solid #ddd;
   }
-  .dock-tab:hover div, .dock-tab:hover svg { color: ${(props) => props.theme.text}; }
+  .dock-tab:hover div, .dock-tab:hover svg { color: var(--text); }
   .dock-tab > div { padding: 2px 12px; }
   .dock-tab-active {
-    color: ${(props) => props.theme.purpleColor};
+    color: var(--purpleColor);
   }
   .dock-ink-bar {
-    background-color: ${(props) => props.theme.purpleColor};
+    background-color: var(--purpleColor);
   }
 `
 /**
