@@ -61,17 +61,19 @@ export class LocalStorage implements StorageProviderInterface {
 
   putObject = async (params: StorageObjectInterface): Promise<any> => {
     const filePath = path.join(this.PATH_PREFIX, params.Key!)
-    const pathWithoutFile = path.dirname(filePath)
-    if (filePath.substr(-1) === '/') {
+
+    if (filePath.substring(filePath.length - 1) === '/') {
       if (!fs.existsSync(filePath)) {
         await fs.promises.mkdir(filePath, { recursive: true })
         return true
       }
       return false
     }
+
+    const pathWithoutFile = path.dirname(filePath)
     if (pathWithoutFile == null) throw new Error('Invalid file path in local putObject')
-    const pathWithoutFileExists = fs.existsSync(pathWithoutFile)
-    if (!pathWithoutFileExists) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
+    if (!fs.existsSync(pathWithoutFile)) await fs.promises.mkdir(pathWithoutFile, { recursive: true })
+
     return fs.promises.writeFile(filePath, params.Body)
   }
 
