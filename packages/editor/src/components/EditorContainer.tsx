@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { useHookedEffect } from '@xrengine/common/src/utils/useHookedEffect'
-import { getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AssetLoader, getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineService'
@@ -21,6 +21,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
+import { extractGLTF, uploadProjectFile } from '../functions/assetFunctions'
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import {
@@ -137,6 +138,8 @@ const EditorContainer = () => {
   const dispatch = useDispatch()
   const history = useHistory()
   const dockPanelRef = useRef<DockLayout>(null)
+
+  const importAsset = async (fileName: string, asset: any) => {}
 
   const importScene = async (sceneFile: SceneJson) => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
@@ -291,63 +294,44 @@ const EditorContainer = () => {
     }
     setToggleRefetchScenes(!toggleRefetchScenes)
   }
-  /*
-  const onExportProject = async () => {
-    if (!sceneName) return
-    const options = await new Promise<DefaultExportOptionsType>((resolve) => {
-      setDialogComponent(
-        <ExportProjectDialog
-          defaultOptions={Object.assign({}, DefaultExportOptions)}
-          onConfirm={resolve}
-          onCancel={resolve}
-        />
-      )
-    })
 
-    if (!options) {
-      setDialogComponent(null)
-      return
-    }
-
-    const abortController = new AbortController()
-
-    setDialogComponent(
-      <ProgressDialog
-        title={t('editor:exporting')}
-        message={t('editor:exportingMsg')}
-        cancelable={true}
-        onCancel={() => abortController.abort()}
-      />
-    )
-
-    try {
-      const { glbBlob } = await exportScene(options)
-
-      setDialogComponent(null)
-
-      const el = document.createElement('a')
-      el.download = Engine.scene.name + '.gltf'
-      el.href = URL.createObjectURL(glbBlob)
-      document.body.appendChild(el)
-      el.click()
-      document.body.removeChild(el)
-    } catch (error) {
-      if (error['aborted']) {
-        setDialogComponent(null)
-        return
+  const onImportZippedGLTF = async () => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.multiple = true
+    el.accept = '.zip'
+    el.onchange = async () => {
+      if (el.files && el.files.length > 0 && projectName.value) {
+        const fList = el.files
+        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
+        const nuBase = await uploadProjectFile(projectName.value, files, true)
+        nuBase.forEach((url) => {})
       }
-
-      console.error(error)
-
-      setDialogComponent(
-        <ErrorDialog
-          title={t('editor:exportingError')}
-          message={error.message || t('editor:exportingErrorMsg')}
-          error={error}
-        />
-      )
     }
-  }*/
+  }
+
+  const onImportAsset = async () => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    el.multiple = true
+    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip'
+    el.style.display = 'none'
+    el.onchange = async () => {
+      const pName = projectName.value
+      if (el.files && el.files.length > 0 && pName) {
+        const fList = el.files
+        const files = [...Array(el.files.length).keys()].map((i) => fList[i])
+        const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
+        const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
+        const extractPromises = new Array()
+        extractPromises.push(...zipFiles.map((zipped) => extractGLTF(pName, zipped)))
+        Promise.all(extractPromises).then(() => {
+          console.log('extraction complete')
+        })
+      }
+    }
+    el.click()
+  }
 
   const onImportScene = async () => {
     const confirm = await new Promise((resolve) => {
@@ -371,12 +355,6 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0) {
         const fileReader: any = new FileReader()
         fileReader.onload = () => {
-          /*const loader = getGLTFLoader()
-          
-          loader.parse(fileReader.result, '', (gltf) => {
-            const json = gltfToSceneJson(gltf)
-            importScene(json)
-          })*/
           const json = JSON.parse(fileReader.result)
           importScene(gltfToSceneJson(json))
         }
@@ -522,10 +500,10 @@ const EditorContainer = () => {
         name: t('editor:menubar.saveAs'),
         action: onSaveAs
       },
-      // {
-      //   name: t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
-      //   action: onExportProject
-      // },
+      {
+        name: t('editor:menubar.importAsset'),
+        action: onImportAsset
+      },
       {
         name: t('editor:menubar.importScene'),
         action: onImportScene

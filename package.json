@@ -120,6 +120,7 @@
   "dependencies": {
     "@xrengine/engine": "^0.4.13",
     "dotenv": "14.3.2",
+    "extract-zip": "^2.0.1",
     "react-json-view": "^1.21.3"
   }
 }

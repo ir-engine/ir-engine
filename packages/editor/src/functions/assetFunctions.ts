@@ -93,3 +93,12 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
     return null!
   }
 }
+
+export const extractGLTF = async (projectName: string, path: string): Promise<any> => {
+  try {
+    const parms = { projectName: projectName, path: path, zippedGLTF: true }
+    await client.service('asset-library').create(parms)
+  } catch (err) {
+    throw err
+  }
+}

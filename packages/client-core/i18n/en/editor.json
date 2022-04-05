@@ -34,6 +34,7 @@
     "newScene": "New Scene",
     "saveScene": "Save Scene",
     "saveAs": "Save As",
+    "importAsset": "Import Asset",
     "exportGLB": "Export as binary glTF (.glb) ...",
     "importScene": "Import scene",
     "exportScene": "Export scene",

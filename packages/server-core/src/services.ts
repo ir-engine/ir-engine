@@ -5,6 +5,7 @@ import { ProjectConfigInterface } from '@xrengine/projects/ProjectConfigInterfac
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
+import AssetServices from './assets/services'
 import BotService from './bot/services'
 import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
@@ -49,6 +50,7 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
+    ...AssetServices,
     ...installedProjects,
     ...MatchMakingServices
   ].forEach((service) => {
