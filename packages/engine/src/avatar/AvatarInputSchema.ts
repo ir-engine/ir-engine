@@ -45,14 +45,14 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { dispatchFrom, dispatchLocal } from '../networking/functions/dispatchFrom'
-import { NetworkWorldAction } from '../networking/functions/NetworkWorldAction'
+import { dispatchLocal } from '../networking/functions/dispatchFrom'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XR_ROTATION_MODE, XRUserSettings } from '../xr/types/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
 
@@ -391,6 +391,12 @@ const setLocalMovementDirection: InputBehaviorType = (
   controller.localMovementDirection.normalize()
 }
 
+let switchChangedToZero = true
+const deg2rad = Math.PI / 180
+const quat = new Quaternion()
+const upVec = new Vector3(0, 1, 0)
+const swerveVec = new Vector3()
+
 const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const values = inputValue.value
@@ -401,21 +407,24 @@ const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   const avatarMovementScheme = AvatarSettings.instance.movementScheme
   if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
     const controller = getComponent(entity, AvatarControllerComponent)
-    if (controller.localMovementDirection.z < -0.5 && !hasComponent(entity, AvatarTeleportTagComponent)) {
+    if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
       addComponent(entity, AvatarTeleportTagComponent, {})
     } else if (controller.localMovementDirection.z === 0.0) {
       removeComponent(entity, AvatarTeleportTagComponent)
+    }
+
+    if (Math.abs(controller.localMovementDirection.x) > 0.75 && !hasComponent(entity, AvatarSwerveComponent)) {
+      swerveVec.copy(upVec)
+      if (controller.localMovementDirection.x > 0) swerveVec.multiplyScalar(-1)
+      addComponent(entity, AvatarSwerveComponent, { axis: swerveVec })
+    } else if (controller.localMovementDirection.x === 0.0) {
+      removeComponent(entity, AvatarSwerveComponent)
     }
 
     // This is required because we want to disable any direct movement of avatar as a result of joystick
     controller.localMovementDirection.setScalar(0)
   }
 }
-
-let switchChangedToZero = true
-const deg2rad = Math.PI / 180
-const quat = new Quaternion()
-const upVec = new Vector3(0, 1, 0)
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
