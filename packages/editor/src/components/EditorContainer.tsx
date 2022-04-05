@@ -21,7 +21,7 @@ import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
 import Dialog from '@mui/material/Dialog'
 
-import { extractGLTF, uploadProjectFile } from '../functions/assetFunctions'
+import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks, saveProject } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import {
@@ -307,8 +307,10 @@ const EditorContainer = () => {
         const fList = el.files
         const files = [...Array(el.files.length).keys()].map((i) => fList[i])
         const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
+
+        //process zipped files
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
-        const extractPromises = [...zipFiles.map((zipped) => extractGLTF(pName, zipped))]
+        const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
         Promise.all(extractPromises).then(() => {
           console.log('extraction complete')
         })
