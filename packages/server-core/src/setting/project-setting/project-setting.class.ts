@@ -1,7 +1,6 @@
 import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
-import verifyScope from '../../hooks/verify-scope'
 
 interface Data {}
 interface ServiceOptions {}
@@ -16,12 +15,9 @@ export class ProjectSetting implements ServiceMethods<Data> {
   }
 
   async find(params?: Params): Promise<any> {
-    const result = await this.app.service('project').Model.findOne({
-      where: {
-        name: params!.query!.name
-      }
-    })
-    return JSON.parse(result.settings).reduce((obj, item) => Object.assign(obj, { [item.key]: item.value }), {})
+    const result = await this.app.service('project').find(params)
+    const settingsValue = result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
+    return settingsValue
   }
 
   async patch(id: Id, params?: Params): Promise<any> {
