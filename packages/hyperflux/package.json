@@ -14,6 +14,7 @@
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
   "dependencies": {
-    "@speigg/hookstate": "3.0.13-stable-state"
+    "@speigg/hookstate": "3.0.13-stable-state",
+    "react-reconciler": "^0.27.0"
   }
 }

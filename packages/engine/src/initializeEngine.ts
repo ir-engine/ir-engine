@@ -31,7 +31,7 @@ import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { removeClientInputListeners } from './input/functions/clientInputListeners'
 import { Network } from './networking/classes/Network'
 import { receiveActionOnce } from './networking/functions/matchActionOnce'
-import { NetworkActionReceptors } from './networking/functions/NetworkActionReceptors'
+import { NetworkActionReceptor } from './networking/functions/NetworkActionReceptors'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { registerPrefabs } from './scene/functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from './scene/functions/registerSceneFunctions'
@@ -164,7 +164,7 @@ export const initializeMediaServerSystems = async () => {
     }
   }
 
-  NetworkActionReceptors.createNetworkActionReceptor(world)
+  NetworkActionReceptor.createNetworkActionReceptor(world)
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()
@@ -249,7 +249,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
 export const initializeSceneSystems = async () => {
   const world = Engine.currentWorld
-  NetworkActionReceptors.createNetworkActionReceptor(world)
+  NetworkActionReceptor.createNetworkActionReceptor(world)
 
   const systemsToLoad: SystemModuleType<any>[] = []
 

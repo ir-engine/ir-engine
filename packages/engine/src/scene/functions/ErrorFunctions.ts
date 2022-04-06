@@ -1,8 +1,8 @@
 import { isEmpty } from 'lodash'
-import { Engine } from 'src/ecs/classes/Engine'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
