@@ -132,7 +132,18 @@ export class Location<T = LocationDataType> extends Service<T> {
     const order: any[] = []
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
-        order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC'])
+        if (name === 'type') {
+          order.push([Sequelize.literal('`location_setting.locationType`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else if (name === 'instanceMediaChatEnabled') {
+          order.push([
+            Sequelize.literal('`location_setting.instanceMediaChatEnabled`'),
+            $sort[name] === 0 ? 'DESC' : 'ASC'
+          ])
+        } else if (name === 'videoEnabled') {
+          order.push([Sequelize.literal('`location_setting.videoEnabled`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+        } else {
+          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+        }
       })
 
     if (joinableLocations) {
@@ -160,7 +171,8 @@ export class Location<T = LocationDataType> extends Service<T> {
             model: (this.app.service('location-ban') as any).Model,
             required: false
           }
-        ]
+        ],
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -209,7 +221,8 @@ export class Location<T = LocationDataType> extends Service<T> {
         limit: $limit,
         where: { ...strippedQuery, ...q },
         order: order,
-        include: include
+        include: include,
+        subQuery: false
       })
       return {
         skip: $skip,

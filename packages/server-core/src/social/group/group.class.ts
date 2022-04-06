@@ -34,6 +34,16 @@ export class Group<T = GroupDataType> extends Service<T> {
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
     const search = params?.query?.search
+    const sort = params?.query?.$sort
+    const order: any[] = []
+    if (sort != null) {
+      Object.keys(sort).forEach((name, val) => {
+        order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
+      })
+    } else {
+      order.push(['name', 'ASC'])
+    }
+
     const include: any = [
       {
         model: (this.app.service('user') as any).Model,
@@ -66,10 +76,11 @@ export class Group<T = GroupDataType> extends Service<T> {
     if (search) {
       q = { name: { [Op.like]: `%${search}%` } }
     }
+
     const groupResult = await (this.app.service('group') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,
-      order: [['name', 'ASC']],
+      order: order,
       include: include,
       where: q,
       distinct: true
