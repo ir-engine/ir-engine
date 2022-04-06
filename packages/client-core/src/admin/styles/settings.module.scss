@@ -42,11 +42,11 @@
   display: flex;
   flex-direction: column;
   text-align: center;
-  background: #43484F;
-  color: #FFF;
+  background: #43484f;
+  color: #fff;
   max-width: 310px;
   position: fixed;
-  padding: 2px 18px 2px 18px;
+  padding: 2px 18px;
 }
 
 .hoverSettings {
@@ -58,7 +58,7 @@
   color: var(--text);
   max-width: 310px;
   position: absolute;
-  padding: 2px 18px 2px 18px;
+  padding: 2px 18px;
 }
 
 .settingsHeading {
@@ -127,7 +127,7 @@
 }
 
 .loginBtn {
-  background: #F0FFF0;
+  background: #f0fff0;
 }
 
 .nested {
@@ -143,7 +143,7 @@
 }
 
 .Paper {
-  padding: 0px 10px 6px 10px;
+  padding: 0 10px 6px;
   background: var(--purpleDarkest);
 }
 
@@ -153,7 +153,7 @@
   flex-direction: row;
   background: var(--purpleDarkest);
 
-  &>div {
+  & > div {
     margin: 5px;
   }
 
@@ -187,14 +187,14 @@
 }
 
 .spanDange {
-  color: #FF8C00 !important;
+  color: #ff8c00 !important;
   margin-bottom: 0.8rem;
   position: fixed;
 }
 
 .clearMenuBg {
-  background: #43484F;
-  border: 1px solid #43484F;
+  background: #43484f;
+  border: 1px solid #43484f;
   border-radius: 50%;
   position: fixed;
   z-index: 3;
@@ -205,7 +205,7 @@
 
   @media (max-width: 1200px) {
     display: inline-block;
-    marginBottom: 3rem;
+    margin-bottom: 3rem;
   }
 }
 

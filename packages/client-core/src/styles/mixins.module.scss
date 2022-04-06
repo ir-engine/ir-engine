@@ -8,7 +8,7 @@
   background: #ffffffe8;
   left: 50%;
   transform: translateX(-50%);
-  box-shadow: 16px 16px 32px 0px #11111159;
+  box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
   max-height: calc(100vh - 175px);
   overflow: auto;
@@ -29,10 +29,10 @@
   }
 
   &::before {
-    content: ' ';
+    content: " ";
     position: absolute;
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     border-radius: 20px;
     background: var(--purpleColor);
     left: 50%;
@@ -74,10 +74,10 @@
   flex-direction: row;
 
   &::before {
-    content: ' ';
+    content: " ";
     position: absolute;
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     border-radius: 20px;
     background: var(--purpleColor);
     left: 50%;
@@ -103,7 +103,7 @@
 
 @mixin selected-avatar() {
   &::before {
-    content: '✓';
+    content: "✓";
     position: absolute;
     background: var(--purpleColor0);
     height: 20px;
@@ -119,7 +119,7 @@
 
 @mixin active-avatar() {
   &::after {
-    content: '✓';
+    content: "✓";
     position: absolute;
     background: var(--purpleColor);
     height: 20px;
@@ -139,7 +139,9 @@
 
 @mixin paper-modal() {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 3px 5px -1px rgb(0 0 0 / 20%),
+    0 5px 8px 0 rgb(0 0 0 / 14%),
+    0 1px 14px 0 rgb(0 0 0 / 12%);
   background-color: #fff;
 }
