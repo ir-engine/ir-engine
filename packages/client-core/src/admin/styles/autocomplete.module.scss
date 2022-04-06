@@ -1,7 +1,5 @@
-@use "../../theme.scss"as theme;
-
 .root {
-  color: theme.$text;
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -9,21 +7,21 @@
   padding: 0 0 10px;
   line-height: 1.5;
   display: block;
-  color: theme.$text;
+  color: var(--text);
 }
 
 .inputWrapper {
   width: 100%;
-  border: 1px solid theme.$inputBackground;
-  background-color: theme.$inputBackground;
+  border: 1px solid var(--inputBackground);
+  background-color: var(--inputBackground);
   border-radius: 4px;
   padding: 1px;
   display: flex;
   flex-wrap: wrap;
 
   input {
-    background-color: theme.$inputBackground;
-    color: theme.$text;
+    background-color: var(--inputBackground);
+    color: var(--text);
     height: 30px;
     box-sizing: border-box;
     padding: 4px 6px;
@@ -42,12 +40,12 @@
   padding: 0;
   position: absolute;
   list-style: none;
-  background-color: theme.$inputBackground;
-  color: theme.$text;
+  background-color: var(--inputBackground);
+  color: var(--text);
   overflow: auto;
   max-height: 30vh;
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
   z-index: 1;
 
   & li {
@@ -64,21 +62,21 @@
     }
   }
 
-  & li[aria-selected='true'] {
-    background-color: theme.$purpleColor;
+  & li[aria-selected="true"] {
+    background-color: var(--purpleColor);
     font-weight: 600;
 
     & svg {
-      color: theme.$text;
+      color: var(--text);
     }
   }
 
-  & li[data-focus='true'] {
-    background-color: theme.$purpleColor !important;
+  & li[data-focus="true"] {
+    background-color: var(--purpleColor) !important;
     cursor: pointer;
 
     & svg {
-      color: theme.$text;
+      color: var(--text);
     }
   }
 }
@@ -89,14 +87,14 @@
   height: 24px;
   margin: 2px;
   line-height: 22px;
-  background-color: theme.$purpleLight;
-  border: 1px solid theme.$purpleLight;
+  background-color: var(--purpleLight);
+  border: 1px solid var(--purpleLight);
   border-radius: 2px;
   box-sizing: content-box;
   padding: 0 4px 0 10px;
   outline: 0;
   overflow: hidden;
-  color: theme.$text;
+  color: var(--text);
 
   span {
     overflow: hidden;
@@ -108,6 +106,6 @@
     font-size: 12px;
     cursor: pointer;
     padding: 4px;
-    color: theme.$text;
+    color: var(--text);
   }
 }

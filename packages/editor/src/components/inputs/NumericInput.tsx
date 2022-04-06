@@ -39,23 +39,23 @@ const NumericInputContainer = (styled as any).div`
   position: relative;
   display: flex;
   flex: 1;
-  background-color: ${(props) => props.theme.inputBackground};
-  border: 1px solid ${(props) => props.theme.border};
+  background-color: var(--inputBackground);
+  border: 1px solid var(--border);
   border-radius: 4px;
   height: 24px;
   overflow: hidden;
 
   &:hover {
-    border-color: ${(props) => props.theme.blueHover};
+    border-color: var(--blueHover);
   }
 
   &:focus, &:focus-visible, &:focus-within {
-    border-color: ${(props) => props.theme.blue};
+    border-color: var(--blue);
   }
 
   &:disabled {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
   }
 `
 
@@ -63,8 +63,8 @@ const NumericInputContainer = (styled as any).div`
  * @author Robert Long
  */
 const StyledNumericInput = (styled as any).input`
-  color: ${(props) => props.theme.text};
-  background-color: ${(props) => props.theme.inputBackground};
+  color: var(--text);
+  background-color: var(--inputBackground);
   border: none;
   font-size: 12px;
   height: 22px;
@@ -75,8 +75,8 @@ const StyledNumericInput = (styled as any).input`
   min-width: 0;
 
   &:disabled {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
   }
 `
 
@@ -84,8 +84,8 @@ const StyledNumericInput = (styled as any).input`
  * @author Robert Long
  */
 const NumericInputUnit = (styled as any).div`
-  color: ${(props) => props.theme.text2};
-  background-color: ${(props) => props.theme.inputBackground};
+  color: var(--text2);
+  background-color: var(--inputBackground);
   padding-right: 4px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;

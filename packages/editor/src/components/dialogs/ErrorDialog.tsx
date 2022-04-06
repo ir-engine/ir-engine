@@ -30,7 +30,7 @@ const ErrorMessage = (styled as any).code`
   overflow-x: hidden;
   overflow-y: auto;
   padding: 16px;
-  color: ${(props) => props.theme.red};
+  color: var(--red);
 `
 
 /**
