@@ -14,6 +14,7 @@
     height: 500px;
     width: 500px;
     border-radius: 50%;
+
     // background-color: #125DF4;
     // transform:scale(0.7);
   }
@@ -23,7 +24,7 @@
     width: 200px;
     border-radius: 50%;
     position: relative;
-    background-color: #2BAFFC;
+    background-color: #2baffc;
     top: 45px;
     left: 220px;
   }
@@ -69,7 +70,7 @@
   }
 
   .r5 {
-    background-color: rgba(204, 102, 0, 0.3);
+    background-color: rgb(204 102 0 / 30%);
     height: 15px;
     width: 40px;
     border-radius: 7.5px;
@@ -79,7 +80,7 @@
   }
 
   .r6 {
-    background-color: rgba(204, 102, 0, 0.3);
+    background-color: rgb(204 102 0 / 30%);
     height: 20px;
     width: 60px;
     border-radius: 11px;
@@ -89,7 +90,7 @@
   }
 
   .r7 {
-    background-color: rgba(204, 102, 0, 0.3);
+    background-color: rgb(204 102 0 / 30%);
     height: 15px;
     width: 45px;
     border-radius: 7.5px;
@@ -99,7 +100,7 @@
   }
 
   .r8 {
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgb(255 255 255 / 40%);
     height: 12px;
     width: 30px;
     border-radius: 7.5px;
@@ -110,7 +111,7 @@
 
   .shad {
     background-color: transparent;
-    box-shadow: 15px 15px rgba(204, 102, 0, 0.3);
+    box-shadow: 15px 15px rgb(204 102 0 / 30%);
     position: relative;
     height: 200px;
     width: 200px;
@@ -124,7 +125,6 @@
     left: 131px;
     bottom: 250px;
     transform: rotate(-30deg);
-
   }
 
   .an {
@@ -134,7 +134,6 @@
     position: relative;
     bottom: 80px;
     left: 20px;
-
   }
 
   @keyframes flo {
@@ -165,20 +164,17 @@
   }
 
   .glass {
-    background-color: #666666;
+    background-color: #666;
     height: 60px;
     width: 80px;
-    border-top-left-radius: 60%;
-    border-top-right-radius: 60%;
-    border-bottom-left-radius: 40%;
-    border-bottom-right-radius: 40%;
+    border-radius: 60% 60% 40% 40%;
     position: relative;
     left: 10px;
     top: 7px;
   }
 
   .shine {
-    background-color: rgba(166, 166, 166, 0.7);
+    background-color: rgb(166 166 166 / 70%);
     height: 15px;
     width: 15px;
     border-radius: 50%;
@@ -195,7 +191,6 @@
     position: relative;
     bottom: 5px;
     left: 20px;
-
   }
 
   .handr {
@@ -423,7 +418,7 @@
     height: 80px;
     width: 80px;
     border: 10px solid #4775ff;
-    border-radius: 40px 0px 0px 70px;
+    border-radius: 40px 0 0 70px;
     border-right: none;
     transform: rotate(180deg);
     position: relative;
@@ -436,14 +431,13 @@
     height: 90px;
     width: 42px;
     border: 10px solid #4775ff;
-    border-radius: 40px 0px 0px 0px;
+    border-radius: 40px 0 0;
     border-right: none;
     transform: rotate(90deg);
     position: relative;
     border-bottom: none;
     left: 67px;
     bottom: 34px;
-
   }
 
   .pipe3 {
@@ -466,7 +460,7 @@
     top: 139px;
   }
 
-  /*simple reset*/
+  /* simple reset */
   * {
     margin: 0;
     padding: 0;
@@ -478,7 +472,6 @@
     -o-box-sizing: border-box;
     box-sizing: border-box;
   }
-
 
   /* stars */
   [class^="layer"] {

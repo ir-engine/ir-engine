@@ -104,7 +104,7 @@ const UserProfile = (props: Props): JSX.Element => {
           name="file"
           placeholder={t('user:profile.userIcon.ph-uploadImg')}
           type="file"
-          className={styles['signup__fileField']}
+          className={styles.signupFileField}
           onChange={handleChange}
         />
 

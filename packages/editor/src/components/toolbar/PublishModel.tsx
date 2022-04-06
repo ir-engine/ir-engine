@@ -138,7 +138,7 @@ const LocationModal = (props: Props): any => {
           <div
             className={classNames({
               [styles.paper]: true,
-              [styles['modal-content']]: true
+              [styles.modalContent]: true
             })}
           >
             {editing && (

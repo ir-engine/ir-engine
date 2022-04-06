@@ -13,7 +13,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -101,7 +101,7 @@ export const createAvatar = (spawnAction: typeof NetworkWorldAction.spawnAvatar.
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
   const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger, 0)
+  filterData.setWords(AvatarCollisionMask, 0)
   const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
   filterData.setFlags(flags)
 

@@ -5,13 +5,17 @@
     display: flex;
     max-width: 200px;
     padding: 5px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgb(0 0 0 / 20%);
     color: #ccc;
     border-radius: 2px;
     min-width: 110px;
+    animation-duration: 0.2s;
+    animation-name: fadeIn, fadeOut, hide;
+    animation-delay: 0s, 3s, 3.2s;
+    animation-fill-mode: forwards;
   }
 
-  .toastMessageContainer+.toastMessageContainer {
+  .toastMessageContainer + .toastMessageContainer {
     margin-top: 5px;
   }
 
@@ -25,13 +29,6 @@
     margin-left: 5px;
     width: 25px;
     align-self: flex-end;
-  }
-
-  .toastMessageContainer {
-    animation-duration: 0.2s;
-    animation-name: fadeIn, fadeOut, hide;
-    animation-delay: 0s, 3s, 3.2s;
-    animation-fill-mode: forwards;
   }
 
   @keyframes fadeOut {
@@ -59,9 +56,8 @@
   }
 }
 
-
 .userAdded {
-  color: #21B84E;
+  color: #21b84e;
 }
 
 .userRemoved {
