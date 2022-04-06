@@ -19,7 +19,7 @@ const UserTable = (props: UserProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
@@ -29,19 +29,18 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, orderby)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, fieldOrder)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    //const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(search, newPage, sortField, orderby)
+    UserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      UserService.fetchUsersAsAdmin(search, page, sortField, orderby)
+      UserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
     }
-  }, [orderby])
+  }, [fieldOrder])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
@@ -140,9 +139,9 @@ const UserTable = (props: UserProps) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={fieldOrder}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={userColumns}
         page={page}

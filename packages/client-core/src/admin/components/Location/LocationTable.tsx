@@ -30,7 +30,7 @@ const LocationTable = (props: LocationProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [locationId, setLocationId] = useState('')
   const [locationName, setLocationName] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [locationAdmin, setLocationAdmin] = useState<Location>()
@@ -44,15 +44,15 @@ const LocationTable = (props: LocationProps) => {
   // Call custom hooks
   const { t } = useTranslation()
   const adminUserState = useUserState()
-  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, sortField, orderby)
+  useFetchLocation(user, adminLocationState, adminScopeReadErrMsg, search, LocationService, sortField, fieldOrder)
   useFetchAdminScenes(user, SceneService)
   useFetchLocationTypes(user, adminLocationState, LocationService)
-  useFetchUsersAsAdmin(user, adminUserState, UserService, '', 'name', orderby)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, '', 'name', fieldOrder)
   useFetchAdminInstance(user, adminInstanceState, InstanceService)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    LocationService.fetchAdminLocations(search, newPage, sortField, orderby)
+    LocationService.fetchAdminLocations(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
@@ -62,9 +62,9 @@ const LocationTable = (props: LocationProps) => {
 
   useEffect(() => {
     if (adminLocationState.fetched.value) {
-      LocationService.fetchAdminLocations(search, page, sortField, orderby)
+      LocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
     }
-  }, [orderby])
+  }, [fieldOrder])
 
   const submitRemoveLocation = async () => {
     await LocationService.removeLocation(locationId)
@@ -180,9 +180,9 @@ const LocationTable = (props: LocationProps) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={fieldOrder}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={locationColumns}
         page={page}

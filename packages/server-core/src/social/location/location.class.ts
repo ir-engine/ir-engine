@@ -171,7 +171,8 @@ export class Location<T = LocationDataType> extends Service<T> {
             model: (this.app.service('location-ban') as any).Model,
             required: false
           }
-        ]
+        ],
+        subQuery: false
       })
       return {
         skip: $skip,
@@ -218,11 +219,10 @@ export class Location<T = LocationDataType> extends Service<T> {
       const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
-        //where: { ...strippedQuery, ...q },
+        where: { ...strippedQuery, ...q },
         order: order,
         include: include,
-        raw: true,
-        nest: true
+        subQuery: false
       })
       return {
         skip: $skip,

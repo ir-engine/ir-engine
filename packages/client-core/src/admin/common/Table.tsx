@@ -19,10 +19,10 @@ interface Props {
   page: number
   rowsPerPage: number
   count: number
-  orderby?: string
+  fieldOrder?: string
   allowSort?: boolean
   setSortField?: (fueld: string) => void
-  setOrderby?: (order: string) => void
+  setFieldOrder?: (order: string) => void
   handlePageChange: (e: unknown, newPage: number) => void
   handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
@@ -132,20 +132,20 @@ const TableComponent = (props: Props) => {
     page,
     rowsPerPage,
     count,
-    orderby,
+    fieldOrder,
     allowSort,
     setSortField,
-    setOrderby,
+    setFieldOrder,
     handlePageChange,
     handleRowsPerPageChange
   } = props
-  const [order, setOrder] = React.useState<Order>(orderby === 'desc' ? 'desc' : 'asc')
+  const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
   const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
     setSortField && setSortField(property)
-    setOrderby && setOrderby(order)
+    setFieldOrder && setFieldOrder(order)
     setOrderBy(property)
   }
 
@@ -161,7 +161,7 @@ const TableComponent = (props: Props) => {
             columns={column}
           />
           <TableBody>
-            {(allowSort === false ? rows : stableSort(rows, getComparator(order, orderBy)))
+            {(allowSort ? stableSort(rows, getComparator(order, orderBy)) : rows)
               //.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
                 return (

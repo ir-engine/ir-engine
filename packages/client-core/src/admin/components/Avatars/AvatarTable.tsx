@@ -36,22 +36,21 @@ const AvatarTable = (props: Props) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [avatarAdmin, setAvatarAdmin] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    //const incDec = page < newPage ? 'increment' : 'decrement'
-    AvatarService.fetchAdminAvatars(newPage, search, sortField, orderby)
+    AvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminAvatarState.fetched.value) {
-      AvatarService.fetchAdminAvatars(page, search, sortField, orderby)
+      AvatarService.fetchAdminAvatars(page, search, sortField, fieldOrder)
     }
-  }, [orderby])
+  }, [fieldOrder])
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
@@ -63,11 +62,7 @@ const AvatarTable = (props: Props) => {
   }
 
   useEffect(() => {
-    //if (user?.id.value && adminAvatarState.updateNeeded.value) {
-    //  AvatarService.fetchAdminAvatars(0, search,sortField, orderby)
-    //} else {
-    AvatarService.fetchAdminAvatars(0, search, sortField, orderby)
-    //}
+    AvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
   }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
@@ -126,9 +121,9 @@ const AvatarTable = (props: Props) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={fieldOrder}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={avatarColumns}
         page={page}

@@ -91,11 +91,6 @@ export const UserService = {
     try {
       if (user.userRole.value === 'admin') {
         let sortData = {}
-        //disable location sort
-        if (sortField == 'location') {
-          //sortField = ''
-          return
-        }
 
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1

@@ -20,7 +20,7 @@ const PartyTable = (props: PartyPropsTable) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('location')
   const [viewModal, setViewModal] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
@@ -34,18 +34,18 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyCount = adminParty.total.value
 
   //Call custom hooks
-  useFetchAdminParty(user, adminPartyState, PartyService, search, page, sortField, orderby)
+  useFetchAdminParty(user, adminPartyState, PartyService, search, page, sortField, fieldOrder)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    PartyService.fetchAdminParty(search, page, sortField, orderby)
+    PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminParty.fetched.value) {
-      PartyService.fetchAdminParty(search, page, sortField, orderby)
+      PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     }
-  }, [orderby])
+  }, [fieldOrder])
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
@@ -116,9 +116,9 @@ const PartyTable = (props: PartyPropsTable) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={fieldOrder}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={partyColumns}
         page={page}

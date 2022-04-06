@@ -31,7 +31,7 @@ const InstanceTable = (props: Props) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [instanceId, setInstanceId] = useState('')
   const [instanceName, setInstanceName] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('createdAt')
   const { t } = useTranslation()
 
@@ -40,15 +40,15 @@ const InstanceTable = (props: Props) => {
   const adminInstances = adminInstanceState
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    InstanceService.fetchAdminInstances(search, newPage, sortField, orderby)
+    InstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminInstanceState.fetched.value) {
-      InstanceService.fetchAdminInstances(search, page, sortField, orderby)
+      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
-  }, [orderby])
+  }, [fieldOrder])
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
@@ -84,7 +84,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch) {
-      InstanceService.fetchAdminInstances(search, page, sortField, orderby)
+      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
@@ -128,9 +128,9 @@ const InstanceTable = (props: Props) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={fieldOrder}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={instanceColumns}
         page={page}

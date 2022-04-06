@@ -24,7 +24,7 @@ const GroupTable = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = useState('')
   const [groupName, setGroupName] = useState('')
-  const [orderby, setOrderby] = useState('asc')
+  const [orderBy, setOrderBy] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
@@ -34,15 +34,15 @@ const GroupTable = (props: Props) => {
 
   const handlePageChange = (event: unknown, newPage: number) => {
     // const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(search, newPage, sortField, orderby)
+    GroupService.getGroupService(search, newPage, sortField, orderBy)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminGroupState.fetched.value) {
-      GroupService.getGroupService(search, page, sortField, orderby)
+      GroupService.getGroupService(search, page, sortField, orderBy)
     }
-  }, [orderby])
+  }, [orderBy])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -79,7 +79,7 @@ const GroupTable = (props: Props) => {
     //if (adminGroupState.updateNeeded.value && user.id.value) {
     //  GroupService.getGroupService(null)
     // } else {
-    GroupService.getGroupService(search, 0, sortField, orderby)
+    GroupService.getGroupService(search, 0, sortField, orderBy)
     // }
   }, [adminGroupState.updateNeeded.value, user, search])
 
@@ -116,9 +116,9 @@ const GroupTable = (props: Props) => {
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        orderby={orderby}
+        fieldOrder={orderBy}
         setSortField={setSortField}
-        setOrderby={setOrderby}
+        setFieldOrder={setOrderBy}
         rows={rows}
         column={columns}
         page={page}

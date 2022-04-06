@@ -108,6 +108,7 @@ export const LocationService = {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
       }
+
       const locations = (await client.service('location').find({
         query: {
           $sort: {
