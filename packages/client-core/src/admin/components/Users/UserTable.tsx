@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -19,6 +19,8 @@ const UserTable = (props: UserProps) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
+  const [fieldOrder, setFieldOrder] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [viewModal, setViewModal] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
@@ -27,13 +29,18 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search)
+  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, fieldOrder)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    UserService.fetchUsersAsAdmin(incDec, null, newPage)
+    UserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminUserState.fetched.value) {
+      UserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
+    }
+  }, [fieldOrder])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
@@ -57,8 +64,8 @@ const UserTable = (props: UserProps) => {
     id: string,
     el: User,
     name: string,
-    avatar: string | JSX.Element,
-    status: string | JSX.Element,
+    avatarId: string | JSX.Element,
+    userRole: string | JSX.Element,
     location: string | JSX.Element,
     inviteCode: string | JSX.Element,
     instanceId: string | JSX.Element
@@ -67,8 +74,8 @@ const UserTable = (props: UserProps) => {
       id,
       el,
       name,
-      avatar,
-      status,
+      avatarId,
+      userRole,
       location,
       inviteCode,
       instanceId,
@@ -131,6 +138,10 @@ const UserTable = (props: UserProps) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        fieldOrder={fieldOrder}
+        setSortField={setSortField}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={userColumns}
         page={page}

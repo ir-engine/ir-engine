@@ -9,7 +9,7 @@ import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
-export const USER_PAGE_LIMIT = 12
+export const USER_PAGE_LIMIT = 100
 
 const state = createState({
   users: [] as Array<User>,
@@ -81,23 +81,28 @@ export const useUserState = () => useState(state) as any as typeof state
 
 //Service
 export const UserService = {
-  fetchUsersAsAdmin: async (incDec?: 'increment' | 'decrement', value: string | null = null, skip = 0) => {
+  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     const userState = accessUserState()
     const user = accessAuthState().user
-    const limit = userState.limit.value
     const skipGuests = userState.skipGuests.value
     const userRole = userState.userRole.value
     try {
       if (user.userRole.value === 'admin') {
+        let sortData = {}
+
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
+
         const params = {
           query: {
             $sort: {
-              name: 1
+              ...sortData
             },
             $skip: skip * USER_PAGE_LIMIT,
-            $limit: limit,
+            $limit: USER_PAGE_LIMIT,
             action: 'admin',
             search: value
           }

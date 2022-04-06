@@ -6,9 +6,11 @@ https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f
 
 **Your own sandbox in the Metaverse. Take what you need, or launch the full stack.**
 
-We [XR Foundation](https://github.com/xrfoundation) believe that the Metaverse, Web AR, VR. XR should be easy.
+We [XR Foundation](https://github.com/xrfoundation) believe that the Metaverse, 
+Web AR, VR, and XR should be easy.
 
-We want a Star Trek future where participating in immersive communication technology and shared simulations should be as easy and natural as making a website.
+We want a Star Trek future where participating in immersive communication 
+technology and shared simulations should be as easy and natural as making a website.
 
 - Includes a self-deployable platform, UI, worlds, avatars, and games
 - Fully customizable for any kind of game, social experience, event or spatial web app
@@ -25,11 +27,13 @@ We want a Star Trek future where participating in immersive communication techno
 - Free, open source, MIT and Apache 2.0-licensed
 
 ## Demo
-We have better demos coming, but for now you can jump around this CC0 apartment we got from Sketchfab:
+We have better demos coming, but for now you can jump around this CC0 apartment 
+we got from Sketchfab:
 https://app.theoverlay.io/location/apartment
 
 ## Getting Started
-A lot has changed during development, and our monorepo has gotten quite large. To avoid cloning the entire thing, use this command:
+A lot has changed during development, and our monorepo has gotten quite large. 
+To avoid cloning the entire thing, use this command:
 ```
 git clone --depth 1 https://github.com/xrfoundation/xrengine
 ```
@@ -41,9 +45,15 @@ Installation instructions are [here](/docs/docs/0_installation/01-installation.m
 The official XREngine docs can be found [here](/docs/docs/0_start-here.md)
 
 ## Let's build it together
-We believe that projects like this are extremely complex and difficult, and can only be built when large groups of people work together, out in the open. If you believe that your calling is to build a free, open network that everyone, everywhere can get value from, then you are welcome in our community, and we'll do our best to get you set up.
+We believe that projects like this are extremely complex and difficult, and can 
+only be built when large groups of people work together, out in the open. If you 
+believe that your calling is to build a free, open network that everyone, 
+everywhere can get value from, then you are welcome in our community, and we'll 
+do our best to get you set up.
 
-We are always hiring talented people who want to be leaders in what is to come. Inquire with anyone who seems like they know what's going on and they'll help you find who you need to talk to.
+We are always hiring talented people who want to be leaders in what is to come. 
+Inquire with anyone who seems like they know what's going on and they'll help 
+you find who you need to talk to.
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 

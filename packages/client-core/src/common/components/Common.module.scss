@@ -1,5 +1,5 @@
 .BoxContainer {
-  padding: 0px;
+  padding: 0;
 }
 
 .alertContainer {
@@ -7,7 +7,6 @@
   z-index: 1000;
   background-color: transparent;
   float: right;
-  width: auto;
   height: auto;
   display: block;
   width: 300px;
@@ -45,12 +44,10 @@
   position: absolute;
   border: 0 !important;
   padding: 0 !important;
-  height: 66px;
   left: 65px;
-  top: 0px;
+  top: 0;
   height: 66px;
   width: 215px;
-  padding: 5px;
   padding-top: 10px !important;
   padding-left: 10px !important;
   background-color: white !important;
@@ -97,5 +94,5 @@
 }
 
 :global(.MuiIconButton-sizeSmall) {
-  background-color: blue !important
+  background-color: blue !important;
 }

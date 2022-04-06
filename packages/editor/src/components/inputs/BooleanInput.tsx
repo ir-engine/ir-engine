@@ -17,8 +17,8 @@ const StyledBooleanInput = (styled as any).input`
   display: none;
 
   :disabled ~ label {
-    background-color: ${(props) => props.theme.disabled};
-    color: ${(props) => props.theme.disabledText};
+    background-color: var(--disabled);
+    color: var(--disabledText);
   }
 `
 
@@ -47,7 +47,7 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
 const BooleanCheck = (styled as any)(CheckIcon)`
   width: 100%;
   height: auto;
-  color: ${(props) => props.theme.purpleColor};
+  color: var(--purpleColor);
 `
 
 interface BooleanInputProp {
