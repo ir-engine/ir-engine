@@ -273,6 +273,14 @@ const applyIncomingActions = (store: HyperStore, now: number) => {
   }
 }
 
+const loopbackOutgoingActions = (store: HyperStore) => {
+  const { outgoing } = store.actions
+  for (const action of outgoing) {
+    if (action.$to === 'all' || (action.$to === 'others' && action.$from != store.id) || action.$to === store.id)
+      store.actions.incoming.push(action)
+  }
+}
+
 export default {
   defineAction,
   dispatchAction,
@@ -280,5 +288,6 @@ export default {
   removeActionReceptor,
   updateCachedActions,
   applyAndArchiveIncomingAction,
-  applyIncomingActions
+  applyIncomingActions,
+  loopbackOutgoingActions
 }

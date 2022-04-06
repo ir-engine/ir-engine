@@ -59,16 +59,6 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
       }
       if (arr.length) socket.emit(MessageTypes.ActionData.toString(), /*encode(*/ arr) //)
     }
-
-    for (const action of actions) {
-      if (
-        action.$to === 'all' ||
-        (action.$to === 'others' && action.$from != Engine.userId) ||
-        action.$to === 'local' ||
-        action.$to === Engine.userId
-      )
-        world.store.actions.incoming.push(action)
-    }
   }
 
   public sendReliableData = (message: any): any => {

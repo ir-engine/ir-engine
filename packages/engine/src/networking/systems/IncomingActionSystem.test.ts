@@ -4,10 +4,10 @@ import matches from 'ts-matches'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
-import { createWorld } from '../classes/World'
+import { createWorld } from '../../ecs/classes/World'
+import { NetworkWorldAction } from '../functions/NetworkWorldAction'
 
-describe('IncomingNetworkSystem Unit Tests', async () => {
+describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
       /* mock */

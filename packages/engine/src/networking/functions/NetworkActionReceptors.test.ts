@@ -3,8 +3,8 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-import { mockProgressWorldForNetworkActions } from '../../../tests/networking/NetworkTestHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { createWorld } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -89,11 +89,14 @@ describe('NetworkActionReceptors', () => {
         parameters: {}
       })
 
-      NetworkActionReceptor.removeClient(world, userId, true)
-
       // process remove actions and execute entity removal
       NetworkActionReceptor.createNetworkActionReceptor(world)
-      mockProgressWorldForNetworkActions(world)
+      NetworkActionReceptor.removeClient(world, userId, true)
+      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
+
+      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
       world.execute(0, 0)
 
       assert(!world.clients.get(userId))
@@ -413,7 +416,9 @@ describe('NetworkActionReceptors', () => {
       })
 
       NetworkActionReceptor.createNetworkActionReceptor(world)
-      mockProgressWorldForNetworkActions(world)
+
+      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
       world.execute(0, 0)
 
       assert.equal(networkObjectEntities.length, 1)
@@ -479,7 +484,9 @@ describe('NetworkActionReceptors', () => {
       })
 
       NetworkActionReceptor.createNetworkActionReceptor(world)
-      mockProgressWorldForNetworkActions(world)
+
+      ActionFunctions.loopbackOutgoingActions(world.store)
+      ActionFunctions.applyIncomingActions(world.store, Date.now())
       world.execute(0, 0)
 
       assert.equal(networkObjectEntities.length, 1)

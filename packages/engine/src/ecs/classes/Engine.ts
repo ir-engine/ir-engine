@@ -17,7 +17,7 @@ import {
 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createStore } from '@xrengine/hyperflux'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { CSM } from '../../assets/csm/CSM'
 import { isBot } from '../../common/functions/isBot'
@@ -37,7 +37,7 @@ export class Engine {
   /** The uuid of the logged-in user */
   public static userId: UserId
 
-  public static store = createStore({ id: 'engine' })
+  public static store = createHyperStore({ id: 'engine' })
 
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 
