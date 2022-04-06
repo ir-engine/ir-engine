@@ -45,7 +45,7 @@
     "@feathersjs/feathers": "5.0.0-pre.10",
     "@feathersjs/socketio": "5.0.0-pre.10",
     "@feathersjs/transport-commons": "5.0.0-pre.10",
-    "@google-cloud/agones-sdk": "1.21.0",
+    "@google-cloud/agones-sdk": "1.22.0",
     "@kubernetes/client-node": "0.16.3",
     "@xrengine/engine": "^0.5.1",
     "@xrengine/projects": "^0.5.1",
