@@ -32,7 +32,7 @@
   "dependencies": {
     "@feathersjs/client": "5.0.0-pre.10",
     "@date-io/moment": "2.13.1",
-    "@emotion/react": "11.8.2",
+    "@emotion/react": "11.9.0",
     "@emotion/styled": "11.8.1",
     "@google/model-viewer": "1.10.1",
     "@mui/icons-material": "5.6.0",
