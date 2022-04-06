@@ -1,6 +1,6 @@
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
-export default async function ActionDispatchSystem(world) {
+export default async function ActionIncomingSystem(world) {
   return () => {
     ActionFunctions.applyIncomingActions(world.store, Date.now())
   }

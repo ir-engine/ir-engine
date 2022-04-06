@@ -12,7 +12,7 @@ function dynamicFunctionReference<M extends { [name: string]: Function }, K exte
   }) as any
 }
 
-export const createStore = dynamicFunctionReference(StoreFunctions, 'createStore')
+export const createHyperStore = dynamicFunctionReference(StoreFunctions, 'createHyperStore')
 
 export const defineAction = dynamicFunctionReference(ActionFunctions, 'defineAction')
 export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatchAction')

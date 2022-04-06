@@ -3,7 +3,7 @@ import * as bitecs from 'bitecs'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createStore } from '@xrengine/hyperflux'
+import { createHyperStore } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
@@ -52,6 +52,18 @@ export class World {
 
   static [CreateWorld] = () => new World()
 
+  /**
+   * The UserId of the host
+   */
+  hostId = 'server' as UserId
+
+  /**
+   * Check if this user is hosting the world.
+   */
+  get isHosting() {
+    return Engine.userId === this.hostId
+  }
+
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
 
@@ -63,7 +75,7 @@ export class World {
 
   _pipeline = [] as SystemModuleType<any>[]
 
-  store = createStore({ id: Engine.userId, networked: true })
+  store = createHyperStore({ id: Engine.userId, networked: true })
 
   physics = new Physics()
 
@@ -87,18 +99,6 @@ export class World {
   userIdToUserIndex = new Map<UserId, number>()
 
   userIndexCount = 0
-
-  /**
-   * Check if this user is hosting the world.
-   */
-  get isHosting() {
-    return Engine.userId === this.hostId
-  }
-
-  /**
-   * The UserId of the host
-   */
-  hostId = 'server' as UserId
 
   /**
    * The world entity

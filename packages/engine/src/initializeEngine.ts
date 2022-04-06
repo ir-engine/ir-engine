@@ -146,11 +146,11 @@ export const initializeMediaServerSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+      systemModulePromise: import('./ecs/functions/ActionIncomingSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+      systemModulePromise: import('./ecs/functions/ActionOutgoingSystem')
     }
   )
 
@@ -183,7 +183,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     },
     {
       type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./ecs/functions/ActionDispatchSystem')
+      systemModulePromise: import('./ecs/functions/ActionIncomingSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
@@ -199,7 +199,7 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./ecs/functions/ActionCleanupSystem')
+      systemModulePromise: import('./ecs/functions/ActionOutgoingSystem')
     }
   )
 
