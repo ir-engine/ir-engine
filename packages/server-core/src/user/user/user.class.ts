@@ -30,7 +30,6 @@ export class User<T = UserDataType> extends Service<T> {
    */
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    console.log(params?.query ?? '')
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!

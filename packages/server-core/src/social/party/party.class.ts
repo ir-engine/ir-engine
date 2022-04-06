@@ -27,7 +27,6 @@ export class Party<T = PartyDataType> extends Service<T> {
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    console.log(params?.query)
     const { action, $skip, $limit, search, ...query } = params?.query ?? {}
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 10
@@ -54,7 +53,6 @@ export class Party<T = PartyDataType> extends Service<T> {
           order.push(item)
         })
       }
-      console.log(order)
       let ip = {}
       let name = {}
       if (!isNaN(search)) {

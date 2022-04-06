@@ -100,7 +100,6 @@ export const LocationService = {
 
     try {
       let sortData = {}
-
       if (sortField.length > 0) {
         if (sortField === 'tags') {
           sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
@@ -109,7 +108,6 @@ export const LocationService = {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
       }
-      console.log(sortData)
       const locations = (await client.service('location').find({
         query: {
           $sort: {

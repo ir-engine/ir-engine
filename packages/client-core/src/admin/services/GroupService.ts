@@ -82,7 +82,6 @@ export const GroupService = {
           search: search
         }
       })
-      console.log(sortData)
       dispatch(GroupAction.setAdminGroup(list))
     } catch (err) {
       AlertService.dispatchAlertError(err)

@@ -215,9 +215,6 @@ export class Location<T = LocationDataType> extends Service<T> {
           ]
         }
       }
-      console.log('=================')
-      console.log({ ...strippedQuery, ...q })
-      console.log('=================')
       const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,

@@ -55,11 +55,9 @@ export const InstanceService = {
     try {
       if (user.userRole.value === 'admin') {
         let sortData = {}
-
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        console.log(sortData)
         const instances = (await client.service('instance').find({
           query: {
             $sort: {

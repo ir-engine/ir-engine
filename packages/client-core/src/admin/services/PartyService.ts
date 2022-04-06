@@ -69,11 +69,9 @@ export const PartyService = {
     try {
       if (user.userRole.value === 'admin') {
         let sortData = {}
-
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        console.log(sortData)
         const parties = (await client.service('party').find({
           query: {
             $sort: {
