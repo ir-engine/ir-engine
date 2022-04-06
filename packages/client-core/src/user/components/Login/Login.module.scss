@@ -32,14 +32,17 @@
   }
 
   .content {
-    padding: 0px 20px;
+    padding: 0 20px;
   }
 
   .hr {
-    background: linear-gradient(180deg,
-        rgba(0, 0, 0, 0) calc(50% - 1px),
-        rgba(192, 192, 192, 1) calc(50%),
-        rgba(0, 0, 0, 0) calc(50% + 1px));
+    background:
+      linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0%) calc(50% - 1px),
+        rgb(192 192 192 / 100%) calc(50%),
+        rgb(0 0 0 / 0%) calc(50% + 1px)
+      );
     text-align: center;
     margin: 20px 0;
 
@@ -60,13 +63,13 @@
   }
 
   .footer {
-    background-color: #F9F9F9;
+    background-color: #f9f9f9;
     padding: 10px 20px 30px;
     text-align: center;
-    color: #BFBFC1;
+    color: #bfbfc1;
 
     span {
-      color: #007AFF;
+      color: #007aff;
     }
   }
 }

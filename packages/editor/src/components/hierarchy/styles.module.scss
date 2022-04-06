@@ -30,7 +30,7 @@
   }
 
   &.rootNode {
-    border-bottom: rgba($color: var(--panel2), $alpha: 0.8);
+    border-bottom: rgba($color: var(--panel2), $alpha: 80%);
     background: var(--dock);
   }
 
@@ -85,7 +85,7 @@
       flex-shrink: 0;
 
       &.dropTarget {
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: rgb(255 255 255 / 30%);
         color: var(--text);
       }
     }
@@ -95,7 +95,7 @@
 .nodeDropTraget {
   height: 4px;
   box-sizing: content-box;
-  border: 0 solid rgba(255, 255, 255, 0.3)
+  border: 0 solid rgb(255 255 255 / 30%);
 }
 
 .collapseButton {

@@ -1,9 +1,9 @@
-@import '../../styles/imports.module.scss';
+@import "../../styles/imports.module.scss";
 
 .openModalBtn {
   height: 50px;
   width: 100%;
-  margin: 0px;
+  margin: 0;
   background: var(--purpleLighter);
   color: var(--text) !important;
 
@@ -19,7 +19,7 @@
 .gradientButton {
   height: 50px;
   width: 100%;
-  margin: 0px;
+  margin: 0;
   background: var(--purplePinkGradient);
   color: var(--text) !important;
 
@@ -72,7 +72,7 @@
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid #23282c;
-  border-radius: 0px;
+  border-radius: 0;
   padding-left: 20px;
 
   @media (max-width: 900px) {
@@ -171,7 +171,7 @@
   background: var(--purpleColor4);
   border-bottom: 1px solid #23282c;
   color: #f1f1f1;
-  border-radius: 0px;
+  border-radius: 0;
 
   svg {
     color: white;
@@ -238,7 +238,7 @@
   background: var(--purplePanel) !important;
   color: var(--text);
   width: 100%;
-  padding: 40px 10px 40px 10px;
+  padding: 40px 10px;
 }
 
 .spanDange {
@@ -262,7 +262,7 @@
 .textLink {
   margin-left: 5px;
   text-decoration: none;
-  color: #ff9966;
+  color: #f96;
 }
 
 .paperDrawer {
@@ -278,8 +278,10 @@
 
 .paper {
   padding: 24px 32px;
-  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 5px 8px 0px rgba(0, 0, 0, 0.14),
-    0px 1px 14px 0px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 3px 5px -1px rgb(0 0 0 / 20%),
+    0 5px 8px 0 rgb(0 0 0 / 14%),
+    0 1px 14px 0 rgb(0 0 0 / 12%);
   background-color: #fff;
 }
 
@@ -426,7 +428,7 @@
   margin-bottom: 15px;
 
   @media (max-width: 900px) {
-    margin-bottom: 0px;
+    margin-bottom: 0;
   }
 }
 
@@ -480,7 +482,7 @@
 
 .mt5 {
   margin-top: 5%;
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 .pad {
@@ -554,8 +556,8 @@
 
       &.actionCell {
         display: flex;
-        flex-direction: row;
         flex-flow: wrap;
+        flex-direction: row;
 
         :global(.MuiButtonBase-root) {
           width: fit-content;
@@ -642,7 +644,7 @@
 
 .datePickerContainer {
   display: flex;
-  margin: 10px 0px;
+  margin: 10px 0;
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
@@ -656,13 +658,13 @@
   }
 
   fieldset:hover {
-    border-color: rgba(var(--text), 0.8);
+    border-color: rgb(var(--text) 0.8);
   }
 }
 
 .rootCardNumber {
   min-width: 100%;
-  background-color: var(--purplePanel)
+  background-color: var(--purplePanel);
 }
 
 .label {
@@ -670,7 +672,7 @@
 }
 
 .checkboxContainer {
-  padding: 0px;
+  padding: 0;
 }
 
 .progress {
@@ -687,17 +689,13 @@
   width: 100%;
   height: 100%;
   background-color: var(--purpleLighter);
-  top: 0px;
+  top: 0;
 }
 
 .checkboxButton {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   color: var(--text);
-}
-
-.mb10px {
-  margin-bottom: 10px;
 }
 
 .accentText {

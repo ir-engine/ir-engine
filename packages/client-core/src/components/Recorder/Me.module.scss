@@ -11,12 +11,14 @@
   overflow-y: auto;
   min-width: 90px;
   scrollbar-width: none;
+
   /* IE */
   -ms-overflow-style: none;
 
   /* Firefox */
   &::-webkit-scrollbar {
     display: none;
+
     /* Safari and Chrome */
   }
 }
