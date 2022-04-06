@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CONTROL_SCHEME, CONTROLLER_TYPES } from '@xrengine/common/src/constants/AvatarConstants'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { AvatarSettings } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 
@@ -27,7 +29,12 @@ const SettingMenu = (): JSX.Element => {
   const selfUser = authState.user
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
   const [controlTypeSelected, setControlType] = React.useState('')
-  const [controlSchemeSelected, setControlScheme] = React.useState('')
+  console.log('>>>>>>>>>>>>>>>>>>>>', AvatarMovementScheme[AvatarSettings.instance.movementScheme])
+  const [controlSchemeSelected, setControlScheme] = React.useState(
+    AvatarMovementScheme[AvatarSettings.instance.movementScheme]
+  )
+  const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
+  const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSettings, ...newSetting }
     setUserSetting(setting)
@@ -40,6 +47,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
     setControlScheme(event.target.value)
+    AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
   }
 
   return (
@@ -164,8 +172,13 @@ const SettingMenu = (): JSX.Element => {
                   }}
                   MenuProps={{ classes: { paper: styles.paper } }}
                 >
-                  {CONTROL_SCHEME.map((el, index) => (
-                    <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
+                  {controlSchemes.map((el) => (
+                    <MenuItem
+                      value={el}
+                      key={el}
+                      classes={{ root: styles.menuItem }}
+                      disabled={!Engine.isHMD && el == 'Teleport'}
+                    >
                       {el}
                     </MenuItem>
                   ))}
@@ -184,7 +197,7 @@ const SettingMenu = (): JSX.Element => {
                   }}
                   MenuProps={{ classes: { paper: styles.paper } }}
                 >
-                  {CONTROLLER_TYPES.map((el, index) => (
+                  {controllerTypes.map((el, index) => (
                     <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
                       {el}
                     </MenuItem>

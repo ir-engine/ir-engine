@@ -1,4 +1,3 @@
-@use '../../../theme.scss' as theme;
 @import '../../../styles/imports.module.scss';
 
 .primary {
@@ -2200,22 +2199,22 @@
 }
 
 .select {
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   border-radius: 4px;
   border-width: 0;
   cursor: pointer;
   padding: 2px 7px;
   font-size: 11px;
-  color: theme.$white;
+  color: var(--white);
 }
 
 .paper {
   margin-top: 10px;
   border-radius: 4px;
   font-size: 11px;
-  background: theme.$inputBackground;
+  background: var(--inputBackground);
   padding: 0;
-  color: theme.$white;
+  color: var(--white);
   max-height: 120px;
   overflow: auto;
 
@@ -2228,7 +2227,7 @@
   padding: 5px;
   font-size: 12px;
   &:hover {
-    background: theme.$hover;
+    background: var(--hover);
   }
 }
 
