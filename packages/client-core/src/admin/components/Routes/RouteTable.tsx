@@ -99,6 +99,7 @@ const RouteTable = () => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={true}
         rows={installedRoutes}
         column={routeColumns}
         page={page}
