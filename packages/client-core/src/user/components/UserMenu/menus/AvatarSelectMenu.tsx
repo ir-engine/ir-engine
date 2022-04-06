@@ -302,6 +302,8 @@ export const AvatarSelectMenu = (props: Props) => {
     }
   }
 
+  const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
+
   return (
     <div ref={panelRef} className={styles.avatarUploadPanel}>
       <div className={styles.avatarHeaderBlock}>
@@ -457,8 +459,8 @@ export const AvatarSelectMenu = (props: Props) => {
             type="button"
             className={styles.uploadBtn}
             onClick={uploadAvatar}
-            style={{ cursor: !fileSelected || !!error ? 'not-allowed' : 'pointer' }}
-            disabled={!fileSelected || !!error}
+            style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
+            disabled={!uploadButtonEnabled}
           >
             {t('user:avatar.lbl-upload')}
             <CloudUpload />

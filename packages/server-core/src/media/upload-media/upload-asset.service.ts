@@ -90,21 +90,22 @@ export default (app: Application): void => {
     'upload-asset',
     multipartMiddleware.any(),
     (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      console.log(req)
       if (req?.feathers && req.method !== 'GET') {
         req.feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
-        req.feathers.args = (req as any).args
       }
       next()
     },
     {
-      create: async (data: AssetUploadType, params?: Params) => {
-        console.log('\n\nupload-asset', data, '\n\n')
-        // console.log(params)
+      create: async (data: AssetUploadType, params: Params) => {
+        if (typeof data.args === 'string') data.args = JSON.parse(data.args)
+        const files = params.files
+        console.log('upload-asset', data, files)
         if (data.type === 'user-avatar-upload') {
-          return await app.service('avatar').create(
+          return app.service('avatar').create(
             {
-              avatar: data.files[0],
-              thumbnail: data.files[1],
+              avatar: files[0].buffer,
+              thumbnail: files[1].buffer,
               ...data.args
             } as AvatarUploadArguments,
             null!
@@ -112,9 +113,9 @@ export default (app: Application): void => {
         } else if (data.type === 'admin-file-upload') {
           if (!(await restrictUserRole('admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
-          if (params && params.files && params.files.length > 0) {
+          if (files && files.length > 0) {
             return Promise.all(
-              params?.files.map((file, i) =>
+              files.map((file, i) =>
                 addGenericAssetToS3AndStaticResources(app, file.buffer as Buffer, { ...argsData[i] })
               )
             )

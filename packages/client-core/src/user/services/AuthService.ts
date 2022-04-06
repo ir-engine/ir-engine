@@ -9,7 +9,7 @@ import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
@@ -29,6 +29,7 @@ import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
+import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 type AuthStrategies = {
@@ -687,28 +688,33 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const uploadArguments: AssetUploadType = {
+    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', console.log, {
       type: 'user-avatar-upload',
-      files: [avatar, thumbnail],
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    }
-    const response = await client.service('upload-asset').create(uploadArguments)
-    if (response && !isPublicAvatar) {
+    })
+    console.log('upload success')
+    const avatarDetail = (await client.service('avatar').get(avatarName)) as AvatarProps
+    console.log(avatarDetail)
+    if (!isPublicAvatar) {
       const dispatch = useDispatch()
-      dispatch(AuthAction.userAvatarIdUpdated(response))
+      dispatch(AuthAction.userAvatarIdUpdated(avatarDetail.avatarId!))
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value ?? null
       client
         .service('user')
         .patch(userId, { avatarId: avatarName })
-        .then((_) => {
+        .then((userPatchResponse) => {
+          console.log(userPatchResponse)
           AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
           dispatchFrom(Engine.userId, () =>
             NetworkWorldAction.avatarDetails({
-              avatarDetail: response
+              avatarDetail: {
+                avatarURL: avatarDetail.avatarURL,
+                thumbnailURL: avatarDetail.thumbnailURL!
+              }
             })
           ).cache({ removePrevious: true })
           const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
@@ -716,8 +722,8 @@ export const AuthService = {
             type: MessageTypes.AvatarUpdated,
             userId: selfUser.id.value,
             avatarId: avatarName,
-            avatarURL: response.avatarURL,
-            thumbnailURL: response.thumbnailURL
+            avatarURL: avatarDetail.avatarURL,
+            thumbnailURL: avatarDetail.thumbnailURL!
           })
         })
     }
@@ -774,7 +780,7 @@ export const AuthService = {
       })
       .then((res: any) => {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-        dispatch(AuthAction.userAvatarIdUpdated(res))
+        dispatch(AuthAction.userAvatarIdUpdated(res.avatarId))
         dispatchFrom(Engine.userId, () =>
           NetworkWorldAction.avatarDetails({
             avatarDetail: {
@@ -983,8 +989,7 @@ export const AuthAction = {
       name
     }
   },
-  userAvatarIdUpdated: (result: User) => {
-    const avatarId = result.avatarId
+  userAvatarIdUpdated: (avatarId: string) => {
     return {
       type: 'USERAVATARID_UPDATED' as const,
       avatarId

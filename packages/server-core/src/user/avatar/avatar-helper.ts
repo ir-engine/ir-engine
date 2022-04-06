@@ -100,6 +100,7 @@ export const getAvatarFromStaticResources = async function (app: Application, na
     },
     isInternal: true
   })
+  console.log('avatarQueryResult', avatarQueryResult)
   const avatars = avatarQueryResult.reduce((acc, curr) => {
     const val = acc[curr.name]
     const key = curr.staticResourceType === 'avatar' ? 'avatarURL' : 'thumbnailURL'
