@@ -1,5 +1,3 @@
-@use "../theme.scss"as theme;
-
 .elementListContainer {
     width: 105px;
     height: calc(100vh - 90px);
@@ -14,7 +12,7 @@
     align-content: start;
     overflow-y: auto;
     pointer-events: auto;
-    background: rgba($color: theme.$dock, $alpha: 0.875);
+    background: var(--dock);
     padding: 5px;
     border-radius: 5px;
 
@@ -27,7 +25,7 @@
         width: 45px;
         height: 45px;
         padding: 5px;
-        color: theme.$text2;
+        color: var(--text2);
         border-radius: 4px;
 
         svg {
@@ -37,8 +35,8 @@
 
         &:hover,
         &:focus-visible {
-            color: theme.$text;
-            background: theme.$purpleColor;
+            color: var(--text);
+            background: var(--purpleColor);
         }
     }
 }

@@ -8,14 +8,14 @@ import styled from 'styled-components'
 const ProgressBarContainer = (styled as any).div`
   height: 20px;
   position: relative;
-  background: ${(props) => props.theme.panel2};
+  background: var(--panel2);
   border-radius: 4px;
 
   & > span {
     display: block;
     height: 100%;
     border-radius: 4px;
-    background-color: ${(props) => props.theme.blue};
+    background-color: var(--blue);
     position: relative;
     overflow: hidden;
 

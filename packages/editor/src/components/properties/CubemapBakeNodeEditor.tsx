@@ -29,7 +29,7 @@ const TitleLabel = (styled as any).div`
   flex-direction: row;
   align-items: left;
   font-weight: bold;
-  color: ${(props) => props.theme.text2};
+  color: var(--text2);
   padding: 0 8px 8px;
   :last-child {
     margin-left: auto;

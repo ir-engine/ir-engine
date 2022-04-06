@@ -40,7 +40,7 @@ export class User<T = UserDataType> extends Service<T> {
 
     delete query.search
 
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as any
 
     if (action === 'friends') {
       delete params.query.action
@@ -126,6 +126,6 @@ export class User<T = UserDataType> extends Service<T> {
   }
 
   patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    return super.patch(id, data)
+    return super.patch(id, data, params)
   }
 }

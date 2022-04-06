@@ -91,8 +91,9 @@ export const LoadEngineWithScene = (props: Props) => {
   useHookedEffect(() => {
     if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
+      // Use teleportAvatar function from moveAvatar.ts when required
       // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-      //   teleportPlayer(
+      //   teleportAvatar(
       //     useWorld().localClientEntity,
       //     portalComponent.remoteSpawnPosition,
       //     portalComponent.remoteSpawnRotation
