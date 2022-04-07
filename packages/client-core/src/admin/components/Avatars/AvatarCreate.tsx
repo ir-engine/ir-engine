@@ -155,7 +155,7 @@ const AvatarCreate = ({ handleClose, open }) => {
 
     controls.minDistance = 0.1
     controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
+    controls.target.set(0, 1.5, 0)
     controls.update()
 
     scene.children = scene.children.filter((c) => c.name !== 'avatar')
