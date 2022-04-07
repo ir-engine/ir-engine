@@ -380,7 +380,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                   {selfUser?.userRole?.value === 'admin'
                     ? t('user:usermenu.profile.youAreAn')
                     : t('user:usermenu.profile.youAreA')}{' '}
-                  <span>{selfUser?.userRole?.value}</span>.
+                  <span id="user-role">{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
               <Grid
