@@ -688,44 +688,18 @@ export const AuthService = {
     dispatch(AuthAction.avatarUpdated(result))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', console.log, {
+    await uploadToFeathersService([avatar, thumbnail], 'upload-asset', () => {}, {
       type: 'user-avatar-upload',
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
     })
-    console.log('upload success')
     const avatarDetail = (await client.service('avatar').get(avatarName)) as AvatarProps
-    console.log(avatarDetail)
     if (!isPublicAvatar) {
-      const dispatch = useDispatch()
-      dispatch(AuthAction.userAvatarIdUpdated(avatarDetail.avatarId!))
       const selfUser = accessAuthState().user
-      const userId = selfUser.id.value ?? null
-      client
-        .service('user')
-        .patch(userId, { avatarId: avatarName })
-        .then((userPatchResponse) => {
-          console.log(userPatchResponse)
-          AlertService.dispatchAlertSuccess(i18n.t('user:avatar.upload-success-msg'))
-          dispatchFrom(Engine.userId, () =>
-            NetworkWorldAction.avatarDetails({
-              avatarDetail: {
-                avatarURL: avatarDetail.avatarURL,
-                thumbnailURL: avatarDetail.thumbnailURL!
-              }
-            })
-          ).cache({ removePrevious: true })
-          const transport = Network.instance.transportHandler.getWorldTransport() as SocketWebRTCClientTransport
-          transport?.sendNetworkStatUpdateMessage({
-            type: MessageTypes.AvatarUpdated,
-            userId: selfUser.id.value,
-            avatarId: avatarName,
-            avatarURL: avatarDetail.avatarURL,
-            thumbnailURL: avatarDetail.thumbnailURL!
-          })
-        })
+      const userId = selfUser.id.value!
+      AuthService.updateUserAvatarId(userId, avatarName, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
     }
   },
   removeAvatar: async (keys: string) => {

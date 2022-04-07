@@ -26,12 +26,10 @@ export const uploadToFeathersService = (
   service = 'media',
   onUploadProgress?: (progress: number) => any,
   params: any = {}
-): Promise<any> => {
+): Promise<void> => {
   const token = accessAuthState().authUser.accessToken.value
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest()
-    console.log('Posting to: ', `${serverURL}/${service}`)
-    request.open('post', `${serverURL}/${service}`, true)
     request.upload.addEventListener('progress', (e) => {
       if (onUploadProgress) {
         onUploadProgress(e.loaded / e.total)
@@ -42,23 +40,19 @@ export const uploadToFeathersService = (
       reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
     })
 
-    request.upload.addEventListener('load', (e) => {
-      console.log('load')
-    })
-
-    request.upload.addEventListener('loadend', (e) => {
-      console.log('loadend')
-    })
+    // request.upload.addEventListener('load', console.log)
+    // request.upload.addEventListener('loadend', console.log)
 
     request.addEventListener('readystatechange', (e) => {
-      console.log('readystatechange', e, request.readyState)
+      // console.log('readystatechange', e, request.readyState)
       if (request.readyState === XMLHttpRequest.DONE) {
         const status = request.status
         if (status === 0 || (status >= 200 && status < 400)) {
-          console.log('The request has been completed successfully', request.responseText)
-          resolve(request.responseText)
+          console.log('The request has been completed successfully')
+          resolve()
         } else {
           console.log('Oh no! There has been an error with the request!')
+          reject()
         }
       }
     })
@@ -75,10 +69,11 @@ export const uploadToFeathersService = (
     } else {
       formData.set('media', blobs)
     }
-    request.setRequestHeader('Authorization', `Bearer ${token}`)
 
+    console.log('Posting to: ', `${serverURL}/${service}`)
+    request.open('post', `${serverURL}/${service}`, true)
+    request.setRequestHeader('Authorization', `Bearer ${token}`)
     request.send(formData)
-    console.log('after send', request)
   })
 }
 
