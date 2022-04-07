@@ -302,7 +302,7 @@ const Setting = () => {
     <div ref={rootRef}>
       <div className={styles.invisible}>
         <div style={{ position: 'fixed', zIndex: 1 }}>
-          <Button size="medium" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
+          <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
             <MenuIcon />
           </Button>
         </div>
