@@ -2,9 +2,16 @@ import { State } from '@speigg/hookstate'
 
 import { Action, ActionReceptor } from './ActionFunctions'
 
+export const allowStateMutations = Symbol('allowMutations')
+export const reactorRoots = Symbol('reactorRoots')
+
 export interface HyperStore {
-  /** The id of this store */
-  id: string
+  /** A function which returns the dispatch id assigned to actions */
+  getDispatchId: () => string
+  /**
+   *
+   */
+  [allowStateMutations]: boolean
   /**
    *  If this store is networked, actions are dispatched on the outgoing queue.
    *  If this store is not networked, actions are dispatched on the incoming queue.
@@ -25,13 +32,13 @@ export interface HyperStore {
   receptors: Array<ActionReceptor>
   /** functions that re-run on state changes, compatible w/ React hooks */
   reactors: Array<() => void>
-  _reactorRoots: WeakMap<() => void, any>
+  [reactorRoots]: WeakMap<() => void, any>
 }
 
-function createHyperStore(options: { id: string; networked?: boolean }) {
-  console.log(`Creating HyperStore ${options.id} authoritative: ${!!options.networked}`)
+function createHyperStore(options: { getDispatchId: () => string; networked?: boolean }) {
   return {
-    id: options.id,
+    getDispatchId: options.getDispatchId,
+    [allowStateMutations]: false,
     networked: options.networked ?? false,
     state: new Map<string, State<any>>(),
     actions: {
@@ -42,7 +49,7 @@ function createHyperStore(options: { id: string; networked?: boolean }) {
     },
     receptors: new Array<() => {}>(),
     reactors: new Array<() => {}>(),
-    _reactorRoots: new WeakMap()
+    [reactorRoots]: new WeakMap()
   } as HyperStore
 }
 

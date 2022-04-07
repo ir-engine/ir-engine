@@ -37,7 +37,7 @@ export class Engine {
   /** The uuid of the logged-in user */
   public static userId: UserId
 
-  public static store = createHyperStore({ id: 'engine' })
+  public static store = createHyperStore({ getDispatchId: () => 'engine' })
 
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null!
 

@@ -2,7 +2,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import matches, { Validator } from '../MatchesUtils'
-import StoreFunctions, { HyperStore } from './StoreFunctions'
+import StoreFunctions, { allowStateMutations, HyperStore } from './StoreFunctions'
 
 export type Action = {
   type: string
@@ -98,7 +98,7 @@ type JustOptionals<S extends ActionShape<any>> = Omit<
 >
 type JustRequired<S extends ActionShape<any>> = Omit<Pick<ActionFromShape<S>, JustRequiredKeys<S>>, JustOptionalKeys<S>>
 
-type PartialAction<S extends ActionShape<any>> = Omit<JustRequired<S> & JustOptionals<S> & Action, 'type'>
+type PartialAction<T> = Omit<Partial<T>, 'type'>
 
 type ResolvedActionType<S extends ActionShape<any>> = Required<ActionFromShape<S> & Action>
 
@@ -126,7 +126,7 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
   // handle literal shape properties
   const literalEntries = shapeEntries.filter(([k, v]) => typeof v !== 'object') as Array<[string, string | number]>
   const literalValidators = Object.fromEntries(literalEntries.map(([k, v]) => [k, matches.literal(v)]))
-  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any // as ResolvedActionShape<Shape>
+  const resolvedActionShape = Object.assign({}, actionShape, literalValidators, initializerMatches) as any
   const allValuesNull = Object.fromEntries(Object.entries(resolvedActionShape).map(([k]) => [k, null]))
 
   const actionCreator = (partialAction: PartialAction<Shape>) => {
@@ -138,7 +138,7 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
       ...partialAction,
       ...Object.fromEntries(literalEntries),
       ...initializerValues
-    } as ResolvedAction
+    } as any
     initAction?.(action)
     return action
   }
@@ -157,7 +157,7 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
 
   type ValidatorKeys = 'matches' | 'matchesFromUser' | 'matchesFromAny'
   type FunctionProps = Pick<typeof actionCreator, 'type' | 'actionShape' | ValidatorKeys>
-  return actionCreator as unknown as ((partialAction: PartialAction<Shape>) => ResolvedAction) & FunctionProps
+  return actionCreator as unknown as ((partialAction: PartialAction<ResolvedAction>) => ResolvedAction) & FunctionProps
 }
 
 function _createActionModifier<A extends Action>(action: A) {
@@ -192,7 +192,7 @@ function _createActionModifier<A extends Action>(action: A) {
 }
 
 const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
-  action.$from = action.$from ?? (store.id as UserId)
+  action.$from = action.$from ?? (store.getDispatchId() as UserId)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? -1
   action.$cache = action.$cache ?? false
@@ -250,7 +250,9 @@ const updateCachedActions = (store: HyperStore, incomingAction: Required<Action>
 
 const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Action>) => {
   try {
+    store[allowStateMutations] = true
     for (const receptor of [...store.receptors]) receptor(action)
+    store[allowStateMutations] = false
     updateCachedActions(store, action)
     store.actions.history.push(action)
   } catch (e) {
@@ -275,10 +277,12 @@ const applyIncomingActions = (store: HyperStore, now: number) => {
 
 const loopbackOutgoingActions = (store: HyperStore) => {
   const { outgoing } = store.actions
+  const dispatchId = store.getDispatchId()
   for (const action of outgoing) {
-    if (action.$to === 'all' || (action.$to === 'others' && action.$from != store.id) || action.$to === store.id)
+    if (action.$to === 'all' || (action.$to === 'others' && action.$from != dispatchId) || action.$to === dispatchId)
       store.actions.incoming.push(action)
   }
+  outgoing.length = 0
 }
 
 export default {

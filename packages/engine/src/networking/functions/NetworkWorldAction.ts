@@ -1,7 +1,7 @@
 import { defineAction, matches } from '@xrengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Engine } from '../../ecs/classes/Engine'
 import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
@@ -29,8 +29,7 @@ export class NetworkWorldAction {
     {
       type: 'network.SPAWN_OBJECT',
       prefab: matches.string,
-      networkId: matches.withDefault(matches.networkId, () => useWorld().createNetworkId()),
-      ownerIndex: matches.number,
+      networkId: matches.withDefault(matches.networkId, () => Engine.currentWorld.createNetworkId()),
       parameters: matches.any.optional()
     },
     (action) => {

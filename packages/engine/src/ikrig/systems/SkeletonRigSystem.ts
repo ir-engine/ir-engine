@@ -58,16 +58,18 @@ const mockAvatars = () => {
 
     const networkId = (1000 + i) as NetworkId
 
-    dispatchAction(Engine.store, {
+    const world = Engine.currentWorld
+
+    dispatchAction(world.store, {
       ...NetworkWorldAction.createClient({ name: 'user', index: networkId }),
       $from: userId
     })
-    dispatchAction(Engine.store, {
-      ...NetworkWorldAction.spawnAvatar({ parameters, ownerIndex: networkId }),
+    dispatchAction(world.store, {
+      ...NetworkWorldAction.spawnAvatar({ parameters, prefab: 'avatar' }),
       networkId,
       $from: userId
     })
-    dispatchAction(Engine.store, { ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
+    dispatchAction(world.store, { ...NetworkWorldAction.avatarDetails({ avatarDetail }), $from: userId })
   }
 }
 
