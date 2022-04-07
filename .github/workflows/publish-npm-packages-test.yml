@@ -1,8 +1,9 @@
 name: publish-npm
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      [npm-publish-debug]
 
 jobs:
   secrets-gate:
