@@ -33,7 +33,6 @@ export const useProjectState = () => useState(state) as any as typeof state
 export const ProjectService = {
   fetchProjects: async () => {
     const projects = await client.service('project').find({ paginate: false })
-    console.log(projects)
     store.dispatch(ProjectAction.projectsFetched(projects.data))
   },
 

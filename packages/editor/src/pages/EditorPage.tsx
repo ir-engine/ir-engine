@@ -14,8 +14,8 @@ import {
   initializeCoreSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
+import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 
-// import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 
@@ -91,10 +91,12 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   }, [authUser.accessToken, user.id, isAuthenticated])
 
   useEffect(() => {
-    const { projectName, sceneName } = props.match.params
-    dispatch(EditorAction.projectChanged(projectName ?? null))
-    dispatch(EditorAction.sceneChanged(sceneName ?? null))
-  }, [props.match.params.projectName, props.match.params.sceneName])
+    if (engineReady) {
+      const { projectName, sceneName } = props.match.params
+      dispatch(EditorAction.projectChanged(projectName ?? null))
+      dispatch(EditorAction.sceneChanged(sceneName ?? null))
+    }
+  }, [engineReady, props.match.params.projectName, props.match.params.sceneName])
 
   useEffect(() => {
     if (clientInitialized || projectState.projects.value.length <= 0) return
@@ -107,7 +109,7 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
       await initializeSceneSystems()
       const projects = projectState.projects.value.map((project) => project.name)
       const world = useWorld()
-      // loadEngineInjection(world, projects)
+      await loadEngineInjection(world, projects)
       setEngineReady(true)
     })
   }, [projectState.projects.value])

@@ -65,7 +65,7 @@ const ProjectGridContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  background-color: ${(props) => props.theme.panel2};
+  background-color: var(--panel2);
   border-radius: 3px;
 `
 

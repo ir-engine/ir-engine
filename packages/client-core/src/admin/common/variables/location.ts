@@ -3,6 +3,7 @@ export interface LocationColumn {
     | 'sceneId'
     | 'maxUsersPerInstance'
     | 'scene'
+    | 'name'
     | 'type'
     | 'tags'
     | 'instanceMediaChatEnabled'
@@ -15,7 +16,7 @@ export interface LocationColumn {
 
 export const locationColumns: LocationColumn[] = [
   {
-    id: 'scene',
+    id: 'name',
     label: 'Name',
     minWidth: 65
   },

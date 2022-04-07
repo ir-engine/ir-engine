@@ -163,3 +163,4 @@ certs/
 
 # Visual Studio Code settings
 .vscode
+project-package-jsons/*
