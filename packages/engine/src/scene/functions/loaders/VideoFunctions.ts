@@ -102,6 +102,7 @@ export const updateVideo: ComponentUpdateFunction = async (entity: Entity, prope
         if (component.hls) component.hls.destroy()
         component.hls = setupHLS(entity, url)
         component.hls?.attachMedia(obj3d.userData.videoEl)
+        obj3d.userData.videoUrl = url
       }
       // else if (isDash(url)) {
       //   const { MediaPlayer } = await import('dashjs')

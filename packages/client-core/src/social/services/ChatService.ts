@@ -1,4 +1,4 @@
-﻿import { createState, none, useState } from '@speigg/hookstate'
+import { createState, none, useState } from '@speigg/hookstate'
 import Hls from 'hls.js'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -12,7 +12,9 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 
 import { AlertService } from '../../common/services/AlertService'
@@ -21,6 +23,8 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
+
+const videoQuery = defineQuery([VideoComponent])
 
 interface ChatMessageProps {
   targetObjectId: string
@@ -258,12 +262,19 @@ export const ChatService = {
     try {
       const { text } = values
       if (text.startsWith('/')) {
-        const [, video] = document.getElementsByTagName('video')
+        // const [, video] = document.getElementsByTagName('video')
+        let video
+        let videoUrl
+        for (const videoEntity of videoQuery()) {
+          let obj3d = getComponent(videoEntity, Object3DComponent)?.value
+          //TODO: first video entity for now, should expand for multiple videos
+          if (!video) {
+            video = obj3d.userData.videoEl
+            videoUrl = obj3d.userData.videoUrl
+          }
+        }
 
-        //const d = getAllComponentsOfType(VideoComponent)
-        //console.log('Video Components:', d)
-
-        const [controlType, videoUrl] = text.split(' ')
+        const controlType = text
 
         switch (controlType) {
           case '/playVideo':
