@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
+import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import AvatarCreate from './AvatarCreate'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
@@ -41,7 +41,7 @@ const Avatar = () => {
       <div className={styles.rootTable}>
         <AvatarTable search={search} />
       </div>
-      {open && <AvatarCreate handleClose={handleClose} open={open} />}
+      {open && <AvatarSelectMenu changeActiveMenu={handleClose} isPublicAvatar={true} />}
     </React.Fragment>
   )
 }

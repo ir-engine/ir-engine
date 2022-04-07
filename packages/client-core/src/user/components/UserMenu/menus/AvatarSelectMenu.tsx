@@ -115,6 +115,7 @@ export const AvatarSelectMenu = (props: Props) => {
 
       loadAvatarForPreview(entity, event.target.value)
         .catch((err) => {
+          console.error(err)
           setError(err)
         })
         .then((obj) => {
@@ -191,6 +192,7 @@ export const AvatarSelectMenu = (props: Props) => {
           const objectURL = URL.createObjectURL(file) + '#' + file.name
           loadAvatarForPreview(entity, objectURL)
             .catch((err) => {
+              console.error(err)
               setError(err)
             })
             .then((obj) => {
