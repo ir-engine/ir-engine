@@ -129,6 +129,13 @@
       "lbl-intensity": "Intensity",
       "lbl-color": "Color"
     },
+    "asset": {
+      "name": "Asset",
+      "description": "A grouping of scene components which can be dynamically loaded and unloaded",
+      "lbl-exportOptions": "Export Options",
+      "lbl-assetid": "Asset ID",
+      "lbl-export": "Export Asset"
+    },
     "audio": {
       "name": "Audio",
       "description": "Dynamically loads audio.",

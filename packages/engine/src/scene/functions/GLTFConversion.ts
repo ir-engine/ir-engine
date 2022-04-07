@@ -26,7 +26,7 @@ export const nodeToEntityJson = (node: any): EntityJson => {
   }
 }
 
-export const gltfToSceneJson = (gltf: any): SceneJson => {
+export const gltfToSceneJson = (gltf: any, additive = false): SceneJson => {
   handleScenePaths(gltf, 'decode')
   const rootGL = gltf.scenes[gltf.scene]
   const rootUuid = rootGL.extras.uuid
@@ -55,18 +55,6 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   return result
 }
 
-export const sceneFromGLTF = async (_url: string) => {
-  const loader = getGLTFLoader()
-  const url = AssetLoader.getAbsolutePath(_url)
-  try {
-    const gltf = await loader.loadAsync(url)
-
-    return gltfToSceneJson(gltf)
-  } catch (error) {
-    throw new RethrownError('error loading scene glTF: ', error)
-  }
-}
-
 const recursiveGetEntities = (root) => {
   const result = new Map()
   const frontier = [root]
@@ -89,56 +77,7 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-export class XRE_GLTF implements GLTFExtension {
-  dudNodes: Map<Entity, Object3DWithEntity>
-  setParentOps: Array<{ parent: Entity; child: Entity }>
-  knownEntities: Map<Entity, Object3DWithEntity>
-  beforeParse(input) {
-    this.dudNodes = new Map()
-    this.setParentOps = new Array()
-    this.knownEntities = new Map()
-    const knownEntities = recursiveGetEntities(input)
-    const world = useWorld()
-    const eTree = world.entityTree
-    const idNodeMap = eTree.uuidNodeMap
-
-    for (const eNode of idNodeMap.values()) {
-      if (!knownEntities.has(eNode.entity)) {
-        const dud = new Object3D() as Object3DWithEntity
-        dud.entity = eNode.entity
-        eNode.children?.forEach((child) => {
-          this.setParentOps.push({ parent: eNode.entity, child: child })
-        })
-        if (eNode.parentEntity !== undefined) {
-          this.setParentOps.push({ parent: eNode.parentEntity, child: eNode.entity })
-        }
-        prepareObjectForGLTFExport(dud, world)
-        this.knownEntities.set(dud.entity, dud)
-        this.dudNodes.set(dud.entity, dud)
-      }
-    }
-    this.setParentOps.forEach((op) => {
-      const child = this.knownEntities.get(op.child)
-      const parent = this.knownEntities.get(op.parent)
-      if (parent && child) parent.add(child)
-    })
-  }
-
-  afterParse(scene) {
-    this.setParentOps.forEach((op) => {
-      const child = this.knownEntities.get(op.child)
-      child?.removeFromParent()
-    })
-    for (const dudNode of this.dudNodes.values()) {
-      scene.remove(dudNode)
-    }
-    this.setParentOps = []
-    this.dudNodes.clear()
-    this.knownEntities.clear()
-  }
-}
-
-const serializeECS = (root: Scene, world: World = useWorld()) => {
+const serializeECS = (root: Object3DWithEntity | Scene, world: World = useWorld()) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
   let sceneEntity
@@ -168,7 +107,7 @@ const serializeECS = (root: Scene, world: World = useWorld()) => {
       }
       delete srcObj.userData.gltfExtensions
       const children = nodeMap.get(srcObj.entity)?.children
-      const isScene = srcObj instanceof Scene
+      const isScene = srcObj === root
       if (children) {
         haveChildren.push(nodeMap.get(srcObj.entity))
         if (isScene) {
@@ -197,7 +136,7 @@ const serializeECS = (root: Scene, world: World = useWorld()) => {
   return result
 }
 
-export const sceneToGLTF = async (root: Scene) => {
+export const sceneToGLTF = (root: Object3DWithEntity) => {
   root.traverse((node: Object3DWithEntity) => {
     if (node.entity) {
       prepareObjectForGLTFExport(node)

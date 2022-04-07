@@ -4,6 +4,8 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import InfiniteScroll from 'react-infinite-scroller'
 
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -93,7 +95,8 @@ function FileBrowserItem(props: FileBrowserItemType) {
   const onClickItem = (_) => onClick(item)
 
   const placeObject = useCallback((_, trigger) => {
-    addMediaNode(trigger.item.url)
+    if (AssetLoader.getAssetType(trigger.item.url) === AssetType.XRE) AssetLoader.load(trigger.item.url)
+    else addMediaNode(trigger.item.url)
   }, [])
 
   const placeObjectAtOrigin = useCallback(async (_, trigger) => {

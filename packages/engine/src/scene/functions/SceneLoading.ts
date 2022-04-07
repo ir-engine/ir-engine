@@ -48,11 +48,28 @@ export const preCacheAssets = (sceneData: SceneJson, onProgress) => {
   return promises
 }
 
+export const loadECSData = async (sceneData: SceneJson, world = useWorld()) => {
+  const root = world.entityTree.rootNode
+  const entityMap = {} as { [key: string]: EntityTreeNode }
+  const entities = Object.entries(sceneData.entities)
+  await Promise.all(preCacheAssets(sceneData, () => {}))
+  entities.forEach(([uuid, data]) => {
+    entityMap[uuid] = createEntityNode(createEntity(), uuid)
+    loadSceneEntity(entityMap[uuid], data)
+  })
+  entities.forEach(([uuid, data]) => {
+    const sceneEntity = data
+    const node = entityMap[uuid]
+    if (uuid === sceneData.root) addEntityNodeInTree(node, root)
+    else addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
+  })
+}
+
 /**
  * Loads a scene from scene json
  * @param sceneData
  */
-export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld(), additive = false) => {
+export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()) => {
   dispatchLocal(EngineActions.sceneLoading())
 
   let promisesCompleted = 0
@@ -76,10 +93,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
   Engine.sceneLoadPromises = []
-  if (!additive) {
-    // reset renderer settings for if we are teleporting and the new scene does not have an override
-    resetEngineRenderer(true)
-  }
+
+  // reset renderer settings for if we are teleporting and the new scene does not have an override
+  resetEngineRenderer(true)
 
   Object.keys(sceneData.entities).forEach((key) => {
     entityMap[key] = createEntityNode(createEntity(), key)
@@ -93,12 +109,11 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
     const node = entityMap[key]
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
   })
-  if (!additive) {
-    addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
-    addComponent(tree.rootNode.entity, SceneTagComponent, {})
-    if (Engine.isEditor) {
-      getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
-    }
+
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.scene })
+  addComponent(tree.rootNode.entity, SceneTagComponent, {})
+  if (Engine.isEditor) {
+    getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
   }
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
