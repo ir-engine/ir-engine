@@ -1,12 +1,15 @@
-import { Euler, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -318,4 +321,25 @@ export const moveXRAvatar = (
   velocity.linear.setZ(displacement.z)
 
   moveAvatarController(world, entity, displacement)
+}
+
+/**
+ * Teleports the avatar to new position
+ * @param entity
+ * @param newPosition
+ */
+export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
+  if (!hasComponent(entity, AvatarComponent)) {
+    console.warn('Teleport avatar called on non-avatar entity')
+    return
+  }
+
+  if (checkPositionIsValid(newPosition, false)) {
+    const avatar = getComponent(entity, AvatarComponent)
+    const controllerComponent = getComponent(entity, AvatarControllerComponent)
+    newPosition.y = newPosition.y + avatar.avatarHalfHeight
+    controllerComponent.controller.setPosition(newPosition)
+  } else {
+    console.log('invalid position', newPosition)
+  }
 }

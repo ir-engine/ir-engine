@@ -1,11 +1,8 @@
 import { useEffect } from 'react'
 
-export const useFetchUsersAsAdmin = (user, adminUserState, UserService, search) => {
+export const useFetchUsersAsAdmin = (user, adminUserState, UserService, search, sortField, fieldOrder) => {
   useEffect(() => {
-    if (user?.id.value && adminUserState.updateNeeded.value) {
-      UserService.fetchUsersAsAdmin('increment', null)
-    }
-    UserService.fetchUsersAsAdmin('increment', search)
+    UserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
   }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 }
 

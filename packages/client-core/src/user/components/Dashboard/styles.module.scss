@@ -141,7 +141,7 @@
         flex-wrap: wrap;
 
         .searchInputRoot {
-          margin: 20px 0 0 0;
+          margin: 20px 0 0;
         }
 
         .btn {
@@ -205,7 +205,7 @@
         }
 
         .expansionSummaryExpanded {
-          button>svg {
+          button > svg {
             transform: rotate(90deg);
           }
         }
@@ -308,7 +308,7 @@
             position: relative;
 
             &::after {
-              content: '';
+              content: "";
               position: absolute;
               bottom: 0;
               left: 0;
@@ -324,11 +324,10 @@
 
   .welcomeContainer {
     max-width: 460px;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 30px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-
 
     h1 {
       width: 100%;
@@ -367,8 +366,8 @@
       background: var(--blueHover);
     }
 
-    &>svg,
-    &>.progressbar {
+    & > svg,
+    & > .progressbar {
       position: absolute;
       left: 10px;
       width: 15px;
@@ -392,11 +391,11 @@
     border-color: var(--text);
   }
 
-  .input:hover+.outline {
+  .input:hover + .outline {
     border-color: var(--text);
   }
 
-  .input:focus+.outline,
+  .input:focus + .outline,
   .outline {
     border-color: var(--text2);
   }
