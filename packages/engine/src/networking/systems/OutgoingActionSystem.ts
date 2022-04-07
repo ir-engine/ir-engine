@@ -1,7 +1,6 @@
-import { World } from 'src/ecs/classes/World'
-
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
+import { World } from '../../ecs/classes/World'
 import { Network } from '../classes/Network'
 
 const sendOutgoingActions = (world: World) => {

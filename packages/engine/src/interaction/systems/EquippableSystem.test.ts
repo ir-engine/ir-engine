@@ -62,8 +62,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       $from: Engine.userId,
       $to: 'all',
       $time: 0,
-      $cache: true,
-      ownerIndex: 0
+      $cache: true
     })
 
     const equippedComponent = addComponent(item, EquippedComponent, {

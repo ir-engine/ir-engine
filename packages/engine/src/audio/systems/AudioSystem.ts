@@ -1,7 +1,6 @@
-import { Engine } from 'src/ecs/classes/Engine'
-
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineService'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'

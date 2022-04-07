@@ -1,10 +1,10 @@
 import { Not } from 'bitecs'
-import { Engine } from 'src/ecs/classes/Engine'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { accessEngineState, EngineActions } from '../../ecs/classes/EngineService'
 import { Entity } from '../../ecs/classes/Entity'

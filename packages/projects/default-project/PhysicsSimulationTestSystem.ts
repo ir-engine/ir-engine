@@ -179,8 +179,7 @@ export const generatePhysicsObject = (
         world.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
-          parameters: { sceneEntityId: node.uuid, position: transform.position },
-          ownerIndex: world.clients.get(Engine.userId)!.userIndex
+          parameters: { sceneEntityId: node.uuid, position: transform.position }
         })
       ).cache()
     }

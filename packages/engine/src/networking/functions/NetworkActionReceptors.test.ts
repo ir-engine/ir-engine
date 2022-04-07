@@ -342,7 +342,7 @@ describe('NetworkActionReceptors', () => {
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
 
-    it('should not transfer ownership of object (only host can process ownership transfer)', () => {
+    it('should not transfer authority of object (only host can process authority transfer)', () => {
       // Run as client
       const userId = 'user id' as UserId
       const userName = 'user name'
@@ -404,7 +404,7 @@ describe('NetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, Engine.userId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.hostId)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectAuthorityTag), false)
     })
   })

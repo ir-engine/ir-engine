@@ -219,8 +219,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
         world.store,
         NetworkWorldAction.spawnObject({
           prefab: '',
-          parameters: { sceneEntityId: node.uuid },
-          ownerIndex: world.clients.get(world.hostId)!.userIndex
+          parameters: { sceneEntityId: node.uuid }
         })
       ).cache()
     }

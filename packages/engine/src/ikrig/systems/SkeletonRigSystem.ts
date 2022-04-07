@@ -1,5 +1,4 @@
 import { random } from 'lodash'
-import { Engine } from 'src/ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
@@ -7,10 +6,9 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { bonesData2 } from '../../avatar/DefaultSkeletonBones'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
 import { NetworkWorldAction } from '../../networking/functions/NetworkWorldAction'
 import { CameraIKComponent } from '../components/CameraIKComponent'
 import { IKPoseComponent } from '../components/IKPoseComponent'

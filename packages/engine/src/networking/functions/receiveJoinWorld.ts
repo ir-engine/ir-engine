@@ -49,7 +49,6 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   dispatchAction(
     world.store,
     NetworkWorldAction.spawnAvatar({
-      ownerIndex: clients.find((client) => client.userId === Engine.userId)!.index,
       parameters: { ...spawnPose }
     })
   ).cache()
