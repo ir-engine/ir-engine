@@ -64,6 +64,10 @@ jobs:
         run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: NPM login
+        run: npm login
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to npm
         run: npm run publish-no-verify
         env:
