@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -25,12 +25,14 @@ interface Props {
  */
 const InstanceTable = (props: Props) => {
   const { search } = props
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowsPerPage] = React.useState(INSTNCE_PAGE_LIMIT)
-  const [refetch, setRefetch] = React.useState(false)
-  const [popConfirmOpen, setPopConfirmOpen] = React.useState(false)
-  const [instanceId, setInstanceId] = React.useState('')
-  const [instanceName, setInstanceName] = React.useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(INSTNCE_PAGE_LIMIT)
+  const [refetch, setRefetch] = useState(false)
+  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [instanceId, setInstanceId] = useState('')
+  const [instanceName, setInstanceName] = useState('')
+  const [fieldOrder, setFieldOrder] = useState('asc')
+  const [sortField, setSortField] = useState('createdAt')
   const { t } = useTranslation()
 
   const user = useAuthState().user
@@ -38,10 +40,15 @@ const InstanceTable = (props: Props) => {
   const adminInstances = adminInstanceState
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    InstanceService.fetchAdminInstances(incDec)
+    InstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminInstanceState.fetched.value) {
+      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+    }
+  }, [fieldOrder])
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
@@ -77,7 +84,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch) {
-      InstanceService.fetchAdminInstances('increment', search)
+      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
@@ -120,6 +127,10 @@ const InstanceTable = (props: Props) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        fieldOrder={fieldOrder}
+        setSortField={setSortField}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={instanceColumns}
         page={page}

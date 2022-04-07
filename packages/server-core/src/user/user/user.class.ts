@@ -2,7 +2,7 @@ import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import Sequelize, { Op } from 'sequelize'
 
 import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
 
@@ -92,6 +92,23 @@ export class User<T = UserDataType> extends Service<T> {
           $in: searchedUser.map((user) => user.id)
         }
       }
+
+      const order: any[] = []
+      const { $sort } = params?.query ?? {}
+      if ($sort != null)
+        Object.keys($sort).forEach((name, val) => {
+          if (name === 'location') {
+            order.push([Sequelize.literal('`party.location.name`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+          } else {
+            order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+          }
+        })
+
+      if (order.length > 0) {
+        params.sequelize.order = order
+      }
+      delete params?.query?.$sort
+      params.sequelize.subQuery = false
       return super.find(params)
     } else if (action === 'search') {
       const searchUser = params.query.data
