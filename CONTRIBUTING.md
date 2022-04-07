@@ -26,7 +26,7 @@ Increase the version numbers in any examples files and the README.md to the new 
 
 
 
-## Pull Request Templage
+## Pull Request Template
 
 ## Summary
 
