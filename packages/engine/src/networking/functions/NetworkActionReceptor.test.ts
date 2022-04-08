@@ -11,7 +11,7 @@ import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkActionReceptor } from './NetworkActionReceptors'
+import { NetworkActionReceptor } from './NetworkActionReceptor'
 
 describe('NetworkActionReceptors', () => {
   beforeEach(() => {

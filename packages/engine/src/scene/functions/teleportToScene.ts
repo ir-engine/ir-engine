@@ -7,7 +7,7 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { unloadSystems } from '../../ecs/functions/SystemFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { receiveActionOnce } from '../../networking/functions/matchActionOnce'
-import { NetworkActionReceptor } from '../../networking/functions/NetworkActionReceptors'
+import { NetworkActionReceptor } from '../../networking/functions/NetworkActionReceptor'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 
