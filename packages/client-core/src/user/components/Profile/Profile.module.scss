@@ -6,10 +6,10 @@
 }
 
 .paper {
-  @include paper-modal();
+  @include paper-modal;
 }
 
-.signup__fileField {
+.signupFileField {
   display: none;
 }
 
@@ -74,7 +74,6 @@
   text-align: center;
 }
 
-/**/
 .settingRow {
   display: flex;
   flex-direction: column;

@@ -8,7 +8,7 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-export const AVATAR_PAGE_LIMIT = 12
+export const AVATAR_PAGE_LIMIT = 100
 
 const state = createState({
   avatars: [] as Array<AvatarInterface>,
@@ -51,16 +51,19 @@ export const useAvatarState = () => useState(state) as any as typeof state
 
 //Service
 export const AvatarService = {
-  fetchAdminAvatars: async (
-    incDec?: 'increment' | 'decrement',
-    skip = accessAvatarState().skip.value,
-    search: string | null = null
-  ) => {
+  fetchAdminAvatars: async (skip = 0, search: string | null = null, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
+    let sortData = {}
+    if (sortField.length > 0) {
+      sortData[sortField] = orderBy === 'desc' ? 0 : 1
+    }
     const adminAvatarState = accessAvatarState()
     const limit = adminAvatarState.limit.value
     const avatars = await client.service('static-resource').find({
       query: {
+        $sort: {
+          ...sortData
+        },
         $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
         staticResourceType: 'avatar',
         userId: null,
@@ -70,9 +73,7 @@ export const AvatarService = {
         search: search
       }
     })
-    if (avatars.data.length) {
-      dispatch(AvatarAction.avatarsFetched(avatars))
-    }
+    dispatch(AvatarAction.avatarsFetched(avatars))
   },
   createAdminAvatar: async (blob: Blob, thumbnail: Blob, data: CreateEditAdminAvatar) => {
     const dispatch = useDispatch()

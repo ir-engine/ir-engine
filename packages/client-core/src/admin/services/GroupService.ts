@@ -15,7 +15,7 @@ import { store, useDispatch } from '../../store'
  */
 
 //State
-export const GROUP_PAGE_LIMIT = 12
+export const GROUP_PAGE_LIMIT = 100
 
 export const state = createState({
   group: [] as Array<Group>,
@@ -61,14 +61,22 @@ export const useGroupState = () => useState(state) as any as typeof state
 
 //Service
 export const GroupService = {
-  getGroupService: async (incDec?: 'increment' | 'decrement', search: string | null = null, skip = 0) => {
+  getGroupService: async (search: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     const limit = accessGroupState().limit.value
     try {
+      let sortData = {}
+
+      if (sortField.length > 0) {
+        sortData[sortField] = orderBy === 'desc' ? 0 : 1
+      }
       dispatch(GroupAction.fetchingGroup())
       const list = await client.service('group').find({
         query: {
+          $sort: {
+            ...sortData
+          },
           $skip: skip * GROUP_PAGE_LIMIT,
           $limit: limit,
           search: search

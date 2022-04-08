@@ -1,7 +1,7 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .paper {
-  @include paper-modal();
+  @include paper-modal;
 }
 
 .modal {
@@ -18,7 +18,7 @@
     }
   }
 
-  .modal-content {
+  .modalContent {
     display: flex;
     flex-direction: column;
     width: 50%;
@@ -28,7 +28,7 @@
       width: 90%;
     }
 
-    .modal-header {
+    .modalHeader {
       display: flex;
       justify-content: space-between;
       align-items: center;

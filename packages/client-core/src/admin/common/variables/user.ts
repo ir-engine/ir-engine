@@ -1,5 +1,5 @@
 export interface UserColumn {
-  id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action'
+  id: 'name' | 'avatarId' | 'userRole' | 'location' | 'inviteCode' | 'instanceId' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -7,9 +7,9 @@ export interface UserColumn {
 
 export const userColumns: UserColumn[] = [
   { id: 'name', label: 'Name', minWidth: 65 },
-  { id: 'avatar', label: 'Avatar', minWidth: 65 },
+  { id: 'avatarId', label: 'Avatar', minWidth: 65 },
   {
-    id: 'status',
+    id: 'userRole',
     label: 'Status',
     minWidth: 65,
     align: 'right'
@@ -44,8 +44,8 @@ export interface UserData {
   id: string
   el: any
   name: string
-  avatar: string | JSX.Element
-  status: string | JSX.Element
+  avatarId: string | JSX.Element
+  userRole: string | JSX.Element
   location: string | JSX.Element
   inviteCode: string | JSX.Element
   instanceId: string | JSX.Element

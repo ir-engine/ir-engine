@@ -10,7 +10,7 @@ import { client } from '../../feathers'
 import { store, useDispatch } from '../../store'
 
 //State
-export const LOCATION_PAGE_LIMIT = 12
+export const LOCATION_PAGE_LIMIT = 100
 
 const state = createState({
   locations: [] as Array<Location>,
@@ -91,20 +91,31 @@ export const LocationService = {
     }
   },
   fetchAdminLocations: async (
-    incDec?: 'increment' | 'decrement',
     value: string | null = null,
-    skip = accessLocationState().skip.value
+    skip = accessLocationState().skip.value,
+    sortField = 'name',
+    orderBy = 'asc'
   ) => {
     const dispatch = useDispatch()
 
     try {
+      let sortData = {}
+      if (sortField.length > 0) {
+        if (sortField === 'tags') {
+          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+        } else {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
+      }
+
       const locations = (await client.service('location').find({
         query: {
           $sort: {
-            name: 1
+            ...sortData
           },
           $skip: skip * LOCATION_PAGE_LIMIT,
-          $limit: accessLocationState().limit.value,
+          $limit: LOCATION_PAGE_LIMIT,
           adminnedLocations: true,
           search: value
         }
@@ -115,7 +126,7 @@ export const LocationService = {
       dispatch(ErrorAction.setReadScopeError(error.message, error.statusCode))
     }
   },
-  searchAdminLocations: async (value) => {
+  searchAdminLocations: async (value, orderBy = 'asc') => {
     const dispatch = useDispatch()
 
     try {
@@ -123,7 +134,7 @@ export const LocationService = {
         query: {
           search: value,
           $sort: {
-            name: 1
+            name: orderBy === 'desc' ? 0 : 1
           },
           $skip: accessLocationState().skip.value,
           $limit: accessLocationState().limit.value,
