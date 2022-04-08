@@ -55,4 +55,21 @@ addActionReceptor(world.store, (a) =>
 )
 ```
 
+State objects can also be defined and registered on a store:
+
+```ts
+const PeerState = defineState('peers', () => {
+    return [] // initial state
+})
+
+registerState(world.store, PeerState)
+
+// get immutable state
+const peerState = getState(world.store, PeerState)
+
+// or, get mutable state (if and only if in a receptor function)
+const mutablePeerState = getMutableState(world.store, PeerState)
+```
+
+All incoming, outoing, and historical actions accessible on the `store.actions` object. 
 
