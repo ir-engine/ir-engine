@@ -1,3 +1,13 @@
+# Testing
+
+Automated testing is a cornerstone to successful software development. Tests are 
+not just to ensure that your application is working as intended, they are also 
+to ensure that **existing features aren't broken by any newly introduced features 
+or code**, aka **regression bugs**. The latter tends to hold more value, as it 
+makes the software sturdy and less prone to these types of bugs during active 
+development of a project. Regression bugs will quickly stall the development of 
+a project at a certain level of complexity, effectively preventing progress.
+
 ## SMTP Testing
 
 https://mailtrap.io/inboxes
@@ -9,10 +19,6 @@ SMTP_PORT=2525
 SMTP_USER=<mailtrap-user>
 SMTP_PASS=<mailtrap-password>
 ```
-
-# Automated Testing
-
-Automated testing is a cornerstone to successful software development. Tests are not just to ensure that your application is working as intended, they are also to ensure that **existing features aren't broken by any newly introduced features or code**, aka **regression bugs**. The latter tends to hold more value, as it makes the software sturdy and less prone to these types of bugs during active development of a project. Regression bugs will quickly stall the development of a project at a certain level of complexity, effectively preventing progress.
 
 ## Unit tests
 
