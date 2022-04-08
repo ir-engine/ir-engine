@@ -90,10 +90,9 @@ describe('NetworkActionReceptors', () => {
       })
 
       // process remove actions and execute entity removal
+      world.store.defaultDispatchDelay = 0
       NetworkActionReceptor.createNetworkActionReceptor(world)
       NetworkActionReceptor.removeClient(world, userId, true)
-      ActionFunctions.loopbackOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store)
 
       ActionFunctions.loopbackOutgoingActions(world.store)
       ActionFunctions.applyIncomingActions(world.store)
@@ -288,6 +287,8 @@ describe('NetworkActionReceptors', () => {
       const world = (Engine.currentWorld = createWorld())
 
       world.hostId = hostUserId
+      world.store.defaultDispatchDelay = 0
+
       NetworkActionReceptor.addClient(world, hostUserId, 'host', 0)
       NetworkActionReceptor.addClient(world, userId, 'user name', 1)
 

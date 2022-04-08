@@ -21,7 +21,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         parameters: {},
         // incoming action from future
-        $time: Date.now() + 16,
+        $time: 2,
         $to: '0' as ActionRecipients
       })
 
@@ -37,6 +37,13 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       /* assert */
       strictEqual(recepted.length, 0)
+
+      // fixed tick update
+      world.fixedTick = 2
+      ActionFunctions.applyIncomingActions(world.store)
+
+      /* assert */
+      strictEqual(recepted.length, 1)
     })
 
     it('should immediately apply incoming action from the past or present', () => {
@@ -48,7 +55,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         parameters: {},
         // incoming action from past
-        $time: Date.now() - 100,
+        $time: -1,
         $to: '0' as ActionRecipients
       })
 

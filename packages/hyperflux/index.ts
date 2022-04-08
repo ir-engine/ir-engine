@@ -1,6 +1,6 @@
 import ActionFunctions from './functions/ActionFunctions'
 import StateFunctions from './functions/StateFunctions'
-import StoreFunctions from './functions/StoreFunctions'
+import StoreFunctions, { HyperStore } from './functions/StoreFunctions'
 import matches from './MatchesUtils'
 
 function dynamicFunctionReference<M extends { [name: string]: Function }, K extends keyof M>(
@@ -18,6 +18,7 @@ export const defineAction = dynamicFunctionReference(ActionFunctions, 'defineAct
 export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatchAction')
 export const addActionReceptor = dynamicFunctionReference(ActionFunctions, 'addActionReceptor')
 export const removeActionReceptor = dynamicFunctionReference(ActionFunctions, 'removeActionReceptor')
+export const applyIncomingActions = dynamicFunctionReference(ActionFunctions, 'applyIncomingActions')
 
 export const defineState = dynamicFunctionReference(StateFunctions, 'defineState')
 export const registerState = dynamicFunctionReference(StateFunctions, 'registerState')
@@ -27,3 +28,4 @@ export const addStateReactor = dynamicFunctionReference(StateFunctions, 'addStat
 export const removeStateReactor = dynamicFunctionReference(StateFunctions, 'removeStateReactor')
 
 export { matches }
+export type { HyperStore }
