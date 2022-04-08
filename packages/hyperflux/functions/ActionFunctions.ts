@@ -267,7 +267,7 @@ const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Actio
 const applyIncomingActions = (store: HyperStore) => {
   const { incoming } = store.actions
   const now = store.getDispatchTime()
-  for (const action of incoming) {
+  for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }

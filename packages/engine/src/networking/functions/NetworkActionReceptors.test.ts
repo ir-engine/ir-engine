@@ -93,10 +93,10 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.createNetworkActionReceptor(world)
       NetworkActionReceptor.removeClient(world, userId, true)
       ActionFunctions.loopbackOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
 
       ActionFunctions.loopbackOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
       assert(!world.clients.get(userId))
@@ -331,7 +331,7 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.createNetworkActionReceptor(world)
 
       ActionFunctions.loopbackOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
       assert.equal(networkObjectEntities.length, 1)
@@ -397,7 +397,7 @@ describe('NetworkActionReceptors', () => {
       NetworkActionReceptor.createNetworkActionReceptor(world)
 
       ActionFunctions.loopbackOutgoingActions(world.store)
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
       world.execute(0, 0)
 
       assert.equal(networkObjectEntities.length, 1)

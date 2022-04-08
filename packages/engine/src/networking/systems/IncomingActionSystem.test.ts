@@ -33,7 +33,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
 
       /* assert */
       strictEqual(recepted.length, 0)
@@ -60,7 +60,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
 
       /* assert */
       strictEqual(recepted.length, 1)
@@ -90,7 +90,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       )
 
       /* run */
-      ActionFunctions.applyIncomingActions(world.store, Date.now())
+      ActionFunctions.applyIncomingActions(world.store)
 
       /* assert */
       strictEqual(recepted.length, 1)
