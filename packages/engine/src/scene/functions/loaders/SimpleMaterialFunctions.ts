@@ -10,7 +10,8 @@ import {
   ShaderLib,
   ShaderMaterial,
   UniformsLib,
-  UniformsUtils
+  UniformsUtils,
+  TextureLoader
 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -23,6 +24,8 @@ import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
+import { object } from 'ts-matches'
+import { fragmentShader } from 'src/particles/functions/particleHelpers'
 
 // import { extendMaterial, CustomMaterial } from './ExtendMaterial'
 
@@ -52,75 +55,58 @@ export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
 }
 
 export const useSimpleMaterial = (obj: Mesh): void => {
-  if (obj.material instanceof MeshStandardMaterial) {
-    obj.userData.prevMaterial = obj.material
-    // obj.material = new MeshBasicMaterial()
-    // MeshBasicMaterial.prototype.copy.call(obj.material, obj.userData.prevMaterial)
-
-    // TODO:
-    // https://github.com/mrdoob/three.js/blob/master/src/renderers/shaders/UniformsLib.js
-    // https://github.com/mrdoob/three.js/blob/master/src/renderers/shaders/ShaderLib.js
-    // https://github.com/mrdoob/three.js/blob/master/src/renderers/shaders/ShaderChunk.js
-    // https://github.com/mrdoob/three.js/blob/master/src/renderers/webgl/WebGLProgram.js
-
-    const prevMaterial = obj.material
-    let vertexShader = ShaderLib.standard.vertexShader
-    let fragmentShader = ShaderLib.standard.fragmentShader
-
-    // console.error('phong-', ShaderLib.phong)
-    // console.error('lambert-', ShaderLib.lambert)
-    // console.error('physical-', ShaderLib.standard)
-
-    obj.material = new ShaderMaterial({
-      uniforms: UniformsUtils.clone(ShaderLib.standard.uniforms),
-      vertexShader,
-      fragmentShader,
-      lights: true
-    })
-
-    let totalUniforms = {
-      specularmap: 'specularmap',
-      gradientmap: 'gradientmap'
+  //@ts-ignore
+  if (!obj.geometry || !obj.material || !obj.material.color) return
+  const vertexNonUVShader = `
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
     }
-    Object.keys(ShaderLib.standard.uniforms).forEach((key) => {
-      totalUniforms[key] = key
-    })
+  `
+  const vertexUVShader = [
+    'varying vec2 vUv;',
+    '#include <skinning_pars_vertex>',
+    'void main() {',
+    '#include <skinbase_vertex>',
+    '#include <begin_vertex>',
+    '#include <skinning_vertex>',
+    '#include <project_vertex>',
+    'vUv = uv;',
+    '}'
+  ].join('\n')
 
-    Object.keys(ShaderLib.standard.uniforms).forEach((original) => {
-      let key = original
-      if (original == 'diffuse') key = 'color'
-      if ((prevMaterial as any)[key] !== undefined && (prevMaterial as any)[key] !== null) {
-        console.error(key)
-        if (key == 'color') {
-          //@ts-ignore
-          obj.material.uniforms.diffuse = {
-            value: (prevMaterial as any)[key]
-          }
-        } else {
-          //@ts-ignore
-          obj.material.uniforms[key] = {
-            value: (prevMaterial as any)[key]
-          }
-          if ((prevMaterial as any)[key].isTexture) {
-            obj.material[key] = (prevMaterial as any)[key]
-          }
-        }
-      } else if (key == 'envMap') {
-        //@ts-ignore
-        obj.material.envMap = Engine.scene?.environment
-        //@ts-ignore
-        obj.material.uniforms.envMap = {
-          value: Engine.scene?.environment
-        }
-        //@ts-ignore
-        obj.material.uniforms.envMapIntensity = { value: 1 }
-        //@ts-ignore
-        obj.material.uniforms.flipEnvMap.value = 1
-      }
-    })
+  const fragmentColorShader = [
+    'uniform vec3 color;',
+    'void main() {',
+    '	gl_FragColor = vec4(color.r, color.g, color.b, 1.0);',
+    '}'
+  ].join('\n')
 
-    obj.material.needsUpdate = true
-  }
+  const fragmentTextureShader = [
+    'varying vec2 vUv;',
+    'uniform sampler2D origin_texture;',
+    'void main() {',
+    '	gl_FragColor = texture2D(origin_texture, vUv);',
+    '}'
+  ].join('\n')
+
+  const hasUV = obj.geometry.hasAttribute('uv')
+  const hasTexture = (<any>obj.material).map !== null
+
+  const mat = new ShaderMaterial({
+    uniforms: {
+      color: {
+        value: (<any>obj.material).color
+      },
+      origin_texture: {
+        value: (<any>obj.material).map
+      },
+    },
+    vertexShader: hasUV ? vertexUVShader : vertexNonUVShader,
+    fragmentShader: hasTexture ? fragmentTextureShader : fragmentColorShader 
+  })
+
+  obj.userData.prevMaterial = obj.material
+  obj.material = mat
 }
 
 export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
