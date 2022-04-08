@@ -4,6 +4,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -18,6 +19,7 @@ export class AvatarSettings {
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925
   jumpHeight = 4
+  movementScheme = Engine.isHMD ? AvatarMovementScheme.Teleport : AvatarMovementScheme.Linear
 }
 
 export default async function AvatarControllerSystem(world: World) {

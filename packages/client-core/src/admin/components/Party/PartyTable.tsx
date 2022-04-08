@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
@@ -20,6 +20,8 @@ const PartyTable = (props: PartyPropsTable) => {
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
+  const [fieldOrder, setFieldOrder] = useState('asc')
+  const [sortField, setSortField] = useState('location')
   const [viewModal, setViewModal] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
   const [editMode, setEditMode] = useState(false)
@@ -32,13 +34,18 @@ const PartyTable = (props: PartyPropsTable) => {
   const adminPartyCount = adminParty.total.value
 
   //Call custom hooks
-  useFetchAdminParty(user, adminParty, adminPartyState, PartyService, search)
+  useFetchAdminParty(user, adminPartyState, PartyService, search, page, sortField, fieldOrder)
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    PartyService.fetchAdminParty(incDec)
+    PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminParty.fetched.value) {
+      PartyService.fetchAdminParty(search, page, sortField, fieldOrder)
+    }
+  }, [fieldOrder])
 
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
@@ -108,6 +115,10 @@ const PartyTable = (props: PartyPropsTable) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        fieldOrder={fieldOrder}
+        setSortField={setSortField}
+        setFieldOrder={setFieldOrder}
         rows={rows}
         column={partyColumns}
         page={page}

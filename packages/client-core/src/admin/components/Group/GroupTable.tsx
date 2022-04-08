@@ -24,6 +24,8 @@ const GroupTable = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
   const [groupId, setGroupId] = useState('')
   const [groupName, setGroupName] = useState('')
+  const [orderBy, setOrderBy] = useState('asc')
+  const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
   const adminGroupState = useGroupState()
   const adminGroups = adminGroupState.group
@@ -31,10 +33,16 @@ const GroupTable = (props: Props) => {
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(incDec, null, newPage)
+    // const incDec = page < newPage ? 'increment' : 'decrement'
+    GroupService.getGroupService(search, newPage, sortField, orderBy)
     setPage(newPage)
   }
+
+  useEffect(() => {
+    if (adminGroupState.fetched.value) {
+      GroupService.getGroupService(search, page, sortField, orderBy)
+    }
+  }, [orderBy])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -68,10 +76,11 @@ const GroupTable = (props: Props) => {
   }
 
   useEffect(() => {
-    if (adminGroupState.updateNeeded.value && user.id.value) {
-      GroupService.getGroupService('increment', null)
-    }
-    GroupService.getGroupService('increment', search)
+    //if (adminGroupState.updateNeeded.value && user.id.value) {
+    //  GroupService.getGroupService(null)
+    // } else {
+    GroupService.getGroupService(search, 0, sortField, orderBy)
+    // }
   }, [adminGroupState.updateNeeded.value, user, search])
 
   const createData = (id: any, name: any, description: string): Data => {
@@ -106,6 +115,10 @@ const GroupTable = (props: Props) => {
   return (
     <React.Fragment>
       <TableComponent
+        allowSort={false}
+        fieldOrder={orderBy}
+        setSortField={setSortField}
+        setFieldOrder={setOrderBy}
         rows={rows}
         column={columns}
         page={page}

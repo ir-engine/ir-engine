@@ -72,3 +72,8 @@ export const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
 export const isZero = (v: Vector3): boolean => {
   return v.x === 0 && v.y === 0 && v.z === 0
 }
+
+// https://stats.stackexchange.com/questions/70801/how-to-normalize-data-to-0-1-range
+export const normalizeRange = (val, rangeMin, rangeMax) => {
+  return (val - rangeMin) / (rangeMax - rangeMin)
+}

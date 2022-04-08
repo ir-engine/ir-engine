@@ -29,10 +29,10 @@
 }
 
 .paperDialog {
-  background: rgb(58, 65, 73) !important;
+  background: rgb(58 65 73) !important;
   color: #f1f1f1;
   width: 100%;
-  padding: 40px 10px 40px 10px;
+  padding: 40px 10px;
 }
 
 .primaryText {
@@ -69,7 +69,7 @@
   display: flex;
   width: 100%;
   justify-content: end;
-  padding: 10px 10px 0 10px;
+  padding: 10px 10px 0;
 
   .newBtn {
     margin: 0;

@@ -3,7 +3,7 @@
 .emailDiv {
   max-width: 400px;
   margin: 0 0 0 auto;
-  background: rgba(31, 27, 72, 0.85);
+  background: rgb(31 27 72 / 85%);
   box-shadow: 0 4px 11px 5px #00000040;
   padding: 20px;
   border-radius: 10px;
@@ -18,12 +18,12 @@
 .emailDetail {
   margin: 10px 0 15px;
   font-size: 12px;
-  color: #ABABAB;
+  color: #ababab;
 }
 
 .formControl {
   .emailInput {
-    background: #3C3C6F;
+    background: #3c3c6f;
     color: white;
     border: none;
     -moz-box-sizing: border-box;
@@ -49,7 +49,7 @@
   }
 
   .descriptionInput {
-    background: #3C3C6F;
+    background: #3c3c6f;
     color: white;
     border: none;
     -moz-box-sizing: border-box;
@@ -64,7 +64,7 @@
     resize: none;
   }
 
-  &+.formControl {
+  & + .formControl {
     margin-top: 10px;
   }
 }
@@ -74,7 +74,8 @@
   text-align: center;
 
   button {
-    @include purple-pink-linear-gradient();
+    @include purple-pink-linear-gradient;
+
     width: 100px;
     height: 35px;
     color: white;
@@ -102,14 +103,15 @@
   }
 
   button {
-    @include purple-pink-linear-gradient();
+    @include purple-pink-linear-gradient;
+
     width: 50px;
     height: 25px;
     color: white;
     border: none;
     border-radius: 3px;
     cursor: pointer;
-    margin: 20px auto 0 auto;
+    margin: 20px auto 0;
     display: block;
   }
 

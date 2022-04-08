@@ -49,23 +49,24 @@ export const useInstanceState = () => useState(state) as any as typeof state
 
 //Service
 export const InstanceService = {
-  fetchAdminInstances: async (incDec?: 'increment' | 'decrement', search: string | null = null) => {
+  fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
     const dispatch = useDispatch()
-
-    const skip = accessInstanceState().skip.value
-    const limit = accessInstanceState().limit.value
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
+        let sortData = {}
+        if (sortField.length > 0) {
+          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+        }
         const instances = (await client.service('instance').find({
           query: {
             $sort: {
-              createdAt: -1
+              ...sortData
             },
-            $skip: skip,
-            $limit: limit,
+            $skip: skip * INSTNCE_PAGE_LIMIT,
+            $limit: INSTNCE_PAGE_LIMIT,
             action: 'admin',
-            search: search
+            search: value
           }
         })) as Paginated<Instance>
         dispatch(InstanceAction.instancesRetrievedAction(instances))
