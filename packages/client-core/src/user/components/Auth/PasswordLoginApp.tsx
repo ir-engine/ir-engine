@@ -26,7 +26,7 @@ export const PasswordLoginApp = (props: Props): JSX.Element => {
 
   const handleEmailLogin = (e: any): void => {
     e.preventDefault()
-    AuthService.doLoginAuto(true)
+    AuthService.doLoginAuto()
   }
 
   const [showPassword, showHidePassword] = useState(false)

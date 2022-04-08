@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import { AuthService } from '../../user/services/AuthService'
 import SettingConsole from '../components/Setting'
 
 interface Props {
@@ -8,10 +7,6 @@ interface Props {
 }
 
 const Setting = (props: Props) => {
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
-
   return <SettingConsole />
 }
 

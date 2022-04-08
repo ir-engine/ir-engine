@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
-import { AuthService } from '../../user/services/AuthService'
 import Projects from '../components/Project'
 
 interface Props {}
 
 function projectsRoute(props: Props) {
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
   return <Projects />
 }
 

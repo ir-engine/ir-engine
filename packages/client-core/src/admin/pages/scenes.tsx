@@ -1,16 +1,10 @@
-import React, { useEffect } from 'react'
-
-import { AuthService } from '../../user/services/AuthService'
+import React from 'react'
 
 // import ScenesConsole from '../components/Scenes'
 
 interface Props {}
 
 function scenes(props: Props) {
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
-
   // return <ScenesConsole />
 }
 

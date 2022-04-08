@@ -17,7 +17,7 @@ const Page = () => {
   console.log('RENDER', ticketsIds, connections)
 
   useEffect(() => {
-    AuthService.doLoginAuto(true)
+    AuthService.doLoginAuto()
   }, [])
 
   async function newTicket() {

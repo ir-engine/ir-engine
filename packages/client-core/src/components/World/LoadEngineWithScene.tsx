@@ -14,6 +14,8 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { dispatchLocal } from '@xrengine/engine/src/networking/functions/dispatchFrom'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 
+import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { AuthService } from '../../user/services/AuthService'
 import { initClient, initEngine, loadLocation } from './LocationLoadHelper'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -40,12 +42,12 @@ export const LoadEngineWithScene = (props: Props) => {
   const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
-  const projectState = useProjectState()
   const [clientInitialized, setClientInitialized] = useState(false)
   const [clientReady, setClientReady] = useState(false)
 
   useEffect(() => {
     initEngine()
+    AuthService.listenForUserPatch()
   }, [])
 
   /**
@@ -82,9 +84,14 @@ export const LoadEngineWithScene = (props: Props) => {
   }, [clientReady, sceneState.currentScene])
 
   useHookedEffect(() => {
-    if (engineState.joinedWorld.value && engineState.isTeleporting.value) {
-      // if we are coming from another scene, reset our teleporting status
-      dispatchLocal(EngineActions.setTeleporting(false))
+    if (engineState.joinedWorld.value) {
+      if (engineState.isTeleporting.value) {
+        // if we are coming from another scene, reset our teleporting status
+        dispatchLocal(EngineActions.setTeleporting(false))
+      } else {
+        dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
+        dispatch(AppAction.setAppLoaded(true))
+      }
     }
   }, [engineState.joinedWorld])
 

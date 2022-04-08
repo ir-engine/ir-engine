@@ -44,14 +44,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
   const engineState = useEngineState()
   const history = useHistory()
 
-  // 1. Ensure api server connection in and set up reset listener
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-
-    // start listening for users joining or leaving the location
-    AuthService.listenForUserPatch()
-  }, [])
-
   useHookedEffect(() => {
     const instanceIdValue = instanceConnectionState.instance.id.value
     if (instanceIdValue) {
@@ -118,13 +110,6 @@ export const NetworkInstanceProvisioning = (props: Props) => {
         .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
-
-  useHookedEffect(() => {
-    if (engineState.joinedWorld.value) {
-      dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-      dispatch(AppAction.setAppLoaded(true))
-    }
-  }, [engineState.joinedWorld])
 
   // channel server provisioning (if needed)
   useHookedEffect(() => {

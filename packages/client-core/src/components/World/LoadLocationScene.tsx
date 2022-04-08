@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 
@@ -17,13 +17,6 @@ export const LoadLocationScene = (props: Props) => {
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const dispatch = useDispatch()
-
-  /**
-   * Try to log in
-   */
-  useEffect(() => {
-    AuthService.doLoginAuto(true)
-  }, [])
 
   /**
    * Once we have logged in, retrieve the location data
