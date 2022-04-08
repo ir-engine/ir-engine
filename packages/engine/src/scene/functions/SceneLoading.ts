@@ -107,7 +107,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, world = useWorld()
 
   if (!accessEngineState().isTeleporting.value) Engine.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchAction(Engine.store, EngineActions.sceneLoaded()).delay(16 * 2)
+  dispatchAction(Engine.store, EngineActions.sceneLoaded()).delay(0.1)
 }
 
 /**
