@@ -380,7 +380,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                   {selfUser?.userRole?.value === 'admin'
                     ? t('user:usermenu.profile.youAreAn')
                     : t('user:usermenu.profile.youAreA')}{' '}
-                  <span>{selfUser?.userRole?.value}</span>.
+                  <span id="user-role">{selfUser?.userRole?.value}</span>.
                 </h2>
               </Grid>
               <Grid
@@ -391,7 +391,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
                 direction="column"
               >
                 <Tooltip title="Show User ID" placement="right">
-                  <h2 className={styles.showUserId} onClick={handleShowId}>
+                  <h2 className={styles.showUserId} id="show-user-id" onClick={handleShowId}>
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}{' '}
                   </h2>
                 </Tooltip>
