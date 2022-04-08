@@ -1,7 +1,7 @@
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 export default async function IncomingActionSystem(world) {
   return () => {
-    ActionFunctions.applyIncomingActions(world.store)
+    applyIncomingActions(world.store)
   }
 }

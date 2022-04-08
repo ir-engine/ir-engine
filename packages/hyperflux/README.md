@@ -12,6 +12,12 @@ createHyperStore({
     getDispatchId: () => 'engine',
     getDispatchTime: () => Engine.elapsedTime
 })
+// Engine timer callback:
+const executeWorlds = (delta, elapsedTime) => {
+  Engine.elapsedTime = elapsedTime
+  ActionFunctions.applyIncomingActions(Engine.store)
+  // ...
+}
 ```
 
 The WORLD store is _networked_, meaning actions are dispatched directly on the _**outgoing**_ queue, and run on the world's fixed tick.
@@ -21,12 +27,20 @@ createHyperStore({
     name: 'WORLD',
     networked: true,
     getDispatchId: () => Engine.userId,
-    getDispatchTime: () => this.fixedTick,
+    getDispatchTime: () => this.fixedTick, // world.fixedTick
     defaultDispatchDelay: 1
 })
+// IncomingActionSystem
+import { applyIncomingActions } from '@xrengine/hyperflux'
+export default async function IncomingActionSystem(world) {
+  return () => {
+    applyIncomingActions(world.store)
+  }
+}
+
 ```
 
-Tne CLIENT store is _non-networked_, and runs on a setInterval. 
+The CLIENT store is _non-networked_, and runs on a setInterval. 
 
 In any case, the appropriate store must be provided when dispatching an action:
 
@@ -34,7 +48,7 @@ In any case, the appropriate store must be provided when dispatching an action:
 dispatchAction(world.store, NetworkWorldAction.spawnAvatar({ parameters }))
   ```
 
-Likewise when adding receptors:
+Likewise when adding or removing receptors:
 ```ts
 addActionReceptor(world.store, (a) =>
     matches(a).when(NetworkWorldAction.spawnObject.matches, (a) => recepted.push(a))
