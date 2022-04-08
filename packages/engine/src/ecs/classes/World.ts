@@ -75,7 +75,13 @@ export class World {
 
   _pipeline = [] as SystemModuleType<any>[]
 
-  store = createHyperStore({ getDispatchId: () => Engine.userId, networked: true })
+  store = createHyperStore({
+    name: 'WORLD',
+    networked: true,
+    getDispatchId: () => Engine.userId,
+    getDispatchTime: () => this.fixedTick,
+    defaultDispatchDelay: 1
+  })
 
   physics = new Physics()
 

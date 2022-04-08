@@ -13,6 +13,7 @@ import {
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 // import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getGLTFLoader } from './assets/classes/AssetLoader'
@@ -85,14 +86,14 @@ export const initializeBrowser = () => {
   const joinedWorld = () => {
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 
   setupInitialClickListener()
 
   // maybe needs to be awaited?
   FontManager.instance.getDefaultFont()
 
-  receiveActionOnce(EngineEvents.EVENTS.CONNECT, (action: any) => {
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.CONNECT, (action: any) => {
     Engine.userId = action.id
   })
 }
@@ -117,7 +118,7 @@ export const initializeNode = () => {
     dispatchAction(Engine.store, EngineActions.enableScene({ physics: true }))
     Engine.hasJoinedWorld = true
   }
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, joinedWorld)
 }
 
 export const createEngine = () => {
@@ -129,11 +130,19 @@ export const createEngine = () => {
   registerDefaultSceneFunctions(world)
   registerPrefabs(world)
 
-  addActionReceptor(world.store, EngineEventReceptor)
+  addActionReceptor(Engine.store, EngineEventReceptor)
 
   globalThis.Engine = Engine
   globalThis.EngineEvents = EngineEvents
   globalThis.Network = Network
+}
+
+const executeWorlds = (delta, elapsedTime) => {
+  Engine.elapsedTime = elapsedTime
+  ActionFunctions.applyIncomingActions(Engine.store)
+  for (const world of Engine.worlds) {
+    world.execute(delta, elapsedTime)
+  }
 }
 
 export const initializeMediaServerSystems = async () => {
@@ -157,12 +166,6 @@ export const initializeMediaServerSystems = async () => {
   const world = Engine.currentWorld
 
   await initSystems(world, coreSystems)
-
-  const executeWorlds = (delta, elapsedTime) => {
-    for (const world of Engine.worlds) {
-      world.execute(delta, elapsedTime)
-    }
-  }
 
   NetworkActionReceptor.createNetworkActionReceptor(world)
 
@@ -229,12 +232,6 @@ export const initializeCoreSystems = async (systems: SystemModuleType<any>[] = [
 
   // load injected systems which may rely on core systems
   await initSystems(world, systems)
-
-  const executeWorlds = (delta, elapsedTime) => {
-    for (const world of Engine.worlds) {
-      world.execute(delta, elapsedTime)
-    }
-  }
 
   Engine.engineTimer = Timer(executeWorlds)
   Engine.engineTimer.start()

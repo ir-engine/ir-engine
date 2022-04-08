@@ -22,7 +22,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { dispatchAction } from '@xrengine/hyperflux'
 
 // Maybe do this using system injection node
-// receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
+// receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
 //     console.log("gltf parse scene loaded")
 //     generateSimulationData(5)
 // })

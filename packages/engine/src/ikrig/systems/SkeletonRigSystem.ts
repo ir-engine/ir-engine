@@ -74,7 +74,7 @@ const mockAvatars = () => {
 export default async function SkeletonRigSystem(world: World) {
   const cameraIKQuery = defineQuery([IKRigComponent, CameraIKComponent])
   const ikposeQuery = defineQuery([IKPoseComponent, IKRigComponent, IKRigTargetComponent])
-  // receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => {
+  // receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () => {
   //   mockAvatars()
   // })
   return () => {

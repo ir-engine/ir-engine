@@ -13,19 +13,19 @@ function defineState<S>(name: string, initial: SetInitialStateAction<S>): StateD
 }
 
 function registerState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
-  if (store.state.has(State.name)) throw new Error(`State ${State.name} has already been registered in Store`)
-  store.state.set(State.name, createState(State.initial))
+  if (State.name in store.state) throw new Error(`State ${State.name} has already been registered in Store`)
+  store.state[State.name] = createState(State.initial)
 }
 
 function getMutableState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
   if (!store[allowStateMutations]) throw new Error('Mutable state can only be accessed inside a receptor function')
-  if (!store.state.has(State.name)) throw new Error(`State ${State.name} is not registered in Store`)
-  return store.state.get(State.name) as ReturnType<typeof State.initial>
+  if (!store.state[State.name]) throw new Error(`State ${State.name} is not registered in Store`)
+  return store.state[State.name] as ReturnType<typeof State.initial>
 }
 
 function getState<S extends StateDefinition<any>>(store: HyperStore, State: S) {
-  if (!store.state.has(State.name)) throw new Error(`State ${State.name} is not registered in Store`)
-  return store.state.get(State.name)!.value as Readonly<ReturnType<typeof State.initial>['value']>
+  if (!store.state[State.name]) throw new Error(`State ${State.name} is not registered in Store`)
+  return store.state[State.name]!.value as Readonly<ReturnType<typeof State.initial>['value']>
 }
 
 const ReactorReconciler = Reconciler({

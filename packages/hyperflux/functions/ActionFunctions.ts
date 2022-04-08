@@ -160,7 +160,7 @@ function defineAction<A extends Action, Shape extends ActionShape<A>>(
   return actionCreator as unknown as ((partialAction: PartialAction<ResolvedAction>) => ResolvedAction) & FunctionProps
 }
 
-function _createActionModifier<A extends Action>(action: A) {
+function _createActionModifier<A extends Action>(action: A, store: HyperStore) {
   const modifier = {
     /**
      * Dispatch to select recipients
@@ -170,11 +170,11 @@ function _createActionModifier<A extends Action>(action: A) {
       return modifier
     },
     /**
-     * Dispatch on a future tick
-     * @param timeOffset The minimum number of milliseconds to delay the action
+     * Dispatch in the future
+     * @param timeDelay The time delay
      */
-    delay(timeOffset: number) {
-      action.$time = action.$time! + timeOffset
+    delay(timeDelay: number) {
+      action.$time = store.getDispatchTime() + timeDelay
       return modifier
     },
     /**
@@ -194,12 +194,12 @@ function _createActionModifier<A extends Action>(action: A) {
 const dispatchAction = <A extends Action>(store: HyperStore, action: A) => {
   action.$from = action.$from ?? (store.getDispatchId() as UserId)
   action.$to = action.$to ?? 'all'
-  action.$time = action.$time ?? -1
+  action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
   store.networked
     ? store.actions.outgoing.push(action as Required<Action>)
     : store.actions.incoming.push(action as Required<Action>)
-  return _createActionModifier(action)
+  return _createActionModifier(action, store)
 }
 
 function addActionReceptor(store: HyperStore, receptor: ActionReceptor) {
@@ -264,13 +264,14 @@ const applyAndArchiveIncomingAction = (store: HyperStore, action: Required<Actio
   }
 }
 
-const applyIncomingActions = (store: HyperStore, now: number) => {
+const applyIncomingActions = (store: HyperStore) => {
   const { incoming } = store.actions
+  const now = store.getDispatchTime()
   for (const action of incoming) {
     if (action.$time > now) {
       continue
     }
-    console.log(`ACTION ${action.type}`, action)
+    console.log(`${store.name} ACTION ${action.type}`, action)
     applyAndArchiveIncomingAction(store, action)
   }
 }
@@ -291,7 +292,6 @@ export default {
   addActionReceptor,
   removeActionReceptor,
   updateCachedActions,
-  applyAndArchiveIncomingAction,
   applyIncomingActions,
   loopbackOutgoingActions
 }

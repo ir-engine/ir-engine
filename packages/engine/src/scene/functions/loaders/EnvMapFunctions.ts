@@ -130,7 +130,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity) => {
       SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
       SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
 
-      receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+      receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.bakeType) {
           case CubemapBakeTypes.Baked:
             updateCubemapBakeTexture(options)

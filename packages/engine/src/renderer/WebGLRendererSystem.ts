@@ -14,7 +14,7 @@ import {
 } from 'postprocessing'
 import { PerspectiveCamera, sRGBEncoding, WebGL1Renderer, WebGLRenderer, WebGLRendererParameters } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
@@ -253,8 +253,11 @@ export class EngineRenderer {
 export default async function WebGLRendererSystem(world: World) {
   new EngineRenderer()
 
-  receiveActionOnce(EngineEvents.EVENTS.JOINED_WORLD, () => EngineRenderer.instance.loadGraphicsSettingsFromStorage())
-  world.receptors.push(EngineRendererReceptor)
+  receiveActionOnce(Engine.store, EngineEvents.EVENTS.JOINED_WORLD, () =>
+    EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  )
+
+  addActionReceptor(Engine.store, EngineRendererReceptor)
 
   return () => {
     EngineRenderer.instance.execute(world.delta)

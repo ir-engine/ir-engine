@@ -175,7 +175,7 @@ export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Eng
 
     return
   } else {
-    receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => {
+    receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => {
       overrideTexture(entity, object3d, world)
     })
   }

@@ -55,7 +55,7 @@ export default async function InteractiveSystem() {
     for (const entity of interactableQuery.enter()) {
       // TODO: quick hack while objects to not load immediately #5352
       if (accessEngineState().sceneLoaded.value) setupInteractable(entity)
-      else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, () => setupInteractable(entity))
+      else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, () => setupInteractable(entity))
     }
 
     for (const entity of interactableQuery.exit()) {

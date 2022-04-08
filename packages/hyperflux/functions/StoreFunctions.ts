@@ -6,18 +6,35 @@ export const allowStateMutations = Symbol('allowMutations')
 export const reactorRoots = Symbol('reactorRoots')
 
 export interface HyperStore {
-  /** A function which returns the dispatch id assigned to actions */
-  getDispatchId: () => string
   /**
-   *
+   * The name of this store, used for logging
    */
-  [allowStateMutations]: boolean
+  name: string
   /**
    *  If this store is networked, actions are dispatched on the outgoing queue.
    *  If this store is not networked, actions are dispatched on the incoming queue.
    */
   networked: boolean
-  state: Map<string, State<any>>
+  /**
+   * A function which returns the dispatch id assigned to actions
+   * */
+  getDispatchId: () => string
+  /**
+   * A function which returns the current dispatch time (units are arbitrary)
+   */
+  getDispatchTime: () => number
+  /**
+   * The default dispatch delay (default is 0)
+   */
+  defaultDispatchDelay: number
+  /**
+   *
+   */
+  [allowStateMutations]: boolean
+  /**
+   * State dictionary
+   */
+  state: { [name: string]: State<any> }
   actions: {
     /** All incoming actions that have been proccessed */
     history: Array<Required<Action>>
@@ -35,12 +52,21 @@ export interface HyperStore {
   [reactorRoots]: WeakMap<() => void, any>
 }
 
-function createHyperStore(options: { getDispatchId: () => string; networked?: boolean }) {
+function createHyperStore(options: {
+  name: string
+  networked?: boolean
+  getDispatchId: () => string
+  getDispatchTime: () => number
+  defaultDispatchDelay?: number
+}) {
   return {
-    getDispatchId: options.getDispatchId,
-    [allowStateMutations]: false,
+    name: options.name,
     networked: options.networked ?? false,
-    state: new Map<string, State<any>>(),
+    getDispatchId: options.getDispatchId,
+    getDispatchTime: options.getDispatchTime,
+    defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+    [allowStateMutations]: false,
+    state: {},
     actions: {
       history: new Array<Action>(),
       cached: new Array<Action>(),

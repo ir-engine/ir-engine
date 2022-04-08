@@ -54,7 +54,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
   if (typeof component.overrideRendererSettings === 'undefined' || !component.overrideRendererSettings) {
     Engine.isCSMEnabled = true
     if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+    else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
     return
   }
 
@@ -72,7 +72,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => 
 
   if (component.csm && Engine.renderer.shadowMap.enabled) {
     if (accessEngineState().sceneLoaded.value) initializeCSM()
-    else receiveActionOnce(EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
+    else receiveActionOnce(Engine.store, EngineEvents.EVENTS.SCENE_LOADED, initializeCSM)
   }
 }
 
