@@ -92,7 +92,7 @@ describe('Equippables Integration Tests', () => {
     //     (a) => matches(a).when(NetworkWorldAction.setEquippedObject.matches, setEquippedObjectReceptor)
     // )
     ActionFunctions.loopbackOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store, Date.now())
+    ActionFunctions.applyIncomingActions(world.store)
 
     equippableQueryEnter(equipperEntity)
 
@@ -109,7 +109,7 @@ describe('Equippables Integration Tests', () => {
     unequipEntity(equipperEntity)
 
     ActionFunctions.loopbackOutgoingActions(world.store)
-    ActionFunctions.applyIncomingActions(world.store, Date.now())
+    ActionFunctions.applyIncomingActions(world.store)
 
     equippableQueryExit(equipperEntity)
 
