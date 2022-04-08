@@ -36,7 +36,7 @@ interface Props {
   setLoadingItemCount?: any
 }
 
-export const LoadEngineWithScene = (props: Props) => {
+export const LoadEngineWithScene = () => {
   const locationState = useLocationState()
   const history = useHistory()
   const dispatch = useDispatch()

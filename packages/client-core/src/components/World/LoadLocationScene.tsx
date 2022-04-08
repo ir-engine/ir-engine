@@ -7,11 +7,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 
 import { retrieveLocationByName } from './LocationLoadHelper'
 
-interface Props {
-  locationName: string
-}
-
-export const LoadLocationScene = (props: Props) => {
+export const LoadLocationScene = () => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const locationState = useLocationState()
@@ -29,10 +25,10 @@ export const LoadLocationScene = (props: Props) => {
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
     dispatch(LocationAction.socialSelfUserBanned(isUserBanned))
 
-    if (!isUserBanned && !locationState.fetchingCurrentLocation.value) {
-      retrieveLocationByName(authState, props.locationName)
+    if (!isUserBanned && !locationState.fetchingCurrentLocation.value && locationState.locationName.value) {
+      retrieveLocationByName(authState, locationState.locationName.value)
     }
-  }, [authState.isLoggedIn.value, authState.user.id.value])
+  }, [authState.isLoggedIn, authState.user.id, locationState.locationName])
 
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
 

@@ -15,7 +15,7 @@ export class Avatar implements ServiceMethods<any> {
   }
   async setup() {}
 
-  async get(name: string, params?: Params): Promise<any> {
+  async get(name: string, params?: Params): Promise<AvatarProps> {
     return (await getAvatarFromStaticResources(this.app, name))[0]
   }
 
