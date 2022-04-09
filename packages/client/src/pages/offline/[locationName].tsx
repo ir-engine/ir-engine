@@ -49,8 +49,6 @@ const LocationPage = () => {
   const projectName = params.projectName
   const locationName = `${params.projectName}/${params.sceneName}`
 
-  console.log(projectName)
-
   const loadSceneJson = async () => {
     const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
     dispatch(

@@ -6,9 +6,9 @@ const locationPage = React.lazy(() => import('./[locationName]'))
 const LocationRoutes = () => {
   return (
     <Switch>
-      <Route exact path="/offline/:projectName/:sceneName" component={locationPage} />
-      <Route exact path="/offline/:locationName" component={locationPage} />
-      <Redirect path="/offline" to={'/'} />
+      <Route exact path="/location/:projectName/:sceneName" component={locationPage} />
+      <Route exact path="/location/:locationName" component={locationPage} />
+      <Redirect path="/location" to={'/'} />
     </Switch>
   )
 }
