@@ -57,7 +57,7 @@ const LocationPage = () => {
       SceneAction.currentSceneChanged({
         scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
         name: params.sceneName,
-        thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.jpeg`!,
+        thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.jpeg`,
         project: params.projectName
       })
     )
